@@ -148,10 +148,10 @@ class _SentryScreenshotWidgetState extends State<SentryScreenshotWidget> {
                         _options?.navigatorKey?.currentContext;
 
                     if (currentContext != null && currentContext.mounted) {
-                      SentryFeedbackWidget.show(
+                      SentryFeedbackForm.show(
                         currentContext,
                         associatedEventId:
-                            SentryFeedbackWidget.pendingAssociatedEventId,
+                            SentryFeedbackForm.pendingAssociatedEventId,
                         screenshot: screenshot,
                         hub: widget._hub,
                       );

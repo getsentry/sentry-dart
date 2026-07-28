@@ -7,11 +7,14 @@ import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 
-import '../../sentry_flutter.dart';
+import '../sentry_flutter_options.dart';
+import '../sentry_privacy_options.dart';
 import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'screenshot.dart';
+import 'sentry_screenshot_widget.dart' show sentryScreenshotWidgetGlobalKey;
 import 'widget_filter.dart';
 
 @internal

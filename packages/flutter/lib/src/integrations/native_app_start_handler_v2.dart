@@ -51,7 +51,11 @@ class NativeAppStartHandlerV2 {
       appStartInfo.appStartTypeDescription,
       parentSpan: rootSpan,
       startTimestamp: appStartInfo.start,
-      attributes: attributes,
+      attributes: {
+        ...attributes,
+        SemanticAttributesConstants.appVitalsStartScreen:
+            SentryAttribute.string(rootSpan.name),
+      },
     );
 
     final pluginRegistrationSpan = hub.startInactiveSpan(

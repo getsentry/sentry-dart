@@ -128,6 +128,65 @@ void main() {
             'release-from-lifecycle-callback');
       });
 
+      test('preserves array attributes on captured spans', () async {
+        final span = fixture.createRecordingSpan();
+        span.setAttribute('tags', SentryAttribute.stringArray(['a', 'b']));
+
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        final captured = fixture.processor.addedSpans.single;
+        final attr = captured.attributes['tags'];
+        expect(attr?.type, 'array');
+        expect(attr?.value, ['a', 'b']);
+      });
+
+      test('adds custom segment name source to segment spans', () async {
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(
+          span.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'custom',
+        );
+      });
+
+      test('preserves explicit segment name source on segment spans', () async {
+        final span = fixture.createRecordingSpan();
+        span.setAttribute(
+          SemanticAttributesConstants.sentrySegmentNameSource,
+          SentryAttribute.string('component'),
+        );
+
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(
+          span.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
+      test('does not add segment name source to child spans', () async {
+        final segmentSpan = fixture.createRecordingSpan();
+        final span = RecordingSentrySpanV2.child(
+          parent: segmentSpan,
+          name: 'child-span',
+          onSpanEnd: (_) async {},
+          clock: fixture.options.clock,
+          dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+        );
+
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(
+          span.attributes.containsKey(
+            SemanticAttributesConstants.sentrySegmentNameSource,
+          ),
+          isFalse,
+        );
+      });
+
       test('does not add spans to processor for no-op spans', () async {
         await fixture.pipeline
             .captureSpan(const NoOpSentrySpanV2(), scope: fixture.scope);

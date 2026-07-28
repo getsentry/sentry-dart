@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../client_reports/discard_reason.dart';
-import '../../transport/data_category.dart';
 import '../../utils/internal_logger.dart';
 import '../default_attributes.dart';
 
@@ -60,8 +59,10 @@ class LogCapturePipeline {
       }
 
       if (processedLog == null) {
-        _options.recorder
-            .recordLostEvent(DiscardReason.beforeSend, DataCategory.logItem);
+        _options.recorder.recordLostLog(
+          DiscardReason.beforeSend,
+          bytes: _approximateLogBytes(log),
+        );
         internalLogger.debug(
             '$LogCapturePipeline: Log "${log.body}" dropped by beforeSendLog');
         return;
@@ -69,6 +70,10 @@ class LogCapturePipeline {
 
       _options.telemetryProcessor.addLog(processedLog);
     } catch (exception, stackTrace) {
+      _options.recorder.recordLostLog(
+        DiscardReason.internalSdkError,
+        bytes: _approximateLogBytes(log),
+      );
       internalLogger.error(
         'Error capturing log "${log.body}"',
         error: exception,
@@ -78,5 +83,18 @@ class LogCapturePipeline {
         rethrow;
       }
     }
+  }
+}
+
+int? _approximateLogBytes(SentryLog log) {
+  try {
+    return utf8JsonEncoder.convert(log.toJson()).length;
+  } catch (exception, stackTrace) {
+    internalLogger.warning(
+      'Failed to estimate dropped log size',
+      error: exception,
+      stackTrace: stackTrace,
+    );
+    return null;
   }
 }

@@ -10,8 +10,10 @@ enum DataCategory {
   security,
   metricBucket,
   logItem,
+  logByte,
   feedback,
   metric,
+  metricByte,
   unknown;
 
   static DataCategory fromItemType(String itemType) {

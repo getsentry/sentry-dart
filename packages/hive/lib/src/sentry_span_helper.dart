@@ -84,7 +84,7 @@ class SentrySpanHelper {
         : null;
 
     span?.origin = _origin;
-    span?.setData('sync', true);
+    span?.markSynchronous();
     span?.setData(SentryHiveImpl.dbSystemKey, SentryHiveImpl.dbSystem);
     if (dbName != null) {
       span?.setData(SentryHiveImpl.dbNameKey, dbName);

@@ -10,6 +10,9 @@ public final class SentryFlutter {
         if let dsn = data["dsn"] as? String {
             options.dsn = dsn
         }
+        if let sampleRate = data["sampleRate"] as? NSNumber {
+            options.sampleRate = sampleRate
+        }
         if let isDebug = data["debug"] as? Bool {
             options.debug = isDebug
         }

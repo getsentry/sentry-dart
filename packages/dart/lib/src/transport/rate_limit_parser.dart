@@ -81,16 +81,24 @@ extension _DataCategoryExtension on DataCategory {
         return DataCategory.session;
       case 'transaction':
         return DataCategory.transaction;
+      case 'span':
+        return DataCategory.span;
       case 'attachment':
         return DataCategory.attachment;
+      case 'feedback':
+        return DataCategory.feedback;
       case 'security':
         return DataCategory.security;
       case 'metric_bucket':
         return DataCategory.metricBucket;
       case 'log_item':
         return DataCategory.logItem;
+      case 'log_byte':
+        return DataCategory.logByte;
       case 'trace_metric':
         return DataCategory.metric;
+      case 'trace_metric_byte':
+        return DataCategory.metricByte;
     }
     return DataCategory.unknown;
   }

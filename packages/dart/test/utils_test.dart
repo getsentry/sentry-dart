@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:sentry/src/protocol/sentry_attribute.dart';
 import 'package:sentry/src/protocol/sentry_device.dart';
 import 'package:test/test.dart';
 
@@ -29,6 +30,18 @@ void main() {
 
     test('null Object returns null during serialization', () {
       expect(jsonSerializationFallback(null), null);
+    });
+  });
+
+  group('$SentryAttribute', () {
+    test('formats an array attribute as a bracketed list', () {
+      final attribute = SentryAttribute.stringArray(['a', 'b']);
+      expect(attribute.toFormattedString(), '[a, b]');
+    });
+
+    test('formats an empty array attribute', () {
+      final attribute = SentryAttribute.intArray([]);
+      expect(attribute.toFormattedString(), '[]');
     });
   });
 }

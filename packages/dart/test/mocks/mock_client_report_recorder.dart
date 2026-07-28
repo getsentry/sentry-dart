@@ -6,6 +6,8 @@ import 'package:sentry/src/transport/data_category.dart';
 
 class MockClientReportRecorder implements ClientReportRecorder {
   List<DiscardedEvent> discardedEvents = [];
+  List<({DiscardReason reason, int count, int? bytes})> lostLogs = [];
+  List<({DiscardReason reason, int count, int? bytes})> lostMetrics = [];
 
   ClientReport? clientReport;
 
@@ -21,5 +23,15 @@ class MockClientReportRecorder implements ClientReportRecorder {
   void recordLostEvent(DiscardReason reason, DataCategory category,
       {int count = 1}) {
     discardedEvents.add(DiscardedEvent(reason, category, count));
+  }
+
+  @override
+  void recordLostLog(DiscardReason reason, {int count = 1, int? bytes}) {
+    lostLogs.add((reason: reason, count: count, bytes: bytes));
+  }
+
+  @override
+  void recordLostMetric(DiscardReason reason, {int count = 1, int? bytes}) {
+    lostMetrics.add((reason: reason, count: count, bytes: bytes));
   }
 }

@@ -67,7 +67,12 @@ platform :ios do
         }
       },
       codesigning_identity: ENV["sigh_io.sentry.flutter.sample_appstore_certificate-name"],
-      output_name: "sentry_flutter_sample.ipa"
+      output_name: "sentry_flutter_sample.ipa",
+      # Swift Package Manager plugin targets (e.g. sqflite_darwin, CSQLite)
+      # default to automatic signing with no development team, which conflicts
+      # with the manually specified distribution identity during archive. Force
+      # the team and manual signing across all targets so they sign correctly.
+      xcargs: "DEVELOPMENT_TEAM=97JCY7859U CODE_SIGN_STYLE=Manual -allowProvisioningUpdates"
     )
 
     delete_keychain(

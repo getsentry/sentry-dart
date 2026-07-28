@@ -121,13 +121,17 @@ class SentryEnvelope {
     SdkVersion sdkVersion, {
     String? dsn,
     SentryTraceContextHeader? traceContext,
+    required bool inferUserData,
   }) =>
       SentryEnvelope(
         SentryEnvelopeHeader(null, sdkVersion,
             dsn: dsn, traceContext: traceContext),
         [
           SentryEnvelopeItem.fromSpansData(
-              _buildItemsPayload(encodedSpans), encodedSpans.length)
+              _buildItemsPayload(encodedSpans,
+                  additionalTopLevelProperties:
+                      _itemsPayloadProperties(inferUserData: inferUserData)),
+              encodedSpans.length)
         ],
       );
 
@@ -177,17 +181,65 @@ class SentryEnvelope {
     }
   }
 
-  /// Builds a payload in the format {"items": [item1, item2, ...]}
-  static Uint8List _buildItemsPayload(List<List<int>> encodedItems) {
+  /// Builds the top-level metadata shared by telemetry envelope item payloads.
+  ///
+  /// `ingest_settings` controls whether Sentry may infer the user's IP and
+  /// user agent from the request.
+  static Map<String, Object> _itemsPayloadProperties(
+      {required bool inferUserData}) {
+    final inferSetting = inferUserData ? 'auto' : 'never';
+    return {
+      'version': 2,
+      'ingest_settings': {
+        'infer_ip': inferSetting,
+        'infer_user_agent': inferSetting,
+      },
+    };
+  }
+
+  // Pre-encoded JSON tokens, shared across calls — encoding them per call
+  // measurably slows payload building (~1.3-1.6x in local benchmarks). Safe
+  // to reuse with `BytesBuilder(copy: false)` because they are never mutated.
+  static final _openBrace = utf8.encode('{');
+  static final _closeBrace = utf8.encode('}');
+  static final _comma = utf8.encode(',');
+  static final _colon = utf8.encode(':');
+  static final _itemsKey = utf8.encode('"items":');
+  static final _arrayOpen = utf8.encode('[');
+  static final _arrayClose = utf8.encode(']');
+
+  /// Builds a payload with optional top-level properties and an items array.
+  ///
+  /// [additionalTopLevelProperties] are serialized before `items` and carry the
+  /// shared envelope item metadata such as `version` and `ingest_settings`.
+  static Uint8List _buildItemsPayload(
+    List<List<int>> encodedItems, {
+    Map<String, Object> additionalTopLevelProperties = const {},
+  }) {
+    assert(!additionalTopLevelProperties.containsKey('items'));
     final builder = BytesBuilder(copy: false);
-    builder.add(utf8.encode('{"items":['));
+
+    builder.add(_openBrace);
+
+    // `items` is always the final key, so each preceding property is written
+    // with a trailing comma.
+    for (final entry in additionalTopLevelProperties.entries) {
+      builder.add(utf8JsonEncoder.convert(entry.key));
+      builder.add(_colon);
+      builder.add(utf8JsonEncoder.convert(entry.value));
+      builder.add(_comma);
+    }
+
+    builder.add(_itemsKey);
+    builder.add(_arrayOpen);
     for (int i = 0; i < encodedItems.length; i++) {
       if (i > 0) {
-        builder.add(utf8.encode(','));
+        builder.add(_comma);
       }
       builder.add(encodedItems[i]);
     }
-    builder.add(utf8.encode(']}'));
+    builder.add(_arrayClose);
+    builder.add(_closeBrace);
     return builder.takeBytes();
   }
 

@@ -78,7 +78,7 @@ class SentryFeedbackOptions {
   /// The label of the remove screenshot button.
   String removeScreenshotButtonLabel = 'Remove screenshot';
 
-  /// The label of the take screenshot button shown outside of the feedback widget.
+  /// The label of the take screenshot button shown outside of the feedback form.
   String takeScreenshotButtonLabel = 'Take Screenshot';
 
   // Theme Configuration

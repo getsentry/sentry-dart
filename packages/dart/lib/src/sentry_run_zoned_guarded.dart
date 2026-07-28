@@ -16,9 +16,20 @@ class SentryRunZonedGuarded {
     Map<Object?, Object?>? zoneValues,
     ZoneSpecification? zoneSpecification,
   }) {
-    final sentryOnError = (exception, stackTrace) async {
+    // Must remain synchronous. `runZonedGuarded` expects a
+    // `void Function(Object, StackTrace)` and never awaits the returned
+    // future. Declaring this `async` made the user-supplied [onError] run
+    // inside an unawaited future of this same zone, which meant a rethrow
+    // (a common pattern to preserve normal crash behaviour) became an
+    // async uncaught error in the same zone and recursively re-entered
+    // `sentryOnError`. Dart breaks that loop by silently dropping the
+    // error, so the unhandled exception ended up swallowed entirely.
+    // See https://github.com/getsentry/sentry-dart/issues/3541.
+    final sentryOnError = (Object exception, StackTrace stackTrace) {
       final options = hub.options;
-      await _captureError(hub, options, exception, stackTrace);
+      // Fire-and-forget so the synchronous contract is preserved. The
+      // event is buffered/queued internally by the hub regardless.
+      unawaited(_captureError(hub, options, exception, stackTrace));
 
       if (onError != null) {
         onError(exception, stackTrace);

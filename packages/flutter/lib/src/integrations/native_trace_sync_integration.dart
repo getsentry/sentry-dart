@@ -41,6 +41,15 @@ class NativeTraceSyncIntegration implements Integration<SentryFlutterOptions> {
         .removeCallback<OnGenerateNewTrace>(_syncTraceToNative);
   }
 
-  FutureOr<void> _syncTraceToNative(OnGenerateNewTrace event) =>
-      _native.setTrace(event.traceId, event.spanId);
+  Future<void> _syncTraceToNative(OnGenerateNewTrace event) async {
+    try {
+      await _native.setTrace(event.traceId, event.spanId);
+    } catch (exception, stackTrace) {
+      internalLogger.warning(
+        '$integrationName: failed to sync trace to native',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
+  }
 }

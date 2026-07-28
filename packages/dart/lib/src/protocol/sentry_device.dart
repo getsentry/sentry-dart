@@ -420,8 +420,9 @@ class SentryDevice {
     }
     final deviceUniqueIdentifier = this.deviceUniqueIdentifier;
     if (deviceUniqueIdentifier != null) {
-      attributes[SemanticAttributesConstants.deviceId] =
-          SentryAttribute.string(deviceUniqueIdentifier);
+      attributes[SemanticAttributesConstants.deviceId] = SentryAttribute.string(
+        deviceUniqueIdentifier,
+      );
     }
     return attributes;
   }

@@ -12,6 +12,7 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
+import '../../utils/internal_logger.dart';
 import '../native_app_start.dart';
 import '../sentry_native_binding.dart';
 import '../sentry_native_invoker.dart';
@@ -39,13 +40,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   SentryNative(this.options);
 
-  void _logNotSupported(String operation) => options.log(
-      SentryLevel.debug, 'SentryNative: $operation is not supported');
+  void _logNotSupported(String operation) =>
+      internalLogger.debug('SentryNative: $operation is not supported');
 
   @override
   FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
-      options.log(SentryLevel.info, 'SentryNative crash handling is disabled');
+      internalLogger.info('SentryNative crash handling is disabled');
     } else {
       tryCatchSync("init", () {
         final cOptions = createOptions(options);
@@ -65,6 +66,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     try {
       final cOptions = native.options_new();
       native.options_set_dsn(cOptions, c.str(options.dsn));
+      if (options.sampleRate != null) {
+        native.options_set_sample_rate(cOptions, options.sampleRate!);
+      }
       native.options_set_debug(cOptions, options.debug ? 1 : 0);
       native.options_set_environment(cOptions, c.str(options.environment));
       native.options_set_release(cOptions, c.str(options.release));
@@ -78,15 +82,14 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       }
       if (options.proxy != null) {
         // sentry-native expects a single string and it doesn't support different types or authentication
-        options.log(SentryLevel.warning,
+        internalLogger.warning(
             'SentryNative: setting a proxy is currently not supported');
       }
 
       if (crashpadPath != null) {
         native.options_set_handler_path(cOptions, c.str(crashpadPath));
       } else {
-        options.log(
-            SentryLevel.warning, 'SentryNative: could not find crashpad path');
+        internalLogger.warning('SentryNative: could not find crashpad path');
       }
 
       return cOptions;
@@ -123,7 +126,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       tryCatchSync('remove_user', native.remove_user);
     } else {
       tryCatchSync('set_user', () {
-        var cUser = user.toJson().toNativeValue(options.log);
+        var cUser = user.toJson().toNativeValue();
         native.set_user(cUser);
       });
     }
@@ -132,7 +135,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
     tryCatchSync('add_breadcrumb', () {
-      var cBreadcrumb = breadcrumb.toJson().toNativeValue(options.log);
+      var cBreadcrumb = breadcrumb.toJson().toNativeValue();
       native.add_breadcrumb(cBreadcrumb);
     });
   }
@@ -154,13 +157,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> setContexts(String key, dynamic value) {
     tryCatchSync('set_context', () {
-      final cValue = dynamicToNativeValue(value, options.log);
+      final cValue = dynamicToNativeValue(value);
       if (cValue != null) {
         final cKey = key.toNativeUtf8();
         native.set_context(cKey.cast(), cValue);
         malloc.free(cKey);
       } else {
-        options.log(SentryLevel.warning,
+        internalLogger.warning(
             'SentryNative: failed to set context $key - value couldn\'t be converted to native');
       }
     });
@@ -178,13 +181,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> setExtra(String key, dynamic value) {
     tryCatchSync('set_extra', () {
-      final cValue = dynamicToNativeValue(value, options.log);
+      final cValue = dynamicToNativeValue(value);
       if (cValue != null) {
         final cKey = key.toNativeUtf8();
         native.set_extra(cKey.cast(), cValue);
         malloc.free(cKey);
       } else {
-        options.log(SentryLevel.warning,
+        internalLogger.warning(
             'SentryNative: failed to set extra $key - value couldn\'t be converted to native');
       }
     });
@@ -250,13 +253,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
               native.value_get_length(cImages), (index) {
             final cImage = native.value_get_by_index(cImages, index);
             return DebugImage(
-              type: cImage.get('type').castPrimitive(options.log) ?? '',
-              imageAddr: cImage.get('image_addr').castPrimitive(options.log),
-              imageSize: cImage.get('image_size').castPrimitive(options.log),
-              codeFile: cImage.get('code_file').castPrimitive(options.log),
-              debugId: cImage.get('debug_id').castPrimitive(options.log),
-              debugFile: cImage.get('debug_file').castPrimitive(options.log),
-              codeId: cImage.get('code_id').castPrimitive(options.log),
+              type: cImage.get('type').castPrimitive() ?? '',
+              imageAddr: cImage.get('image_addr').castPrimitive(),
+              imageSize: cImage.get('image_size').castPrimitive(),
+              codeFile: cImage.get('code_file').castPrimitive(),
+              debugId: cImage.get('debug_id').castPrimitive(),
+              debugFile: cImage.get('debug_file').castPrimitive(),
+              codeId: cImage.get('code_id').castPrimitive(),
             );
           });
           return images;
@@ -321,9 +324,19 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> setTrace(SentryId traceId, SpanId spanId) {
     _logNotSupported('setting trace');
   }
+
+  @override
+  FutureOr<void> registerTraceId(SentryId traceId) {
+    // No-op. Replay trace ID registration is currently Android-only.
+  }
+
+  @override
+  FutureOr<void> registerSegmentName(String segmentName) {
+    // No-op. Replay segment name registration is currently Android-only.
+  }
 }
 
-extension on binding.sentry_value_u {
+extension SentryValueExtension on binding.sentry_value_u {
   void setNativeValue(String key, binding.sentry_value_u? value) {
     final cKey = key.toNativeUtf8();
     if (value == null) {
@@ -343,7 +356,7 @@ extension on binding.sentry_value_u {
     }
   }
 
-  T? castPrimitive<T>(SdkLogCallback logger) {
+  T? castPrimitive<T>() {
     if (SentryNative.native.value_is_null(this) == 1) {
       return null;
     }
@@ -355,6 +368,19 @@ extension on binding.sentry_value_u {
         return (SentryNative.native.value_is_true(this) == 1) as T;
       case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_INT32:
         return SentryNative.native.value_as_int32(this) as T;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_INT64:
+        return SentryNative.native.value_as_int64(this) as T;
+      case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_UINT64:
+        // Dart's int is signed 64-bit, so a uint64 above 2^63-1 wraps to a
+        // negative number. Drop it rather than propagate a corrupt value.
+        final value = SentryNative.native.value_as_uint64(this);
+        if (value < 0) {
+          internalLogger.warning(
+              'SentryNative: uint64 value exceeds signed int64 range and '
+              'cannot be represented as a Dart int');
+          return null;
+        }
+        return value as T;
       case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_DOUBLE:
         return SentryNative.native.value_as_double(this) as T;
       case binding.sentry_value_type_t.SENTRY_VALUE_TYPE_STRING:
@@ -363,15 +389,14 @@ extension on binding.sentry_value_u {
             .cast<Utf8>()
             .toDartString() as T;
       default:
-        logger(SentryLevel.warning,
-            'SentryNative: cannot read native value type: $type');
+        internalLogger
+            .warning('SentryNative: cannot read native value type: $type');
         return null;
     }
   }
 }
 
-binding.sentry_value_u? dynamicToNativeValue(
-    dynamic value, SdkLogCallback logger) {
+binding.sentry_value_u? dynamicToNativeValue(dynamic value) {
   if (value is String) {
     return value.toNativeValue();
   } else if (value is int) {
@@ -381,13 +406,13 @@ binding.sentry_value_u? dynamicToNativeValue(
   } else if (value is bool) {
     return value.toNativeValue();
   } else if (value is Map<String, dynamic>) {
-    return value.toNativeValue(logger);
+    return value.toNativeValue();
   } else if (value is List) {
-    return value.toNativeValue(logger);
+    return value.toNativeValue();
   } else if (value == null) {
     return SentryNative.native.value_new_null();
   } else {
-    logger(SentryLevel.warning,
+    internalLogger.warning(
         'SentryNative: unsupported data for for conversion: ${value.runtimeType} ($value)');
     return null;
   }
@@ -402,12 +427,15 @@ extension on String {
   }
 }
 
+const _int32Min = -2147483648; // -(2^31)
+const _int32Max = 2147483647; // 2^31 - 1
+
 extension on int {
   binding.sentry_value_u toNativeValue() {
-    if (this >= -2147483648 && this <= 2147483647) {
+    if (this >= _int32Min && this <= _int32Max) {
       return SentryNative.native.value_new_int32(this);
     } else {
-      return toString().toNativeValue();
+      return SentryNative.native.value_new_int64(this);
     }
   }
 }
@@ -423,10 +451,10 @@ extension on bool {
 }
 
 extension on Map<String, dynamic> {
-  binding.sentry_value_u toNativeValue(SdkLogCallback logger) {
+  binding.sentry_value_u toNativeValue() {
     final cObject = SentryNative.native.value_new_object();
     for (final entry in entries) {
-      final cValue = dynamicToNativeValue(entry.value, logger);
+      final cValue = dynamicToNativeValue(entry.value);
       cObject.setNativeValue(entry.key, cValue);
     }
     return cObject;
@@ -434,10 +462,10 @@ extension on Map<String, dynamic> {
 }
 
 extension on List<dynamic> {
-  binding.sentry_value_u toNativeValue(SdkLogCallback logger) {
+  binding.sentry_value_u toNativeValue() {
     final cObject = SentryNative.native.value_new_list();
     for (final value in this) {
-      final cValue = dynamicToNativeValue(value, logger);
+      final cValue = dynamicToNativeValue(value);
       if (cValue != null) {
         SentryNative.native.value_append(cObject, cValue);
       }

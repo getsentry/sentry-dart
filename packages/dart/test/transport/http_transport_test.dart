@@ -97,6 +97,52 @@ void main() {
           DataCategory.error);
     });
 
+    test('records lost log item and bytes when client throws exception',
+        () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final logs = [fixture.getLog('log-1'), fixture.getLog('log-2')];
+      final envelope = SentryEnvelope.fromLogs(logs, fixture.options.sdk);
+
+      await sut.send(envelope);
+
+      final lostLog = fixture.clientReportRecorder.lostLogs.single;
+      expect(lostLog.reason, DiscardReason.networkError);
+      expect(lostLog.count, logs.length);
+      expect(lostLog.bytes, greaterThan(0));
+    });
+
+    test('records lost metric count and bytes when client throws exception',
+        () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+            'Connection closed before full header was received');
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final metrics = [
+        [1, 2, 3],
+        [4, 5],
+      ];
+      final envelope =
+          SentryEnvelope.fromMetricsData(metrics, fixture.options.sdk);
+
+      await sut.send(envelope);
+
+      final lostMetric = fixture.clientReportRecorder.lostMetrics.single;
+      expect(lostMetric.reason, DiscardReason.networkError);
+      expect(lostMetric.count, metrics.length);
+      expect(lostMetric.bytes, greaterThan(0));
+    });
+
     test('records lost transaction and spans when client throws exception',
         () async {
       final httpMock = MockClient((http.Request request) async {
@@ -362,5 +408,15 @@ class Fixture {
     );
     final tracer = SentryTracer(context, MockHub());
     return SentryTransaction(tracer);
+  }
+
+  SentryLog getLog(String body) {
+    return SentryLog(
+      timestamp: DateTime.utc(2019),
+      traceId: SentryId.newId(),
+      level: SentryLogLevel.info,
+      body: body,
+      attributes: {},
+    );
   }
 }

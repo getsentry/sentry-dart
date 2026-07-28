@@ -10,6 +10,8 @@ enum DiscardReason {
   networkError,
   queueOverflow,
   cacheOverflow,
+  bufferOverflow,
   rateLimitBackoff,
+  internalSdkError,
   ignored,
 }

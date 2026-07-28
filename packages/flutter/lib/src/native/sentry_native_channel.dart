@@ -40,6 +40,7 @@ class SentryNativeChannel
     }
     return channel.invokeMethod('initNativeSdk', <String, dynamic>{
       'dsn': options.dsn,
+      'sampleRate': options.sampleRate,
       'debug': options.debug,
       'environment': options.environment,
       'release': options.release,
@@ -438,5 +439,15 @@ class SentryNativeChannel
       'traceId': traceId.toString(),
       'spanId': spanId.toString(),
     });
+  }
+
+  @override
+  FutureOr<void> registerTraceId(SentryId traceId) {
+    // No-op. Replay trace ID registration is currently Android-only.
+  }
+
+  @override
+  FutureOr<void> registerSegmentName(String segmentName) {
+    // No-op. Replay segment name registration is currently Android-only.
   }
 }

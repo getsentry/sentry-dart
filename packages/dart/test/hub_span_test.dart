@@ -1180,12 +1180,12 @@ void main() {
 
         final activeIdleSpan = hub.getActiveSpan() as IdleRecordingSentrySpanV2;
         activeIdleSpan
-          ..status = SentrySpanStatusV2.cancelled
+          ..status = SentrySpanStatusV2.error
           ..end();
         await Future<void>.delayed(Duration.zero);
 
         expect(idleSpan.isEnded, isTrue);
-        expect(idleSpan.status, equals(SentrySpanStatusV2.cancelled));
+        expect(idleSpan.status, equals(SentrySpanStatusV2.error));
         expect(hub.getActiveSpan(), isNull);
       });
 
@@ -1238,14 +1238,37 @@ void main() {
 
         await Future<void>.delayed(Duration(milliseconds: 240));
         expect(idleSpan.isEnded, isTrue);
-        expect(idleSpan.status, equals(SentrySpanStatusV2.deadlineExceeded));
+        expect(idleSpan.status, equals(SentrySpanStatusV2.error));
+        expect(
+          idleSpan.attributes[SemanticAttributesConstants.sentryStatusMessage]
+              ?.value,
+          'deadline_exceeded',
+        );
         expect(childSpan.isEnded, isTrue);
-        expect(childSpan.status, equals(SentrySpanStatusV2.cancelled));
+        expect(childSpan.status, equals(SentrySpanStatusV2.ok));
         expect(childSpan.endTimestamp, isNotNull);
         expect(idleSpan.endTimestamp, isNotNull);
         final endTimestampDelta =
             idleSpan.endTimestamp!.difference(childSpan.endTimestamp!).abs();
         expect(endTimestampDelta, lessThan(Duration(milliseconds: 10)));
+      });
+
+      test('finishes with ok status when idle timeout is reached', () async {
+        final hub = fixture.getSut();
+        final idleSpan = hub.startIdleSpan(
+          'idle-root',
+          idleTimeout: Duration(milliseconds: 60),
+          finalTimeout: Duration(seconds: 2),
+        ) as RecordingSentrySpanV2;
+
+        await Future<void>.delayed(Duration(milliseconds: 120));
+
+        expect(idleSpan.isEnded, isTrue);
+        expect(idleSpan.status, equals(SentrySpanStatusV2.ok));
+        expect(
+          idleSpan.attributes[SemanticAttributesConstants.sentryStatusMessage],
+          isNull,
+        );
       });
 
       test('trims idle span end timestamp to latest finished child', () async {

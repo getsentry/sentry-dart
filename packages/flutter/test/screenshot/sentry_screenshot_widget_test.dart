@@ -94,7 +94,7 @@ void main() {
       expect(find.text('Take Screenshot'), findsNothing);
     });
 
-    testWidgets('presents feedback widget when screenshot is taken',
+    testWidgets('presents feedback form when screenshot is taken',
         (tester) async {
       final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -127,7 +127,7 @@ void main() {
       await tester.tap(find.text('Take Screenshot'));
       await tester.pumpAndSettle();
 
-      // Send button in feedback widget
+      // Send button in feedback form
       expect(find.text('Send Bug Report'), findsOne);
     });
   });

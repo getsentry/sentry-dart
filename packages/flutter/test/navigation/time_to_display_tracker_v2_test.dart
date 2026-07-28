@@ -27,7 +27,14 @@ void main() {
         sut.trackRoute('/new-route');
 
         expect(activeSpan.isEnded, isTrue);
-        expect(activeSpan.status, SentrySpanStatusV2.cancelled);
+        expect(activeSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          activeSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
 
       test('starts idle root span with ui.load op and correct origin', () {
@@ -46,6 +53,12 @@ void main() {
           activeSpan
               .attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           SentryTraceOrigins.autoNavigationRouteObserver,
+        );
+        expect(
+          activeSpan
+              .attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
         );
       });
 
@@ -147,6 +160,18 @@ void main() {
     });
 
     group('when tracking app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        final span = sut.trackAppStart();
+
+        expect(
+          span.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('returns idle span named root /', () {
         final sut = fixture.getSut();
 
@@ -227,6 +252,20 @@ void main() {
     });
 
     group('when preparing app start', () {
+      test('adds component segment name source', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+
+        expect(
+          fixture.hub
+              .getActiveSpan()
+              ?.attributes[SemanticAttributesConstants.sentrySegmentNameSource]
+              ?.value,
+          'component',
+        );
+      });
+
       test('creates idle span eagerly', () {
         final sut = fixture.getSut();
 
@@ -266,7 +305,14 @@ void main() {
         sut.prepareAppStart();
 
         expect(existingSpan.isEnded, isTrue);
-        expect(existingSpan.status, SentrySpanStatusV2.cancelled);
+        expect(existingSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          existingSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
     });
 
@@ -352,6 +398,54 @@ void main() {
         expect(ttidSpan.isEnded, isTrue);
         expect(ttidSpan.endTimestamp, equals(ttidEnd));
       });
+
+      test('keeps the first initial route name', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+        final firstRouteWasSet = sut.setAppStartRouteName('/login');
+        final secondRouteWasSet = sut.setAppStartRouteName('/dashboard');
+        final routeSpan = sut.trackAppStart();
+
+        expect(firstRouteWasSet, isTrue);
+        expect(secondRouteWasSet, isFalse);
+        expect(routeSpan.name, '/login');
+      });
+
+      test('uses a custom initial route for prepared app start spans', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+
+        sut.prepareAppStart();
+        sut.setAppStartRouteName('/login');
+        final routeSpan = sut.trackAppStart();
+
+        expect(routeSpan.name, '/login');
+        expect(
+          childSpans.map((span) => span.name),
+          containsAll([
+            '/login initial display',
+            '/login full display',
+          ]),
+        );
+      });
+
+      test('uses root name for an unknown or slash initial route', () {
+        for (final routeName in <String?>[null, '/']) {
+          final localFixture = Fixture();
+          final sut = localFixture.getSut();
+
+          sut.prepareAppStart();
+          sut.setAppStartRouteName(routeName);
+          final routeSpan = sut.trackAppStart();
+
+          expect(
+            routeSpan.name,
+            'root /',
+            reason: 'Unexpected app start name for route $routeName',
+          );
+        }
+      });
     });
 
     group('when reporting fully displayed', () {
@@ -397,7 +491,7 @@ void main() {
         expect(sut.ttfdSpanId, isNull);
       });
 
-      test('ends active idle route span with cancelled status', () {
+      test('ends active idle route span with cancelled finish reason', () {
         final sut = fixture.getSut();
 
         sut.trackRoute('/test-route');
@@ -409,7 +503,14 @@ void main() {
         sut.cancelCurrentRoute();
 
         expect(activeSpan.isEnded, isTrue);
-        expect(activeSpan.status, SentrySpanStatusV2.cancelled);
+        expect(activeSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          activeSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
 
       test('cancels an existing idle span not created by the tracker', () {
@@ -422,7 +523,14 @@ void main() {
         sut.cancelCurrentRoute();
 
         expect(externalIdleSpan.isEnded, isTrue);
-        expect(externalIdleSpan.status, SentrySpanStatusV2.cancelled);
+        expect(externalIdleSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          externalIdleSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
 
       test('clears prepared app start span', () {
@@ -435,7 +543,14 @@ void main() {
         sut.cancelCurrentRoute();
 
         expect(preparedSpan.isEnded, isTrue);
-        expect(preparedSpan.status, SentrySpanStatusV2.cancelled);
+        expect(preparedSpan.status, SentrySpanStatusV2.ok);
+        expect(
+          preparedSpan
+              .attributes[
+                  SemanticAttributesConstants.sentryIdleSpanFinishReason]
+              ?.value,
+          'cancelled',
+        );
       });
     });
   });

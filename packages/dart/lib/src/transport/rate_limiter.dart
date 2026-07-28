@@ -1,8 +1,10 @@
 import '../../sentry.dart';
+import '../client_reports/discard_reason.dart';
 import '../transport/rate_limit_parser.dart';
+import '../utils/internal_logger.dart';
+import '../utils/transport_utils.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
-import '../client_reports/discard_reason.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
 class RateLimiter {
@@ -21,11 +23,26 @@ class RateLimiter {
         dropItems ??= [];
         dropItems.add(item);
 
-        _options.recorder.recordLostEvent(
-          DiscardReason.rateLimitBackoff,
-          DataCategory.fromItemType(item.header.type),
-        );
-        _logDebugWarning(
+        final category = DataCategory.fromItemType(item.header.type);
+        if (category == DataCategory.logItem) {
+          TransportUtils.recordLostLogItem(
+            _options,
+            item,
+            DiscardReason.rateLimitBackoff,
+          );
+        } else if (category == DataCategory.metric) {
+          TransportUtils.recordLostMetricItem(
+            _options,
+            item,
+            DiscardReason.rateLimitBackoff,
+          );
+        } else {
+          _options.recorder.recordLostEvent(
+            DiscardReason.rateLimitBackoff,
+            category,
+          );
+        }
+        internalLogger.warning(
           'Envelope item of type "${item.header.type}" was dropped due to rate limiting.',
         );
 
@@ -51,7 +68,7 @@ class RateLimiter {
 
       // no reason to continue
       if (toSend.isEmpty) {
-        _logDebugWarning(
+        internalLogger.warning(
           'Envelope was dropped due to rate limiting.',
         );
         return null;
@@ -112,8 +129,27 @@ class RateLimiter {
 
     // check for specific dataCategory
     final dateCategory = _rateLimitedUntil[dataCategory];
-    if (dateCategory != null) {
-      return !currentDate.isAfter(dateCategory);
+    if (dateCategory != null && !currentDate.isAfter(dateCategory)) {
+      return true;
+    }
+
+    // Relay rate limits logs under both `log_item` and `log_byte` (both are
+    // documented as "apply to logs"), but log envelope items only map to
+    // `logItem`. Honor a `log_byte` limit here so log items are dropped too.
+    if (dataCategory == DataCategory.logItem) {
+      final dateLogByte = _rateLimitedUntil[DataCategory.logByte];
+      if (dateLogByte != null && !currentDate.isAfter(dateLogByte)) {
+        return true;
+      }
+    }
+
+    // Metric envelope items map to `metric`, but Relay can rate limit their
+    // byte category independently. Honor that limit for metric items too.
+    if (dataCategory == DataCategory.metric) {
+      final dateMetricByte = _rateLimitedUntil[DataCategory.metricByte];
+      if (dateMetricByte != null && !currentDate.isAfter(dateMetricByte)) {
+        return true;
+      }
     }
 
     return false;
@@ -125,19 +161,6 @@ class RateLimiter {
     // only overwrite its previous date if the limit is even longer
     if (oldDate == null || date.isAfter(oldDate)) {
       _rateLimitedUntil[dataCategory] = date;
-    }
-  }
-
-  // Enable debug mode to log warning messages
-  void _logDebugWarning(String message) {
-    var debug = _options.debug;
-    if (!debug) {
-      // Surface the log even if debug is disabled
-      _options.debug = true;
-    }
-    _options.log(SentryLevel.warning, message);
-    if (debug != _options.debug) {
-      _options.debug = debug;
     }
   }
 }

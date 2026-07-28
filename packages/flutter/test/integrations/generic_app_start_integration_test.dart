@@ -64,6 +64,10 @@ void main() {
         expect(tracer!.name, 'root /');
         expect(tracer.context.operation, SentrySpanOperations.uiLoad);
         expect(tracer.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+        expect(
+          tracer.transactionNameSource,
+          SentryTransactionNameSource.component,
+        );
       });
 
       test('tracks time to display when frame callback executes', () async {

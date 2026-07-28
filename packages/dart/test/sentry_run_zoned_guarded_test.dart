@@ -90,6 +90,31 @@ void main() {
       await span?.finish();
     });
 
+    // Regression for https://github.com/getsentry/sentry-dart/issues/3541.
+    test('invokes user onError synchronously and captures the event', () async {
+      final client = MockSentryClient();
+      final hub = Hub(fixture.options);
+      hub.bindClient(client);
+
+      var userOnErrorCalled = false;
+
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        hub,
+        () => throw StateError('boom'),
+        (error, stackTrace) {
+          userOnErrorCalled = true;
+        },
+      );
+      final userOnErrorCalledSyncFromCaller = userOnErrorCalled;
+
+      expect(userOnErrorCalledSyncFromCaller, isTrue,
+          reason:
+              "sentryOnError must invoke the user's onError synchronously.");
+
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      expect(client.captureEventCalls, hasLength(1));
+    });
+
     test('sets level to error instead of fatal', () async {
       final client = MockSentryClient();
       final hub = Hub(fixture.options);

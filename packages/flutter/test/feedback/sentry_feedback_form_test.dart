@@ -9,7 +9,7 @@ import '../mocks.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('$SentryFeedbackWidget replay', () {
+  group('$SentryFeedbackForm replay', () {
     late Fixture fixture;
 
     setUp(() {
@@ -29,9 +29,9 @@ void main() {
       fixture.options.replay.onErrorSampleRate = 1.0;
       await replayIntegration.call(fixture.hub, fixture.options);
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
       // await tester.pumpAndSettle();
 
@@ -40,7 +40,7 @@ void main() {
       expect(fixture.hub.scope.replayId, replayId);
     });
   });
-  group('$SentryFeedbackWidget validation', () {
+  group('$SentryFeedbackForm validation', () {
     late Fixture fixture;
 
     setUp(() {
@@ -48,9 +48,9 @@ void main() {
     });
 
     testWidgets('does not call hub on submit if not valid', (tester) async {
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -66,9 +66,9 @@ void main() {
     });
 
     testWidgets('shows error on submit if message not valid', (tester) async {
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -81,9 +81,9 @@ void main() {
     testWidgets('shows error on submit if name not valid', (tester) async {
       fixture.options.feedback.isNameRequired = true;
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
+        (hub) => SentryFeedbackForm(
           hub: hub,
         ),
       );
@@ -97,9 +97,9 @@ void main() {
 
     testWidgets('shows error on submit if email not valid', (tester) async {
       fixture.options.feedback.isEmailRequired = true;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
+        (hub) => SentryFeedbackForm(
           hub: hub,
         ),
       );
@@ -115,9 +115,9 @@ void main() {
         (tester) async {
       fixture.options.feedback.isNameRequired = true;
       fixture.options.feedback.isEmailRequired = true;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
+        (hub) => SentryFeedbackForm(
           hub: hub,
         ),
       );
@@ -130,7 +130,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget show/hide ui elements', () {
+  group('$SentryFeedbackForm show/hide ui elements', () {
     late Fixture fixture;
 
     setUp(() {
@@ -139,9 +139,9 @@ void main() {
 
     testWidgets('shows name field if showName is true', (tester) async {
       fixture.options.feedback.showName = true;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('Name'), findsOne);
@@ -149,9 +149,9 @@ void main() {
 
     testWidgets('hides name field if showName is false', (tester) async {
       fixture.options.feedback.showName = false;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('Name'), findsNothing);
@@ -159,9 +159,9 @@ void main() {
 
     testWidgets('shows email field if showEmail is true', (tester) async {
       fixture.options.feedback.showEmail = true;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('Email'), findsOne);
@@ -169,9 +169,9 @@ void main() {
 
     testWidgets('hides email field if showEmail is false', (tester) async {
       fixture.options.feedback.showEmail = false;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('Email'), findsNothing);
@@ -181,9 +181,9 @@ void main() {
         'shows capture screenshot button if showCaptureScreenshot is true',
         (tester) async {
       fixture.options.feedback.showCaptureScreenshot = true;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('Capture a screenshot'), findsOne);
@@ -193,9 +193,9 @@ void main() {
         'hides capture screenshot button if showCaptureScreenshot is false',
         (tester) async {
       fixture.options.feedback.showCaptureScreenshot = false;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('Capture a screenshot'), findsNothing);
@@ -203,9 +203,9 @@ void main() {
 
     testWidgets('shows sentry logo if showBranding is true', (tester) async {
       fixture.options.feedback.showBranding = true;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
@@ -214,9 +214,9 @@ void main() {
 
     testWidgets('hides sentry logo if showBranding is false', (tester) async {
       fixture.options.feedback.showBranding = false;
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
@@ -224,7 +224,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget prefills fields from sentryUser', () {
+  group('$SentryFeedbackForm prefills fields from sentryUser', () {
     late Fixture fixture;
 
     setUp(() {
@@ -237,9 +237,9 @@ void main() {
         scope.setUser(fixture.sentryUser);
       });
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       final nameField = tester.widget<TextFormField>(
@@ -260,9 +260,9 @@ void main() {
         scope.setUser(fixture.sentryUser);
       });
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       final nameField = tester.widget<TextFormField>(
@@ -277,7 +277,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget uses naming from options', () {
+  group('$SentryFeedbackForm uses naming from options', () {
     late Fixture fixture;
 
     setUp(() {
@@ -302,9 +302,9 @@ void main() {
       fixture.options.feedback.validationErrorLabel =
           'fixture-validationErrorLabel';
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('fixture-title'), findsOne);
@@ -325,7 +325,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget submit', () {
+  group('$SentryFeedbackForm submit', () {
     late Fixture fixture;
 
     setUp(() {
@@ -409,9 +409,9 @@ void main() {
         contentType: 'image/png',
       );
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
+        (hub) => SentryFeedbackForm(
           hub: hub,
           screenshot: screenshot,
         ),
@@ -445,9 +445,9 @@ void main() {
     });
 
     testWidgets('does call hub captureFeedback on submit', (tester) async {
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
+        (hub) => SentryFeedbackForm(
           hub: hub,
           associatedEventId:
               SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
@@ -489,7 +489,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget localization', () {
+  group('$SentryFeedbackForm localization', () {
     late Fixture fixture;
 
     setUp(() {
@@ -510,9 +510,9 @@ void main() {
       options.feedback.isRequiredLabel = 'fixture-isRequiredLabel';
       options.feedback.validationErrorLabel = 'fixture-validationErrorLabel';
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
+        (hub) => SentryFeedbackForm(
           hub: hub,
         ),
       );
@@ -535,7 +535,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget pending associatedEventId', () {
+  group('$SentryFeedbackForm pending associatedEventId', () {
     late Fixture fixture;
 
     setUp(() {
@@ -547,10 +547,10 @@ void main() {
       final associatedEventId =
           SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
-            hub: hub, associatedEventId: associatedEventId),
+        (hub) =>
+            SentryFeedbackForm(hub: hub, associatedEventId: associatedEventId),
       );
       await tester.pumpAndSettle();
 
@@ -562,18 +562,18 @@ void main() {
       await tester.tap(button);
       await tester.pumpAndSettle();
 
-      expect(SentryFeedbackWidget.pendingAssociatedEventId, associatedEventId);
+      expect(SentryFeedbackForm.pendingAssociatedEventId, associatedEventId);
     });
 
     testWidgets('clears pending accociatedEventId when submitting feedback',
         (tester) async {
       final associatedEventId =
           SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
-      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
+      SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.enterText(
@@ -587,17 +587,17 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
 
-      expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
+      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
     });
 
     testWidgets('clears pending accociatedEventId on cancel', (tester) async {
       final associatedEventId =
           SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
-      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
+      SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.enterText(
@@ -607,11 +607,11 @@ void main() {
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
 
-      expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
+      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
     });
   });
 
-  group('$SentryFeedbackWidget form data preservation', () {
+  group('$SentryFeedbackForm form data preservation', () {
     late Fixture fixture;
 
     setUp(() {
@@ -624,10 +624,10 @@ void main() {
 
       final associatedEventId =
           SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(
-            hub: hub, associatedEventId: associatedEventId),
+        (hub) =>
+            SentryFeedbackForm(hub: hub, associatedEventId: associatedEventId),
       );
 
       // Enter form data
@@ -649,28 +649,63 @@ void main() {
       await tester.tap(button);
       await tester.pumpAndSettle();
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       // Verify data is preserved
-      expect(SentryFeedbackWidget.preservedName, "test-name");
-      expect(SentryFeedbackWidget.preservedEmail, "test@example.com");
-      expect(SentryFeedbackWidget.preservedMessage, "test-message");
+      expect(SentryFeedbackForm.preservedName, "test-name");
+      expect(SentryFeedbackForm.preservedEmail, "test@example.com");
+      expect(SentryFeedbackForm.preservedMessage, "test-message");
+    });
+
+    testWidgets(
+        'preserves form data when taking screenshot without associatedEventId',
+        (tester) async {
+      fixture.options.feedback.showName = true;
+      fixture.options.feedback.showEmail = true;
+
+      await fixture.pumpFeedbackForm(
+        tester,
+        (hub) => SentryFeedbackForm(hub: hub),
+      );
+
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+        "test-name",
+      );
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+        "test@example.com",
+      );
+      await tester.enterText(
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "test-message",
+      );
+
+      final button = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
+      expect(SentryFeedbackForm.preservedName, "test-name");
+      expect(SentryFeedbackForm.preservedEmail, "test@example.com");
+      expect(SentryFeedbackForm.preservedMessage, "test-message");
     });
 
     testWidgets('restores form data when widget is reopened', (tester) async {
       fixture.options.feedback.showName = true;
       fixture.options.feedback.showEmail = true;
 
-      SentryFeedbackWidget.preservedName = "preserved-name";
-      SentryFeedbackWidget.preservedEmail = "preserved@example.com";
-      SentryFeedbackWidget.preservedMessage = "preserved-message";
+      SentryFeedbackForm.preservedName = "preserved-name";
+      SentryFeedbackForm.preservedEmail = "preserved@example.com";
+      SentryFeedbackForm.preservedMessage = "preserved-message";
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       final nameField = tester.widget<TextFormField>(
@@ -690,13 +725,13 @@ void main() {
 
     testWidgets('clears preserved data when submitting feedback',
         (tester) async {
-      SentryFeedbackWidget.preservedName = "test-name";
-      SentryFeedbackWidget.preservedEmail = "test@example.com";
-      SentryFeedbackWidget.preservedMessage = "test-message";
+      SentryFeedbackForm.preservedName = "test-name";
+      SentryFeedbackForm.preservedEmail = "test@example.com";
+      SentryFeedbackForm.preservedMessage = "test-message";
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.enterText(
@@ -711,31 +746,31 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify preserved data is cleared
-      expect(SentryFeedbackWidget.preservedName, isNull);
-      expect(SentryFeedbackWidget.preservedEmail, isNull);
-      expect(SentryFeedbackWidget.preservedMessage, isNull);
+      expect(SentryFeedbackForm.preservedName, isNull);
+      expect(SentryFeedbackForm.preservedEmail, isNull);
+      expect(SentryFeedbackForm.preservedMessage, isNull);
     });
 
     testWidgets('clears preserved data when cancelling', (tester) async {
-      SentryFeedbackWidget.preservedName = "test-name";
-      SentryFeedbackWidget.preservedEmail = "test@example.com";
-      SentryFeedbackWidget.preservedMessage = "test-message";
+      SentryFeedbackForm.preservedName = "test-name";
+      SentryFeedbackForm.preservedEmail = "test@example.com";
+      SentryFeedbackForm.preservedMessage = "test-message";
 
-      await fixture.pumpFeedbackWidget(
+      await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackWidget(hub: hub),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Cancel'));
       await tester.pumpAndSettle();
 
-      expect(SentryFeedbackWidget.preservedName, isNull);
-      expect(SentryFeedbackWidget.preservedEmail, isNull);
-      expect(SentryFeedbackWidget.preservedMessage, isNull);
+      expect(SentryFeedbackForm.preservedName, isNull);
+      expect(SentryFeedbackForm.preservedEmail, isNull);
+      expect(SentryFeedbackForm.preservedMessage, isNull);
     });
   });
 
-  group('$SentryFeedbackWidget integration tracking', () {
+  group('$SentryFeedbackForm integration tracking', () {
     late Fixture fixture;
 
     setUp(() {
@@ -782,7 +817,7 @@ void main() {
           home: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
-                SentryFeedbackWidget.show(context, hub: fixture.hub);
+                SentryFeedbackForm.show(context, hub: fixture.hub);
               },
               child: Text('Show Feedback'),
             ),
@@ -799,7 +834,7 @@ void main() {
     });
   });
 
-  group('$SentryFeedbackWidget success message', () {
+  group('$SentryFeedbackForm success message', () {
     late Fixture fixture;
 
     setUp(() {
@@ -807,7 +842,7 @@ void main() {
     });
 
     group('when submission succeeds', () {
-      testWidgets('shows a snackbar and dismisses the feedback widget',
+      testWidgets('shows a snackbar and dismisses the feedback form',
           (tester) async {
         await fixture.pumpFeedbackHost(tester);
 
@@ -821,10 +856,10 @@ void main() {
         await tester.tap(find.text('Send Bug Report'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SentryFeedbackForm), findsNothing);
         expect(find.byType(SnackBar), findsOneWidget);
         expect(find.text('Thank you for your report!'), findsOneWidget);
-        expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
+        expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
       });
 
       testWidgets('uses custom success message text', (tester) async {
@@ -885,7 +920,7 @@ void main() {
         await tester.tap(find.text('Send Bug Report'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SentryFeedbackForm), findsNothing);
         expect(find.byType(SnackBar), findsNothing);
         expect(receivedFeedback, isNotNull);
         expect(receivedFeedback!.message, 'callback-test');
@@ -919,7 +954,7 @@ void main() {
         expect(receivedEventId, isNot(const SentryId.empty()));
       });
 
-      testWidgets('dismisses the feedback widget when onSubmitSuccess throws',
+      testWidgets('dismisses the feedback form when onSubmitSuccess throws',
           (tester) async {
         fixture.options.feedback.onSubmitSuccess = (_, __) {
           throw StateError('boom');
@@ -937,11 +972,38 @@ void main() {
         await tester.tap(find.text('Send Bug Report'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(SentryFeedbackWidget), findsNothing);
+        expect(find.byType(SentryFeedbackForm), findsNothing);
         expect(find.byType(SnackBar), findsOneWidget);
         expect(find.text('Thank you for your report!'), findsOneWidget);
-        expect(SentryFeedbackWidget.pendingAssociatedEventId, isNull);
+        expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
       });
+    });
+  });
+
+  group('SentryFeedbackWidget deprecated alias', () {
+    tearDown(() {
+      SentryFeedbackForm.pendingAssociatedEventId = null;
+      SentryFeedbackForm.clearPreservedData();
+    });
+
+    test('is a deprecated alias for SentryFeedbackForm', () {
+      expect(SentryFeedbackWidget, SentryFeedbackForm);
+    });
+
+    test('shares static form state with SentryFeedbackForm', () {
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
+
+      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
+      SentryFeedbackWidget.preservedName = 'fixture-name';
+      SentryFeedbackWidget.preservedEmail = 'fixture@example.com';
+      SentryFeedbackWidget.preservedMessage = 'fixture-message';
+
+      expect(SentryFeedbackForm.pendingAssociatedEventId, associatedEventId);
+      expect(SentryFeedbackForm.preservedName, 'fixture-name');
+      expect(SentryFeedbackForm.preservedEmail, 'fixture@example.com');
+      expect(SentryFeedbackForm.preservedMessage, 'fixture-message');
     });
   });
 }
@@ -966,8 +1028,8 @@ class Fixture {
       callback(scope);
       return null;
     });
-    SentryFeedbackWidget.pendingAssociatedEventId = null;
-    SentryFeedbackWidget.clearPreservedData();
+    SentryFeedbackForm.pendingAssociatedEventId = null;
+    SentryFeedbackForm.clearPreservedData();
 
     sentryUser = SentryUser(
       id: 'fixture-id',
@@ -977,7 +1039,7 @@ class Fixture {
     );
   }
 
-  Future<void> pumpFeedbackWidget(
+  Future<void> pumpFeedbackForm(
       WidgetTester tester, Widget Function(Hub) builder) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -993,7 +1055,7 @@ class Fixture {
           body: Builder(
             builder: (context) => ElevatedButton(
               onPressed: () {
-                SentryFeedbackWidget.show(context, hub: hub);
+                SentryFeedbackForm.show(context, hub: hub);
               },
               child: const Text('Show Feedback'),
             ),

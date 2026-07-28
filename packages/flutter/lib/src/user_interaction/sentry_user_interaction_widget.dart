@@ -441,7 +441,11 @@ class _SentryUserInteractionWidgetState
 
         // Different widget tapped — cancel the previous idle span.
         activeSpan
-          ..status = SentrySpanStatusV2.cancelled
+          ..status = SentrySpanStatusV2.ok
+          ..setAttribute(
+            SemanticAttributesConstants.sentryIdleSpanFinishReason,
+            SentryAttribute.string(SentryIdleSpanFinishReasons.cancelled),
+          )
           ..end();
       }
     }
@@ -456,6 +460,8 @@ class _SentryUserInteractionWidgetState
             SentryAttribute.string(SentrySpanOperations.uiActionClick),
         SemanticAttributesConstants.sentryOrigin:
             SentryAttribute.string(SentryTraceOrigins.autoUiInteraction),
+        SemanticAttributesConstants.sentrySegmentNameSource:
+            SentryAttribute.string(SentryTransactionNameSource.component.name),
       },
     );
   }

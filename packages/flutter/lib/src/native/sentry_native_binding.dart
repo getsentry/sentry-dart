@@ -99,4 +99,10 @@ abstract class SentryNativeBinding {
 
   /// Sets the trace context on the native SDK scope.
   FutureOr<void> setTrace(SentryId traceId, SpanId spanId);
+
+  /// Registers the active Dart trace ID with native replay.
+  FutureOr<void> registerTraceId(SentryId traceId);
+
+  /// Registers a segment name with native replay for the current replay segment.
+  FutureOr<void> registerSegmentName(String segmentName);
 }

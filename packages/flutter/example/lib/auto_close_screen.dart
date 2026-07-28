@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import 'main.dart';
+import 'app_config.dart';
 
 /// This screen is only used to demonstrate how route navigation works.
 /// Init will create a child span and pop the screen after 3 seconds.

@@ -1,5 +1,6 @@
-minVersion: 1.21.0
+minVersion: 2.26.3
 changelogPolicy: auto
+preReleaseCommand: bash scripts/bump-version.sh
 artifactProvider:
   name: none
 targets:
@@ -20,6 +21,7 @@ targets:
       packages/link:
       packages/firebase_remote_config:
       packages/supabase:
+      packages/grpc:
   - name: github
   - name: registry
     sdks:
@@ -34,5 +36,5 @@ targets:
       pub:sentry_isar:
       pub:sentry_link:
       pub:sentry_firebase_remote_config:
-      # TODO: after we published supabase we need to add it to the registry repo and then uncomment here
-      # pub:sentry_supabase:
+      pub:sentry_supabase:
+      pub:sentry_grpc:

@@ -23,7 +23,9 @@ class SentryNative {
       : _lookup = lookup;
 
   /// Decrements the reference count on the value.
-  void value_decref(
+  /// Returns 0 if the value was freed or is a primitive (no tracking needed),
+  /// or non-zero if it still has references.
+  int value_decref(
     sentry_value_u value,
   ) {
     return _value_decref(
@@ -32,10 +34,10 @@ class SentryNative {
   }
 
   late final _value_decrefPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(sentry_value_u)>>(
+      _lookup<ffi.NativeFunction<ffi.Int Function(sentry_value_u)>>(
           'sentry_value_decref');
   late final _value_decref =
-      _value_decrefPtr.asFunction<void Function(sentry_value_u)>();
+      _value_decrefPtr.asFunction<int Function(sentry_value_u)>();
 
   /// Creates a null value.
   sentry_value_u value_new_null() {
@@ -62,6 +64,36 @@ class SentryNative {
           'sentry_value_new_int32');
   late final _value_new_int32 =
       _value_new_int32Ptr.asFunction<sentry_value_u Function(int)>();
+
+  /// Creates a new 64-bit signed integer value.
+  sentry_value_u value_new_int64(
+    int value,
+  ) {
+    return _value_new_int64(
+      value,
+    );
+  }
+
+  late final _value_new_int64Ptr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Int64)>>(
+          'sentry_value_new_int64');
+  late final _value_new_int64 =
+      _value_new_int64Ptr.asFunction<sentry_value_u Function(int)>();
+
+  /// Creates a new 64-bit unsigned integer value.
+  sentry_value_u value_new_uint64(
+    int value,
+  ) {
+    return _value_new_uint64(
+      value,
+    );
+  }
+
+  late final _value_new_uint64Ptr =
+      _lookup<ffi.NativeFunction<sentry_value_u Function(ffi.Uint64)>>(
+          'sentry_value_new_uint64');
+  late final _value_new_uint64 =
+      _value_new_uint64Ptr.asFunction<sentry_value_u Function(int)>();
 
   /// Creates a new double value.
   sentry_value_u value_new_double(
@@ -276,6 +308,36 @@ class SentryNative {
   late final _value_as_int32 =
       _value_as_int32Ptr.asFunction<int Function(sentry_value_u)>();
 
+  /// Converts a value into a 64-bit signed integer.
+  int value_as_int64(
+    sentry_value_u value,
+  ) {
+    return _value_as_int64(
+      value,
+    );
+  }
+
+  late final _value_as_int64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Int64 Function(sentry_value_u)>>(
+          'sentry_value_as_int64');
+  late final _value_as_int64 =
+      _value_as_int64Ptr.asFunction<int Function(sentry_value_u)>();
+
+  /// Converts a value into a 64-bit unsigned integer.
+  int value_as_uint64(
+    sentry_value_u value,
+  ) {
+    return _value_as_uint64(
+      value,
+    );
+  }
+
+  late final _value_as_uint64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Uint64 Function(sentry_value_u)>>(
+          'sentry_value_as_uint64');
+  late final _value_as_uint64 =
+      _value_as_uint64Ptr.asFunction<int Function(sentry_value_u)>();
+
   /// Converts a value into a double value.
   double value_as_double(
     sentry_value_u value,
@@ -396,6 +458,55 @@ class SentryNative {
               ffi.Pointer<sentry_options_s>)>>('sentry_options_get_dsn');
   late final _options_get_dsn = _options_get_dsnPtr.asFunction<
       ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)>();
+
+  /// Sets the sample rate, which should be a double between `0.0` and `1.0`.
+  /// Sentry will randomly discard any event that is captured using
+  /// `sentry_capture_event` when a sample rate < 1 is set.
+  ///
+  /// The sampling happens at the end of the event processing according to the
+  /// following order:
+  ///
+  /// https://develop.sentry.dev/sdk/sessions/#filter-order
+  ///
+  /// Only items 3. to 6. are currently applicable to sentry-native. This means
+  /// each processing step is executed even if the sampling discards the event
+  /// before sending it to the backend. This is particularly relevant to users of
+  /// the `before_send` callback.
+  ///
+  /// The above is in contrast to versions up to 0.4.18 where the sampling happened
+  /// at the beginning of the processing/filter sequence.
+  void options_set_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+    double sample_rate,
+  ) {
+    return _options_set_sample_rate(
+      opts,
+      sample_rate,
+    );
+  }
+
+  late final _options_set_sample_ratePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>,
+              ffi.Double)>>('sentry_options_set_sample_rate');
+  late final _options_set_sample_rate = _options_set_sample_ratePtr
+      .asFunction<void Function(ffi.Pointer<sentry_options_s>, double)>();
+
+  /// Gets the sample rate.
+  double options_get_sample_rate(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_sample_rate(
+      opts,
+    );
+  }
+
+  late final _options_get_sample_ratePtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Double Function(ffi.Pointer<sentry_options_s>)>>(
+      'sentry_options_get_sample_rate');
+  late final _options_get_sample_rate = _options_get_sample_ratePtr
+      .asFunction<double Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Sets the release.
   void options_set_release(

@@ -1,5 +1,146 @@
 # Changelog
 
+## 9.25.0
+
+### Features
+
+- (replay) Record segment names on Android by @buenaflor in [#3897](https://github.com/getsentry/sentry-dart/pull/3897)
+- (tracing) Emit segment name source by @buenaflor in [#3904](https://github.com/getsentry/sentry-dart/pull/3904)
+
+### Fixes
+
+#### Flutter
+
+- Guard script completion by @buenaflor in [#3912](https://github.com/getsentry/sentry-dart/pull/3912)
+- Add app start screen attribute by @buenaflor in [#3893](https://github.com/getsentry/sentry-dart/pull/3893)
+- Prevent StateError when delayed frames list is empty by @muhammadkamel in [#3876](https://github.com/getsentry/sentry-dart/pull/3876)
+
+#### Other
+
+- (metrics) Add missing metric byte outcomes by @buenaflor in [#3905](https://github.com/getsentry/sentry-dart/pull/3905)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Native SDK to v0.15.4 by @github-actions in [#3910](https://github.com/getsentry/sentry-dart/pull/3910)
+- chore(deps): update Android SDK to v8.49.0 by @github-actions in [#3895](https://github.com/getsentry/sentry-dart/pull/3895)
+- chore(deps): update Cocoa SDK to v8.58.4 by @github-actions in [#3864](https://github.com/getsentry/sentry-dart/pull/3864)
+
+### Internal Changes
+
+- (dart) Accept beta wasm function name by @sentry-junior in [#3898](https://github.com/getsentry/sentry-dart/pull/3898)
+
+## 9.24.0
+
+### Features
+
+- Add feature flags to hub span by @denrase in [#3806](https://github.com/getsentry/sentry-dart/pull/3806)
+
+### Fixes
+
+- (replay) Accept Double timestamps in Android network breadcrumb conversion by @aqrc in [#3859](https://github.com/getsentry/sentry-dart/pull/3859)
+
+## 9.23.0
+
+### Features
+
+#### Dart
+
+- Add array attributes to telemetry by @buenaflor in [#3778](https://github.com/getsentry/sentry-dart/pull/3778)
+- Mark span streaming API as non-experimental by @buenaflor in [#3756](https://github.com/getsentry/sentry-dart/pull/3756)
+
+#### Other
+
+- (grpc) Add integration support for GRPC by @lucas-zimerman in [#3721](https://github.com/getsentry/sentry-dart/pull/3721)
+- (tracing) Simplify span v2 status to ok/error by @buenaflor in [#3840](https://github.com/getsentry/sentry-dart/pull/3840)
+- Report blocked_main_thread on streaming spans by @buenaflor in [#3821](https://github.com/getsentry/sentry-dart/pull/3821)
+
+### Fixes
+
+- (rate-limiting) Honor span and feedback rate limits by @buenaflor in [#3809](https://github.com/getsentry/sentry-dart/pull/3809)
+- Correct feature flag scope buffer updates by @denrase in [#3797](https://github.com/getsentry/sentry-dart/pull/3797)
+
+### Enhancements
+
+- (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.47.0 by @github-actions in [#3849](https://github.com/getsentry/sentry-dart/pull/3849)
+- chore(deps): update Native SDK to v0.15.2 by @github-actions in [#3785](https://github.com/getsentry/sentry-dart/pull/3785)
+
+### Internal Changes
+
+- (flutter) Remove flaky frames measurement tests by @buenaflor in [#3783](https://github.com/getsentry/sentry-dart/pull/3783)
+- (skills) Expand test-guidelines and drop stale deps by @buenaflor in [#3807](https://github.com/getsentry/sentry-dart/pull/3807)
+- Add PR template checkbox for cross sdk review on public API changes by @antonis in [#3822](https://github.com/getsentry/sentry-dart/pull/3822)
+- Block manual CHANGELOG.md edits by @buenaflor in [#3810](https://github.com/getsentry/sentry-dart/pull/3810)
+- Fix Dependabot pub paths and pin GitHub Action by @buenaflor in [#3804](https://github.com/getsentry/sentry-dart/pull/3804)
+- Add AI Use section to CONTRIBUTING.md by @christophaigner in [#3803](https://github.com/getsentry/sentry-dart/pull/3803)
+
+## 9.22.0
+
+### Features
+
+- (flutter) Add replay trace ID sync for Android by @buenaflor in [#3744](https://github.com/getsentry/sentry-dart/pull/3744)
+
+### Fixes
+
+- (dart) Add missing log byte outcomes by @buenaflor in [#3745](https://github.com/getsentry/sentry-dart/pull/3745)
+- (flutter) Add replay IDs to span telemetry by @buenaflor in [#3739](https://github.com/getsentry/sentry-dart/pull/3739)
+
+### Enhancements
+
+- (dart) Add span v2 envelope `ingest_settings` metadata by @buenaflor in [#3700](https://github.com/getsentry/sentry-dart/pull/3700)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.43.2 by @github-actions in [#3755](https://github.com/getsentry/sentry-dart/pull/3755)
+- chore(deps): update Native SDK to v0.14.2 by @github-actions in [#3683](https://github.com/getsentry/sentry-dart/pull/3683)
+
+## 9.21.0
+
+### Features
+
+- Rename `SentryFeedbackWidget` to `SentryFeedbackForm` by @denrase in [#3702](https://github.com/getsentry/sentry-dart/pull/3702)
+  - `SentryFeedbackWidget` is deprecated and will be removed in the next major version. Use `SentryFeedbackForm` instead.
+
+### Fixes
+
+#### Dart
+
+- Make sentryOnError synchronous in runZonedGuarded by @theprantadutta in [#3697](https://github.com/getsentry/sentry-dart/pull/3697)
+- Route SDK diagnostic logs to browser console on web by @theprantadutta in [#3698](https://github.com/getsentry/sentry-dart/pull/3698)
+
+#### Flutter
+
+- Forward sample rate to native SDKs by @buenaflor in [#3722](https://github.com/getsentry/sentry-dart/pull/3722)
+- Release Android JNI refs by @buenaflor in [#3712](https://github.com/getsentry/sentry-dart/pull/3712)
+- Release replay JNI refs by @buenaflor in [#3699](https://github.com/getsentry/sentry-dart/pull/3699)
+
+### Enhancements
+
+#### Flutter
+
+- Move Android JNI work to core worker to avoid work on main isolate by @buenaflor in [#3713](https://github.com/getsentry/sentry-dart/pull/3713)
+- Optimize Android scope sync by @buenaflor in [#3708](https://github.com/getsentry/sentry-dart/pull/3708)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Cocoa SDK to v8.58.3 by @github-actions in [#3726](https://github.com/getsentry/sentry-dart/pull/3726)
+- chore(deps): update Android SDK to v8.43.0 by @github-actions in [#3727](https://github.com/getsentry/sentry-dart/pull/3727)
+
+### Internal Changes
+
+- (flutter) Align CI with stable SwiftPM defaults by @buenaflor in [#3710](https://github.com/getsentry/sentry-dart/pull/3710)
+
 ## 9.20.0
 
 ### Features

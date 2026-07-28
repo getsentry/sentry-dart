@@ -1,5 +1,5 @@
 ## :scroll: Description
-<!--- Describe your changes in detail -->
+<!--- Describe your changes in detail and optionally add screenshots -->
 
 
 ## :bulb: Motivation and Context
@@ -8,6 +8,10 @@
 
 
 ## :green_heart: How did you test it?
+<!---
+Include a link to Sentry when applicable:
+* Link to Sentry: <LINK>
+-->
 
 
 ## :pencil: Checklist
@@ -17,6 +21,7 @@
 - [ ] No new PII added or SDK only sends newly added PII if `sendDefaultPii` is enabled
 - [ ] I updated the docs if needed
 - [ ] All tests passing
+- [ ] Public API changes reviewed by another Mobile SDK team member or implemented according to the [develop docs](https://develop.sentry.dev/) spec
 - [ ] No breaking changes
 
 

@@ -61,6 +61,21 @@ void main() {
       expect(call.traceId, fixture.hub.scope.propagationContext.traceId);
     });
 
+    test('does not surface error when native setTrace fails', () async {
+      fixture.binding.throwOnSetTrace = true;
+
+      // The initial sync during call() is fire-and-forget, and the
+      // OnGenerateNewTrace callback may run unawaited too. A native failure
+      // must be caught internally; otherwise it surfaces as an unhandled
+      // async error that can outlive the test and fail it.
+      fixture.registerIntegration();
+      fixture.hub.generateNewTrace();
+
+      await pumpEventQueue();
+
+      expect(fixture.binding.setTraceCalls, isNotEmpty);
+    });
+
     test('unregisters callback on close', () {
       fixture.registerIntegration();
       fixture.binding.setTraceCalls.clear();
@@ -93,9 +108,14 @@ class _SetTraceCall {
 
 class _FakeNativeBinding extends Fake implements SentryNativeBinding {
   final setTraceCalls = <_SetTraceCall>[];
+  bool throwOnSetTrace = false;
 
   @override
-  void setTrace(SentryId traceId, SpanId spanId) {
+  Future<void> setTrace(SentryId traceId, SpanId spanId) async {
     setTraceCalls.add(_SetTraceCall(traceId, spanId));
+    if (throwOnSetTrace) {
+      // Mirrors the channel binding rejecting with MissingPluginException.
+      throw Exception('native setTrace failed');
+    }
   }
 }

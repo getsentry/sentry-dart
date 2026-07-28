@@ -12,6 +12,7 @@ functions:
     - sentry_close
     - sentry_options_new
     - sentry_options_set_dsn
+    - sentry_options_set_sample_rate
     - sentry_options_set_debug
     - sentry_options_set_environment
     - sentry_options_set_release
@@ -41,6 +42,8 @@ functions:
     - sentry_value_is_true
     - sentry_value_new_null
     - sentry_value_new_int32
+    - sentry_value_new_int64
+    - sentry_value_new_uint64
     - sentry_value_new_double
     - sentry_value_new_string
     - sentry_value_new_list
@@ -48,6 +51,8 @@ functions:
     - sentry_value_new_bool
     - sentry_value_append
     - sentry_value_as_int32
+    - sentry_value_as_int64
+    - sentry_value_as_uint64
     - sentry_value_as_double
     - sentry_value_as_string
     - sentry_value_as_list
@@ -57,6 +62,7 @@ functions:
     - sentry_sdk_name
     - sentry_options_free
     - sentry_options_get_dsn
+    - sentry_options_get_sample_rate
     - sentry_options_get_debug
     - sentry_options_get_environment
     - sentry_options_get_release

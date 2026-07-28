@@ -27,6 +27,7 @@ final class SentryFlutterTests: XCTestCase {
       options: fixture.options,
       with: [
         "dsn": "https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562",
+        "sampleRate": NSNumber(value: 0.25),
         "debug": true,
         "environment": "fixture-environment",
         "release": "fixture-release",
@@ -57,6 +58,7 @@ final class SentryFlutterTests: XCTestCase {
     )
 
     XCTAssertEqual("https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562", fixture.options.dsn)
+    XCTAssertEqual(0.25, fixture.options.sampleRate?.doubleValue)
     XCTAssertEqual(true, fixture.options.debug)
     XCTAssertEqual("fixture-environment", fixture.options.environment)
     XCTAssertEqual("fixture-release", fixture.options.releaseName)

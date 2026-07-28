@@ -122,6 +122,39 @@ void main() {
       expect(sut[0].category, DataCategory.metric);
       expect(sut[0].duration.inMilliseconds, 60000);
     });
+
+    test('parse trace_metric_byte category', () {
+      final sut =
+          RateLimitParser('60:trace_metric_byte').parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.metricByte);
+      expect(sut[0].duration.inMilliseconds, 60000);
+    });
+
+    test('parse log_byte category', () {
+      final sut = RateLimitParser('60:log_byte').parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.logByte);
+      expect(sut[0].duration.inMilliseconds, 60000);
+    });
+
+    test('parse span category', () {
+      final sut = RateLimitParser('60:span').parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.span);
+      expect(sut[0].duration.inMilliseconds, 60000);
+    });
+
+    test('parse feedback category', () {
+      final sut = RateLimitParser('60:feedback').parseRateLimitHeader();
+
+      expect(sut.length, 1);
+      expect(sut[0].category, DataCategory.feedback);
+      expect(sut[0].duration.inMilliseconds, 60000);
+    });
   });
 
   group('parseRetryAfterHeader', () {

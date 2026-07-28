@@ -86,4 +86,23 @@ void main() {
     json = logItem.toJson();
     expect(json['severity_number'], 21);
   });
+
+  test('$SentryLog serializes array attributes', () {
+    final logItem = SentryLog(
+      timestamp: DateTime.utc(2024, 1, 15),
+      traceId: SentryId.newId(),
+      level: SentryLogLevel.info,
+      body: 'fixture-body',
+      attributes: {
+        'tags': SentryAttribute.stringArray(['a', 'b']),
+      },
+    );
+
+    final json = logItem.toJson();
+
+    expect(json['attributes']['tags'], {
+      'value': ['a', 'b'],
+      'type': 'array',
+    });
+  });
 }

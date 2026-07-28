@@ -78,7 +78,8 @@ void main() {
     test('fromClientReport', () async {
       final timestamp = DateTime(0);
       final discardedEvents = [
-        DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)
+        DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1),
+        DiscardedEvent(DiscardReason.beforeSend, DataCategory.logByte, 42),
       ];
 
       final cr = ClientReport(timestamp, discardedEvents);
@@ -94,6 +95,16 @@ void main() {
       expect(sut.header.contentType, 'application/json');
       expect(sut.header.type, SentryItemType.clientReport);
       expect(actualData, expectedData);
+
+      final actualJson = jsonDecode(utf8.decode(actualData));
+      final discardedEventsJson =
+          actualJson['discarded_events'] as List<dynamic>;
+      final logByteJson = discardedEventsJson.firstWhere(
+        (event) => event['category'] == 'log_byte',
+      ) as Map<String, dynamic>;
+      expect(logByteJson.keys,
+          unorderedEquals(['reason', 'category', 'quantity']));
+      expect(logByteJson['quantity'], 42);
     });
 
     test('fromLog', () async {

@@ -450,6 +450,29 @@ void main() {
     expect(sut.activeSpan, clone.activeSpan);
   });
 
+  test('clone copies feature flags and keeps them independent', () async {
+    final sut = fixture.getSut();
+    await sut.setContexts(
+      SentryFeatureFlags.type,
+      SentryFeatureFlags(
+        values: [SentryFeatureFlag(flag: 'foo', result: true)],
+      ),
+    );
+
+    final clone = sut.clone();
+
+    final originalFlags =
+        sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+    final cloneFlags =
+        clone.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+
+    cloneFlags.values = [SentryFeatureFlag(flag: 'bar', result: false)];
+
+    expect(identical(originalFlags, cloneFlags), isFalse);
+    expect(originalFlags.values.map((e) => e.flag), equals(['foo']));
+    expect(cloneFlags.values.map((e) => e.flag), equals(['bar']));
+  });
+
   test('clone copies attributes and keeps them independent', () {
     final sut = fixture.getSut();
     sut.setAttributes({

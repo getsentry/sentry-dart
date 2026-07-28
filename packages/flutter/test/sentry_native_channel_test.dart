@@ -503,7 +503,7 @@ void main() {
     });
   }
 
-  group('init captureFailedRequests on iOS/macOS', () {
+  group('init options on iOS/macOS', () {
     late SentryNativeBinding sut;
     late MockMethodChannel channel;
 
@@ -521,6 +521,18 @@ void main() {
 
     setUp(() {
       channel = MockMethodChannel();
+    });
+
+    test('forwards sampleRate', () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel
+        ..sampleRate = 0.25;
+      sut = createBinding(options);
+
+      final args = await callInitAndCaptureArgs(options);
+
+      expect(args['sampleRate'], 0.25);
     });
 
     test(

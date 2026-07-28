@@ -35,8 +35,12 @@ extension _OutcomeExtension on DiscardReason {
         return 'queue_overflow';
       case DiscardReason.cacheOverflow:
         return 'cache_overflow';
+      case DiscardReason.bufferOverflow:
+        return 'buffer_overflow';
       case DiscardReason.rateLimitBackoff:
         return 'ratelimit_backoff';
+      case DiscardReason.internalSdkError:
+        return 'internal_sdk_error';
       case DiscardReason.ignored:
         return 'ignored';
     }
@@ -66,12 +70,16 @@ extension _DataCategoryExtension on DataCategory {
         return 'unknown';
       case DataCategory.logItem:
         return 'log_item';
+      case DataCategory.logByte:
+        return 'log_byte';
       case DataCategory.feedback:
         return 'feedback';
       case DataCategory.metricBucket:
         return 'metric_bucket';
       case DataCategory.metric:
         return 'trace_metric';
+      case DataCategory.metricByte:
+        return 'trace_metric_byte';
     }
   }
 }

@@ -275,7 +275,8 @@ mixin SentryFlutter {
   // coverage:ignore-end
 
   @Deprecated(
-      'Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.')
+    'Use reportFullyDisplayed() on a SentryDisplay instance instead. Read the TTFD documentation at https://docs.sentry.io/platforms/dart/guides/flutter/integrations/routing-instrumentation/#time-to-full-display.',
+  )
   static Future<void> reportFullyDisplayed() async {
     final options = Sentry.currentHub.options;
     if (options is SentryFlutterOptions) {
@@ -317,8 +318,9 @@ mixin SentryFlutter {
       return null;
     }
     if (!options.enableTimeToFullDisplayTracing) {
-      internalLogger
-          .debug('TTFD is not enabled. Returning null for currentDisplay.');
+      internalLogger.debug(
+        'TTFD is not enabled. Returning null for currentDisplay.',
+      );
       return null;
     }
     final SpanId? spanId;
@@ -329,7 +331,8 @@ mixin SentryFlutter {
     }
     if (spanId == null) {
       internalLogger.error(
-          'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - spanId should not be null');
+        'Could not process TTFD for screen ${SentryNavigatorObserver.currentRouteName} - spanId should not be null',
+      );
       return null;
     }
     return SentryDisplay(spanId, hub: hub);

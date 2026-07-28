@@ -150,6 +150,14 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
       _span.setAttribute(key, SentryAttribute.double(value));
     } else if (value is bool) {
       _span.setAttribute(key, SentryAttribute.bool(value));
+    } else if (value is List<String>) {
+      _span.setAttribute(key, SentryAttribute.stringArray(value));
+    } else if (value is List<int>) {
+      _span.setAttribute(key, SentryAttribute.intArray(value));
+    } else if (value is List<double>) {
+      _span.setAttribute(key, SentryAttribute.doubleArray(value));
+    } else if (value is List<bool>) {
+      _span.setAttribute(key, SentryAttribute.boolArray(value));
     } else if (value is SentryAttribute) {
       _span.setAttribute(key, value);
     } else {
@@ -195,22 +203,12 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
         return SpanStatus.ok();
       case SentrySpanStatusV2.error:
         return SpanStatus.unknownError();
-      case SentrySpanStatusV2.cancelled:
-        return SpanStatus.cancelled();
-      case SentrySpanStatusV2.deadlineExceeded:
-        return SpanStatus.deadlineExceeded();
     }
   }
 
   SentrySpanStatusV2 _convertToV2Status(SpanStatus status) {
     if (status == SpanStatus.ok()) {
       return SentrySpanStatusV2.ok;
-    }
-    if (status == SpanStatus.cancelled()) {
-      return SentrySpanStatusV2.cancelled;
-    }
-    if (status == SpanStatus.deadlineExceeded()) {
-      return SentrySpanStatusV2.deadlineExceeded;
     }
     return SentrySpanStatusV2.error;
   }

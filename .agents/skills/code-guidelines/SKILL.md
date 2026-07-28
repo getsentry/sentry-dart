@@ -7,7 +7,7 @@ Apply these guidelines to all new and modified code across every package in this
 
 Use only language features available in the Dart/Flutter versions specified in `AGENTS.md`.
 
-When writing or modifying tests as part of implementation, also load the **test-guidelines** skill.
+For non-trivial work — a new feature or integration, a public barrel-file change, or a cross-package/native-interop change — load the **design-first** skill to shape the modules and seams before writing code. When writing or modifying tests as part of implementation, also load the **test-guidelines** skill.
 
 ## SDK Development Rules
 
@@ -16,10 +16,20 @@ When writing or modifying tests as part of implementation, also load the **test-
 Encapsulate SDK features as `Integration` classes that implement `call()` and `close()`:
 
 - Check feature flags and prerequisites early, log and return if disabled
-- Register the integration via `options.sdk.addIntegration(name)`
+- Mark the integration as active for usage tracking — see **Usage Tracking** below
 - Clean up resources in `close()` if needed
 - See `packages/flutter/lib/src/integrations/` for examples
 - Integrations should be order-independent; if yours requires running before/after another, reconsider the design
+
+### Usage Tracking
+
+Record which integrations and features an app actually uses, so usage can be tracked internally. This metadata lives on `options.sdk` and is serialized onto events as `sdk.integrations` / `sdk.features`.
+
+- **`options.sdk.addIntegration('IntegrationName')`** — mark an integration as active. Call it from the integration's `call()`. Do not confuse it with `options.addIntegration(integration)`, which *registers an integration to run* — `options.sdk.addIntegration` only attaches the name as metadata.
+- **`options.sdk.addFeature(SentryFeatures.x)`** — mark a feature as used, gated on whether it is actually configured (e.g. a `beforeSend*` callback is set, a privacy option is enabled).
+- Use named constants from `SentryFeatures` (`packages/dart/lib/src/constants.dart`, `@internal`) — never inline string literals — so the analytics vocabulary stays consistent. Add a constant there when introducing a new feature.
+- Both calls dedupe, so calling them more than once is safe.
+- Canonical example: `TrackBeforeSendUsageIntegration` (`packages/dart/lib/src/track_before_send_usage_integration.dart`).
 
 ### Logging
 
@@ -71,120 +81,50 @@ internalLogger.debug(() => 'Envelope size: ${envelope.computeSize()}');
 
 ### File Organization
 
-- Prefer grouping related files by feature in sub-directories (e.g., `metrics/`)
-- Avoid flat structures with many unrelated files in one directory
+**Group by feature, not by type.** A processor or integration a feature owns lives in that feature's dir (a replay processor in `replay/`); a cross-cutting one earns its own top-level concept dir (`exception/`, `enricher/`). Cohesive subsystems already do this — `transport/`, `telemetry/span/`, and `native/` (the binding boundary to the platform SDKs; features *call* it rather than embed native code). Native interop is special for testing and memory, not for placement — see design-first and the **Native Code (JNI/FFI)** rules above.
 
-## Modern Dart Features
+Two shapes are **scatter** — grow neither, and don't read the repo's current use of them as the target:
 
-Prefer modern Dart language features (Dart 3.5+) when they improve clarity and reduce boilerplate:
+- **Type-buckets** (`event_processor/`, `integrations/`) collect classes for sharing a base type. A bucket legitimately holds only its runner (`run_event_processors.dart`); the base contract belongs at `src/` root (`event_processor.dart`, beside `integration.dart`). The repo hasn't finished migrating — enrichment, exceptions, and dedup still sit under `event_processor/`, and flutter has loose `replay_event_processor`/`screenshot_event_processor`.
+- **The loose `src/` root.** Core primitives (`hub.dart`, `scope.dart`, `sentry_client.dart`, the `sentry.dart` barrel) belong there; feature code does not. The v1 span/tracer files strewn across the root, `protocol/`, and `tracing/` are the counter-example to `telemetry/span/`, which keeps the whole v2 subsystem in one dir.
 
-- **Sealed Classes** - Exhaustive pattern matching with restricted hierarchies
-- **Extension Types** - Zero-cost wrappers around existing types
-- **Records** - Lightweight multi-value returns: `(String, int)` or `({String name, int age})`
-- **Pattern Matching** - Destructuring in `switch`, `if-case`, variable declarations
-- **Switch Expressions** - Expression-based switches returning values
-- **Class Modifiers** - `final`, `base`, `interface`, `mixin` class modifiers
-- **Enhanced Enums** - Enums with fields, constructors, and methods
-- **If-Case Expressions** - Pattern matching in if statements
-- **Null-Aware Elements** - `?maybeNull` in collection literals
+*Where* a given piece goes is a locality judgment — see **design-first** (Shape the modules).
 
-## Semantic Naming Guidelines
+## Modern Dart
 
-### General Naming
+Prefer modern Dart (3.5+) where it improves clarity — sealed classes for exhaustive matching, records for multi-value returns, pattern matching and switch expressions, extension types for zero-cost wrappers, enhanced enums, and class modifiers (`final` / `base` / `interface`). Don't force them where plain code reads better.
 
-- [DO use terms consistently.](https://dart.dev/effective-dart/design#do-use-terms-consistently)
-- [AVOID abbreviations.](https://dart.dev/effective-dart/design#avoid-abbreviations)
-- [PREFER putting the most descriptive noun last.](https://dart.dev/effective-dart/design#prefer-putting-the-most-descriptive-noun-last)
-- [CONSIDER making the code read like a sentence.](https://dart.dev/effective-dart/design#consider-making-the-code-read-like-a-sentence)
+## API & Dart Style
 
-### Properties and Variables
+Shape the public surface deliberately — see **design-first** for module shape. These habits matter more in an SDK than in app code, and several are easy to get wrong:
 
-- [PREFER a noun phrase for a non-boolean property or variable.](https://dart.dev/effective-dart/design#prefer-a-noun-phrase-for-a-non-boolean-property-or-variable)
-- [PREFER a non-imperative verb phrase for a boolean property or variable.](https://dart.dev/effective-dart/design#prefer-a-non-imperative-verb-phrase-for-a-boolean-property-or-variable)
-- [CONSIDER omitting the verb for a named boolean _parameter_.](https://dart.dev/effective-dart/design#consider-omitting-the-verb-for-a-named-boolean-parameter)
-- [PREFER the "positive" name for a boolean property or variable.](https://dart.dev/effective-dart/design#prefer-the-positive-name-for-a-boolean-property-or-variable)
+- **Private by default.** Keep declarations private; widen to public only when a type is genuinely part of the SDK's API. Every public symbol is a maintenance burden and a breaking-change liability — see `packages/dart/AGENTS.md` on the barrel-file cascade.
+- **Control extension with class modifiers.** Use `final` / `base` / `interface` / `sealed` to declare whether a public class may be extended or implemented — without them every public class is implicitly both, and you can't evolve it without breaking consumers.
+- **No public `late final` field without an initializer.** It silently defines a public *setter*, leaking API surface — use a normal field or an explicit getter instead.
+- **Prefer a function to a one-member abstract class**, and avoid classes of only static members.
+- **Keep imports inside `lib`.** Never let an import cross the `lib` boundary (`../lib/...`, or into another package's `src/`) — relative imports that escape `lib` create duplicate library instances Dart treats as unrelated.
+- **Re-raise with `rethrow`, never `throw e`.** `throw e` resets the stack trace to the rethrow site; `rethrow` preserves the origin — and stack-trace fidelity is the product.
 
-### Methods and Functions
+For everything else — naming, asynchrony, nullability, parameters, equality — follow **Effective Dart**; a frontier model and `dart analyze` already apply most of it, so it isn't restated here. The full checklist (and the standard the `review` skill cites) is in [references/effective-dart.md](references/effective-dart.md).
 
-- [PREFER an imperative verb phrase for a function or method whose main purpose is a side effect.](https://dart.dev/effective-dart/design#prefer-an-imperative-verb-phrase-for-a-function-or-method-whose-main-purpose-is-a-side-effect)
-- [PREFER a noun phrase or non-imperative verb phrase for a function or method if returning a value is its primary purpose.](https://dart.dev/effective-dart/design#prefer-a-noun-phrase-or-non-imperative-verb-phrase-for-a-function-or-method-if-returning-a-value-is-its-primary-purpose)
-- [CONSIDER an imperative verb phrase for a function or method if you want to draw attention to the work it performs.](https://dart.dev/effective-dart/design#consider-an-imperative-verb-phrase-for-a-function-or-method-if-you-want-to-draw-attention-to-the-work-it-performs)
-- [AVOID starting a method name with `get`.](https://dart.dev/effective-dart/design#avoid-starting-a-method-name-with-get)
-- [PREFER naming a method `to___()` if it copies the object's state to a new object.](https://dart.dev/effective-dart/design#prefer-naming-a-method-to___-if-it-copies-the-objects-state-to-a-new-object)
-- [PREFER naming a method `as___()` if it returns a different representation backed by the original object.](https://dart.dev/effective-dart/design#prefer-naming-a-method-as___-if-it-returns-a-different-representation-backed-by-the-original-object)
-- [AVOID describing the parameters in the function's or method's name.](https://dart.dev/effective-dart/design#avoid-describing-the-parameters-in-the-functions-or-methods-name)
+## Documentation Comments
 
-### Type Parameters
+Prefer self-documenting code — clear names and structure so comments become unnecessary.
 
-- [DO follow existing mnemonic conventions when naming type parameters.](https://dart.dev/effective-dart/design#do-follow-existing-mnemonic-conventions-when-naming-type-parameters)
+**Comment when:**
 
-## Dart Code Design
+- **Public APIs** — document for users who can't see the implementation.
+- **Non-obvious *why*** — reasoning not clear from the code (workarounds, edge cases, constraints).
 
-### Classes and Abstractions
+**Don't comment when:**
 
-- [AVOID defining a one-member abstract class when a simple function will do.](https://dart.dev/effective-dart/design#avoid-defining-a-one-member-abstract-class-when-a-simple-function-will-do)
-- [AVOID defining a class that contains only static members.](https://dart.dev/effective-dart/design#avoid-defining-a-class-that-contains-only-static-members)
-- [DO use class modifiers to control if your class can be extended.](https://dart.dev/effective-dart/design#do-use-class-modifiers-to-control-if-your-class-can-be-extended)
-- [DO use class modifiers to control if your class can be an interface.](https://dart.dev/effective-dart/design#do-use-class-modifiers-to-control-if-your-class-can-be-an-interface)
-- [PREFER defining a pure `mixin` or pure `class` to a `mixin class`.](https://dart.dev/effective-dart/design#prefer-defining-a-pure-mixin-or-pure-class-to-a-mixin-class)
-- [PREFER making declarations private.](https://dart.dev/effective-dart/design#prefer-making-declarations-private)
+- **Obvious behavior** — don't describe what the code plainly does.
+- **Inline play-by-play** — don't narrate every step of a method.
 
-### Asynchrony
+**`dart doc` gotchas** (tooling behavior, not taste):
 
-- [PREFER async/await over using raw futures.](https://dart.dev/effective-dart/usage#prefer-asyncawait-over-using-raw-futures)
-- [CONSIDER using higher-order methods to transform a stream.](https://dart.dev/effective-dart/usage#consider-using-higher-order-methods-to-transform-a-stream)
-- [AVOID using Completer directly.](https://dart.dev/effective-dart/usage#avoid-using-completer-directly)
+- Document a getter *or* its setter, never both — `dart doc` merges the pair and discards the setter's comment.
+- The first sentence becomes the summary in API listings — keep it standalone in its own paragraph.
+- Put doc comments *before* annotations (`@override`, `@internal`); placed after, `dart doc` won't associate them with the declaration.
 
-### Types and Nullability
-
-- [AVOID `late` variables if you need to check whether they are initialized.](https://dart.dev/effective-dart/usage#avoid-late-variables-if-you-need-to-check-whether-they-are-initialized)
-- [CONSIDER type promotion or null-check patterns for using nullable types.](https://dart.dev/effective-dart/usage#consider-type-promotion-or-null-check-patterns-for-using-nullable-types)
-- [DO use `Future<void>` as the return type of asynchronous members that do not produce values.](https://dart.dev/effective-dart/design#do-use-futurevoid-as-the-return-type-of-asynchronous-members-that-do-not-produce-values)
-- [AVOID returning nullable `Future`, `Stream`, and collection types.](https://dart.dev/effective-dart/design#avoid-returning-nullable-future-stream-and-collection-types)
-
-### Parameters
-
-- [AVOID positional boolean parameters.](https://dart.dev/effective-dart/design#avoid-positional-boolean-parameters)
-- [AVOID optional positional parameters if the user may want to omit earlier parameters.](https://dart.dev/effective-dart/design#avoid-optional-positional-parameters-if-the-user-may-want-to-omit-earlier-parameters)
-- [AVOID mandatory parameters that accept a special "no argument" value.](https://dart.dev/effective-dart/design#avoid-mandatory-parameters-that-accept-a-special-no-argument-value)
-- [DO use inclusive start and exclusive end parameters to accept a range.](https://dart.dev/effective-dart/design#do-use-inclusive-start-and-exclusive-end-parameters-to-accept-a-range)
-
-### Equality
-
-- [DO override `hashCode` if you override `==`.](https://dart.dev/effective-dart/design#do-override-hashcode-if-you-override)
-- [DO make your `==` operator obey the mathematical rules of equality.](https://dart.dev/effective-dart/design#do-make-your-operator-obey-the-mathematical-rules-of-equality)
-- [AVOID defining custom equality for mutable classes.](https://dart.dev/effective-dart/design#avoid-defining-custom-equality-for-mutable-classes)
-
-### Documentation Comments
-
-Prefer self-documenting code—use clear names and structure so comments become unnecessary.
-
-#### Do Write Comment When
-
-- Public APIs—document for users who can't see the implementation
-- Non-obvious "why" — explain reasoning not clear from code (workarounds, edge cases, constraints)
-
-#### Do Not Write Comment When
-
-- Obvious behavior — don't describe what code clearly does
-- Inline play-by-play — avoid commenting every step in a method
-
-#### Style Rules
-
-- [AVOID redundancy with the surrounding context.](https://dart.dev/effective-dart/documentation#avoid-redundancy-with-the-surrounding-context)
-- [DO use `///` doc comments to document members and types.](https://dart.dev/effective-dart/documentation#do-use-doc-comments-to-document-members-and-types)
-- [PREFER writing doc comments for public APIs.](https://dart.dev/effective-dart/documentation#prefer-writing-doc-comments-for-public-apis)
-- [CONSIDER writing a library-level doc comment.](https://dart.dev/effective-dart/documentation#consider-writing-a-library-level-doc-comment)
-- [CONSIDER writing doc comments for private APIs.](https://dart.dev/effective-dart/documentation#consider-writing-doc-comments-for-private-apis)
-- [DO start doc comments with a single-sentence summary.](https://dart.dev/effective-dart/documentation#do-start-doc-comments-with-a-single-sentence-summary)
-- [DO separate the first sentence of a doc comment into its own paragraph.](https://dart.dev/effective-dart/documentation#do-separate-the-first-sentence-of-a-doc-comment-into-its-own-paragraph)
-- [PREFER starting comments of a function or method with third-person verbs if its main purpose is a side effect.](https://dart.dev/effective-dart/documentation#prefer-starting-comments-of-a-function-or-method-with-third-person-verbs-if-its-main-purpose-is-a-side-effect)
-- [PREFER starting a non-boolean variable or property comment with a noun phrase.](https://dart.dev/effective-dart/documentation#prefer-starting-a-non-boolean-variable-or-property-comment-with-a-noun-phrase)
-- [PREFER starting a boolean variable or property comment with "Whether" followed by a noun or gerund phrase.](https://dart.dev/effective-dart/documentation#prefer-starting-a-boolean-variable-or-property-comment-with-whether-followed-by-a-noun-or-gerund-phrase)
-- [PREFER a noun phrase or non-imperative verb phrase for a function or method if returning a value is its primary purpose.](https://dart.dev/effective-dart/documentation#prefer-a-noun-phrase-or-non-imperative-verb-phrase-for-a-function-or-method-if-returning-a-value-is-its-primary-purpose)
-- [DON'T write documentation for both the getter and setter of a property.](https://dart.dev/effective-dart/documentation#dont-write-documentation-for-both-the-getter-and-setter-of-a-property)
-- [PREFER starting library or type comments with noun phrases.](https://dart.dev/effective-dart/documentation#prefer-starting-library-or-type-comments-with-noun-phrases)
-- [CONSIDER including code samples in doc comments.](https://dart.dev/effective-dart/documentation#consider-including-code-samples-in-doc-comments)
-- [DO use square brackets in doc comments to refer to in-scope identifiers.](https://dart.dev/effective-dart/documentation#do-use-square-brackets-in-doc-comments-to-refer-to-in-scope-identifiers)
-- [DO use prose to explain parameters, return values, and exceptions.](https://dart.dev/effective-dart/documentation#do-use-prose-to-explain-parameters-return-values-and-exceptions)
-- [DO put doc comments before metadata annotations.](https://dart.dev/effective-dart/documentation#do-put-doc-comments-before-metadata-annotations)
+Remaining doc-comment style (`///`, `[bracket]` references) is standard Effective Dart — see [references/effective-dart.md](references/effective-dart.md).
