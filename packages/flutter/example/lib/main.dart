@@ -14,14 +14,9 @@ import 'app_config.dart' as config;
 import 'home_screen.dart';
 import 'theme_provider.dart';
 
-Future<void>? _startupConfiguration;
-
 Future<void> main() async {
   await setupSentry(
     () async {
-      SentryFlutter.extendAppStart();
-      final startupConfiguration = _loadStartupConfiguration();
-      _startupConfiguration = startupConfiguration;
       runApp(
         SentryWidget(
           child: DefaultAssetBundle(
@@ -30,11 +25,6 @@ Future<void> main() async {
           ),
         ),
       );
-      try {
-        await startupConfiguration;
-      } finally {
-        await SentryFlutter.finishExtendedAppStart();
-      }
     },
     config.exampleDsn,
   );
@@ -177,11 +167,15 @@ class _MyAppState extends State<MyApp> {
   }
 
   void doWork() async {
+    // Extend before the first frame renders, so the App Start measures up to
+    // `finishExtendedAppStart` instead of the first frame.
+    SentryFlutter.extendAppStart();
     final rootDisplay = SentryFlutter.currentDisplay();
 
-    final startupConfiguration = _startupConfiguration;
-    if (startupConfiguration != null) {
-      await startupConfiguration;
+    try {
+      await _loadStartupConfiguration();
+    } finally {
+      await SentryFlutter.finishExtendedAppStart();
     }
 
     rootDisplay?.reportFullyDisplayed();
