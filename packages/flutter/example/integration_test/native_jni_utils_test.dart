@@ -5,7 +5,6 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 import 'package:jni/jni.dart';
-import 'package:sentry_flutter/src/native/java/jni_byte_array.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/native/utils/data_normalizer.dart';
 
@@ -138,17 +137,6 @@ void main() {
       final actual = normalize(inputMap);
 
       expect(actual, expectedNormalizedMap);
-    });
-
-    test('jsonToJByteArray converts normalized JSON to bytes', () {
-      using((arena) {
-        final javaBytes = jsonToJByteArray(inputMap)..releasedBy(arena);
-        final byteRange = javaBytes.getRange(0, javaBytes.length);
-        final bytes = byteRange.buffer
-            .asUint8List(byteRange.offsetInBytes, byteRange.length);
-
-        expect(bytes, isNotEmpty);
-      });
     });
   }, skip: !Platform.isAndroid);
 }

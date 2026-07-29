@@ -4,14 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/src/dart_exception_type_identifier.dart';
+import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
+import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
-import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
@@ -19,6 +21,7 @@ import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
 
+import 'app_start_trace_test_support.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
@@ -103,6 +106,15 @@ void main() {
 
       expect(SentryFlutter.native, isNotNull);
       expect(
+        options.integrations.whereType<NativeAppStartIntegration>(),
+        hasLength(1),
+      );
+      expect(
+        options.integrations.whereType<StandaloneAppStartIntegration>(),
+        hasLength(1),
+      );
+
+      expect(
         options.eventProcessors.indexOfTypeString('IoEnricherEventProcessor'),
         greaterThan(
           options.eventProcessors.indexOfTypeString(
@@ -112,6 +124,73 @@ void main() {
       );
 
       await Sentry.close();
+    }, testOn: 'vm');
+
+    test(
+      'iOS activates standalone app start when enabled in callback',
+      () async {
+        late final SentryFlutterOptions options;
+        final sentryFlutterOptions =
+            defaultTestOptions(checker: MockRuntimeChecker())
+              ..platform = MockPlatform.iOS()
+              ..methodChannel = native.channel;
+
+        await SentryFlutter.init(
+          (configured) async {
+            configured
+              ..dsn = fakeDsn
+              ..tracesSampleRate = 1.0
+              ..enableStandaloneAppStartTracing = true;
+            options = configured;
+          },
+          appRunner: appRunner,
+          options: sentryFlutterOptions,
+        );
+
+        expect(options.sdk.integrations, contains('StandaloneAppStart'));
+
+        await Sentry.close();
+      },
+      testOn: 'vm',
+    );
+
+    test('Android', () async {
+      late final SentryFlutterOptions options;
+
+      final nativeBinding = mockNativeBinding();
+      when(nativeBinding.supportsTraceSync).thenReturn(false);
+      SentryFlutter.native = nativeBinding;
+      addTearDown(() async {
+        try {
+          await Sentry.close();
+        } finally {
+          SentryFlutter.native = null;
+        }
+      });
+
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform(
+              operatingSystem: OperatingSystem.android,
+              supportsNativeIntegration: false,
+            );
+
+      await SentryFlutter.init(
+        (o) async {
+          options = o;
+        },
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+
+      expect(
+        options.integrations.whereType<NativeAppStartIntegration>(),
+        hasLength(1),
+      );
+      expect(
+        options.integrations.whereType<StandaloneAppStartIntegration>(),
+        hasLength(1),
+      );
     }, testOn: 'vm');
 
     test('macOS', () async {
@@ -156,6 +235,9 @@ void main() {
       );
 
       expect(SentryFlutter.native, isNotNull);
+      expect(integrations.whereType<NativeAppStartIntegration>(), hasLength(1));
+      expect(integrations.whereType<StandaloneAppStartIntegration>(), isEmpty);
+
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -618,6 +700,126 @@ void main() {
     await expectLater(SentryFlutter.pauseAppHangTracking(), completes);
   });
 
+  group('extended app start', () {
+    late _ExtendedAppStartFixture fixture;
+
+    setUp(() async {
+      loadTestPackage();
+      await Sentry.close();
+
+      fixture = _ExtendedAppStartFixture();
+      await fixture.init();
+    });
+
+    tearDown(() async {
+      await Sentry.close();
+    });
+
+    test('extendAppStart forwards one SDK clock timestamp', () {
+      SentryFlutter.extendAppStart();
+
+      expect(fixture.trace.extensionStart, fixture.now);
+    });
+
+    test(
+      'extendAppStart stays quiet when the trace refuses the extension',
+      () async {
+        await Sentry.close();
+
+        final refusingOptions = defaultTestOptions(
+          checker: MockRuntimeChecker(),
+        );
+        final refusingTrace = TestAppStartTrace(refuseExtension: true);
+        refusingOptions.standaloneAppStartTrace = refusingTrace;
+        await Sentry.init((_) {}, options: refusingOptions);
+
+        SentryFlutter.extendAppStart();
+
+        expect(refusingTrace.extensionStart, isNull);
+        expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+        expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
+        await expectLater(SentryFlutter.finishExtendedAppStart(), completes);
+      },
+    );
+
+    test('getters return their lifecycle-specific spans', () {
+      expect(
+        SentryFlutter.getExtendedAppStartSpan(),
+        same(fixture.trace.extendedSpan),
+      );
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        same(fixture.trace.extendedSpanV2),
+      );
+    });
+
+    test('wrong-lifecycle getters return null', () async {
+      final staticTrace = TestAppStartTrace(extendedSpan: MockSentrySpan());
+      fixture.options.standaloneAppStartTrace = staticTrace;
+
+      expect(
+        SentryFlutter.getExtendedAppStartSpan(),
+        same(staticTrace.extendedSpan),
+      );
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
+
+      await Sentry.close();
+
+      final streamOptions = defaultTestOptions(checker: MockRuntimeChecker());
+      final streamHub = Hub(streamOptions);
+      final streamTrace = TestAppStartTrace(
+        extendedSpanV2: streamHub.startInactiveSpan('Extended App Start'),
+      );
+      streamOptions.standaloneAppStartTrace = streamTrace;
+      await Sentry.init((_) {}, options: streamOptions);
+
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+      expect(
+        SentryFlutter.getExtendedAppStartSpanV2(),
+        same(streamTrace.extendedSpanV2),
+      );
+    });
+
+    test('finishExtendedAppStart forwards one SDK clock timestamp', () async {
+      await SentryFlutter.finishExtendedAppStart();
+
+      expect(fixture.trace.extensionEnd, fixture.now);
+    });
+
+    test(
+      'APIs stay inactive after close and when standalone app start is disabled',
+      () async {
+        await Sentry.close();
+
+        SentryFlutter.extendAppStart();
+        expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+        expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
+        await SentryFlutter.finishExtendedAppStart();
+
+        final disabledOptions = defaultTestOptions(
+          checker: MockRuntimeChecker(),
+        )..enableStandaloneAppStartTracing = false;
+        await Sentry.init((_) {}, options: disabledOptions);
+
+        SentryFlutter.extendAppStart();
+        expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+        expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
+        await SentryFlutter.finishExtendedAppStart();
+      },
+    );
+
+    test('APIs are safe without an active trace', () async {
+      fixture.options.standaloneAppStartTrace = null;
+
+      SentryFlutter.extendAppStart();
+
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
+
+      await SentryFlutter.finishExtendedAppStart();
+    });
+  });
+
   group('exception identifiers', () {
     setUp(() async {
       loadTestPackage();
@@ -675,6 +877,19 @@ MockSentryNativeBinding mockNativeBinding() {
 }
 
 void appRunner() {}
+
+final class _ExtendedAppStartFixture {
+  final now = DateTime.utc(2024, 1, 1, 12);
+  final trace = TestAppStartTrace();
+  late final SentryFlutterOptions options = defaultTestOptions(
+    checker: MockRuntimeChecker(),
+  )..clock = () => now;
+
+  Future<void> init() async {
+    options.standaloneAppStartTrace = trace;
+    await Sentry.init((_) {}, options: options);
+  }
+}
 
 void loadTestPackage() {
   PackageInfo.setMockInitialValues(

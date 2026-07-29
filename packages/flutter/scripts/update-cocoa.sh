@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd $(dirname "$0")/../ios
+cd $(dirname "$0")/../darwin
 
 get_spm_version() {
   local file='sentry_flutter/Package.swift'

@@ -2,15 +2,17 @@
 
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 // Internal import is fine in tests.
 import 'package:sentry/src/sentry_tracer.dart';
 
-import '../fake_frame_callback_handler.dart';
-import '../mocks.dart';
+import '../../fake_frame_callback_handler.dart';
+import '../../mocks.dart';
 
 void main() {
   group('GenericAppStartIntegration (real impl)', () {
@@ -64,6 +66,10 @@ void main() {
           expect(tracer!.name, 'root /');
           expect(tracer.context.operation, SentrySpanOperations.uiLoad);
           expect(tracer.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+          expect(
+            tracer.transactionNameSource,
+            SentryTransactionNameSource.component,
+          );
         },
       );
 
@@ -116,6 +122,7 @@ void main() {
         final fixedTime = DateTime(2023, 1, 1, 12, 0, 0).toUtc();
         fixture.options.clock = () => fixedTime;
         final sut = fixture.getSut();
+        fixture.fakeFrameHandler.postFrameCallbackDelay = Duration.zero;
 
         sut.call(fixture.hub, fixture.options);
 
@@ -171,6 +178,29 @@ void main() {
         expect(transactionStartTimestamp, startTime);
         expect(transactionEndTimestamp, endTime);
       });
+
+      test(
+        'names the reserved transaction after a non-root initial route',
+        () async {
+          final sut = fixture.getSut();
+          final observer = SentryNavigatorObserver(hub: fixture.hub);
+
+          sut.call(fixture.hub, fixture.options);
+          // The initial route is pushed while the first frame is being built,
+          // so it always precedes the post frame callback.
+          observer.didPush(fixture.route('/login'), null);
+          fixture.fakeFrameHandler.postFrameCallback!(Duration.zero);
+          await pumpEventQueue();
+
+          final tracer = fixture.hub.scope.span as SentryTracer?;
+          expect(tracer?.name, '/login');
+          expect(tracer?.origin, SentryTraceOrigins.autoUiTimeToDisplay);
+          expect(
+            tracer?.children.map((span) => span.context.description),
+            contains('/login initial display'),
+          );
+        },
+      );
 
       test(
         'maintains transaction ID consistency between setup and tracking',
@@ -293,6 +323,10 @@ class Fixture {
     options = defaultTestOptions();
     options.transport = fakeTransport;
     hub = Hub(options);
+    options.timeToDisplayTracker = TimeToDisplayTracker(
+      hub: hub,
+      options: options,
+    );
   }
 
   final fakeTransport = _FakeTransport();
@@ -303,6 +337,11 @@ class Fixture {
   GenericAppStartIntegration getSut() {
     return GenericAppStartIntegration(fakeFrameHandler);
   }
+
+  PageRoute<dynamic> route(String? name) => PageRouteBuilder<void>(
+    pageBuilder: (_, _, _) => const SizedBox.shrink(),
+    settings: RouteSettings(name: name),
+  );
 }
 
 class _FakeTransport implements Transport {

@@ -52,6 +52,38 @@
 ### Internal Changes
 
 - (flutter) Remove flaky frames measurement tests by @buenaflor in [#3783](https://github.com/getsentry/sentry-dart/pull/3783)
+
+## 9.25.0
+
+### Features
+
+- (replay) Record segment names on Android by @buenaflor in [#3897](https://github.com/getsentry/sentry-dart/pull/3897)
+- (tracing) Emit segment name source by @buenaflor in [#3904](https://github.com/getsentry/sentry-dart/pull/3904)
+
+### Fixes
+
+#### Flutter
+
+- Guard script completion by @buenaflor in [#3912](https://github.com/getsentry/sentry-dart/pull/3912)
+- Add app start screen attribute by @buenaflor in [#3893](https://github.com/getsentry/sentry-dart/pull/3893)
+- Prevent StateError when delayed frames list is empty by @muhammadkamel in [#3876](https://github.com/getsentry/sentry-dart/pull/3876)
+
+#### Other
+
+- (metrics) Add missing metric byte outcomes by @buenaflor in [#3905](https://github.com/getsentry/sentry-dart/pull/3905)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Native SDK to v0.15.4 by @github-actions in [#3910](https://github.com/getsentry/sentry-dart/pull/3910)
+- chore(deps): update Android SDK to v8.49.0 by @github-actions in [#3895](https://github.com/getsentry/sentry-dart/pull/3895)
+- chore(deps): update Cocoa SDK to v8.58.4 by @github-actions in [#3864](https://github.com/getsentry/sentry-dart/pull/3864)
+
+### Internal Changes
+
+- (dart) Accept beta wasm function name by @sentry-junior in [#3898](https://github.com/getsentry/sentry-dart/pull/3898)
+
 ## 9.24.0
 
 ### Features
@@ -2772,7 +2804,7 @@ This release is replaced by `8.0.0-beta.2`
 - Add `ConnectivityIntegration` for web ([#1765](https://github.com/getsentry/sentry-dart/pull/1765))
   - We only get the info if online/offline on web platform. The added breadcrumb is set to either `wifi` or `none`.
 - Add isar breadcrumbs ([#1800](https://github.com/getsentry/sentry-dart/pull/1800))
-- Starting with Flutter 3.16, Sentry adds the [`appFlavor`](https://api.flutter.dev/flutter/services/appFlavor-constant.html) to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
+- Starting with Flutter 3.16, Sentry adds the `[appFlavor](https://api.flutter.dev/flutter/services/appFlavor-constant.html)` to the `flutter_context` ([#1799](https://github.com/getsentry/sentry-dart/pull/1799))
 - Add beforeScreenshotCallback to SentryFlutterOptions ([#1805](https://github.com/getsentry/sentry-dart/pull/1805))
 - Add support for `readTransaction` in `sqflite` ([#1819](https://github.com/getsentry/sentry-dart/pull/1819))
 
@@ -3836,7 +3868,7 @@ This should not break anything since the Dart's min. version is already 2.12.0 a
 - Send DidBecomeActiveNotification when OOM enabled (#905)
 - `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#920](https://github.com/getsentry/sentry-dart/pull/920))
 - addBreadcrumb throws on Android API < 24 because of NewApi usage ([#923](https://github.com/getsentry/sentry-dart/pull/923))
-- [`sentry_dio`](https://pub.dev/packages/sentry_dio) is promoted to GA and not experimental anymore ([#914](https://github.com/getsentry/sentry-dart/pull/914))
+- `[sentry_dio](https://pub.dev/packages/sentry_dio)` is promoted to GA and not experimental anymore ([#914](https://github.com/getsentry/sentry-dart/pull/914))
 
 ## 6.6.1
 

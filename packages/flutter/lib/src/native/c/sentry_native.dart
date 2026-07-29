@@ -332,6 +332,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> registerTraceId(SentryId traceId) {
     // No-op. Replay trace ID registration is currently Android-only.
   }
+
+  @override
+  FutureOr<void> registerSegmentName(String segmentName) {
+    // No-op. Replay segment name registration is currently Android-only.
+  }
 }
 
 extension SentryValueExtension on binding.sentry_value_u {

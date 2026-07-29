@@ -191,6 +191,7 @@ class NoOpHub implements Hub {
     Duration idleTimeout = const Duration(seconds: 3),
     Duration finalTimeout = const Duration(seconds: 30),
     bool trimIdleSpanEndTimestamp = true,
+    bool bindToHub = true,
     Map<String, SentryAttribute>? attributes,
     DateTime? startTimestamp,
   }) =>

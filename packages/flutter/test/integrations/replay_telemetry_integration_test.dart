@@ -134,6 +134,34 @@ void main() {
           verifyNever(fixture.nativeBinding.registerTraceId(any));
         },
       );
+
+      test('registers segment name with native replay', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        clearInteractions(fixture.nativeBinding);
+        final span = fixture.createTestSpan(name: 'CheckoutScreen');
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span, Hint()),
+        );
+
+        verify(
+          fixture.nativeBinding.registerSegmentName('CheckoutScreen'),
+        ).called(1);
+      });
+
+      test('does not register segment name for child spans', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        clearInteractions(fixture.nativeBinding);
+        final span = fixture.createChildTestSpan();
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span, Hint()),
+        );
+
+        verifyNever(fixture.nativeBinding.registerSegmentName(any));
+      });
     });
 
     group('in session mode', () {
@@ -380,6 +408,22 @@ void main() {
 
         verifyNever(fixture.nativeBinding.registerTraceId(any));
       });
+
+      test('does not register segment name with native replay', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+
+        final sut = fixture.getSut();
+        await sut.call(fixture.hub, fixture.options);
+        await sut.close();
+        clearInteractions(fixture.nativeBinding);
+
+        final span = fixture.createTestSpan(name: 'CheckoutScreen');
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span, Hint()),
+        );
+
+        verifyNever(fixture.nativeBinding.registerSegmentName(any));
+      });
     });
   });
 }
@@ -407,6 +451,7 @@ class Fixture {
     });
     when(nativeBinding.replayId).thenReturn(null);
     when(nativeBinding.registerTraceId(any)).thenReturn(null);
+    when(nativeBinding.registerSegmentName(any)).thenReturn(null);
   }
 
   SentryLog createTestLog() => SentryLog(
@@ -425,14 +470,16 @@ class Fixture {
     attributes: <String, SentryAttribute>{},
   );
 
-  RecordingSentrySpanV2 createTestSpan() => RecordingSentrySpanV2.root(
-    name: 'test-span',
-    traceId: SentryId.newId(),
-    onSpanEnd: (_) async {},
-    clock: options.clock,
-    dscCreator: (span) => SentryTraceContextHeader(span.traceId, 'publicKey'),
-    samplingDecision: SentryTracesSamplingDecision(true),
-  );
+  RecordingSentrySpanV2 createTestSpan({String name = 'test-span'}) =>
+      RecordingSentrySpanV2.root(
+        name: name,
+        traceId: SentryId.newId(),
+        onSpanEnd: (_) async {},
+        clock: options.clock,
+        dscCreator: (span) =>
+            SentryTraceContextHeader(span.traceId, 'publicKey'),
+        samplingDecision: SentryTracesSamplingDecision(true),
+      );
 
   RecordingSentrySpanV2 createChildTestSpan() => RecordingSentrySpanV2.child(
     parent: createTestSpan(),

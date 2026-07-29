@@ -2,10 +2,10 @@
 
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
-import '../native/sentry_native_binding.dart';
-import '../utils/internal_logger.dart';
-import 'native_app_start_data.dart';
+import '../../../sentry_flutter.dart';
+import '../app_start_timing.dart';
+import '../../native/sentry_native_binding.dart';
+import '../../utils/internal_logger.dart';
 
 /// V2 handler for native app start spans using the streaming span API.
 @internal
@@ -22,21 +22,28 @@ class NativeAppStartHandlerV2 {
     final tracker = options.timeToDisplayTrackerV2;
 
     final nativeAppStart = await _native.fetchNativeAppStart();
-    if (nativeAppStart == null) {
+    final setupTimestamp = SentryFlutter.sentrySetupStartTime;
+    if (nativeAppStart == null || setupTimestamp == null) {
       tracker.cancelCurrentRoute();
       return;
     }
 
-    final appStartInfo = parseNativeAppStart(nativeAppStart, appStartEnd);
-    if (appStartInfo == null) {
+    final appStartTiming = AppStartTiming.tryParse(
+      nativeAppStart,
+      sentrySetupTimestamp: setupTimestamp,
+    );
+    final appStartDuration = appStartTiming?.reportableDurationUntil(
+      appStartEnd,
+    );
+    if (appStartTiming == null || appStartDuration == null) {
       tracker.cancelCurrentRoute();
       return;
     }
 
-    final appStartType = SentryAttribute.string(appStartInfo.type.name);
+    final appStartType = SentryAttribute.string(appStartTiming.type.name);
     final attributes = {
       SemanticAttributesConstants.sentryOp: SentryAttribute.string(
-        appStartInfo.appStartTypeOperation,
+        appStartTiming.type.operation,
       ),
       SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
         SentryTraceOrigins.autoUiTimeToDisplay,
@@ -45,47 +52,51 @@ class NativeAppStartHandlerV2 {
     };
 
     final rootSpan = tracker.trackAppStart(
-      startTimestamp: appStartInfo.start,
-      ttidEndTimestamp: appStartInfo.end,
+      startTimestamp: appStartTiming.processStartTimestamp,
+      ttidEndTimestamp: appStartEnd,
     );
 
     final appStartSpan = hub.startInactiveSpan(
-      appStartInfo.appStartTypeDescription,
+      appStartTiming.type.description,
       parentSpan: rootSpan,
-      startTimestamp: appStartInfo.start,
-      attributes: attributes,
+      startTimestamp: appStartTiming.processStartTimestamp,
+      attributes: {
+        ...attributes,
+        SemanticAttributesConstants.appVitalsStartScreen:
+            SentryAttribute.string(rootSpan.name),
+      },
     );
 
     final pluginRegistrationSpan = hub.startInactiveSpan(
-      appStartInfo.pluginRegistrationDescription,
+      appStartPluginRegistrationDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartInfo.start,
+      startTimestamp: appStartTiming.processStartTimestamp,
       attributes: attributes,
     );
 
     final sentrySetupSpan = hub.startInactiveSpan(
-      appStartInfo.sentrySetupDescription,
+      appStartSentrySetupDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartInfo.pluginRegistration,
+      startTimestamp: appStartTiming.pluginRegistrationTimestamp,
       attributes: attributes,
     );
 
     final firstFrameRenderSpan = hub.startInactiveSpan(
-      appStartInfo.firstFrameRenderDescription,
+      appStartFirstFrameRenderDescription,
       parentSpan: appStartSpan,
-      startTimestamp: appStartInfo.sentrySetupStart,
+      startTimestamp: appStartTiming.sentrySetupTimestamp,
       attributes: attributes,
     );
 
-    for (final timeSpan in appStartInfo.nativeSpanTimes) {
+    for (final timeSpan in appStartTiming.nativePhases) {
       try {
         final nativeSpan = hub.startInactiveSpan(
           timeSpan.description,
           parentSpan: appStartSpan,
-          startTimestamp: timeSpan.start,
+          startTimestamp: timeSpan.startTimestamp,
           attributes: attributes,
         );
-        nativeSpan.end(endTimestamp: timeSpan.end);
+        nativeSpan.end(endTimestamp: timeSpan.endTimestamp);
       } catch (error, stackTrace) {
         internalLogger.error(
           'Failed to attach native span to app start',
@@ -95,16 +106,18 @@ class NativeAppStartHandlerV2 {
       }
     }
 
-    pluginRegistrationSpan.end(endTimestamp: appStartInfo.pluginRegistration);
-    sentrySetupSpan.end(endTimestamp: appStartInfo.sentrySetupStart);
+    pluginRegistrationSpan.end(
+      endTimestamp: appStartTiming.pluginRegistrationTimestamp,
+    );
+    sentrySetupSpan.end(endTimestamp: appStartTiming.sentrySetupTimestamp);
     firstFrameRenderSpan.end(endTimestamp: appStartEnd);
 
     final durationMs = SentryAttribute.double(
-      appStartEnd.difference(appStartInfo.start).inMilliseconds.toDouble(),
+      appStartDuration.inMilliseconds.toDouble(),
     );
     // Emit both the legacy cold/warm split and the unified value+type pair
     // during the deprecation window for the former.
-    final legacyValueKey = switch (appStartInfo.type) {
+    final legacyValueKey = switch (appStartTiming.type) {
       AppStartType.cold => SemanticAttributesConstants.appVitalsStartColdValue,
       AppStartType.warm => SemanticAttributesConstants.appVitalsStartWarmValue,
     };

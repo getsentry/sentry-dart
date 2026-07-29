@@ -13,7 +13,7 @@ Flutter SDK with native integrations across all platforms.
 | Platform | Language | Path |
 |----------|----------|------|
 | Android | Kotlin | `android/src/main/kotlin/io/sentry/flutter/` |
-| iOS/macOS | Swift/ObjC | `ios/sentry_flutter/` |
+| iOS/macOS | Swift/ObjC | `darwin/sentry_flutter/` |
 | Linux | C++ | `linux/` |
 | Windows | C++ | `windows/` |
 

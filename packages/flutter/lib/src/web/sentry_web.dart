@@ -256,6 +256,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> registerSegmentName(String segmentName) {
+    // No-op. Replay segment name registration is currently Android-only.
+  }
+
+  @override
   bool get supportsCaptureEnvelope => true;
 
   @override

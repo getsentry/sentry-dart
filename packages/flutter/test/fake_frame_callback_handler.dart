@@ -6,6 +6,10 @@ class FakeFrameCallbackHandler implements FrameCallbackHandler {
 
   /// If set, it automatically executes the callback after the delay
   Duration? postFrameCallbackDelay;
+
+  /// If set, [addTimingsCallback] throws it instead of registering.
+  Object? addTimingsCallbackError;
+
   FrameCallback? postFrameCallback;
   TimingsCallback? timingsCallback;
 
@@ -21,6 +25,10 @@ class FakeFrameCallbackHandler implements FrameCallbackHandler {
 
   @override
   void addTimingsCallback(TimingsCallback callback) {
+    final error = addTimingsCallbackError;
+    if (error != null) {
+      throw error;
+    }
     timingsCallback = callback;
   }
 

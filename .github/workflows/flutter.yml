@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/flutter.yml'
-      - '.github/workflows/analyze.yml'
+      - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
@@ -131,8 +131,8 @@ jobs:
           ;;
           esac
 
-  analyze:
-    uses: ./.github/workflows/analyze.yml
+  package-analysis:
+    uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/flutter
       sdk: flutter

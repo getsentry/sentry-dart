@@ -95,6 +95,21 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
   ) =>
       InMemoryTelemetryBuffer(
         encoder: (SentryMetric item) => utf8JsonEncoder.convert(item.toJson()),
+        onDrop: (item, {required cause, bytes}) {
+          switch (cause) {
+            case BufferDropCause.encodeFailed:
+              // No encoded bytes available, so the trace_metric_byte size is
+              // unknown.
+              options.recorder.recordLostMetric(
+                DiscardReason.internalSdkError,
+              );
+            case BufferDropCause.tooLarge:
+              options.recorder.recordLostMetric(
+                DiscardReason.bufferOverflow,
+                bytes: bytes,
+              );
+          }
+        },
         onFlush: (items) {
           final envelope = SentryEnvelope.fromMetricsData(
             items.map((item) => item).toList(),

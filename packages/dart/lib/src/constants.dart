@@ -2,6 +2,13 @@ import 'package:meta/meta.dart';
 
 @internal
 class SentrySpanOperations {
+  static const String appStart = 'app.start';
+  static const String appStartExtended = 'app.start.extended';
+  static const String appStartPluginRegistration =
+      'app.start.plugin_registration';
+  static const String appStartSentrySetup = 'app.start.sentry_setup';
+  static const String appStartFirstFrameRender = 'app.start.first_frame_render';
+  static const String appStartNative = 'app.start.native';
   static const String uiLoad = 'ui.load';
   static const String uiTimeToInitialDisplay = 'ui.load.initial_display';
   static const String uiTimeToFullDisplay = 'ui.load.full_display';
@@ -47,6 +54,7 @@ class SentryFeatures {
   static const String beforeSendLog = 'beforeSendLog';
   static const String beforeSendMetric = 'beforeSendMetric';
   static const String featureFlags = 'featureFlags';
+  static const String standaloneAppStartTracing = 'standaloneAppStartTracing';
 }
 
 /// Semantic attributes for telemetry.
@@ -59,10 +67,10 @@ class SentryFeatures {
 abstract class SemanticAttributesConstants {
   SemanticAttributesConstants._();
 
-  /// The source of a span, also referred to as transaction source.
+  /// The source of the segment span name.
   ///
   /// Known values are:  `'custom'`, `'url'`, `'route'`, `'component'`, `'view'`, `'task'`.
-  static const sentrySpanSource = 'sentry.span.source';
+  static const sentrySegmentNameSource = 'sentry.segment.name.source';
 
   /// Attributes that holds the sample rate that was locally applied to a span.
   /// If this attribute is not defined, it means that the span inherited a sampling decision.
@@ -169,6 +177,9 @@ abstract class SemanticAttributesConstants {
 
   /// The type of the app start. (cold or warm)
   static const appVitalsStartType = 'app.vitals.start.type';
+
+  /// The screen displayed by the app start.
+  static const appVitalsStartScreen = 'app.vitals.start.screen';
 
   /// The user ID.
   /// Users are always manually set and never automatically inferred,

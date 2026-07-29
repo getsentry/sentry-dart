@@ -13,6 +13,7 @@ enum DataCategory {
   logByte,
   feedback,
   metric,
+  metricByte,
   unknown;
 
   static DataCategory fromItemType(String itemType) {
