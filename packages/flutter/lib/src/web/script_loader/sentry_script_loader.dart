@@ -55,7 +55,7 @@ class SentryScriptLoader {
         'JS SDK integration: all Sentry scripts loaded successfully.',
       );
     } catch (e) {
-      internalLogger.error('Failed to load Sentry scripts: $e');
+      internalLogger.error(() => 'Failed to load Sentry scripts: $e');
       if (_options.automatedTestMode) {
         rethrow;
       }

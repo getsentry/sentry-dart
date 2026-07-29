@@ -28,7 +28,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
     _integrationOnError = (FlutterErrorDetails errorDetails) {
       final exception = errorDetails.exception;
 
-      internalLogger.debug('Capture from onError $exception');
+      internalLogger.debug(() => 'Capture from onError $exception');
 
       if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
         final context = errorDetails.context?.toDescription();

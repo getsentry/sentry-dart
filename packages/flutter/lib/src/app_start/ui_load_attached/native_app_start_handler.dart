@@ -161,7 +161,7 @@ class NativeAppStartHandler {
         transaction.children.add(span);
       } catch (e) {
         internalLogger.warning(
-          'Failed to attach native span to app start transaction: $e',
+          () => 'Failed to attach native span to app start transaction: $e',
         );
       }
     });

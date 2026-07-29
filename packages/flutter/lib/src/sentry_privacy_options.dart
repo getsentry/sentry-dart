@@ -100,15 +100,16 @@ class SentryPrivacyOptions {
             final type = widget.runtimeType.toString();
             if (regexp.hasMatch(type)) {
               internalLogger.warning(
-                'Widget "$widget" name matches widgets that should usually be '
-                'masked because they may contain sensitive data. Because this '
-                'widget comes from a third-party plugin or your code, Sentry '
-                "doesn't recognize it and can't reliably mask it in release "
-                'builds (due to obfuscation). '
-                'Please mask it explicitly using options.privacy.mask<$type>(). '
-                'If you want to silence this warning and keep the widget '
-                'visible in captures, you can use options.privacy.unmask<$type>(). '
-                'Note: the RegExp matched is: $regexp (case insensitive).',
+                () =>
+                    'Widget "$widget" name matches widgets that should usually be '
+                    'masked because they may contain sensitive data. Because this '
+                    'widget comes from a third-party plugin or your code, Sentry '
+                    "doesn't recognize it and can't reliably mask it in release "
+                    'builds (due to obfuscation). '
+                    'Please mask it explicitly using options.privacy.mask<$type>(). '
+                    'If you want to silence this warning and keep the widget '
+                    'visible in captures, you can use options.privacy.unmask<$type>(). '
+                    'Note: the RegExp matched is: $regexp (case insensitive).',
               );
             }
             return SentryMaskingDecision.continueProcessing;

@@ -98,8 +98,9 @@ class WidgetFilter {
         if (!_warnedWidgets.contains(widget.hashCode)) {
           _warnedWidgets.add(widget.hashCode);
           internalLogger.warning(
-            'WidgetFilter cannot mask widget $widget: $e.'
-            'Obscuring the parent instead: ${parent?.widget}.',
+            () =>
+                'WidgetFilter cannot mask widget $widget: $e.'
+                'Obscuring the parent instead: ${parent?.widget}.',
             stackTrace: stackTrace,
           );
         }
