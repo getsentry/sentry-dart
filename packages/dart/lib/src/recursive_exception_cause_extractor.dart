@@ -38,9 +38,10 @@ class RecursiveExceptionCauseExtractor {
         currentException = currentExceptionCause?.exception;
       } catch (exception, stackTrace) {
         internalLogger.error(
-            'An exception occurred while extracting  exception cause',
-            error: exception,
-            stackTrace: stackTrace);
+          'An exception occurred while extracting exception cause',
+          error: exception,
+          stackTrace: stackTrace,
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
