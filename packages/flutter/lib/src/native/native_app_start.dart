@@ -43,7 +43,7 @@ class NativeAppStart {
         nativeSpanTimes is! Map) {
       // ignore: invalid_use_of_internal_member
       internalLogger.warning(
-        'Failed to parse json when capturing App Start metrics. App Start wont be reported.',
+        'Failed to parse json when capturing App Start metrics. App Start won\'t be reported.',
       );
       return null;
     }
