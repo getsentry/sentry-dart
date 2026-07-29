@@ -32,7 +32,7 @@ class DefaultTaskQueue<T> implements TaskQueue<T> {
     if (_queueCount >= _maxQueueSize) {
       _recorder.recordLostEvent(DiscardReason.queueOverflow, category);
       internalLogger.warning(
-        'Task dropped due to reaching max ($_maxQueueSize} parallel tasks.).',
+        'Task dropped due to reaching max of $_maxQueueSize parallel tasks.',
       );
       return fallbackResult;
     } else {
