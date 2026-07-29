@@ -1,7 +1,9 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -125,6 +127,27 @@ class ErrorsScreen extends StatelessWidget {
                         'This requires additional setup: options.addIntegration(OnErrorIntegration());',
                     buttonTitle: 'Capture from PlatformDispatcher.onError',
                   ),
+                  const TooltipButton(
+                    onPressed: dioBadResponse,
+                    key: Key('dio_bad_response'),
+                    text:
+                        'Requests a missing resource so Dio throws a bad response. Sends one issue titled "DioException: HTTP Client Error with status code: 404".',
+                    buttonTitle: 'Dio: bad response (404)',
+                  ),
+                  const TooltipButton(
+                    onPressed: dioConnectionTimeout,
+                    key: Key('dio_connection_timeout'),
+                    text:
+                        'Connects with a 1ms timeout so the request fails before a response exists. This kind of failure used to be dropped instead of captured.',
+                    buttonTitle: 'Dio: connection timeout',
+                  ),
+                  const TooltipButton(
+                    onPressed: dioDnsFailure,
+                    key: Key('dio_dns_failure'),
+                    text:
+                        'Requests a host that cannot resolve. This kind of failure used to be dropped instead of captured.',
+                    buttonTitle: 'Dio: DNS failure',
+                  ),
                   if (SentryFlutter.native != null)
                     ElevatedButton(
                       onPressed: () async => SentryFlutter.nativeCrash(),
@@ -153,6 +176,45 @@ Future<void> tryCatch() async {
 
 Future<void> asyncThrows() async {
   throw StateError('async throws');
+}
+
+/// The three Dio demos below all swallow the exception. `FailedRequestInterceptor`
+/// has already captured the event at that point, so each button produces exactly
+/// one issue rather than a second one from a manual `captureException`.
+
+Future<void> dioBadResponse() async {
+  final dio = Dio()
+    ..addSentry(
+      // The default range is 500-599, widened here so the demo endpoint's 404
+      // reaches the interceptor.
+      failedRequestStatusCodes: [SentryStatusCode.range(400, 599)],
+    );
+  try {
+    await dio.get<dynamic>('${exampleUrl}999999999');
+  } on DioException catch (e) {
+    debugPrint('Dio bad response: ${e.type}');
+  }
+}
+
+Future<void> dioConnectionTimeout() async {
+  final dio = Dio(BaseOptions(connectTimeout: const Duration(milliseconds: 1)))
+    ..addSentry();
+  try {
+    await dio.get<dynamic>(exampleUrl);
+  } on DioException catch (e) {
+    debugPrint('Dio connection timeout: ${e.type}');
+  }
+}
+
+Future<void> dioDnsFailure() async {
+  final dio = Dio()..addSentry();
+  try {
+    // `.invalid` is reserved and never resolves, so this fails before a
+    // response exists.
+    await dio.get<dynamic>('https://sentry-flutter-example.invalid/');
+  } on DioException catch (e) {
+    debugPrint('Dio DNS failure: ${e.type}');
+  }
 }
 
 // Top-level so it shows up correctly in profiles (not as an anonymous closure).
