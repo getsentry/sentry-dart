@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# Match melos/CI: format with the FVM Flutter SDK's bundled Dart, not system dart.
+DART=".fvm/flutter_sdk/bin/dart"
+if [ ! -x "$DART" ]; then
+  echo "FVM SDK not found at .fvm/flutter_sdk — run 'fvm use' (or melos bootstrap) first."
+  exit 1
+fi
+
 # Find the nearest pubspec.yaml for a file path and print the package name
 resolve_package() {
   dir=$(dirname "$1")
@@ -43,7 +50,7 @@ done
 STAGED_DART=$(git diff --cached --name-only --diff-filter=d -- '*.dart')
 if [ -n "$STAGED_DART" ]; then
   echo "Formatting staged .dart files..."
-  dart format $STAGED_DART
+  "$DART" format $STAGED_DART
   git add $STAGED_DART
 fi
 
