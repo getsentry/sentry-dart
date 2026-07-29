@@ -29,6 +29,14 @@ class FailedRequestInterceptor extends Interceptor {
     // ignore: invalid_use_of_internal_member
     final cfr = _captureFailedRequests ?? _hub.options.captureFailedRequests;
 
+    // Reporting a failed request to the DSN would generate the very request
+    // that failed.
+    // ignore: invalid_use_of_internal_member
+    if (isSentryRequestUrl(err.requestOptions.uri.toString(), _hub.options)) {
+      handler.next(err);
+      return;
+    }
+
     final statusCode = err.response?.statusCode;
     // A connection-level failure — timeout, DNS error, bad certificate — has no
     // status code to match against, so there is nothing to filter on. A
@@ -45,7 +53,12 @@ class FailedRequestInterceptor extends Interceptor {
     );
 
     if (cfr && isFailure && containsRequestTarget) {
-      final mechanism = Mechanism(type: 'SentryDioClientAdapter');
+      // The SDK caught the failure and reported it rather than letting it crash
+      // the app, so the session stays healthy.
+      final mechanism = Mechanism(
+        type: 'SentryDioClientAdapter',
+        handled: true,
+      );
       final throwableMechanism = ThrowableMechanism(mechanism, err);
 
       _hub.getSpan()?.throwable = err;

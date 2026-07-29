@@ -212,6 +212,40 @@ void main() {
     expect(fixture.errorInterceptorHandler.nextWasCalled, true);
     expect(fixture.hub.captureExceptionCalls.length, 0);
   });
+
+  test('captured request is handled, so it does not end the session', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    final captured = fixture.hub.captureExceptionCalls.first.throwable;
+    expect((captured as ThrowableMechanism).mechanism.handled, true);
+  });
+
+  test('do not capture a request to the dsn', () async {
+    final dsnHost = Uri.parse(fixture.hub.options.dsn!).host;
+    final requestOptions =
+        RequestOptions(path: 'https://$dsnHost/api/1/envelope/');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
 }
 
 class Fixture {

@@ -138,6 +138,12 @@ class FailedRequestClient extends BaseClient {
       return;
     }
 
+    // Reporting a failed request to the DSN would generate the very request
+    // that failed.
+    if (isSentryRequestUrl(request.url.toString(), _hub.options)) {
+      return;
+    }
+
     // Only check `failedRequestStatusCodes` & `failedRequestTargets` if no exception was thrown.
     if (exception == null) {
       if (!failedRequestStatusCodes._containsStatusCode(statusCode)) {
@@ -181,9 +187,12 @@ class FailedRequestClient extends BaseClient {
       data: _hub.options.sendDefaultPii ? _getDataFromRequest(request) : null,
     );
 
+    // The SDK caught the failure and reported it rather than letting it crash
+    // the app, so the session stays healthy.
     final mechanism = Mechanism(
       type: 'SentryHttpClient',
       description: reason,
+      handled: true,
     );
 
     bool? snapshot;

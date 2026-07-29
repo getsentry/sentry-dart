@@ -134,6 +134,25 @@ bool containsTargetOrMatchesRegExp(
   return false;
 }
 
+/// Whether [url] points at the configured DSN, in which case an HTTP client
+/// integration must not capture it — otherwise reporting a failure would
+/// generate the very request that failed.
+///
+/// Matches on the host alone, like sentry-javascript's `isSentryRequestUrl`.
+@internal
+bool isSentryRequestUrl(String url, SentryOptions options) {
+  try {
+    final host = options.parsedDsn.uri?.host;
+    if (host == null || host.isEmpty) {
+      return false;
+    }
+    return url.contains(host);
+  } catch (_) {
+    // The DSN may be unset or unparseable.
+    return false;
+  }
+}
+
 /// Determines whether an incoming trace should be continued based on org ID matching.
 ///
 /// Returns `true` if the trace should be continued, `false` if a new trace

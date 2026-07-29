@@ -336,6 +336,20 @@ void main() {
 
       expect((eventHint?.get('request') as Request?)?.url, failedRequest?.url);
     });
+
+    test('does not capture a request to the dsn', () async {
+      fixture._hub.options.captureFailedRequests = true;
+
+      final dsnUri = Uri.parse(fixture.options.dsn!);
+      final envelopeUri = Uri.https(dsnUri.host, '/api/1/envelope/');
+
+      final client = MockClient((request) async => Response('', 500));
+      final sut = fixture.getSut(client: client);
+
+      await sut.get(envelopeUri);
+
+      expect(fixture.transport.calls, 0);
+    });
   });
 }
 
