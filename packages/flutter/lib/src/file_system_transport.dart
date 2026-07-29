@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import '../sentry_flutter.dart';
 import 'native/sentry_native_binding.dart';
+import 'utils/internal_logger.dart';
 
 class FileSystemTransport implements Transport {
   FileSystemTransport(this._native, this._options);
@@ -21,10 +22,9 @@ class FileSystemTransport implements Transport {
         envelope.containsUnhandledException,
       );
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Failed to save envelope',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {

@@ -211,6 +211,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
 import '../widget_utils.dart';
+import '../utils/internal_logger.dart';
 import 'user_interaction_info.dart';
 
 const _tapDeltaArea = 20 * 20;
@@ -298,10 +299,9 @@ class _SentryUserInteractionWidgetState
       _lastPointerId = event.pointer;
       _lastPointerDownLocation = event.localPosition;
     } catch (exception, stacktrace) {
-      _options?.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error while handling pointer-down event $event in $SentryUserInteractionWidget',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_options?.automatedTestMode ?? false) {
@@ -327,10 +327,9 @@ class _SentryUserInteractionWidgetState
         _onTappedAt(event.localPosition);
       }
     } catch (exception, stacktrace) {
-      _options?.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error while handling pointer-up event $event in $SentryUserInteractionWidget',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_options?.automatedTestMode ?? false) {

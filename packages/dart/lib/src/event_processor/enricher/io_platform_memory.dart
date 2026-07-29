@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import '../../protocol.dart';
 import '../../sentry_options.dart';
+import '../../utils/internal_logger.dart';
 
 // Get total & free platform memory (in bytes) for linux and windows operating systems.
 // Source: https://github.com/onepub-dev/system_info/blob/8a9bf6b8eb7c86a09b3c3df4bf6d7fa5a6b50732/lib/src/platform/memory.dart
@@ -87,7 +87,7 @@ class PlatformMemory {
         return result.stdout.toString();
       }
     } catch (e) {
-      options.log(SentryLevel.warning, "Failed to run process: $e");
+      internalLogger.warning(() => "Failed to run process: $e");
       if (options.automatedTestMode) {
         rethrow;
       }

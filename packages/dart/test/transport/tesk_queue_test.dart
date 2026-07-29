@@ -140,6 +140,6 @@ class Fixture {
   late var clientReportRecorder = MockClientReportRecorder();
 
   TaskQueue<int> getSut({required int maxQueueSize}) {
-    return DefaultTaskQueue(maxQueueSize, options.log, clientReportRecorder);
+    return DefaultTaskQueue(maxQueueSize, clientReportRecorder);
   }
 }

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
-import '../../sentry_flutter.dart';
 import '../screenshot/screenshot.dart';
+import '../utils/internal_logger.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
@@ -52,7 +52,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       return true;
     }());
 
-    options.log(SentryLevel.debug, "$logName: starting capture");
+    internalLogger.debug("$logName: starting capture");
     _status = _Status.running;
     await _restartScheduler();
   }
@@ -61,8 +61,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     ScheduledScreenshotRecorderConfig config,
   ) async {
     super.config = config;
-    options.log(
-      SentryLevel.debug,
+    internalLogger.debug(
       "$logName: onConfigurationChanged (${config.width}x${config.height} @ ${config.frameRate} Hz).",
     );
 
@@ -102,11 +101,11 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> stop() async {
-    options.log(SentryLevel.debug, "$logName: stopping capture.");
+    internalLogger.debug("$logName: stopping capture.");
     _status = _Status.stopped;
     await _stopScheduler();
     // await Future.wait([_stopScheduler(), _idleFrameFiller.stop()]);
-    options.log(SentryLevel.debug, "$logName: capture stopped.");
+    internalLogger.debug("$logName: capture stopped.");
   }
 
   Future<void> pause() async {
@@ -131,8 +130,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       // _idleFrameFiller.actualFrameReceived(screenshot);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '$logName: screenshot dropped because status=${_status.name}.',
       );
     }
@@ -146,8 +144,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       await _callback(screenshot, isNewlyCaptured);
     } else {
       // drop any screenshots from callbacks if the replay has already been stopped/paused.
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '$logName: screenshot dropped because status=${_status.name}.',
       );
     }

@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
-import '../sentry.dart';
-import '../protocol/sentry_level.dart';
+import '../utils/internal_logger.dart';
 
 /// Extension providing type-safe value extraction from JSON maps
 @internal
@@ -73,16 +72,16 @@ extension TypeSafeMapExtension on Map<String, dynamic> {
   }
 
   void _logTypeMismatch(String key, String expected, String actual) {
-    Sentry.currentHub.options.log(
-      SentryLevel.warning,
-      'Type mismatch in JSON deserialization: key "$key" expected $expected but got $actual',
+    internalLogger.warning(
+      () =>
+          'Type mismatch in JSON deserialization: key "$key" expected $expected but got $actual',
     );
   }
 
   void _logParseError(String key, String expected, Object value) {
-    Sentry.currentHub.options.log(
-      SentryLevel.warning,
-      'Parse error in JSON deserialization: key "$key" could not be parsed as $expected from value "$value"',
+    internalLogger.warning(
+      () =>
+          'Parse error in JSON deserialization: key "$key" could not be parsed as $expected from value "$value"',
     );
   }
 }

@@ -1311,7 +1311,9 @@ class Fixture {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
-    options.log = mockLogger; // Enable logging in DiagnosticsLogger
+    if (debug) {
+      configureDiagnosticTestLogger(onLog: mockLogger);
+    }
     if (traceLifecycle != null) {
       options.traceLifecycle = traceLifecycle;
     }
@@ -1337,12 +1339,11 @@ class Fixture {
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     loggedLevel = level;
     loggedMessage = message;
-    loggedException = exception;
+    loggedException = error;
   }
 }

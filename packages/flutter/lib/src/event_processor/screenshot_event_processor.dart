@@ -8,6 +8,7 @@ import '../screenshot/recorder_config.dart';
 
 import '../screenshot/screenshot_support.dart';
 import '../utils/debouncer.dart';
+import '../utils/internal_logger.dart';
 
 class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
@@ -49,8 +50,7 @@ class ScreenshotEventProcessor implements EventProcessor {
 
     final renderer = _options.rendererWrapper.renderer;
     if (!_options.isScreenshotSupported) {
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'Screenshot: not supported in this environment with renderer $renderer',
       );
       return event;
@@ -77,8 +77,7 @@ class ScreenshotEventProcessor implements EventProcessor {
           takeScreenshot = result;
         }
       } else if (shouldDebounce) {
-        _options.log(
-          SentryLevel.debug,
+        internalLogger.debug(
           'Screenshot: skipping capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
         );
         takeScreenshot = false;
@@ -88,10 +87,9 @@ class ScreenshotEventProcessor implements EventProcessor {
         return event;
       }
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Screenshot: the beforeCaptureScreenshot/beforeScreenshot callback threw an exception',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {

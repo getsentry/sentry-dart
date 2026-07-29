@@ -7,6 +7,7 @@ import '../binding_wrapper.dart';
 import '../frames_tracking/sentry_delayed_frames_tracker.dart';
 import '../frames_tracking/span_frame_metrics_collector.dart';
 import '../native/sentry_native_binding.dart';
+import '../utils/internal_logger.dart';
 
 class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   FramesTrackingIntegration(this._native);
@@ -26,35 +27,35 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     _options = options;
 
     if (!options.enableFramesTracking) {
-      return options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '$FramesTrackingIntegration disabled: enableFramesTracking option is false',
       );
+      return;
     }
 
     if (options.tracesSampleRate == null && options.tracesSampler == null) {
-      return options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '$FramesTrackingIntegration disabled: tracesSampleRate and tracesSampler are disabled',
       );
+      return;
     }
 
     final widgetsBinding = options.bindingUtils.instance;
     if (widgetsBinding == null ||
         widgetsBinding is! SentryWidgetsBindingMixin) {
-      return options.log(
-        SentryLevel.warning,
+      internalLogger.warning(
         '$FramesTrackingIntegration disabled: incompatible binding, SentryWidgetsFlutterBinding has not been instantiated. Please, use SentryWidgetsFlutterBinding.ensureInitialized() instead of WidgetsFlutterBinding.ensureInitialized()',
       );
+      return;
     }
     _widgetsBinding = widgetsBinding;
 
     final expectedFrameDuration = await _initializeExpectedFrameDuration();
     if (expectedFrameDuration == null) {
-      return options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '$FramesTrackingIntegration disabled: could not fetch valid display refresh rate',
       );
+      return;
     }
 
     // Everything valid, we can initialize now
@@ -90,8 +91,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
           if (event.span.endTimestamp != null) {
             collector.finishTracking(wrapped, event.span.endTimestamp!);
           } else {
-            options.log(
-              SentryLevel.warning,
+            internalLogger.warning(
               'OnProcessSpan fired but span has no endTimestamp',
             );
             collector.removeFromActiveSpans(wrapped);
@@ -115,8 +115,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
           if (event.span.endTimestamp != null) {
             collector.finishTracking(wrapped, event.span.endTimestamp!);
           } else {
-            options.log(
-              SentryLevel.warning,
+            internalLogger.warning(
               'OnSpanFinish fired but span has no endTimestamp',
             );
             collector.removeFromActiveSpans(wrapped);
@@ -128,8 +127,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     }
 
     options.sdk.addIntegration(integrationName);
-    options.log(
-      SentryLevel.debug,
+    internalLogger.debug(
       '$FramesTrackingIntegration successfully initialized with an expected frame duration of ${expectedFrameDuration.inMilliseconds}ms',
     );
   }

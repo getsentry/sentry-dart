@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../sentry_js_bundle.dart';
 import 'script_dom_api.dart';
+import '../../utils/internal_logger.dart';
 
 @internal
 const String defaultTrustedPolicyName = 'sentry-dart';
@@ -50,12 +51,11 @@ class SentryScriptLoader {
       });
 
       _scriptLoaded = true;
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'JS SDK integration: all Sentry scripts loaded successfully.',
       );
     } catch (e) {
-      _options.log(SentryLevel.error, 'Failed to load Sentry scripts: $e');
+      internalLogger.error('Failed to load Sentry scripts: $e');
       if (_options.automatedTestMode) {
         rethrow;
       }

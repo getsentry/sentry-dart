@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 
 /// An [Integration] that loads the release version from native apps
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
@@ -32,7 +33,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
           release = '$release+$buildNumber';
         }
 
-        options.log(SentryLevel.debug, 'release: $release');
+        internalLogger.debug('release: $release');
 
         options.release = options.release ?? release;
         if (buildNumber.isNotEmpty) {
@@ -40,10 +41,9 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
         }
       }
     } catch (exception, stackTrace) {
-      options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Failed to load release and dist',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (options.automatedTestMode) {

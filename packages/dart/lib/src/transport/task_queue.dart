@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import '../../sentry.dart';
 import '../client_reports/client_report_recorder.dart';
 import '../client_reports/discard_reason.dart';
 import 'data_category.dart';
+import '../utils/internal_logger.dart';
 
 typedef Task<T> = Future<T> Function();
 
@@ -16,10 +16,9 @@ abstract class TaskQueue<T> {
 
 @internal
 class DefaultTaskQueue<T> implements TaskQueue<T> {
-  DefaultTaskQueue(this._maxQueueSize, this._logger, this._recorder);
+  DefaultTaskQueue(this._maxQueueSize, this._recorder);
 
   final int _maxQueueSize;
-  final SdkLogCallback _logger;
   final ClientReportRecorder _recorder;
 
   int _queueCount = 0;
@@ -32,8 +31,7 @@ class DefaultTaskQueue<T> implements TaskQueue<T> {
   ) async {
     if (_queueCount >= _maxQueueSize) {
       _recorder.recordLostEvent(DiscardReason.queueOverflow, category);
-      _logger(
-        SentryLevel.warning,
+      internalLogger.warning(
         'Task dropped due to reaching max ($_maxQueueSize} parallel tasks.).',
       );
       return fallbackResult;

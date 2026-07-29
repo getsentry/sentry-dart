@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
+import 'package:sentry/src/utils/internal_logger.dart';
 import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
@@ -23,6 +24,36 @@ SentryOptions defaultTestOptions(
     {Platform? platform, RuntimeChecker? checker}) {
   return SentryOptions(dsn: testDsn, platform: platform, checker: checker)
     ..automatedTestMode = true;
+}
+
+/// Captures [internalLogger] output in tests that assert on diagnostic logs.
+void configureDiagnosticTestLogger({
+  required void Function(
+    SentryLevel level,
+    String message, {
+    Object? error,
+    StackTrace? stackTrace,
+  }) onLog,
+  bool isEnabled = true,
+  SentryLevel minLevel = SentryLevel.debug,
+}) {
+  SentryInternalLogger.configure(
+    isEnabled: isEnabled,
+    minLevel: minLevel,
+    logOutput: ({
+      required String name,
+      required SentryLevel level,
+      required String message,
+      Object? error,
+      StackTrace? stackTrace,
+    }) {
+      onLog(level, message, error: error, stackTrace: stackTrace);
+    },
+  );
+}
+
+void resetDiagnosticTestLogger() {
+  SentryInternalLogger.configure(isEnabled: false);
 }
 
 /// Decodes the JSON payload of the single envelope item in [envelope].

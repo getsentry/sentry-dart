@@ -39,32 +39,19 @@ void main() {
     expect(200, options.maxBreadcrumbs);
   });
 
-  test('SdkLogger sets a diagnostic logger', () {
+  test('debug configures internal logger', () {
     final options = defaultTestOptions();
-    expect(options.log, noOpLog);
-    options.debug = true;
+    options.debug = false;
+    expect(SentryInternalLogger.isEnabled, isFalse);
 
-    expect(options.log, isNot(noOpLog));
+    options.debug = true;
+    expect(SentryInternalLogger.isEnabled, isTrue);
   });
 
-  test('setting debug correctly sets logger', () {
-    final options = defaultTestOptions();
-    expect(options.log, noOpLog);
-    expect(options.diagnosticLog, isNull);
-    options.debug = true;
-    expect(options.log, isNot(options.debugLog));
-    expect(options.diagnosticLog!.logger, options.debugLog);
-    expect(options.log, options.diagnosticLog!.log);
-
-    options.debug = false;
-    expect(options.log, isNot(noOpLog));
-    expect(options.diagnosticLog!.logger, noOpLog);
-    expect(options.log, options.diagnosticLog!.log);
-
-    options.debug = true;
-    expect(options.log, isNot(options.debugLog));
-    expect(options.diagnosticLog!.logger, options.debugLog);
-    expect(options.log, options.diagnosticLog!.log);
+  test('diagnosticLevel configures internal logger min level', () {
+    final options = defaultTestOptions()..debug = true;
+    options.diagnosticLevel = SentryLevel.error;
+    expect(SentryInternalLogger.minLevel, SentryLevel.error);
   });
 
   test('tracesSampler is null by default', () {

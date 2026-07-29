@@ -3,6 +3,7 @@
 import '../../../sentry_flutter.dart';
 import '../app_start_timing.dart';
 import '../../native/sentry_native_binding.dart';
+import '../../utils/internal_logger.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
@@ -16,7 +17,6 @@ class NativeAppStartHandler {
   final SentryNativeBinding _native;
 
   late final Hub _hub;
-  late final SentryFlutterOptions _options;
 
   Future<void> call(
     Hub hub,
@@ -25,7 +25,6 @@ class NativeAppStartHandler {
     required DateTime appStartEnd,
   }) async {
     _hub = hub;
-    _options = options;
 
     final nativeAppStart = await _native.fetchNativeAppStart();
     final setupTimestamp = SentryFlutter.sentrySetupStartTime;
@@ -161,8 +160,7 @@ class NativeAppStartHandler {
         span.data.putIfAbsent('native', () => true);
         transaction.children.add(span);
       } catch (e) {
-        _options.log(
-          SentryLevel.warning,
+        internalLogger.warning(
           'Failed to attach native span to app start transaction: $e',
         );
       }

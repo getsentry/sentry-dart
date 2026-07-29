@@ -9,13 +9,12 @@ import 'package:sentry_flutter/src/native/native_scope_observer.dart';
 import 'mocks.mocks.dart';
 
 void main() {
-  late final options = SentryOptions();
   late MockSentryNativeBinding mock;
   late NativeScopeObserver sut;
 
   setUp(() {
     mock = MockSentryNativeBinding();
-    sut = NativeScopeObserver(mock, options);
+    sut = NativeScopeObserver(mock);
   });
 
   test('addBreadcrumbCalls', () async {

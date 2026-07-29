@@ -36,6 +36,7 @@ import 'transport/task_queue.dart';
 import 'telemetry/log/logger.dart';
 import 'telemetry/log/logger_setup_integration.dart';
 import 'track_before_send_usage_integration.dart';
+import 'utils/internal_logger.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -71,14 +72,12 @@ class Sentry {
       }
       _taskQueue = DefaultTaskQueue<SentryId>(
         sentryOptions.maxQueueSize,
-        sentryOptions.log,
         sentryOptions.recorder,
       );
     } catch (exception, stackTrace) {
-      sentryOptions.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error in options configuration.',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (sentryOptions.automatedTestMode) {
@@ -106,10 +105,8 @@ class Sentry {
 
     if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
-      options.log(
-        SentryLevel.debug,
-        'Debug mode is enabled: Application is running in a debug environment.',
-      );
+      internalLogger.debug(
+          'Debug mode is enabled: Application is running in a debug environment.');
     }
 
     if (options.enableDartSymbolication) {
@@ -165,10 +162,8 @@ class Sentry {
     RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
-      options.log(
-        SentryLevel.warning,
-        'Sentry has been already initialized. Previous configuration will be overwritten.',
-      );
+      internalLogger.warning(
+          'Sentry has been already initialized. Previous configuration will be overwritten.');
     }
 
     // let's set the default values to options

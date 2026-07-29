@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 
 // ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
@@ -27,7 +28,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
     _integrationOnError = (FlutterErrorDetails errorDetails) {
       final exception = errorDetails.exception;
 
-      options.log(SentryLevel.debug, 'Capture from onError $exception');
+      internalLogger.debug('Capture from onError $exception');
 
       if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
         final context = errorDetails.context?.toDescription();
@@ -48,11 +49,9 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           'library': ?library,
         };
 
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           errorDetails.toStringShort(),
-          logger: 'sentry.flutterError',
-          exception: exception,
+          error: exception,
           stackTrace: errorDetails.stack,
         );
 
@@ -91,8 +90,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {
-        options.log(
-          SentryLevel.debug,
+        internalLogger.debug(
           'Error not captured due to [FlutterErrorDetails.silent], '
           'Enable [SentryFlutterOptions.reportSilentFlutterErrors] '
           'if you wish to capture silent errors',

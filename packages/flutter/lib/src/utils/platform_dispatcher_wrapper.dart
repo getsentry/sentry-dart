@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
 import '../integrations/on_error_integration.dart';
 import '../sentry_flutter_options.dart';
+import 'internal_logger.dart';
 
 /// This class wraps the `this as dynamic` hack in a type-safe manner.
 /// It helps to introduce code, which uses newer features from Flutter
@@ -24,10 +24,9 @@ class PlatformDispatcherWrapper {
       return false;
     } catch (exception, stacktrace) {
       // This error is neither expected on pre 3.10.0 nor on >= 3.10.0 Flutter versions
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'An unexpected exception was thrown, please create an issue at https://github.com/getsentry/sentry-dart/issues',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (options.automatedTestMode) {
@@ -54,10 +53,9 @@ class PlatformDispatcherWrapper {
       return false;
     } catch (exception, stacktrace) {
       // This error is neither expected on pre 3.1 nor on >= 3.1 Flutter versions
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'An unexpected exception was thrown, please create an issue at https://github.com/getsentry/sentry-dart/issues',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (options.automatedTestMode) {

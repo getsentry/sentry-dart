@@ -666,7 +666,7 @@ void main() {
     );
   });
 
-  test('options.logger is set by setting the debug flag', () async {
+  test('debug configures internal logger during init', () async {
     final sentryOptions =
         defaultTestOptions(checker: MockRuntimeChecker(isDebug: true));
 
@@ -674,18 +674,18 @@ void main() {
       (options) {
         options.dsn = fakeDsn;
         options.debug = true;
-        expect(options.diagnosticLog?.logger, isNot(noOpLog));
+        expect(SentryInternalLogger.isEnabled, isTrue);
 
         options.debug = false;
-        expect(options.diagnosticLog?.logger, noOpLog);
+        expect(SentryInternalLogger.isEnabled, isFalse);
 
         options.debug = true;
-        expect(options.diagnosticLog?.logger, isNot(noOpLog));
+        expect(SentryInternalLogger.isEnabled, isTrue);
       },
       options: sentryOptions,
     );
 
-    expect(sentryOptions.diagnosticLog?.logger, isNot(noOpLog));
+    expect(SentryInternalLogger.isEnabled, isTrue);
   });
 
   group('Sentry init optionsConfiguration', () {
@@ -700,8 +700,8 @@ void main() {
       final sentryOptions =
           defaultTestOptions(checker: MockRuntimeChecker(isRelease: true))
             ..automatedTestMode = false
-            ..debug = true
-            ..log = fixture.mockLogger;
+            ..debug = true;
+      configureDiagnosticTestLogger(onLog: fixture.mockLogger);
 
       final exception = Exception("Exception in options callback");
       await Sentry.init(
@@ -747,14 +747,13 @@ class Fixture {
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     if (!logged) {
       logged = true; // Block multiple calls which override expected values.
       loggedLevel = level;
-      loggedException = exception;
+      loggedException = error;
     }
   }
 }

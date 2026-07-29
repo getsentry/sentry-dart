@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'diagnostic_log.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
 import 'platform/platform.dart';
@@ -17,7 +16,6 @@ import 'telemetry/metric/noop_metrics.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
-import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -128,20 +126,6 @@ class SentryOptions {
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
 
-  SdkLogCallback _log = noOpLog;
-
-  /// Log callback to log useful debugging information if debug is enabled
-  SdkLogCallback get log => _log;
-
-  @internal
-  set log(SdkLogCallback value) {
-    diagnosticLog = DiagnosticLog(value, this);
-    _log = diagnosticLog!.log;
-  }
-
-  @visibleForTesting
-  DiagnosticLog? diagnosticLog;
-
   final List<EventProcessor> _eventProcessors = [];
 
   /// Are callbacks that run for every event. They can either return a new event which in most cases
@@ -164,14 +148,6 @@ class SentryOptions {
   set debug(bool newValue) {
     _debug = newValue;
     _configureInternalLogger();
-    if (_debug == true &&
-        (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
-      log = debugLog;
-    }
-    if (_debug == false &&
-        (log == debugLog || diagnosticLog?.logger == debugLog)) {
-      log = noOpLog;
-    }
   }
 
   bool _debug = false;
@@ -709,34 +685,7 @@ class SentryOptions {
   /// Defaults to [LegacyInstrumentationSpanFactory] which uses the legacy [ISentrySpan] API.
   @internal
   InstrumentationSpanFactory spanFactory = LegacyInstrumentationSpanFactory();
-
-  @visibleForTesting
-  void debugLog(
-    SentryLevel level,
-    String message, {
-    String? logger,
-    Object? exception,
-    StackTrace? stackTrace,
-  }) {
-    developer.log(
-      '[${level.name}] $message',
-      level: level.toDartLogLevel(),
-      name: logger ?? 'sentry',
-      time: clock(),
-      error: exception,
-      stackTrace: stackTrace,
-    );
-  }
 }
-
-@visibleForTesting
-void noOpLog(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-}) {}
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
@@ -781,15 +730,6 @@ typedef BeforeSendSpanCallback = FutureOr<void> Function(
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
-
-/// Logger callback to log useful debugging information if debug is enabled
-typedef SdkLogCallback = void Function(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-});
 
 typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
