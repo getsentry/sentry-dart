@@ -35,28 +35,28 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
-    hint.response ??= _responseFrom(dioError);
+    final response = _responseFrom(dioError);
+    hint.response ??= response;
 
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
     event.request = event.request ?? _requestFrom(dioError);
+    // Also on the event, not just the hint: a hint is beforeSend-only and never
+    // serialized, so otherwise the status code, headers and body never arrive.
+    event.contexts.response = event.contexts.response ?? response;
     return event;
   }
 
-  /// Only replace a message that carries no information of its own. A bad
-  /// response is several lines of boilerplate — the meaning of the status code,
-  /// a link to MDN and generic remediation advice — and the other types either
-  /// name the timeout that elapsed or the connection error that occurred, which
-  /// we would otherwise drop.
+  /// Dio's own messages are paragraphs of remediation advice rather than facts:
+  /// a bad response explains what the status code means and links to MDN, and a
+  /// timeout restates the timeout that was configured. sentry-javascript
+  /// likewise never surfaces the underlying error's message, only the synthetic
+  /// one.
   bool _shouldReplaceValue(DioError dioError) {
     // Never override a message the user chose to build themselves.
-    if (dioError.stringBuilder != null ||
-        DioException.readableStringBuilder !=
-            defaultDioExceptionReadableStringBuilder) {
-      return false;
-    }
-    return dioError.type == DioExceptionType.badResponse ||
-        dioError.message == null;
+    return dioError.stringBuilder == null &&
+        DioException.readableStringBuilder ==
+            defaultDioExceptionReadableStringBuilder;
   }
 
   /// Worded like the other SDKs' HTTP client errors so a Dio 502 and a
