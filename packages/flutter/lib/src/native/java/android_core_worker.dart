@@ -187,28 +187,26 @@ class AndroidCoreWorker {
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
     if (_isClosed) return null;
 
+    final normalizedBreadcrumbJson =
+        normalize(breadcrumb.toJson()) as Map<String, dynamic>;
     final client = _worker;
     if (client == null) {
       _addBreadcrumb(
-        breadcrumb.toJson(),
+        normalizedBreadcrumbJson,
         automatedTestMode: _config.automatedTestMode,
       );
       return null;
     }
 
-    return _addBreadcrumbFromWorker(client, breadcrumb);
+    return _addBreadcrumbFromWorker(client, normalizedBreadcrumbJson);
   }
 
   Future<void> _addBreadcrumbFromWorker(
     Worker client,
-    Breadcrumb breadcrumb,
+    Map<String, dynamic> normalizedBreadcrumbJson,
   ) async {
     try {
-      await client.request(
-        _AddBreadcrumbRequest(
-          normalize(breadcrumb.toJson()) as Map<String, dynamic>,
-        ),
-      );
+      await client.request(_AddBreadcrumbRequest(normalizedBreadcrumbJson));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to add breadcrumb',
@@ -251,24 +249,24 @@ class AndroidCoreWorker {
   FutureOr<void> setUser(SentryUser? user) {
     if (_isClosed) return null;
 
+    final normalizedUserJson =
+        user == null ? null : normalize(user.toJson()) as Map<String, dynamic>;
     final client = _worker;
     if (client == null) {
-      _setUser(user?.toJson(), automatedTestMode: _config.automatedTestMode);
+      _setUser(normalizedUserJson,
+          automatedTestMode: _config.automatedTestMode);
       return null;
     }
 
-    return _setUserFromWorker(client, user);
+    return _setUserFromWorker(client, normalizedUserJson);
   }
 
-  Future<void> _setUserFromWorker(Worker client, SentryUser? user) async {
+  Future<void> _setUserFromWorker(
+    Worker client,
+    Map<String, dynamic>? normalizedUserJson,
+  ) async {
     try {
-      await client.request(
-        _SetUserRequest(
-          user == null
-              ? null
-              : normalize(user.toJson()) as Map<String, dynamic>,
-        ),
-      );
+      await client.request(_SetUserRequest(normalizedUserJson));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to set user',
@@ -301,10 +299,10 @@ class AndroidCoreWorker {
   Future<void> _setContextsFromWorker(
     Worker client,
     String key,
-    Object? value,
+    Object? normalizedValue,
   ) async {
     try {
-      await client.request(_SetContextsRequest(key, value));
+      await client.request(_SetContextsRequest(key, normalizedValue));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to set context',
@@ -632,12 +630,12 @@ Map<String, dynamic>? _loadContexts({bool automatedTestMode = false}) {
 }
 
 void _addBreadcrumb(
-  Map<String, dynamic> breadcrumb, {
+  Map<String, dynamic> normalizedBreadcrumbJson, {
   bool automatedTestMode = false,
 }) {
   JByteArray? jBytes;
   try {
-    jBytes = _jsonToJByteArray(breadcrumb);
+    jBytes = _jsonToJByteArray(normalizedBreadcrumbJson);
     native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -668,13 +666,16 @@ void _clearBreadcrumbs({bool automatedTestMode = false}) {
   }
 }
 
-void _setUser(Map<String, dynamic>? user, {bool automatedTestMode = false}) {
+void _setUser(
+  Map<String, dynamic>? normalizedUserJson, {
+  bool automatedTestMode = false,
+}) {
   JByteArray? jBytes;
   try {
-    if (user == null) {
+    if (normalizedUserJson == null) {
       native.SentryFlutterPlugin.setUserFromJsonBytes(null);
     } else {
-      jBytes = _jsonToJByteArray(user);
+      jBytes = _jsonToJByteArray(normalizedUserJson);
       native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
     }
   } catch (exception, stackTrace) {
@@ -691,12 +692,16 @@ void _setUser(Map<String, dynamic>? user, {bool automatedTestMode = false}) {
   }
 }
 
-void _setContexts(String key, Object? value, {bool automatedTestMode = false}) {
+void _setContexts(
+  String key,
+  Object? normalizedValue, {
+  bool automatedTestMode = false,
+}) {
   JString? jKey;
   JByteArray? jBytes;
   try {
     jKey = key.toJString();
-    jBytes = _jsonToJByteArray(value);
+    jBytes = _jsonToJByteArray(normalizedValue);
 
     native.SentryFlutterPlugin.setContextFromJsonBytes(jKey, jBytes);
   } catch (exception, stackTrace) {
@@ -733,5 +738,6 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
   }
 }
 
-JByteArray _jsonToJByteArray(Object? value) =>
-    JByteArray.from(encodeUtf8Json(normalize(value)));
+/// [normalizedValue] must already have been passed through [normalize].
+JByteArray _jsonToJByteArray(Object? normalizedValue) =>
+    JByteArray.from(encodeUtf8Json(normalizedValue));
