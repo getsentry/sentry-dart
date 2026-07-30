@@ -43,8 +43,8 @@ Future<void> execute() async {
     final newMax = newResults.reduce(max);
 
     // Calculate improvement
-    final improvement =
-        ((legacyAvg - newAvg) / legacyAvg * 100).toStringAsFixed(1);
+    final improvement = ((legacyAvg - newAvg) / legacyAvg * 100)
+        .toStringAsFixed(1);
     final speedup = (legacyAvg / newAvg).toStringAsFixed(2);
 
     print('Legacy approach (List<int> + addAll):');
