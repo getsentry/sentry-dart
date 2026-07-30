@@ -1427,6 +1427,121 @@ void main() {
       });
     });
 
+    group('when capturing an error while a span is active', () {
+      test('links the event to the active span', () async {
+        final hub = fixture.getSut();
+
+        late SentrySpanV2 span;
+        await hub.startSpan('test-span', (s) async {
+          span = s;
+          await hub.captureEvent(SentryEvent());
+        });
+
+        expect(fixture.client.captureEventCalls.first.scope?.getActiveSpan(),
+            same(span));
+      });
+
+      test('links the exception to the active span', () async {
+        final hub = fixture.getSut();
+
+        late SentrySpanV2 span;
+        await hub.startSpan('test-span', (s) async {
+          span = s;
+          await hub.captureException(StateError('error'));
+        });
+
+        expect(fixture.client.captureEventCalls.first.scope?.getActiveSpan(),
+            same(span));
+      });
+
+      test('links the event to the innermost span', () async {
+        final hub = fixture.getSut();
+
+        late SentrySpanV2 childSpan;
+        await hub.startSpan('root-span', (_) async {
+          await hub.startSpan('child-span', (child) async {
+            childSpan = child;
+            await hub.captureEvent(SentryEvent());
+          });
+        });
+
+        expect(fixture.client.captureEventCalls.first.scope?.getActiveSpan(),
+            same(childSpan));
+      });
+
+      test('links the event to the idle span', () async {
+        final hub = fixture.getSut();
+        final idleSpan = hub.startIdleSpan('idle-span');
+
+        await hub.captureEvent(SentryEvent());
+
+        expect(fixture.client.captureEventCalls.first.scope?.getActiveSpan(),
+            same(idleSpan));
+      });
+
+      test('does not set the active span on the hub scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('test-span', (_) async {
+          await hub.captureEvent(SentryEvent());
+        });
+
+        expect(hub.scope.getActiveSpan(), isNull);
+      });
+
+      test('keeps the span set by withScope', () async {
+        final hub = fixture.getSut();
+        final explicitSpan =
+            hub.startInactiveSpan('explicit-span') as RecordingSentrySpanV2;
+
+        await hub.startSpan('test-span', (_) async {
+          await hub.captureEvent(
+            SentryEvent(),
+            withScope: (scope) => scope.setActiveSpan(explicitSpan),
+          );
+        });
+
+        expect(fixture.client.captureEventCalls.first.scope?.getActiveSpan(),
+            same(explicitSpan));
+      });
+
+      test('does not clone the scope when capturing a log', () async {
+        final hub = fixture.getSut();
+        fixture.options.enableLogs = true;
+
+        await hub.startSpan('test-span', (_) async {
+          await hub.captureLog(SentryLog(
+            timestamp: DateTime.now(),
+            traceId: SentryId.newId(),
+            level: SentryLogLevel.info,
+            body: 'log',
+            attributes: {},
+          ));
+        });
+
+        expect(fixture.client.captureLogCalls.first.scope, same(hub.scope));
+      });
+    });
+
+    group('when capturing an error while no span is active', () {
+      test('does not link the event to a span', () async {
+        final hub = fixture.getSut();
+
+        await hub.captureEvent(SentryEvent());
+
+        expect(fixture.client.captureEventCalls.first.scope?.getActiveSpan(),
+            isNull);
+      });
+
+      test('does not clone the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.captureEvent(SentryEvent());
+
+        expect(fixture.client.captureEventCalls.first.scope, same(hub.scope));
+      });
+    });
+
     group('when recording client reports for span discards', () {
       group('with ignoreSpans rule matching a segment', () {
         test('records ignored span outcome for the segment', () {

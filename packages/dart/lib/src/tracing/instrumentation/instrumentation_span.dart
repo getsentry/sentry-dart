@@ -18,6 +18,9 @@ abstract class InstrumentationSpan {
   SentryTraceHeader toSentryTrace();
   SentryBaggageHeader? toBaggageHeader();
 
+  /// Links events captured with [scope] to this span.
+  void applyToScope(Scope scope);
+
   /// Returns true if this span is a recording span that records data.
   bool get isRecording;
 
@@ -71,6 +74,11 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
 
   @override
   SentryBaggageHeader? toBaggageHeader() => _span.toBaggageHeader();
+
+  /// No-op: with the static trace lifecycle errors are already linked to the
+  /// transaction bound to the scope.
+  @override
+  void applyToScope(Scope scope) {}
 
   @override
   bool get isRecording => _span is SentrySpan;
@@ -195,6 +203,13 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
       spanId: _span.spanId,
       sampled: null,
     );
+  }
+
+  @override
+  void applyToScope(Scope scope) {
+    if (_span case RecordingSentrySpanV2 recordingSpan) {
+      scope.setActiveSpan(recordingSpan);
+    }
   }
 
   SpanStatus _convertFromV2Status(SentrySpanStatusV2 status) {

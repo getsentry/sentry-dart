@@ -101,6 +101,8 @@ class Hub {
         scope = s;
       }
 
+      scope = _linkActiveSpan(scope, item.scope);
+
       try {
         if (_options.isTracingEnabled()) {
           event = _assignTraceContext(event);
@@ -158,6 +160,8 @@ class Hub {
       } else {
         scope = s;
       }
+
+      scope = _linkActiveSpan(scope, item.scope);
 
       try {
         var event = SentryEvent(
@@ -354,6 +358,26 @@ class Hub {
         );
       }
     }
+  }
+
+  /// Attaches the currently active span to [scope] so that the captured event
+  /// is linked to it.
+  ///
+  /// Copies [scope] first when it is still [hubScope], because the active span
+  /// must not outlive the capture: nothing would unset it afterwards and every
+  /// later event would link to an already ended span.
+  ///
+  /// An active span already present on [scope] was set by a `withScope`
+  /// callback and is more specific than the ambient one, so it wins.
+  Scope _linkActiveSpan(Scope scope, Scope hubScope) {
+    final activeSpan = getActiveSpan();
+    if (activeSpan == null || scope.getActiveSpan() != null) {
+      return scope;
+    }
+    if (identical(scope, hubScope)) {
+      scope = scope.clone();
+    }
+    return scope..setActiveSpan(activeSpan);
   }
 
   FutureOr<Scope> _cloneAndRunWithScope(
