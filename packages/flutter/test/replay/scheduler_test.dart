@@ -71,6 +71,29 @@ void main() {
     await fixture.drawFrame();
     expect(fixture.calls, 2);
   });
+
+  test('stop() awaits an in-flight callback before returning', () async {
+    final guard = Completer<void>();
+    var fixture = _Fixture((_) => guard.future);
+    fixture.sut.start();
+
+    await fixture.drawFrame(awaitCallback: false);
+    expect(fixture.calls, 1);
+
+    var stopped = false;
+    final stopFuture = fixture.sut.stop().then((_) => stopped = true);
+
+    // The scheduler's internal timer (1ms interval) elapses well within
+    // this delay, but the capture itself is still pending on `guard`.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(stopped, isFalse,
+        reason: 'stop() must not return before the in-flight '
+            'callback completes');
+
+    guard.complete();
+    await stopFuture;
+    expect(stopped, isTrue);
+  });
 }
 
 class _Fixture {

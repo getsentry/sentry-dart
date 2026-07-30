@@ -36,6 +36,11 @@ class Scheduler {
     if (scheduled != null) {
       await scheduled;
     }
+    // The scheduled future above only tracks the delay timer between runs,
+    // not the callback itself, so we also need to await any run that's
+    // currently in flight to make sure its GPU resources are released
+    // before the caller (e.g. the app lifecycle teardown) proceeds.
+    await _runningCallback;
   }
 
   @pragma('vm:prefer-inline')
