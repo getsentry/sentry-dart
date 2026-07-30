@@ -1088,7 +1088,27 @@ void main() {
 
       expect(
         processedEvent.exceptions?.first.value,
-        'HTTP Client Error: connectionTimeout',
+        'HTTP Client Error: connection timeout',
+      );
+    });
+
+    test('$DioEventProcessor describes a connection error in prose', () {
+      final sut = fixture.getSut();
+
+      final dioError = DioError.connectionError(
+        requestOptions: requestOptions,
+        reason: "Failed host lookup: 'example.invalid'",
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [fixture.sentryError(dioError)],
+      );
+
+      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+
+      expect(
+        processedEvent.exceptions?.first.value,
+        'HTTP Client Error: connection error',
       );
     });
 

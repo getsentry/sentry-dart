@@ -4,6 +4,19 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'dart:convert';
 
+/// Prose for the failure types that arrive without a status code. Only the
+/// types whose enum name reads badly are listed; anything else, including a type
+/// Dio adds in a future minor release, falls back to the name itself.
+const _failureDescriptions = <DioExceptionType, String>{
+  DioExceptionType.connectionTimeout: 'connection timeout',
+  DioExceptionType.sendTimeout: 'send timeout',
+  DioExceptionType.receiveTimeout: 'receive timeout',
+  DioExceptionType.badCertificate: 'bad certificate',
+  DioExceptionType.connectionError: 'connection error',
+  DioExceptionType.badResponse: 'bad response',
+  DioExceptionType.cancel: 'cancelled',
+};
+
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
 /// It adds information about [DioError.requestOptions] if present and also about
 /// the inner exceptions.
@@ -66,9 +79,11 @@ class DioEventProcessor implements EventProcessor {
   /// [SentryException.throwable] for `beforeSend`.
   String _valueFrom(DioError dioError) {
     final statusCode = dioError.response?.statusCode;
-    return statusCode == null
-        ? 'HTTP Client Error: ${dioError.type.name}'
-        : 'HTTP Client Error with status code: $statusCode';
+    if (statusCode != null) {
+      return 'HTTP Client Error with status code: $statusCode';
+    }
+    final failure = _failureDescriptions[dioError.type] ?? dioError.type.name;
+    return 'HTTP Client Error: $failure';
   }
 
   SentryRequest? _requestFrom(DioError dioError) {
