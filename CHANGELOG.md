@@ -6,8 +6,61 @@
 
 #### Flutter
 
-- Extend standalone app start by @buenaflor in [#3918](https://github.com/getsentry/sentry-dart/pull/3918)
-- Add standalone app start tracing by @buenaflor in [#3896](https://github.com/getsentry/sentry-dart/pull/3896)
+- Standalone app start tracing (experimental) by @buenaflor in [#3896](https://github.com/getsentry/sentry-dart/pull/3896) and [#3918](https://github.com/getsentry/sentry-dart/pull/3918)
+  - App start is reported as its own `App Start` root (`app.start`) spanning process start to the first frame, instead of being nested under the synthetic initial `ui.load`. This gives startup its own lifecycle and sampling decision.
+  - Opt in via `options.enableStandaloneAppStartTracing`. Requires tracing, is supported on Android and iOS, and works with both `SentryTraceLifecycle.static` and `SentryTraceLifecycle.stream`.
+  - Extend the app start past the first frame with `SentryFlutter.extendAppStart()` and `SentryFlutter.finishExtendedAppStart()`, so startup work that finishes later — remote config, auth restore, flag hydration — is part of the reported duration.
+  - Always finish what you extend. While an extension is open the app start stays open too; if it hits its 30 second deadline first, the extension is dropped and the reported duration falls back to the first frame.
+
+```dart
+// Opt in during SDK init and extend the app start across your startup work.
+await SentryFlutter.init(
+  (options) {
+    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    options.tracesSampleRate = 1.0;
+    options.enableStandaloneAppStartTracing = true;
+  },
+  appRunner: () async {
+    // Extend before the first frame renders.
+    SentryFlutter.extendAppStart();
+    runApp(const MyApp());
+
+    try {
+      await remoteConfig.fetchAndActivate();
+      await auth.restoreSession();
+    } finally {
+      // Releases the app start to report, measured up to here.
+      await SentryFlutter.finishExtendedAppStart();
+    }
+  },
+);
+```
+
+  - To nest your own spans under the extension, take the span itself — `SentryFlutter.getExtendedAppStartSpan()` on the static lifecycle, `SentryFlutter.getExtendedAppStartSpanV2()` on the streaming one. Each returns `null` on the other lifecycle and once the extension has ended. Finishing the span completes the extension, so there is no need to also call `finishExtendedAppStart()`.
+
+```dart
+// Static lifecycle.
+final appStart = SentryFlutter.getExtendedAppStartSpan();
+final child = appStart?.startChild('app.init', description: 'Load config');
+try {
+  await loadConfig();
+} finally {
+  await child?.finish();
+}
+
+// Streaming lifecycle. Only pass a parent when there is one — passing `null`
+// starts a root span instead of a child.
+final appStartV2 = SentryFlutter.getExtendedAppStartSpanV2();
+if (appStartV2 != null) {
+  await Sentry.startSpan(
+    'Load config',
+    (span) => loadConfig(),
+    parentSpan: appStartV2,
+  );
+} else {
+  await loadConfig();
+}
+```
 
 ### Fixes
 
