@@ -15,6 +15,7 @@ import 'sentry_options.dart';
 import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
 import 'telemetry/span/sentry_span_v2.dart';
+import 'utils/internal_logger.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
 
@@ -249,19 +250,12 @@ class Scope {
           hint,
         );
         if (processedBreadcrumb == null) {
-          _options.log(
-            SentryLevel.info,
-            'Breadcrumb was dropped by beforeBreadcrumb',
-          );
+          internalLogger.info('Breadcrumb was dropped by beforeBreadcrumb');
           return null;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'The BeforeBreadcrumb callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
+        internalLogger.error('The BeforeBreadcrumb callback threw an exception',
+            error: exception, stackTrace: stackTrace);
         if (_options.automatedTestMode) {
           rethrow;
         }

@@ -13,6 +13,7 @@ import 'sentry_native_binding.dart';
 import 'sentry_native_invoker.dart';
 import 'sentry_safe_method_channel.dart';
 import 'utils/data_normalizer.dart';
+import '../utils/internal_logger.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
@@ -28,10 +29,8 @@ class SentryNativeChannel
   SentryNativeChannel(this.options)
     : channel = SentrySafeMethodChannel(options);
 
-  void _logNotSupported(String operation) => options.log(
-    SentryLevel.debug,
-    'SentryNativeChannel: $operation is not supported',
-  );
+  void _logNotSupported(String operation) =>
+      internalLogger.debug('SentryNativeChannel: $operation is not supported');
 
   @override
   FutureOr<void> init(Hub hub) {

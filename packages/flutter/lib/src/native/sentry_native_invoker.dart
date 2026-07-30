@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../utils/internal_logger.dart';
 
 /// Helper to safely invoke native methods. Any errors are logged and ignored.
 @internal
@@ -43,10 +44,9 @@ mixin SentryNativeSafeInvoker {
   }
 
   void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {
-    options.log(
-      SentryLevel.error,
+    internalLogger.error(
       'Native call `$nativeMethodName` failed',
-      exception: error,
+      error: error,
       stackTrace: stackTrace,
     );
   }

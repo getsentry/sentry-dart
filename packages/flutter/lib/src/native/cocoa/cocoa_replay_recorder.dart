@@ -7,6 +7,7 @@ import '../../replay/replay_recorder.dart';
 import '../../screenshot/recorder.dart';
 import '../../screenshot/recorder_config.dart';
 import '../native_memory.dart';
+import '../../utils/internal_logger.dart';
 
 @internal
 class CocoaReplayRecorder {
@@ -23,8 +24,7 @@ class CocoaReplayRecorder {
   Future<Map<String, int>?> captureScreenshot() async {
     return _recorder.capture((screenshot) async {
       final data = await screenshot.rawRgbaData;
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'Replay: captured screenshot ('
         '${screenshot.width}x${screenshot.height} pixels, '
         '${data.lengthInBytes} bytes)',

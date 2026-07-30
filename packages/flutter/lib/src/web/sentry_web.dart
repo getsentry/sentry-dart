@@ -12,6 +12,7 @@ import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
+import '../utils/internal_logger.dart';
 import '../replay/replay_config.dart';
 import 'sentry_js_binding.dart';
 
@@ -22,7 +23,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryFlutterOptions _options;
 
   void _log(String message) {
-    _options.log(SentryLevel.info, logger: '$SentryWeb', message);
+    internalLogger.info('$SentryWeb: $message');
   }
 
   void _logNotSupported(String operation) =>

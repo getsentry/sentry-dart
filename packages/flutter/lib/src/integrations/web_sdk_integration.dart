@@ -7,6 +7,7 @@ import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../web/script_loader/sentry_script_loader.dart';
 import '../web/sentry_js_bundle.dart';
+import '../utils/internal_logger.dart';
 
 Integration<SentryFlutterOptions> createSdkIntegration(
   SentryNativeBinding native,
@@ -41,10 +42,9 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       await _web.init(hub);
       options.sdk.addIntegration(name);
     } catch (exception, stackTrace) {
-      options.log(
-        SentryLevel.fatal,
+      internalLogger.fatal(
         '$name failed to be installed.',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (options.automatedTestMode) {
@@ -59,10 +59,9 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
       await _web.close();
       await _scriptLoader.close();
     } catch (error, stackTrace) {
-      _options?.log(
-        SentryLevel.warning,
+      internalLogger.warning(
         '$name failed to be closed.',
-        exception: error,
+        error: error,
         stackTrace: stackTrace,
       );
       if (_options?.automatedTestMode == true) {

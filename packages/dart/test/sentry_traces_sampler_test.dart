@@ -202,18 +202,19 @@ class Fixture {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
-    options.log = mockLogger;
+    if (debug) {
+      configureDiagnosticTestLogger(onLog: mockLogger);
+    }
     return SentryTracesSampler(options);
   }
 
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     loggedLevel = level;
-    loggedException = exception;
+    loggedException = error;
   }
 }

@@ -5,6 +5,7 @@ import '../../protocol.dart';
 import '../../sentry_options.dart';
 import '../../utils/iterable_utils.dart';
 import 'exception_event_processor.dart';
+import '../../utils/internal_logger.dart';
 
 ExceptionEventProcessor exceptionEventProcessor(SentryOptions options) =>
     IoExceptionEventProcessor(options);
@@ -72,12 +73,8 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
       var uri = Uri.parse(address.host);
       request = SentryRequest.fromUri(uri: uri);
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
-        'Could not parse ${address.host} to Uri',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
+      internalLogger.error('Could not parse ${address.host} to Uri',
+          error: exception, stackTrace: stackTrace);
       if (_options.automatedTestMode) {
         rethrow;
       }

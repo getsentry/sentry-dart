@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 
 /// Integration which intercepts Flutters [debugPrint] method.
 /// If this integration is added, all calls to [debugPrint] a redirected to
@@ -11,12 +12,10 @@ import '../sentry_flutter_options.dart';
 class DebugPrintIntegration implements Integration<SentryFlutterOptions> {
   DebugPrintCallback? _debugPrintBackup;
   late Hub _hub;
-  late SentryFlutterOptions _options;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _hub = hub;
-    _options = options;
 
     final isDebug = options.runtimeChecker.isDebugMode();
     final enablePrintBreadcrumbs = options.enablePrintBreadcrumbs;
@@ -49,8 +48,7 @@ class DebugPrintIntegration implements Integration<SentryFlutterOptions> {
 
   void _debugPrint(String? message, {int? wrapWidth}) {
     if (message == null) {
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'debugPrint Integration received "null" as message. '
         'The message is dropped.',
       );

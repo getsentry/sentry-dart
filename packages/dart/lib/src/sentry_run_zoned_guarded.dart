@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'utils/internal_logger.dart';
 
 @internal
 class SentryRunZonedGuarded {
@@ -98,13 +99,8 @@ class SentryRunZonedGuarded {
     Object exception,
     StackTrace stackTrace,
   ) async {
-    options.log(
-      SentryLevel.error,
-      'Uncaught zone error',
-      logger: 'sentry.runZonedGuarded',
-      exception: exception,
-      stackTrace: stackTrace,
-    );
+    internalLogger.error('Uncaught zone error',
+        error: exception, stackTrace: stackTrace);
 
     // runZonedGuarded doesn't crash the app, but is not handled by the user.
     final mechanism = Mechanism(type: 'runZonedGuarded', handled: false);

@@ -1,10 +1,10 @@
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
+import '../utils/internal_logger.dart';
 
 class JavascriptTransport implements Transport {
-  JavascriptTransport(this._binding, this._options);
+  JavascriptTransport(this._binding);
 
-  final SentryFlutterOptions _options;
   final SentryNativeBinding _binding;
 
   @override
@@ -12,10 +12,9 @@ class JavascriptTransport implements Transport {
     try {
       await _binding.captureStructuredEnvelope(envelope);
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Failed to send envelope',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       return Future.value(SentryId.empty());

@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../native/sentry_native_binding.dart';
 import '../web/web_session_handler.dart';
+import '../utils/internal_logger.dart';
 
 /// Integration for handling web sessions in Sentry.
 ///
@@ -32,8 +33,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    _options?.log(
-      SentryLevel.info,
+    internalLogger.info(
       '$integrationName initialization started, waiting for SentryNavigatorObserver to be initialized.',
     );
   }
@@ -51,7 +51,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
   /// so we need to wait until this function is called by the observer.
   void enable() {
     if (_isEnabled) {
-      _options?.log(SentryLevel.debug, '$integrationName is already enabled.');
+      internalLogger.debug('$integrationName is already enabled.');
       return;
     }
     if (!_shouldEnable()) {
@@ -64,7 +64,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
     };
     _options?.lifecycleRegistry.registerCallback(_onBeforeSendEventCallback!);
     _options?.sdk.addIntegration(integrationName);
-    _options?.log(SentryLevel.info, '$integrationName successfully enabled.');
+    internalLogger.info('$integrationName successfully enabled.');
   }
 
   bool _shouldEnable() {
@@ -72,8 +72,7 @@ class WebSessionIntegration implements Integration<SentryFlutterOptions> {
       return false;
     }
     if (!_options!.enableAutoSessionTracking) {
-      _options?.log(
-        SentryLevel.info,
+      internalLogger.info(
         '$integrationName disabled: enableAutoSessionTracking is not enabled',
       );
       return false;

@@ -5,6 +5,7 @@ import 'origin.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'utils/stacktrace_utils.dart';
+import 'utils/internal_logger.dart';
 
 /// converts [StackTrace] to [SentryStackFrame]s
 class SentryStackTraceFactory {
@@ -122,7 +123,7 @@ class SentryStackTraceFactory {
       // We shouldn't get here. If we do, it means there's likely an issue in
       // the parsing so let's fall back and post a stack trace as is, so that at
       // least we get an indication something's wrong and are able to fix it.
-      _options.log(SentryLevel.debug, "Failed to parse stack frame: $member");
+      internalLogger.debug(() => "Failed to parse stack frame: $member");
     }
 
     final platform = _options.platform.isWeb ? 'javascript' : 'dart';

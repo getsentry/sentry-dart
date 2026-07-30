@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 import 'screenshot/masking_config.dart';
 import 'screenshot/widget_filter.dart';
+import 'utils/internal_logger.dart';
 
 /// Configuration of the experimental privacy feature.
 class SentryPrivacyOptions {
@@ -27,10 +28,7 @@ class SentryPrivacyOptions {
   Iterable<SentryMaskingRule> get userMaskingRules => _userMaskingRules;
 
   @internal
-  SentryMaskingConfig buildMaskingConfig(
-    SdkLogCallback logger,
-    RuntimeChecker runtimeChecker,
-  ) {
+  SentryMaskingConfig buildMaskingConfig(RuntimeChecker runtimeChecker) {
     // First, we collect rules defined by the user (so they're applied first).
     final rules = _userMaskingRules.toList();
 
@@ -101,17 +99,17 @@ class SentryPrivacyOptions {
             }
             final type = widget.runtimeType.toString();
             if (regexp.hasMatch(type)) {
-              logger(
-                SentryLevel.warning,
-                'Widget "$widget" name matches widgets that should usually be '
-                'masked because they may contain sensitive data. Because this '
-                'widget comes from a third-party plugin or your code, Sentry '
-                "doesn't recognize it and can't reliably mask it in release "
-                'builds (due to obfuscation). '
-                'Please mask it explicitly using options.privacy.mask<$type>(). '
-                'If you want to silence this warning and keep the widget '
-                'visible in captures, you can use options.privacy.unmask<$type>(). '
-                'Note: the RegExp matched is: $regexp (case insensitive).',
+              internalLogger.warning(
+                () =>
+                    'Widget "$widget" name matches widgets that should usually be '
+                    'masked because they may contain sensitive data. Because this '
+                    'widget comes from a third-party plugin or your code, Sentry '
+                    "doesn't recognize it and can't reliably mask it in release "
+                    'builds (due to obfuscation). '
+                    'Please mask it explicitly using options.privacy.mask<$type>(). '
+                    'If you want to silence this warning and keep the widget '
+                    'visible in captures, you can use options.privacy.unmask<$type>(). '
+                    'Note: the RegExp matched is: $regexp (case insensitive).',
               );
             }
             return SentryMaskingDecision.continueProcessing;

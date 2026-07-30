@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../utils/internal_logger.dart';
 
 SentryTraceHeader generateSentryTraceHeader(
     {SentryId? traceId, SpanId? spanId, bool? sampled}) {
@@ -155,10 +156,9 @@ bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
 
   // Mismatched org IDs always reject regardless of strict mode
   if (sdkOrgId != null && baggageOrgId != null && sdkOrgId != baggageOrgId) {
-    options.log(
-      SentryLevel.debug,
-      "Not continuing trace because org IDs don't match "
-      '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
+    internalLogger.debug(
+      () => "Not continuing trace because org IDs don't match "
+          '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
     );
     return false;
   }
@@ -168,11 +168,11 @@ bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
       return true;
     }
     if (sdkOrgId == null || baggageOrgId == null) {
-      options.log(
-        SentryLevel.debug,
-        'Starting a new trace because strict trace continuation is enabled '
-        'but one org ID is missing '
-        '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
+      internalLogger.debug(
+        () =>
+            'Starting a new trace because strict trace continuation is enabled '
+            'but one org ID is missing '
+            '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
       );
       return false;
     }

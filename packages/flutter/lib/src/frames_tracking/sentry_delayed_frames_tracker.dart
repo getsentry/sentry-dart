@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../utils/internal_logger.dart';
 
 /// This is just an upper limit, ensuring that the buffer does not grow
 /// indefinitely in case of a long running span.
@@ -89,8 +90,7 @@ class SentryDelayedFramesTracker {
       return;
     }
     if (_delayedFrames.length > maxDelayedFramesBuffer) {
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'Frame tracking buffer is full, stopping frame collection until all active spans have finished processing',
       );
       return;

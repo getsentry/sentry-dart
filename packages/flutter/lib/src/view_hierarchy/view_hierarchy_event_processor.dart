@@ -2,6 +2,7 @@ import 'dart:async';
 
 import '../../sentry_flutter.dart';
 import '../utils/debouncer.dart';
+import '../utils/internal_logger.dart';
 import 'sentry_tree_walker.dart';
 
 /// A [EventProcessor] that renders an ASCII representation of the entire view
@@ -55,8 +56,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
           captureViewHierarchy = result;
         }
       } else if (shouldDebounce) {
-        _options.log(
-          SentryLevel.debug,
+        internalLogger.debug(
           'Skipping view hierarchy capture due to debouncing (too many captures within ${_debouncer.waitTime.inMilliseconds}ms)',
         );
         captureViewHierarchy = false;
@@ -66,10 +66,9 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
         return event;
       }
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'The beforeCaptureViewHierarchy callback threw an exception',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {

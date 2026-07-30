@@ -88,10 +88,8 @@ class Hub {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureEvent' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureEvent' call is a no-op.");
     } else {
       final item = _peek();
       late Scope scope;
@@ -114,12 +112,10 @@ class Hub {
           hint: hint,
         );
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while capturing event with id: ${event.eventId}',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
+        internalLogger.error(
+            'Error while capturing event with id: ${event.eventId}',
+            error: exception,
+            stackTrace: stackTrace);
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -141,15 +137,10 @@ class Hub {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureException' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureException' call is a no-op.");
     } else if (throwable == null) {
-      _options.log(
-        SentryLevel.warning,
-        'captureException called with null parameter.',
-      );
+      internalLogger.warning('captureException called with null parameter.');
     } else {
       final item = _peek();
       late Scope scope;
@@ -178,12 +169,8 @@ class Hub {
           hint: hint,
         );
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while capturing exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
+        internalLogger.error('Error while capturing exception',
+            error: exception, stackTrace: stackTrace);
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -207,15 +194,10 @@ class Hub {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureMessage' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureMessage' call is a no-op.");
     } else if (message == null) {
-      _options.log(
-        SentryLevel.warning,
-        'captureMessage called with null parameter.',
-      );
+      internalLogger.warning('captureMessage called with null parameter.');
     } else {
       final item = _peek();
       late Scope scope;
@@ -236,12 +218,8 @@ class Hub {
           hint: hint,
         );
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while capturing message with id: $message',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
+        internalLogger.error('Error while capturing message with id: $message',
+            error: exception, stackTrace: stackTrace);
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -261,10 +239,8 @@ class Hub {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureFeedback' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureFeedback' call is a no-op.");
     } else {
       final item = _peek();
       late Scope scope;
@@ -282,12 +258,8 @@ class Hub {
           scope: scope,
         );
       } catch (exception, stacktrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while capturing feedback',
-          exception: exception,
-          stackTrace: stacktrace,
-        );
+        internalLogger.error('Error while capturing feedback',
+            error: exception, stackTrace: stacktrace);
       }
     }
     return sentryId;
@@ -295,10 +267,8 @@ class Hub {
 
   Future<void> captureLog(SentryLog log) async {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureLog' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureLog' call is a no-op.");
     } else {
       final item = _peek();
       late Scope scope;
@@ -315,22 +285,16 @@ class Hub {
           scope: scope,
         );
       } catch (exception, stacktrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while capturing log',
-          exception: exception,
-          stackTrace: stacktrace,
-        );
+        internalLogger.error('Error while capturing log',
+            error: exception, stackTrace: stacktrace);
       }
     }
   }
 
   Future<void> captureMetric(SentryMetric metric) async {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureMetric' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureMetric' call is a no-op.");
     } else {
       final item = _peek();
       late Scope scope;
@@ -347,12 +311,8 @@ class Hub {
           scope: scope,
         );
       } catch (exception, stacktrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while capturing metric',
-          exception: exception,
-          stackTrace: stacktrace,
-        );
+        internalLogger.error('Error while capturing metric',
+            error: exception, stackTrace: stacktrace);
       }
     }
   }
@@ -367,12 +327,8 @@ class Hub {
           await s;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'Exception in withScope callback.',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
+        internalLogger.error('Exception in withScope callback.',
+            error: exception, stackTrace: stackTrace);
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -383,10 +339,8 @@ class Hub {
 
   void setAttributes(Map<String, SentryAttribute> attributes) {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'setAttributes' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'setAttributes' call is a no-op.");
     } else {
       final item = _peek();
       item.scope.setAttributes(attributes);
@@ -395,10 +349,8 @@ class Hub {
 
   void removeAttribute(String key) {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'removeAttribute' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'removeAttribute' call is a no-op.");
     } else {
       final item = _peek();
       item.scope.removeAttribute(key);
@@ -408,10 +360,8 @@ class Hub {
   /// Adds a breadcrumb to the current Scope
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'addBreadcrumb' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'addBreadcrumb' call is a no-op.");
     } else {
       final item = _peek();
       await item.scope.addBreadcrumb(crumb, hint: hint);
@@ -509,13 +459,11 @@ class Hub {
   /// Binds a different client to the hub
   void bindClient(SentryClient client) {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'bindClient' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'bindClient' call is a no-op.");
     } else {
       final item = _peek();
-      _options.log(SentryLevel.debug, 'New client bound to scope.');
+      internalLogger.debug('New client bound to scope.');
       item.client = client;
     }
   }
@@ -524,7 +472,7 @@ class Hub {
   @internal
   Hub clone() {
     if (!_isEnabled) {
-      _options.log(SentryLevel.warning, 'Disabled Hub cloned.');
+      internalLogger.warning('Disabled Hub cloned.');
     }
     final clone = Hub(_options);
     for (final item in _stack) {
@@ -536,10 +484,8 @@ class Hub {
   /// Flushes out the queue for up to timeout seconds and disable the Hub.
   Future<void> close() async {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'close' call is a no-op.",
-      );
+      internalLogger
+          .warning("Instance is disabled and this 'close' call is a no-op.");
     } else {
       // End active idle span so its timers and lifecycle callbacks are cleaned up.
       _idleSpan?.end();
@@ -561,12 +507,8 @@ class Hub {
           await close;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'Error while closing the Hub',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
+        internalLogger.error('Error while closing the Hub',
+            error: exception, stackTrace: stackTrace);
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -579,10 +521,8 @@ class Hub {
   /// Configures the scope through the callback.
   FutureOr<void> configureScope(ScopeCallback callback) async {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'configureScope' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'configureScope' call is a no-op.");
     } else {
       final item = _peek();
 
@@ -592,10 +532,8 @@ class Hub {
           await result;
         }
       } catch (err) {
-        _options.log(
-          SentryLevel.error,
-          "Error in the 'configureScope' callback, error: $err",
-        );
+        internalLogger
+            .error("Error in the 'configureScope' callback, error: $err");
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -644,10 +582,8 @@ class Hub {
     OnTransactionFinish? onFinish,
   }) {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'startTransaction' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'startTransaction' call is a no-op.");
     } else if (_options.isTracingEnabled()) {
       if (_options.traceLifecycle == SentryTraceLifecycle.stream) {
         internalLogger.warning(
@@ -831,10 +767,8 @@ class Hub {
   /// Returns `true` if the hub is able to create spans.
   bool get _canCreateSpansV2 {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this span creation call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this span creation call is a no-op.");
       return false;
     }
 
@@ -1042,10 +976,8 @@ class Hub {
 
   Future<void> captureSpan(SentrySpanV2 span) async {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureSpan' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureSpan' call is a no-op.");
       return;
     }
 
@@ -1053,10 +985,8 @@ class Hub {
 
     switch (span) {
       case UnsetSentrySpanV2():
-        _options.log(
-          SentryLevel.warning,
-          "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
-        );
+        internalLogger.warning(
+            "captureSpan: span is in an invalid state $UnsetSentrySpanV2.");
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
@@ -1081,10 +1011,8 @@ class Hub {
   ISentrySpan? getSpan() {
     ISentrySpan? span;
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'getSpan' call is a no-op.",
-      );
+      internalLogger
+          .warning("Instance is disabled and this 'getSpan' call is a no-op.");
     } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
@@ -1103,20 +1031,14 @@ class Hub {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
-        "Instance is disabled and this 'captureTransaction' call is a no-op.",
-      );
+      internalLogger.warning(
+          "Instance is disabled and this 'captureTransaction' call is a no-op.");
     } else if (!_options.isTracingEnabled()) {
-      _options.log(
-        SentryLevel.info,
-        "Tracing is disabled and this 'captureTransaction' call is a no-op.",
-      );
+      internalLogger.info(
+          "Tracing is disabled and this 'captureTransaction' call is a no-op.");
     } else if (!transaction.finished) {
-      _options.log(
-        SentryLevel.warning,
-        'Capturing unfinished transaction: ${transaction.eventId}',
-      );
+      internalLogger
+          .warning('Capturing unfinished transaction: ${transaction.eventId}');
     } else {
       final item = _peek();
 
@@ -1130,10 +1052,8 @@ class Hub {
           DataCategory.span,
           count: transaction.spans.length + 1,
         );
-        _options.log(
-          SentryLevel.warning,
-          'Transaction ${transaction.eventId} was dropped due to sampling decision.',
-        );
+        internalLogger.warning(
+            'Transaction ${transaction.eventId} was dropped due to sampling decision.');
       } else {
         try {
           sentryId = await item.client.captureTransaction(
@@ -1143,12 +1063,10 @@ class Hub {
             hint: hint,
           );
         } catch (exception, stackTrace) {
-          _options.log(
-            SentryLevel.error,
-            'Error while capturing transaction with id: ${transaction.eventId}',
-            exception: exception,
-            stackTrace: stackTrace,
-          );
+          internalLogger.error(
+              'Error while capturing transaction with id: ${transaction.eventId}',
+              error: exception,
+              stackTrace: stackTrace);
           if (_options.automatedTestMode) {
             rethrow;
           }
@@ -1217,12 +1135,10 @@ class _WeakMap {
         _expando[throwable] = MapEntry(span, transaction);
       }
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.info,
-        'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
+      internalLogger.info(
+          'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
+          error: exception,
+          stackTrace: stackTrace);
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -1237,12 +1153,10 @@ class _WeakMap {
     try {
       return _expando[throwable] as MapEntry<ISentrySpan, String>?;
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.info,
-        'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
+      internalLogger.info(
+          'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
+          error: exception,
+          stackTrace: stackTrace);
       if (_options.automatedTestMode) {
         rethrow;
       }

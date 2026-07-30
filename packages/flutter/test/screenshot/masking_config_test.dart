@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -163,10 +165,7 @@ void main() async {
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
     List<String> rulesAsStrings(SentryPrivacyOptions options) {
-      final config = options.buildMaskingConfig(
-        MockLogger().call,
-        RuntimeChecker(),
-      );
+      final config = options.buildMaskingConfig(RuntimeChecker());
       return config.rules
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:
@@ -334,12 +333,27 @@ void main() async {
   });
 
   testWidgets('ignores InheritedWidget and does not log', (tester) async {
-    final logger = MockLogger();
-    final options = SentryPrivacyOptions();
-    final config = options.buildMaskingConfig(
-      logger.call,
-      MockRuntimeChecker(),
+    final capturedWarnings = <String>[];
+    SentryInternalLogger.configure(
+      isEnabled: true,
+      minLevel: SentryLevel.debug,
+      logOutput:
+          ({
+            required String name,
+            required SentryLevel level,
+            required String message,
+            Object? error,
+            StackTrace? stackTrace,
+          }) {
+            if (level == SentryLevel.warning) {
+              capturedWarnings.add(message);
+            }
+          },
     );
+    addTearDown(() => SentryInternalLogger.configure(isEnabled: false));
+
+    final options = SentryPrivacyOptions();
+    final config = options.buildMaskingConfig(MockRuntimeChecker());
 
     final rootElement = await pumpTestElement(
       tester,
@@ -355,7 +369,7 @@ void main() async {
     // The debug rule contains a RegExp that matches 'password'. Our widget
     // name contains it but because it's an InheritedWidget it should be
     // ignored and thus no warning is logged.
-    expect(logger.items.where((i) => i.level == SentryLevel.warning), isEmpty);
+    expect(capturedWarnings, isEmpty);
   });
 }
 

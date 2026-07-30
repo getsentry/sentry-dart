@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 import '../widgets_binding_observer.dart';
 
 /// Integration that captures certain window and device events.
@@ -14,8 +15,7 @@ class WidgetsBindingIntegration implements Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (options.isMultiViewApp) {
       // ignore: invalid_use_of_internal_member
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '`WidgetsBindingIntegration` is not available in multi-view applications.',
       );
       return;

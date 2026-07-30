@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 import 'sentry_native_binding.dart';
+import '../utils/internal_logger.dart';
 
 class NativeScopeObserver implements ScopeObserver {
-  NativeScopeObserver(this._native, this._options);
+  NativeScopeObserver(this._native);
 
   final SentryNativeBinding _native;
-  final SentryOptions _options;
 
   @override
   FutureOr<void> setContexts(String key, value) {
@@ -18,8 +18,7 @@ class NativeScopeObserver implements ScopeObserver {
         final json = (value as dynamic).toJson();
         return _native.setContexts(key, json);
       } catch (_) {
-        _options.log(
-          SentryLevel.error,
+        internalLogger.error(
           "Failed to set context '$key' with value '$value'.",
         );
       }

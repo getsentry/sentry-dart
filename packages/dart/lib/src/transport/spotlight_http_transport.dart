@@ -6,6 +6,7 @@ import '../../sentry.dart';
 import '../noop_client.dart';
 import '../http_client/client_provider.dart'
     if (dart.library.io) '../http_client/io_client_provider.dart';
+import '../utils/internal_logger.dart';
 
 /// Spotlight HTTP transport decorator that sends Sentry envelopes to both Sentry and Spotlight.
 /// This will be used on platforms that do not have native SDK support.
@@ -31,8 +32,9 @@ class SpotlightHttpTransport extends Transport {
     try {
       await _sendToSpotlight(envelope);
     } catch (e) {
-      _options.log(
-          SentryLevel.warning, 'Failed to send envelope to Spotlight: $e');
+      internalLogger.warning(
+        () => 'Failed to send envelope to Spotlight: $e',
+      );
       if (_options.automatedTestMode) {
         rethrow;
       }
