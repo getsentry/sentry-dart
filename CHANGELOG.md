@@ -1,5 +1,34 @@
 # Changelog
 
+## 9.26.0
+
+### Features
+
+#### Flutter
+
+- Extend standalone app start by @buenaflor in [#3918](https://github.com/getsentry/sentry-dart/pull/3918)
+- Add standalone app start tracing by @buenaflor in [#3896](https://github.com/getsentry/sentry-dart/pull/3896)
+
+### Fixes
+
+- Read normalized rate limit headers by @sentry-junior in [#3883](https://github.com/getsentry/sentry-dart/pull/3883)
+
+### Enhancements
+
+- (flutter) Speed up Android scope sync and replay capture by @buenaflor in [#3924](https://github.com/getsentry/sentry-dart/pull/3924)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Native SDK to v0.16.1 by @github-actions in [#3937](https://github.com/getsentry/sentry-dart/pull/3937)
+- chore(deps): update Android SDK to v8.51.0 by @github-actions in [#3938](https://github.com/getsentry/sentry-dart/pull/3938)
+
+### Internal Changes
+
+- (deps) Pin Flutter development dependencies by @buenaflor in [#3913](https://github.com/getsentry/sentry-dart/pull/3913)
+- (grpc) Move MockHub to \_sentry_testing package by @lucas-zimerman in [#3908](https://github.com/getsentry/sentry-dart/pull/3908)
+
 ## 9.25.0
 
 ### Features
