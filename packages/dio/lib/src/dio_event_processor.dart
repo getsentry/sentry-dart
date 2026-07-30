@@ -48,15 +48,19 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
-    final response = _responseFrom(dioError);
-    hint.response ??= response;
+    hint.response ??= _responseFrom(dioError, withData: true);
 
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
     event.request = event.request ?? _requestFrom(dioError);
     // Also on the event, not just the hint: a hint is beforeSend-only and never
-    // serialized, so otherwise the status code, headers and body never arrive.
-    event.contexts.response = event.contexts.response ?? response;
+    // serialized, so otherwise the status code and headers never arrive.
+    //
+    // The body is left off deliberately. It stays reachable through the hint in
+    // `beforeSend`, but shipping up to 150 KB of a failed response by default
+    // is more than `sendDefaultPii` asks for, and neither FailedRequestClient
+    // nor the other SDKs put it on the event.
+    event.contexts.response ??= _responseFrom(dioError, withData: false);
     return event;
   }
 
@@ -187,7 +191,7 @@ class DioEventProcessor implements EventProcessor {
     return result;
   }
 
-  SentryResponse _responseFrom(DioError dioError) {
+  SentryResponse _responseFrom(DioError dioError, {required bool withData}) {
     final response = dioError.response;
 
     final headers = response?.headers.map.map(
@@ -210,7 +214,7 @@ class DioEventProcessor implements EventProcessor {
       cookies: _options.sendDefaultPii ? setCookie : null,
       bodySize: contentLength,
       statusCode: response?.statusCode,
-      data: _getResponseData(dioError.response?.data, contentLength),
+      data: withData ? _getResponseData(response?.data, contentLength) : null,
     );
   }
 

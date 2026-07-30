@@ -837,6 +837,36 @@ void main() {
       expect(response?.bodySize, 2);
     });
 
+    test(
+        '$DioEventProcessor keeps the response body off the event, on the hint',
+        () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final dioError = DioError(
+        requestOptions: requestOptions,
+        response: Response<dynamic>(
+          data: 'foobar',
+          headers: Headers.fromMap(<String, List<String>>{
+            'content-length': ['6'],
+          }),
+          requestOptions: requestOptions,
+          statusCode: 404,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [fixture.sentryError(dioError)],
+      );
+
+      final hint = Hint();
+      final processedEvent = sut.apply(event, hint) as SentryEvent;
+
+      // The event is serialized and sent; the hint is only handed to beforeSend.
+      expect(processedEvent.contexts.response?.statusCode, 404);
+      expect(processedEvent.contexts.response?.data, isNull);
+      expect(hint.response?.data, 'foobar');
+    });
+
     test('$DioEventProcessor keeps a response already on the event', () {
       final sut = fixture.getSut(sendDefaultPii: true);
 
