@@ -337,6 +337,23 @@ void main() {
       expect((eventHint?.get('request') as Request?)?.url, failedRequest?.url);
     });
 
+    test('a thrown exception gets no status code description', () async {
+      fixture._hub.options.captureFailedRequests = true;
+
+      final sut = fixture.getSut(client: createThrowingClient());
+
+      await expectLater(
+        () async => await sut.get(requestUri),
+        throwsException,
+      );
+
+      final exception = fixture.transport.events.first.exceptions?.first;
+      // The thrown exception is kept as-is, so a description naming a status
+      // code that never arrived would only describe nothing.
+      expect(exception?.type, 'TestException');
+      expect(exception?.mechanism?.description, isNull);
+    });
+
     test('does not capture a request to the dsn', () async {
       fixture._hub.options.captureFailedRequests = true;
 

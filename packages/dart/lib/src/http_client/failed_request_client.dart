@@ -155,8 +155,13 @@ class FailedRequestClient extends BaseClient {
       }
     }
 
-    final reason = 'HTTP Client Error with status code: $statusCode';
-    exception ??= SentryHttpClientError(reason);
+    String? reason;
+    if (exception == null) {
+      // Non-null here: a null status code matches no failedRequestStatusCodes
+      // entry, so the check above already returned.
+      reason = 'HTTP Client Error with status code: $statusCode';
+      exception = SentryHttpClientError(reason);
+    }
 
     await _captureEvent(
       exception: exception,
