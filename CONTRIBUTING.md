@@ -7,8 +7,8 @@ you get started.
 
 ### Required Tools
 
-* **Dart SDK** `>=3.5.0` - Required for all packages
-* **Flutter SDK** `>=3.24.0` - Required for `sentry-flutter` and Flutter integrations
+* **Dart SDK** `>=3.12.0` - Required for all packages
+* **Flutter SDK** `>=3.44.0` - Required for `sentry-flutter` and Flutter integrations
 * **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
 
