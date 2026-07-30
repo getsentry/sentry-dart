@@ -18,7 +18,6 @@ import 'utils/sentry_database_span_attributes.dart';
 /// final sentryDatabase = SentryDatabase(database);
 /// final batch = sentryDatabase.batch();
 /// ```
-@experimental
 class SentryBatch implements Batch {
   final Batch _batch;
   final Hub _hub;
@@ -38,12 +37,9 @@ class SentryBatch implements Batch {
   /// final sentryDatabase = SentryDatabase(database);
   /// final batch = sentryDatabase.batch();
   /// ```
-  SentryBatch(
-    this._batch, {
-    @internal Hub? hub,
-    @internal String? dbName,
-  })  : _hub = hub ?? HubAdapter(),
-        _dbName = dbName {
+  SentryBatch(this._batch, {@internal Hub? hub, @internal String? dbName})
+    : _hub = hub ?? HubAdapter(),
+      _dbName = dbName {
     // ignore: invalid_use_of_internal_member
     _spanFactory = _hub.options.spanFactory;
   }
@@ -156,8 +152,11 @@ class SentryBatch implements Batch {
 
   @override
   void delete(String table, {String? where, List<Object?>? whereArgs}) {
-    final builder =
-        SqlBuilder.delete(table, where: where, whereArgs: whereArgs);
+    final builder = SqlBuilder.delete(
+      table,
+      where: where,
+      whereArgs: whereArgs,
+    );
     _buffer.writeln(builder.sql);
 
     _batch.delete(table, where: where, whereArgs: whereArgs);

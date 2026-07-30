@@ -7,7 +7,7 @@ import '../sentry_flutter.dart';
 import 'utils/internal_logger.dart';
 
 /// The methods and properties are modelled after the the real binding class.
-@experimental
+@internal
 class BindingWrapper {
   final Hub _hub;
 

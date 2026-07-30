@@ -21,7 +21,6 @@ import 'sentry_batch.dart';
 /// ...
 /// });
 /// ```
-@experimental
 class SentrySqfliteTransaction extends Transaction
     implements DatabaseExecutor, SqfliteDatabaseExecutor {
   final DatabaseExecutor _executor;
@@ -34,8 +33,8 @@ class SentrySqfliteTransaction extends Transaction
     this._executor, {
     @internal Hub? hub,
     @internal String? dbName,
-  })  : _hub = hub ?? HubAdapter(),
-        _dbName = dbName;
+  }) : _hub = hub ?? HubAdapter(),
+       _dbName = dbName;
 
   @override
   SqfliteDatabase get db => (_executor as SqfliteDatabaseExecutor).db;
@@ -51,11 +50,7 @@ class SentrySqfliteTransaction extends Transaction
 
   @override
   Future<int> delete(String table, {String? where, List<Object?>? whereArgs}) =>
-      _executor.delete(
-        table,
-        where: where,
-        whereArgs: whereArgs,
-      );
+      _executor.delete(table, where: where, whereArgs: whereArgs);
 
   @override
   Future<void> execute(String sql, [List<Object?>? arguments]) =>
@@ -67,13 +62,12 @@ class SentrySqfliteTransaction extends Transaction
     Map<String, Object?> values, {
     String? nullColumnHack,
     ConflictAlgorithm? conflictAlgorithm,
-  }) =>
-      _executor.insert(
-        table,
-        values,
-        nullColumnHack: nullColumnHack,
-        conflictAlgorithm: conflictAlgorithm,
-      );
+  }) => _executor.insert(
+    table,
+    values,
+    nullColumnHack: nullColumnHack,
+    conflictAlgorithm: conflictAlgorithm,
+  );
 
   @override
   Future<List<Map<String, Object?>>> query(
@@ -87,19 +81,18 @@ class SentrySqfliteTransaction extends Transaction
     String? orderBy,
     int? limit,
     int? offset,
-  }) =>
-      _executor.query(
-        table,
-        distinct: distinct,
-        columns: columns,
-        where: where,
-        whereArgs: whereArgs,
-        groupBy: groupBy,
-        having: having,
-        orderBy: orderBy,
-        limit: limit,
-        offset: offset,
-      );
+  }) => _executor.query(
+    table,
+    distinct: distinct,
+    columns: columns,
+    where: where,
+    whereArgs: whereArgs,
+    groupBy: groupBy,
+    having: having,
+    orderBy: orderBy,
+    limit: limit,
+    offset: offset,
+  );
 
   @override
   Future<QueryCursor> queryCursor(
@@ -114,20 +107,19 @@ class SentrySqfliteTransaction extends Transaction
     int? limit,
     int? offset,
     int? bufferSize,
-  }) =>
-      _executor.queryCursor(
-        table,
-        distinct: distinct,
-        columns: columns,
-        where: where,
-        whereArgs: whereArgs,
-        groupBy: groupBy,
-        having: having,
-        orderBy: orderBy,
-        limit: limit,
-        offset: offset,
-        bufferSize: bufferSize,
-      );
+  }) => _executor.queryCursor(
+    table,
+    distinct: distinct,
+    columns: columns,
+    where: where,
+    whereArgs: whereArgs,
+    groupBy: groupBy,
+    having: having,
+    orderBy: orderBy,
+    limit: limit,
+    offset: offset,
+    bufferSize: bufferSize,
+  );
 
   @override
   Future<int> rawDelete(String sql, [List<Object?>? arguments]) =>
@@ -141,16 +133,14 @@ class SentrySqfliteTransaction extends Transaction
   Future<List<Map<String, Object?>>> rawQuery(
     String sql, [
     List<Object?>? arguments,
-  ]) =>
-      _executor.rawQuery(sql, arguments);
+  ]) => _executor.rawQuery(sql, arguments);
 
   @override
   Future<QueryCursor> rawQueryCursor(
     String sql,
     List<Object?>? arguments, {
     int? bufferSize,
-  }) =>
-      _executor.rawQueryCursor(sql, arguments, bufferSize: bufferSize);
+  }) => _executor.rawQueryCursor(sql, arguments, bufferSize: bufferSize);
 
   @override
   Future<int> rawUpdate(String sql, [List<Object?>? arguments]) =>
@@ -163,12 +153,11 @@ class SentrySqfliteTransaction extends Transaction
     String? where,
     List<Object?>? whereArgs,
     ConflictAlgorithm? conflictAlgorithm,
-  }) =>
-      _executor.update(
-        table,
-        values,
-        where: where,
-        whereArgs: whereArgs,
-        conflictAlgorithm: conflictAlgorithm,
-      );
+  }) => _executor.update(
+    table,
+    values,
+    where: where,
+    whereArgs: whereArgs,
+    conflictAlgorithm: conflictAlgorithm,
+  );
 }

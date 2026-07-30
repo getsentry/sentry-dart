@@ -12,7 +12,6 @@ import 'sentry_database.dart';
 ///
 /// final database = await openDatabaseWithSentry('path/to/db');
 /// ```
-@experimental
 Future<Database> openDatabaseWithSentry(
   String path, {
   int? version,
@@ -60,8 +59,10 @@ Future<Database> openDatabaseWithSentry(
     );
 
     try {
-      final database =
-          await databaseFactory.openDatabase(path, options: dbOptions);
+      final database = await databaseFactory.openDatabase(
+        path,
+        options: dbOptions,
+      );
 
       final sentryDatabase = SentryDatabase(database, hub: newHub);
 
@@ -92,7 +93,6 @@ Future<Database> openDatabaseWithSentry(
 ///
 /// final database = await openReadOnlyDatabaseWithSentry('path/to/db');
 /// ```
-@experimental
 Future<Database> openReadOnlyDatabaseWithSentry(
   String path, {
   @internal Hub? hub,
