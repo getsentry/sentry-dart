@@ -1,6 +1,5 @@
 // ignore_for_file: depend_on_referenced_packages, invalid_use_of_internal_member
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:test/test.dart';
@@ -92,7 +91,9 @@ void main() {
     test('dartToJObject converts primitives', () {
       using((arena) {
         _expectJniStringEquals(
-            dartToJObject('value')..releasedBy(arena), 'value');
+          dartToJObject('value')..releasedBy(arena),
+          'value',
+        );
         _expectJniLongEquals(dartToJObject(1)..releasedBy(arena), 1);
         _expectJniDoubleEquals(dartToJObject(1.1)..releasedBy(arena), 1.1);
         _expectJniBoolEquals(dartToJObject(true)..releasedBy(arena), true);
@@ -211,15 +212,25 @@ void _expectJniMap(
       expectedMapValues['nestedMap']! as Map<String, Object?>;
 
   _expectJniStringEquals(
-      _get(javaMap, 'key', arena), expectedMapValues['key'] as String);
+    _get(javaMap, 'key', arena),
+    expectedMapValues['key'] as String,
+  );
   _expectJniLongEquals(
-      _get(javaMap, 'key2', arena), expectedMapValues['key2'] as int);
+    _get(javaMap, 'key2', arena),
+    expectedMapValues['key2'] as int,
+  );
   _expectJniDoubleEquals(
-      _get(javaMap, 'key3', arena), expectedMapValues['key3'] as double);
+    _get(javaMap, 'key3', arena),
+    expectedMapValues['key3'] as double,
+  );
   _expectJniBoolEquals(
-      _get(javaMap, 'key4', arena), expectedMapValues['key4'] as bool);
+    _get(javaMap, 'key4', arena),
+    expectedMapValues['key4'] as bool,
+  );
   _expectJniStringEquals(
-      _get(javaMap, 'key5', arena), expectedMapValues['key5'] as String);
+    _get(javaMap, 'key5', arena),
+    expectedMapValues['key5'] as String,
+  );
 
   final nestedList = _get(javaMap, 'list', arena)!.as(JList.type)
     ..releasedBy(arena);
@@ -228,7 +239,11 @@ void _expectJniMap(
   final nestedMap = _get(javaMap, 'nestedMap', arena)!.as(JMap.type)
     ..releasedBy(arena);
   _expectJniNestedMap(
-      nestedMap, expectedNestedMap, expectedNestedList.length, arena);
+    nestedMap,
+    expectedNestedMap,
+    expectedNestedList.length,
+    arena,
+  );
 
   expect(_get(javaMap, 'nullEntry', arena), isNull);
 }
@@ -239,17 +254,23 @@ void _expectJniNestedMap(
   int expectedNestedListLength,
   Arena arena,
 ) {
-  _expectJniStringEquals(_get(javaNestedMap, 'innerString', arena),
-      expectedNestedMapValues['innerString'] as String);
+  _expectJniStringEquals(
+    _get(javaNestedMap, 'innerString', arena),
+    expectedNestedMapValues['innerString'] as String,
+  );
 
   final innerList = _get(javaNestedMap, 'innerList', arena)!.as(JList.type)
     ..releasedBy(arena);
   final innerListDart = innerList.asDart();
   expect(innerListDart.length, expectedNestedListLength);
-  _expectJniLongEquals(innerListDart[0],
-      (expectedNestedMapValues['innerList']! as List<Object?>)[0] as int);
-  _expectJniLongEquals(innerListDart[1],
-      (expectedNestedMapValues['innerList']! as List<Object?>)[1] as int);
+  _expectJniLongEquals(
+    innerListDart[0],
+    (expectedNestedMapValues['innerList']! as List<Object?>)[0] as int,
+  );
+  _expectJniLongEquals(
+    innerListDart[1],
+    (expectedNestedMapValues['innerList']! as List<Object?>)[1] as int,
+  );
 
   expect(_get(javaNestedMap, 'innerNull', arena), isNull);
 }

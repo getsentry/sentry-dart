@@ -32,9 +32,9 @@ class SentryDatabaseExecutor
     InstrumentationSpan? parentSpan,
     @internal Hub? hub,
     @internal String? dbName,
-  })  : _parentSpan = parentSpan,
-        _hub = hub ?? HubAdapter(),
-        _dbName = dbName {
+  }) : _parentSpan = parentSpan,
+       _hub = hub ?? HubAdapter(),
+       _dbName = dbName {
     // ignore: invalid_use_of_internal_member
     _spanFactory = _hub.options.spanFactory;
   }
@@ -65,8 +65,11 @@ class SentryDatabaseExecutor
   Future<int> delete(String table, {String? where, List<Object?>? whereArgs}) {
     return Future<int>(() async {
       final parent = _getParent();
-      final builder =
-          SqlBuilder.delete(table, where: where, whereArgs: whereArgs);
+      final builder = SqlBuilder.delete(
+        table,
+        where: where,
+        whereArgs: whereArgs,
+      );
       final span = parent != null
           ? _spanFactory.createSpan(
               parentSpan: parent,
@@ -87,8 +90,11 @@ class SentryDatabaseExecutor
       setDatabaseAttributeOnBreadcrumb(breadcrumb, _dbName);
 
       try {
-        final result =
-            await _executor.delete(table, where: where, whereArgs: whereArgs);
+        final result = await _executor.delete(
+          table,
+          where: where,
+          whereArgs: whereArgs,
+        );
 
         span?.status = SpanStatus.ok();
         breadcrumb.data?['status'] = 'ok';

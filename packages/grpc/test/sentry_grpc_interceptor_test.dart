@@ -64,8 +64,11 @@ void main() {
       group('on success', () {
         test('creates child span with grpc.client operation', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -78,8 +81,11 @@ void main() {
 
         test('sets span description to method path', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -94,8 +100,11 @@ void main() {
 
         test('sets rpc.system, rpc.service and rpc.method on span', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -113,8 +122,11 @@ void main() {
 
         test('sets rpc.response.status_code to OK on success', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -122,16 +134,19 @@ void main() {
 
           final tracer = tr as SentryTracer;
           expect(
-            tracer.children.first
-                .data[SemanticAttributesConstants.rpcResponseStatusCode],
+            tracer.children.first.data[SemanticAttributesConstants
+                .rpcResponseStatusCode],
             'OK',
           );
         });
 
         test('sets span status to OK', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -143,8 +158,11 @@ void main() {
 
         test('sets span origin', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -173,23 +191,28 @@ void main() {
           expect(crumb.data?['status_code'], StatusCode.ok);
         });
 
-        test('does not add breadcrumbs when enableBreadcrumbs is false',
-            () async {
-          final client = fixture.getSut(
-            mockHub: fixture.mockHub,
-            enableBreadcrumbs: false,
-          );
+        test(
+          'does not add breadcrumbs when enableBreadcrumbs is false',
+          () async {
+            final client = fixture.getSut(
+              mockHub: fixture.mockHub,
+              enableBreadcrumbs: false,
+            );
 
-          await client.testMethod('hello');
-          await pumpEventQueue();
+            await client.testMethod('hello');
+            await pumpEventQueue();
 
-          expect(fixture.mockHub.addBreadcrumbCalls, isEmpty);
-        });
+            expect(fixture.mockHub.addBreadcrumbCalls, isEmpty);
+          },
+        );
 
         test('injects sentry-trace header', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -203,8 +226,11 @@ void main() {
 
         test('injects baggage header', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -216,17 +242,19 @@ void main() {
           );
         });
 
-        test('injects sentry-trace header even without an active transaction',
-            () async {
-          final client = fixture.getSut(mockHub: fixture.mockHub);
+        test(
+          'injects sentry-trace header even without an active transaction',
+          () async {
+            final client = fixture.getSut(mockHub: fixture.mockHub);
 
-          await client.testMethod('hello');
+            await client.testMethod('hello');
 
-          expect(
-            fixture.service.lastReceivedMetadata?.containsKey('sentry-trace'),
-            isTrue,
-          );
-        });
+            expect(
+              fixture.service.lastReceivedMetadata?.containsKey('sentry-trace'),
+              isTrue,
+            );
+          },
+        );
       });
 
       group('on error', () {
@@ -236,8 +264,11 @@ void main() {
 
         test('sets rpc.response.status_code to NOT_FOUND on error', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -247,16 +278,19 @@ void main() {
 
           final tracer = tr as SentryTracer;
           expect(
-            tracer.children.first
-                .data[SemanticAttributesConstants.rpcResponseStatusCode],
+            tracer.children.first.data[SemanticAttributesConstants
+                .rpcResponseStatusCode],
             'NOT_FOUND',
           );
         });
 
         test('sets span status to not_found for NOT_FOUND error', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -271,8 +305,11 @@ void main() {
 
         test('sets span throwable on error', () async {
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -300,50 +337,56 @@ void main() {
           expect(crumb.data?['status_code'], StatusCode.notFound);
         });
 
-        test('captures exception when captureFailedRequests is enabled',
-            () async {
-          final client = fixture.getSut(
-            mockHub: fixture.mockHub,
-            captureFailedRequests: true,
-          );
+        test(
+          'captures exception when captureFailedRequests is enabled',
+          () async {
+            final client = fixture.getSut(
+              mockHub: fixture.mockHub,
+              captureFailedRequests: true,
+            );
 
-          await expectLater(
-            client.testMethod('hello'),
-            throwsA(isA<GrpcError>()),
-          );
-          await pumpEventQueue();
+            await expectLater(
+              client.testMethod('hello'),
+              throwsA(isA<GrpcError>()),
+            );
+            await pumpEventQueue();
 
-          expect(fixture.mockHub.captureExceptionCalls, hasLength(1));
-          expect(
-            fixture.mockHub.captureExceptionCalls.first.throwable,
-            isA<GrpcError>(),
-          );
-        });
+            expect(fixture.mockHub.captureExceptionCalls, hasLength(1));
+            expect(
+              fixture.mockHub.captureExceptionCalls.first.throwable,
+              isA<GrpcError>(),
+            );
+          },
+        );
 
         test(
-            'does not capture exception when captureFailedRequests is disabled',
-            () async {
-          final client = fixture.getSut(
-            mockHub: fixture.mockHub,
-            captureFailedRequests: false,
-          );
+          'does not capture exception when captureFailedRequests is disabled',
+          () async {
+            final client = fixture.getSut(
+              mockHub: fixture.mockHub,
+              captureFailedRequests: false,
+            );
 
-          await expectLater(
-            client.testMethod('hello'),
-            throwsA(isA<GrpcError>()),
-          );
-          await pumpEventQueue();
+            await expectLater(
+              client.testMethod('hello'),
+              throwsA(isA<GrpcError>()),
+            );
+            await pumpEventQueue();
 
-          expect(fixture.mockHub.captureExceptionCalls, isEmpty);
-        });
+            expect(fixture.mockHub.captureExceptionCalls, isEmpty);
+          },
+        );
       });
 
       group('request metadata', () {
         test('does not attach metadata when sendDefaultPii is false', () async {
           fixture.hub.options.sendDefaultPii = false;
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod(
             'hello',
@@ -363,29 +406,37 @@ void main() {
             fixture.hub.options.sendDefaultPii = true;
           });
 
-          test('attaches metadata to span as rpc.request.metadata.* data',
-              () async {
-            final client = fixture.getSut();
-            final tr =
-                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          test(
+            'attaches metadata to span as rpc.request.metadata.* data',
+            () async {
+              final client = fixture.getSut();
+              final tr = fixture.hub.startTransaction(
+                'name',
+                'op',
+                bindToScope: true,
+              );
 
-            await client.testMethod(
-              'hello',
-              options: CallOptions(metadata: {'x-custom': 'value'}),
-            );
-            await tr.finish();
+              await client.testMethod(
+                'hello',
+                options: CallOptions(metadata: {'x-custom': 'value'}),
+              );
+              await tr.finish();
 
-            final tracer = tr as SentryTracer;
-            expect(
-              tracer.children.first.data,
-              containsPair('rpc.request.metadata.x-custom', 'value'),
-            );
-          });
+              final tracer = tr as SentryTracer;
+              expect(
+                tracer.children.first.data,
+                containsPair('rpc.request.metadata.x-custom', 'value'),
+              );
+            },
+          );
 
           test('normalizes header keys to lowercase', () async {
             final client = fixture.getSut();
-            final tr =
-                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+            final tr = fixture.hub.startTransaction(
+              'name',
+              'op',
+              bindToScope: true,
+            );
 
             await client.testMethod(
               'hello',
@@ -406,8 +457,11 @@ void main() {
 
           test('includes all headers including sensitive ones', () async {
             final client = fixture.getSut();
-            final tr =
-                fixture.hub.startTransaction('name', 'op', bindToScope: true);
+            final tr = fixture.hub.startTransaction(
+              'name',
+              'op',
+              bindToScope: true,
+            );
 
             await client.testMethod(
               'hello',
@@ -442,32 +496,40 @@ void main() {
       });
 
       group('tracePropagationTargets', () {
-        test('does not inject headers when method excluded by targets',
-            () async {
-          fixture.hub.options.tracePropagationTargets
-            ..clear()
-            ..add('/other.Service');
-          final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+        test(
+          'does not inject headers when method excluded by targets',
+          () async {
+            fixture.hub.options.tracePropagationTargets
+              ..clear()
+              ..add('/other.Service');
+            final client = fixture.getSut();
+            final tr = fixture.hub.startTransaction(
+              'name',
+              'op',
+              bindToScope: true,
+            );
 
-          await client.testMethod('hello');
+            await client.testMethod('hello');
 
-          await tr.finish();
+            await tr.finish();
 
-          expect(
-            fixture.service.lastReceivedMetadata?.containsKey('sentry-trace'),
-            isFalse,
-          );
-        });
+            expect(
+              fixture.service.lastReceivedMetadata?.containsKey('sentry-trace'),
+              isFalse,
+            );
+          },
+        );
 
         test('injects headers when method matches target', () async {
           fixture.hub.options.tracePropagationTargets
             ..clear()
             ..add('TestMethod');
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await client.testMethod('hello');
 
@@ -484,8 +546,11 @@ void main() {
         test('sets cancelled for CANCELLED error', () async {
           fixture.service.errorToThrow = GrpcError.cancelled();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -500,8 +565,11 @@ void main() {
         test('sets unauthenticated for UNAUTHENTICATED error', () async {
           fixture.service.errorToThrow = GrpcError.unauthenticated();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -516,8 +584,11 @@ void main() {
         test('sets unknown for UNKNOWN error', () async {
           fixture.service.errorToThrow = GrpcError.unknown();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -532,8 +603,11 @@ void main() {
         test('sets alreadyExists for ALREADY_EXISTS error', () async {
           fixture.service.errorToThrow = GrpcError.alreadyExists();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -548,8 +622,11 @@ void main() {
         test('sets failedPrecondition for FAILED_PRECONDITION error', () async {
           fixture.service.errorToThrow = GrpcError.failedPrecondition();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -558,17 +635,17 @@ void main() {
           await tr.finish();
 
           final tracer = tr as SentryTracer;
-          expect(
-            tracer.children.first.status,
-            SpanStatus.failedPrecondition(),
-          );
+          expect(tracer.children.first.status, SpanStatus.failedPrecondition());
         });
 
         test('sets aborted for ABORTED error', () async {
           fixture.service.errorToThrow = GrpcError.aborted();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -583,8 +660,11 @@ void main() {
         test('sets outOfRange for OUT_OF_RANGE error', () async {
           fixture.service.errorToThrow = GrpcError.outOfRange();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -599,8 +679,11 @@ void main() {
         test('sets dataLoss for DATA_LOSS error', () async {
           fixture.service.errorToThrow = GrpcError.dataLoss();
           final client = fixture.getSut();
-          final tr =
-              fixture.hub.startTransaction('name', 'op', bindToScope: true);
+          final tr = fixture.hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
 
           await expectLater(
             client.testMethod('hello'),
@@ -632,19 +715,16 @@ void main() {
         final client = fixture.getSut(spanFirst: true);
 
         late SentrySpanV2 transactionSpan;
-        await fixture.spanFirstHub.startSpan(
-          'test-transaction',
-          (span) async {
-            transactionSpan = span;
-            await client.testMethod('hello');
-          },
-          parentSpan: null,
-        );
+        await fixture.spanFirstHub.startSpan('test-transaction', (span) async {
+          transactionSpan = span;
+          await client.testMethod('hello');
+        }, parentSpan: null);
 
         await fixture.spanFirstProcessor.waitForProcessing();
 
-        final child =
-            fixture.spanFirstProcessor.findSpanByOperation('grpc.client');
+        final child = fixture.spanFirstProcessor.findSpanByOperation(
+          'grpc.client',
+        );
         expect(child, isNotNull);
         expect(child!.isEnded, isTrue);
         expect(child.status, SentrySpanStatusV2.ok);
@@ -750,17 +830,12 @@ class Fixture {
   Future<void> setUp() async {
     service = _TestService();
     _server = Server.create(services: [service]);
-    await _server.serve(
-      address: InternetAddress.loopbackIPv4,
-      port: 0,
-    );
+    await _server.serve(address: InternetAddress.loopbackIPv4, port: 0);
 
     _channel = ClientChannel(
       'localhost',
       port: _server.port!,
-      options: const ChannelOptions(
-        credentials: ChannelCredentials.insecure(),
-      ),
+      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
     );
 
     _options.tracesSampleRate = 1.0;

@@ -35,14 +35,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late Person? result;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          result = box.get('test-key');
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        result = box.get('test-key');
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -84,14 +80,10 @@ void main() {
       final box = fixture.box;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await box.put('new-key', Person('Jane Doe'));
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await box.put('new-key', Person('Jane Doe'));
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 

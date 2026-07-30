@@ -30,13 +30,15 @@ Future<void> execute() async {
       final image = await renderObject.toImage();
       // Dispose should have very little impact and ensures we don't run out of memory
       image.dispose();
-    })).report();
+    }))
+        .report();
 
     for (final format in ImageByteFormat.values) {
       (await asyncBenchmark(
         'Image.toByteData(${format.name})',
         () => image.toByteData(format: format),
-      )).report();
+      ))
+          .report();
     }
 
     syncBenchmark('Image to Picture', () {
@@ -60,9 +62,9 @@ class PictureToImageBenchmark extends AsyncBenchmark {
   final int height;
 
   PictureToImageBenchmark(Image source)
-    : width = source.width,
-      height = source.height,
-      super('Picture.toImage()') {
+      : width = source.width,
+        height = source.height,
+        super('Picture.toImage()') {
     final recorder = PictureRecorder();
     Canvas(recorder).drawImage(source, Offset.zero, Paint());
     picture = recorder.endRecording();
