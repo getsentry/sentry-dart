@@ -1,3 +1,11 @@
+// These helpers are only reached from the Android JNI paths, so there is no
+// reason to compile them to JS. Encoding NaN would also fail there whenever
+// asserts are on: dart:convert asserts `identical(_seen.last, object)` after
+// invoking the toEncodable fallback, and NaN is never identical to itself in
+// JS. Infinity is unaffected, and so is a release web build.
+@TestOn('vm')
+library;
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -5,6 +13,29 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/native/utils/utf8_json.dart';
 
 void main() {
+  group('encodeUtf8Json', () {
+    // json.encode threw on these, and the surrounding catch dropped the whole
+    // payload. Pins that we encode via utf8JsonEncoder's fallback instead.
+    test('encodes non-finite doubles as their string form', () {
+      final bytes = encodeUtf8Json({
+        'infinity': double.infinity,
+        'negativeInfinity': double.negativeInfinity,
+        'nan': double.nan,
+      });
+
+      expect(
+        utf8.decode(bytes),
+        '{"infinity":"Infinity","negativeInfinity":"-Infinity","nan":"NaN"}',
+      );
+    });
+
+    // JByteArray.from copies typed data in bulk but a plain List<int>
+    // element by element, so losing this silently costs a lot on big payloads.
+    test('returns typed data', () {
+      expect(encodeUtf8Json({'a': 1}), isA<Uint8List>());
+    });
+  });
+
   group('decodeUtf8JsonMap', () {
     test('decodes valid UTF-8 JSON map', () {
       final map = <String, dynamic>{

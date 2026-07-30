@@ -427,6 +427,7 @@ class SentryTracer extends ISentrySpan {
       return;
     }
     if (_autoFinishAfterTimer != null) {
+      _finishStatus = SentryTracerFinishStatus.notFinishing();
       _scheduleTimer();
     }
   }

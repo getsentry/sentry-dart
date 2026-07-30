@@ -1,3 +1,4 @@
+import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
@@ -11,7 +12,6 @@ import 'package:test/test.dart';
 
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';
-import '../mocks/mock_hub.dart';
 import '../test_utils.dart';
 
 void main() {
@@ -190,7 +190,7 @@ void main() {
 
     test('retryAfterHeader', () async {
       final httpMock = MockClient((http.Request request) async {
-        return http.Response('{}', 429, headers: {'Retry-After': '1'});
+        return http.Response('{}', 429, headers: {'retry-after': '1'});
       });
       final mockRateLimiter = MockRateLimiter();
       final sut = fixture.getSut(httpMock, mockRateLimiter);
@@ -217,7 +217,7 @@ void main() {
     test('sentryRateLimitHeader', () async {
       final httpMock = MockClient((http.Request request) async {
         return http.Response('{}', 200,
-            headers: {'X-Sentry-Rate-Limits': 'fixture-sentryRateLimitHeader'});
+            headers: {'x-sentry-rate-limits': 'fixture-sentryRateLimitHeader'});
       });
       final mockRateLimiter = MockRateLimiter();
       final sut = fixture.getSut(httpMock, mockRateLimiter);

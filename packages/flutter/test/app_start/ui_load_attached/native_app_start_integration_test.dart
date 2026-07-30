@@ -6,15 +6,16 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_handler_v2.dart';
-import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_handler_v2.dart';
+import 'package:sentry_flutter/src/app_start/ui_load_attached/native_app_start_integration.dart';
 
-import '../fake_frame_callback_handler.dart';
-import '../mocks.dart';
-import '../mocks.mocks.dart';
+import '../../fake_frame_callback_handler.dart';
+import '../../mocks.dart';
+import '../../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -33,31 +34,75 @@ void main() {
       rasterFinishWallTime: 10);
 
   group('$NativeAppStartIntegration', () {
-    test('does not add integration if tracing is disabled', () {
+    test('does not add integration if tracing is disabled', () async {
       fixture.options.tracesSampleRate = null;
       fixture.options.tracesSampler = null;
 
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       expect(fixture.options.sdk.integrations,
           isNot(contains(NativeAppStartIntegration.integrationName)));
     });
 
+    test('does not install on iOS when standalone app start tracing is enabled',
+        () async {
+      fixture.options.platform = MockPlatform.iOS();
+      fixture.options.enableStandaloneAppStartTracing = true;
+
+      await fixture.callIntegration();
+
+      expect(fixture.frameCallbackHandler.timingsCallback, isNull);
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains(NativeAppStartIntegration.integrationName)),
+      );
+    });
+
+    test('installs on macOS when standalone app start tracing is enabled',
+        () async {
+      fixture.options.platform = MockPlatform.macOS();
+      fixture.options.enableStandaloneAppStartTracing = true;
+
+      await fixture.callIntegration();
+
+      expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
+      expect(
+        fixture.options.sdk.integrations,
+        contains(NativeAppStartIntegration.integrationName),
+      );
+    });
+
     test('adds integration', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       expect(fixture.options.sdk.integrations,
           contains(NativeAppStartIntegration.integrationName));
     });
 
+    test('does not let an install failure escape into the integration chain',
+        () async {
+      fixture.options.automatedTestMode = false;
+      fixture.frameCallbackHandler.addTimingsCallbackError =
+          StateError('install blew up');
+
+      await expectLater(fixture.callIntegration(), completes);
+    });
+
+    test('rethrows an install failure under automatedTestMode', () async {
+      fixture.frameCallbackHandler.addTimingsCallbackError =
+          StateError('install blew up');
+
+      await expectLater(fixture.callIntegration(), throwsStateError);
+    });
+
     test('adds timingsCallback', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       expect(fixture.frameCallbackHandler.timingsCallback, isNotNull);
     });
 
     test('timingsCallback calls nativeAppStartHandler', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([_fakeFrameTiming]);
@@ -68,7 +113,7 @@ void main() {
     });
 
     test('sets correct app start from timing', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([_fakeFrameTiming]);
@@ -80,7 +125,7 @@ void main() {
     });
 
     test('handles timingsCallback exactly once', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([_fakeFrameTiming]);
@@ -94,7 +139,7 @@ void main() {
     });
 
     test('handles empty timings', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       expect(
@@ -108,7 +153,7 @@ void main() {
     });
 
     test('removes timingsCallback after it was triggered', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([
@@ -127,7 +172,7 @@ void main() {
     });
 
     test('sets root transaction context and ttd transaction ids', () async {
-      fixture.callIntegration();
+      await fixture.callIntegration();
 
       final timingsCallback = fixture.frameCallbackHandler.timingsCallback!;
       timingsCallback([_fakeFrameTiming]);
@@ -171,9 +216,7 @@ class Fixture {
     when(hub.options).thenReturn(options);
   }
 
-  void callIntegration() {
-    sut.call(hub, options);
-  }
+  Future<void> callIntegration() => sut.call(hub, options);
 }
 
 class FakeNativeAppStartHandler implements NativeAppStartHandler {

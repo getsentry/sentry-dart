@@ -2,6 +2,13 @@ import 'package:meta/meta.dart';
 
 @internal
 class SentrySpanOperations {
+  static const String appStart = 'app.start';
+  static const String appStartExtended = 'app.start.extended';
+  static const String appStartPluginRegistration =
+      'app.start.plugin_registration';
+  static const String appStartSentrySetup = 'app.start.sentry_setup';
+  static const String appStartFirstFrameRender = 'app.start.first_frame_render';
+  static const String appStartNative = 'app.start.native';
   static const String uiLoad = 'ui.load';
   static const String uiTimeToInitialDisplay = 'ui.load.initial_display';
   static const String uiTimeToFullDisplay = 'ui.load.full_display';
@@ -15,6 +22,7 @@ class SentrySpanOperations {
 
 @internal
 class SentrySpanData {
+  static const String appStartTypeKey = 'app_start_type';
   static const String dbSystemKey = 'db.system';
   static const String dbNameKey = 'db.name';
   static const String dbSchemaKey = 'db.schema';
@@ -65,6 +73,7 @@ class SentryFeatures {
   static const String beforeSendFeedback = 'beforeSendFeedback';
   static const String beforeSendLog = 'beforeSendLog';
   static const String beforeSendMetric = 'beforeSendMetric';
+  static const String standaloneAppStartTracing = 'standaloneAppStartTracing';
 }
 
 /// Semantic attributes for telemetry.

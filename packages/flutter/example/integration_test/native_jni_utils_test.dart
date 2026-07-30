@@ -139,17 +139,6 @@ void main() {
 
       expect(actual, expectedNormalizedMap);
     });
-
-    test('jsonToJByteArray converts normalized JSON to bytes', () {
-      using((arena) {
-        final javaBytes = jsonToJByteArray(inputMap)..releasedBy(arena);
-        final byteRange = javaBytes.getRange(0, javaBytes.length);
-        final bytes = byteRange.buffer
-            .asUint8List(byteRange.offsetInBytes, byteRange.length);
-
-        expect(bytes, isNotEmpty);
-      });
-    });
   }, skip: !Platform.isAndroid);
 }
 
