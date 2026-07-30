@@ -34,6 +34,8 @@ class SentrySqfliteTransaction extends Transaction
     @internal Hub? hub,
     @internal String? dbName,
   }) : _hub = hub ?? HubAdapter(),
+       // Retain the internal constructor argument name for compatibility.
+       // ignore: prefer_initializing_formals
        _dbName = dbName;
 
   @override

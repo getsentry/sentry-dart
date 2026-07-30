@@ -32,8 +32,11 @@ class SentryDatabaseExecutor
     InstrumentationSpan? parentSpan,
     @internal Hub? hub,
     @internal String? dbName,
-  }) : _parentSpan = parentSpan,
+  }) : // Retain the internal constructor argument names for compatibility.
+       // ignore: prefer_initializing_formals
+       _parentSpan = parentSpan,
        _hub = hub ?? HubAdapter(),
+       // ignore: prefer_initializing_formals
        _dbName = dbName {
     // ignore: invalid_use_of_internal_member
     _spanFactory = _hub.options.spanFactory;

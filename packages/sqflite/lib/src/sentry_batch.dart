@@ -39,6 +39,8 @@ class SentryBatch implements Batch {
   /// ```
   SentryBatch(this._batch, {@internal Hub? hub, @internal String? dbName})
     : _hub = hub ?? HubAdapter(),
+      // Retain the internal constructor argument name for compatibility.
+      // ignore: prefer_initializing_formals
       _dbName = dbName {
     // ignore: invalid_use_of_internal_member
     _spanFactory = _hub.options.spanFactory;
