@@ -101,7 +101,7 @@ class Hub {
         scope = s;
       }
 
-      scope = _linkActiveSpan(scope, item.scope, event.throwable);
+      scope = _linkEventToSpan(scope, item.scope, event.throwable);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -161,7 +161,7 @@ class Hub {
         scope = s;
       }
 
-      scope = _linkActiveSpan(scope, item.scope, throwable);
+      scope = _linkEventToSpan(scope, item.scope, throwable);
 
       try {
         var event = SentryEvent(
@@ -371,8 +371,12 @@ class Hub {
   /// [scope] was set by a `withScope` callback, so it wins outright. A span
   /// that [throwable] aborted beats the ambient one, which merely happened to
   /// be open at capture time.
-  Scope _linkActiveSpan(Scope scope, Scope hubScope, Object? throwable) {
-    if (scope.getActiveSpan() != null) {
+  ///
+  /// Static tracing has no span to link here — it links through
+  /// [_assignTraceContext] instead.
+  Scope _linkEventToSpan(Scope scope, Scope hubScope, Object? throwable) {
+    if (_options.traceLifecycle == SentryTraceLifecycle.static ||
+        scope.getActiveSpan() != null) {
       return scope;
     }
     final span = ThrowableSpanRegistry.lookup(throwable) ?? getActiveSpan();
