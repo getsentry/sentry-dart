@@ -138,15 +138,22 @@ bool containsTargetOrMatchesRegExp(
 /// integration must not capture it — otherwise reporting a failure would
 /// generate the very request that failed.
 ///
-/// Matches on the host alone, like sentry-javascript's `isSentryRequestUrl`.
+/// Compares the host exactly. sentry-javascript's `isSentryRequestUrl` tests
+/// `url.includes(dsn.host)`, which `not-sentry.example.com` would satisfy for a
+/// DSN on `sentry.example.com`, silently dropping that host's failures.
 @internal
 bool isSentryRequestUrl(String url, SentryOptions options) {
   try {
-    final host = options.parsedDsn.uri?.host;
+    final dsnHost = options.parsedDsn.uri?.host;
+    if (dsnHost == null || dsnHost.isEmpty) {
+      return false;
+    }
+    // Empty for a relative URL, which cannot address the DSN.
+    final host = Uri.tryParse(url)?.host;
     if (host == null || host.isEmpty) {
       return false;
     }
-    return url.contains(host);
+    return host.toLowerCase() == dsnHost.toLowerCase();
   } catch (_) {
     // The DSN may be unset or unparseable.
     return false;

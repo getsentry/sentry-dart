@@ -246,6 +246,22 @@ void main() {
     expect(fixture.errorInterceptorHandler.nextWasCalled, true);
     expect(fixture.hub.captureExceptionCalls.length, 0);
   });
+
+  test('capture a host that merely contains the dsn host', () async {
+    final dsnHost = Uri.parse(fixture.hub.options.dsn!).host;
+    final requestOptions = RequestOptions(path: 'https://not-$dsnHost/foo');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
 }
 
 class Fixture {

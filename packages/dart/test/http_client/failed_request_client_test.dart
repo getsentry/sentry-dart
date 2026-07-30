@@ -350,6 +350,20 @@ void main() {
 
       expect(fixture.transport.calls, 0);
     });
+
+    test('captures a host that merely contains the dsn host', () async {
+      fixture._hub.options.captureFailedRequests = true;
+
+      final dsnUri = Uri.parse(fixture.options.dsn!);
+      final lookalike = Uri.https('not-${dsnUri.host}', '/foo');
+
+      final client = MockClient((request) async => Response('', 500));
+      final sut = fixture.getSut(client: client);
+
+      await sut.get(lookalike);
+
+      expect(fixture.transport.calls, 1);
+    });
   });
 }
 
