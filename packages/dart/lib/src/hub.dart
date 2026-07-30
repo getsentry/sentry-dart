@@ -101,7 +101,7 @@ class Hub {
         scope = s;
       }
 
-      scope = _linkActiveSpan(scope, item.scope);
+      scope = _linkActiveSpan(scope, item.scope, event.throwable);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -161,7 +161,7 @@ class Hub {
         scope = s;
       }
 
-      scope = _linkActiveSpan(scope, item.scope);
+      scope = _linkActiveSpan(scope, item.scope, throwable);
 
       try {
         var event = SentryEvent(
@@ -360,24 +360,29 @@ class Hub {
     }
   }
 
-  /// Attaches the currently active span to [scope] so that the captured event
-  /// is linked to it.
+  /// Attaches the span the captured event belongs to onto [scope] so that the
+  /// two are linked.
   ///
-  /// Copies [scope] first when it is still [hubScope], because the active span
-  /// must not outlive the capture: nothing would unset it afterwards and every
-  /// later event would link to an already ended span.
+  /// Copies [scope] first when it is still [hubScope], because the span must
+  /// not outlive the capture: nothing would unset it afterwards and every later
+  /// event would link to an already ended span.
   ///
-  /// An active span already present on [scope] was set by a `withScope`
-  /// callback and is more specific than the ambient one, so it wins.
-  Scope _linkActiveSpan(Scope scope, Scope hubScope) {
-    final activeSpan = getActiveSpan();
-    if (activeSpan == null || scope.getActiveSpan() != null) {
+  /// Preference goes to the most specific attribution. A span already on
+  /// [scope] was set by a `withScope` callback, so it wins outright. A span
+  /// that [throwable] aborted beats the ambient one, which merely happened to
+  /// be open at capture time.
+  Scope _linkActiveSpan(Scope scope, Scope hubScope, Object? throwable) {
+    if (scope.getActiveSpan() != null) {
+      return scope;
+    }
+    final span = ThrowableSpanRegistry.lookup(throwable) ?? getActiveSpan();
+    if (span == null) {
       return scope;
     }
     if (identical(scope, hubScope)) {
       scope = scope.clone();
     }
-    return scope..setActiveSpan(activeSpan);
+    return scope..setActiveSpan(span);
   }
 
   FutureOr<Scope> _cloneAndRunWithScope(

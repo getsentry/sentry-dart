@@ -138,7 +138,14 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
   dynamic get throwable => _throwable;
 
   @override
-  set throwable(dynamic throwable) => _throwable = throwable;
+  set throwable(dynamic throwable) {
+    _throwable = throwable;
+    // Lets whoever captures this error later link it back to this span, since
+    // integrations that rethrow are not the capture site.
+    if (_span case RecordingSentrySpanV2 recordingSpan) {
+      ThrowableSpanRegistry.register(throwable, recordingSpan);
+    }
+  }
 
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
