@@ -48,13 +48,18 @@ try {
   await child?.finish();
 }
 
-// Streaming lifecycle.
+// Streaming lifecycle. Only pass a parent when there is one — passing `null`
+// starts a root span instead of a child.
 final appStartV2 = SentryFlutter.getExtendedAppStartSpanV2();
-await Sentry.startSpan(
-  'Load config',
-  (span) => loadConfig(),
-  parentSpan: appStartV2,
-);
+if (appStartV2 != null) {
+  await Sentry.startSpan(
+    'Load config',
+    (span) => loadConfig(),
+    parentSpan: appStartV2,
+  );
+} else {
+  await loadConfig();
+}
 ```
 
 ### Fixes
