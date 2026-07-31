@@ -60,10 +60,7 @@ class WebPlatformContextProvider implements PlatformContextProvider {
   List<SentryRuntime> _buildRuntimes() {
     final flRuntime = flutterRuntime;
     final dartFlRuntime = dartFlutterRuntime;
-    return [
-      if (flRuntime != null) flRuntime,
-      if (dartFlRuntime != null) dartFlRuntime,
-    ];
+    return [?flRuntime, ?dartFlRuntime];
   }
 }
 

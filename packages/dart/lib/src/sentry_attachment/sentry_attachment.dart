@@ -34,13 +34,12 @@ class SentryAttachment {
   static const String typeViewHierarchy = 'event.view_hierarchy';
 
   SentryAttachment.fromLoader({
-    required ContentLoader loader,
+    required this._loader,
     required this.filename,
     String? attachmentType,
     this.contentType,
     bool? addToTransactions,
-  }) : _loader = loader,
-       attachmentType = attachmentType ?? typeAttachmentDefault,
+  }) : attachmentType = attachmentType ?? typeAttachmentDefault,
        addToTransactions = addToTransactions ?? false;
 
   /// Creates an [SentryAttachment] from a [Uint8List]

@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -58,9 +60,7 @@ void main() {
       options.dsn = 'https://example.com/sentry-dsn';
     });
 
-    // ignore: invalid_use_of_internal_member
     fixture.hub = Sentry.currentHub;
-    // ignore: invalid_use_of_internal_member
     fixture.options = fixture.hub.options;
   });
 
@@ -89,7 +89,6 @@ void main() {
     final sut = await fixture.getSut();
     sut.call(fixture.hub, fixture.options);
 
-    // ignore: invalid_use_of_internal_member
     final featureFlags =
         fixture.hub.scope.contexts[SentryFeatureFlags.type]
             as SentryFeatureFlags?;
@@ -109,7 +108,6 @@ void main() {
       const Duration(milliseconds: 100),
     ); // wait for the subscription to be called
 
-    // ignore: invalid_use_of_internal_member
     final featureFlags =
         fixture.hub.scope.contexts[SentryFeatureFlags.type]
             as SentryFeatureFlags?;

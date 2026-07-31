@@ -18,11 +18,11 @@ import 'version.dart';
 class LoggingIntegration implements Integration<SentryOptions> {
   /// Creates the [LoggingIntegration].
   ///
-  /// - All log events equal or higher than [minBreadcrumbLevel] are recorded as a
+  /// - All log events equal or higher than [_minBreadcrumbLevel] are recorded as a
   /// [Breadcrumb].
-  /// - All log events equal or higher than [minEventLevel] are recorded as a
+  /// - All log events equal or higher than [_minEventLevel] are recorded as a
   /// [SentryEvent].
-  /// - All log events equal or higher than [minSentryLogLevel] are logged to
+  /// - All log events equal or higher than [_minSentryLogLevel] are logged to
   /// Sentry, unless [SentryOptions.enableLogs] is set to `false`.
   ///
   /// Log levels are mapped to the following Sentry log levels methods:
@@ -42,12 +42,10 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// - >= 700 || 500 || 0 → debug
   /// - < 700 → trace
   LoggingIntegration({
-    Level minBreadcrumbLevel = Level.INFO,
-    Level minEventLevel = Level.SEVERE,
-    Level minSentryLogLevel = Level.INFO,
-  }) : _minBreadcrumbLevel = minBreadcrumbLevel,
-       _minEventLevel = minEventLevel,
-       _minSentryLogLevel = minSentryLogLevel;
+    this._minBreadcrumbLevel = Level.INFO,
+    this._minEventLevel = Level.SEVERE,
+    this._minSentryLogLevel = Level.INFO,
+  });
 
   final Level _minBreadcrumbLevel;
   final Level _minEventLevel;

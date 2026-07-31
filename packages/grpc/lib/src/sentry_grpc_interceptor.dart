@@ -40,16 +40,15 @@ class SentryGrpcInterceptor extends ClientInterceptor {
 
   /// Creates a [SentryGrpcInterceptor].
   ///
-  /// [captureFailedRequests] overrides [SentryOptions.captureFailedRequests].
+  /// [_captureFailedRequests] overrides [SentryOptions.captureFailedRequests].
   /// When `null`, the global option is used.
   ///
   /// Set [enableBreadcrumbs] to `false` to disable breadcrumb recording.
   SentryGrpcInterceptor({
     Hub? hub,
-    bool? captureFailedRequests,
+    this._captureFailedRequests,
     bool enableBreadcrumbs = true,
   }) : _hub = hub ?? HubAdapter(),
-       _captureFailedRequests = captureFailedRequests,
        _recordBreadcrumbs = enableBreadcrumbs {
     _spanFactory = _hub.options.spanFactory;
     _hub.options.sdk.addIntegration(integrationName);

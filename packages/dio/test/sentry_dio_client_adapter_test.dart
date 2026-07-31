@@ -99,7 +99,7 @@ void main() {
 }
 
 MockHttpClientAdapter createThrowingClient() {
-  return MockHttpClientAdapter((options, _, __) async {
+  return MockHttpClientAdapter((options, _, _) async {
     expect(options.uri, requestUri);
     throw TestException();
   });
@@ -110,7 +110,7 @@ void _close({bool force = false}) {
 }
 
 MockHttpClientAdapter createCloseClient() {
-  return MockHttpClientAdapter((_, __, ___) async {
+  return MockHttpClientAdapter((_, _, _) async {
     return ResponseBody.fromString('', 200);
   }, mockCloseMethod: _close);
 }
@@ -145,7 +145,7 @@ class Fixture {
   }
 
   MockHttpClientAdapter getClient({int statusCode = 200, String? reason}) {
-    return MockHttpClientAdapter((options, _, __) async {
+    return MockHttpClientAdapter((options, _, _) async {
       expect(options.uri, requestUri);
       return ResponseBody.fromString('', statusCode);
     });

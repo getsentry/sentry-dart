@@ -36,22 +36,18 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// Private constructor. Use [root] or [child] factory constructors.
   RecordingSentrySpanV2._({
     required SentryId traceId,
-    required String name,
-    required OnSpanEndCallback onSpanEnd,
+    required this._name,
+    required this._onSpanEnd,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
-    required DscCreatorCallback dscCreator,
-    required SentryTracesSamplingDecision samplingDecision,
+    required this._dscCreator,
+    required this._samplingDecision,
     DateTime? startTimestamp,
   }) : _traceId = parentSpan?.traceId ?? traceId,
-       _name = name,
        _parentSpan = parentSpan,
        _clock = clock,
-       _onSpanEnd = onSpanEnd,
        _startTimestamp = (startTimestamp ?? clock()).toUtc(),
-       _segmentSpan = parentSpan?.segmentSpan,
-       _dscCreator = dscCreator,
-       _samplingDecision = samplingDecision;
+       _segmentSpan = parentSpan?.segmentSpan;
 
   /// Creates a root span with an explicit sampling decision.
   ///

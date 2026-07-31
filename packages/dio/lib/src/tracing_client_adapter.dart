@@ -15,9 +15,8 @@ class TracingClientAdapter implements HttpClientAdapter {
   static const String integrationName = 'HTTPNetworkTracing';
 
   // ignore: public_member_api_docs
-  TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
-    : _hub = hub ?? HubAdapter(),
-      _client = client {
+  TracingClientAdapter({required this._client, Hub? hub})
+    : _hub = hub ?? HubAdapter() {
     _spanFactory = _hub.options.spanFactory;
     if (_hub.options.isTracingEnabled()) {
       _hub.options.sdk.addIntegration(integrationName);

@@ -182,7 +182,7 @@ void main() {
       );
 
       test('returning null drops the metric', () async {
-        fixture.options.beforeSendMetric = (_, __) => null;
+        fixture.options.beforeSendMetric = (_, _) => null;
 
         final metric = fixture.createMetric();
 
@@ -192,7 +192,7 @@ void main() {
       });
 
       test('returning null records metric count and bytes', () async {
-        fixture.options.beforeSendMetric = (_, __) => null;
+        fixture.options.beforeSendMetric = (_, _) => null;
 
         final metric = fixture.createMetric();
 
@@ -205,7 +205,7 @@ void main() {
       });
 
       test('returning null omits bytes when size estimation fails', () async {
-        fixture.options.beforeSendMetric = (_, __) => null;
+        fixture.options.beforeSendMetric = (_, _) => null;
 
         await fixture.pipeline.captureMetric(
           fixture.createUnencodableMetric(),

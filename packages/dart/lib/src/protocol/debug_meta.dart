@@ -21,8 +21,7 @@ class DebugMeta {
     _images?.add(debugImage);
   }
 
-  DebugMeta({this.sdk, List<DebugImage>? images, this.unknown})
-    : _images = images;
+  DebugMeta({this.sdk, this._images, this.unknown});
 
   @internal
   final Map<String, dynamic>? unknown;

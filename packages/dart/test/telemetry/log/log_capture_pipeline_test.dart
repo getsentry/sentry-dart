@@ -183,7 +183,7 @@ void main() {
       );
 
       test('returning null drops the log', () async {
-        fixture.options.beforeSendLog = (_, __) => null;
+        fixture.options.beforeSendLog = (_, _) => null;
 
         final log = givenLog();
 
@@ -193,7 +193,7 @@ void main() {
       });
 
       test('returning null records lost event in client report', () async {
-        fixture.options.beforeSendLog = (_, __) => null;
+        fixture.options.beforeSendLog = (_, _) => null;
 
         final log = givenLog();
 
@@ -208,7 +208,7 @@ void main() {
       test(
         'returning null records log item but omits log byte if size estimation fails',
         () async {
-          fixture.options.beforeSendLog = (_, __) => null;
+          fixture.options.beforeSendLog = (_, _) => null;
 
           final log = givenLog()
             ..attributes['unserializable'] = SentryAttribute(

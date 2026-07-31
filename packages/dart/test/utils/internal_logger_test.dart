@@ -194,7 +194,7 @@ void main() {
             internalLogger.warning('routed via dev.log on the VM');
           },
           zoneSpecification: ZoneSpecification(
-            print: (_, __, ___, line) => captured.add(line),
+            print: (_, _, _, line) => captured.add(line),
           ),
         );
 

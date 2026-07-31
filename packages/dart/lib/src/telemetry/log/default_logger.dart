@@ -17,12 +17,10 @@ final class DefaultSentryLogger implements SentryLogger {
   );
 
   DefaultSentryLogger({
-    required CaptureLogCallback captureLogCallback,
-    required ClockProvider clockProvider,
-    required ScopeProvider scopeProvider,
-  }) : _captureLogCallback = captureLogCallback,
-       _clockProvider = clockProvider,
-       _scopeProvider = scopeProvider;
+    required this._captureLogCallback,
+    required this._clockProvider,
+    required this._scopeProvider,
+  });
 
   @override
   void trace(String body, {Map<String, SentryAttribute>? attributes}) {
