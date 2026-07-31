@@ -7,8 +7,8 @@ class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
   SentryFirebaseRemoteConfigIntegration({
     required FirebaseRemoteConfig firebaseRemoteConfig,
     bool activateOnConfigUpdated = true,
-  })  : _firebaseRemoteConfig = firebaseRemoteConfig,
-        _activateOnConfigUpdated = activateOnConfigUpdated;
+  }) : _firebaseRemoteConfig = firebaseRemoteConfig,
+       _activateOnConfigUpdated = activateOnConfigUpdated;
 
   final FirebaseRemoteConfig _firebaseRemoteConfig;
   final bool _activateOnConfigUpdated;

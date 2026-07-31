@@ -129,10 +129,8 @@ void main() {
 
   test('fromHttpStatusCode returns fallback if not found', () {
     expect(
-        SpanStatus.fromHttpStatusCode(
-          101,
-          fallback: SpanStatus.aborted(),
-        ),
-        SpanStatus.aborted());
+      SpanStatus.fromHttpStatusCode(101, fallback: SpanStatus.aborted()),
+      SpanStatus.aborted(),
+    );
   });
 }

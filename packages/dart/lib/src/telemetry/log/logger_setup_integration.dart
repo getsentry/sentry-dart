@@ -16,7 +16,8 @@ class LoggerSetupIntegration extends Integration<SentryOptions> {
 
     if (options.logger is! NoOpSentryLogger) {
       internalLogger.debug(
-          '$integrationName: Custom logger already configured, skipping setup');
+        '$integrationName: Custom logger already configured, skipping setup',
+      );
       return;
     }
 

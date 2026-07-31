@@ -19,8 +19,9 @@ void main() {
     });
 
     test('GET: happy path', () async {
-      final sut =
-          fixture.getSut(fixture.getClient(statusCode: 200, reason: 'OK'));
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
 
       final response = await sut.get(requestUri);
       expect(response.statusCode, 200);
@@ -42,8 +43,9 @@ void main() {
     });
 
     test('GET: happy path for 404', () async {
-      final sut = fixture
-          .getSut(fixture.getClient(statusCode: 404, reason: 'NOT FOUND'));
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 404, reason: 'NOT FOUND'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -122,7 +124,8 @@ void main() {
 
     test('server error response (500)', () async {
       final sut = fixture.getSut(
-          fixture.getClient(statusCode: 500, reason: 'INTERNAL SERVER ERROR'));
+        fixture.getClient(statusCode: 500, reason: 'INTERNAL SERVER ERROR'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -144,7 +147,8 @@ void main() {
 
     test('server redirect (3xx)', () async {
       final sut = fixture.getSut(
-          fixture.getClient(statusCode: 308, reason: 'PERMANENT REDIRECT'));
+        fixture.getClient(statusCode: 308, reason: 'PERMANENT REDIRECT'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -166,7 +170,8 @@ void main() {
 
     test('invalid status (>= 6xx)', () async {
       final sut = fixture.getSut(
-          fixture.getClient(statusCode: 600, reason: 'UNKNOWN STATUS CODE'));
+        fixture.getClient(statusCode: 600, reason: 'UNKNOWN STATUS CODE'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -190,10 +195,12 @@ void main() {
     /// no exception gets reported by Sentry, in case the user wants to
     /// handle the exception
     test('no captureException for ClientException', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        throw ClientException('test', requestUri);
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          throw ClientException('test', requestUri);
+        }),
+      );
 
       try {
         await sut.get(requestUri);
@@ -209,10 +216,12 @@ void main() {
     /// SocketException are only a thing on dart:io platforms.
     /// otherwise this is equal to the test above
     test('no captureException for SocketException', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        throw SocketException('test');
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          throw SocketException('test');
+        }),
+      );
 
       try {
         await sut.get(requestUri);
@@ -225,10 +234,12 @@ void main() {
     });
 
     test('breadcrumb gets added when an exception gets thrown', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        throw Exception('foo bar');
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          throw Exception('foo bar');
+        }),
+      );
 
       try {
         await sut.get(requestUri);
@@ -262,11 +273,13 @@ void main() {
     });
 
     test('Breadcrumb has correct duration', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        await Future.delayed(Duration(seconds: 1));
-        return Response('', 200, reasonPhrase: 'OK');
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          await Future.delayed(Duration(seconds: 1));
+          return Response('', 200, reasonPhrase: 'OK');
+        }),
+      );
 
       final response = await sut.get(requestUri);
       expect(response.statusCode, 200);

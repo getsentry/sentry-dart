@@ -9,10 +9,10 @@ class MockEnvironmentVariables extends EnvironmentVariables
     String? dsn,
     String? environment,
     String? release,
-  })  : _dist = dist,
-        _dsn = dsn,
-        _environment = environment,
-        _release = release;
+  }) : _dist = dist,
+       _dsn = dsn,
+       _environment = environment,
+       _release = release;
 
   final String? _dist;
   final String? _dsn;

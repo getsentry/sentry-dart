@@ -30,8 +30,10 @@ void main() {
 
     test("don't overwrite transaction", () async {
       var enricher = fixture.getSut();
-      final event =
-          await enricher.apply(SentryEvent(transaction: 'foobar'), Hint());
+      final event = await enricher.apply(
+        SentryEvent(transaction: 'foobar'),
+        Hint(),
+      );
 
       expect(event?.transaction, 'foobar');
     });
@@ -46,12 +48,7 @@ void main() {
 
     test('adds header to request if request already exists', () async {
       var event = SentryEvent(
-        request: SentryRequest(
-          url: 'foo.bar',
-          headers: {
-            'foo': 'bar',
-          },
-        ),
+        request: SentryRequest(url: 'foo.bar', headers: {'foo': 'bar'}),
       );
       var enricher = fixture.getSut();
       event = (await enricher.apply(event, Hint()))!;
@@ -65,10 +62,7 @@ void main() {
       var event = SentryEvent(
         request: SentryRequest(
           url: 'foo.bar',
-          headers: {
-            'Authorization': 'foo',
-            'authorization': 'bar',
-          },
+          headers: {'Authorization': 'foo', 'authorization': 'bar'},
         ),
       );
       var enricher = fixture.getSut();
@@ -82,9 +76,7 @@ void main() {
       var event = SentryEvent(
         request: SentryRequest(
           url: 'foo.bar',
-          headers: {
-            'User-Agent': 'best browser agent',
-          },
+          headers: {'User-Agent': 'best browser agent'},
         ),
       );
       var enricher = fixture.getSut();
@@ -135,12 +127,8 @@ void main() {
             screenWidthPixels: 1920,
             screenDensity: 2,
           ),
-          operatingSystem: SentryOperatingSystem(
-            name: 'sentry_os',
-          ),
-          culture: SentryCulture(
-            timezone: 'foo_timezone',
-          ),
+          operatingSystem: SentryOperatingSystem(name: 'sentry_os'),
+          culture: SentryCulture(timezone: 'foo_timezone'),
         ),
       );
 
@@ -149,10 +137,7 @@ void main() {
       final event = await enricher.apply(fakeEvent, Hint());
 
       // contexts.device
-      expect(
-        event?.contexts.device?.online,
-        fakeEvent.contexts.device?.online,
-      );
+      expect(event?.contexts.device?.online, fakeEvent.contexts.device?.online);
       expect(
         event?.contexts.device?.memorySize,
         fakeEvent.contexts.device?.memorySize,
@@ -187,16 +172,16 @@ void main() {
 
     test('$WebEnricherEventProcessor gets added on init', () async {
       late SentryOptions sentryOptions;
-      await Sentry.init(
-        (options) {
-          options.dsn = fakeDsn;
-          sentryOptions = options;
-        },
-      );
+      await Sentry.init((options) {
+        options.dsn = fakeDsn;
+        sentryOptions = options;
+      });
       await Sentry.close();
 
-      expect(sentryOptions.eventProcessors.map((e) => e.runtimeType.toString()),
-          contains('$WebEnricherEventProcessor'));
+      expect(
+        sentryOptions.eventProcessors.map((e) => e.runtimeType.toString()),
+        contains('$WebEnricherEventProcessor'),
+      );
     });
 
     test('SafeNavigationGetterExtensions safely accesses deviceMemory', () {

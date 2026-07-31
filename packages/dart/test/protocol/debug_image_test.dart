@@ -35,19 +35,13 @@ void main() {
     test('toJson', () {
       final json = debugImage.toJson();
 
-      expect(
-        MapEquality().equals(debugImageJson, json),
-        true,
-      );
+      expect(MapEquality().equals(debugImageJson, json), true);
     });
     test('fromJson', () {
       final debugImage = DebugImage.fromJson(debugImageJson);
       final json = debugImage.toJson();
 
-      expect(
-        MapEquality().equals(debugImageJson, json),
-        true,
-      );
+      expect(MapEquality().equals(debugImageJson, json), true);
     });
   });
 }

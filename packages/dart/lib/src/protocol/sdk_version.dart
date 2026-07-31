@@ -45,11 +45,10 @@ class SdkVersion {
     List<String>? features,
     List<SentryPackage>? packages,
     this.unknown,
-  })  :
-        // List.from prevents from having immutable lists
-        _integrations = List.from(integrations ?? []),
-        _features = List.from(features ?? []),
-        _packages = List.from(packages ?? []);
+  }) : // List.from prevents from having immutable lists
+       _integrations = List.from(integrations ?? []),
+       _features = List.from(features ?? []),
+       _packages = List.from(packages ?? []);
 
   /// The name of the SDK.
   String name;

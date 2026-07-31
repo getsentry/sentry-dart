@@ -22,7 +22,7 @@ class DebugMeta {
   }
 
   DebugMeta({this.sdk, List<DebugImage>? images, this.unknown})
-      : _images = images;
+    : _images = images;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -35,8 +35,10 @@ class DebugMeta {
     return DebugMeta(
       sdk: sdkInfoJson != null ? SdkInfo.fromJson(sdkInfoJson) : null,
       images: debugImagesJson
-          ?.map((debugImageJson) =>
-              DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
+          ?.map(
+            (debugImageJson) =>
+                DebugImage.fromJson(debugImageJson as Map<String, dynamic>),
+          )
           .toList(),
       unknown: json.notAccessed(),
     );

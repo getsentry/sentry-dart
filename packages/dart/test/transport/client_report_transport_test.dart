@@ -68,10 +68,9 @@ void main() {
     });
 
     test('send adds client report', () async {
-      final clientReport = ClientReport(
-        DateTime(0),
-        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
-      );
+      final clientReport = ClientReport(DateTime(0), [
+        DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1),
+      ]);
       fixture.recorder.clientReport = clientReport;
 
       final sut = fixture.getSut();
@@ -93,10 +92,9 @@ void main() {
     });
 
     test('send after filtering out 10 times and client report', () async {
-      final clientReport = ClientReport(
-        DateTime(0),
-        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
-      );
+      final clientReport = ClientReport(DateTime(0), [
+        DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1),
+      ]);
       fixture.recorder.clientReport = clientReport;
 
       final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;
@@ -133,10 +131,9 @@ void main() {
     });
 
     test('reset counter', () async {
-      final clientReport = ClientReport(
-        DateTime(0),
-        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
-      );
+      final clientReport = ClientReport(DateTime(0), [
+        DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1),
+      ]);
       fixture.recorder.clientReport = clientReport;
 
       final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;

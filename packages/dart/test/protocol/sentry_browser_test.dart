@@ -17,19 +17,13 @@ void main() {
     test('toJson', () {
       final json = sentryBrowser.toJson();
 
-      expect(
-        MapEquality().equals(sentryBrowserJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryBrowserJson, json), true);
     });
     test('fromJson', () {
       final sentryBrowser = SentryBrowser.fromJson(sentryBrowserJson);
       final json = sentryBrowser.toJson();
 
-      expect(
-        MapEquality().equals(sentryBrowserJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryBrowserJson, json), true);
     });
   });
 }

@@ -23,19 +23,13 @@ void main() {
     test('toJson', () {
       final json = sentryResponse.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryResponseJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryResponseJson, json), true);
     });
     test('fromJson', () {
       final sentryResponse = SentryResponse.fromJson(sentryResponseJson);
       final json = sentryResponse.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryResponseJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryResponseJson, json), true);
     });
   });
 }

@@ -61,8 +61,9 @@ class EnricherIntegration implements Integration<SentryOptions> {
       _metricCallback = (event) async {
         try {
           final contexts = await _provider.buildContexts();
-          event.metric.attributes
-              .addAllIfAbsent(contexts.toMinimalAttributes());
+          event.metric.attributes.addAllIfAbsent(
+            contexts.toMinimalAttributes(),
+          );
         } catch (exception, stackTrace) {
           internalLogger.error(
             'EnricherIntegration failed to build contexts for $OnProcessMetric',
@@ -71,8 +72,9 @@ class EnricherIntegration implements Integration<SentryOptions> {
           );
         }
       };
-      options.lifecycleRegistry
-          .registerCallback<OnProcessMetric>(_metricCallback!);
+      options.lifecycleRegistry.registerCallback<OnProcessMetric>(
+        _metricCallback!,
+      );
     }
 
     if (options.traceLifecycle == SentryTraceLifecycle.stream) {
@@ -108,8 +110,9 @@ class EnricherIntegration implements Integration<SentryOptions> {
       _logCallback = null;
     }
     if (_metricCallback != null) {
-      options.lifecycleRegistry
-          .removeCallback<OnProcessMetric>(_metricCallback!);
+      options.lifecycleRegistry.removeCallback<OnProcessMetric>(
+        _metricCallback!,
+      );
       _metricCallback = null;
     }
     if (_spanCallback != null) {

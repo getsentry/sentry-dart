@@ -27,11 +27,10 @@ class SentryStackFrame {
     List<String>? postContext,
     Map<String, dynamic>? vars,
     this.unknown,
-  })  : _framesOmitted =
-            framesOmitted != null ? List.from(framesOmitted) : null,
-        _preContext = preContext != null ? List.from(preContext) : null,
-        _postContext = postContext != null ? List.from(postContext) : null,
-        _vars = vars != null ? Map.from(vars) : null;
+  }) : _framesOmitted = framesOmitted != null ? List.from(framesOmitted) : null,
+       _preContext = preContext != null ? List.from(preContext) : null,
+       _postContext = postContext != null ? List.from(postContext) : null,
+       _vars = vars != null ? Map.from(vars) : null;
 
   /// The absolute path to filename.
   String? absPath;

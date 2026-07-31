@@ -50,8 +50,10 @@ class SentryExceptionFactory {
 
     SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
-      sentryStackTrace = _stacktraceFactory.parse(stackTrace,
-          removeSentryFrames: removeSentryFrames);
+      sentryStackTrace = _stacktraceFactory.parse(
+        stackTrace,
+        removeSentryFrames: removeSentryFrames,
+      );
       sentryStackTrace.snapshot = snapshot;
       if (sentryStackTrace.frames.isEmpty) {
         sentryStackTrace = null;

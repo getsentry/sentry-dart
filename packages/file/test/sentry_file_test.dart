@@ -1,7 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member, library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:sentry/sentry.dart';
@@ -32,9 +31,11 @@ void main() {
       }
       expect(span.context.description, 'testfile.txt');
       expect(
-          (span.data['file.path'] as String)
-              .endsWith('test_resources/testfile.txt'),
-          true);
+        (span.data['file.path'] as String).endsWith(
+          'test_resources/testfile.txt',
+        ),
+        true,
+      );
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
@@ -46,9 +47,11 @@ void main() {
       expect(breadcrumb?.data?['file.size'], 7);
       expect(breadcrumb?.message, 'testfile.txt');
       expect(
-          (breadcrumb?.data?['file.path'] as String)
-              .endsWith('test_resources/testfile.txt'),
-          true);
+        (breadcrumb?.data?['file.path'] as String).endsWith(
+          'test_resources/testfile.txt',
+        ),
+        true,
+      );
     }
 
     test('async', () async {
@@ -120,9 +123,11 @@ void main() {
       }
       expect(span.context.description, 'testfile_create.txt');
       expect(
-          (span.data['file.path'] as String)
-              .endsWith('test_resources/testfile_create.txt'),
-          true);
+        (span.data['file.path'] as String).endsWith(
+          'test_resources/testfile_create.txt',
+        ),
+        true,
+      );
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
@@ -134,9 +139,11 @@ void main() {
       expect(breadcrumb?.data?['file.size'], size);
       expect(breadcrumb?.message, 'testfile_create.txt');
       expect(
-          (breadcrumb?.data?['file.path'] as String)
-              .endsWith('test_resources/testfile_create.txt'),
-          true);
+        (breadcrumb?.data?['file.path'] as String).endsWith(
+          'test_resources/testfile_create.txt',
+        ),
+        true,
+      );
     }
 
     test('async', () async {
@@ -206,9 +213,11 @@ void main() {
       }
       expect(span.context.description, 'testfile_delete.txt');
       expect(
-          (span.data['file.path'] as String)
-              .endsWith('test_resources/testfile_delete.txt'),
-          true);
+        (span.data['file.path'] as String).endsWith(
+          'test_resources/testfile_delete.txt',
+        ),
+        true,
+      );
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
@@ -220,9 +229,11 @@ void main() {
       expect(breadcrumb?.data?['file.size'], size);
       expect(breadcrumb?.message, 'testfile_delete.txt');
       expect(
-          (breadcrumb?.data?['file.path'] as String)
-              .endsWith('test_resources/testfile_delete.txt'),
-          true);
+        (breadcrumb?.data?['file.path'] as String).endsWith(
+          'test_resources/testfile_delete.txt',
+        ),
+        true,
+      );
     }
 
     test('async', () async {
@@ -287,9 +298,11 @@ void main() {
       expect(span.data['file.size'], 3535);
       expect(span.context.description, 'sentry.png');
       expect(
-          (span.data['file.path'] as String)
-              .endsWith('test_resources/sentry.png'),
-          true);
+        (span.data['file.path'] as String).endsWith(
+          'test_resources/sentry.png',
+        ),
+        true,
+      );
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
@@ -301,9 +314,11 @@ void main() {
       expect(breadcrumb?.data?['file.size'], 3535);
       expect(breadcrumb?.message, 'sentry.png');
       expect(
-          (breadcrumb?.data?['file.path'] as String)
-              .endsWith('test_resources/sentry.png'),
-          true);
+        (breadcrumb?.data?['file.path'] as String).endsWith(
+          'test_resources/sentry.png',
+        ),
+        true,
+      );
     }
 
     test('async', () async {
@@ -346,9 +361,9 @@ void main() {
       }
       expect(span.context.description, fileName);
       expect(
-          (span.data['file.path'] as String)
-              .endsWith('test_resources/$fileName'),
-          true);
+        (span.data['file.path'] as String).endsWith('test_resources/$fileName'),
+        true,
+      );
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
@@ -360,9 +375,11 @@ void main() {
       expect(breadcrumb?.data?['file.size'], size);
       expect(breadcrumb?.message, fileName);
       expect(
-          (breadcrumb?.data?['file.path'] as String)
-              .endsWith('test_resources/$fileName'),
-          true);
+        (breadcrumb?.data?['file.path'] as String).endsWith(
+          'test_resources/$fileName',
+        ),
+        true,
+      );
     }
 
     test('as bytes async', () async {
@@ -498,8 +515,9 @@ void main() {
       }
       expect(span.context.description, name);
       expect(
-          (span.data['file.path'] as String).endsWith('test_resources/$name'),
-          true);
+        (span.data['file.path'] as String).endsWith('test_resources/$name'),
+        true,
+      );
       expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
@@ -511,9 +529,11 @@ void main() {
       expect(breadcrumb?.data?['file.size'], 0);
       expect(breadcrumb?.message, name);
       expect(
-          (breadcrumb?.data?['file.path'] as String)
-              .endsWith('test_resources/$name'),
-          true);
+        (breadcrumb?.data?['file.path'] as String).endsWith(
+          'test_resources/$name',
+        ),
+        true,
+      );
     }
 
     test('async', () async {
@@ -596,32 +616,32 @@ void main() {
       expect(breadcrumb?.data?['file.path'], null);
     }
 
-    test('does not add file path if sendDefaultPii is disabled async',
-        () async {
-      final file = File('test_resources/testfile.txt');
+    test(
+      'does not add file path if sendDefaultPii is disabled async',
+      () async {
+        final file = File('test_resources/testfile.txt');
 
-      final sut = fixture.getSut(
-        file,
-        tracesSampleRate: 1.0,
-      );
+        final sut = fixture.getSut(file, tracesSampleRate: 1.0);
 
-      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+        final tr = fixture.hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
 
-      await sut.readAsBytes();
+        await sut.readAsBytes();
 
-      await tr.finish();
+        await tr.finish();
 
-      _assertSpan(true);
-      _assertBreadcrumb();
-    });
+        _assertSpan(true);
+        _assertBreadcrumb();
+      },
+    );
 
     test('does not add file path if sendDefaultPii is disabled sync', () async {
       final file = File('test_resources/testfile.txt');
 
-      final sut = fixture.getSut(
-        file,
-        tracesSampleRate: 1.0,
-      );
+      final sut = fixture.getSut(file, tracesSampleRate: 1.0);
 
       final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
 
@@ -636,22 +656,18 @@ void main() {
     test('add SentryFileTracing integration', () async {
       final file = File('test_resources/testfile.txt');
 
-      fixture.getSut(
-        file,
-        tracesSampleRate: 1.0,
-      );
+      fixture.getSut(file, tracesSampleRate: 1.0);
 
-      expect(fixture.hub.options.sdk.integrations.contains('SentryFileTracing'),
-          true);
+      expect(
+        fixture.hub.options.sdk.integrations.contains('SentryFileTracing'),
+        true,
+      );
     });
 
     test('addSentry adds package to sdk', () {
       final file = File('test_resources/testfile.txt');
 
-      fixture.getSut(
-        file,
-        tracesSampleRate: 1.0,
-      );
+      fixture.getSut(file, tracesSampleRate: 1.0);
 
       expect(
         fixture.hub.options.sdk.packages

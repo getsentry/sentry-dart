@@ -3,8 +3,11 @@ import 'package:meta/meta.dart';
 import '../../sentry.dart';
 import '../utils/internal_logger.dart';
 
-SentryTraceHeader generateSentryTraceHeader(
-    {SentryId? traceId, SpanId? spanId, bool? sampled}) {
+SentryTraceHeader generateSentryTraceHeader({
+  SentryId? traceId,
+  SpanId? spanId,
+  bool? sampled,
+}) {
   traceId ??= SentryId.newId();
   spanId ??= SpanId.newId();
   return SentryTraceHeader(traceId, spanId, sampled: sampled);
@@ -20,10 +23,7 @@ void addTracingHeadersToHttpHeader(
       addW3CHeaderFromSpan(span, headers);
     }
     addSentryTraceHeaderFromSpan(span, headers);
-    addBaggageHeaderFromSpan(
-      span,
-      headers,
-    );
+    addBaggageHeaderFromSpan(span, headers);
   } else {
     if (hub.options.propagateTraceparent) {
       addW3CHeaderFromScope(hub.scope, headers);
@@ -40,18 +40,24 @@ void addSentryTraceHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
 }
 
 void addSentryTraceHeaderFromSpan(
-    InstrumentationSpan span, Map<String, dynamic> headers) {
+  InstrumentationSpan span,
+  Map<String, dynamic> headers,
+) {
   final traceHeader = span.toSentryTrace();
   headers[traceHeader.name] = traceHeader.value;
 }
 
 void addSentryTraceHeader(
-    SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
+  SentryTraceHeader traceHeader,
+  Map<String, dynamic> headers,
+) {
   headers[traceHeader.name] = traceHeader.value;
 }
 
 void addW3CHeaderFromSpan(
-    InstrumentationSpan span, Map<String, dynamic> headers) {
+  InstrumentationSpan span,
+  Map<String, dynamic> headers,
+) {
   final traceHeader = span.toSentryTrace();
   _addW3CHeaderFromSentryTrace(traceHeader, headers);
 }
@@ -63,7 +69,9 @@ void addW3CHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
 }
 
 void _addW3CHeaderFromSentryTrace(
-    SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
+  SentryTraceHeader traceHeader,
+  Map<String, dynamic> headers,
+) {
   headers['traceparent'] = formatAsW3CHeader(traceHeader);
 }
 
@@ -81,7 +89,9 @@ void addBaggageHeaderFromScope(Scope scope, Map<String, dynamic> headers) {
 }
 
 void addBaggageHeaderFromSpan(
-    InstrumentationSpan span, Map<String, dynamic> headers) {
+  InstrumentationSpan span,
+  Map<String, dynamic> headers,
+) {
   final baggage = span.toBaggageHeader();
   if (baggage != null) {
     addBaggageHeader(baggage, headers);
@@ -89,15 +99,13 @@ void addBaggageHeaderFromSpan(
 }
 
 void addBaggageHeader(
-    SentryBaggageHeader baggage, Map<String, dynamic> headers) {
+  SentryBaggageHeader baggage,
+  Map<String, dynamic> headers,
+) {
   final currentValue = headers[baggage.name] as String? ?? '';
 
-  final currentBaggage = SentryBaggage.fromHeader(
-    currentValue,
-  );
-  final sentryBaggage = SentryBaggage.fromHeader(
-    baggage.value,
-  );
+  final currentBaggage = SentryBaggage.fromHeader(currentValue);
+  final sentryBaggage = SentryBaggage.fromHeader(baggage.value);
 
   // overwrite sentry's keys https://develop.sentry.dev/sdk/performance/dynamic-sampling-context/#baggage
   final filteredBaggageHeader = Map.from(currentBaggage.keyValues);
@@ -114,7 +122,9 @@ void addBaggageHeader(
 }
 
 bool containsTargetOrMatchesRegExp(
-    List<String> tracePropagationTargets, String url) {
+  List<String> tracePropagationTargets,
+  String url,
+) {
   if (tracePropagationTargets.isEmpty) {
     return false;
   }
@@ -157,7 +167,8 @@ bool shouldContinueTrace(SentryOptions options, String? baggageOrgId) {
   // Mismatched org IDs always reject regardless of strict mode
   if (sdkOrgId != null && baggageOrgId != null && sdkOrgId != baggageOrgId) {
     internalLogger.debug(
-      () => "Not continuing trace because org IDs don't match "
+      () =>
+          "Not continuing trace because org IDs don't match "
           '(incoming baggage: $baggageOrgId, SDK: $sdkOrgId)',
     );
     return false;

@@ -82,40 +82,22 @@ class Fixture {
 
 class _CustomSentryLogger implements SentryLogger {
   @override
-  void trace(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {}
+  void trace(String body, {Map<String, SentryAttribute>? attributes}) {}
 
   @override
-  void debug(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {}
+  void debug(String body, {Map<String, SentryAttribute>? attributes}) {}
 
   @override
-  void info(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {}
+  void info(String body, {Map<String, SentryAttribute>? attributes}) {}
 
   @override
-  void warn(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {}
+  void warn(String body, {Map<String, SentryAttribute>? attributes}) {}
 
   @override
-  void error(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {}
+  void error(String body, {Map<String, SentryAttribute>? attributes}) {}
 
   @override
-  void fatal(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {}
+  void fatal(String body, {Map<String, SentryAttribute>? attributes}) {}
 
   @override
   SentryLoggerFormatter get fmt => _CustomSentryLoggerFormatter();

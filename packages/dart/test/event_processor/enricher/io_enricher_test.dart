@@ -26,8 +26,9 @@ void main() {
     final event = await enricher.apply(SentryEvent(), Hint());
 
     expect(event?.contexts.runtimes, isNotEmpty);
-    final dartRuntime = event?.contexts.runtimes
-        .firstWhere((element) => element.name == 'Dart');
+    final dartRuntime = event?.contexts.runtimes.firstWhere(
+      (element) => element.name == 'Dart',
+    );
     expect(dartRuntime?.name, 'Dart');
     expect(dartRuntime?.rawDescription, isNotNull);
     expect(dartRuntime!.version.toString(), isNot(Platform.version));
@@ -49,8 +50,9 @@ void main() {
   group('adds device, os and culture', () {
     for (final hasNativeIntegration in [true, false]) {
       test('native=$hasNativeIntegration', () async {
-        final enricher =
-            fixture.getSut(hasNativeIntegration: hasNativeIntegration);
+        final enricher = fixture.getSut(
+          hasNativeIntegration: hasNativeIntegration,
+        );
         final event = await enricher.apply(SentryEvent(), Hint());
 
         expect(event?.contexts.device, isNotNull);
@@ -105,8 +107,10 @@ void main() {
     ///   '"Windows 10 Pro" 10.0 (Build 19043)'
 
     Map<String, dynamic> parse(String name, String rawDescription) =>
-        getSentryOperatingSystem(name: name, rawDescription: rawDescription)
-            .toJson();
+        getSentryOperatingSystem(
+          name: name,
+          rawDescription: rawDescription,
+        ).toJson();
 
     test('android', () {
       expect(parse('android', 'LYA-L29 10.1.0.289(C432E7R1P5)'), {
@@ -123,15 +127,18 @@ void main() {
 
     test('linux', () {
       expect(
-          parse('linux',
-              'Linux 5.11.0-1018-gcp #20~20.04.2-Ubuntu SMP Fri Sep 3 01:01:37 UTC 2021'),
-          {
-            'raw_description':
-                'Linux 5.11.0-1018-gcp #20~20.04.2-Ubuntu SMP Fri Sep 3 01:01:37 UTC 2021',
-            'name': 'Linux',
-            'kernel_version': '5.11.0-1018-gcp',
-            'build': '#20~20.04.2-Ubuntu SMP Fri Sep 3 01:01:37 UTC 2021',
-          });
+        parse(
+          'linux',
+          'Linux 5.11.0-1018-gcp #20~20.04.2-Ubuntu SMP Fri Sep 3 01:01:37 UTC 2021',
+        ),
+        {
+          'raw_description':
+              'Linux 5.11.0-1018-gcp #20~20.04.2-Ubuntu SMP Fri Sep 3 01:01:37 UTC 2021',
+          'name': 'Linux',
+          'kernel_version': '5.11.0-1018-gcp',
+          'build': '#20~20.04.2-Ubuntu SMP Fri Sep 3 01:01:37 UTC 2021',
+        },
+      );
     });
 
     test('ios', () {
@@ -192,17 +199,12 @@ void main() {
   test('does not override event', () async {
     final fakeEvent = SentryEvent(
       contexts: Contexts(
-        device: SentryDevice(
-          name: 'device_name',
-        ),
+        device: SentryDevice(name: 'device_name'),
         operatingSystem: SentryOperatingSystem(
           name: 'sentry_os',
           version: 'best version',
         ),
-        culture: SentryCulture(
-          locale: 'de',
-          timezone: 'timezone',
-        ),
+        culture: SentryCulture(locale: 'de', timezone: 'timezone'),
       ),
     );
 
@@ -214,15 +216,9 @@ void main() {
     final event = await enricher.apply(fakeEvent, Hint());
 
     // contexts.device
-    expect(
-      event?.contexts.device?.name,
-      fakeEvent.contexts.device?.name,
-    );
+    expect(event?.contexts.device?.name, fakeEvent.contexts.device?.name);
     // contexts.culture
-    expect(
-      event?.contexts.culture?.locale,
-      fakeEvent.contexts.culture?.locale,
-    );
+    expect(event?.contexts.culture?.locale, fakeEvent.contexts.culture?.locale);
     expect(
       event?.contexts.culture?.timezone,
       fakeEvent.contexts.culture?.timezone,
@@ -240,16 +236,14 @@ void main() {
 
   test('$IoEnricherEventProcessor gets added on init', () async {
     final options = defaultTestOptions();
-    await Sentry.init(
-      (options) {
-        options.dsn = fakeDsn;
-      },
-      options: options,
-    );
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+    }, options: options);
     await Sentry.close();
 
-    final ioEnricherCount =
-        options.eventProcessors.whereType<IoEnricherEventProcessor>().length;
+    final ioEnricherCount = options.eventProcessors
+        .whereType<IoEnricherEventProcessor>()
+        .length;
     expect(ioEnricherCount, 1);
   });
 }
@@ -260,8 +254,9 @@ class Fixture {
     bool includePii = false,
   }) {
     final options = defaultTestOptions()
-      ..platform =
-          hasNativeIntegration ? MockPlatform.iOS() : MockPlatform.fuchsia()
+      ..platform = hasNativeIntegration
+          ? MockPlatform.iOS()
+          : MockPlatform.fuchsia()
       ..sendDefaultPii = includePii;
 
     return IoEnricherEventProcessor(

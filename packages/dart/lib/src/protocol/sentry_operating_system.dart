@@ -91,8 +91,9 @@ class SentryOperatingSystem {
     final attributes = <String, SentryAttribute>{};
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.osName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.osName] = SentryAttribute.string(
+        name,
+      );
     }
     final version = this.version;
     if (version != null) {
@@ -111,8 +112,9 @@ class SentryOperatingSystem {
     }
     final rooted = this.rooted;
     if (rooted != null) {
-      attributes[SemanticAttributesConstants.osRooted] =
-          SentryAttribute.bool(rooted);
+      attributes[SemanticAttributesConstants.osRooted] = SentryAttribute.bool(
+        rooted,
+      );
     }
     final rawDescription = this.rawDescription;
     if (rawDescription != null) {
@@ -121,8 +123,9 @@ class SentryOperatingSystem {
     }
     final theme = this.theme;
     if (theme != null) {
-      attributes[SemanticAttributesConstants.osTheme] =
-          SentryAttribute.string(theme);
+      attributes[SemanticAttributesConstants.osTheme] = SentryAttribute.string(
+        theme,
+      );
     }
     return attributes;
   }
@@ -139,7 +142,7 @@ class SentryOperatingSystem {
         unknown: other.unknown == null
             ? unknown
             : unknown == null
-                ? null
-                : {...unknown!, ...other.unknown!},
+            ? null
+            : {...unknown!, ...other.unknown!},
       );
 }

@@ -78,14 +78,11 @@ void main() {
 
       final transport = MockTransport();
 
-      await Sentry.init(
-        (options) {
-          options.dsn = fakeDsn;
-          options.transport = transport;
-          options.enableDeduplication = true;
-        },
-        options: defaultTestOptions(),
-      );
+      await Sentry.init((options) {
+        options.dsn = fakeDsn;
+        options.transport = transport;
+        options.enableDeduplication = true;
+      }, options: defaultTestOptions());
 
       // The test doesn't work if `outerTestMethod` is passed as
       // `appRunner` callback
@@ -112,8 +109,10 @@ SentryTransaction _createTransaction(Hub hub) {
 class Fixture {
   final hub = MockHub();
 
-  DeduplicationEventProcessor getSut(bool enabled,
-      [int? maxDeduplicationItems]) {
+  DeduplicationEventProcessor getSut(
+    bool enabled, [
+    int? maxDeduplicationItems,
+  ]) {
     final options = defaultTestOptions()
       ..enableDeduplication = enabled
       ..maxDeduplicationItems = maxDeduplicationItems ?? 5;

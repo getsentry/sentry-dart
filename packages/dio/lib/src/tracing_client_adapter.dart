@@ -16,8 +16,8 @@ class TracingClientAdapter implements HttpClientAdapter {
 
   // ignore: public_member_api_docs
   TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client {
+    : _hub = hub ?? HubAdapter(),
+      _client = client {
     _spanFactory = _hub.options.spanFactory;
     if (_hub.options.isTracingEnabled()) {
       _hub.options.sdk.addIntegration(integrationName);
@@ -75,14 +75,16 @@ class TracingClientAdapter implements HttpClientAdapter {
     ResponseBody? response;
     try {
       response = await _client.fetch(options, requestStream, cancelFuture);
-      instrumentationSpan?.status =
-          SpanStatus.fromHttpStatusCode(response.statusCode);
+      instrumentationSpan?.status = SpanStatus.fromHttpStatusCode(
+        response.statusCode,
+      );
       instrumentationSpan?.setData(
         SemanticAttributesConstants.httpResponseStatusCode,
         response.statusCode,
       );
-      final contentLengthHeader =
-          HttpHeaderUtils.getContentLength(response.headers);
+      final contentLengthHeader = HttpHeaderUtils.getContentLength(
+        response.headers,
+      );
       if (contentLengthHeader != null) {
         instrumentationSpan?.setData(
           SemanticAttributesConstants.httpResponseBodySize,

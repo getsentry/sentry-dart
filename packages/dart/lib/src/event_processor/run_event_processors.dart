@@ -16,8 +16,9 @@ Future<SentryEvent?> runEventProcessors(
   List<EventProcessor> eventProcessors,
   SentryOptions options,
 ) async {
-  int spanCountBeforeEventProcessors =
-      event is SentryTransaction ? event.spans.length : 0;
+  int spanCountBeforeEventProcessors = event is SentryTransaction
+      ? event.spans.length
+      : 0;
 
   SentryEvent? processedEvent = event;
   for (final processor in eventProcessors) {
@@ -26,9 +27,10 @@ Future<SentryEvent?> runEventProcessors(
       processedEvent = e is Future<SentryEvent?> ? await e : e;
     } catch (exception, stackTrace) {
       internalLogger.error(
-          'An exception occurred while processing event by a processor',
-          error: exception,
-          stackTrace: stackTrace);
+        'An exception occurred while processing event by a processor',
+        error: exception,
+        stackTrace: stackTrace,
+      );
       if (options.automatedTestMode) {
         rethrow;
       }

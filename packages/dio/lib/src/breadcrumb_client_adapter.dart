@@ -14,8 +14,8 @@ import 'package:sentry/sentry.dart';
 class BreadcrumbClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   BreadcrumbClientAdapter({required HttpClientAdapter client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client;
+    : _hub = hub ?? HubAdapter(),
+      _client = client;
 
   final HttpClientAdapter _client;
   final Hub _hub;
@@ -38,8 +38,11 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
 
     DioException? dioException;
     try {
-      final response =
-          await _client.fetch(options, requestStream, cancelFuture);
+      final response = await _client.fetch(
+        options,
+        requestStream,
+        cancelFuture,
+      );
 
       statusCode = response.statusCode;
       reason = response.statusMessage;

@@ -5,11 +5,7 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 
 void main() {
-  final sentryPackage = SentryPackage(
-    'name',
-    'version',
-    unknown: testUnknown,
-  );
+  final sentryPackage = SentryPackage('name', 'version', unknown: testUnknown);
 
   final sentryPackageJson = <String, dynamic>{
     'name': 'name',
@@ -21,19 +17,13 @@ void main() {
     test('toJson', () {
       final json = sentryPackage.toJson();
 
-      expect(
-        MapEquality().equals(sentryPackageJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryPackageJson, json), true);
     });
     test('fromJson', () {
       final sentryPackage = SdkVersion.fromJson(sentryPackageJson);
       final json = sentryPackage.toJson();
 
-      expect(
-        MapEquality().equals(sentryPackageJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryPackageJson, json), true);
     });
   });
 }

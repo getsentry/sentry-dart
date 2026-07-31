@@ -13,8 +13,8 @@ class SentryStackTrace {
     this.unknown,
     @internal this.baseAddr,
     @internal this.buildId,
-  })  : _frames = frames,
-        _registers = Map.from(registers ?? {});
+  }) : _frames = frames,
+       _registers = Map.from(registers ?? {});
 
   List<SentryStackFrame>? _frames;
 
@@ -63,8 +63,8 @@ class SentryStackTrace {
     return SentryStackTrace(
       frames: framesJson != null
           ? framesJson
-              .map((frameJson) => SentryStackFrame.fromJson(frameJson))
-              .toList()
+                .map((frameJson) => SentryStackFrame.fromJson(frameJson))
+                .toList()
           : [],
       registers: json['registers'],
       lang: json['lang'],
@@ -78,8 +78,9 @@ class SentryStackTrace {
     return {
       ...?unknown,
       if (_frames?.isNotEmpty ?? false)
-        'frames':
-            _frames?.map((frame) => frame.toJson()).toList(growable: false),
+        'frames': _frames
+            ?.map((frame) => frame.toJson())
+            .toList(growable: false),
       if (_registers?.isNotEmpty ?? false) 'registers': _registers,
       if (lang != null) 'lang': lang,
       if (snapshot != null) 'snapshot': snapshot,

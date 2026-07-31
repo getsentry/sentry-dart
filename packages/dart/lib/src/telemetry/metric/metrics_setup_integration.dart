@@ -10,21 +10,24 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {
     if (!options.enableMetrics) {
-      internalLogger
-          .debug('$integrationName: Metrics disabled, skipping setup');
+      internalLogger.debug(
+        '$integrationName: Metrics disabled, skipping setup',
+      );
       return;
     }
 
     if (options.metrics is! NoOpSentryMetrics) {
       internalLogger.debug(
-          '$integrationName: Custom metrics already configured, skipping setup');
+        '$integrationName: Custom metrics already configured, skipping setup',
+      );
       return;
     }
 
     options.metrics = DefaultSentryMetrics(
-        captureMetricCallback: hub.captureMetric,
-        clockProvider: options.clock,
-        scopeProvider: () => hub.scope);
+      captureMetricCallback: hub.captureMetric,
+      clockProvider: options.clock,
+      scopeProvider: () => hub.scope,
+    );
 
     options.sdk.addIntegration(integrationName);
     internalLogger.debug('$integrationName: Metrics configured successfully');

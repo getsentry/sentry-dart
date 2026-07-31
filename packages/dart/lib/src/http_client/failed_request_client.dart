@@ -75,9 +75,9 @@ class FailedRequestClient extends BaseClient {
     Client? client,
     Hub? hub,
     bool? captureFailedRequests,
-  })  : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client(),
-        _captureFailedRequests = captureFailedRequests {
+  }) : _hub = hub ?? HubAdapter(),
+       _client = client ?? Client(),
+       _captureFailedRequests = captureFailedRequests {
     if (captureFailedRequests ?? _hub.options.captureFailedRequests) {
       _hub.options.sdk.addIntegration('HTTPClientError');
     }
@@ -127,12 +127,13 @@ class FailedRequestClient extends BaseClient {
   }
 
   Future<void> _captureEventIfNeeded(
-      BaseRequest request,
-      int? statusCode,
-      Object? exception,
-      StackTrace? stackTrace,
-      StreamedResponse? response,
-      Duration duration) async {
+    BaseRequest request,
+    int? statusCode,
+    Object? exception,
+    StackTrace? stackTrace,
+    StreamedResponse? response,
+    Duration duration,
+  ) async {
     if (!(_captureFailedRequests ?? _hub.options.captureFailedRequests)) {
       return;
     }
@@ -143,7 +144,9 @@ class FailedRequestClient extends BaseClient {
         return;
       }
       if (!containsTargetOrMatchesRegExp(
-          failedRequestTargets, request.url.toString())) {
+        failedRequestTargets,
+        request.url.toString(),
+      )) {
         return;
       }
     }
@@ -180,10 +183,7 @@ class FailedRequestClient extends BaseClient {
       data: _hub.options.sendDefaultPii ? _getDataFromRequest(request) : null,
     );
 
-    final mechanism = Mechanism(
-      type: 'SentryHttpClient',
-      description: reason,
-    );
+    final mechanism = Mechanism(type: 'SentryHttpClient', description: reason);
 
     bool? snapshot;
     if (exception is SentryHttpClientError) {
@@ -213,11 +213,7 @@ class FailedRequestClient extends BaseClient {
       hint.set(TypeCheckHint.httpResponse, response);
     }
 
-    await _hub.captureEvent(
-      event,
-      stackTrace: stackTrace,
-      hint: hint,
-    );
+    await _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
   }
 
   // Types of Request can be found here:

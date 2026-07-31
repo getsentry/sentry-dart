@@ -21,7 +21,7 @@ void main() {
     'build': 'fixture-build',
     'kernel_version': 'fixture-kernelVersion',
     'rooted': true,
-    'raw_description': 'fixture-rawDescription'
+    'raw_description': 'fixture-rawDescription',
   };
   sentryOperatingSystemJson.addAll(testUnknown);
 
@@ -29,20 +29,15 @@ void main() {
     test('toJson', () {
       final json = sentryOperatingSystem.toJson();
 
-      expect(
-        MapEquality().equals(sentryOperatingSystemJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryOperatingSystemJson, json), true);
     });
     test('fromJson', () {
-      final sentryOperatingSystem =
-          SentryOperatingSystem.fromJson(sentryOperatingSystemJson);
+      final sentryOperatingSystem = SentryOperatingSystem.fromJson(
+        sentryOperatingSystemJson,
+      );
       final json = sentryOperatingSystem.toJson();
 
-      expect(
-        MapEquality().equals(sentryOperatingSystemJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryOperatingSystemJson, json), true);
     });
   });
 }

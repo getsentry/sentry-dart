@@ -61,10 +61,7 @@ class SentrySpanHelper {
 
     span.origin = _origin;
 
-    span.setData(
-      SemanticAttributesConstants.dbSystemName,
-      dbSystemNameSqlite,
-    );
+    span.setData(SemanticAttributesConstants.dbSystemName, dbSystemNameSqlite);
 
     if (dbName != null) {
       span.setData(SemanticAttributesConstants.dbNamespace, dbName);
@@ -85,10 +82,7 @@ class SentrySpanHelper {
     }
   }
 
-  T beginTransaction<T>(
-    T Function() execute, {
-    String? dbName,
-  }) {
+  T beginTransaction<T>(T Function() execute, {String? dbName}) {
     final parentSpan = _getParent();
     if (parentSpan == null) {
       internalLogger.warning(

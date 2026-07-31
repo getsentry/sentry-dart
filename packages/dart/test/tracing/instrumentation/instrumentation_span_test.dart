@@ -18,7 +18,7 @@ void main() {
         final attr = fixture.recordingSpan.attributes['tags'];
         expect(attr?.toJson(), {
           'value': ['a', 'b'],
-          'type': 'array'
+          'type': 'array',
         });
       });
 
@@ -28,7 +28,7 @@ void main() {
         final attr = fixture.recordingSpan.attributes['codes'];
         expect(attr?.toJson(), {
           'value': [1, 2],
-          'type': 'array'
+          'type': 'array',
         });
       });
 
@@ -38,7 +38,7 @@ void main() {
         final attr = fixture.recordingSpan.attributes['scores'];
         expect(attr?.toJson(), {
           'value': [1.0, 2.0],
-          'type': 'array'
+          'type': 'array',
         });
       });
 
@@ -48,7 +48,7 @@ void main() {
         final attr = fixture.recordingSpan.attributes['flags'];
         expect(attr?.toJson(), {
           'value': [true, false],
-          'type': 'array'
+          'type': 'array',
         });
       });
 
@@ -62,7 +62,9 @@ void main() {
         final sut = fixture.getSut();
         sut.setData('nullable', <String?>['a', null]);
         expect(
-            fixture.recordingSpan.attributes.containsKey('nullable'), isFalse);
+          fixture.recordingSpan.attributes.containsKey('nullable'),
+          isFalse,
+        );
       });
     });
   });
@@ -72,14 +74,14 @@ class Fixture {
   final RecordingSentrySpanV2 recordingSpan;
 
   Fixture()
-      : recordingSpan = RecordingSentrySpanV2.root(
-          name: 'test-span',
-          traceId: SentryId.newId(),
-          onSpanEnd: (_) async {},
-          clock: defaultTestOptions().clock,
-          dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
-          samplingDecision: SentryTracesSamplingDecision(true),
-        );
+    : recordingSpan = RecordingSentrySpanV2.root(
+        name: 'test-span',
+        traceId: SentryId.newId(),
+        onSpanEnd: (_) async {},
+        clock: defaultTestOptions().clock,
+        dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+        samplingDecision: SentryTracesSamplingDecision(true),
+      );
 
   StreamingInstrumentationSpan getSut() {
     return StreamingInstrumentationSpan(recordingSpan);

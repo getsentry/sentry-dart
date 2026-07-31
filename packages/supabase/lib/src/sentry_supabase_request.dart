@@ -99,8 +99,9 @@ class SentrySupabaseRequest {
     BaseRequest request, {
     required SentryOptions options,
   }) {
-    final bodyString =
-        request is Request && request.body.isNotEmpty ? request.body : null;
+    final bodyString = request is Request && request.body.isNotEmpty
+        ? request.body
+        : null;
 
     if (bodyString == null) {
       return null;
@@ -277,8 +278,9 @@ class SentrySupabaseRequest {
 
       // Handle regular conditions - e.g., eq(id, 42), gt(age, 18), in(status, (active,pending))
       if (queryItem.contains('(') && queryItem.contains(')')) {
-        final match =
-            RegExp(r'^(\w+)\(([^,]+),\s*(.+)\)$').firstMatch(queryItem);
+        final match = RegExp(
+          r'^(\w+)\(([^,]+),\s*(.+)\)$',
+        ).firstMatch(queryItem);
         if (match != null) {
           final operation = match.group(1);
           final column = match.group(2);

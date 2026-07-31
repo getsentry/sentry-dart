@@ -12,11 +12,11 @@ class IoSentryAttachment extends SentryAttachment {
     String? attachmentType,
     String? contentType,
   }) : this.fromFile(
-          File(path),
-          attachmentType: attachmentType,
-          contentType: contentType,
-          filename: filename,
-        );
+         File(path),
+         attachmentType: attachmentType,
+         contentType: contentType,
+         filename: filename,
+       );
 
   /// Creates an attachment from a given [File].
   /// Only available on `dart:io` platforms.
@@ -27,7 +27,7 @@ class IoSentryAttachment extends SentryAttachment {
     super.attachmentType,
     super.contentType,
   }) : super.fromLoader(
-          loader: () => file.readAsBytes(),
-          filename: filename ?? file.uri.pathSegments.last,
-        );
+         loader: () => file.readAsBytes(),
+         filename: filename ?? file.uri.pathSegments.last,
+       );
 }

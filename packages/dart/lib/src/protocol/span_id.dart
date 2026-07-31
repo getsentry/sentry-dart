@@ -10,8 +10,9 @@ class SpanId {
   static final Uuid _uuidGenerator = Uuid();
 
   SpanId._internal({String? id})
-      : _id = id?.replaceAll('-', '') ??
-            _uuidGenerator.v4().replaceAll('-', '').substring(0, 16);
+    : _id =
+          id?.replaceAll('-', '') ??
+          _uuidGenerator.v4().replaceAll('-', '').substring(0, 16);
 
   /// Generates a new SpanId
   SpanId.newId() : this._internal();

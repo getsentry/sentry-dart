@@ -97,8 +97,8 @@ class Mechanism {
     this.exceptionId,
     this.parentId,
     this.unknown,
-  })  : _meta = meta != null ? Map.from(meta) : null,
-        _data = data != null ? Map.from(data) : null;
+  }) : _meta = meta != null ? Map.from(meta) : null,
+       _data = data != null ? Map.from(data) : null;
 
   /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> jsonData) {

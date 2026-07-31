@@ -13,8 +13,9 @@ class SentryStackTraceFactory {
 
   static final _frameRegex = RegExp(r'^\s*#', multiLine: true);
   static final _baseAddrRegex = RegExp(r'isolate_dso_base[:=] *([A-Fa-f0-9]+)');
-  static final SentryStackFrame _asynchronousGapFrameJson =
-      SentryStackFrame(absPath: '<asynchronous suspension>');
+  static final SentryStackFrame _asynchronousGapFrameJson = SentryStackFrame(
+    absPath: '<asynchronous suspension>',
+  );
 
   SentryStackTraceFactory(this._options);
 
@@ -89,7 +90,8 @@ class SentryStackTraceFactory {
 
       final startOffset = _frameRegex.firstMatch(stackTrace)?.start ?? 0;
       final chain = Chain.parse(
-          startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
+        startOffset == 0 ? stackTrace : stackTrace.substring(startOffset),
+      );
       final info = _StackInfo(chain.traces);
       info.buildId = buildIdRegex.firstMatch(stackTrace)?.group(1);
       info.baseAddr = _baseAddrRegex.firstMatch(stackTrace)?.group(1);
@@ -127,8 +129,9 @@ class SentryStackTraceFactory {
     }
 
     final platform = _options.platform.isWeb ? 'javascript' : 'dart';
-    final fileName =
-        frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
+    final fileName = frame.uri.pathSegments.isNotEmpty
+        ? frame.uri.pathSegments.last
+        : null;
     final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
 
     final includeModule =
@@ -144,8 +147,8 @@ class SentryStackTraceFactory {
       platform: platform,
       module: includeModule
           ? frame.uri.pathSegments
-              .sublist(0, frame.uri.pathSegments.length - 1)
-              .join('/')
+                .sublist(0, frame.uri.pathSegments.length - 1)
+                .join('/')
           : null,
     );
 

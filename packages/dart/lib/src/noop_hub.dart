@@ -37,8 +37,7 @@ class NoOpHub implements Hub {
     dynamic stackTrace,
     Hint? hint,
     ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
   Future<SentryId> captureException(
@@ -47,8 +46,7 @@ class NoOpHub implements Hub {
     Hint? hint,
     SentryMessage? message,
     ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -58,8 +56,7 @@ class NoOpHub implements Hub {
     List? params,
     Hint? hint,
     ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @internal
   @override
@@ -88,16 +85,14 @@ class NoOpHub implements Hub {
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
     Hint? hint,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
   Future<SentryId> captureFeedback(
     SentryFeedback feedback, {
     Hint? hint,
     ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
   Future<void> captureLog(SentryLog log) async {}
@@ -117,8 +112,7 @@ class NoOpHub implements Hub {
     bool? trimEnd,
     OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
-  }) =>
-      NoOpSentrySpan();
+  }) => NoOpSentrySpan();
 
   @override
   ISentrySpan startTransactionWithContext(
@@ -130,8 +124,7 @@ class NoOpHub implements Hub {
     Duration? autoFinishAfter,
     bool? trimEnd,
     OnTransactionFinish? onFinish,
-  }) =>
-      NoOpSentrySpan();
+  }) => NoOpSentrySpan();
 
   @override
   void generateNewTrace() {}
@@ -157,8 +150,7 @@ class NoOpHub implements Hub {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
-  }) =>
-      NoOpSentrySpanV2.instance;
+  }) => NoOpSentrySpanV2.instance;
 
   @override
   Future<void> captureSpan(SentrySpanV2 span) async {}
@@ -170,18 +162,23 @@ class NoOpHub implements Hub {
 
   @override
   Future<T> startSpan<T>(
-      String name, Future<T> Function(SentrySpanV2 span) callback,
-      {Map<String, SentryAttribute>? attributes,
-      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-      DateTime? startTimestamp}) async {
+    String name,
+    Future<T> Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) async {
     return callback(NoOpSentrySpanV2.instance);
   }
 
   @override
-  T startSpanSync<T>(String name, T Function(SentrySpanV2 span) callback,
-      {Map<String, SentryAttribute>? attributes,
-      SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-      DateTime? startTimestamp}) {
+  T startSpanSync<T>(
+    String name,
+    T Function(SentrySpanV2 span) callback, {
+    Map<String, SentryAttribute>? attributes,
+    SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
+    DateTime? startTimestamp,
+  }) {
     return callback(NoOpSentrySpanV2.instance);
   }
 
@@ -194,6 +191,5 @@ class NoOpHub implements Hub {
     bool bindToHub = true,
     Map<String, SentryAttribute>? attributes,
     DateTime? startTimestamp,
-  }) =>
-      NoOpSentrySpanV2.instance;
+  }) => NoOpSentrySpanV2.instance;
 }

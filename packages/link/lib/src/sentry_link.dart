@@ -60,15 +60,14 @@ class SentryLinkHandler {
       return;
     }
     if (reportGraphQlErrorsAsBreadcrumbs) {
-      hub.addBreadcrumb(Breadcrumb(
-        level: SentryLevel.error,
-        category: 'GraphQLError',
-        type: 'error',
-        data: {
-          'request': request.toJson(),
-          'response': response.toJson(),
-        },
-      ));
+      hub.addBreadcrumb(
+        Breadcrumb(
+          level: SentryLevel.error,
+          category: 'GraphQLError',
+          type: 'error',
+          data: {'request': request.toJson(), 'response': response.toJson()},
+        ),
+      );
     } else if (reportGraphQLErrors) {
       final event = _eventFromRequestAndResponse(
         request: request,
@@ -87,13 +86,15 @@ class SentryLinkHandler {
     LinkException exception,
   ) async* {
     if (reportExceptionsAsBreadcrumbs) {
-      hub.addBreadcrumb(Breadcrumb(
-        message: exception.toString(),
-        level: SentryLevel.error,
-        category: 'LinkException',
-        type: 'error',
-        data: request.toJson(),
-      ));
+      hub.addBreadcrumb(
+        Breadcrumb(
+          message: exception.toString(),
+          level: SentryLevel.error,
+          category: 'LinkException',
+          type: 'error',
+          data: request.toJson(),
+        ),
+      );
     } else if (reportExceptions) {
       Response? response;
       int? statusCode;
@@ -128,10 +129,7 @@ SentryEvent _eventFromRequestAndResponse({
   final sentryResponse = response?.toSentryResponse(statusCode);
   ThrowableMechanism? throwableMechanism;
   if (exception != null) {
-    final mechanism = Mechanism(
-      type: 'SentryLink',
-      handled: true,
-    );
+    final mechanism = Mechanism(type: 'SentryLink', handled: true);
     throwableMechanism = ThrowableMechanism(mechanism, exception);
   }
 
@@ -140,9 +138,11 @@ SentryEvent _eventFromRequestAndResponse({
     level: SentryLevel.error,
     request: sentryRequest,
     contexts: Contexts(response: sentryResponse),
-    fingerprint: [operationName, type?.name, statusCode?.toString()]
-        .whereType<String>()
-        .toList(),
+    fingerprint: [
+      operationName,
+      type?.name,
+      statusCode?.toString(),
+    ].whereType<String>().toList(),
     throwable: throwableMechanism,
   );
 }

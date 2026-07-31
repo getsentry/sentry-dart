@@ -35,8 +35,11 @@ class ExceptionGroupEventProcessor implements EventProcessor {
 }
 
 extension _SentryExceptionFlatten on SentryException {
-  List<SentryException> flatten(
-      {int? parentId, int id = 0, required bool groupExceptions}) {
+  List<SentryException> flatten({
+    int? parentId,
+    int id = 0,
+    required bool groupExceptions,
+  }) {
     final exceptions = this.exceptions ?? [];
 
     if (groupExceptions) {
@@ -58,7 +61,10 @@ extension _SentryExceptionFlatten on SentryException {
       for (var exception in exceptions) {
         id++;
         final flattenedExceptions = exception.flatten(
-            parentId: parentId, id: id, groupExceptions: groupExceptions);
+          parentId: parentId,
+          id: id,
+          groupExceptions: groupExceptions,
+        );
         id = flattenedExceptions.lastOrNull?.mechanism?.exceptionId ?? id;
         all.addAll(flattenedExceptions);
       }

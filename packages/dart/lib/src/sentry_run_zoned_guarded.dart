@@ -73,12 +73,11 @@ class SentryRunZonedGuarded {
 
         try {
           _isPrinting = true;
-          unawaited(hub.addBreadcrumb(
-            Breadcrumb.console(
-              message: line,
-              level: SentryLevel.debug,
+          unawaited(
+            hub.addBreadcrumb(
+              Breadcrumb.console(message: line, level: SentryLevel.debug),
             ),
-          ));
+          );
           parent.print(zone, line);
         } finally {
           _isPrinting = false;
@@ -99,8 +98,11 @@ class SentryRunZonedGuarded {
     Object exception,
     StackTrace stackTrace,
   ) async {
-    internalLogger.error('Uncaught zone error',
-        error: exception, stackTrace: stackTrace);
+    internalLogger.error(
+      'Uncaught zone error',
+      error: exception,
+      stackTrace: stackTrace,
+    );
 
     // runZonedGuarded doesn't crash the app, but is not handled by the user.
     final mechanism = Mechanism(type: 'runZonedGuarded', handled: false);

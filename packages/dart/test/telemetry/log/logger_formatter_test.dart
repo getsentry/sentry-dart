@@ -29,8 +29,10 @@ void main() {
     void verifyTemplateWithMultipleArguments(SentryLog log) {
       expect(log.body, 'Name: Alice, Age: 30, Active: true, Score: 95.5');
       expect(log.attributes['sentry.message.template']?.type, 'string');
-      expect(log.attributes['sentry.message.template']?.value,
-          'Name: %s, Age: %s, Active: %s, Score: %s');
+      expect(
+        log.attributes['sentry.message.template']?.value,
+        'Name: %s, Age: %s, Active: %s, Score: %s',
+      );
       expect(log.attributes['sentry.message.parameter.0']?.type, 'string');
       expect(log.attributes['sentry.message.parameter.0']?.value, 'Alice');
       expect(log.attributes['sentry.message.parameter.1']?.type, 'integer');

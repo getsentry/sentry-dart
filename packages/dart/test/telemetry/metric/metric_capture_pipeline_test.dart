@@ -39,22 +39,33 @@ void main() {
         final attributes = metric.attributes;
         expect(attributes['scope-key']?.value, 'scope-value');
         expect(attributes['custom']?.value, 'metric-value');
-        expect(attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
-            'test-env');
-        expect(attributes[SemanticAttributesConstants.sentryRelease]?.value,
-            'test-release');
-        expect(attributes[SemanticAttributesConstants.sentrySdkName]?.value,
-            fixture.options.sdk.name);
-        expect(attributes[SemanticAttributesConstants.sentrySdkVersion]?.value,
-            fixture.options.sdk.version);
         expect(
-            attributes[SemanticAttributesConstants.userId]?.value, 'user-id');
+          attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
+          'test-env',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.sentryRelease]?.value,
+          'test-release',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.sentrySdkName]?.value,
+          fixture.options.sdk.name,
+        );
+        expect(
+          attributes[SemanticAttributesConstants.sentrySdkVersion]?.value,
+          fixture.options.sdk.version,
+        );
+        expect(
+          attributes[SemanticAttributesConstants.userId]?.value,
+          'user-id',
+        );
       });
 
       test('prefers scope attributes over defaults', () async {
         fixture.scope.setAttributes({
-          SemanticAttributesConstants.sentryEnvironment:
-              SentryAttribute.string('scope-env'),
+          SemanticAttributesConstants.sentryEnvironment: SentryAttribute.string(
+            'scope-env',
+          ),
         });
 
         final metric = fixture.createMetric();
@@ -62,50 +73,60 @@ void main() {
         await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
 
         final attributes = metric.attributes;
-        expect(attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
-            'scope-env');
-        expect(attributes[SemanticAttributesConstants.sentryRelease]?.value,
-            'test-release');
+        expect(
+          attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
+          'scope-env',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.sentryRelease]?.value,
+          'test-release',
+        );
       });
 
       test(
-          'dispatches OnProcessMetric after scope merge but before beforeSendMetric',
-          () async {
-        final operations = <String>[];
-        bool hasScopeAttrInCallback = false;
+        'dispatches OnProcessMetric after scope merge but before beforeSendMetric',
+        () async {
+          final operations = <String>[];
+          bool hasScopeAttrInCallback = false;
 
-        fixture.scope.setAttributes({
-          'scope-attr': SentryAttribute.string('scope-value'),
-        });
+          fixture.scope.setAttributes({
+            'scope-attr': SentryAttribute.string('scope-value'),
+          });
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnProcessMetric>((event) {
-          operations.add('onProcessMetric');
-          hasScopeAttrInCallback =
-              event.metric.attributes.containsKey('scope-attr');
-        });
+          fixture.options.lifecycleRegistry.registerCallback<OnProcessMetric>((
+            event,
+          ) {
+            operations.add('onProcessMetric');
+            hasScopeAttrInCallback = event.metric.attributes.containsKey(
+              'scope-attr',
+            );
+          });
 
-        fixture.options.beforeSendMetric = (metric, hint) {
-          operations.add('beforeSendMetric');
-          return metric;
-        };
+          fixture.options.beforeSendMetric = (metric, hint) {
+            operations.add('beforeSendMetric');
+            return metric;
+          };
 
-        final metric = fixture.createMetric();
+          final metric = fixture.createMetric();
 
-        await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
+          await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
 
-        expect(operations, ['onProcessMetric', 'beforeSendMetric']);
-        expect(hasScopeAttrInCallback, isTrue);
-      });
+          expect(operations, ['onProcessMetric', 'beforeSendMetric']);
+          expect(hasScopeAttrInCallback, isTrue);
+        },
+      );
 
       test('keeps attributes added by lifecycle callbacks', () async {
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnProcessMetric>((event) {
-          event.metric.attributes['callback-key'] =
-              SentryAttribute.string('callback-value');
-          event.metric
-                  .attributes[SemanticAttributesConstants.sentryEnvironment] =
-              SentryAttribute.string('callback-env');
+        fixture.options.lifecycleRegistry.registerCallback<OnProcessMetric>((
+          event,
+        ) {
+          event.metric.attributes['callback-key'] = SentryAttribute.string(
+            'callback-value',
+          );
+          event.metric.attributes[SemanticAttributesConstants
+              .sentryEnvironment] = SentryAttribute.string(
+            'callback-env',
+          );
         });
 
         final metric = fixture.createMetric();
@@ -114,8 +135,10 @@ void main() {
 
         final attributes = metric.attributes;
         expect(attributes['callback-key']?.value, 'callback-value');
-        expect(attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
-            'callback-env');
+        expect(
+          attributes[SemanticAttributesConstants.sentryEnvironment]?.value,
+          'callback-env',
+        );
       });
     });
 
@@ -132,26 +155,31 @@ void main() {
     });
 
     group('when beforeSendMetric is configured', () {
-      test('receives the same hint instance dispatched to OnProcessMetric',
-          () async {
-        Hint? lifecycleHint;
-        Hint? callbackHint;
+      test(
+        'receives the same hint instance dispatched to OnProcessMetric',
+        () async {
+          Hint? lifecycleHint;
+          Hint? callbackHint;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnProcessMetric>((event) {
-          lifecycleHint = event.hint;
-        });
-        fixture.options.beforeSendMetric = (metric, hint) {
-          callbackHint = hint;
-          return metric;
-        };
+          fixture.options.lifecycleRegistry.registerCallback<OnProcessMetric>((
+            event,
+          ) {
+            lifecycleHint = event.hint;
+          });
+          fixture.options.beforeSendMetric = (metric, hint) {
+            callbackHint = hint;
+            return metric;
+          };
 
-        await fixture.pipeline
-            .captureMetric(fixture.createMetric(), scope: fixture.scope);
+          await fixture.pipeline.captureMetric(
+            fixture.createMetric(),
+            scope: fixture.scope,
+          );
 
-        expect(callbackHint, isNotNull);
-        expect(callbackHint, same(lifecycleHint));
-      });
+          expect(callbackHint, isNotNull);
+          expect(callbackHint, same(lifecycleHint));
+        },
+      );
 
       test('returning null drops the metric', () async {
         fixture.options.beforeSendMetric = (_, __) => null;
@@ -265,7 +293,7 @@ class Fixture {
 
 final class _UnencodableMetric extends SentryMetric {
   _UnencodableMetric({required super.timestamp, required super.traceId})
-      : super(type: 'counter', name: 'test metric', value: 1);
+    : super(type: 'counter', name: 'test metric', value: 1);
 
   @override
   Map<String, dynamic> toJson() => throw StateError('Encoding failed');

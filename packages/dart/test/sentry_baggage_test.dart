@@ -12,8 +12,10 @@ void main() {
       expect(baggage.get('serverNode'), 'DF 28');
       expect(baggage.get('isProduction'), 'false');
 
-      expect(baggage.toHeaderString(),
-          'userId=alice,serverNode=DF%2028,isProduction=false');
+      expect(
+        baggage.toHeaderString(),
+        'userId=alice,serverNode=DF%2028,isProduction=false',
+      );
     });
 
     test('decodes and encodes the headers', () {
@@ -25,14 +27,16 @@ void main() {
       expect(baggage.get('server+node'), 'DF 28');
       expect(baggage.get('is+production'), 'false');
 
-      expect(baggage.toHeaderString(),
-          'user%2Bid=alice,server%2Bnode=DF%2028,is%2Bproduction=false');
+      expect(
+        baggage.toHeaderString(),
+        'user%2Bid=alice,server%2Bnode=DF%2028,is%2Bproduction=false',
+      );
     });
 
     test('reads from header list', () {
       final headers = [
         'userId =   alice',
-        'serverNode = DF%2028, isProduction = false'
+        'serverNode = DF%2028, isProduction = false',
       ];
       final baggage = SentryBaggage.fromHeaderList(headers);
 
@@ -40,8 +44,10 @@ void main() {
       expect(baggage.get('serverNode'), 'DF 28');
       expect(baggage.get('isProduction'), 'false');
 
-      expect(baggage.toHeaderString(),
-          'userId=alice,serverNode=DF%2028,isProduction=false');
+      expect(
+        baggage.toHeaderString(),
+        'userId=alice,serverNode=DF%2028,isProduction=false',
+      );
     });
 
     test('reads from empty string', () {
@@ -68,7 +74,8 @@ void main() {
       final largeValue = buffer.toString();
 
       final baggage = SentryBaggage.fromHeader(
-          'smallValue=remains,largeValue=$largeValue,otherValue=kept');
+        'smallValue=remains,largeValue=$largeValue,otherValue=kept',
+      );
 
       expect(baggage.get('smallValue'), 'remains');
       expect(baggage.get('otherValue'), 'kept');
@@ -90,8 +97,10 @@ void main() {
       }
       final baggage = SentryBaggage.fromHeader(buffer.toString());
 
-      expect(baggage.toHeaderString(),
-          match.toString().substring(0, match.length - 1));
+      expect(
+        baggage.toHeaderString(),
+        match.toString().substring(0, match.length - 1),
+      );
     });
   });
 }

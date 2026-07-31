@@ -113,8 +113,9 @@ class SentryApp {
     final attributes = <String, SentryAttribute>{};
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.appName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.appName] = SentryAttribute.string(
+        name,
+      );
     }
     final version = this.version;
     if (version != null) {
@@ -128,8 +129,9 @@ class SentryApp {
     }
     final build = this.build;
     if (build != null) {
-      attributes[SemanticAttributesConstants.appBuild] =
-          SentryAttribute.string(build);
+      attributes[SemanticAttributesConstants.appBuild] = SentryAttribute.string(
+        build,
+      );
     }
     final startTime = this.startTime;
     if (startTime != null) {

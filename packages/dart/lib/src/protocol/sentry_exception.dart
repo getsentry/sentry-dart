@@ -54,8 +54,9 @@ class SentryException {
       stackTrace: stackTraceJson != null
           ? SentryStackTrace.fromJson(stackTraceJson)
           : null,
-      mechanism:
-          mechanismJson != null ? Mechanism.fromJson(mechanismJson) : null,
+      mechanism: mechanismJson != null
+          ? Mechanism.fromJson(mechanismJson)
+          : null,
       threadId: json['thread_id'],
       unknown: json.notAccessed(),
     );

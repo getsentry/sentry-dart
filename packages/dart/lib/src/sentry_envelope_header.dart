@@ -13,11 +13,11 @@ class SentryEnvelopeHeader {
     this.sentAt,
   });
   SentryEnvelopeHeader.newEventId()
-      : eventId = SentryId.newId(),
-        sdkVersion = null,
-        dsn = null,
-        traceContext = null,
-        sentAt = null;
+    : eventId = SentryId.newId(),
+      sdkVersion = null,
+      dsn = null,
+      traceContext = null,
+      sentAt = null;
 
   /// The identifier of encoded `SentryEvent`.
   final SentryId? eventId;

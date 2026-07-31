@@ -43,13 +43,12 @@ class SentryUser {
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, dynamic>? extras,
     this.unknown,
-  })  : assert(id != null ||
-            username != null ||
-            email != null ||
-            ipAddress != null),
-        data = data == null ? null : Map.from(data),
-        // ignore: deprecated_member_use_from_same_package
-        extras = extras == null ? null : Map.from(extras);
+  }) : assert(
+         id != null || username != null || email != null || ipAddress != null,
+       ),
+       data = data == null ? null : Map.from(data),
+       // ignore: deprecated_member_use_from_same_package
+       extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
   String? id;
@@ -132,13 +131,15 @@ class SentryUser {
     final attributes = <String, SentryAttribute>{};
     final id = this.id;
     if (id != null) {
-      attributes[SemanticAttributesConstants.userId] =
-          SentryAttribute.string(id);
+      attributes[SemanticAttributesConstants.userId] = SentryAttribute.string(
+        id,
+      );
     }
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.userName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.userName] = SentryAttribute.string(
+        name,
+      );
     }
     final email = this.email;
     if (email != null) {

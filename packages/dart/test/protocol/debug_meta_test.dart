@@ -6,9 +6,7 @@ import '../mocks.dart';
 
 void main() {
   final debugMeta = DebugMeta(
-    sdk: SdkInfo(
-      sdkName: 'sdkName',
-    ),
+    sdk: SdkInfo(sdkName: 'sdkName'),
     images: [DebugImage(type: 'macho', uuid: 'uuid')],
     unknown: testUnknown,
   );
@@ -16,8 +14,8 @@ void main() {
   final debugMetaJson = <String, dynamic>{
     'sdk_info': {'sdk_name': 'sdkName'},
     'images': [
-      {'uuid': 'uuid', 'type': 'macho'}
-    ]
+      {'uuid': 'uuid', 'type': 'macho'},
+    ],
   };
   debugMetaJson.addAll(testUnknown);
 
@@ -25,19 +23,13 @@ void main() {
     test('toJson', () {
       final json = debugMeta.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(debugMetaJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(debugMetaJson, json), true);
     });
     test('fromJson', () {
       final debugMeta = DebugMeta.fromJson(debugMetaJson);
       final json = debugMeta.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(debugMetaJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(debugMetaJson, json), true);
     });
   });
 }

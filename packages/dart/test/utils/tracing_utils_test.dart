@@ -9,40 +9,50 @@ void main() {
   group('$containsTargetOrMatchesRegExp', () {
     final origins = ['localhost', '^(http|https)://api\\..*\$'];
 
-    test('origins contains the url when it contains one of the defined origins',
-        () {
-      expect(
+    test(
+      'origins contains the url when it contains one of the defined origins',
+      () {
+        expect(
           containsTargetOrMatchesRegExp(origins, 'http://localhost:8080/foo'),
-          isTrue);
-      expect(
+          isTrue,
+        );
+        expect(
           containsTargetOrMatchesRegExp(
-              origins, 'http://xxx.localhost:8080/foo'),
-          isTrue);
-    });
+            origins,
+            'http://xxx.localhost:8080/foo',
+          ),
+          isTrue,
+        );
+      },
+    );
 
     test('origins contain the url when it matches regex', () {
       expect(
-          containsTargetOrMatchesRegExp(origins, 'http://api.foo.bar:8080/foo'),
-          isTrue);
+        containsTargetOrMatchesRegExp(origins, 'http://api.foo.bar:8080/foo'),
+        isTrue,
+      );
       expect(
-          containsTargetOrMatchesRegExp(
-              origins, 'https://api.foo.bar:8080/foo'),
-          isTrue);
+        containsTargetOrMatchesRegExp(origins, 'https://api.foo.bar:8080/foo'),
+        isTrue,
+      );
       expect(
-          containsTargetOrMatchesRegExp(
-              origins, 'http://api.localhost:8080/foo'),
-          isTrue);
+        containsTargetOrMatchesRegExp(origins, 'http://api.localhost:8080/foo'),
+        isTrue,
+      );
       expect(
-          containsTargetOrMatchesRegExp(origins, 'ftp://api.foo.bar:8080/foo'),
-          isFalse);
+        containsTargetOrMatchesRegExp(origins, 'ftp://api.foo.bar:8080/foo'),
+        isFalse,
+      );
     });
 
     test('invalid regex do not throw', () {
       expect(
-          containsTargetOrMatchesRegExp(
-              ['AABB???', '^(http|https)://api\\..*\$'],
-              'http://api.foo.bar:8080/foo'),
-          isTrue);
+        containsTargetOrMatchesRegExp([
+          'AABB???',
+          '^(http|https)://api\\..*\$',
+        ], 'http://api.foo.bar:8080/foo'),
+        isTrue,
+      );
     });
 
     test('when no origins are defined, returns false for every url', () {
@@ -84,8 +94,10 @@ void main() {
 
       final w3cHeader = formatAsW3CHeader(sentryHeader);
 
-      expect(w3cHeader,
-          '00-${fixture._context.traceId}-${fixture._context.spanId}-01');
+      expect(
+        w3cHeader,
+        '00-${fixture._context.traceId}-${fixture._context.spanId}-01',
+      );
     });
 
     test('added when given a span', () {
@@ -94,8 +106,10 @@ void main() {
 
       addW3CHeaderFromSpan(LegacyInstrumentationSpan(sut), headers);
 
-      expect(headers[headerName],
-          '00-${fixture._context.traceId}-${fixture._context.spanId}-01');
+      expect(
+        headers[headerName],
+        '00-${fixture._context.traceId}-${fixture._context.spanId}-01',
+      );
     });
 
     test('added when given a scope', () {
@@ -166,8 +180,10 @@ void main() {
 
       addBaggageHeaderFromSpan(LegacyInstrumentationSpan(sut), headers);
 
-      expect(headers[baggage!.name],
-          'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=public,sentry-release=release,sentry-environment=environment,sentry-transaction=name,sentry-sample_rate=1,sentry-sampled=true');
+      expect(
+        headers[baggage!.name],
+        'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=public,sentry-release=release,sentry-environment=environment,sentry-transaction=name,sentry-sample_rate=1,sentry-sampled=true',
+      );
     });
   });
 
@@ -255,73 +271,86 @@ void main() {
     });
 
     test(
-        'adds W3C traceparent header from span when propagateTraceparent is true',
-        () {
-      final headers = <String, dynamic>{};
-      final hub = fixture._hub;
-      final span = fixture.getSut();
-      hub.options.propagateTraceparent = true;
+      'adds W3C traceparent header from span when propagateTraceparent is true',
+      () {
+        final headers = <String, dynamic>{};
+        final hub = fixture._hub;
+        final span = fixture.getSut();
+        hub.options.propagateTraceparent = true;
 
-      addTracingHeadersToHttpHeader(headers, hub,
-          span: LegacyInstrumentationSpan(span));
+        addTracingHeadersToHttpHeader(
+          headers,
+          hub,
+          span: LegacyInstrumentationSpan(span),
+        );
 
-      expect(headers['traceparent'],
-          '00-${fixture._context.traceId}-${fixture._context.spanId}-01');
-    });
-
-    test(
-        'does not add W3C traceparent header from span when propagateTraceparent is false',
-        () {
-      final headers = <String, dynamic>{};
-      final hub = fixture._hub;
-      // propagateTraceparent is false by default
-
-      addTracingHeadersToHttpHeader(headers, hub);
-
-      expect(headers['traceparent'], isNull);
-    });
+        expect(
+          headers['traceparent'],
+          '00-${fixture._context.traceId}-${fixture._context.spanId}-01',
+        );
+      },
+    );
 
     test(
-        'adds W3C traceparent header from scope when propagateTraceparent is true',
-        () {
-      final headers = <String, dynamic>{};
-      final hub = fixture._hub;
-      hub.options.propagateTraceparent = true;
+      'does not add W3C traceparent header from span when propagateTraceparent is false',
+      () {
+        final headers = <String, dynamic>{};
+        final hub = fixture._hub;
+        // propagateTraceparent is false by default
 
-      addTracingHeadersToHttpHeader(headers, hub);
+        addTracingHeadersToHttpHeader(headers, hub);
 
-      final headerValue = headers['traceparent'] as String;
-      final parts = headerValue.split('-');
-
-      expect(parts.length, 4);
-      expect(parts[0], '00');
-      expect(parts[1], hub.scope.propagationContext.traceId.toString());
-      expect(parts[2], hasLength(16)); // just check length since it's random
-      expect(parts[3], '00'); // not sampled for scope context
-    });
+        expect(headers['traceparent'], isNull);
+      },
+    );
 
     test(
-        'does not add W3C traceparent header from scope when propagateTraceparent is false',
-        () {
-      final headers = <String, dynamic>{};
-      final hub = fixture._hub;
-      // propagateTraceparent is false by default
+      'adds W3C traceparent header from scope when propagateTraceparent is true',
+      () {
+        final headers = <String, dynamic>{};
+        final hub = fixture._hub;
+        hub.options.propagateTraceparent = true;
 
-      addTracingHeadersToHttpHeader(headers, hub);
+        addTracingHeadersToHttpHeader(headers, hub);
 
-      expect(headers['traceparent'], isNull);
-    });
+        final headerValue = headers['traceparent'] as String;
+        final parts = headerValue.split('-');
+
+        expect(parts.length, 4);
+        expect(parts[0], '00');
+        expect(parts[1], hub.scope.propagationContext.traceId.toString());
+        expect(parts[2], hasLength(16)); // just check length since it's random
+        expect(parts[3], '00'); // not sampled for scope context
+      },
+    );
+
+    test(
+      'does not add W3C traceparent header from scope when propagateTraceparent is false',
+      () {
+        final headers = <String, dynamic>{};
+        final hub = fixture._hub;
+        // propagateTraceparent is false by default
+
+        addTracingHeadersToHttpHeader(headers, hub);
+
+        expect(headers['traceparent'], isNull);
+      },
+    );
 
     test('adds headers from span when span is provided', () {
       final headers = <String, dynamic>{};
       final hub = fixture._hub;
       final span = fixture.getSut();
 
-      addTracingHeadersToHttpHeader(headers, hub,
-          span: LegacyInstrumentationSpan(span));
+      addTracingHeadersToHttpHeader(
+        headers,
+        hub,
+        span: LegacyInstrumentationSpan(span),
+      );
 
-      final traceHeader =
-          SentryTraceHeader.fromTraceHeader(headers['sentry-trace']);
+      final traceHeader = SentryTraceHeader.fromTraceHeader(
+        headers['sentry-trace'],
+      );
       expect(traceHeader.traceId, span.context.traceId);
       expect(traceHeader.spanId, span.context.spanId);
       expect(traceHeader.sampled, span.samplingDecision?.sampled);
@@ -337,8 +366,9 @@ void main() {
 
       addTracingHeadersToHttpHeader(headers, hub);
 
-      final traceHeader =
-          SentryTraceHeader.fromTraceHeader(headers['sentry-trace']);
+      final traceHeader = SentryTraceHeader.fromTraceHeader(
+        headers['sentry-trace'],
+      );
       expect(traceHeader.traceId, hub.scope.propagationContext.traceId);
       expect(headers['baggage'], contains('test=value'));
     });
@@ -353,8 +383,9 @@ void main() {
 
       addSentryTraceHeaderFromScope(scope, headers);
 
-      final traceHeader =
-          SentryTraceHeader.fromTraceHeader(headers['sentry-trace']);
+      final traceHeader = SentryTraceHeader.fromTraceHeader(
+        headers['sentry-trace'],
+      );
       expect(traceHeader.traceId, scope.propagationContext.traceId);
     });
   });
@@ -438,10 +469,7 @@ class Fixture {
     'name',
     'op',
     transactionNameSource: SentryTransactionNameSource.custom,
-    samplingDecision: SentryTracesSamplingDecision(
-      true,
-      sampleRate: 1.0,
-    ),
+    samplingDecision: SentryTracesSamplingDecision(true, sampleRate: 1.0),
   );
 
   final _options = defaultTestOptions()
@@ -452,9 +480,7 @@ class Fixture {
 
   final _client = MockSentryClient();
 
-  final _user = SentryUser(
-    id: 'id',
-  );
+  final _user = SentryUser(id: 'id');
 
   SentryTracer getSut() {
     return SentryTracer(_context, _hub);
