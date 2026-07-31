@@ -43,9 +43,9 @@ void main() {
   });
 
   group('execute', () {
-    final tmpDir = LocalFileSystem().systemTempDirectory.createTempSync(
-      'symbol_collector_test',
-    );
+    final tmpDir = LocalFileSystem()
+        .systemTempDirectory
+        .createTempSync('symbol_collector_test');
     late final SymbolCollectorCli sut;
 
     setUpAll(() async => sut = await SymbolCollectorCli.setup(tmpDir));
@@ -58,15 +58,12 @@ void main() {
     });
 
     test('upload()', () async {
-      final uploadDir = LocalFileSystem().systemTempDirectory.createTempSync(
-        'symbol_collector_upload_test',
-      );
+      final uploadDir = LocalFileSystem()
+          .systemTempDirectory
+          .createTempSync('symbol_collector_upload_test');
       try {
         await sut.upload(
-          uploadDir,
-          LocalPlatform(),
-          FlutterVersion('v0.0.0-test'),
-        );
+            uploadDir, LocalPlatform(), FlutterVersion('v0.0.0-test'));
       } finally {
         uploadDir.deleteSync();
       }

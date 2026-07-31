@@ -17,16 +17,15 @@ class FlutterSymbolSource {
   late final Logger _log;
   final github.GitHub _github;
   late final _flutterRepo = github.RepositorySlug('flutter', 'flutter');
-  late final _symbolsBucket = Storage(
-    Client(),
-    '',
-  ).bucket('flutter_infra_release');
+  late final _symbolsBucket =
+      Storage(Client(), '').bucket('flutter_infra_release');
 
-  FlutterSymbolSource({
-    Logger? logger,
-    github.Authentication githubAuth = const github.Authentication.anonymous(),
-  }) : _log = logger ?? Logger.root,
-       _github = github.GitHub(auth: githubAuth);
+  FlutterSymbolSource(
+      {Logger? logger,
+      github.Authentication githubAuth =
+          const github.Authentication.anonymous()})
+      : _log = logger ?? Logger.root,
+        _github = github.GitHub(auth: githubAuth);
 
   Stream<FlutterVersion> listFlutterVersions() => _github.repositories
       .listTags(_flutterRepo, perPage: 30)
@@ -43,7 +42,7 @@ class FlutterSymbolSource {
         IosSymbolResolver(_symbolsBucket, prefix),
         MacOSSymbolResolver(_symbolsBucket, prefix),
         AndroidSymbolResolver(_symbolsBucket, prefix, 'arm'),
-        AndroidSymbolResolver(_symbolsBucket, prefix, 'arm64'),
+        AndroidSymbolResolver(_symbolsBucket, prefix, 'arm64')
       ];
     } else {
       _log.warning('No symbol resolvers registered for ${version.tagName}');
@@ -56,12 +55,10 @@ class FlutterSymbolSource {
       final files = await resolver.listArchives();
       if (files.isEmpty) {
         _log.warning(
-          'Flutter ${version.tagName}: no debug symbols found by ${resolver.runtimeType}',
-        );
+            'Flutter ${version.tagName}: no debug symbols found by ${resolver.runtimeType}');
       } else {
         _log.fine(
-          'Flutter ${version.tagName}: ${resolver.runtimeType} found ${files.length} debug symbols: ${files.map((v) => path.basename(v.path))}',
-        );
+            'Flutter ${version.tagName}: ${resolver.runtimeType} found ${files.length} debug symbols: ${files.map((v) => path.basename(v.path))}');
         archives.addAll(files);
       }
     }
@@ -120,12 +117,10 @@ class FlutterSymbolSource {
     for (var entry in archive.files) {
       // Make sure we don't have any zip-slip issues.
       final entryPath = _pathNormalize(entry.name);
-      if (!_pathNormalize(
-        target.childFile(entryPath).path,
-      ).startsWith(target.path)) {
+      if (!_pathNormalize(target.childFile(entryPath).path)
+          .startsWith(target.path)) {
         throw Exception(
-          'Invalid ZIP entry path (looks like a zip-slip issue): ${entry.name}',
-        );
+            'Invalid ZIP entry path (looks like a zip-slip issue): ${entry.name}');
       }
 
       if (!entry.isFile) {
@@ -142,15 +137,13 @@ class FlutterSymbolSource {
         if (path.extension(entryPath) == '.zip') {
           final innerArchive = ZipDecoder().decodeBytes(stream.getBytes());
           stream.clear();
-          final innerTarget = target.childDirectory(
-            path.withoutExtension(entryPath),
-          );
+          final innerTarget =
+              target.childDirectory(path.withoutExtension(entryPath));
           _log.fine('Extracting inner archive $entryPath to $innerTarget');
           await _extractZip(innerTarget, innerArchive);
         } else {
-          final file = await target
-              .childFile(entryPath)
-              .create(exclusive: true);
+          final file =
+              await target.childFile(entryPath).create(exclusive: true);
           _log.finer('Writing $file: ${stream.length} bytes');
           await file.writeAsBytes(stream.getBytes(), flush: true);
         }

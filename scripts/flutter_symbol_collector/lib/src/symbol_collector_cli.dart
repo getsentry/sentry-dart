@@ -40,23 +40,17 @@ class SymbolCollectorCli {
       platformIdentifier = 'osx-x64';
     } else {
       throw UnsupportedError(
-        'Cannot run symbol-collector CLI on this platform - there\'s no binary available at this time.',
-      );
+          'Cannot run symbol-collector CLI on this platform - there\'s no binary available at this time.');
     }
 
     final self = SymbolCollectorCli._();
 
     self._log.fine(
-      'Downloading symbol-collector CLI v$version for $platformIdentifier',
-    );
-    final zipData = await http.readBytes(
-      Uri.parse(
-        'https://github.com/getsentry/symbol-collector/releases/download/$version/symbolcollector-console-$platformIdentifier.zip',
-      ),
-    );
+        'Downloading symbol-collector CLI v$version for $platformIdentifier');
+    final zipData = await http.readBytes(Uri.parse(
+        'https://github.com/getsentry/symbol-collector/releases/download/$version/symbolcollector-console-$platformIdentifier.zip'));
     self._log.fine(
-      'Download successful, received ${zipData.length} bytes; extracting the archive',
-    );
+        'Download successful, received ${zipData.length} bytes; extracting the archive');
 
     final archive = ZipDecoder().decodeBytes(zipData);
     final stream = OutputMemoryStream();
@@ -69,8 +63,7 @@ class SymbolCollectorCli {
 
     await executableFile.writeAsBytes(stream.getBytes(), flush: true);
     self._log.fine(
-      'Symbol-collector CLI extracted to ${executableFile.path}: ${await executableFile.length()} bytes',
-    );
+        'Symbol-collector CLI extracted to ${executableFile.path}: ${await executableFile.length()} bytes');
     self._isExecutable = platform.isWindows;
     return self;
   }
@@ -86,9 +79,8 @@ class SymbolCollectorCli {
         _isExecutable = true;
       } else {
         _log.warning(
-          'Symbol-collector CLI has been run with a platform that is not the current OS platform.'
-          'This should only be done in tests because we can\'t execute the downloaded program',
-        );
+            'Symbol-collector CLI has been run with a platform that is not the current OS platform.'
+            'This should only be done in tests because we can\'t execute the downloaded program');
       }
     }
   }
@@ -96,11 +88,8 @@ class SymbolCollectorCli {
   Future<String> getVersion() => _execute(['--version', '-h']);
 
   Future<bool> upload(
-    Directory dir,
-    Platform symbolsPlatform,
-    FlutterVersion flutterVersion, {
-    bool dryRun = false,
-  }) async {
+      Directory dir, Platform symbolsPlatform, FlutterVersion flutterVersion,
+      {bool dryRun = false}) async {
     final type = symbolsPlatform.operatingSystem;
     try {
       await _execute([
@@ -140,7 +129,7 @@ class SymbolCollectorCli {
           .forEach((s) => handleOutput(Level.FINER, s)),
       process.stderr
           .transform(utf8.decoder)
-          .forEach((s) => handleOutput(Level.SEVERE, s)),
+          .forEach((s) => handleOutput(Level.SEVERE, s))
     ];
 
     final exitCode = await process.exitCode;
