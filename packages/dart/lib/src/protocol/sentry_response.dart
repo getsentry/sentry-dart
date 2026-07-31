@@ -47,9 +47,8 @@ class SentryResponse {
     this.statusCode,
     Map<String, String>? headers,
     String? cookies,
-    Object? data,
-  }) : _data = data,
-       _headers = headers != null ? Map.from(headers) : null,
+    this._data,
+  }) : _headers = headers != null ? Map.from(headers) : null,
        // Look for a 'Set-Cookie' header (case insensitive) if not given.
        cookies =
            cookies ??

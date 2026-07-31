@@ -6,15 +6,14 @@ import 'access_aware_map.dart';
 /// Stacktrace holds information about the frames of the stack.
 class SentryStackTrace {
   SentryStackTrace({
-    required List<SentryStackFrame> frames,
+    required List<SentryStackFrame> this._frames,
     Map<String, String>? registers,
     this.lang,
     this.snapshot,
     this.unknown,
     @internal this.baseAddr,
     @internal this.buildId,
-  }) : _frames = frames,
-       _registers = Map.from(registers ?? {});
+  }) : _registers = Map.from(registers ?? {});
 
   List<SentryStackFrame>? _frames;
 

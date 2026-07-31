@@ -78,12 +78,11 @@ class SentryRequest {
     String? cookies,
     this.fragment,
     this.apiTarget,
-    dynamic data,
+    this._data,
     Map<String, String>? headers,
     Map<String, String>? env,
     this.unknown,
-  }) : _data = data,
-       _headers = headers != null ? Map.from(headers) : null,
+  }) : _headers = headers != null ? Map.from(headers) : null,
        // Look for a 'Set-Cookie' header (case insensitive) if not given.
        cookies =
            cookies ??

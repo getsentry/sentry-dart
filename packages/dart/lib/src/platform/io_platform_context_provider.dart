@@ -82,7 +82,7 @@ class IoPlatformContextProvider implements PlatformContextProvider {
       rawDescription: Platform.version,
     );
     final flRuntime = flutterRuntime;
-    return [dartRuntime, if (flRuntime != null) flRuntime];
+    return [dartRuntime, ?flRuntime];
   }
 
   SentryApp _buildApp() {

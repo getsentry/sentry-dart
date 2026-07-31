@@ -31,7 +31,7 @@ class SentryEvent {
     this.environment,
     this.message,
     this.transaction,
-    dynamic throwable,
+    this._throwable,
     this.level,
     this.culprit,
     this.user,
@@ -50,8 +50,7 @@ class SentryEvent {
        fingerprint = fingerprint != null ? List.from(fingerprint) : null,
        breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
        exceptions = exceptions != null ? List.from(exceptions) : null,
-       threads = threads != null ? List.from(threads) : null,
-       _throwable = throwable;
+       threads = threads != null ? List.from(threads) : null;
 
   /// Refers to the default fingerprinting algorithm.
   ///

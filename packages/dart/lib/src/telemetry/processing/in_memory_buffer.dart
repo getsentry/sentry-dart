@@ -46,16 +46,12 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
   Timer? _flushTimer;
 
   _BaseInMemoryTelemetryBuffer({
-    required ItemEncoder<T> encoder,
-    required OnFlushCallback<S> onFlush,
+    required this._encoder,
+    required this._onFlush,
     required S initialStorage,
-    OnDropCallback<T>? onDrop,
-    TelemetryBufferConfig config = const TelemetryBufferConfig(),
-  }) : _encoder = encoder,
-       _onFlush = onFlush,
-       _onDrop = onDrop,
-       _storage = initialStorage,
-       _config = config;
+    this._onDrop,
+    this._config = const TelemetryBufferConfig(),
+  }) : _storage = initialStorage;
 
   S _createEmptyStorage();
   void _store(List<int> encoded, T item);

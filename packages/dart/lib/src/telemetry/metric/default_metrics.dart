@@ -12,12 +12,10 @@ final class DefaultSentryMetrics implements SentryMetrics {
   final ScopeProvider _scopeProvider;
 
   DefaultSentryMetrics({
-    required CaptureMetricCallback captureMetricCallback,
-    required ClockProvider clockProvider,
-    required ScopeProvider scopeProvider,
-  }) : _captureMetricCallback = captureMetricCallback,
-       _clockProvider = clockProvider,
-       _scopeProvider = scopeProvider;
+    required this._captureMetricCallback,
+    required this._clockProvider,
+    required this._scopeProvider,
+  });
 
   @override
   void count(

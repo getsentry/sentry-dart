@@ -5,14 +5,11 @@ import 'no_such_method_provider.dart';
 class MockEnvironmentVariables extends EnvironmentVariables
     with NoSuchMethodProvider {
   MockEnvironmentVariables({
-    String? dist,
-    String? dsn,
-    String? environment,
-    String? release,
-  }) : _dist = dist,
-       _dsn = dsn,
-       _environment = environment,
-       _release = release;
+    this._dist,
+    this._dsn,
+    this._environment,
+    this._release,
+  });
 
   final String? _dist;
   final String? _dsn;
