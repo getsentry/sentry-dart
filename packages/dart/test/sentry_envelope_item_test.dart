@@ -17,10 +17,12 @@ void main() {
       final sentryEvent = SentryEvent(eventId: eventId);
       final sut = SentryEnvelopeItem.fromEvent(sentryEvent);
 
-      final expectedData = utf8.encode(jsonEncode(
-        sentryEvent.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final expectedData = utf8.encode(
+        jsonEncode(
+          sentryEvent.toJson(),
+          toEncodable: jsonSerializationFallback,
+        ),
+      );
       final actualData = await sut.dataFactory();
 
       expect(sut.header.contentType, 'application/json');
@@ -29,9 +31,7 @@ void main() {
     });
 
     test('fromEvent feedback', () async {
-      final feedback = SentryFeedback(
-        message: 'fixture-message',
-      );
+      final feedback = SentryFeedback(message: 'fixture-message');
       final feedbackEvent = SentryEvent(
         type: 'feedback',
         contexts: Contexts(feedback: feedback),
@@ -39,10 +39,12 @@ void main() {
       );
       final sut = SentryEnvelopeItem.fromEvent(feedbackEvent);
 
-      final expectedData = utf8.encode(jsonEncode(
-        feedbackEvent.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final expectedData = utf8.encode(
+        jsonEncode(
+          feedbackEvent.toJson(),
+          toEncodable: jsonSerializationFallback,
+        ),
+      );
       final actualData = await sut.dataFactory();
 
       expect(sut.header.contentType, 'application/json');
@@ -51,10 +53,7 @@ void main() {
     });
 
     test('fromTransaction', () async {
-      final context = SentryTransactionContext(
-        'name',
-        'op',
-      );
+      final context = SentryTransactionContext('name', 'op');
       final tracer = SentryTracer(context, MockHub());
       final tr = SentryTransaction(tracer);
       tr.contexts.device = SentryDevice(
@@ -63,10 +62,9 @@ void main() {
 
       final sut = SentryEnvelopeItem.fromTransaction(tr);
 
-      final expectedData = utf8.encode(jsonEncode(
-        tr.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final expectedData = utf8.encode(
+        jsonEncode(tr.toJson(), toEncodable: jsonSerializationFallback),
+      );
       final actualData = await sut.dataFactory();
 
       expect(sut.header.contentType, 'application/json');
@@ -85,10 +83,9 @@ void main() {
 
       final sut = SentryEnvelopeItem.fromClientReport(cr);
 
-      final expectedData = utf8.encode(jsonEncode(
-        cr.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final expectedData = utf8.encode(
+        jsonEncode(cr.toJson(), toEncodable: jsonSerializationFallback),
+      );
       final actualData = await sut.dataFactory();
 
       expect(sut.header.contentType, 'application/json');
@@ -98,11 +95,15 @@ void main() {
       final actualJson = jsonDecode(utf8.decode(actualData));
       final discardedEventsJson =
           actualJson['discarded_events'] as List<dynamic>;
-      final logByteJson = discardedEventsJson.firstWhere(
-        (event) => event['category'] == 'log_byte',
-      ) as Map<String, dynamic>;
-      expect(logByteJson.keys,
-          unorderedEquals(['reason', 'category', 'quantity']));
+      final logByteJson =
+          discardedEventsJson.firstWhere(
+                (event) => event['category'] == 'log_byte',
+              )
+              as Map<String, dynamic>;
+      expect(
+        logByteJson.keys,
+        unorderedEquals(['reason', 'category', 'quantity']),
+      );
       expect(logByteJson['quantity'], 42);
     });
 
@@ -113,29 +114,24 @@ void main() {
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test',
-          attributes: {
-            'test': SentryAttribute.string('test'),
-          },
+          attributes: {'test': SentryAttribute.string('test')},
         ),
         SentryLog(
           timestamp: DateTime.now(),
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test2',
-          attributes: {
-            'test2': SentryAttribute.int(9001),
-          },
+          attributes: {'test2': SentryAttribute.int(9001)},
         ),
       ];
 
       final sut = SentryEnvelopeItem.fromLogs(logs);
 
-      final expectedData = utf8.encode(jsonEncode(
-        {
+      final expectedData = utf8.encode(
+        jsonEncode({
           'items': logs.map((e) => e.toJson()).toList(),
-        },
-        toEncodable: jsonSerializationFallback,
-      ));
+        }, toEncodable: jsonSerializationFallback),
+      );
       final actualData = await sut.dataFactory();
 
       expect(sut.header.contentType, 'application/vnd.sentry.items.log+json');
@@ -146,8 +142,8 @@ void main() {
 
     test('fromSpansData', () async {
       final span1 = jsonEncode({
-        'trace_id':
-            Sentry.currentHub.scope.propagationContext.traceId.toString(),
+        'trace_id': Sentry.currentHub.scope.propagationContext.traceId
+            .toString(),
         'span_id': SpanId.newId().toString(),
         'name': 'GET /users',
         'status': 'ok',
@@ -156,8 +152,8 @@ void main() {
         'end_timestamp': 1742921669.180536,
       });
       final span2 = jsonEncode({
-        'trace_id':
-            Sentry.currentHub.scope.propagationContext.traceId.toString(),
+        'trace_id': Sentry.currentHub.scope.propagationContext.traceId
+            .toString(),
         'span_id': SpanId.newId().toString(),
         'name': 'GET /posts',
         'status': 'ok',
@@ -171,7 +167,9 @@ void main() {
       final sut = SentryEnvelopeItem.fromSpansData(payload, spansCount);
 
       expect(
-          sut.header.contentType, 'application/vnd.sentry.items.span.v2+json');
+        sut.header.contentType,
+        'application/vnd.sentry.items.span.v2+json',
+      );
       expect(sut.header.type, SentryItemType.span);
       expect(sut.header.itemCount, spansCount);
 
@@ -180,8 +178,9 @@ void main() {
     });
 
     test('fromLogsData', () async {
-      final payload =
-          utf8.encode('{"items":[{"test":"data1"},{"test":"data2"}]');
+      final payload = utf8.encode(
+        '{"items":[{"test":"data1"},{"test":"data2"}]',
+      );
       final logsCount = 2;
 
       final sut = SentryEnvelopeItem.fromLogsData(payload, logsCount);
@@ -203,22 +202,27 @@ void main() {
       expect(sut.originalObject, null);
     });
 
-    test('fromMetricsData creates item with correct headers and payload',
-        () async {
-      final payload =
-          utf8.encode('{"items":[{"test":"metric1"},{"test":"metric2"}]}');
-      final metricsCount = 2;
+    test(
+      'fromMetricsData creates item with correct headers and payload',
+      () async {
+        final payload = utf8.encode(
+          '{"items":[{"test":"metric1"},{"test":"metric2"}]}',
+        );
+        final metricsCount = 2;
 
-      final sut = SentryEnvelopeItem.fromMetricsData(payload, metricsCount);
+        final sut = SentryEnvelopeItem.fromMetricsData(payload, metricsCount);
 
-      expect(sut.header.contentType,
-          'application/vnd.sentry.items.trace-metric+json');
-      expect(sut.header.type, SentryItemType.metric);
-      expect(sut.header.itemCount, metricsCount);
+        expect(
+          sut.header.contentType,
+          'application/vnd.sentry.items.trace-metric+json',
+        );
+        expect(sut.header.type, SentryItemType.metric);
+        expect(sut.header.itemCount, metricsCount);
 
-      final actualData = await sut.dataFactory();
-      expect(actualData, payload);
-    });
+        final actualData = await sut.dataFactory();
+        expect(actualData, payload);
+      },
+    );
 
     test('fromMetricsData does not set originalObject', () async {
       final payload = utf8.encode('{"items":[{"test":"metric"}]}');

@@ -29,10 +29,7 @@ void main() {
       );
       exceptionA.addException(exceptionB);
 
-      var event = SentryEvent(
-        throwable: throwableA,
-        exceptions: [exceptionA],
-      );
+      var event = SentryEvent(throwable: throwableA, exceptions: [exceptionA]);
 
       final sut = fixture.getSut(groupExceptions: false);
       event = (sut.apply(event, Hint()))!;
@@ -68,10 +65,7 @@ void main() {
       );
       exceptionA.addException(exceptionB);
 
-      var event = SentryEvent(
-        throwable: throwableA,
-        exceptions: [exceptionA],
-      );
+      var event = SentryEvent(throwable: throwableA, exceptions: [exceptionA]);
 
       final sut = fixture.getSut(groupExceptions: true);
       event = (sut.apply(event, Hint()))!;
@@ -107,13 +101,15 @@ void main() {
       final event = SentryEvent(
         exceptions: [
           SentryException(
-              type: 'ExceptionA',
-              value: 'ExceptionA',
-              throwable: Exception('ExceptionA')),
+            type: 'ExceptionA',
+            value: 'ExceptionA',
+            throwable: Exception('ExceptionA'),
+          ),
           SentryException(
-              type: 'ExceptionB',
-              value: 'ExceptionB',
-              throwable: Exception('ExceptionB')),
+            type: 'ExceptionB',
+            value: 'ExceptionB',
+            throwable: Exception('ExceptionB'),
+          ),
         ],
       );
       final sut = fixture.getSut(groupExceptions: true);
@@ -136,8 +132,9 @@ void main() {
           type: 'type',
           value: value,
           module: 'module',
-          stackTrace:
-              SentryStackTrace(frames: [SentryStackFrame(absPath: 'abs')]),
+          stackTrace: SentryStackTrace(
+            frames: [SentryStackFrame(absPath: 'abs')],
+          ),
           mechanism: Mechanism(type: 'type', source: source),
           threadId: 1,
         );
@@ -237,16 +234,22 @@ void main() {
       final valueError = buildException('ValueError', source: 'exceptions[0]');
       exceptionGroupNested.addException(valueError);
 
-      final exceptionGroupImports =
-          buildException('ExceptionGroup', source: 'exceptions[1]');
+      final exceptionGroupImports = buildException(
+        'ExceptionGroup',
+        source: 'exceptions[1]',
+      );
       exceptionGroupNested.addException(exceptionGroupImports);
 
-      final importError =
-          buildException('ImportError', source: 'exceptions[0]');
+      final importError = buildException(
+        'ImportError',
+        source: 'exceptions[0]',
+      );
       exceptionGroupImports.addException(importError);
 
-      final moduleNotFoundError =
-          buildException('ModuleNotFoundError', source: 'exceptions[1]');
+      final moduleNotFoundError = buildException(
+        'ModuleNotFoundError',
+        source: 'exceptions[1]',
+      );
       exceptionGroupImports.addException(moduleNotFoundError);
 
       final typeError = buildException('TypeError', source: 'exceptions[2]');
@@ -378,7 +381,9 @@ void main() {
       expect(flattened[6].mechanism?.exceptionId, 0);
       expect(flattened[6].mechanism?.parentId, isNull);
       expect(
-          flattened[6].mechanism?.type, exceptionGroupNested.mechanism?.type);
+        flattened[6].mechanism?.type,
+        exceptionGroupNested.mechanism?.type,
+      );
     });
   });
 }

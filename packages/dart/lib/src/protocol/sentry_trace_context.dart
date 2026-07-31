@@ -96,12 +96,13 @@ class SentryTraceContext {
     this.unknown,
     this.replayId,
     this.data,
-  })  : traceId = traceId ?? SentryId.newId(),
-        spanId = spanId ?? SpanId.newId();
+  }) : traceId = traceId ?? SentryId.newId(),
+       spanId = spanId ?? SpanId.newId();
 
   @internal
   factory SentryTraceContext.fromPropagationContext(
-      PropagationContext propagationContext) {
+    PropagationContext propagationContext,
+  ) {
     return SentryTraceContext(
       traceId: propagationContext.traceId,
       spanId: SpanId.newId(),

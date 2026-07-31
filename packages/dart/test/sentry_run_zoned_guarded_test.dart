@@ -107,9 +107,11 @@ void main() {
       );
       final userOnErrorCalledSyncFromCaller = userOnErrorCalled;
 
-      expect(userOnErrorCalledSyncFromCaller, isTrue,
-          reason:
-              "sentryOnError must invoke the user's onError synchronously.");
+      expect(
+        userOnErrorCalledSyncFromCaller,
+        isTrue,
+        reason: "sentryOnError must invoke the user's onError synchronously.",
+      );
 
       await Future<void>.delayed(const Duration(milliseconds: 50));
       expect(client.captureEventCalls, hasLength(1));

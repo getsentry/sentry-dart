@@ -17,15 +17,12 @@ class HttpTransportRequestHandler {
   late _CredentialBuilder _credentialBuilder;
 
   HttpTransportRequestHandler(this._options, this._requestUri)
-      : _dsn = _options.parsedDsn,
-        _headers = _buildHeaders(
-          _options.platform.isWeb,
-          _options.sentryClientName,
-        ) {
-    _credentialBuilder = _CredentialBuilder(
-      _dsn,
-      _options.sentryClientName,
-    );
+    : _dsn = _options.parsedDsn,
+      _headers = _buildHeaders(
+        _options.platform.isWeb,
+        _options.sentryClientName,
+      ) {
+    _credentialBuilder = _CredentialBuilder(_dsn, _options.sentryClientName);
   }
 
   Future<StreamedRequest> createRequest(SentryEnvelope envelope) async {
@@ -79,7 +76,8 @@ class _CredentialBuilder {
     String? secretKey,
     required String sdkIdentifier,
   }) {
-    var header = 'Sentry sentry_version=7, sentry_client=$sdkIdentifier, '
+    var header =
+        'Sentry sentry_version=7, sentry_client=$sdkIdentifier, '
         'sentry_key=$publicKey';
 
     if (secretKey != null) {
@@ -90,9 +88,6 @@ class _CredentialBuilder {
   }
 
   Map<String, String> configure(Map<String, String> headers) {
-    return headers
-      ..addAll(
-        <String, String>{'X-Sentry-Auth': _authHeader},
-      );
+    return headers..addAll(<String, String>{'X-Sentry-Auth': _authHeader});
   }
 }

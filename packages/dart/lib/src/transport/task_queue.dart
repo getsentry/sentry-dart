@@ -49,11 +49,7 @@ class DefaultTaskQueue<T> implements TaskQueue<T> {
 @internal
 class NoOpTaskQueue<T> implements TaskQueue<T> {
   @override
-  Future<T> enqueue(
-    Task<T> task,
-    T fallbackResult,
-    DataCategory category,
-  ) {
+  Future<T> enqueue(Task<T> task, T fallbackResult, DataCategory category) {
     return task();
   }
 }

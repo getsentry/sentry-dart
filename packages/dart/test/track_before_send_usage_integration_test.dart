@@ -16,8 +16,10 @@ void main() {
     test('adds itself to sdk.integrations', () {
       fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.options.sdk.integrations,
-          contains('TrackBeforeSendUsageIntegration'));
+      expect(
+        fixture.options.sdk.integrations,
+        contains('TrackBeforeSendUsageIntegration'),
+      );
     });
 
     test('adds beforeSendEvent feature when beforeSend is configured', () {
@@ -25,18 +27,22 @@ void main() {
 
       fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendEvent));
+      expect(
+        fixture.options.sdk.features,
+        contains(SentryFeatures.beforeSendEvent),
+      );
     });
 
     test('adds beforeSendTransaction feature when configured', () {
-      fixture.options.beforeSendTransaction =
-          (transaction, hint) => transaction;
+      fixture.options.beforeSendTransaction = (transaction, hint) =>
+          transaction;
 
       fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendTransaction));
+      expect(
+        fixture.options.sdk.features,
+        contains(SentryFeatures.beforeSendTransaction),
+      );
     });
 
     test('adds beforeSendFeedback feature when configured', () {
@@ -44,8 +50,10 @@ void main() {
 
       fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendFeedback));
+      expect(
+        fixture.options.sdk.features,
+        contains(SentryFeatures.beforeSendFeedback),
+      );
     });
 
     test('adds beforeSendLog feature when configured', () {
@@ -54,7 +62,9 @@ void main() {
       fixture.getSut().call(fixture.hub, fixture.options);
 
       expect(
-          fixture.options.sdk.features, contains(SentryFeatures.beforeSendLog));
+        fixture.options.sdk.features,
+        contains(SentryFeatures.beforeSendLog),
+      );
     });
 
     test('adds beforeSendMetric feature when configured', () {
@@ -62,23 +72,35 @@ void main() {
 
       fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.beforeSendMetric));
+      expect(
+        fixture.options.sdk.features,
+        contains(SentryFeatures.beforeSendMetric),
+      );
     });
 
     test('does not add features when callbacks are not set', () {
       fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendEvent)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendTransaction)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendFeedback)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendLog)));
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.beforeSendMetric)));
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.beforeSendEvent)),
+      );
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.beforeSendTransaction)),
+      );
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.beforeSendFeedback)),
+      );
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.beforeSendLog)),
+      );
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.beforeSendMetric)),
+      );
     });
   });
 }

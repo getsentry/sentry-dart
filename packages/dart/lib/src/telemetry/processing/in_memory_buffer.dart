@@ -26,11 +26,8 @@ enum BufferDropCause {
 /// [bytes] is the encoded size of the item, or null when the size is unknown
 /// because the item was never encoded, i.e. when [cause] is
 /// [BufferDropCause.encodeFailed].
-typedef OnDropCallback<T> = void Function(
-  T item, {
-  required BufferDropCause cause,
-  int? bytes,
-});
+typedef OnDropCallback<T> =
+    void Function(T item, {required BufferDropCause cause, int? bytes});
 
 /// Base class for in-memory telemetry buffers.
 ///
@@ -49,16 +46,12 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
   Timer? _flushTimer;
 
   _BaseInMemoryTelemetryBuffer({
-    required ItemEncoder<T> encoder,
-    required OnFlushCallback<S> onFlush,
+    required this._encoder,
+    required this._onFlush,
     required S initialStorage,
-    OnDropCallback<T>? onDrop,
-    TelemetryBufferConfig config = const TelemetryBufferConfig(),
-  })  : _encoder = encoder,
-        _onFlush = onFlush,
-        _onDrop = onDrop,
-        _storage = initialStorage,
-        _config = config;
+    this._onDrop,
+    this._config = const TelemetryBufferConfig(),
+  }) : _storage = initialStorage;
 
   S _createEmptyStorage();
   void _store(List<int> encoded, T item);
@@ -87,8 +80,11 @@ abstract base class _BaseInMemoryTelemetryBuffer<T, S>
       internalLogger.warning(
         '$runtimeType: Item size ${encoded.length} exceeds buffer limit ${_config.maxBufferSizeBytes}, dropping',
       );
-      _onDrop?.call(item,
-          cause: BufferDropCause.tooLarge, bytes: encoded.length);
+      _onDrop?.call(
+        item,
+        cause: BufferDropCause.tooLarge,
+        bytes: encoded.length,
+      );
       return;
     }
 
@@ -190,8 +186,8 @@ final class GroupedInMemoryTelemetryBuffer<T>
     required GroupKeyExtractor<T> groupKeyExtractor,
     super.onDrop,
     super.config,
-  })  : _groupKey = groupKeyExtractor,
-        super(initialStorage: {});
+  }) : _groupKey = groupKeyExtractor,
+       super(initialStorage: {});
 
   @override
   Map<String, (List<List<int>>, T)> _createEmptyStorage() => {};

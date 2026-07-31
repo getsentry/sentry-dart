@@ -23,7 +23,8 @@ class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
             options.runtimeChecker.isSplitDebugInfoBuild()) &&
         !options.platform.isWeb) {
       options.addEventProcessor(
-          LoadDartDebugImagesIntegrationEventProcessor(options));
+        LoadDartDebugImagesIntegrationEventProcessor(options),
+      );
       options.sdk.addIntegration(integrationName);
     }
   }
@@ -66,9 +67,10 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
       _debugImage ??= createDebugImage(stackTrace);
     } catch (e, stack) {
       internalLogger.info(
-          "Couldn't add Dart debug image to event. The event will still be reported.",
-          error: e,
-          stackTrace: stack);
+        "Couldn't add Dart debug image to event. The event will still be reported.",
+        error: e,
+        stackTrace: stack,
+      );
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -80,7 +82,8 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
   DebugImage? createDebugImage(SentryStackTrace stackTrace) {
     if (stackTrace.buildId == null || stackTrace.baseAddr == null) {
       internalLogger.warning(
-          'Cannot create DebugImage without a build ID and image base address.');
+        'Cannot create DebugImage without a build ID and image base address.',
+      );
       return null;
     }
 
@@ -107,8 +110,9 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
       debugId = _formatHexToUuid(stackTrace.buildId!);
       codeFile = 'App.Framework/App';
     } else {
-      internalLogger
-          .warning('Unsupported platform for creating Dart debug images.');
+      internalLogger.warning(
+        'Unsupported platform for creating Dart debug images.',
+      );
       return null;
     }
 
@@ -154,8 +158,11 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
       return hex;
     }
     if (hex.length != 32) {
-      throw ArgumentError.value(hex, 'hexUUID',
-          'Hex input must be a 32-character hexadecimal string');
+      throw ArgumentError.value(
+        hex,
+        'hexUUID',
+        'Hex input must be a 32-character hexadecimal string',
+      );
     }
 
     return '${hex.substring(0, 8)}-'

@@ -63,9 +63,7 @@ class SentryBaggage {
     final keyValues = <String, String>{};
 
     for (final headerValue in headerValues) {
-      final keyValuesToAdd = _extractKeyValuesFromBaggageString(
-        headerValue,
-      );
+      final keyValuesToAdd = _extractKeyValuesFromBaggageString(headerValue);
       keyValues.addAll(keyValuesToAdd);
     }
 
@@ -73,9 +71,7 @@ class SentryBaggage {
   }
 
   factory SentryBaggage.fromHeader(String headerValue) {
-    final keyValues = _extractKeyValuesFromBaggageString(
-      headerValue,
-    );
+    final keyValues = _extractKeyValuesFromBaggageString(headerValue);
 
     return SentryBaggage(keyValues);
   }
@@ -104,7 +100,8 @@ class SentryBaggage {
   }
 
   static Map<String, String> _extractKeyValuesFromBaggageString(
-      String headerValue) {
+    String headerValue,
+  ) {
     final keyValues = <String, String>{};
 
     final keyValueStrings = headerValue.split(',');

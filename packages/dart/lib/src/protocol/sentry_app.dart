@@ -89,17 +89,17 @@ class SentryApp {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (name != null) 'app_name': name!,
-      if (version != null) 'app_version': version!,
-      if (identifier != null) 'app_identifier': identifier!,
-      if (build != null) 'app_build': build!,
-      if (buildType != null) 'build_type': buildType!,
+      'app_name': ?name,
+      'app_version': ?version,
+      'app_identifier': ?identifier,
+      'app_build': ?build,
+      'build_type': ?buildType,
       if (startTime != null) 'app_start_time': startTime!.toIso8601String(),
-      if (deviceAppHash != null) 'device_app_hash': deviceAppHash!,
-      if (appMemory != null) 'app_memory': appMemory!,
-      if (inForeground != null) 'in_foreground': inForeground!,
+      'device_app_hash': ?deviceAppHash,
+      'app_memory': ?appMemory,
+      'in_foreground': ?inForeground,
       if (viewNames != null && viewNames!.isNotEmpty) 'view_names': viewNames!,
-      if (textScale != null) 'text_scale': textScale!,
+      'text_scale': ?textScale,
     };
   }
 
@@ -113,8 +113,9 @@ class SentryApp {
     final attributes = <String, SentryAttribute>{};
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.appName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.appName] = SentryAttribute.string(
+        name,
+      );
     }
     final version = this.version;
     if (version != null) {
@@ -128,8 +129,9 @@ class SentryApp {
     }
     final build = this.build;
     if (build != null) {
-      attributes[SemanticAttributesConstants.appBuild] =
-          SentryAttribute.string(build);
+      attributes[SemanticAttributesConstants.appBuild] = SentryAttribute.string(
+        build,
+      );
     }
     final startTime = this.startTime;
     if (startTime != null) {

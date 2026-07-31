@@ -26,23 +26,25 @@ class SentryBreadcrumbLink extends Link {
 
     final stopwatch = Stopwatch()..start();
 
-    return forward!(request).transform(StreamTransformer.fromHandlers(
-      handleData: (data, sink) {
-        stopwatch.stop();
-        // Errors are handled by SentryLink, so opt-out if there are errors.
-        if (data.errors == null) {
-          _addBreadcrumb(description, stopwatch.elapsed, data);
-        }
-        sink.add(data);
-      },
-      handleError: (error, stackTrace, sink) {
-        // Error handling can be significantly improved after
-        // https://github.com/gql-dart/gql/issues/361
-        // is done.
-        stopwatch.stop();
-        sink.addError(error, stackTrace);
-      },
-    ));
+    return forward!(request).transform(
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          stopwatch.stop();
+          // Errors are handled by SentryLink, so opt-out if there are errors.
+          if (data.errors == null) {
+            _addBreadcrumb(description, stopwatch.elapsed, data);
+          }
+          sink.add(data);
+        },
+        handleError: (error, stackTrace, sink) {
+          // Error handling can be significantly improved after
+          // https://github.com/gql-dart/gql/issues/361
+          // is done.
+          stopwatch.stop();
+          sink.addError(error, stackTrace);
+        },
+      ),
+    );
   }
 
   void _addBreadcrumb(
@@ -50,11 +52,13 @@ class SentryBreadcrumbLink extends Link {
     Duration duration,
     Response response,
   ) {
-    _hub.addBreadcrumb(Breadcrumb(
-      category: 'GraphQL',
-      message: description,
-      type: 'query',
-      data: {'duration': duration.toString()},
-    ));
+    _hub.addBreadcrumb(
+      Breadcrumb(
+        category: 'GraphQL',
+        message: description,
+        type: 'query',
+        data: {'duration': duration.toString()},
+      ),
+    );
   }
 }

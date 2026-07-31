@@ -15,8 +15,9 @@ class SentrySupabaseErrorClient extends BaseClient {
     this._innerClient,
     this._hub, {
     List<SentryStatusCode>? failedRequestStatusCodes,
-  }) : failedRequestStatusCodes = failedRequestStatusCodes ??
-            SentryHttpClient.defaultFailedRequestStatusCodes;
+  }) : failedRequestStatusCodes =
+           failedRequestStatusCodes ??
+           SentryHttpClient.defaultFailedRequestStatusCodes;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -34,26 +35,12 @@ class SentrySupabaseErrorClient extends BaseClient {
       final response = await _innerClient.send(request);
       if (_shouldCaptureError(response.statusCode)) {
         unawaited(
-          _captureException(
-            null,
-            null,
-            request,
-            response,
-            supabaseRequest,
-          ),
+          _captureException(null, null, request, response, supabaseRequest),
         );
       }
       return response;
     } catch (e, st) {
-      unawaited(
-        _captureException(
-          e,
-          st,
-          request,
-          null,
-          supabaseRequest,
-        ),
-      );
+      unawaited(_captureException(e, st, request, null, supabaseRequest));
       rethrow;
     }
   }

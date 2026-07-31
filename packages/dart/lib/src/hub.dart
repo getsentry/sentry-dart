@@ -89,7 +89,8 @@ class Hub {
 
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureEvent' call is a no-op.");
+        "Instance is disabled and this 'captureEvent' call is a no-op.",
+      );
     } else {
       final item = _peek();
       late Scope scope;
@@ -113,9 +114,10 @@ class Hub {
         );
       } catch (exception, stackTrace) {
         internalLogger.error(
-            'Error while capturing event with id: ${event.eventId}',
-            error: exception,
-            stackTrace: stackTrace);
+          'Error while capturing event with id: ${event.eventId}',
+          error: exception,
+          stackTrace: stackTrace,
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -138,7 +140,8 @@ class Hub {
 
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureException' call is a no-op.");
+        "Instance is disabled and this 'captureException' call is a no-op.",
+      );
     } else if (throwable == null) {
       internalLogger.warning('captureException called with null parameter.');
     } else {
@@ -169,8 +172,11 @@ class Hub {
           hint: hint,
         );
       } catch (exception, stackTrace) {
-        internalLogger.error('Error while capturing exception',
-            error: exception, stackTrace: stackTrace);
+        internalLogger.error(
+          'Error while capturing exception',
+          error: exception,
+          stackTrace: stackTrace,
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -195,7 +201,8 @@ class Hub {
 
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureMessage' call is a no-op.");
+        "Instance is disabled and this 'captureMessage' call is a no-op.",
+      );
     } else if (message == null) {
       internalLogger.warning('captureMessage called with null parameter.');
     } else {
@@ -218,8 +225,11 @@ class Hub {
           hint: hint,
         );
       } catch (exception, stackTrace) {
-        internalLogger.error('Error while capturing message with id: $message',
-            error: exception, stackTrace: stackTrace);
+        internalLogger.error(
+          'Error while capturing message with id: $message',
+          error: exception,
+          stackTrace: stackTrace,
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -240,7 +250,8 @@ class Hub {
 
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureFeedback' call is a no-op.");
+        "Instance is disabled and this 'captureFeedback' call is a no-op.",
+      );
     } else {
       final item = _peek();
       late Scope scope;
@@ -258,8 +269,11 @@ class Hub {
           scope: scope,
         );
       } catch (exception, stacktrace) {
-        internalLogger.error('Error while capturing feedback',
-            error: exception, stackTrace: stacktrace);
+        internalLogger.error(
+          'Error while capturing feedback',
+          error: exception,
+          stackTrace: stacktrace,
+        );
       }
     }
     return sentryId;
@@ -268,7 +282,8 @@ class Hub {
   Future<void> captureLog(SentryLog log) async {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureLog' call is a no-op.");
+        "Instance is disabled and this 'captureLog' call is a no-op.",
+      );
     } else {
       final item = _peek();
       late Scope scope;
@@ -280,13 +295,13 @@ class Hub {
       }
 
       try {
-        await item.client.captureLog(
-          log,
-          scope: scope,
-        );
+        await item.client.captureLog(log, scope: scope);
       } catch (exception, stacktrace) {
-        internalLogger.error('Error while capturing log',
-            error: exception, stackTrace: stacktrace);
+        internalLogger.error(
+          'Error while capturing log',
+          error: exception,
+          stackTrace: stacktrace,
+        );
       }
     }
   }
@@ -294,7 +309,8 @@ class Hub {
   Future<void> captureMetric(SentryMetric metric) async {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureMetric' call is a no-op.");
+        "Instance is disabled and this 'captureMetric' call is a no-op.",
+      );
     } else {
       final item = _peek();
       late Scope scope;
@@ -306,19 +322,21 @@ class Hub {
       }
 
       try {
-        await item.client.captureMetric(
-          metric,
-          scope: scope,
-        );
+        await item.client.captureMetric(metric, scope: scope);
       } catch (exception, stacktrace) {
-        internalLogger.error('Error while capturing metric',
-            error: exception, stackTrace: stacktrace);
+        internalLogger.error(
+          'Error while capturing metric',
+          error: exception,
+          stackTrace: stacktrace,
+        );
       }
     }
   }
 
   FutureOr<Scope> _cloneAndRunWithScope(
-      Scope scope, ScopeCallback? withScope) async {
+    Scope scope,
+    ScopeCallback? withScope,
+  ) async {
     if (withScope != null) {
       try {
         scope = scope.clone();
@@ -327,8 +345,11 @@ class Hub {
           await s;
         }
       } catch (exception, stackTrace) {
-        internalLogger.error('Exception in withScope callback.',
-            error: exception, stackTrace: stackTrace);
+        internalLogger.error(
+          'Exception in withScope callback.',
+          error: exception,
+          stackTrace: stackTrace,
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -340,7 +361,8 @@ class Hub {
   void setAttributes(Map<String, SentryAttribute> attributes) {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'setAttributes' call is a no-op.");
+        "Instance is disabled and this 'setAttributes' call is a no-op.",
+      );
     } else {
       final item = _peek();
       item.scope.setAttributes(attributes);
@@ -350,7 +372,8 @@ class Hub {
   void removeAttribute(String key) {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'removeAttribute' call is a no-op.");
+        "Instance is disabled and this 'removeAttribute' call is a no-op.",
+      );
     } else {
       final item = _peek();
       item.scope.removeAttribute(key);
@@ -361,7 +384,8 @@ class Hub {
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'addBreadcrumb' call is a no-op.");
+        "Instance is disabled and this 'addBreadcrumb' call is a no-op.",
+      );
     } else {
       final item = _peek();
       await item.scope.addBreadcrumb(crumb, hint: hint);
@@ -460,7 +484,8 @@ class Hub {
   void bindClient(SentryClient client) {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'bindClient' call is a no-op.");
+        "Instance is disabled and this 'bindClient' call is a no-op.",
+      );
     } else {
       final item = _peek();
       internalLogger.debug('New client bound to scope.');
@@ -484,8 +509,9 @@ class Hub {
   /// Flushes out the queue for up to timeout seconds and disable the Hub.
   Future<void> close() async {
     if (!_isEnabled) {
-      internalLogger
-          .warning("Instance is disabled and this 'close' call is a no-op.");
+      internalLogger.warning(
+        "Instance is disabled and this 'close' call is a no-op.",
+      );
     } else {
       // End active idle span so its timers and lifecycle callbacks are cleaned up.
       _idleSpan?.end();
@@ -507,8 +533,11 @@ class Hub {
           await close;
         }
       } catch (exception, stackTrace) {
-        internalLogger.error('Error while closing the Hub',
-            error: exception, stackTrace: stackTrace);
+        internalLogger.error(
+          'Error while closing the Hub',
+          error: exception,
+          stackTrace: stackTrace,
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -522,7 +551,8 @@ class Hub {
   FutureOr<void> configureScope(ScopeCallback callback) async {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'configureScope' call is a no-op.");
+        "Instance is disabled and this 'configureScope' call is a no-op.",
+      );
     } else {
       final item = _peek();
 
@@ -532,8 +562,9 @@ class Hub {
           await result;
         }
       } catch (err) {
-        internalLogger
-            .error("Error in the 'configureScope' callback, error: $err");
+        internalLogger.error(
+          "Error in the 'configureScope' callback, error: $err",
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -553,22 +584,21 @@ class Hub {
     bool? trimEnd,
     OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
-  }) =>
-      startTransactionWithContext(
-        SentryTransactionContext(
-          name,
-          operation,
-          description: description,
-          origin: SentryTraceOrigins.manual,
-        ),
-        startTimestamp: startTimestamp,
-        bindToScope: bindToScope,
-        waitForChildren: waitForChildren,
-        autoFinishAfter: autoFinishAfter,
-        trimEnd: trimEnd,
-        onFinish: onFinish,
-        customSamplingContext: customSamplingContext,
-      );
+  }) => startTransactionWithContext(
+    SentryTransactionContext(
+      name,
+      operation,
+      description: description,
+      origin: SentryTraceOrigins.manual,
+    ),
+    startTimestamp: startTimestamp,
+    bindToScope: bindToScope,
+    waitForChildren: waitForChildren,
+    autoFinishAfter: autoFinishAfter,
+    trimEnd: trimEnd,
+    onFinish: onFinish,
+    customSamplingContext: customSamplingContext,
+  );
 
   /// Creates a Transaction and returns the instance.
   ISentrySpan startTransactionWithContext(
@@ -583,7 +613,8 @@ class Hub {
   }) {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'startTransaction' call is a no-op.");
+        "Instance is disabled and this 'startTransaction' call is a no-op.",
+      );
     } else if (_options.isTracingEnabled()) {
       if (_options.traceLifecycle == SentryTraceLifecycle.stream) {
         internalLogger.warning(
@@ -604,8 +635,9 @@ class Hub {
 
       if (samplingDecision == null) {
         final samplingContext = SentrySamplingContext.forTransaction(
-            transactionContext,
-            customSamplingContext: customSamplingContext);
+          transactionContext,
+          customSamplingContext: customSamplingContext,
+        );
 
         samplingDecision = _tracesSampler.sample(
           samplingContext,
@@ -722,8 +754,9 @@ class Hub {
     );
     switch (span) {
       case NoOpSentrySpanV2():
-        internalLogger
-            .info('Hub: startSpanSync returning no-op for \'$name\'.');
+        internalLogger.info(
+          'Hub: startSpanSync returning no-op for \'$name\'.',
+        );
         return callback(span);
       case UnsetSentrySpanV2():
         internalLogger.error(
@@ -758,17 +791,19 @@ class Hub {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
-  }) =>
-      _createSpan(name,
-          attributes: attributes,
-          parentSpan: parentSpan,
-          startTimestamp: startTimestamp);
+  }) => _createSpan(
+    name,
+    attributes: attributes,
+    parentSpan: parentSpan,
+    startTimestamp: startTimestamp,
+  );
 
   /// Returns `true` if the hub is able to create spans.
   bool get _canCreateSpansV2 {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this span creation call is a no-op.");
+        "Instance is disabled and this span creation call is a no-op.",
+      );
       return false;
     }
 
@@ -813,23 +848,31 @@ class Hub {
     final sampleRand = propagationContext.sampleRand ??= Random().nextDouble();
 
     final samplingContext = SentrySamplingContext.forSpanV2(
-        SentrySpanSamplingContextV2(name, attributes ?? {}));
+      SentrySpanSamplingContextV2(name, attributes ?? {}),
+    );
     final samplingDecision = _tracesSampler.sample(samplingContext, sampleRand);
     propagationContext.applySamplingDecision(samplingDecision.sampled);
 
     if (!samplingDecision.sampled) {
-      _options.recorder
-          .recordLostEvent(DiscardReason.sampleRate, DataCategory.span);
+      _options.recorder.recordLostEvent(
+        DiscardReason.sampleRate,
+        DataCategory.span,
+      );
       internalLogger.info(
-          "Span '$name' was not sampled (sample rate: ${samplingDecision.sampleRate}).");
+        "Span '$name' was not sampled (sample rate: ${samplingDecision.sampleRate}).",
+      );
       return null;
     }
 
     return samplingDecision;
   }
 
-  DscCreatorCallback get _dscCreator => (span) =>
-      SentryTraceContextHeader.fromRecordingSpan(span, options, scope.replayId);
+  DscCreatorCallback get _dscCreator =>
+      (span) => SentryTraceContextHeader.fromRecordingSpan(
+        span,
+        options,
+        scope.replayId,
+      );
 
   /// Core span creation logic shared by [startSpan] and [startInactiveSpan].
   SentrySpanV2 _createSpan(
@@ -853,8 +896,10 @@ class Hub {
           // Ignored segment: cascade the ignore to all descendants per the
           // filtering spec. Each attempted child counts as an ignored span
           // for client reports.
-          _options.recorder
-              .recordLostEvent(DiscardReason.ignored, DataCategory.span);
+          _options.recorder.recordLostEvent(
+            DiscardReason.ignored,
+            DataCategory.span,
+          );
           return NoOpSentrySpanV2.instance;
         }
         if (parent.isIgnored) {
@@ -864,17 +909,22 @@ class Hub {
         } else {
           // Unsampled subtree: cascade NoOp and record one sample_rate
           // outcome per attempted child.
-          _options.recorder
-              .recordLostEvent(DiscardReason.sampleRate, DataCategory.span);
+          _options.recorder.recordLostEvent(
+            DiscardReason.sampleRate,
+            DataCategory.span,
+          );
           return NoOpSentrySpanV2.instance;
         }
     }
 
-    final ignoreSpan =
-        _options.ignoreSpans.any((rule) => rule.appliesToName(name));
+    final ignoreSpan = _options.ignoreSpans.any(
+      (rule) => rule.appliesToName(name),
+    );
     if (ignoreSpan) {
-      _options.recorder
-          .recordLostEvent(DiscardReason.ignored, DataCategory.span);
+      _options.recorder.recordLostEvent(
+        DiscardReason.ignored,
+        DataCategory.span,
+      );
       return NoOpSentrySpanV2(
         recordingParent: resolvedParentSpan,
         isIgnored: true,
@@ -936,7 +986,8 @@ class Hub {
   }) {
     if (bindToHub && _currentIdleSpan != null) {
       internalLogger.warning(
-        () => 'Hub(internal): an idle span is already running. '
+        () =>
+            'Hub(internal): an idle span is already running. '
             'The current idle span should be ended before starting a new one.',
       );
       return NoOpSentrySpanV2.instance;
@@ -977,7 +1028,8 @@ class Hub {
   Future<void> captureSpan(SentrySpanV2 span) async {
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureSpan' call is a no-op.");
+        "Instance is disabled and this 'captureSpan' call is a no-op.",
+      );
       return;
     }
 
@@ -986,7 +1038,8 @@ class Hub {
     switch (span) {
       case UnsetSentrySpanV2():
         internalLogger.warning(
-            "captureSpan: span is in an invalid state $UnsetSentrySpanV2.");
+          "captureSpan: span is in an invalid state $UnsetSentrySpanV2.",
+        );
       case NoOpSentrySpanV2():
         return;
       case RecordingSentrySpanV2 span:
@@ -1002,17 +1055,21 @@ class Hub {
     scope.propagationContext.generateNewTrace();
     // Fire-and-forget the callback
     // Native SDK synchronization over async method channels may be slightly delayed, but this is not problematic in practice.
-    _options.lifecycleRegistry.dispatchCallback(OnGenerateNewTrace(
+    _options.lifecycleRegistry.dispatchCallback(
+      OnGenerateNewTrace(
         scope.propagationContext.traceId,
-        getSpan()?.context.spanId ?? SpanId.newId()));
+        getSpan()?.context.spanId ?? SpanId.newId(),
+      ),
+    );
   }
 
   /// Gets the current active transaction or span.
   ISentrySpan? getSpan() {
     ISentrySpan? span;
     if (!_isEnabled) {
-      internalLogger
-          .warning("Instance is disabled and this 'getSpan' call is a no-op.");
+      internalLogger.warning(
+        "Instance is disabled and this 'getSpan' call is a no-op.",
+      );
     } else if (_options.isTracingEnabled()) {
       final item = _peek();
 
@@ -1032,13 +1089,16 @@ class Hub {
 
     if (!_isEnabled) {
       internalLogger.warning(
-          "Instance is disabled and this 'captureTransaction' call is a no-op.");
+        "Instance is disabled and this 'captureTransaction' call is a no-op.",
+      );
     } else if (!_options.isTracingEnabled()) {
       internalLogger.info(
-          "Tracing is disabled and this 'captureTransaction' call is a no-op.");
+        "Tracing is disabled and this 'captureTransaction' call is a no-op.",
+      );
     } else if (!transaction.finished) {
-      internalLogger
-          .warning('Capturing unfinished transaction: ${transaction.eventId}');
+      internalLogger.warning(
+        'Capturing unfinished transaction: ${transaction.eventId}',
+      );
     } else {
       final item = _peek();
 
@@ -1053,7 +1113,8 @@ class Hub {
           count: transaction.spans.length + 1,
         );
         internalLogger.warning(
-            'Transaction ${transaction.eventId} was dropped due to sampling decision.');
+          'Transaction ${transaction.eventId} was dropped due to sampling decision.',
+        );
       } else {
         try {
           sentryId = await item.client.captureTransaction(
@@ -1064,9 +1125,10 @@ class Hub {
           );
         } catch (exception, stackTrace) {
           internalLogger.error(
-              'Error while capturing transaction with id: ${transaction.eventId}',
-              error: exception,
-              stackTrace: stackTrace);
+            'Error while capturing transaction with id: ${transaction.eventId}',
+            error: exception,
+            stackTrace: stackTrace,
+          );
           if (_options.automatedTestMode) {
             rethrow;
           }
@@ -1081,8 +1143,7 @@ class Hub {
     dynamic throwable,
     ISentrySpan span,
     String transaction,
-  ) =>
-      _throwableToSpan.add(throwable, span, transaction);
+  ) => _throwableToSpan.add(throwable, span, transaction);
 
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context
@@ -1121,11 +1182,7 @@ class _WeakMap {
 
   _WeakMap(this._options);
 
-  void add(
-    dynamic throwable,
-    ISentrySpan span,
-    String transaction,
-  ) {
+  void add(dynamic throwable, ISentrySpan span, String transaction) {
     if (throwable == null) {
       return;
     }
@@ -1136,9 +1193,10 @@ class _WeakMap {
       }
     } catch (exception, stackTrace) {
       internalLogger.info(
-          'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
-          error: exception,
-          stackTrace: stackTrace);
+        'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
+        error: exception,
+        stackTrace: stackTrace,
+      );
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -1154,9 +1212,10 @@ class _WeakMap {
       return _expando[throwable] as MapEntry<ISentrySpan, String>?;
     } catch (exception, stackTrace) {
       internalLogger.info(
-          'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
-          error: exception,
-          stackTrace: stackTrace);
+        'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
+        error: exception,
+        stackTrace: stackTrace,
+      );
       if (_options.automatedTestMode) {
         rethrow;
       }

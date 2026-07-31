@@ -72,7 +72,8 @@ class SentryTracer extends ISentrySpan {
     _scheduleTimer();
     name = transactionContext.name;
     // always default to custom if not provided
-    transactionNameSource = transactionContext.transactionNameSource ??
+    transactionNameSource =
+        transactionContext.transactionNameSource ??
         SentryTransactionNameSource.custom;
     _trimEnd = trimEnd;
     _onFinish = onFinish;
@@ -81,8 +82,11 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  Future<void> finish(
-      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) async {
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
@@ -96,7 +100,8 @@ class SentryTracer extends ISentrySpan {
 
     // remove span where its endTimestamp is before startTimestamp
     _children.removeWhere(
-        (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
+      (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp),
+    );
 
     var _rootEndTimestamp = commonEndTimestamp;
 
@@ -242,10 +247,11 @@ class SentryTracer extends ISentrySpan {
     }
 
     final context = SentrySpanContext(
-        traceId: _rootSpan.context.traceId,
-        parentSpanId: parentSpanId,
-        operation: operation,
-        description: description);
+      traceId: _rootSpan.context.traceId,
+      parentSpanId: parentSpanId,
+      operation: operation,
+      description: description,
+    );
 
     final child = SentrySpan(
       this,
@@ -270,10 +276,7 @@ class SentryTracer extends ISentrySpan {
     return child;
   }
 
-  Future<void> _finishedCallback({
-    DateTime? endTimestamp,
-    Hint? hint,
-  }) async {
+  Future<void> _finishedCallback({DateTime? endTimestamp, Hint? hint}) async {
     final finishStatus = _finishStatus;
     if (finishStatus.finishing) {
       await finish(
@@ -333,9 +336,11 @@ class SentryTracer extends ISentrySpan {
   }
 
   bool _hasSpanSuitableTimestamps(
-          SentrySpan span, DateTime endTimestampCandidate) =>
-      !span.startTimestamp
-          .isAfter((span.endTimestamp ?? endTimestampCandidate));
+    SentrySpan span,
+    DateTime endTimestampCandidate,
+  ) => !span.startTimestamp.isAfter(
+    (span.endTimestamp ?? endTimestampCandidate),
+  );
 
   @override
   void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
@@ -348,8 +353,11 @@ class SentryTracer extends ISentrySpan {
     _measurements[name] = SentryMeasurement(name, value, unit: unit);
   }
 
-  void setMeasurementFromChild(String name, num value,
-      {SentryMeasurementUnit? unit}) {
+  void setMeasurementFromChild(
+    String name,
+    num value, {
+    SentryMeasurementUnit? unit,
+  }) {
     // We don't want to overwrite span measurement, if it comes from a child.
     if (!_measurements.containsKey(name)) {
       setMeasurement(name, value, unit: unit);
@@ -380,8 +388,9 @@ class SentryTracer extends ISentrySpan {
       release: _hub.options.release,
       environment: _hub.options.environment,
       userId: null, // because of PII not sending it for now
-      transaction:
-          _isHighQualityTransactionName(transactionNameSource) ? name : null,
+      transaction: _isHighQualityTransactionName(transactionNameSource)
+          ? name
+          : null,
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
       sampleRand: _sampleRandToString(_rootSpan.samplingDecision?.sampleRand),
       sampled: _rootSpan.samplingDecision?.sampled.toString(),

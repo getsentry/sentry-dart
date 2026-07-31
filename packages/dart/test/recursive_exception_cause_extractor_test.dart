@@ -18,13 +18,9 @@ void main() {
     final errorB = ExceptionB(errorC);
     final errorA = ExceptionA(errorB);
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionACauseExtractor(false),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionACauseExtractor(false));
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionBCauseExtractor(),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionBCauseExtractor());
 
     final sut = fixture.getSut();
 
@@ -38,19 +34,16 @@ void main() {
     final errorB = ExceptionB(errorC);
     final errorA = ExceptionA(errorB);
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionACauseExtractor(false),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionACauseExtractor(false));
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionBCauseExtractor(),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionBCauseExtractor());
 
     final sut = fixture.getSut();
 
     final flattened = sut.flatten(errorA, null);
-    final actual =
-        flattened.map((exceptionCause) => exceptionCause.source).toList();
+    final actual = flattened
+        .map((exceptionCause) => exceptionCause.source)
+        .toList();
     expect(actual, [null, "other", "anotherOther"]);
   });
 
@@ -60,13 +53,9 @@ void main() {
     a.other = b;
     b.other = a;
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionCircularAExtractor(),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionCircularAExtractor());
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionCircularBExtractor(),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionCircularBExtractor());
 
     final sut = fixture.getSut();
 
@@ -81,13 +70,9 @@ void main() {
     final errorB = ExceptionB(errorC);
     final errorA = ExceptionA(errorB);
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionACauseExtractor(false),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionACauseExtractor(false));
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionBCauseExtractor(),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionBCauseExtractor());
 
     final mechanism = Mechanism(type: "foo");
     final throwableMechanism = ThrowableMechanism(mechanism, errorA);
@@ -103,13 +88,9 @@ void main() {
     final errorB = ExceptionB(null);
     final errorA = ExceptionA(errorB);
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionACauseExtractor(true),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionACauseExtractor(true));
 
-    fixture.options.addExceptionCauseExtractor(
-      ExceptionBCauseExtractor(),
-    );
+    fixture.options.addExceptionCauseExtractor(ExceptionBCauseExtractor());
 
     fixture.options.automatedTestMode = false;
     final sut = fixture.getSut();

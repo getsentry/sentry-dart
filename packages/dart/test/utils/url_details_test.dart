@@ -4,14 +4,20 @@ import 'package:test/test.dart';
 
 void main() {
   test('does not crash on null span', () {
-    final urlDetails =
-        UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
+    final urlDetails = UrlDetails(
+      url: "https://sentry.io/api",
+      query: "q=1",
+      fragment: "top",
+    );
     urlDetails.applyToSpan(null);
   });
 
   test('applies all to span', () {
-    final urlDetails =
-        UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
+    final urlDetails = UrlDetails(
+      url: "https://sentry.io/api",
+      query: "q=1",
+      fragment: "top",
+    );
     final span = MockInstrumentationSpan();
     urlDetails.applyToSpan(span);
 
@@ -67,8 +73,10 @@ void main() {
   });
 
   test('removes cookies from request', () {
-    final request =
-        SentryRequest(url: 'https://sentry.io/api', cookies: 'foo=bar');
+    final request = SentryRequest(
+      url: 'https://sentry.io/api',
+      cookies: 'foo=bar',
+    );
     request.sanitize();
     expect(request.cookies, isNull);
   });

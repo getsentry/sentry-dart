@@ -27,12 +27,7 @@ class SentryMessage {
   @internal
   final Map<String, dynamic>? unknown;
 
-  SentryMessage(
-    this.formatted, {
-    this.template,
-    this.params,
-    this.unknown,
-  });
+  SentryMessage(this.formatted, {this.template, this.params, this.unknown});
 
   /// Deserializes a [SentryMessage] from JSON [Map].
   factory SentryMessage.fromJson(Map<String, dynamic> data) {

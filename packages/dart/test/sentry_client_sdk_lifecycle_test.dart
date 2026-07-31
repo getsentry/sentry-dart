@@ -23,9 +23,7 @@ void main() {
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test',
-          attributes: {
-            'attribute': SentryAttribute.string('value'),
-          },
+          attributes: {'attribute': SentryAttribute.string('value')},
         );
       }
 
@@ -44,8 +42,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnProcessLog>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnProcessLog>((
+          event,
+        ) {
           event.log.attributes['test'] = SentryAttribute.string('test-value');
         });
 
@@ -75,8 +74,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnBeforeSendEvent>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>((
+          event,
+        ) {
           event.event.release = '999';
         });
 
@@ -137,10 +137,7 @@ class Fixture {
 
     // Internally also creates a SentryClient instance
     final hub = Hub(options);
-    _context = SentryTransactionContext(
-      'name',
-      'op',
-    );
+    _context = SentryTransactionContext('name', 'op');
     tracer = SentryTracer(_context, hub);
 
     // Reset transport

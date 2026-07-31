@@ -29,14 +29,11 @@ void main() {
     expect(event, processedEvent);
   });
 
-  test(
-      '$DioEventProcessor does not change anything '
+  test('$DioEventProcessor does not change anything '
       'if stacktrace is null and a request is present', () {
     final sut = fixture.getSut();
 
-    final dioError = DioError(
-      requestOptions: RequestOptions(path: '/foo/bar'),
-    );
+    final dioError = DioError(requestOptions: RequestOptions(path: '/foo/bar'));
     final event = SentryEvent(
       throwable: dioError,
       request: SentryRequest(),
@@ -52,16 +49,11 @@ void main() {
     test('$DioEventProcessor adds request', () {
       final sut = fixture.getSut(sendDefaultPii: true);
 
-      final request = requestOptions.copyWith(
-        method: 'POST',
-        data: 'foobar',
-      );
+      final request = requestOptions.copyWith(method: 'POST', data: 'foobar');
       final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
+        response: Response<dynamic>(requestOptions: request),
       );
       final event = SentryEvent(
         throwable: throwable,
@@ -75,9 +67,7 @@ void main() {
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.request?.method, 'POST');
       expect(processedEvent.request?.queryString, 'foo=bar');
-      expect(processedEvent.request?.headers, <String, String>{
-        'foo': 'bar',
-      });
+      expect(processedEvent.request?.headers, <String, String>{'foo': 'bar'});
       expect(processedEvent.request?.data, 'foobar');
     });
 
@@ -216,16 +206,11 @@ void main() {
       final sut = fixture.getSut(sendDefaultPii: true);
 
       final data = 'Hello, World!';
-      final request = requestOptions.copyWith(
-        method: 'POST',
-        data: data,
-      );
+      final request = requestOptions.copyWith(method: 'POST', data: data);
       final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
+        response: Response<dynamic>(requestOptions: request),
       );
       final event = SentryEvent(
         throwable: throwable,
@@ -251,9 +236,7 @@ void main() {
       final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
+        response: Response<dynamic>(requestOptions: request),
       );
       final event = SentryEvent(
         throwable: throwable,
@@ -279,9 +262,7 @@ void main() {
       final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
+        response: Response<dynamic>(requestOptions: request),
       );
       final event = SentryEvent(
         throwable: throwable,
@@ -302,16 +283,11 @@ void main() {
         'field1': 'value1',
         'field2': 'value2',
       });
-      final request = requestOptions.copyWith(
-        method: 'POST',
-        data: formData,
-      );
+      final request = requestOptions.copyWith(method: 'POST', data: formData);
       final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
+        response: Response<dynamic>(requestOptions: request),
       );
       final event = SentryEvent(
         throwable: throwable,
@@ -332,30 +308,20 @@ void main() {
     test('handles FormData with files correctly', () {
       final sut = fixture.getSut(sendDefaultPii: true);
 
-      final formData = FormData.fromMap({
-        'field1': 'value1',
-      });
+      final formData = FormData.fromMap({'field1': 'value1'});
       // Add a file to FormData
       formData.files.add(
         MapEntry(
           'file1',
-          MultipartFile.fromString(
-            'file content',
-            filename: 'test.txt',
-          ),
+          MultipartFile.fromString('file content', filename: 'test.txt'),
         ),
       );
 
-      final request = requestOptions.copyWith(
-        method: 'POST',
-        data: formData,
-      );
+      final request = requestOptions.copyWith(method: 'POST', data: formData);
       final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
+        response: Response<dynamic>(requestOptions: request),
       );
       final event = SentryEvent(
         throwable: throwable,
@@ -388,16 +354,11 @@ void main() {
           'x-file-id': ['12345'],
         },
       );
-      final request = requestOptions.copyWith(
-        method: 'POST',
-        data: file,
-      );
+      final request = requestOptions.copyWith(method: 'POST', data: file);
       final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
-        response: Response<dynamic>(
-          requestOptions: request,
-        ),
+        response: Response<dynamic>(requestOptions: request),
       );
       final event = SentryEvent(
         throwable: throwable,
@@ -427,10 +388,7 @@ void main() {
 
       // Test num
       final numData = 42;
-      final numRequest = requestOptions.copyWith(
-        method: 'POST',
-        data: numData,
-      );
+      final numRequest = requestOptions.copyWith(method: 'POST', data: numData);
       final numEvent = SentryEvent(
         throwable: Exception(),
         exceptions: [
@@ -481,8 +439,10 @@ void main() {
 
       // Test bool - should not be added when maxRequestBodySize is never
       final boolData = true;
-      final boolRequest =
-          requestOptions.copyWith(method: 'POST', data: boolData);
+      final boolRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: boolData,
+      );
       final boolEvent = SentryEvent(
         throwable: Exception(),
         exceptions: [
@@ -502,8 +462,10 @@ void main() {
 
       // Test String - should not be added due to size (4000 bytes = 4000 characters)
       final largeString = 'x' * 5000; // 5000 characters > 4000 limit
-      final stringRequest =
-          requestOptions.copyWith(method: 'POST', data: largeString);
+      final stringRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: largeString,
+      );
       final stringEvent = SentryEvent(
         throwable: Exception(),
         exceptions: [
@@ -524,8 +486,10 @@ void main() {
 
       // Test List<int> - should not be added due to size
       final largeList = List<int>.filled(5000, 1); // 5000 bytes > 4000 limit
-      final listRequest =
-          requestOptions.copyWith(method: 'POST', data: largeList);
+      final listRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: largeList,
+      );
       final listEvent = SentryEvent(
         throwable: Exception(),
         exceptions: [
@@ -603,14 +567,13 @@ void main() {
       final largeFormData = FormData.fromMap({});
       for (int i = 0; i < 200; i++) {
         largeFormData.fields.add(
-          MapEntry(
-            'field$i',
-            'value' * 25,
-          ),
+          MapEntry('field$i', 'value' * 25),
         ); // Each field value is 125 characters, total > 4000
       }
-      final formDataRequest =
-          requestOptions.copyWith(method: 'POST', data: largeFormData);
+      final formDataRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: largeFormData,
+      );
       final formDataEvent = SentryEvent(
         throwable: Exception(),
         exceptions: [
@@ -634,8 +597,10 @@ void main() {
         'x' * 5000,
         filename: 'large.txt',
       ); // 5000 characters > 4000 limit
-      final fileRequest =
-          requestOptions.copyWith(method: 'POST', data: largeFile);
+      final fileRequest = requestOptions.copyWith(
+        method: 'POST',
+        data: largeFile,
+      );
       final fileEvent = SentryEvent(
         throwable: Exception(),
         exceptions: [
@@ -988,8 +953,10 @@ void main() {
       stackTrace: StackTrace.current,
     );
 
-    final extracted =
-        fixture.exceptionFactory.extractor.flatten(dioError, null);
+    final extracted = fixture.exceptionFactory.extractor.flatten(
+      dioError,
+      null,
+    );
     final exceptions = extracted.map((element) {
       return fixture.exceptionFactory.getSentryException(
         element.exception,
@@ -997,10 +964,7 @@ void main() {
       );
     }).toList();
 
-    final event = SentryEvent(
-      throwable: dioError,
-      exceptions: exceptions,
-    );
+    final event = SentryEvent(throwable: dioError, exceptions: exceptions);
 
     final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
@@ -1018,9 +982,7 @@ final requestOptions = RequestOptions(
   path: '/foo/bar',
   baseUrl: 'https://example.org',
   queryParameters: <String, dynamic>{'foo': 'bar'},
-  headers: <String, dynamic>{
-    'foo': 'bar',
-  },
+  headers: <String, dynamic>{'foo': 'bar'},
   method: 'GET',
 );
 

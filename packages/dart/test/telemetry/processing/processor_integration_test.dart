@@ -19,15 +19,16 @@ void main() {
     });
 
     test(
-        'sets up DefaultTelemetryProcessor when NoOpTelemetryProcessor is active',
-        () {
-      final options = fixture.options;
-      expect(options.telemetryProcessor, isA<NoOpTelemetryProcessor>());
+      'sets up DefaultTelemetryProcessor when NoOpTelemetryProcessor is active',
+      () {
+        final options = fixture.options;
+        expect(options.telemetryProcessor, isA<NoOpTelemetryProcessor>());
 
-      fixture.getSut().call(fixture.hub, options);
+        fixture.getSut().call(fixture.hub, options);
 
-      expect(options.telemetryProcessor, isA<DefaultTelemetryProcessor>());
-    });
+        expect(options.telemetryProcessor, isA<DefaultTelemetryProcessor>());
+      },
+    );
 
     test('does not override existing telemetry processor', () {
       final options = fixture.options;
@@ -65,8 +66,10 @@ void main() {
       fixture.getSut().call(fixture.hub, options);
 
       final processor = options.telemetryProcessor as DefaultTelemetryProcessor;
-      expect(processor.spanBuffer,
-          isA<GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2>>());
+      expect(
+        processor.spanBuffer,
+        isA<GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2>>(),
+      );
     });
 
     test('configures span buffer with group key extractor', () {
@@ -78,10 +81,11 @@ void main() {
       final processor = options.telemetryProcessor as DefaultTelemetryProcessor;
 
       expect(
-          (processor.spanBuffer
-                  as GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2>)
-              .groupKey,
-          integration.spanGroupKeyExtractor);
+        (processor.spanBuffer
+                as GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2>)
+            .groupKey,
+        integration.spanGroupKeyExtractor,
+      );
     });
 
     test('spanGroupKeyExtractor uses traceId-spanId format', () {
@@ -130,9 +134,7 @@ void main() {
 
         final processor =
             options.telemetryProcessor as DefaultTelemetryProcessor;
-        processor.addMetric(
-          fixture.createMetric(name: 'x' * (1024 * 1024)),
-        );
+        processor.addMetric(fixture.createMetric(name: 'x' * (1024 * 1024)));
 
         expect(fixture.transport.envelopes, isEmpty);
 
@@ -176,8 +178,7 @@ void main() {
         (true, 'auto'),
         (false, 'never'),
       ]) {
-        test(
-            'span envelope ingest_settings is $expectedSetting '
+        test('span envelope ingest_settings is $expectedSetting '
             'when sendDefaultPii is $sendDefaultPii', () async {
           final options = fixture.options..sendDefaultPii = sendDefaultPii;
           fixture.getSut().call(fixture.hub, options);
@@ -190,7 +191,8 @@ void main() {
           await processor.flush();
 
           final payload = await decodeEnvelopeItemPayload(
-              fixture.transport.envelopes.first);
+            fixture.transport.envelopes.first,
+          );
           expect(payload['ingest_settings'], {
             'infer_ip': expectedSetting,
             'infer_user_agent': expectedSetting,
@@ -213,8 +215,10 @@ void main() {
         processor.addSpan(span);
         await processor.flush();
 
-        expect(fixture.transport.envelopes.first.header.traceContext?.replayId,
-            SentryId.fromId('42'));
+        expect(
+          fixture.transport.envelopes.first.header.traceContext?.replayId,
+          SentryId.fromId('42'),
+        );
       });
 
       test('adds span replay_id attribute to frozen envelope DSC', () async {
@@ -234,8 +238,10 @@ void main() {
         await processor.flush();
 
         expect(dsc.replayId, SentryId.fromId('42'));
-        expect(fixture.transport.envelopes.first.header.traceContext?.replayId,
-            SentryId.fromId('42'));
+        expect(
+          fixture.transport.envelopes.first.header.traceContext?.replayId,
+          SentryId.fromId('42'),
+        );
       });
     });
   });
@@ -297,7 +303,7 @@ class _Fixture {
 
 final class _UnencodableMetric extends SentryMetric {
   _UnencodableMetric({required super.timestamp, required super.traceId})
-      : super(type: 'counter', name: 'test metric', value: 1);
+    : super(type: 'counter', name: 'test metric', value: 1);
 
   @override
   Map<String, dynamic> toJson() => throw StateError('Encoding failed');

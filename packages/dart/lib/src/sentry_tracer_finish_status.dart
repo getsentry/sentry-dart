@@ -9,7 +9,5 @@ class SentryTracerFinishStatus {
 
   SentryTracerFinishStatus.finishing(this.status) : finishing = true;
 
-  SentryTracerFinishStatus.notFinishing()
-      : finishing = false,
-        status = null;
+  SentryTracerFinishStatus.notFinishing() : finishing = false, status = null;
 }

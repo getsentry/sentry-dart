@@ -49,19 +49,27 @@ void main() {
 
         final options = _currentOptions();
         expect(
-            options.integrations
-                .any((i) => i is WidgetsFlutterBindingIntegration),
-            isTrue);
-        expect(options.integrations.any((i) => i is FlutterErrorIntegration),
-            isTrue);
-        expect(options.integrations.any((i) => i is LoadReleaseIntegration),
-            isTrue);
-        expect(options.integrations.any((i) => i is DebugPrintIntegration),
-            isTrue);
+          options.integrations.any(
+            (i) => i is WidgetsFlutterBindingIntegration,
+          ),
+          isTrue,
+        );
         expect(
-            options.integrations
-                .any((i) => i is SentryViewHierarchyIntegration),
-            isTrue);
+          options.integrations.any((i) => i is FlutterErrorIntegration),
+          isTrue,
+        );
+        expect(
+          options.integrations.any((i) => i is LoadReleaseIntegration),
+          isTrue,
+        );
+        expect(
+          options.integrations.any((i) => i is DebugPrintIntegration),
+          isTrue,
+        );
+        expect(
+          options.integrations.any((i) => i is SentryViewHierarchyIntegration),
+          isTrue,
+        );
       });
     });
 
@@ -81,8 +89,9 @@ void main() {
     });
 
     group('Scope sync and native bridge', () {
-      testWidgets('enables scope sync and adds NativeScopeObserver',
-          (tester) async {
+      testWidgets('enables scope sync and adds NativeScopeObserver', (
+        tester,
+      ) async {
         if (kIsWeb) return;
 
         await restoreFlutterOnErrorAfter(() async {
@@ -94,8 +103,9 @@ void main() {
 
         final options = _currentOptions();
         expect(options.enableScopeSync, isTrue);
-        final hasNativeScopeObserver = options.scopeObservers
-            .any((o) => o.runtimeType.toString() == 'NativeScopeObserver');
+        final hasNativeScopeObserver = options.scopeObservers.any(
+          (o) => o.runtimeType.toString() == 'NativeScopeObserver',
+        );
         expect(hasNativeScopeObserver, isTrue);
       });
 
@@ -114,8 +124,9 @@ void main() {
     });
 
     group('Integration registration', () {
-      testWidgets('adds core native integrations (Native SDK, DebugImages)',
-          (tester) async {
+      testWidgets('adds core native integrations (Native SDK, DebugImages)', (
+        tester,
+      ) async {
         if (kIsWeb) return;
 
         await restoreFlutterOnErrorAfter(() async {
@@ -128,15 +139,20 @@ void main() {
         final options = _currentOptions();
         // Core native-related
         expect(
-            options.integrations.any((i) => i is NativeSdkIntegration), isTrue);
+          options.integrations.any((i) => i is NativeSdkIntegration),
+          isTrue,
+        );
         expect(
-            options.integrations
-                .any((i) => i is LoadNativeDebugImagesIntegration),
-            isTrue);
+          options.integrations.any(
+            (i) => i is LoadNativeDebugImagesIntegration,
+          ),
+          isTrue,
+        );
       });
 
-      testWidgets('adds platform-specific integrations (LoadContexts, Replay)',
-          (tester) async {
+      testWidgets('adds platform-specific integrations (LoadContexts, Replay)', (
+        tester,
+      ) async {
         if (kIsWeb) return;
 
         await restoreFlutterOnErrorAfter(() async {
@@ -158,33 +174,48 @@ void main() {
             !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
 
         if (isAndroid) {
-          expect(options.integrations.any((i) => i is LoadContextsIntegration),
-              isTrue);
           expect(
-              options.integrations.any((i) => i is ReplayIntegration), isTrue);
+            options.integrations.any((i) => i is LoadContextsIntegration),
+            isTrue,
+          );
           expect(
-              options.integrations.any((i) => i is ReplayTelemetryIntegration),
-              isTrue);
+            options.integrations.any((i) => i is ReplayIntegration),
+            isTrue,
+          );
+          expect(
+            options.integrations.any((i) => i is ReplayTelemetryIntegration),
+            isTrue,
+          );
         } else if (isIOS) {
-          expect(options.integrations.any((i) => i is LoadContextsIntegration),
-              isTrue);
           expect(
-              options.integrations.any((i) => i is ReplayIntegration), isTrue);
+            options.integrations.any((i) => i is LoadContextsIntegration),
+            isTrue,
+          );
           expect(
-              options.integrations.any((i) => i is ReplayTelemetryIntegration),
-              isTrue);
+            options.integrations.any((i) => i is ReplayIntegration),
+            isTrue,
+          );
+          expect(
+            options.integrations.any((i) => i is ReplayTelemetryIntegration),
+            isTrue,
+          );
         } else if (isMacOS) {
-          expect(options.integrations.any((i) => i is LoadContextsIntegration),
-              isTrue);
+          expect(
+            options.integrations.any((i) => i is LoadContextsIntegration),
+            isTrue,
+          );
           // Replay not supported on macOS by default
           // TODO: this is a minor bug, the integration should not be added for macOS
           // it does not do anything because 'call' is gated behind a flag but we should
           // still not add it
           expect(
-              options.integrations.any((i) => i is ReplayIntegration), isTrue);
+            options.integrations.any((i) => i is ReplayIntegration),
+            isTrue,
+          );
           expect(
-              options.integrations.any((i) => i is ReplayTelemetryIntegration),
-              isFalse);
+            options.integrations.any((i) => i is ReplayTelemetryIntegration),
+            isFalse,
+          );
         }
 
         // Workaround for https://github.com/getsentry/sentry-java/issues/5518:
@@ -209,58 +240,79 @@ void main() {
         });
 
         final options = _currentOptions();
-        final widgetsIdx = options.integrations
-            .indexWhere((i) => i is WidgetsFlutterBindingIntegration);
-        final onErrorIdx =
-            options.integrations.indexWhere((i) => i is OnErrorIntegration);
+        final widgetsIdx = options.integrations.indexWhere(
+          (i) => i is WidgetsFlutterBindingIntegration,
+        );
+        final onErrorIdx = options.integrations.indexWhere(
+          (i) => i is OnErrorIntegration,
+        );
         expect(widgetsIdx, greaterThanOrEqualTo(0));
         expect(onErrorIdx, greaterThanOrEqualTo(0));
         expect(widgetsIdx < onErrorIdx, isTrue);
       });
 
       testWidgets(
-          'adds web integrations and orders RunZonedGuarded before Widgets',
-          (tester) async {
-        if (!kIsWeb) return;
+        'adds web integrations and orders RunZonedGuarded before Widgets',
+        (tester) async {
+          if (!kIsWeb) return;
 
-        await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((o) {
-            o.dsn = fakeDsn;
-            o.debug = true;
-          }, appRunner: () async {});
-        });
+          await restoreFlutterOnErrorAfter(() async {
+            await SentryFlutter.init((o) {
+              o.dsn = fakeDsn;
+              o.debug = true;
+            }, appRunner: () async {});
+          });
 
-        final options = _currentOptions();
-        // Web-specific integrations
-        expect(options.integrations.any((i) => i is ConnectivityIntegration),
-            isTrue);
-        expect(options.integrations.any((i) => i is WebSessionIntegration),
-            isTrue);
-        expect(options.integrations.any((i) => i is GenericAppStartIntegration),
-            isTrue);
+          final options = _currentOptions();
+          // Web-specific integrations
+          expect(
+            options.integrations.any((i) => i is ConnectivityIntegration),
+            isTrue,
+          );
+          expect(
+            options.integrations.any((i) => i is WebSessionIntegration),
+            isTrue,
+          );
+          expect(
+            options.integrations.any((i) => i is GenericAppStartIntegration),
+            isTrue,
+          );
 
-        // Should not be present on web
-        expect(
-            options.integrations.any((i) => i is OnErrorIntegration), isFalse);
-        expect(options.integrations.any((i) => i is ThreadInfoIntegration),
-            isFalse);
-        expect(options.integrations.any((i) => i is LoadContextsIntegration),
-            isFalse);
-        expect(
-            options.integrations.any((i) => i is ReplayIntegration), isFalse);
-        expect(options.integrations.any((i) => i is ReplayTelemetryIntegration),
-            isFalse);
+          // Should not be present on web
+          expect(
+            options.integrations.any((i) => i is OnErrorIntegration),
+            isFalse,
+          );
+          expect(
+            options.integrations.any((i) => i is ThreadInfoIntegration),
+            isFalse,
+          );
+          expect(
+            options.integrations.any((i) => i is LoadContextsIntegration),
+            isFalse,
+          );
+          expect(
+            options.integrations.any((i) => i is ReplayIntegration),
+            isFalse,
+          );
+          expect(
+            options.integrations.any((i) => i is ReplayTelemetryIntegration),
+            isFalse,
+          );
 
-        // Ordering: RunZonedGuarded before Widgets
-        final runZonedIdx = options.integrations
-            .indexWhere((i) => i is RunZonedGuardedIntegration);
-        final widgetsIdx = options.integrations
-            .indexWhere((i) => i is WidgetsFlutterBindingIntegration);
-        expect(widgetsIdx, greaterThanOrEqualTo(0));
-        if (runZonedIdx >= 0) {
-          expect(runZonedIdx < widgetsIdx, isTrue);
-        }
-      });
+          // Ordering: RunZonedGuarded before Widgets
+          final runZonedIdx = options.integrations.indexWhere(
+            (i) => i is RunZonedGuardedIntegration,
+          );
+          final widgetsIdx = options.integrations.indexWhere(
+            (i) => i is WidgetsFlutterBindingIntegration,
+          );
+          expect(widgetsIdx, greaterThanOrEqualTo(0));
+          if (runZonedIdx >= 0) {
+            expect(runZonedIdx < widgetsIdx, isTrue);
+          }
+        },
+      );
     });
 
     group('Event processor ordering', () {
@@ -282,11 +334,14 @@ void main() {
             !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
         if (isAndroid || isIOS || isMacOS) {
           final processors = options.eventProcessors;
-          final enricherIndex =
-              processors.indexWhere((p) => p is FlutterEnricherEventProcessor);
-          final loadContextsIndex = processors.indexWhere((p) =>
-              p.runtimeType.toString() ==
-              '_LoadContextsIntegrationEventProcessor');
+          final enricherIndex = processors.indexWhere(
+            (p) => p is FlutterEnricherEventProcessor,
+          );
+          final loadContextsIndex = processors.indexWhere(
+            (p) =>
+                p.runtimeType.toString() ==
+                '_LoadContextsIntegrationEventProcessor',
+          );
           expect(enricherIndex, greaterThanOrEqualTo(0));
           expect(loadContextsIndex, greaterThanOrEqualTo(0));
           expect(enricherIndex, lessThan(loadContextsIndex));
@@ -330,8 +385,9 @@ void main() {
         });
 
         final options = _currentOptions();
-        final hasThreadInfo = options.integrations
-            .any((integration) => integration is ThreadInfoIntegration);
+        final hasThreadInfo = options.integrations.any(
+          (integration) => integration is ThreadInfoIntegration,
+        );
         if (kIsWeb) {
           expect(hasThreadInfo, isFalse);
         } else {
@@ -341,8 +397,9 @@ void main() {
     });
 
     group('Dart symbolication', () {
-      testWidgets('disables Dart symbolication when native is present',
-          (tester) async {
+      testWidgets('disables Dart symbolication when native is present', (
+        tester,
+      ) async {
         await restoreFlutterOnErrorAfter(() async {
           await SentryFlutter.init((o) {
             o.dsn = fakeDsn;
@@ -367,7 +424,9 @@ void main() {
 
         final options = _currentOptions();
         expect(
-            options.exceptionTypeIdentifiers.length, greaterThanOrEqualTo(2));
+          options.exceptionTypeIdentifiers.length,
+          greaterThanOrEqualTo(2),
+        );
 
         expect(
           options.exceptionTypeIdentifiers.first,
@@ -398,8 +457,9 @@ void main() {
         });
 
         final options = _currentOptions();
-        final hasScreenshotIntegration = options.integrations
-            .any((integration) => integration is ScreenshotIntegration);
+        final hasScreenshotIntegration = options.integrations.any(
+          (integration) => integration is ScreenshotIntegration,
+        );
         expect(hasScreenshotIntegration, isTrue);
       });
     });

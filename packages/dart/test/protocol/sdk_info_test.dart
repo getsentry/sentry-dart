@@ -25,10 +25,7 @@ void main() {
     test('toJson', () {
       final json = sdkInfo.toJson();
 
-      expect(
-        MapEquality().equals(sdkInfoJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sdkInfoJson, json), true);
     });
     test('fromJson', () {
       final sdkInfo = SdkInfo.fromJson(sdkInfoJson);
@@ -37,10 +34,7 @@ void main() {
       print(sdkInfo);
       print(json);
 
-      expect(
-        MapEquality().equals(sdkInfoJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sdkInfoJson, json), true);
     });
   });
 }

@@ -54,11 +54,14 @@ void main() {
     group('enabled', () {
       testWidgets('Sentry JS SDK initialized', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((options) {
-            options.dsn = fakeDsn;
-          }, appRunner: () async {
-            await tester.pumpWidget(const app.MyApp());
-          });
+          await SentryFlutter.init(
+            (options) {
+              options.dsn = fakeDsn;
+            },
+            appRunner: () async {
+              await tester.pumpWidget(const app.MyApp());
+            },
+          );
         });
 
         expect(globalThis['Sentry'], isNotNull);
@@ -77,15 +80,18 @@ void main() {
         SentryEvent? dartEvent;
 
         await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((options) {
-            options.dsn = fakeDsn;
-            options.beforeSend = (event, hint) {
-              dartEvent = event;
-              return event;
-            };
-          }, appRunner: () async {
-            await tester.pumpWidget(const app.MyApp());
-          });
+          await SentryFlutter.init(
+            (options) {
+              options.dsn = fakeDsn;
+              options.beforeSend = (event, hint) {
+                dartEvent = event;
+                return event;
+              };
+            },
+            appRunner: () async {
+              await tester.pumpWidget(const app.MyApp());
+            },
+          );
         });
 
         final client = _getClient()!;
@@ -109,8 +115,10 @@ void main() {
 
         final header = envelope.first as Map<Object?, Object?>;
         expect(header['event_id'], id.toString());
-        expect((header['sdk'] as Map<Object?, Object?>)['name'],
-            'sentry.dart.flutter');
+        expect(
+          (header['sdk'] as Map<Object?, Object?>)['name'],
+          'sentry.dart.flutter',
+        );
 
         final item = (envelope[1] as List).first as List<Object?>;
         final itemPayload =
@@ -127,21 +135,23 @@ void main() {
         expect(jsEventJson, equals(dartEventJson));
       });
 
-      testWidgets('includes single-view supporting integrations',
-          (tester) async {
+      testWidgets('includes single-view supporting integrations', (
+        tester,
+      ) async {
         SentryFlutterOptions? confOptions;
 
         await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((options) {
-            options.dsn = fakeDsn;
-            options.attachScreenshot = true;
+          await SentryFlutter.init(
+            (options) {
+              options.dsn = fakeDsn;
+              options.attachScreenshot = true;
 
-            confOptions = options;
-          }, appRunner: () async {
-            await tester.pumpWidget(
-              SentryWidget(child: const app.MyApp()),
-            );
-          });
+              confOptions = options;
+            },
+            appRunner: () async {
+              await tester.pumpWidget(SentryWidget(child: const app.MyApp()));
+            },
+          );
         });
         expect(
           confOptions?.sdk.integrations.contains("screenshotIntegration"),
@@ -151,25 +161,20 @@ void main() {
           confOptions?.sdk.integrations.contains("widgetsBindingIntegration"),
           isTrue,
         );
-        expect(
-          find.byType(SentryScreenshotWidget),
-          findsOneWidget,
-        );
-        expect(
-          find.byType(SentryUserInteractionWidget),
-          findsOneWidget,
-        );
+        expect(find.byType(SentryScreenshotWidget), findsOneWidget);
+        expect(find.byType(SentryUserInteractionWidget), findsOneWidget);
       });
 
       testWidgets('send session update if unhandled error', (tester) async {
         await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((options) {
-            options.dsn = fakeDsn;
-          }, appRunner: () async {
-            await tester.pumpWidget(
-              SentryWidget(child: const app.MyApp()),
-            );
-          });
+          await SentryFlutter.init(
+            (options) {
+              options.dsn = fakeDsn;
+            },
+            appRunner: () async {
+              await tester.pumpWidget(SentryWidget(child: const app.MyApp()));
+            },
+          );
         });
 
         final client = _getClient()!;
@@ -183,27 +188,32 @@ void main() {
         client.on('beforeSendSession'.toJS, beforeSendSessionCallback);
 
         final mechanism = Mechanism(type: 'FlutterError', handled: false);
-        final throwableMechanism =
-            ThrowableMechanism(mechanism, Exception('test'));
+        final throwableMechanism = ThrowableMechanism(
+          mechanism,
+          Exception('test'),
+        );
         await Sentry.captureException(throwableMechanism);
 
-        final session =
-            await completer.future.timeout(const Duration(seconds: 5));
+        final session = await completer.future.timeout(
+          const Duration(seconds: 5),
+        );
 
         expect(session['status'], 'crashed');
         expect(session['errors'], 1);
       });
 
-      testWidgets('send session update if handled error and error count = 0',
-          (tester) async {
+      testWidgets('send session update if handled error and error count = 0', (
+        tester,
+      ) async {
         await restoreFlutterOnErrorAfter(() async {
-          await SentryFlutter.init((options) {
-            options.dsn = fakeDsn;
-          }, appRunner: () async {
-            await tester.pumpWidget(
-              SentryWidget(child: const app.MyApp()),
-            );
-          });
+          await SentryFlutter.init(
+            (options) {
+              options.dsn = fakeDsn;
+            },
+            appRunner: () async {
+              await tester.pumpWidget(SentryWidget(child: const app.MyApp()));
+            },
+          );
         });
 
         final client = _getClient()!;
@@ -218,8 +228,9 @@ void main() {
 
         await Sentry.captureException(Exception('test'));
 
-        final session =
-            await completer.future.timeout(const Duration(seconds: 5));
+        final session = await completer.future.timeout(
+          const Duration(seconds: 5),
+        );
 
         expect(session['status'], 'ok');
         expect(session['errors'], 1);
@@ -230,12 +241,15 @@ void main() {
   group('disabled', () {
     testWidgets('Sentry JS SDK is not initialized', (tester) async {
       await restoreFlutterOnErrorAfter(() async {
-        await SentryFlutter.init((options) {
-          options.dsn = fakeDsn;
-          options.autoInitializeNativeSdk = false;
-        }, appRunner: () async {
-          await tester.pumpWidget(const app.MyApp());
-        });
+        await SentryFlutter.init(
+          (options) {
+            options.dsn = fakeDsn;
+            options.autoInitializeNativeSdk = false;
+          },
+          appRunner: () async {
+            await tester.pumpWidget(const app.MyApp());
+          },
+        );
       });
 
       expect(globalThis['Sentry'], isNull);

@@ -134,25 +134,21 @@ class SentryHiveImpl implements SentryHiveInterface {
     String? collection,
     @Deprecated('Use encryptionCipher instead') List<int>? encryptionKey,
   }) {
-    return _spanHelper.asyncWrapInSpan(
-      'openBox',
-      () async {
-        final Box<E> box = await _hive.openBox(
-          name,
-          encryptionCipher: encryptionCipher,
-          keyComparator: keyComparator,
-          compactionStrategy: compactionStrategy,
-          crashRecovery: crashRecovery,
-          path: path,
-          bytes: bytes,
-          collection: collection,
-          // ignore: deprecated_member_use
-          encryptionKey: encryptionKey,
-        );
-        return SentryBox(box, _hub);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('openBox', () async {
+      final Box<E> box = await _hive.openBox(
+        name,
+        encryptionCipher: encryptionCipher,
+        keyComparator: keyComparator,
+        compactionStrategy: compactionStrategy,
+        crashRecovery: crashRecovery,
+        path: path,
+        bytes: bytes,
+        collection: collection,
+        // ignore: deprecated_member_use
+        encryptionKey: encryptionKey,
+      );
+      return SentryBox(box, _hub);
+    }, dbName: name);
   }
 
   @override
@@ -166,24 +162,20 @@ class SentryHiveImpl implements SentryHiveInterface {
     String? collection,
     @Deprecated('Use encryptionCipher instead') List<int>? encryptionKey,
   }) {
-    return _spanHelper.asyncWrapInSpan(
-      'openLazyBox',
-      () async {
-        final LazyBox<E> lazyBox = await _hive.openLazyBox(
-          name,
-          encryptionCipher: encryptionCipher,
-          keyComparator: keyComparator,
-          compactionStrategy: compactionStrategy,
-          crashRecovery: crashRecovery,
-          path: path,
-          collection: collection,
-          // ignore: deprecated_member_use
-          encryptionKey: encryptionKey,
-        );
-        return SentryLazyBox(lazyBox, _hub);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('openLazyBox', () async {
+      final LazyBox<E> lazyBox = await _hive.openLazyBox(
+        name,
+        encryptionCipher: encryptionCipher,
+        keyComparator: keyComparator,
+        compactionStrategy: compactionStrategy,
+        crashRecovery: crashRecovery,
+        path: path,
+        collection: collection,
+        // ignore: deprecated_member_use
+        encryptionKey: encryptionKey,
+      );
+      return SentryLazyBox(lazyBox, _hub);
+    }, dbName: name);
   }
 
   @override

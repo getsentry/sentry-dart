@@ -13,8 +13,10 @@ void main() {
     });
 
     test('multiple string replacements', () {
-      final sut =
-          fixture.getSut("Hello, %s! You are %s years old.", ['John', '25']);
+      final sut = fixture.getSut("Hello, %s! You are %s years old.", [
+        'John',
+        '25',
+      ]);
       final result = sut.format();
 
       expect(result, 'Hello, John! You are 25 years old.');
@@ -42,8 +44,12 @@ void main() {
     });
 
     test('mixed argument types', () {
-      final sut = fixture.getSut("Name: %s, Age: %s, Active: %s, Score: %s",
-          ['Alice', 30, true, 95.5]);
+      final sut = fixture.getSut("Name: %s, Age: %s, Active: %s, Score: %s", [
+        'Alice',
+        30,
+        true,
+        95.5,
+      ]);
       final result = sut.format();
 
       expect(result, 'Name: Alice, Age: 30, Active: true, Score: 95.5');
@@ -76,25 +82,30 @@ void main() {
     });
 
     test('unsupported type with toString()', () {
-      final sut =
-          fixture.getSut("The object is %s", [CustomObject('test value')]);
+      final sut = fixture.getSut("The object is %s", [
+        CustomObject('test value'),
+      ]);
       final result = sut.format();
 
       expect(result, 'The object is CustomObject: test value');
     });
 
-    test('unsupported type with throwing toString() falls back to empty string',
-        () {
-      final sut =
-          fixture.getSut("The object is %s", [ThrowingToStringObject()]);
-      final result = sut.format();
+    test(
+      'unsupported type with throwing toString() falls back to empty string',
+      () {
+        final sut = fixture.getSut("The object is %s", [
+          ThrowingToStringObject(),
+        ]);
+        final result = sut.format();
 
-      expect(result, 'The object is ');
-    });
+        expect(result, 'The object is ');
+      },
+    );
 
     test('unsupported type with default toString()', () {
-      final sut =
-          fixture.getSut("The object is %s", [NoToStringMethodObject()]);
+      final sut = fixture.getSut("The object is %s", [
+        NoToStringMethodObject(),
+      ]);
       final result = sut.format();
 
       expect(result, 'The object is Instance of \'NoToStringMethodObject\'');
@@ -108,8 +119,9 @@ void main() {
     });
 
     test('template with literal % character', () {
-      final sut = fixture
-          .getSut("The percentage is 50%%, with no extra %s", ['values']);
+      final sut = fixture.getSut("The percentage is 50%%, with no extra %s", [
+        'values',
+      ]);
       final result = sut.format();
 
       expect(result, 'The percentage is 50%, with no extra values');

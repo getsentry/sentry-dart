@@ -30,8 +30,9 @@ class RecursiveExceptionCauseExtractor {
           ? currentException.throwable
           : currentException;
 
-      final extractor =
-          _options.exceptionCauseExtractor(extractionSourceSource.runtimeType);
+      final extractor = _options.exceptionCauseExtractor(
+        extractionSourceSource.runtimeType,
+      );
 
       try {
         currentExceptionCause = extractor?.cause(extractionSourceSource);

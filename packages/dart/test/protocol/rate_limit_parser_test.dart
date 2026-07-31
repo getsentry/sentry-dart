@@ -13,8 +13,9 @@ void main() {
     });
 
     test('single rate limit with multiple categories', () {
-      final sut =
-          RateLimitParser('50:transaction;session').parseRateLimitHeader();
+      final sut = RateLimitParser(
+        '50:transaction;session',
+      ).parseRateLimitHeader();
 
       expect(sut.length, 2);
       expect(sut[0].category, DataCategory.transaction);
@@ -38,8 +39,9 @@ void main() {
     });
 
     test('multiple rate limits', () {
-      final sut =
-          RateLimitParser('50:transaction, 70:session').parseRateLimitHeader();
+      final sut = RateLimitParser(
+        '50:transaction, 70:session',
+      ).parseRateLimitHeader();
 
       expect(sut.length, 2);
       expect(sut[0].category, DataCategory.transaction);
@@ -49,8 +51,9 @@ void main() {
     });
 
     test('multiple rate limits with same category', () {
-      final sut = RateLimitParser('50:transaction, 70:transaction')
-          .parseRateLimitHeader();
+      final sut = RateLimitParser(
+        '50:transaction, 70:transaction',
+      ).parseRateLimitHeader();
 
       expect(sut.length, 2);
       expect(sut[0].category, DataCategory.transaction);
@@ -72,14 +75,16 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, DataCategory.transaction);
-      expect(sut[0].duration.inMilliseconds,
-          RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
+      expect(
+        sut[0].duration.inMilliseconds,
+        RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds,
+      );
     });
 
     test('do not parse namespaces if not metric_bucket', () {
-      final sut =
-          RateLimitParser('1:transaction:organization:quota_exceeded:custom')
-              .parseRateLimitHeader();
+      final sut = RateLimitParser(
+        '1:transaction:organization:quota_exceeded:custom',
+      ).parseRateLimitHeader();
 
       expect(sut.length, 1);
       expect(sut[0].category, DataCategory.transaction);
@@ -87,9 +92,9 @@ void main() {
     });
 
     test('parse namespaces on metric_bucket', () {
-      final sut =
-          RateLimitParser('1:metric_bucket:organization:quota_exceeded:custom')
-              .parseRateLimitHeader();
+      final sut = RateLimitParser(
+        '1:metric_bucket:organization:quota_exceeded:custom',
+      ).parseRateLimitHeader();
 
       expect(sut.length, 1);
       expect(sut[0].category, DataCategory.metricBucket);
@@ -98,9 +103,9 @@ void main() {
     });
 
     test('parse empty namespaces on metric_bucket', () {
-      final sut =
-          RateLimitParser('1:metric_bucket:organization:quota_exceeded:')
-              .parseRateLimitHeader();
+      final sut = RateLimitParser(
+        '1:metric_bucket:organization:quota_exceeded:',
+      ).parseRateLimitHeader();
 
       expect(sut.length, 1);
       expect(sut[0].category, DataCategory.metricBucket);
@@ -124,8 +129,9 @@ void main() {
     });
 
     test('parse trace_metric_byte category', () {
-      final sut =
-          RateLimitParser('60:trace_metric_byte').parseRateLimitHeader();
+      final sut = RateLimitParser(
+        '60:trace_metric_byte',
+      ).parseRateLimitHeader();
 
       expect(sut.length, 1);
       expect(sut[0].category, DataCategory.metricByte);
@@ -163,8 +169,10 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, DataCategory.all);
-      expect(sut[0].duration.inMilliseconds,
-          RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
+      expect(
+        sut[0].duration.inMilliseconds,
+        RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds,
+      );
     });
 
     test('parseable returns default category with duration in millis', () {
@@ -180,8 +188,10 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, DataCategory.all);
-      expect(sut[0].duration.inMilliseconds,
-          RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
+      expect(
+        sut[0].duration.inMilliseconds,
+        RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds,
+      );
     });
   });
 }

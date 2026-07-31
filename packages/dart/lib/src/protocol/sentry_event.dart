@@ -15,7 +15,8 @@ class SentryEvent {
     Map<String, String>? modules,
     Map<String, String>? tags,
     @Deprecated(
-        'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+      'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible',
+    )
     Map<String, dynamic>? extra,
     List<String>? fingerprint,
     List<Breadcrumb>? breadcrumbs,
@@ -30,7 +31,7 @@ class SentryEvent {
     this.environment,
     this.message,
     this.transaction,
-    dynamic throwable,
+    this._throwable,
     this.level,
     this.culprit,
     this.user,
@@ -39,18 +40,17 @@ class SentryEvent {
     this.debugMeta,
     this.type,
     this.unknown,
-  })  : eventId = eventId ?? SentryId.newId(),
-        timestamp = timestamp ?? getUtcDateTime(),
-        contexts = contexts ?? Contexts(),
-        modules = modules != null ? Map.from(modules) : null,
-        tags = tags != null ? Map.from(tags) : null,
-        // ignore: deprecated_member_use_from_same_package
-        extra = extra != null ? Map.from(extra) : null,
-        fingerprint = fingerprint != null ? List.from(fingerprint) : null,
-        breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
-        exceptions = exceptions != null ? List.from(exceptions) : null,
-        threads = threads != null ? List.from(threads) : null,
-        _throwable = throwable;
+  }) : eventId = eventId ?? SentryId.newId(),
+       timestamp = timestamp ?? getUtcDateTime(),
+       contexts = contexts ?? Contexts(),
+       modules = modules != null ? Map.from(modules) : null,
+       tags = tags != null ? Map.from(tags) : null,
+       // ignore: deprecated_member_use_from_same_package
+       extra = extra != null ? Map.from(extra) : null,
+       fingerprint = fingerprint != null ? List.from(fingerprint) : null,
+       breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
+       exceptions = exceptions != null ? List.from(exceptions) : null,
+       threads = threads != null ? List.from(threads) : null;
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -133,7 +133,8 @@ class SentryEvent {
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
   @Deprecated(
-      'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+    'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible',
+  )
   Map<String, dynamic>? extra;
 
   /// List of breadcrumbs for this event.
@@ -232,14 +233,16 @@ class SentryEvent {
 
     return SentryEvent(
       eventId: SentryId.fromId(json['event_id']),
-      timestamp:
-          timestampJson != null ? DateTime.tryParse(timestampJson) : null,
+      timestamp: timestampJson != null
+          ? DateTime.tryParse(timestampJson)
+          : null,
       modules: modules,
       tags: tags,
       // ignore: deprecated_member_use_from_same_package
       extra: extra,
-      fingerprint:
-          fingerprintJson?.map((e) => e as String).toList(growable: false),
+      fingerprint: fingerprintJson
+          ?.map((e) => e as String)
+          .toList(growable: false),
       breadcrumbs: breadcrumbs,
       sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
           ? SdkVersion.fromJson(sdkVersionJson)
@@ -332,8 +335,9 @@ class SentryEvent {
       if (type != null) 'type': type,
       if (fingerprint?.isNotEmpty ?? false) 'fingerprint': fingerprint,
       if (breadcrumbs?.isNotEmpty ?? false)
-        'breadcrumbs':
-            breadcrumbs?.map((b) => b.toJson()).toList(growable: false),
+        'breadcrumbs': breadcrumbs
+            ?.map((b) => b.toJson())
+            .toList(growable: false),
       if (messageMap?.isNotEmpty ?? false) 'message': messageMap,
       if (contextsMap.isNotEmpty) 'contexts': contextsMap,
       if (userMap?.isNotEmpty ?? false) 'user': userMap,

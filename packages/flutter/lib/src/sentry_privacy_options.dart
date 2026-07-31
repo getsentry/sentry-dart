@@ -7,7 +7,7 @@ import 'screenshot/masking_config.dart';
 import 'screenshot/widget_filter.dart';
 import 'utils/internal_logger.dart';
 
-/// Configuration of the experimental privacy feature.
+/// Configuration of the privacy feature.
 class SentryPrivacyOptions {
   /// Mask all text content. Draws a rectangle of text bounds with text color
   /// on top. Currently, only [Text] and [EditableText] Widgets are masked.
@@ -127,7 +127,6 @@ class SentryPrivacyOptions {
   /// Mask given widget type [T] (or subclasses of [T]) in the replay.
   /// Note: masking rules are called in the order they're added so if a previous
   /// rule already makes a decision, this rule won't be called.
-  @experimental
   void mask<T extends Widget>({String? name, String? description}) {
     assert(T != SentryMask);
     assert(T != SentryUnmask);
@@ -147,7 +146,6 @@ class SentryPrivacyOptions {
   /// so no other rules will be checked for the children.
   /// Note: masking rules are called in the order they're added so if a previous
   /// rule already makes a decision, this rule won't be called.
-  @experimental
   void unmask<T extends Widget>({String? name, String? description}) {
     assert(T != SentryMask);
     assert(T != SentryUnmask);
@@ -164,7 +162,6 @@ class SentryPrivacyOptions {
   /// [T] (or subclasses of [T]).
   /// Note: masking rules are called in the order they're added so if a previous
   /// rule already makes a decision, this rule won't be called.
-  @experimental
   void maskCallback<T extends Widget>(
     SentryMaskingDecision Function(Element, T) shouldMask, {
     String? name,

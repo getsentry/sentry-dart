@@ -102,8 +102,9 @@ void main() {
       final exception = SentryException(
         type: 'Exception',
         value: 'an exception',
-        stackTrace: SentryStackTraceFactory(fixture.options)
-            .parse('#0      baz (file:///pathto/test.dart:50:3)'),
+        stackTrace: SentryStackTraceFactory(
+          fixture.options,
+        ).parse('#0      baz (file:///pathto/test.dart:50:3)'),
       );
       final event = SentryEvent(exceptions: [exception]);
 
@@ -144,7 +145,7 @@ void main() {
       },
       onPlatform: {
         'js': Skip("Isolates don't exist on the web"),
-        'wasm': Skip("Isolates don't exist on the web")
+        'wasm': Skip("Isolates don't exist on the web"),
       },
     );
 
@@ -186,9 +187,7 @@ void main() {
 
     test('capture message defaults to info level', () async {
       final client = fixture.getSut();
-      await client.captureMessage(
-        'simple message 1',
-      );
+      await client.captureMessage('simple message 1');
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
@@ -256,9 +255,7 @@ void main() {
     });
 
     test('should capture exception cause', () async {
-      fixture.options.addExceptionCauseExtractor(
-        ExceptionWithCauseExtractor(),
-      );
+      fixture.options.addExceptionCauseExtractor(ExceptionWithCauseExtractor());
 
       final cause = Object();
       exception = ExceptionWithCause(cause, null);
@@ -289,9 +286,7 @@ void main() {
     });
 
     test('should capture cause stacktrace', () async {
-      fixture.options.addExceptionCauseExtractor(
-        ExceptionWithCauseExtractor(),
-      );
+      fixture.options.addExceptionCauseExtractor(ExceptionWithCauseExtractor());
 
       final cause = Object();
       final stackTrace = '''
@@ -312,8 +307,10 @@ void main() {
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.exceptions?[0].stackTrace, isNotNull);
-      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.fileName,
-          'test.dart');
+      expect(
+        capturedEvent.exceptions?[0].stackTrace!.frames.first.fileName,
+        'test.dart',
+      );
       expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.lineNo, 46);
       expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.colNo, 9);
     });
@@ -341,59 +338,62 @@ void main() {
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.exceptions?[0].stackTrace, isNotNull);
-      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.fileName,
-          'test.dart');
+      expect(
+        capturedEvent.exceptions?[0].stackTrace!.frames.first.fileName,
+        'test.dart',
+      );
       expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.lineNo, 46);
       expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.colNo, 9);
     });
 
-    test('should not capture cause stacktrace when attachStacktrace is false',
-        () async {
-      fixture.options.addExceptionCauseExtractor(
-        ExceptionWithCauseExtractor(),
-      );
+    test(
+      'should not capture cause stacktrace when attachStacktrace is false',
+      () async {
+        fixture.options.addExceptionCauseExtractor(
+          ExceptionWithCauseExtractor(),
+        );
 
-      final cause = Object();
-      exception = ExceptionWithCause(cause, null);
+        final cause = Object();
+        exception = ExceptionWithCause(cause, null);
 
-      final client = fixture.getSut(
-        attachStacktrace: false,
-        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
-      );
-      await client.captureException(exception, stackTrace: null);
+        final client = fixture.getSut(
+          attachStacktrace: false,
+          eventProcessor: ExceptionGroupEventProcessor(fixture.options),
+        );
+        await client.captureException(exception, stackTrace: null);
 
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exceptions?[0].stackTrace, isNull);
-    });
+        expect(capturedEvent.exceptions?[0].stackTrace, isNull);
+      },
+    );
 
     test(
-        'should not capture cause stacktrace when attachStacktrace is false and StackTrace.empty',
-        () async {
-      fixture.options.addExceptionCauseExtractor(
-        ExceptionWithCauseExtractor(),
-      );
+      'should not capture cause stacktrace when attachStacktrace is false and StackTrace.empty',
+      () async {
+        fixture.options.addExceptionCauseExtractor(
+          ExceptionWithCauseExtractor(),
+        );
 
-      final cause = Object();
-      exception = ExceptionWithCause(cause, StackTrace.empty);
+        final cause = Object();
+        exception = ExceptionWithCause(cause, StackTrace.empty);
 
-      final client = fixture.getSut(
-        attachStacktrace: false,
-        eventProcessor: ExceptionGroupEventProcessor(fixture.options),
-      );
-      await client.captureException(exception, stackTrace: null);
+        final client = fixture.getSut(
+          attachStacktrace: false,
+          eventProcessor: ExceptionGroupEventProcessor(fixture.options),
+        );
+        await client.captureException(exception, stackTrace: null);
 
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exceptions?[0].stackTrace, isNull);
-    });
+        expect(capturedEvent.exceptions?[0].stackTrace, isNull);
+      },
+    );
 
     test('should capture cause exception with Stackframe.current', () async {
-      fixture.options.addExceptionCauseExtractor(
-        ExceptionWithCauseExtractor(),
-      );
+      fixture.options.addExceptionCauseExtractor(ExceptionWithCauseExtractor());
 
       final cause = Object();
       exception = ExceptionWithCause(cause, null);
@@ -411,9 +411,7 @@ void main() {
     });
 
     test('should capture sentry frames exception', () async {
-      fixture.options.addExceptionCauseExtractor(
-        ExceptionWithCauseExtractor(),
-      );
+      fixture.options.addExceptionCauseExtractor(ExceptionWithCauseExtractor());
 
       final cause = Object();
       final stackTrace = '''
@@ -473,10 +471,14 @@ void main() {
 
       expect(capturedEvent.exceptions?.first is SentryException, true);
       expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
-      expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.fileName,
-          'test.dart');
       expect(
-          capturedEvent.exceptions?.first.stackTrace!.frames.first.lineNo, 46);
+        capturedEvent.exceptions?.first.stackTrace!.frames.first.fileName,
+        'test.dart',
+      );
+      expect(
+        capturedEvent.exceptions?.first.stackTrace!.frames.first.lineNo,
+        46,
+      );
       expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.colNo, 9);
     });
 
@@ -494,10 +496,14 @@ void main() {
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.exceptions?.first is SentryException, true);
-      expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.fileName,
-          'test.dart');
       expect(
-          capturedEvent.exceptions?.first.stackTrace!.frames.first.lineNo, 46);
+        capturedEvent.exceptions?.first.stackTrace!.frames.first.fileName,
+        'test.dart',
+      );
+      expect(
+        capturedEvent.exceptions?.first.stackTrace!.frames.first.lineNo,
+        46,
+      );
       expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.colNo, 9);
     });
 
@@ -554,8 +560,9 @@ void main() {
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(
-        capturedEvent.exceptions?.first.stackTrace!.frames
-            .any((frame) => frame.package == 'sentry'),
+        capturedEvent.exceptions?.first.stackTrace!.frames.any(
+          (frame) => frame.package == 'sentry',
+        ),
         true,
       );
     });
@@ -603,20 +610,21 @@ void main() {
     });
 
     test(
-        'when scope does not have an active transaction, trace state is set on the envelope from scope',
-        () async {
-      final client = fixture.getSut();
-      final scope = Scope(fixture.options);
-      await client.captureEvent(SentryEvent(), scope: scope);
+      'when scope does not have an active transaction, trace state is set on the envelope from scope',
+      () async {
+        final client = fixture.getSut();
+        final scope = Scope(fixture.options);
+        await client.captureEvent(SentryEvent(), scope: scope);
 
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedTraceContext = capturedEnvelope.header.traceContext;
-      final capturedTraceId = capturedTraceContext?.traceId;
-      final propagationContextTraceId = scope.propagationContext.traceId;
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedTraceContext = capturedEnvelope.header.traceContext;
+        final capturedTraceId = capturedTraceContext?.traceId;
+        final propagationContextTraceId = scope.propagationContext.traceId;
 
-      expect(capturedTraceContext, isNotNull);
-      expect(capturedTraceId, propagationContextTraceId);
-    });
+        expect(capturedTraceContext, isNotNull);
+        expect(capturedTraceId, propagationContextTraceId);
+      },
+    );
 
     test('attaches trace context from span if none present yet', () async {
       final client = fixture.getSut();
@@ -637,21 +645,24 @@ void main() {
     });
 
     test(
-        'attaches trace context from scope if none present yet and no span on scope',
-        () async {
-      final client = fixture.getSut();
+      'attaches trace context from scope if none present yet and no span on scope',
+      () async {
+        final client = fixture.getSut();
 
-      final scope = Scope(fixture.options);
-      final scopePropagationContext = scope.propagationContext;
+        final scope = Scope(fixture.options);
+        final scopePropagationContext = scope.propagationContext;
 
-      final sentryEvent = SentryEvent();
-      await client.captureEvent(sentryEvent, scope: scope);
+        final sentryEvent = SentryEvent();
+        await client.captureEvent(sentryEvent, scope: scope);
 
-      expect(fixture.transport.envelopes.length, 1);
-      expect(
-          scopePropagationContext.traceId, sentryEvent.contexts.trace!.traceId);
-      // not checking for span id as it should be a new generated random span id
-    });
+        expect(fixture.transport.envelopes.length, 1);
+        expect(
+          scopePropagationContext.traceId,
+          sentryEvent.contexts.trace!.traceId,
+        );
+        // not checking for span id as it should be a new generated random span id
+      },
+    );
 
     test('keeps existing trace context if already present', () async {
       final client = fixture.getSut();
@@ -666,9 +677,10 @@ void main() {
 
       final propagationContext = scope.propagationContext;
       final preExistingSpanContext = SentryTraceContext(
-          traceId: SentryId.newId(),
-          spanId: SpanId.newId(),
-          operation: 'op.load');
+        traceId: SentryId.newId(),
+        spanId: SpanId.newId(),
+        operation: 'op.load',
+      );
 
       final sentryEvent = SentryEvent();
       sentryEvent.contexts.trace = preExistingSpanContext;
@@ -676,59 +688,67 @@ void main() {
 
       expect(fixture.transport.envelopes.length, 1);
       expect(
-          preExistingSpanContext.traceId, sentryEvent.contexts.trace!.traceId);
+        preExistingSpanContext.traceId,
+        sentryEvent.contexts.trace!.traceId,
+      );
       expect(preExistingSpanContext.spanId, sentryEvent.contexts.trace!.spanId);
       expect(spanContext.traceId, isNot(sentryEvent.contexts.trace!.traceId));
       expect(spanContext.spanId, isNot(sentryEvent.contexts.trace!.spanId));
-      expect(propagationContext.traceId,
-          isNot(sentryEvent.contexts.trace!.traceId));
-    });
-
-    test(
-        'uses propagation context on scope for trace header if no transaction is on scope',
-        () async {
-      final client = fixture.getSut();
-
-      final scope = Scope(fixture.options);
-      final scopePropagationContext = scope.propagationContext;
-
-      final sentryEvent = SentryEvent();
-      await client.captureEvent(sentryEvent, scope: scope);
-
-      final capturedEnvelope = fixture.transport.envelopes.first;
-      final capturedTraceContext = capturedEnvelope.header.traceContext;
-
-      expect(fixture.transport.envelopes.length, 1);
-      expect(scope.span, isNull);
-      expect(capturedTraceContext, isNotNull);
-      expect(scopePropagationContext.traceId, capturedTraceContext!.traceId);
-    });
-
-    test(
-        'uses trace context on transaction for trace header if a transaction is on scope',
-        () async {
-      final client = fixture.getSut();
-
-      final spanContext = SentrySpanContext(
-        traceId: SentryId.newId(),
-        spanId: SpanId.newId(),
-        operation: 'op.load',
-      );
-      final scope = Scope(fixture.options);
-      scope.span = SentrySpan(fixture.tracer, spanContext, MockHub());
-
-      final sentryEvent = SentryEvent();
-      await client.captureEvent(sentryEvent, scope: scope);
-
-      final capturedEnvelope = fixture.transport.envelopes.first;
-      final capturedTraceContext = capturedEnvelope.header.traceContext;
-
-      expect(fixture.transport.envelopes.length, 1);
-      expect(scope.span, isNotNull);
-      expect(capturedTraceContext, isNotNull);
       expect(
-          scope.span!.traceContext()!.traceId, capturedTraceContext!.traceId);
+        propagationContext.traceId,
+        isNot(sentryEvent.contexts.trace!.traceId),
+      );
     });
+
+    test(
+      'uses propagation context on scope for trace header if no transaction is on scope',
+      () async {
+        final client = fixture.getSut();
+
+        final scope = Scope(fixture.options);
+        final scopePropagationContext = scope.propagationContext;
+
+        final sentryEvent = SentryEvent();
+        await client.captureEvent(sentryEvent, scope: scope);
+
+        final capturedEnvelope = fixture.transport.envelopes.first;
+        final capturedTraceContext = capturedEnvelope.header.traceContext;
+
+        expect(fixture.transport.envelopes.length, 1);
+        expect(scope.span, isNull);
+        expect(capturedTraceContext, isNotNull);
+        expect(scopePropagationContext.traceId, capturedTraceContext!.traceId);
+      },
+    );
+
+    test(
+      'uses trace context on transaction for trace header if a transaction is on scope',
+      () async {
+        final client = fixture.getSut();
+
+        final spanContext = SentrySpanContext(
+          traceId: SentryId.newId(),
+          spanId: SpanId.newId(),
+          operation: 'op.load',
+        );
+        final scope = Scope(fixture.options);
+        scope.span = SentrySpan(fixture.tracer, spanContext, MockHub());
+
+        final sentryEvent = SentryEvent();
+        await client.captureEvent(sentryEvent, scope: scope);
+
+        final capturedEnvelope = fixture.transport.envelopes.first;
+        final capturedTraceContext = capturedEnvelope.header.traceContext;
+
+        expect(fixture.transport.envelopes.length, 1);
+        expect(scope.span, isNotNull);
+        expect(capturedTraceContext, isNotNull);
+        expect(
+          scope.span!.traceContext()!.traceId,
+          capturedTraceContext!.traceId,
+        );
+      },
+    );
 
     test('should contain a transaction in the envelope', () async {
       try {
@@ -777,8 +797,9 @@ void main() {
       await client.captureTransaction(tr, scope: scope);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedAttachments = capturedEnvelope.items
-          .where((item) => item.header.type == SentryItemType.attachment);
+      final capturedAttachments = capturedEnvelope.items.where(
+        (item) => item.header.type == SentryItemType.attachment,
+      );
 
       expect(capturedAttachments.isEmpty, true);
     });
@@ -797,8 +818,9 @@ void main() {
       await client.captureTransaction(tr, scope: scope);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedAttachments = capturedEnvelope.items
-          .where((item) => item.header.type == SentryItemType.attachment);
+      final capturedAttachments = capturedEnvelope.items.where(
+        (item) => item.header.type == SentryItemType.attachment,
+      );
 
       expect(capturedAttachments.isNotEmpty, true);
     });
@@ -816,8 +838,9 @@ void main() {
       await client.captureEvent(event, scope: scope);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedAttachments = capturedEnvelope.items
-          .where((item) => item.header.type == SentryItemType.attachment);
+      final capturedAttachments = capturedEnvelope.items.where(
+        (item) => item.header.type == SentryItemType.attachment,
+      );
 
       expect(capturedAttachments.isNotEmpty, true);
     });
@@ -906,7 +929,9 @@ void main() {
         eventExtraKey: eventExtraValue,
       });
       expect(
-          capturedEnvelope.header.traceContext?.replayId, SentryId.fromId('1'));
+        capturedEnvelope.header.traceContext?.replayId,
+        SentryId.fromId('1'),
+      );
     });
 
     test('should apply the scope to feedback event', () async {
@@ -922,9 +947,7 @@ void main() {
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
       expect(capturedEvent.breadcrumbs, isNull);
-      expect(capturedEvent.tags, {
-        scopeTagKey: scopeTagValue,
-      });
+      expect(capturedEvent.tags, {scopeTagKey: scopeTagValue});
       // ignore: deprecated_member_use_from_same_package
       expect(capturedEvent.extra, isNull);
     });
@@ -985,8 +1008,10 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
-          eventCrumbs.map((e) => e.toJson()));
+      expect(
+        capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+        eventCrumbs.map((e) => e.toJson()),
+      );
     });
 
     test('should apply the scope user to null event user fields', () async {
@@ -1006,8 +1031,10 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
-          eventCrumbs.map((e) => e.toJson()));
+      expect(
+        capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+        eventCrumbs.map((e) => e.toJson()),
+      );
     });
 
     test('merge scope user and event user extra', () async {
@@ -1015,20 +1042,14 @@ void main() {
       final scope = await createScope(fixture.options);
 
       await scope.setUser(
-        SentryUser(
-          id: 'id',
-          data: {
-            'foo': 'bar',
-            'bar': 'foo',
-          },
-        ),
+        SentryUser(id: 'id', data: {'foo': 'bar', 'bar': 'foo'}),
       );
 
       event.user = SentryUser(
         id: 'id',
         data: {
           'foo': 'this bar is more important',
-          'event': 'Really important event'
+          'event': 'Really important event',
         },
       );
       await client.captureEvent(event, scope: scope);
@@ -1098,45 +1119,49 @@ void main() {
       expect(capturedEvent.user?.email, fakeEvent.user!.email);
     });
 
-    test('event has a user without IP address and sendDefaultPii = true',
-        () async {
-      final client = fixture.getSut(sendDefaultPii: true);
-      final fakeEvent = getFakeEvent();
-      fakeEvent.user = fakeUser;
+    test(
+      'event has a user without IP address and sendDefaultPii = true',
+      () async {
+        final client = fixture.getSut(sendDefaultPii: true);
+        final fakeEvent = getFakeEvent();
+        fakeEvent.user = fakeUser;
 
-      expect(fakeEvent.user?.ipAddress, isNull);
+        expect(fakeEvent.user?.ipAddress, isNull);
 
-      await client.captureEvent(fakeEvent);
+        await client.captureEvent(fakeEvent);
 
-      final capturedEnvelope = fixture.transport.envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = fixture.transport.envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(fixture.transport.envelopes.length, 1);
-      expect(capturedEvent.user, isNotNull);
-      expect(capturedEvent.user?.ipAddress, defaultIpAddress);
-      expect(capturedEvent.user?.id, fakeUser.id);
-      expect(capturedEvent.user?.email, fakeUser.email);
-    });
+        expect(fixture.transport.envelopes.length, 1);
+        expect(capturedEvent.user, isNotNull);
+        expect(capturedEvent.user?.ipAddress, defaultIpAddress);
+        expect(capturedEvent.user?.id, fakeUser.id);
+        expect(capturedEvent.user?.email, fakeUser.email);
+      },
+    );
 
-    test('event has a user without IP address and sendDefaultPii = false',
-        () async {
-      final client = fixture.getSut(sendDefaultPii: false);
-      final fakeEvent = getFakeEvent();
-      fakeEvent.user = fakeUser;
+    test(
+      'event has a user without IP address and sendDefaultPii = false',
+      () async {
+        final client = fixture.getSut(sendDefaultPii: false);
+        final fakeEvent = getFakeEvent();
+        fakeEvent.user = fakeUser;
 
-      expect(fakeEvent.user?.ipAddress, isNull);
+        expect(fakeEvent.user?.ipAddress, isNull);
 
-      await client.captureEvent(fakeEvent);
+        await client.captureEvent(fakeEvent);
 
-      final capturedEnvelope = fixture.transport.envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = fixture.transport.envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(fixture.transport.envelopes.length, 1);
-      expect(capturedEvent.user, isNotNull);
-      expect(capturedEvent.user?.ipAddress, isNull);
-      expect(capturedEvent.user?.id, fakeUser.id);
-      expect(capturedEvent.user?.email, fakeUser.email);
-    });
+        expect(fixture.transport.envelopes.length, 1);
+        expect(capturedEvent.user, isNotNull);
+        expect(capturedEvent.user?.ipAddress, isNull);
+        expect(capturedEvent.user?.id, fakeUser.id);
+        expect(capturedEvent.user?.email, fakeUser.email);
+      },
+    );
   });
 
   group('SentryClient sampling', () {
@@ -1187,46 +1212,55 @@ void main() {
       fixture.options.ignoreErrors = ["my-error", "^error-.*\$"];
     });
 
-    test('drop event if error message fully matches ignoreErrors value',
-        () async {
-      final event = SentryEvent(message: SentryMessage("my-error"));
+    test(
+      'drop event if error message fully matches ignoreErrors value',
+      () async {
+        final event = SentryEvent(message: SentryMessage("my-error"));
 
-      final client = fixture.getSut();
-      await client.captureEvent(event);
+        final client = fixture.getSut();
+        await client.captureEvent(event);
 
-      expect(fixture.transport.called(0), true);
-    });
-
-    test('drop event if error message partially matches ignoreErrors value',
-        () async {
-      final event = SentryEvent(message: SentryMessage("this is my-error-foo"));
-
-      final client = fixture.getSut();
-      await client.captureEvent(event);
-
-      expect(fixture.transport.called(0), true);
-    });
+        expect(fixture.transport.called(0), true);
+      },
+    );
 
     test(
-        'drop event if error message partially matches ignoreErrors regex value',
-        () async {
-      final event = SentryEvent(message: SentryMessage("error-test message"));
+      'drop event if error message partially matches ignoreErrors value',
+      () async {
+        final event = SentryEvent(
+          message: SentryMessage("this is my-error-foo"),
+        );
 
-      final client = fixture.getSut();
-      await client.captureEvent(event);
+        final client = fixture.getSut();
+        await client.captureEvent(event);
 
-      expect(fixture.transport.called(0), true);
-    });
+        expect(fixture.transport.called(0), true);
+      },
+    );
 
-    test('send event if error message does not match ignoreErrors value',
-        () async {
-      final event = SentryEvent(message: SentryMessage("warning"));
+    test(
+      'drop event if error message partially matches ignoreErrors regex value',
+      () async {
+        final event = SentryEvent(message: SentryMessage("error-test message"));
 
-      final client = fixture.getSut();
-      await client.captureEvent(event);
+        final client = fixture.getSut();
+        await client.captureEvent(event);
 
-      expect(fixture.transport.called(1), true);
-    });
+        expect(fixture.transport.called(0), true);
+      },
+    );
+
+    test(
+      'send event if error message does not match ignoreErrors value',
+      () async {
+        final event = SentryEvent(message: SentryMessage("warning"));
+
+        final client = fixture.getSut();
+        await client.captureEvent(event);
+
+        expect(fixture.transport.called(1), true);
+      },
+    );
 
     test('send event if no values are set for ignoreErrors', () async {
       fixture.options.ignoreErrors = [];
@@ -1246,61 +1280,70 @@ void main() {
       fixture = Fixture();
       fixture.options.ignoreTransactions = [
         "my-transaction",
-        "^transaction-.*\$"
+        "^transaction-.*\$",
       ];
     });
 
-    test('drop transaction if name fully matches ignoreTransaction value',
-        () async {
-      final client = fixture.getSut();
-      final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "my-transaction";
-      await client.captureTransaction(fakeTransaction);
+    test(
+      'drop transaction if name fully matches ignoreTransaction value',
+      () async {
+        final client = fixture.getSut();
+        final fakeTransaction = fixture.fakeTransaction();
+        fakeTransaction.tracer.name = "my-transaction";
+        await client.captureTransaction(fakeTransaction);
 
-      expect(fixture.transport.called(0), true);
-    });
-
-    test('drop transaction if name partially matches ignoreTransaction value',
-        () async {
-      final client = fixture.getSut();
-      final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "this is a my-transaction-test";
-      await client.captureTransaction(fakeTransaction);
-
-      expect(fixture.transport.called(0), true);
-    });
+        expect(fixture.transport.called(0), true);
+      },
+    );
 
     test(
-        'drop transaction if name partially matches ignoreTransaction regex value',
-        () async {
-      final client = fixture.getSut();
-      final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "transaction-test message";
-      await client.captureTransaction(fakeTransaction);
+      'drop transaction if name partially matches ignoreTransaction value',
+      () async {
+        final client = fixture.getSut();
+        final fakeTransaction = fixture.fakeTransaction();
+        fakeTransaction.tracer.name = "this is a my-transaction-test";
+        await client.captureTransaction(fakeTransaction);
 
-      expect(fixture.transport.called(0), true);
-    });
+        expect(fixture.transport.called(0), true);
+      },
+    );
 
-    test('send transaction if name does not match ignoreTransaction value',
-        () async {
-      final client = fixture.getSut();
-      final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "capture";
-      await client.captureTransaction(fakeTransaction);
+    test(
+      'drop transaction if name partially matches ignoreTransaction regex value',
+      () async {
+        final client = fixture.getSut();
+        final fakeTransaction = fixture.fakeTransaction();
+        fakeTransaction.tracer.name = "transaction-test message";
+        await client.captureTransaction(fakeTransaction);
 
-      expect(fixture.transport.called(1), true);
-    });
+        expect(fixture.transport.called(0), true);
+      },
+    );
 
-    test('send transaction if no values are set for ignoreTransaction',
-        () async {
-      fixture.options.ignoreTransactions = [];
-      final client = fixture.getSut();
-      final fakeTransaction = fixture.fakeTransaction();
-      fakeTransaction.tracer.name = "this is a test transaction";
-      await client.captureTransaction(fakeTransaction);
+    test(
+      'send transaction if name does not match ignoreTransaction value',
+      () async {
+        final client = fixture.getSut();
+        final fakeTransaction = fixture.fakeTransaction();
+        fakeTransaction.tracer.name = "capture";
+        await client.captureTransaction(fakeTransaction);
 
-      expect(fixture.transport.called(1), true);
-    });
+        expect(fixture.transport.called(1), true);
+      },
+    );
+
+    test(
+      'send transaction if no values are set for ignoreTransaction',
+      () async {
+        fixture.options.ignoreTransactions = [];
+        final client = fixture.getSut();
+        final fakeTransaction = fixture.fakeTransaction();
+        fakeTransaction.tracer.name = "this is a test transaction";
+        await client.captureTransaction(fakeTransaction);
+
+        expect(fixture.transport.called(1), true);
+      },
+    );
   });
 
   group('SentryClient ignored exceptions', () {
@@ -1310,18 +1353,20 @@ void main() {
       fixture = Fixture();
     });
 
-    test('addExceptionFilterForType drops matching error event throwable',
-        () async {
-      fixture.options.addExceptionFilterForType(ExceptionWithCause);
+    test(
+      'addExceptionFilterForType drops matching error event throwable',
+      () async {
+        fixture.options.addExceptionFilterForType(ExceptionWithCause);
 
-      final throwable = ExceptionWithCause(Error(), StackTrace.current);
-      final event = SentryEvent(throwable: throwable);
+        final throwable = ExceptionWithCause(Error(), StackTrace.current);
+        final event = SentryEvent(throwable: throwable);
 
-      final client = fixture.getSut();
-      await client.captureEvent(event);
+        final client = fixture.getSut();
+        await client.captureEvent(event);
 
-      expect(fixture.transport.called(0), true);
-    });
+        expect(fixture.transport.called(0), true);
+      },
+    );
 
     test('record ignored exceptions dropping event', () async {
       fixture.options.addExceptionFilterForType(ExceptionWithCause);
@@ -1332,10 +1377,14 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event);
 
-      expect(fixture.recorder.discardedEvents.first.reason,
-          DiscardReason.eventProcessor);
       expect(
-          fixture.recorder.discardedEvents.first.category, DataCategory.error);
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.eventProcessor,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
     });
   });
 
@@ -1348,7 +1397,8 @@ void main() {
 
     test('before send feedback drops event', () async {
       final client = fixture.getSut(
-          beforeSendFeedback: beforeSendFeedbackCallbackDropEvent);
+        beforeSendFeedback: beforeSendFeedbackCallbackDropEvent,
+      );
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback);
 
@@ -1357,7 +1407,8 @@ void main() {
 
     test('async before send feedback drops event', () async {
       final client = fixture.getSut(
-          beforeSendFeedback: asyncBeforeSendFeedbackCallbackDropEvent);
+        beforeSendFeedback: asyncBeforeSendFeedbackCallbackDropEvent,
+      );
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback);
 
@@ -1365,18 +1416,20 @@ void main() {
     });
 
     test(
-        'before send feedback returns an feedback event and feedback event is captured',
-        () async {
-      final client =
-          fixture.getSut(beforeSendFeedback: beforeSendFeedbackCallback);
-      final fakeFeedback = fixture.fakeFeedback();
-      await client.captureFeedback(fakeFeedback);
+      'before send feedback returns an feedback event and feedback event is captured',
+      () async {
+        final client = fixture.getSut(
+          beforeSendFeedback: beforeSendFeedbackCallback,
+        );
+        final fakeFeedback = fixture.fakeFeedback();
+        await client.captureFeedback(fakeFeedback);
 
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final feedbackEvent = await eventFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final feedbackEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(feedbackEvent.tags!.containsKey('theme'), true);
-    });
+        expect(feedbackEvent.tags!.containsKey('theme'), true);
+      },
+    );
 
     test('thrown error is handled', () async {
       fixture.options.automatedTestMode = false;
@@ -1386,7 +1439,9 @@ void main() {
       };
 
       final client = fixture.getSut(
-          beforeSendFeedback: beforeSendFeedbackCallback, debug: true);
+        beforeSendFeedback: beforeSendFeedbackCallback,
+        debug: true,
+      );
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback);
 
@@ -1404,7 +1459,8 @@ void main() {
 
     test('before send transaction drops event', () async {
       final client = fixture.getSut(
-          beforeSendTransaction: beforeSendTransactionCallbackDropEvent);
+        beforeSendTransaction: beforeSendTransactionCallbackDropEvent,
+      );
       final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
@@ -1413,7 +1469,8 @@ void main() {
 
     test('async before send transaction drops event', () async {
       final client = fixture.getSut(
-          beforeSendTransaction: asyncBeforeSendTransactionCallbackDropEvent);
+        beforeSendTransaction: asyncBeforeSendTransactionCallbackDropEvent,
+      );
       final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
@@ -1421,43 +1478,51 @@ void main() {
     });
 
     test(
-        'before send transaction returns an transaction and transaction is captured',
-        () async {
-      final client =
-          fixture.getSut(beforeSendTransaction: beforeSendTransactionCallback);
-      final fakeTransaction = fixture.fakeTransaction();
-      await client.captureTransaction(fakeTransaction);
+      'before send transaction returns an transaction and transaction is captured',
+      () async {
+        final client = fixture.getSut(
+          beforeSendTransaction: beforeSendTransactionCallback,
+        );
+        final fakeTransaction = fixture.fakeTransaction();
+        await client.captureTransaction(fakeTransaction);
 
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final transaction = await transactionFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final transaction = await transactionFromEnvelope(capturedEnvelope);
 
-      expect(transaction['tags']!.containsKey('theme'), true);
-      expect(transaction['extra']!.containsKey('host'), true);
-      expect(transaction['sdk']!['integrations'].contains('testIntegration'),
-          true);
-      expect(
-        transaction['sdk']!['packages']
-            .any((element) => element['name'] == 'test-pkg'),
-        true,
-      );
-      expect(
-        transaction['breadcrumbs']!
-            .any((element) => element['message'] == 'processor crumb'),
-        true,
-      );
-    });
+        expect(transaction['tags']!.containsKey('theme'), true);
+        expect(transaction['extra']!.containsKey('host'), true);
+        expect(
+          transaction['sdk']!['integrations'].contains('testIntegration'),
+          true,
+        );
+        expect(
+          transaction['sdk']!['packages'].any(
+            (element) => element['name'] == 'test-pkg',
+          ),
+          true,
+        );
+        expect(
+          transaction['breadcrumbs']!.any(
+            (element) => element['message'] == 'processor crumb',
+          ),
+          true,
+        );
+      },
+    );
 
     test('thrown error is handled', () async {
       fixture.options.automatedTestMode = false;
       final exception = Exception("before send exception");
       final beforeSendTransactionCallback =
           (SentryTransaction event, Hint hint) {
-        throw exception;
-      };
+            throw exception;
+          };
 
       fixture.options.automatedTestMode = false;
       final client = fixture.getSut(
-          beforeSendTransaction: beforeSendTransactionCallback, debug: true);
+        beforeSendTransaction: beforeSendTransactionCallback,
+        debug: true,
+      );
       final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
@@ -1483,8 +1548,9 @@ void main() {
     });
 
     test('async before send drops event', () async {
-      final client =
-          fixture.getSut(beforeSend: asyncBeforeSendCallbackDropEvent);
+      final client = fixture.getSut(
+        beforeSend: asyncBeforeSendCallbackDropEvent,
+      );
       await client.captureEvent(fakeEvent);
 
       expect(fixture.transport.called(0), true);
@@ -1507,8 +1573,9 @@ void main() {
         true,
       );
       expect(
-        event.breadcrumbs!
-            .any((element) => element.message == 'processor crumb'),
+        event.breadcrumbs!.any(
+          (element) => element.message == 'processor crumb',
+        ),
         true,
       );
       expect(event.fingerprint!.contains('process'), true);
@@ -1522,8 +1589,10 @@ void main() {
       };
 
       fixture.options.automatedTestMode = false;
-      final client =
-          fixture.getSut(beforeSend: beforeSendCallback, debug: true);
+      final client = fixture.getSut(
+        beforeSend: beforeSendCallback,
+        debug: true,
+      );
 
       await client.captureEvent(fakeEvent);
 
@@ -1539,18 +1608,20 @@ void main() {
     setUp(() {
       fixture = Fixture();
       fakeEvent = getFakeEvent();
-      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
-        event.tags = {'theme': 'material'};
-        // ignore: deprecated_member_use_from_same_package
-        event.extra?['host'] = '0.0.0.1';
-        event.modules?.addAll({'core': '1.0'});
-        event.breadcrumbs?.add(Breadcrumb(message: 'processor crumb'));
-        event.fingerprint?.add('process');
-        event.sdk?.addIntegration('testIntegration');
-        event.sdk?.addPackage('test-pkg', '1.0');
+      fixture.options.addEventProcessor(
+        FunctionEventProcessor((event, hint) {
+          event.tags = {'theme': 'material'};
+          // ignore: deprecated_member_use_from_same_package
+          event.extra?['host'] = '0.0.0.1';
+          event.modules?.addAll({'core': '1.0'});
+          event.breadcrumbs?.add(Breadcrumb(message: 'processor crumb'));
+          event.fingerprint?.add('process');
+          event.sdk?.addIntegration('testIntegration');
+          event.sdk?.addPackage('test-pkg', '1.0');
 
-        return event;
-      }));
+          return event;
+        }),
+      );
     });
 
     test('should execute eventProcessors for event', () async {
@@ -1570,8 +1641,9 @@ void main() {
         true,
       );
       expect(
-        event.breadcrumbs!
-            .any((element) => element.message == 'processor crumb'),
+        event.breadcrumbs!.any(
+          (element) => element.message == 'processor crumb',
+        ),
         true,
       );
       expect(event.fingerprint!.contains('process'), true);
@@ -1594,12 +1666,13 @@ void main() {
 
       var executed = false;
 
-      final client =
-          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
-        expect(myHint, hint);
-        executed = true;
-        return event;
-      }));
+      final client = fixture.getSut(
+        eventProcessor: FunctionEventProcessor((event, hint) {
+          expect(myHint, hint);
+          executed = true;
+          return event;
+        }),
+      );
 
       await client.captureEvent(fakeEvent, hint: myHint);
 
@@ -1612,12 +1685,13 @@ void main() {
 
       var executed = false;
 
-      final client =
-          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
-        expect(myHint, hint);
-        executed = true;
-        return event;
-      }));
+      final client = fixture.getSut(
+        eventProcessor: FunctionEventProcessor((event, hint) {
+          expect(myHint, hint);
+          executed = true;
+          return event;
+        }),
+      );
 
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback, hint: myHint);
@@ -1628,34 +1702,38 @@ void main() {
     test('should create hint when none was provided for event', () async {
       var executed = false;
 
-      final client =
-          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
-        expect(hint, isNotNull);
-        executed = true;
-        return event;
-      }));
+      final client = fixture.getSut(
+        eventProcessor: FunctionEventProcessor((event, hint) {
+          expect(hint, isNotNull);
+          executed = true;
+          return event;
+        }),
+      );
 
       await client.captureEvent(fakeEvent);
 
       expect(executed, true);
     });
 
-    test('should create hint when none was provided for feedback event',
-        () async {
-      var executed = false;
+    test(
+      'should create hint when none was provided for feedback event',
+      () async {
+        var executed = false;
 
-      final client =
-          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
-        expect(hint, isNotNull);
-        executed = true;
-        return event;
-      }));
+        final client = fixture.getSut(
+          eventProcessor: FunctionEventProcessor((event, hint) {
+            expect(hint, isNotNull);
+            executed = true;
+            return event;
+          }),
+        );
 
-      final fakeFeedback = fixture.fakeFeedback();
-      await client.captureFeedback(fakeFeedback);
+        final fakeFeedback = fixture.fakeFeedback();
+        await client.captureFeedback(fakeFeedback);
 
-      expect(executed, true);
-    });
+        expect(executed, true);
+      },
+    );
 
     test('event processor drops the event', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
@@ -1724,8 +1802,10 @@ void main() {
 
     test('delegates to log pipeline', () async {
       final pipeline = MockLogCapturePipeline(fixture.options);
-      final client =
-          SentryClient(fixture.options, logCapturePipeline: pipeline);
+      final client = SentryClient(
+        fixture.options,
+        logCapturePipeline: pipeline,
+      );
       final scope = Scope(fixture.options);
 
       final log = SentryLog(
@@ -1733,9 +1813,7 @@ void main() {
         traceId: SentryId.newId(),
         level: SentryLogLevel.info,
         body: 'test',
-        attributes: {
-          'attribute': SentryAttribute.string('value'),
-        },
+        attributes: {'attribute': SentryAttribute.string('value')},
       );
 
       await client.captureLog(log, scope: scope);
@@ -1755,8 +1833,10 @@ void main() {
 
     test('delegates to metric pipeline', () async {
       final pipeline = MockMetricCapturePipeline(fixture.options);
-      final client =
-          SentryClient(fixture.options, metricCapturePipeline: pipeline);
+      final client = SentryClient(
+        fixture.options,
+        metricCapturePipeline: pipeline,
+      );
       final scope = Scope(fixture.options);
 
       final metric = SentryCounterMetric(
@@ -1783,8 +1863,10 @@ void main() {
 
     test('delegates to metric pipeline', () async {
       final pipeline = MockMetricCapturePipeline(fixture.options);
-      final client =
-          SentryClient(fixture.options, metricCapturePipeline: pipeline);
+      final client = SentryClient(
+        fixture.options,
+        metricCapturePipeline: pipeline,
+      );
       final scope = Scope(fixture.options);
 
       final metric = SentryCounterMetric(
@@ -1917,18 +1999,24 @@ void main() {
     test('record event processor dropping event', () async {
       bool secondProcessorCalled = false;
       fixture.options.addEventProcessor(DropAllEventProcessor());
-      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
-        secondProcessorCalled = true;
-        return event;
-      }));
+      fixture.options.addEventProcessor(
+        FunctionEventProcessor((event, hint) {
+          secondProcessorCalled = true;
+          return event;
+        }),
+      );
       final client = fixture.getSut();
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.discardedEvents.first.reason,
-          DiscardReason.eventProcessor);
       expect(
-          fixture.recorder.discardedEvents.first.category, DataCategory.error);
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.eventProcessor,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
       expect(secondProcessorCalled, isFalse);
     });
 
@@ -1944,9 +2032,11 @@ void main() {
       expect(fixture.recorder.discardedEvents.length, 2);
 
       final spanCount = fixture.recorder.discardedEvents
-          .firstWhere((element) =>
-              element.category == DataCategory.span &&
-              element.reason == DiscardReason.eventProcessor)
+          .firstWhere(
+            (element) =>
+                element.category == DataCategory.span &&
+                element.reason == DiscardReason.eventProcessor,
+          )
           .quantity;
       expect(spanCount, 4);
     });
@@ -1956,16 +2046,21 @@ void main() {
       final feedback = fixture.fakeFeedback();
       await client.captureFeedback(feedback);
 
-      expect(fixture.recorder.discardedEvents.first.category,
-          DataCategory.feedback);
-      expect(fixture.recorder.discardedEvents.first.reason,
-          DiscardReason.eventProcessor);
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.feedback,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.eventProcessor,
+      );
     });
 
     test('record event processor dropping partially spans', () async {
       final numberOfSpansDropped = 2;
       final sut = fixture.getSut(
-          eventProcessor: DropSpansEventProcessor(numberOfSpansDropped));
+        eventProcessor: DropSpansEventProcessor(numberOfSpansDropped),
+      );
       final transaction = SentryTransaction(fixture.tracer);
       fixture.tracer.startChild('child1');
       fixture.tracer.startChild('child2');
@@ -1976,70 +2071,81 @@ void main() {
       expect(fixture.recorder.discardedEvents.length, 1);
 
       final spanCount = fixture.recorder.discardedEvents
-          .firstWhere((element) =>
-              element.category == DataCategory.span &&
-              element.reason == DiscardReason.eventProcessor)
+          .firstWhere(
+            (element) =>
+                element.category == DataCategory.span &&
+                element.reason == DiscardReason.eventProcessor,
+          )
           .quantity;
       expect(spanCount, numberOfSpansDropped);
     });
 
-    test('beforeSendTransaction correctly records partially dropped spans',
-        () async {
-      final sut = fixture.getSut();
-      final transaction = SentryTransaction(fixture.tracer);
-      fixture.tracer.startChild('child1');
-      fixture.tracer.startChild('child2');
-      fixture.tracer.startChild('child3');
+    test(
+      'beforeSendTransaction correctly records partially dropped spans',
+      () async {
+        final sut = fixture.getSut();
+        final transaction = SentryTransaction(fixture.tracer);
+        fixture.tracer.startChild('child1');
+        fixture.tracer.startChild('child2');
+        fixture.tracer.startChild('child3');
 
-      fixture.options.beforeSendTransaction = (transaction, hint) {
-        if (transaction.tracer == fixture.tracer) {
-          return null;
-        }
-        return transaction;
-      };
-
-      await sut.captureTransaction(transaction);
-
-      expect(fixture.recorder.discardedEvents.length, 2);
-
-      final spanCount = fixture.recorder.discardedEvents
-          .firstWhere((element) =>
-              element.category == DataCategory.span &&
-              element.reason == DiscardReason.beforeSend)
-          .quantity;
-      expect(spanCount, 4);
-    });
-
-    test('beforeSendTransaction correctly records partially dropped spans',
-        () async {
-      final sut = fixture.getSut();
-      final transaction = SentryTransaction(fixture.tracer);
-      fixture.tracer.startChild('child1');
-      fixture.tracer.startChild('child2');
-      fixture.tracer.startChild('child3');
-
-      fixture.options.beforeSendTransaction = (transaction, hint) {
-        if (transaction.tracer == fixture.tracer) {
-          transaction.spans
-              .removeWhere((element) => element.context.operation == 'child2');
+        fixture.options.beforeSendTransaction = (transaction, hint) {
+          if (transaction.tracer == fixture.tracer) {
+            return null;
+          }
           return transaction;
-        }
-        return transaction;
-      };
+        };
 
-      await sut.captureTransaction(transaction);
+        await sut.captureTransaction(transaction);
 
-      // we didn't drop the whole transaction, we only have 1 event for the dropped spans
-      expect(fixture.recorder.discardedEvents.length, 1);
+        expect(fixture.recorder.discardedEvents.length, 2);
 
-      // tracer has 3 span children and we dropped 1 of them
-      final spanCount = fixture.recorder.discardedEvents
-          .firstWhere((element) =>
-              element.category == DataCategory.span &&
-              element.reason == DiscardReason.beforeSend)
-          .quantity;
-      expect(spanCount, 1);
-    });
+        final spanCount = fixture.recorder.discardedEvents
+            .firstWhere(
+              (element) =>
+                  element.category == DataCategory.span &&
+                  element.reason == DiscardReason.beforeSend,
+            )
+            .quantity;
+        expect(spanCount, 4);
+      },
+    );
+
+    test(
+      'beforeSendTransaction correctly records partially dropped spans',
+      () async {
+        final sut = fixture.getSut();
+        final transaction = SentryTransaction(fixture.tracer);
+        fixture.tracer.startChild('child1');
+        fixture.tracer.startChild('child2');
+        fixture.tracer.startChild('child3');
+
+        fixture.options.beforeSendTransaction = (transaction, hint) {
+          if (transaction.tracer == fixture.tracer) {
+            transaction.spans.removeWhere(
+              (element) => element.context.operation == 'child2',
+            );
+            return transaction;
+          }
+          return transaction;
+        };
+
+        await sut.captureTransaction(transaction);
+
+        // we didn't drop the whole transaction, we only have 1 event for the dropped spans
+        expect(fixture.recorder.discardedEvents.length, 1);
+
+        // tracer has 3 span children and we dropped 1 of them
+        final spanCount = fixture.recorder.discardedEvents
+            .firstWhere(
+              (element) =>
+                  element.category == DataCategory.span &&
+                  element.reason == DiscardReason.beforeSend,
+            )
+            .quantity;
+        expect(spanCount, 1);
+      },
+    );
 
     test('record event processor dropping transaction', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
@@ -2050,10 +2156,14 @@ void main() {
 
       await client.captureTransaction(transaction);
 
-      expect(fixture.recorder.discardedEvents.first.reason,
-          DiscardReason.eventProcessor);
-      expect(fixture.recorder.discardedEvents.first.category,
-          DataCategory.transaction);
+      expect(
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.eventProcessor,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.transaction,
+      );
     });
 
     test('record beforeSend dropping event', () async {
@@ -2063,10 +2173,14 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.discardedEvents.first.reason,
-          DiscardReason.beforeSend);
       expect(
-          fixture.recorder.discardedEvents.first.category, DataCategory.error);
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.beforeSend,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
     });
 
     test('record beforeSend dropping feedback', () async {
@@ -2077,10 +2191,14 @@ void main() {
       final feedback = fixture.fakeFeedback();
       await client.captureFeedback(feedback);
 
-      expect(fixture.recorder.discardedEvents.first.reason,
-          DiscardReason.beforeSend);
-      expect(fixture.recorder.discardedEvents.first.category,
-          DataCategory.feedback);
+      expect(
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.beforeSend,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.feedback,
+      );
     });
 
     test('record sample rate dropping event', () async {
@@ -2090,10 +2208,14 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.discardedEvents.first.reason,
-          DiscardReason.sampleRate);
       expect(
-          fixture.recorder.discardedEvents.first.category, DataCategory.error);
+        fixture.recorder.discardedEvents.first.reason,
+        DiscardReason.sampleRate,
+      );
+      expect(
+        fixture.recorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
     });
 
     test('record sample rate not dropping feedback', () async {
@@ -2113,64 +2235,70 @@ void main() {
     });
 
     test(
-        'Spotlight enabled should not set transport to SpotlightHttpTransport on iOS',
-        () async {
-      fixture.options.platform = MockPlatform.iOS();
-      fixture.options.spotlight = Spotlight(enabled: true);
-      fixture.getSut();
+      'Spotlight enabled should not set transport to SpotlightHttpTransport on iOS',
+      () async {
+        fixture.options.platform = MockPlatform.iOS();
+        fixture.options.spotlight = Spotlight(enabled: true);
+        fixture.getSut();
 
-      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
-    });
-
-    test(
-        'Spotlight enabled should not set transport to SpotlightHttpTransport on macOS',
-        () async {
-      fixture.options.platform = MockPlatform.macOS();
-      fixture.options.spotlight = Spotlight(enabled: true);
-      fixture.getSut();
-
-      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
-    });
+        expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+      },
+    );
 
     test(
-        'Spotlight enabled should not set transport to SpotlightHttpTransport on Android',
-        () async {
-      fixture.options.platform = MockPlatform.android();
-      fixture.options.spotlight = Spotlight(enabled: true);
-      fixture.getSut();
+      'Spotlight enabled should not set transport to SpotlightHttpTransport on macOS',
+      () async {
+        fixture.options.platform = MockPlatform.macOS();
+        fixture.options.spotlight = Spotlight(enabled: true);
+        fixture.getSut();
 
-      expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
-    });
-
-    test(
-        'Spotlight enabled should set transport to SpotlightHttpTransport on Web',
-        () async {
-      fixture.options.platform = MockPlatform(isWeb: true);
-      fixture.options.spotlight = Spotlight(enabled: true);
-      fixture.getSut();
-
-      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
-    });
+        expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+      },
+    );
 
     test(
-        'Spotlight enabled should set transport to SpotlightHttpTransport on Linux',
-        () async {
-      fixture.options.platform = MockPlatform.linux();
-      fixture.options.spotlight = Spotlight(enabled: true);
-      fixture.getSut();
+      'Spotlight enabled should not set transport to SpotlightHttpTransport on Android',
+      () async {
+        fixture.options.platform = MockPlatform.android();
+        fixture.options.spotlight = Spotlight(enabled: true);
+        fixture.getSut();
 
-      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
-    });
+        expect(fixture.options.transport is SpotlightHttpTransport, isFalse);
+      },
+    );
 
     test(
-        'Spotlight enabled should set transport to SpotlightHttpTransport on Windows',
-        () async {
-      fixture.options.platform = MockPlatform.windows();
-      fixture.options.spotlight = Spotlight(enabled: true);
-      fixture.getSut();
+      'Spotlight enabled should set transport to SpotlightHttpTransport on Web',
+      () async {
+        fixture.options.platform = MockPlatform(isWeb: true);
+        fixture.options.spotlight = Spotlight(enabled: true);
+        fixture.getSut();
 
-      expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
-    });
+        expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
+      },
+    );
+
+    test(
+      'Spotlight enabled should set transport to SpotlightHttpTransport on Linux',
+      () async {
+        fixture.options.platform = MockPlatform.linux();
+        fixture.options.spotlight = Spotlight(enabled: true);
+        fixture.getSut();
+
+        expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
+      },
+    );
+
+    test(
+      'Spotlight enabled should set transport to SpotlightHttpTransport on Windows',
+      () async {
+        fixture.options.platform = MockPlatform.windows();
+        fixture.options.spotlight = Spotlight(enabled: true);
+        fixture.getSut();
+
+        expect(fixture.options.transport is SpotlightHttpTransport, isTrue);
+      },
+    );
   });
 
   group('trace context', () {
@@ -2187,8 +2315,11 @@ void main() {
 
       final scope = Scope(fixture.options);
       scope.replayId = SentryId.newId();
-      scope.span =
-          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
+      scope.span = SentrySpan(
+        fixture.tracer,
+        fixture.tracer.context,
+        MockHub(),
+      );
 
       await client.captureEvent(fakeEvent, scope: scope);
 
@@ -2219,8 +2350,11 @@ void main() {
       final client = fixture.getSut();
 
       final scope = Scope(fixture.options);
-      scope.span =
-          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
+      scope.span = SentrySpan(
+        fixture.tracer,
+        fixture.tracer.context,
+        MockHub(),
+      );
 
       await client.captureFeedback(fixture.fakeFeedback(), scope: scope);
 
@@ -2249,8 +2383,10 @@ void main() {
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
-      expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeAttachmentDefault);
+      expect(
+        attachmentItem?.header.attachmentType,
+        SentryAttachment.typeAttachmentDefault,
+      );
     });
 
     test('captureFeedback adds attachments from hint', () async {
@@ -2265,8 +2401,10 @@ void main() {
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
         (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
       );
-      expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeAttachmentDefault);
+      expect(
+        attachmentItem?.header.attachmentType,
+        SentryAttachment.typeAttachmentDefault,
+      );
     });
 
     test('captureTransaction hint passed to beforeSendTransaction', () async {
@@ -2298,8 +2436,9 @@ void main() {
 
     test('captureEvent adds screenshot from hint', () async {
       final client = fixture.getSut();
-      final screenshot =
-          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final screenshot = SentryAttachment.fromScreenshotData(
+        Uint8List.fromList([0, 0, 0, 0]),
+      );
       final hint = Hint.withScreenshot(screenshot);
 
       await client.captureEvent(fakeEvent, hint: hint);
@@ -2313,8 +2452,9 @@ void main() {
 
     test('captureFeedback adds screenshot from hint', () async {
       final client = fixture.getSut();
-      final screenshot =
-          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final screenshot = SentryAttachment.fromScreenshotData(
+        Uint8List.fromList([0, 0, 0, 0]),
+      );
       final hint = Hint.withScreenshot(screenshot);
 
       final fakeFeedback = fixture.fakeFeedback();
@@ -2340,8 +2480,10 @@ void main() {
         (element) => element.header.type == SentryItemType.attachment,
       );
 
-      expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeViewHierarchy);
+      expect(
+        attachmentItem?.header.attachmentType,
+        SentryAttachment.typeViewHierarchy,
+      );
     });
 
     test('captureFeedback does not add viewHierarchy from hint', () async {
@@ -2361,46 +2503,52 @@ void main() {
     });
 
     test(
-        'null stack trace marked in hint & sentry frames removed from thread stackTrace',
-        () async {
-      final beforeSendCallback = (SentryEvent event, Hint hint) {
-        expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
-        return event;
-      };
-      final client = fixture.getSut(
-          beforeSend: beforeSendCallback, attachStacktrace: true);
-      await client.captureEvent(fakeEvent);
+      'null stack trace marked in hint & sentry frames removed from thread stackTrace',
+      () async {
+        final beforeSendCallback = (SentryEvent event, Hint hint) {
+          expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
+          return event;
+        };
+        final client = fixture.getSut(
+          beforeSend: beforeSendCallback,
+          attachStacktrace: true,
+        );
+        await client.captureEvent(fakeEvent);
 
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      final sentryFramesCount = capturedEvent.threads?[0].stacktrace!.frames
-          .where((frame) => frame.package == 'sentry')
-          .length;
+        final sentryFramesCount = capturedEvent.threads?[0].stacktrace!.frames
+            .where((frame) => frame.package == 'sentry')
+            .length;
 
-      expect(sentryFramesCount, 0);
-    });
+        expect(sentryFramesCount, 0);
+      },
+    );
 
     test(
-        'empty stack trace marked in hint & sentry frames removed from thread stackTrace',
-        () async {
-      final beforeSendCallback = (SentryEvent event, Hint hint) {
-        expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
-        return event;
-      };
-      final client = fixture.getSut(
-          beforeSend: beforeSendCallback, attachStacktrace: true);
-      await client.captureEvent(fakeEvent, stackTrace: StackTrace.empty);
+      'empty stack trace marked in hint & sentry frames removed from thread stackTrace',
+      () async {
+        final beforeSendCallback = (SentryEvent event, Hint hint) {
+          expect(hint.get(TypeCheckHint.currentStackTrace), isTrue);
+          return event;
+        };
+        final client = fixture.getSut(
+          beforeSend: beforeSendCallback,
+          attachStacktrace: true,
+        );
+        await client.captureEvent(fakeEvent, stackTrace: StackTrace.empty);
 
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      final sentryFramesCount = capturedEvent.threads?[0].stacktrace!.frames
-          .where((frame) => frame.package == 'sentry')
-          .length;
+        final sentryFramesCount = capturedEvent.threads?[0].stacktrace!.frames
+            .where((frame) => frame.package == 'sentry')
+            .length;
 
-      expect(sentryFramesCount, 0);
-    });
+        expect(sentryFramesCount, 0);
+      },
+    );
 
     test('non-null stack trace not marked in hint', () async {
       final beforeSendCallback = (SentryEvent event, Hint hint) {
@@ -2408,7 +2556,9 @@ void main() {
         return event;
       };
       final client = fixture.getSut(
-          beforeSend: beforeSendCallback, attachStacktrace: true);
+        beforeSend: beforeSendCallback,
+        attachStacktrace: true,
+      );
       await client.captureEvent(fakeEvent, stackTrace: StackTrace.current);
     });
   });
@@ -2472,24 +2622,20 @@ Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
 }
 
 Future<Map<String, dynamic>> transactionFromEnvelope(
-    SentryEnvelope envelope) async {
+  SentryEnvelope envelope,
+) async {
   final data = await envelope.items.first.dataFactory();
   final utf8Data = utf8.decode(data);
   final envelopeItemJson = jsonDecode(utf8Data);
   return envelopeItemJson as Map<String, dynamic>;
 }
 
-SentryEvent? beforeSendCallbackDropEvent(
-  SentryEvent event,
-  Hint hint,
-) =>
-    null;
+SentryEvent? beforeSendCallbackDropEvent(SentryEvent event, Hint hint) => null;
 
 SentryTransaction? beforeSendFeedbackCallbackDropEvent(
   SentryEvent feedbackEvent,
   Hint hint,
-) =>
-    null;
+) => null;
 
 Future<SentryEvent?> asyncBeforeSendFeedbackCallbackDropEvent(
   SentryEvent feedbackEvent,
@@ -2502,8 +2648,7 @@ Future<SentryEvent?> asyncBeforeSendFeedbackCallbackDropEvent(
 SentryTransaction? beforeSendTransactionCallbackDropEvent(
   SentryTransaction event,
   Hint hint,
-) =>
-    null;
+) => null;
 
 Future<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event,
@@ -2598,10 +2743,7 @@ class Fixture {
 
     // Internally also creates a SentryClient instance
     final hub = Hub(options);
-    _context = SentryTransactionContext(
-      'name',
-      'op',
-    );
+    _context = SentryTransactionContext('name', 'op');
     tracer = SentryTracer(_context, hub);
 
     // Reset transport

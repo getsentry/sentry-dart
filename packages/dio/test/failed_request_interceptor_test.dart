@@ -128,9 +128,7 @@ void main() {
 
     fixture.hub.options.captureFailedRequests = true;
 
-    final sut = fixture.getSut(
-      failedRequestTargets: ['myapi.com'],
-    );
+    final sut = fixture.getSut(failedRequestTargets: ['myapi.com']);
     await sut.onError(error, fixture.errorInterceptorHandler);
 
     expect(fixture.errorInterceptorHandler.nextWasCalled, true);

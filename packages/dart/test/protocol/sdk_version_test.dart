@@ -71,10 +71,7 @@ class Fixture {
     'version': 'version',
     'integrations': ['test'],
     'packages': [
-      {
-        'name': 'name',
-        'version': 'version',
-      }
+      {'name': 'name', 'version': 'version'},
     ],
     'features': ['testFeature'],
   };
@@ -84,11 +81,11 @@ class Fixture {
   }
 
   SdkVersion getSut() => SdkVersion(
-        name: 'name',
-        version: 'version',
-        integrations: ['test'],
-        packages: [SentryPackage('name', 'version')],
-        features: ['testFeature'],
-        unknown: testUnknown,
-      );
+    name: 'name',
+    version: 'version',
+    integrations: ['test'],
+    packages: [SentryPackage('name', 'version')],
+    features: ['testFeature'],
+    unknown: testUnknown,
+  );
 }

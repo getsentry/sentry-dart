@@ -52,8 +52,9 @@ class IoPlatformContextProvider implements PlatformContextProvider {
 
   Future<int?> _getTotalPhysicalMemory() async {
     if (!_fetchedTotalPhysicalMemory) {
-      _totalPhysicalMemory =
-          await PlatformMemory(_options).getTotalPhysicalMemory();
+      _totalPhysicalMemory = await PlatformMemory(
+        _options,
+      ).getTotalPhysicalMemory();
       _fetchedTotalPhysicalMemory = true;
     }
     return _totalPhysicalMemory;
@@ -81,7 +82,7 @@ class IoPlatformContextProvider implements PlatformContextProvider {
       rawDescription: Platform.version,
     );
     final flRuntime = flutterRuntime;
-    return [dartRuntime, if (flRuntime != null) flRuntime];
+    return [dartRuntime, ?flRuntime];
   }
 
   SentryApp _buildApp() {

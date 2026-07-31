@@ -6,15 +6,11 @@ import 'package:sentry/sentry.dart';
 class FailedRequestInterceptor extends Interceptor {
   FailedRequestInterceptor({
     Hub? hub,
-    List<SentryStatusCode> failedRequestStatusCodes =
+    this._failedRequestStatusCodes =
         SentryHttpClient.defaultFailedRequestStatusCodes,
-    List<String> failedRequestTargets =
-        SentryHttpClient.defaultFailedRequestTargets,
-    bool? captureFailedRequests,
-  })  : _hub = hub ?? HubAdapter(),
-        _failedRequestStatusCodes = failedRequestStatusCodes,
-        _failedRequestTargets = failedRequestTargets,
-        _captureFailedRequests = captureFailedRequests;
+    this._failedRequestTargets = SentryHttpClient.defaultFailedRequestTargets,
+    this._captureFailedRequests,
+  }) : _hub = hub ?? HubAdapter();
 
   final Hub _hub;
   final List<SentryStatusCode> _failedRequestStatusCodes;
@@ -22,15 +18,13 @@ class FailedRequestInterceptor extends Interceptor {
   final bool? _captureFailedRequests;
 
   @override
-  Future<void> onError(
-    DioError err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
     // ignore: invalid_use_of_internal_member
     final cfr = _captureFailedRequests ?? _hub.options.captureFailedRequests;
 
-    final containsStatusCode =
-        _failedRequestStatusCodes._containsStatusCode(err.response?.statusCode);
+    final containsStatusCode = _failedRequestStatusCodes._containsStatusCode(
+      err.response?.statusCode,
+    );
     final containsRequestTarget = containsTargetOrMatchesRegExp(
       _failedRequestTargets,
       err.requestOptions.path,

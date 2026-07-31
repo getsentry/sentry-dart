@@ -39,9 +39,7 @@ void main() {
     test('no $SentryRequest for $HttpException without uris', () {
       final enricher = fixture.getSut();
       final event = enricher.apply(
-        SentryEvent(
-          throwable: HttpException(''),
-        ),
+        SentryEvent(throwable: HttpException('')),
         Hint(),
       );
 
@@ -54,19 +52,14 @@ void main() {
         'Exception while connecting',
         osError: OSError('Connection reset by peer', 54),
         port: 12345,
-        address: InternetAddress(
-          '127.0.0.1',
-          type: InternetAddressType.IPv4,
-        ),
+        address: InternetAddress('127.0.0.1', type: InternetAddressType.IPv4),
       );
-      final sentryException =
-          fixture.exceptionFactory.getSentryException(throwable);
+      final sentryException = fixture.exceptionFactory.getSentryException(
+        throwable,
+      );
 
       final event = enricher.apply(
-        SentryEvent(
-          throwable: throwable,
-          exceptions: [sentryException],
-        ),
+        SentryEvent(throwable: throwable, exceptions: [sentryException]),
         Hint(),
       );
 
@@ -78,8 +71,10 @@ void main() {
 
       final childException = rootException?.exceptions?.first;
       expect(childException?.type, 'OSError');
-      expect(childException?.value,
-          'OS Error: Connection reset by peer, errno = 54');
+      expect(
+        childException?.value,
+        'OS Error: Connection reset by peer, errno = 54',
+      );
       expect(childException?.mechanism?.type, 'OSError');
       expect(childException?.mechanism?.meta['errno']['number'], 54);
       expect(childException?.mechanism?.source, 'osError');
@@ -92,14 +87,12 @@ void main() {
         'path',
         OSError('Oh no :(', 42),
       );
-      final sentryException =
-          fixture.exceptionFactory.getSentryException(throwable);
+      final sentryException = fixture.exceptionFactory.getSentryException(
+        throwable,
+      );
 
       final event = enricher.apply(
-        SentryEvent(
-          throwable: throwable,
-          exceptions: [sentryException],
-        ),
+        SentryEvent(throwable: throwable, exceptions: [sentryException]),
         Hint(),
       );
 
@@ -110,10 +103,7 @@ void main() {
       // Due to the test setup, there's no SentryException for the FileSystemException.
       // And thus only one entry for the added OSError
       expect(childException?.type, 'OSError');
-      expect(
-        childException?.value,
-        'OS Error: Oh no :(, errno = 42',
-      );
+      expect(childException?.value, 'OS Error: Oh no :(, errno = 42');
       expect(childException?.mechanism?.type, 'OSError');
       expect(childException?.mechanism?.meta['errno']['number'], 42);
       expect(childException?.mechanism?.source, 'osError');

@@ -54,7 +54,8 @@ class DeduplicationEventProcessor implements EventProcessor {
 
     if (_exceptionToDeduplicate.contains(exceptionHashCode)) {
       internalLogger.info(
-        () => 'Duplicated exception detected. '
+        () =>
+            'Duplicated exception detected. '
             'Event ${event.eventId} will be discarded.',
       );
       return null;

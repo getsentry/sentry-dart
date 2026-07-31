@@ -80,7 +80,7 @@ import 'tracing_client.dart';
 /// ```
 class SentryHttpClient extends BaseClient {
   static const defaultFailedRequestStatusCodes = [
-    SentryStatusCode.defaultRange()
+    SentryStatusCode.defaultRange(),
   ];
   static const defaultFailedRequestTargets = ['.*'];
 
@@ -133,17 +133,17 @@ class SentryStatusCode {
   static const _defaultMax = 599;
 
   const SentryStatusCode.defaultRange()
-      : _min = _defaultMin,
-        _max = _defaultMax;
+    : _min = _defaultMin,
+      _max = _defaultMax;
 
   SentryStatusCode.range(this._min, this._max)
-      : assert(_min <= _max),
-        assert(_min > 0 && _max > 0);
+    : assert(_min <= _max),
+      assert(_min > 0 && _max > 0);
 
   SentryStatusCode(int statusCode)
-      : _min = statusCode,
-        _max = statusCode,
-        assert(statusCode > 0);
+    : _min = statusCode,
+      _max = statusCode,
+      assert(statusCode > 0);
 
   final int _min;
   final int _max;

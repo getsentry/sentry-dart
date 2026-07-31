@@ -10,12 +10,13 @@ class PlatformMemory {
     if (options.platform.isWindows) {
       // Check for WMIC (deprecated in newer Windows versions)
       // https://techcommunity.microsoft.com/blog/windows-itpro-blog/wmi-command-line-wmic-utility-deprecation-next-steps/4039242
-      useWindowsWmci =
-          File('C:\\Windows\\System32\\wbem\\wmic.exe').existsSync();
+      useWindowsWmci = File(
+        'C:\\Windows\\System32\\wbem\\wmic.exe',
+      ).existsSync();
       if (!useWindowsWmci) {
         useWindowsPowerShell = File(
-                'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe')
-            .existsSync();
+          'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',
+        ).existsSync();
       } else {
         useWindowsPowerShell = false;
       }
@@ -78,11 +79,17 @@ class PlatformMemory {
     return memsize;
   }
 
-  Future<String?> _exec(String executable, List<String> arguments,
-      {bool runInShell = false}) async {
+  Future<String?> _exec(
+    String executable,
+    List<String> arguments, {
+    bool runInShell = false,
+  }) async {
     try {
-      final result =
-          await Process.run(executable, arguments, runInShell: runInShell);
+      final result = await Process.run(
+        executable,
+        arguments,
+        runInShell: runInShell,
+      );
       if (result.exitCode == 0) {
         return result.stdout.toString();
       }
@@ -96,7 +103,9 @@ class PlatformMemory {
   }
 
   Future<Map<String, String>?> _wmicGetValueAsMap(
-      String section, List<String> fields) async {
+    String section,
+    List<String> fields,
+  ) async {
     final arguments = <String>[section];
     arguments
       ..add('get')
@@ -126,8 +135,12 @@ class PlatformMemory {
     final command =
         'Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory';
 
-    final result = await _exec('powershell.exe',
-        ['-NoProfile', '-NonInteractive', '-Command', command]);
+    final result = await _exec('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      command,
+    ]);
     if (result == null) {
       return null;
     }

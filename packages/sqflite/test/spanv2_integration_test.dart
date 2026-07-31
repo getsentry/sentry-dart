@@ -38,14 +38,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late List<Map<String, Object?>> result;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          result = await db.query('Test');
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        result = await db.query('Test');
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -89,14 +85,10 @@ void main() {
       ''');
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await db.insert('Test', {'name': 'Jane Doe'});
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await db.insert('Test', {'name': 'Jane Doe'});
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -133,17 +125,13 @@ void main() {
       ''');
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await db.transaction((txn) async {
-            await txn.insert('Test', {'name': 'Alice'});
-            await txn.insert('Test', {'name': 'Bob'});
-          });
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await db.transaction((txn) async {
+          await txn.insert('Test', {'name': 'Alice'});
+          await txn.insert('Test', {'name': 'Bob'});
+        });
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -194,13 +182,14 @@ class Fixture {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
 
-    db = await SentrySqfliteDatabaseFactory(
-      databaseFactory: databaseFactory,
-      hub: hub,
-    ).openDatabase(
-      inMemoryDatabasePath,
-      options: OpenDatabaseOptions(version: 1),
-    );
+    db =
+        await SentrySqfliteDatabaseFactory(
+          databaseFactory: databaseFactory,
+          hub: hub,
+        ).openDatabase(
+          inMemoryDatabasePath,
+          options: OpenDatabaseOptions(version: 1),
+        );
   }
 
   Future<void> tearDown() async {

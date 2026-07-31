@@ -17,7 +17,7 @@ class HttpSanitizer {
     "PROXY-AUTHORIZATION",
     "X-CSRF-TOKEN",
     "X-CSRFTOKEN",
-    "X-XSRF-TOKEN"
+    "X-XSRF-TOKEN",
   ];
 
   /// Parse and sanitize url data for sentry.io
@@ -37,9 +37,10 @@ class HttpSanitizer {
         final uri = Uri.parse(url);
         final urlWithRedactedAuth = uri._urlWithRedactedAuth();
         return UrlDetails(
-            url: urlWithRedactedAuth.isEmpty ? null : urlWithRedactedAuth,
-            query: uri.query.isEmpty ? null : uri.query,
-            fragment: uri.fragment.isEmpty ? null : uri.fragment);
+          url: urlWithRedactedAuth.isEmpty ? null : urlWithRedactedAuth,
+          query: uri.query.isEmpty ? null : uri.query,
+          fragment: uri.fragment.isEmpty ? null : uri.fragment,
+        );
       } catch (_) {
         return null;
       }
@@ -67,8 +68,9 @@ extension _UriPath on Uri {
       buffer += '$scheme://';
     }
     if (userInfo.isNotEmpty) {
-      buffer +=
-          userInfo.contains(":") ? "[Filtered]:[Filtered]@" : "[Filtered]@";
+      buffer += userInfo.contains(":")
+          ? "[Filtered]:[Filtered]@"
+          : "[Filtered]@";
     }
     buffer += host;
     if (path.isNotEmpty) {

@@ -292,7 +292,7 @@ void main() {
 }
 
 MockHttpClientAdapter createThrowingClient() {
-  return MockHttpClientAdapter((options, _, __) async {
+  return MockHttpClientAdapter((options, _, _) async {
     expect(options.uri, requestUri);
     throw TestException();
   });

@@ -164,7 +164,9 @@ class SentryOptions {
 
   void _configureInternalLogger() {
     SentryInternalLogger.configure(
-        isEnabled: _debug, minLevel: _diagnosticLevel);
+      isEnabled: _debug,
+      minLevel: _diagnosticLevel,
+    );
   }
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
@@ -380,8 +382,10 @@ class SentryOptions {
   double? get tracesSampleRate => _tracesSampleRate;
 
   set tracesSampleRate(double? tracesSampleRate) {
-    assert(tracesSampleRate == null ||
-        (tracesSampleRate >= 0 && tracesSampleRate <= 1));
+    assert(
+      tracesSampleRate == null ||
+          (tracesSampleRate >= 0 && tracesSampleRate <= 1),
+    );
     _tracesSampleRate = tracesSampleRate;
   }
 
@@ -509,15 +513,20 @@ class SentryOptions {
       List.unmodifiable(_exceptionTypeIdentifiers);
 
   void addExceptionTypeIdentifierByIndex(
-      int index, ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    int index,
+    ExceptionTypeIdentifier exceptionTypeIdentifier,
+  ) {
     _exceptionTypeIdentifiers.insert(
-        index, exceptionTypeIdentifier.withCache());
+      index,
+      exceptionTypeIdentifier.withCache(),
+    );
   }
 
   /// Adds an exception type identifier to the beginning of the list.
   /// This ensures it is processed first and takes precedence over existing identifiers.
   void prependExceptionTypeIdentifier(
-      ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    ExceptionTypeIdentifier exceptionTypeIdentifier,
+  ) {
     addExceptionTypeIdentifierByIndex(0, exceptionTypeIdentifier);
   }
 
@@ -674,8 +683,9 @@ class SentryOptions {
   late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
 
   @internal
-  late SentryStackTraceFactory stackTraceFactory =
-      SentryStackTraceFactory(this);
+  late SentryStackTraceFactory stackTraceFactory = SentryStackTraceFactory(
+    this,
+  );
 
   /// Factory for creating instrumentation spans.
   ///
@@ -689,47 +699,38 @@ class SentryOptions {
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
-  SentryEvent event,
-  Hint hint,
-);
+typedef BeforeSendCallback =
+    FutureOr<SentryEvent?> Function(SentryEvent event, Hint hint);
 
 /// This function is called with an SDK specific transaction object and can return a modified transaction
 /// object or nothing to skip reporting the transaction
-typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
-  SentryTransaction transaction,
-  Hint hint,
-);
+typedef BeforeSendTransactionCallback =
+    FutureOr<SentryTransaction?> Function(
+      SentryTransaction transaction,
+      Hint hint,
+    );
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
-  Breadcrumb? breadcrumb,
-  Hint hint,
-);
+typedef BeforeBreadcrumbCallback =
+    Breadcrumb? Function(Breadcrumb? breadcrumb, Hint hint);
 
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
-typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(
-  SentryLog log,
-  Hint hint,
-);
+typedef BeforeSendLogCallback =
+    FutureOr<SentryLog?> Function(SentryLog log, Hint hint);
 
 /// This function is called right before a metric is about to be emitted.
 /// Can return a modified metric or null to drop the metric.
-typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
-  SentryMetric metric,
-  Hint hint,
-);
+typedef BeforeSendMetricCallback =
+    FutureOr<SentryMetric?> Function(SentryMetric metric, Hint hint);
 
 /// This function is called right before a span is about to be sent.
-typedef BeforeSendSpanCallback = FutureOr<void> Function(
-  SentrySpanV2 span,
-  Hint hint,
-);
+typedef BeforeSendSpanCallback =
+    FutureOr<void> Function(SentrySpanV2 span, Hint hint);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
 
-typedef TracesSamplerCallback = double? Function(
-    SentrySamplingContext samplingContext);
+typedef TracesSamplerCallback =
+    double? Function(SentrySamplingContext samplingContext);

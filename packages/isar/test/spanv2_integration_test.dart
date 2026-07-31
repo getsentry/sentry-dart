@@ -32,14 +32,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late int count;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          count = await collection.count();
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        count = await collection.count();
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -79,16 +75,12 @@ void main() {
       final collection = fixture.isar.persons;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await fixture.isar.writeTxn(() async {
-            await collection.put(Person()..name = 'John Doe');
-          });
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await fixture.isar.writeTxn(() async {
+          await collection.put(Person()..name = 'John Doe');
+        });
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -127,14 +119,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late Person? person;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          person = await collection.get(1);
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        person = await collection.get(1);
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 

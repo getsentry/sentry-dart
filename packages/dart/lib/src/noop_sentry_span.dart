@@ -50,8 +50,7 @@ class NoOpSentrySpan extends ISentrySpan {
     String operation, {
     String? description,
     DateTime? startTimestamp,
-  }) =>
-      NoOpSentrySpan();
+  }) => NoOpSentrySpan();
 
   @override
   SentrySpanContext get context => _spanContext;

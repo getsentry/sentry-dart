@@ -6,8 +6,9 @@ void main() {
   group('SentrySamplingContext', () {
     group('when created for SpanV2', () {
       test('sets streaming lifecycle', () {
-        final spanContext = SentrySpanSamplingContextV2(
-            'span-name', {'key': SentryAttribute.string('value')});
+        final spanContext = SentrySpanSamplingContextV2('span-name', {
+          'key': SentryAttribute.string('value'),
+        });
 
         final context = SentrySamplingContext.forSpanV2(spanContext);
 
@@ -35,18 +36,22 @@ void main() {
       test('sets static lifecycle', () {
         final transactionContext = SentryTransactionContext('tx-name', 'op');
 
-        final context =
-            SentrySamplingContext.forTransaction(transactionContext);
+        final context = SentrySamplingContext.forTransaction(
+          transactionContext,
+        );
 
         expect(context.traceLifecycle, equals(SentryTraceLifecycle.static));
       });
 
       test('provides access to transaction context', () {
-        final transactionContext =
-            SentryTransactionContext('my-transaction', 'http');
+        final transactionContext = SentryTransactionContext(
+          'my-transaction',
+          'http',
+        );
 
-        final context =
-            SentrySamplingContext.forTransaction(transactionContext);
+        final context = SentrySamplingContext.forTransaction(
+          transactionContext,
+        );
 
         expect(context.transactionContext.name, equals('my-transaction'));
         expect(context.transactionContext.operation, equals('http'));
@@ -73,8 +78,10 @@ void main() {
           customSamplingContext: customContext,
         );
 
-        expect(() => context.customSamplingContext['newKey'] = 'newValue',
-            throwsA(isA<UnsupportedError>()));
+        expect(
+          () => context.customSamplingContext['newKey'] = 'newValue',
+          throwsA(isA<UnsupportedError>()),
+        );
       });
     });
   });

@@ -50,7 +50,10 @@ extension TypeSafeMapExtension on Map<String, dynamic> {
     if (T == DateTime) {
       if (value is! String) {
         _logTypeMismatch(
-            key, 'String (for DateTime)', value.runtimeType.toString());
+          key,
+          'String (for DateTime)',
+          value.runtimeType.toString(),
+        );
         return null;
       }
       final dt = DateTime.tryParse(value);

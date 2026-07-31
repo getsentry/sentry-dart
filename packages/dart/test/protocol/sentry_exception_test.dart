@@ -11,8 +11,8 @@ void main() {
     'module': 'module',
     'stacktrace': {
       'frames': [
-        {'abs_path': 'abs'}
-      ]
+        {'abs_path': 'abs'},
+      ],
     },
     'mechanism': {'type': 'type'},
     'thread_id': 1,
@@ -24,10 +24,7 @@ void main() {
       final sentryException = SentryException.fromJson(sentryExceptionJson);
       final json = sentryException.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryExceptionJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryExceptionJson, json), true);
     });
 
     test('should serialize stacktrace', () {
@@ -43,27 +40,29 @@ void main() {
             'number': 10,
             'code': 0,
             'name': 'SIGBUS',
-            'code_name': 'BUS_NOOP'
-          }
+            'code_name': 'BUS_NOOP',
+          },
         },
       );
-      final stacktrace = SentryStackTrace(frames: [
-        SentryStackFrame(
-          absPath: 'frame-path',
-          fileName: 'example.dart',
-          function: 'parse',
-          module: 'example-module',
-          lineNo: 1,
-          colNo: 2,
-          contextLine: 'context-line example',
-          inApp: true,
-          package: 'example-package',
-          native: false,
-          platform: 'dart',
-          rawFunction: 'example-rawFunction',
-          framesOmitted: [1, 2, 3],
-        ),
-      ]);
+      final stacktrace = SentryStackTrace(
+        frames: [
+          SentryStackFrame(
+            absPath: 'frame-path',
+            fileName: 'example.dart',
+            function: 'parse',
+            module: 'example-module',
+            lineNo: 1,
+            colNo: 2,
+            contextLine: 'context-line example',
+            inApp: true,
+            package: 'example-package',
+            native: false,
+            platform: 'dart',
+            rawFunction: 'example-rawFunction',
+            framesOmitted: [1, 2, 3],
+          ),
+        ],
+      );
 
       final sentryException = SentryException(
         type: 'StateError',
@@ -91,8 +90,8 @@ void main() {
           'number': 10,
           'code': 0,
           'name': 'SIGBUS',
-          'code_name': 'BUS_NOOP'
-        }
+          'code_name': 'BUS_NOOP',
+        },
       });
 
       final serializedFrame = serialized['stacktrace']['frames'].first;

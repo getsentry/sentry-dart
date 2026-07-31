@@ -23,11 +23,7 @@ void main() {
 
     test('transformRequest creates span', () async {
       final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       await sut.transformRequest(RequestOptions(path: requestUri.toString()));
 
@@ -49,11 +45,7 @@ void main() {
 
     test('transformRequest finish span if errored request', () async {
       final sut = fixture.getSut(throwException: true);
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       try {
         await sut.transformRequest(RequestOptions(path: requestUri.toString()));
@@ -77,11 +69,7 @@ void main() {
 
     test('transformResponse creates span', () async {
       final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       await sut.transformResponse(
         RequestOptions(path: requestUri.toString()),
@@ -105,11 +93,7 @@ void main() {
 
     test('transformResponse finish span if errored request', () async {
       final sut = fixture.getSut(throwException: true);
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       try {
         await sut.transformResponse(

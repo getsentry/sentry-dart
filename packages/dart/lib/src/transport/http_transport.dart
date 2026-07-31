@@ -32,8 +32,10 @@ class HttpTransport implements Transport {
   }
 
   HttpTransport._(this._options, this._rateLimiter)
-      : _requestHandler =
-            HttpTransportRequestHandler(_options, _options.parsedDsn.postUri);
+    : _requestHandler = HttpTransportRequestHandler(
+        _options,
+        _options.parsedDsn.postUri,
+      );
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
@@ -47,10 +49,16 @@ class HttpTransport implements Transport {
           .send(streamedRequest)
           .then(Response.fromStream);
     } catch (error, stackTrace) {
-      internalLogger.error('Failed to send envelope',
-          error: error, stackTrace: stackTrace);
+      internalLogger.error(
+        'Failed to send envelope',
+        error: error,
+        stackTrace: stackTrace,
+      );
       TransportUtils.recordLostEvents(
-          _options, envelope, DiscardReason.networkError);
+        _options,
+        envelope,
+        DiscardReason.networkError,
+      );
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -66,7 +74,10 @@ class HttpTransport implements Transport {
     }
     if (response.statusCode >= 400 && response.statusCode != 429) {
       TransportUtils.recordLostEvents(
-          _options, envelope, DiscardReason.networkError);
+        _options,
+        envelope,
+        DiscardReason.networkError,
+      );
     }
     if (response.statusCode == 429) {
       internalLogger.warning('Rate limit reached, failed to send envelope');
@@ -79,8 +90,11 @@ class HttpTransport implements Transport {
       final eventId = json.decode(response.body)['id'];
       return eventId != null ? SentryId.fromId(eventId) : null;
     } catch (error, stackTrace) {
-      internalLogger.error('Error parsing response',
-          error: error, stackTrace: stackTrace);
+      internalLogger.error(
+        'Error parsing response',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -100,6 +114,9 @@ class HttpTransport implements Transport {
     // 50::key is also a valid case, it means no categories and it should apply to all of them
     final sentryRateLimitHeader = response.headers['x-sentry-rate-limits'];
     _rateLimiter.updateRetryAfterLimits(
-        sentryRateLimitHeader, retryAfterHeader, response.statusCode);
+      sentryRateLimitHeader,
+      retryAfterHeader,
+      response.statusCode,
+    );
   }
 }

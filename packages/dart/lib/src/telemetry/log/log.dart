@@ -30,8 +30,9 @@ class SentryLog {
       if (spanId != null) 'span_id': spanId.toString(),
       'level': level.value,
       'body': body,
-      'attributes':
-          attributes.map((key, value) => MapEntry(key, value.toJson())),
+      'attributes': attributes.map(
+        (key, value) => MapEntry(key, value.toJson()),
+      ),
       'severity_number': severityNumber ?? level.toSeverityNumber(),
     };
   }

@@ -40,8 +40,4 @@ class SentryProxy {
   }
 }
 
-enum SentryProxyType {
-  direct,
-  http,
-  socks;
-}
+enum SentryProxyType { direct, http, socks }

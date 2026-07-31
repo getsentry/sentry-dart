@@ -27,8 +27,9 @@ class HomeScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              themeProvider.theme =
-                  isDark ? ThemeData.light() : ThemeData.dark();
+              themeProvider.theme = isDark
+                  ? ThemeData.light()
+                  : ThemeData.dark();
             },
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
           ),
@@ -48,10 +49,7 @@ class HomeScreen extends StatelessWidget {
           RichText(
             text: const TextSpan(
               text: '(I am) Rich Text',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.black, fontSize: 16),
             ),
           ),
           Expanded(
@@ -66,45 +64,51 @@ class HomeScreen extends StatelessWidget {
                     icon: Icons.bug_report,
                     label: 'Errors',
                     onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ErrorsScreen())),
+                      context,
+                      MaterialPageRoute(builder: (_) => const ErrorsScreen()),
+                    ),
                   ),
                   _CategoryCard(
                     icon: Icons.send,
                     label: 'Events',
                     onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const EventsScreen())),
+                      context,
+                      MaterialPageRoute(builder: (_) => const EventsScreen()),
+                    ),
                   ),
                   _CategoryCard(
                     icon: Icons.speed,
                     label: 'Performance',
                     onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const PerformanceScreen())),
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PerformanceScreen(),
+                      ),
+                    ),
                   ),
                   _CategoryCard(
                     icon: Icons.list_alt,
                     label: 'Logs',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const LogsScreen())),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LogsScreen()),
+                    ),
                   ),
                   _CategoryCard(
                     icon: Icons.bar_chart,
                     label: 'Metrics',
                     onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const MetricsScreen())),
+                      context,
+                      MaterialPageRoute(builder: (_) => const MetricsScreen()),
+                    ),
                   ),
                   _CategoryCard(
                     icon: Icons.more_horiz,
                     label: 'Other',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const OtherScreen())),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const OtherScreen()),
+                    ),
                   ),
                 ],
               ),

@@ -5,10 +5,7 @@ import '../mocks.dart';
 
 void main() {
   group('$SentryTransactionInfo', () {
-    final info = SentryTransactionInfo(
-      'component',
-      unknown: testUnknown,
-    );
+    final info = SentryTransactionInfo('component', unknown: testUnknown);
 
     final json = <String, dynamic>{'source': 'component'};
     json.addAll(testUnknown);

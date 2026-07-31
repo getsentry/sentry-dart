@@ -263,13 +263,11 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Renders an ASCII representation of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
-  @meta.experimental
   bool attachViewHierarchy = false;
 
   /// Sets a callback which is executed before capturing view hierarchy. Only
   /// relevant if `attachViewHierarchy` is set to true. When false is returned
   /// from the function, no view hierarchy will be attached.
-  @meta.experimental
   BeforeCaptureCallback? beforeCaptureViewHierarchy;
 
   /// Enables collection of view hierarchy element identifiers.
@@ -404,7 +402,7 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
-  @meta.experimental
+  @meta.internal
   BindingWrapper bindingUtils = BindingWrapper();
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.

@@ -12,8 +12,5 @@ class SentrySpanSamplingContextV2 {
   SentrySpanSamplingContextV2(this.name, this.attributes);
 
   factory SentrySpanSamplingContextV2.fromSpan(SentrySpanV2 span) =>
-      SentrySpanSamplingContextV2(
-        span.name,
-        Map.unmodifiable(span.attributes),
-      );
+      SentrySpanSamplingContextV2(span.name, Map.unmodifiable(span.attributes));
 }

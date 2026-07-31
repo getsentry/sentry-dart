@@ -51,8 +51,8 @@ class SentryDevice {
     this.supportsLocationService,
     this.unknown,
   }) : assert(
-          batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
-        );
+         batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
+       );
 
   /// The name of the device. This is typically a hostname.
   String? name;

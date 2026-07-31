@@ -5,18 +5,24 @@ void main() {
   group('$SentryMeasurementUnit', () {
     group('DurationUnit', () {
       test('nanosecond', () {
-        expect(DurationSentryMeasurementUnit.nanoSecond.toStringValue(),
-            'nanosecond');
+        expect(
+          DurationSentryMeasurementUnit.nanoSecond.toStringValue(),
+          'nanosecond',
+        );
       });
 
       test('microsecond', () {
-        expect(DurationSentryMeasurementUnit.microSecond.toStringValue(),
-            'microsecond');
+        expect(
+          DurationSentryMeasurementUnit.microSecond.toStringValue(),
+          'microsecond',
+        );
       });
 
       test('millisecond', () {
-        expect(DurationSentryMeasurementUnit.milliSecond.toStringValue(),
-            'millisecond');
+        expect(
+          DurationSentryMeasurementUnit.milliSecond.toStringValue(),
+          'millisecond',
+        );
       });
 
       test('second', () {
@@ -47,7 +53,9 @@ void main() {
 
       test('percent', () {
         expect(
-            FractionSentryMeasurementUnit.percent.toStringValue(), 'percent');
+          FractionSentryMeasurementUnit.percent.toStringValue(),
+          'percent',
+        );
       });
     });
 
@@ -67,57 +75,81 @@ void main() {
       });
 
       test('kilobyte', () {
-        expect(InformationSentryMeasurementUnit.kiloByte.toStringValue(),
-            'kilobyte');
+        expect(
+          InformationSentryMeasurementUnit.kiloByte.toStringValue(),
+          'kilobyte',
+        );
       });
 
       test('kibibyte', () {
-        expect(InformationSentryMeasurementUnit.kibiByte.toStringValue(),
-            'kibibyte');
+        expect(
+          InformationSentryMeasurementUnit.kibiByte.toStringValue(),
+          'kibibyte',
+        );
       });
 
       test('megabyte', () {
-        expect(InformationSentryMeasurementUnit.megaByte.toStringValue(),
-            'megabyte');
+        expect(
+          InformationSentryMeasurementUnit.megaByte.toStringValue(),
+          'megabyte',
+        );
       });
 
       test('mebibyte', () {
-        expect(InformationSentryMeasurementUnit.mebiByte.toStringValue(),
-            'mebibyte');
+        expect(
+          InformationSentryMeasurementUnit.mebiByte.toStringValue(),
+          'mebibyte',
+        );
       });
 
       test('gigabyte', () {
-        expect(InformationSentryMeasurementUnit.gigaByte.toStringValue(),
-            'gigabyte');
+        expect(
+          InformationSentryMeasurementUnit.gigaByte.toStringValue(),
+          'gigabyte',
+        );
       });
 
       test('gibibyte', () {
-        expect(InformationSentryMeasurementUnit.gibiByte.toStringValue(),
-            'gibibyte');
+        expect(
+          InformationSentryMeasurementUnit.gibiByte.toStringValue(),
+          'gibibyte',
+        );
       });
       test('terabyte', () {
-        expect(InformationSentryMeasurementUnit.teraByte.toStringValue(),
-            'terabyte');
+        expect(
+          InformationSentryMeasurementUnit.teraByte.toStringValue(),
+          'terabyte',
+        );
       });
       test('tebibyte', () {
-        expect(InformationSentryMeasurementUnit.tebiByte.toStringValue(),
-            'tebibyte');
+        expect(
+          InformationSentryMeasurementUnit.tebiByte.toStringValue(),
+          'tebibyte',
+        );
       });
       test('petabyte', () {
-        expect(InformationSentryMeasurementUnit.petaByte.toStringValue(),
-            'petabyte');
+        expect(
+          InformationSentryMeasurementUnit.petaByte.toStringValue(),
+          'petabyte',
+        );
       });
       test('pebibyte', () {
-        expect(InformationSentryMeasurementUnit.pebiByte.toStringValue(),
-            'pebibyte');
+        expect(
+          InformationSentryMeasurementUnit.pebiByte.toStringValue(),
+          'pebibyte',
+        );
       });
       test('exabyte', () {
-        expect(InformationSentryMeasurementUnit.exaByte.toStringValue(),
-            'exabyte');
+        expect(
+          InformationSentryMeasurementUnit.exaByte.toStringValue(),
+          'exabyte',
+        );
       });
       test('exbibyte', () {
-        expect(InformationSentryMeasurementUnit.exbiByte.toStringValue(),
-            'exbibyte');
+        expect(
+          InformationSentryMeasurementUnit.exbiByte.toStringValue(),
+          'exbibyte',
+        );
       });
     });
 

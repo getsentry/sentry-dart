@@ -46,17 +46,21 @@ void main() {
     expect(traceContext.status.toString(), 'aborted');
     expect(traceContext.sampled, true);
     expect(
-        traceContext.replayId.toString(), '00000000000000000000000000000004');
+      traceContext.replayId.toString(),
+      '00000000000000000000000000000004',
+    );
     expect(traceContext.data, {'key': 'value'});
   });
 
   test('fromPropagationContext creates valid SentryTraceContext', () {
     final propagationContext = PropagationContext();
 
-    final traceContext1 =
-        SentryTraceContext.fromPropagationContext(propagationContext);
-    final traceContext2 =
-        SentryTraceContext.fromPropagationContext(propagationContext);
+    final traceContext1 = SentryTraceContext.fromPropagationContext(
+      propagationContext,
+    );
+    final traceContext2 = SentryTraceContext.fromPropagationContext(
+      propagationContext,
+    );
 
     expect(traceContext1.traceId, propagationContext.traceId);
     expect(traceContext1.traceId, traceContext2.traceId);

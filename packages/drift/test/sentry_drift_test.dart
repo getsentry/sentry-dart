@@ -1,7 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member, library_annotations
 
 @TestOn('vm')
-
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:test/test.dart';
@@ -33,10 +32,7 @@ void main() {
 
   setUp(() async {
     fixture = Fixture();
-    await Sentry.init(
-      (options) {},
-      options: fixture.options,
-    );
+    await Sentry.init((options) {}, options: fixture.options);
   });
 
   group('open operations', () {
@@ -67,8 +63,9 @@ void main() {
       final exception = Exception('test');
       final queryExecutor = MockQueryExecutor();
       when(queryExecutor.ensureOpen(any)).thenThrow(exception);
-      when(queryExecutor.runInsert(any, any))
-          .thenAnswer((_) => Future.value(1));
+      when(
+        queryExecutor.runInsert(any, any),
+      ).thenAnswer((_) => Future.value(1));
       when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
       final sut = fixture.getSut();
@@ -124,8 +121,9 @@ void main() {
       final exception = Exception('test');
       final queryExecutor = MockQueryExecutor();
       when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
-      when(queryExecutor.runInsert(any, any))
-          .thenAnswer((_) => Future.value(1));
+      when(
+        queryExecutor.runInsert(any, any),
+      ).thenAnswer((_) => Future.value(1));
       when(queryExecutor.close()).thenThrow(exception);
       when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
@@ -164,10 +162,7 @@ void main() {
       final tx = _startTransaction();
       await _insertRow(db);
 
-      _verifySpan(
-        expectedInsertStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedInsertStatement, tx.children.last);
     });
 
     test('error case adds error span', () async {
@@ -187,11 +182,7 @@ void main() {
         // making sure the thrown exception doesn't fail the test
       }
 
-      _verifyErrorSpan(
-        expectedInsertStatement,
-        exception,
-        tx.children.last,
-      );
+      _verifyErrorSpan(expectedInsertStatement, exception, tx.children.last);
     });
   });
 
@@ -204,18 +195,16 @@ void main() {
       await _insertRow(db);
       await _updateRow(db);
 
-      _verifySpan(
-        expectedUpdateStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedUpdateStatement, tx.children.last);
     });
 
     test('error case adds error span', () async {
       final exception = Exception('test');
       final queryExecutor = MockQueryExecutor();
       when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
-      when(queryExecutor.runInsert(any, any))
-          .thenAnswer((_) => Future.value(1));
+      when(
+        queryExecutor.runInsert(any, any),
+      ).thenAnswer((_) => Future.value(1));
       when(queryExecutor.runUpdate(any, any)).thenThrow(exception);
       when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
@@ -230,11 +219,7 @@ void main() {
         // making sure the thrown exception doesn't fail the test
       }
 
-      _verifyErrorSpan(
-        expectedUpdateStatement,
-        exception,
-        tx.children.last,
-      );
+      _verifyErrorSpan(expectedUpdateStatement, exception, tx.children.last);
     });
   });
 
@@ -247,18 +232,16 @@ void main() {
       await _insertRow(db);
       await db.delete(db.todoItems).go();
 
-      _verifySpan(
-        expectedDeleteStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedDeleteStatement, tx.children.last);
     });
 
     test('error case adds error span', () async {
       final exception = Exception('test');
       final queryExecutor = MockQueryExecutor();
       when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
-      when(queryExecutor.runInsert(any, any))
-          .thenAnswer((_) => Future.value(1));
+      when(
+        queryExecutor.runInsert(any, any),
+      ).thenAnswer((_) => Future.value(1));
       when(queryExecutor.runDelete(any, any)).thenThrow(exception);
       when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
@@ -273,11 +256,7 @@ void main() {
         // making sure the thrown exception doesn't fail the test
       }
 
-      _verifyErrorSpan(
-        expectedDeleteStatement,
-        exception,
-        tx.children.last,
-      );
+      _verifyErrorSpan(expectedDeleteStatement, exception, tx.children.last);
     });
   });
 
@@ -290,18 +269,16 @@ void main() {
       await _insertRow(db);
       await db.select(db.todoItems).get();
 
-      _verifySpan(
-        expectedSelectStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedSelectStatement, tx.children.last);
     });
 
     test('error case adds error span', () async {
       final exception = Exception('test');
       final queryExecutor = MockQueryExecutor();
       when(queryExecutor.ensureOpen(any)).thenAnswer((_) => Future.value(true));
-      when(queryExecutor.runInsert(any, any))
-          .thenAnswer((_) => Future.value(1));
+      when(
+        queryExecutor.runInsert(any, any),
+      ).thenAnswer((_) => Future.value(1));
       when(queryExecutor.runSelect(any, any)).thenThrow(exception);
       when(queryExecutor.dialect).thenReturn(SqlDialect.sqlite);
 
@@ -316,11 +293,7 @@ void main() {
         // making sure the thrown exception doesn't fail the test
       }
 
-      _verifyErrorSpan(
-        expectedSelectStatement,
-        exception,
-        tx.children.last,
-      );
+      _verifyErrorSpan(expectedSelectStatement, exception, tx.children.last);
     });
   });
 
@@ -332,10 +305,7 @@ void main() {
       final tx = _startTransaction();
       await db.customStatement(expectedSelectStatement);
 
-      _verifySpan(
-        expectedSelectStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedSelectStatement, tx.children.last);
     });
 
     test('error case adds error span', () async {
@@ -355,11 +325,7 @@ void main() {
         // making sure the thrown exception doesn't fail the test
       }
 
-      _verifyErrorSpan(
-        expectedSelectStatement,
-        exception,
-        tx.children.last,
-      );
+      _verifyErrorSpan(expectedSelectStatement, exception, tx.children.last);
     });
   });
 
@@ -385,7 +351,9 @@ void main() {
 
       final tx = _startTransaction();
       await db.transaction(() async {
-        await db.into(db.todoItems).insert(
+        await db
+            .into(db.todoItems)
+            .insert(
               TodoItemsCompanion.insert(
                 title: 'first transaction insert',
                 content: 'test',
@@ -428,10 +396,7 @@ void main() {
           .length;
       expect(insertSpanCount, 2);
 
-      _verifySpan(
-        expectedInsertStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedInsertStatement, tx.children.last);
 
       _verifySpan(
         SentrySpanDescriptions.dbTransaction,
@@ -464,10 +429,7 @@ void main() {
           .length;
       expect(updateSpanCount, 1);
 
-      _verifySpan(
-        expectedUpdateStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedUpdateStatement, tx.children.last);
 
       _verifySpan(
         SentrySpanDescriptions.dbTransaction,
@@ -500,10 +462,7 @@ void main() {
           .length;
       expect(deleteSpanCount, 1);
 
-      _verifySpan(
-        expectedDeleteStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedDeleteStatement, tx.children.last);
 
       _verifySpan(
         SentrySpanDescriptions.dbTransaction,
@@ -528,10 +487,7 @@ void main() {
           .length;
       expect(customSpanCount, 1);
 
-      _verifySpan(
-        expectedSelectStatement,
-        tx.children.last,
-      );
+      _verifySpan(expectedSelectStatement, tx.children.last);
 
       _verifySpan(
         SentrySpanDescriptions.dbTransaction,
@@ -590,8 +546,9 @@ void main() {
         });
       } catch (_) {}
 
-      final spans =
-          tx.children.where((child) => child.status == SpanStatus.aborted());
+      final spans = tx.children.where(
+        (child) => child.status == SpanStatus.aborted(),
+      );
       expect(spans.length, 1);
       final abortedSpan = spans.first;
 
@@ -605,31 +562,33 @@ void main() {
     });
 
     test(
-        'transaction is rolled back within Sentry transaction, added aborted span',
-        () async {
-      final sut = fixture.getSut();
-      final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
+      'transaction is rolled back within Sentry transaction, added aborted span',
+      () async {
+        final sut = fixture.getSut();
+        final db = AppDatabase(NativeDatabase.memory().interceptWith(sut));
 
-      final tx = _startTransaction();
+        final tx = _startTransaction();
 
-      // pre-condition: table empty
-      expect(await db.select(db.todoItems).get(), isEmpty);
+        // pre-condition: table empty
+        expect(await db.select(db.todoItems).get(), isEmpty);
 
-      // run a transaction that is forced to fail -> should be rolled back
-      await expectLater(
-        () => db.transaction(() async {
-          await _insertRow(db, withError: true);
-        }),
-        throwsA(isA<Exception>()),
-      );
+        // run a transaction that is forced to fail -> should be rolled back
+        await expectLater(
+          () => db.transaction(() async {
+            await _insertRow(db, withError: true);
+          }),
+          throwsA(isA<Exception>()),
+        );
 
-      final abortedSpans =
-          tx.children.where((child) => child.status == SpanStatus.aborted());
-      expect(abortedSpans.length, 1);
+        final abortedSpans = tx.children.where(
+          (child) => child.status == SpanStatus.aborted(),
+        );
+        expect(abortedSpans.length, 1);
 
-      // if rollback happened the row must be absent
-      expect(await db.select(db.todoItems).get(), isEmpty);
-    });
+        // if rollback happened the row must be absent
+        expect(await db.select(db.todoItems).get(), isEmpty);
+      },
+    );
 
     test('transaction is rolled back without Sentry transaction', () async {
       final sut = fixture.getSut();
@@ -727,8 +686,9 @@ void main() {
 
     test('adds integration', () {
       expect(
-        fixture.options.sdk.integrations
-            .contains(drift_constants.integrationName),
+        fixture.options.sdk.integrations.contains(
+          drift_constants.integrationName,
+        ),
         true,
       );
     });
@@ -745,37 +705,40 @@ void main() {
   });
 
   group('span creation failure', () {
-    test('beginTransaction executes successfully when createSpan returns null',
-        () async {
-      final mockHub = MockHub();
-      final mockOptions = defaultTestOptions()..tracesSampleRate = 1.0;
+    test(
+      'beginTransaction executes successfully when createSpan returns null',
+      () async {
+        final mockHub = MockHub();
+        final mockOptions = defaultTestOptions()..tracesSampleRate = 1.0;
 
-      // Set up a factory that returns null from createSpan
-      final nullSpanFactory = _NullSpanFactory();
-      mockOptions.spanFactory = nullSpanFactory;
+        // Set up a factory that returns null from createSpan
+        final nullSpanFactory = _NullSpanFactory();
+        mockOptions.spanFactory = nullSpanFactory;
 
-      when(mockHub.options).thenReturn(mockOptions);
+        when(mockHub.options).thenReturn(mockOptions);
 
-      final spanHelper = SentrySpanHelper(
-        SentryTraceOrigins.autoDbDriftQueryInterceptor,
-        hub: mockHub,
-      );
+        final spanHelper = SentrySpanHelper(
+          SentryTraceOrigins.autoDbDriftQueryInterceptor,
+          hub: mockHub,
+        );
 
-      // Create a mock parent span for getSpan to return
-      final tx = _startTransaction();
-      nullSpanFactory.mockParentSpan =
-          LegacyInstrumentationSpan(tx.startChild('test'));
+        // Create a mock parent span for getSpan to return
+        final tx = _startTransaction();
+        nullSpanFactory.mockParentSpan = LegacyInstrumentationSpan(
+          tx.startChild('test'),
+        );
 
-      var executed = false;
-      spanHelper.beginTransaction(() {
-        executed = true;
-        return 'result';
-      });
+        var executed = false;
+        spanHelper.beginTransaction(() {
+          executed = true;
+          return 'result';
+        });
 
-      expect(executed, isTrue);
-      // Stack should remain empty since we don't push when createSpan returns null
-      expect(spanHelper.transactionStack, isEmpty);
-    });
+        expect(executed, isTrue);
+        // Stack should remain empty since we don't push when createSpan returns null
+        expect(spanHelper.transactionStack, isEmpty);
+      },
+    );
   });
 }
 
@@ -805,10 +768,7 @@ class Fixture {
   final options = defaultTestOptions()..tracesSampleRate = 1.0;
 
   Future<void> sentryInit() {
-    return Sentry.init(
-      (options) {},
-      options: options,
-    );
+    return Sentry.init((options) {}, options: options);
   }
 
   SentryQueryInterceptor getSut() {
@@ -824,21 +784,12 @@ void _verifySpan(
   SpanStatus? status,
 }) {
   status ??= SpanStatus.ok();
-  expect(
-    span?.context.operation,
-    operation ?? SentrySpanOperations.dbSqlQuery,
-  );
+  expect(span?.context.operation, operation ?? SentrySpanOperations.dbSqlQuery);
   expect(span?.context.description, description);
   expect(span?.status, status);
   expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
-  expect(
-    span?.data[SemanticAttributesConstants.dbSystemName],
-    'sqlite',
-  );
-  expect(
-    span?.data[SemanticAttributesConstants.dbNamespace],
-    Fixture.dbName,
-  );
+  expect(span?.data[SemanticAttributesConstants.dbSystemName], 'sqlite');
+  expect(span?.data[SemanticAttributesConstants.dbNamespace], Fixture.dbName);
 }
 
 void _verifyErrorSpan(
@@ -848,35 +799,25 @@ void _verifyErrorSpan(
   String? operation,
   SpanStatus? status,
 }) {
-  expect(
-    span?.context.operation,
-    operation ?? SentrySpanOperations.dbSqlQuery,
-  );
+  expect(span?.context.operation, operation ?? SentrySpanOperations.dbSqlQuery);
   expect(span?.context.description, description);
   expect(span?.status, status ?? SpanStatus.internalError());
   expect(span?.origin, SentryTraceOrigins.autoDbDriftQueryInterceptor);
-  expect(
-    span?.data[SemanticAttributesConstants.dbSystemName],
-    'sqlite',
-  );
-  expect(
-    span?.data[SemanticAttributesConstants.dbNamespace],
-    Fixture.dbName,
-  );
+  expect(span?.data[SemanticAttributesConstants.dbSystemName], 'sqlite');
+  expect(span?.data[SemanticAttributesConstants.dbNamespace], Fixture.dbName);
 
   expect(span?.throwable, exception);
 }
 
 Future<void> _insertRow(AppDatabase db, {bool withError = false}) {
   if (withError) {
-    return db.into(db.todoItems).insert(
-          TodoItemsCompanion.insert(
-            title: '',
-            content: '',
-          ),
-        );
+    return db
+        .into(db.todoItems)
+        .insert(TodoItemsCompanion.insert(title: '', content: ''));
   } else {
-    return db.into(db.todoItems).insert(
+    return db
+        .into(db.todoItems)
+        .insert(
           TodoItemsCompanion.insert(
             title: 'todo: finish drift setup',
             content: 'We can now write queries and define our own tables.',
@@ -902,18 +843,18 @@ Future<void> _insertIntoBatch(AppDatabase sut) {
 
 Future<void> _updateRow(AppDatabase sut, {bool withError = false}) {
   if (withError) {
-    return (sut.update(sut.todoItems)
-          ..where((tbl) => tbl.title.equals('doesnt exist')))
-        .write(
+    return (sut.update(
+      sut.todoItems,
+    )..where((tbl) => tbl.title.equals('doesnt exist'))).write(
       TodoItemsCompanion(
         title: Value('after update'),
         content: Value('We can now write queries and define our own tables.'),
       ),
     );
   } else {
-    return (sut.update(sut.todoItems)
-          ..where((tbl) => tbl.title.equals('todo: finish drift setup')))
-        .write(
+    return (sut.update(
+      sut.todoItems,
+    )..where((tbl) => tbl.title.equals('todo: finish drift setup'))).write(
       TodoItemsCompanion(
         title: Value('after update'),
         content: Value('We can now write queries and define our own tables.'),
