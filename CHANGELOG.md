@@ -1,5 +1,56 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+#### Dart
+
+- Align database, HTTP, app-start, and trace-lifecycle span attributes with Sentry Conventions by @buenaflor in [#3805](https://github.com/getsentry/sentry-dart/pull/3805)
+
+#### Flutter
+
+- Add standalone app-start tracing, extension APIs, and lifecycle-specific span getters by @buenaflor in [#3896](https://github.com/getsentry/sentry-dart/pull/3896) and [#3918](https://github.com/getsentry/sentry-dart/pull/3918)
+- Make native failed-request capture opt-in by @buenaflor in [#3885](https://github.com/getsentry/sentry-dart/pull/3885)
+- Remove CocoaPods support in favor of Swift Package Manager by @buenaflor in [#3879](https://github.com/getsentry/sentry-dart/pull/3879)
+- Record Android replay segment names and span segment-name sources by @buenaflor in [#3897](https://github.com/getsentry/sentry-dart/pull/3897) and [#3904](https://github.com/getsentry/sentry-dart/pull/3904)
+
+### Enhancements
+
+- Improve Android scope synchronization and replay screenshot transfer performance by @buenaflor in [#3924](https://github.com/getsentry/sentry-dart/pull/3924)
+
+### Fixes
+
+#### Flutter
+
+- Prevent delayed-frame state errors and guard script completion by @muhammadkamel and @buenaflor in [#3876](https://github.com/getsentry/sentry-dart/pull/3876) and [#3912](https://github.com/getsentry/sentry-dart/pull/3912)
+- Add the app-start screen attribute by @buenaflor in [#3893](https://github.com/getsentry/sentry-dart/pull/3893)
+
+#### Other
+
+- Accept double timestamps in Android network breadcrumbs by @aqrc in [#3859](https://github.com/getsentry/sentry-dart/pull/3859)
+- Read normalized rate-limit headers by @sentry-junior in [#3883](https://github.com/getsentry/sentry-dart/pull/3883)
+- Add missing metric byte outcomes by @buenaflor in [#3905](https://github.com/getsentry/sentry-dart/pull/3905)
+
+### Dependencies
+
+#### Flutter
+
+- Update Android SDK versions through 8.51.0 by @github-actions in [#3895](https://github.com/getsentry/sentry-dart/pull/3895), [#3921](https://github.com/getsentry/sentry-dart/pull/3921), and [#3938](https://github.com/getsentry/sentry-dart/pull/3938)
+- Update Native SDK versions through 0.16.1 by @github-actions in [#3862](https://github.com/getsentry/sentry-dart/pull/3862), [#3910](https://github.com/getsentry/sentry-dart/pull/3910), [#3925](https://github.com/getsentry/sentry-dart/pull/3925), and [#3937](https://github.com/getsentry/sentry-dart/pull/3937)
+- Relax the JNI constraint and update jnigen to 0.17.0 by @buenaflor in [#3931](https://github.com/getsentry/sentry-dart/pull/3931)
+
+### Internal Changes
+
+- Remove SDK profiling by @buenaflor in [#3891](https://github.com/getsentry/sentry-dart/pull/3891)
+- Remove deprecated `copyWith` APIs by @buenaflor in [#3877](https://github.com/getsentry/sentry-dart/pull/3877)
+- Replace `options.log` with `internalLogger` by @buenaflor in [#3932](https://github.com/getsentry/sentry-dart/pull/3932)
+- Graduate mature v10 APIs and make `BindingWrapper` and `bindingUtils` internal by @buenaflor in [#3940](https://github.com/getsentry/sentry-dart/pull/3940)
+- Share Darwin plugin sources by @buenaflor in [#3922](https://github.com/getsentry/sentry-dart/pull/3922)
+- Move the gRPC `MockHub` into `_sentry_testing` by @lucas-zimerman in [#3908](https://github.com/getsentry/sentry-dart/pull/3908)
+- Pin Flutter development dependencies by @buenaflor in [#3913](https://github.com/getsentry/sentry-dart/pull/3913)
+- Add Supabase and gRPC SDKs to Craft by @buenaflor in [#3884](https://github.com/getsentry/sentry-dart/pull/3884)
+
 ## 10.0.0-alpha.2
 
 ### Features
@@ -36,6 +87,7 @@
 ### Enhancements
 
 - (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
+
 ## 9.26.0
 
 ### Features
