@@ -10,21 +10,13 @@ class SentryFeatureFlags {
   @internal
   Map<String, dynamic>? unknown;
 
-  SentryFeatureFlags({
-    required this.values,
-    this.unknown,
-  });
+  SentryFeatureFlags({required this.values, this.unknown});
 
   factory SentryFeatureFlags.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 
-    final valuesValues = json['values'] as List<dynamic>?;
-    final values = valuesValues
-        ?.map((e) => SentryFeatureFlag.fromJson(Map<String, dynamic>.from(e)))
-        .toList(growable: false);
-
     return SentryFeatureFlags(
-      values: values ?? [],
+      values: json.readObjectList('values', SentryFeatureFlag.fromJson) ?? [],
       unknown: json.notAccessed(),
     );
   }

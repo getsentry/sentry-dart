@@ -44,19 +44,13 @@ class SentryException {
   /// Deserializes a [SentryException] from JSON [Map].
   factory SentryException.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-
-    final stackTraceJson = json['stacktrace'];
-    final mechanismJson = json['mechanism'];
     return SentryException(
-      type: json['type'],
-      value: json['value'],
-      module: json['module'],
-      stackTrace: stackTraceJson != null
-          ? SentryStackTrace.fromJson(stackTraceJson)
-          : null,
-      mechanism:
-          mechanismJson != null ? Mechanism.fromJson(mechanismJson) : null,
-      threadId: json['thread_id'],
+      type: json.readString('type'),
+      value: json.readString('value'),
+      module: json.readString('module'),
+      stackTrace: json.readObject('stacktrace', SentryStackTrace.fromJson),
+      mechanism: json.readObject('mechanism', Mechanism.fromJson),
+      threadId: json.readInt('thread_id'),
       unknown: json.notAccessed(),
     );
   }
@@ -65,12 +59,12 @@ class SentryException {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (type != null) 'type': type,
-      if (value != null) 'value': value,
-      if (module != null) 'module': module,
-      if (stackTrace != null) 'stacktrace': stackTrace!.toJson(),
-      if (mechanism != null) 'mechanism': mechanism!.toJson(),
-      if (threadId != null) 'thread_id': threadId,
+      'type': ?type,
+      'value': ?value,
+      'module': ?module,
+      'stacktrace': ?stackTrace?.toJson(),
+      'mechanism': ?mechanism?.toJson(),
+      'thread_id': ?threadId,
     };
   }
 

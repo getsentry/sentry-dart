@@ -15,28 +15,22 @@ void main() {
   final featureFlagsJson = <String, dynamic>{
     ...testUnknown,
     'values': [
-      {'name': 'feature_flag_1', 'value': true},
-      {'name': 'feature_flag_2', 'value': false},
+      {'flag': 'feature_flag_1', 'result': true},
+      {'flag': 'feature_flag_2', 'result': false},
     ],
   };
 
   group('json', () {
     test('toJson', () {
       final json = featureFlags.toJson();
-      expect(
-        DeepCollectionEquality().equals(featureFlagsJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(featureFlagsJson, json), true);
     });
 
     test('fromJson', () {
       final featureFlags = SentryFeatureFlags.fromJson(featureFlagsJson);
       final json = featureFlags.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(featureFlagsJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(featureFlagsJson, json), true);
     });
   });
 }

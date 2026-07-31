@@ -66,21 +66,18 @@ class SentryApp {
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final viewNamesJson = json['view_names'] as List<dynamic>?;
     return SentryApp(
-      name: json['app_name'],
-      version: json['app_version'],
-      identifier: json['app_identifier'],
-      build: json['app_build'],
-      buildType: json['build_type'],
-      startTime: json['app_start_time'] != null
-          ? DateTime.tryParse(json['app_start_time'])
-          : null,
-      deviceAppHash: json['device_app_hash'],
-      appMemory: json['app_memory'],
-      inForeground: json['in_foreground'],
-      viewNames: viewNamesJson?.map((e) => e as String).toList(),
-      textScale: json['text_scale'],
+      name: json.readString('app_name'),
+      version: json.readString('app_version'),
+      identifier: json.readString('app_identifier'),
+      build: json.readString('app_build'),
+      buildType: json.readString('build_type'),
+      startTime: json.readDateTime('app_start_time'),
+      deviceAppHash: json.readString('device_app_hash'),
+      appMemory: json.readInt('app_memory'),
+      inForeground: json.readBool('in_foreground'),
+      viewNames: json.readStringList('view_names'),
+      textScale: json.readDouble('text_scale'),
       unknown: json.notAccessed(),
     );
   }
@@ -89,17 +86,17 @@ class SentryApp {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (name != null) 'app_name': name!,
-      if (version != null) 'app_version': version!,
-      if (identifier != null) 'app_identifier': identifier!,
-      if (build != null) 'app_build': build!,
-      if (buildType != null) 'build_type': buildType!,
-      if (startTime != null) 'app_start_time': startTime!.toIso8601String(),
-      if (deviceAppHash != null) 'device_app_hash': deviceAppHash!,
-      if (appMemory != null) 'app_memory': appMemory!,
-      if (inForeground != null) 'in_foreground': inForeground!,
+      'app_name': ?name,
+      'app_version': ?version,
+      'app_identifier': ?identifier,
+      'app_build': ?build,
+      'build_type': ?buildType,
+      'app_start_time': ?startTime?.toIso8601String(),
+      'device_app_hash': ?deviceAppHash,
+      'app_memory': ?appMemory,
+      'in_foreground': ?inForeground,
       if (viewNames != null && viewNames!.isNotEmpty) 'view_names': viewNames!,
-      if (textScale != null) 'text_scale': textScale!,
+      'text_scale': ?textScale,
     };
   }
 
@@ -113,8 +110,9 @@ class SentryApp {
     final attributes = <String, SentryAttribute>{};
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.appName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.appName] = SentryAttribute.string(
+        name,
+      );
     }
     final version = this.version;
     if (version != null) {
@@ -128,8 +126,9 @@ class SentryApp {
     }
     final build = this.build;
     if (build != null) {
-      attributes[SemanticAttributesConstants.appBuild] =
-          SentryAttribute.string(build);
+      attributes[SemanticAttributesConstants.appBuild] = SentryAttribute.string(
+        build,
+      );
     }
     final startTime = this.startTime;
     if (startTime != null) {

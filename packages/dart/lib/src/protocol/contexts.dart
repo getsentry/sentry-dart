@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import '../event_processor/enricher/flutter_runtime.dart';
+import 'access_aware_map.dart';
 
 /// The context interfaces provide additional context data.
 ///
@@ -24,58 +25,48 @@ class Contexts extends MapView<String, dynamic> {
     SentryFeedback? feedback,
     SentryFeatureFlags? flags,
   }) : super({
-          SentryDevice.type: device,
-          SentryOperatingSystem.type: operatingSystem,
-          SentryRuntime.listType: List<SentryRuntime>.from(runtimes ?? []),
-          SentryApp.type: app,
-          SentryBrowser.type: browser,
-          SentryGpu.type: gpu,
-          SentryCulture.type: culture,
-          SentryTraceContext.type: trace,
-          SentryResponse.type: response,
-          SentryFeedback.type: feedback,
-          SentryFeatureFlags.type: flags,
-        });
+         SentryDevice.type: device,
+         SentryOperatingSystem.type: operatingSystem,
+         SentryRuntime.listType: List<SentryRuntime>.from(runtimes ?? []),
+         SentryApp.type: app,
+         SentryBrowser.type: browser,
+         SentryGpu.type: gpu,
+         SentryCulture.type: culture,
+         SentryTraceContext.type: trace,
+         SentryResponse.type: response,
+         SentryFeedback.type: feedback,
+         SentryFeatureFlags.type: flags,
+       });
 
   /// Deserializes [Contexts] from JSON [Map].
   factory Contexts.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
+    final runtime = json.readObject(SentryRuntime.type, SentryRuntime.fromJson);
     final contexts = Contexts(
-      device: data[SentryDevice.type] != null
-          ? SentryDevice.fromJson(Map.from(data[SentryDevice.type]))
-          : null,
-      operatingSystem: data[SentryOperatingSystem.type] != null
-          ? SentryOperatingSystem.fromJson(
-              Map.from(data[SentryOperatingSystem.type]))
-          : null,
-      app: data[SentryApp.type] != null
-          ? SentryApp.fromJson(Map.from(data[SentryApp.type]))
-          : null,
-      browser: data[SentryBrowser.type] != null
-          ? SentryBrowser.fromJson(Map.from(data[SentryBrowser.type]))
-          : null,
-      culture: data[SentryCulture.type] != null
-          ? SentryCulture.fromJson(Map.from(data[SentryCulture.type]))
-          : null,
-      gpu: data[SentryGpu.type] != null
-          ? SentryGpu.fromJson(Map.from(data[SentryGpu.type]))
-          : null,
-      trace: data[SentryTraceContext.type] != null
-          ? SentryTraceContext.fromJson(Map.from(data[SentryTraceContext.type]))
-          : null,
-      runtimes: data[SentryRuntime.type] != null
-          ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type]))]
-          : null,
-      response: data[SentryResponse.type] != null
-          ? SentryResponse.fromJson(Map.from(data[SentryResponse.type]))
-          : null,
-      feedback: data[SentryFeedback.type] != null
-          ? SentryFeedback.fromJson(Map.from(data[SentryFeedback.type]))
-          : null,
-      flags: data[SentryFeatureFlags.type] != null
-          ? SentryFeatureFlags.fromJson(Map.from(data[SentryFeatureFlags.type]))
-          : null,
+      device: json.readObject(SentryDevice.type, SentryDevice.fromJson),
+      operatingSystem: json.readObject(
+        SentryOperatingSystem.type,
+        SentryOperatingSystem.fromJson,
+      ),
+      app: json.readObject(SentryApp.type, SentryApp.fromJson),
+      browser: json.readObject(SentryBrowser.type, SentryBrowser.fromJson),
+      culture: json.readObject(SentryCulture.type, SentryCulture.fromJson),
+      gpu: json.readObject(SentryGpu.type, SentryGpu.fromJson),
+      trace: json.readObject(
+        SentryTraceContext.type,
+        SentryTraceContext.fromJson,
+      ),
+      runtimes: runtime != null ? [runtime] : null,
+      response: json.readObject(SentryResponse.type, SentryResponse.fromJson),
+      feedback: json.readObject(SentryFeedback.type, SentryFeedback.fromJson),
+      flags: json.readObject(
+        SentryFeatureFlags.type,
+        SentryFeatureFlags.fromJson,
+      ),
     );
 
+    // A known context that failed to parse is dropped rather than kept: the
+    // accessors above are typed, so a raw value under its key would throw.
     data.keys
         .where((key) => !defaultFields.contains(key) && data[key] != null)
         .forEach((key) => contexts[key] = data[key]);
@@ -195,13 +186,17 @@ class Contexts extends MapView<String, dynamic> {
     }
     final flutterVersion = FlutterVersion.version;
     if (flutterVersion != null) {
-      attributes.putIfAbsent(ProposedSemanticAttributes.flutterVersion,
-          () => SentryAttribute.string(flutterVersion));
+      attributes.putIfAbsent(
+        ProposedSemanticAttributes.flutterVersion,
+        () => SentryAttribute.string(flutterVersion),
+      );
     }
     final flutterChannel = FlutterVersion.channel;
     if (flutterChannel != null) {
-      attributes.putIfAbsent(ProposedSemanticAttributes.flutterChannel,
-          () => SentryAttribute.string(flutterChannel));
+      attributes.putIfAbsent(
+        ProposedSemanticAttributes.flutterChannel,
+        () => SentryAttribute.string(flutterChannel),
+      );
     }
     return attributes;
   }

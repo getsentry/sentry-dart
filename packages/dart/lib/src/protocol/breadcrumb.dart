@@ -31,8 +31,8 @@ class Breadcrumb {
     SentryLevel? level,
     this.type,
     this.unknown,
-  })  : timestamp = timestamp ?? getUtcDateTime(),
-        level = level ?? SentryLevel.info;
+  }) : timestamp = timestamp ?? getUtcDateTime(),
+       level = level ?? SentryLevel.info;
 
   factory Breadcrumb.http({
     required Uri url,
@@ -63,13 +63,13 @@ class Breadcrumb {
       data: {
         'url': url.toString(),
         'method': method,
-        if (statusCode != null) 'status_code': statusCode,
-        if (reason != null) 'reason': reason,
-        if (requestDuration != null) 'duration': requestDuration.toString(),
-        if (requestBodySize != null) 'request_body_size': requestBodySize,
-        if (responseBodySize != null) 'response_body_size': responseBodySize,
-        if (httpQuery != null) 'http.query': httpQuery,
-        if (httpFragment != null) 'http.fragment': httpFragment,
+        'status_code': ?statusCode,
+        'reason': ?reason,
+        'duration': ?requestDuration?.toString(),
+        'request_body_size': ?requestBodySize,
+        'response_body_size': ?responseBodySize,
+        'http.query': ?httpQuery,
+        'http.fragment': ?httpFragment,
         if (requestDuration != null)
           'start_timestamp':
               timestamp.millisecondsSinceEpoch - requestDuration.inMilliseconds,
@@ -110,11 +110,7 @@ class Breadcrumb {
       category: 'ui.$subCategory',
       type: 'user',
       timestamp: timestamp,
-      data: {
-        if (viewId != null) 'view.id': viewId,
-        if (viewClass != null) 'view.class': viewClass,
-        if (data != null) ...data,
-      },
+      data: {'view.id': ?viewId, 'view.class': ?viewClass, ...?data},
     );
   }
 
@@ -169,20 +165,15 @@ class Breadcrumb {
   factory Breadcrumb.fromJson(Map<String, dynamic> jsonData) {
     final json = AccessAwareMap(jsonData);
 
-    final levelName = json['level'];
-    final timestamp = json['timestamp'];
+    final levelName = json.readString('level');
 
-    var data = json['data'];
-    if (data != null) {
-      data = Map<String, dynamic>.from(data as Map);
-    }
     return Breadcrumb(
-      timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
-      message: json['message'],
-      category: json['category'],
-      data: data,
+      timestamp: json.readDateTime('timestamp'),
+      message: json.readString('message'),
+      category: json.readString('category'),
+      data: json.readMap('data'),
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
-      type: json['type'],
+      type: json.readString('type'),
       unknown: json.notAccessed(),
     );
   }
@@ -193,11 +184,11 @@ class Breadcrumb {
     return {
       ...?unknown,
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
-      if (message != null) 'message': message,
-      if (category != null) 'category': category,
+      'message': ?message,
+      'category': ?category,
       if (data?.isNotEmpty ?? false) 'data': data,
-      if (level != null) 'level': level!.name,
-      if (type != null) 'type': type,
+      'level': ?level?.name,
+      'type': ?type,
     };
   }
 }

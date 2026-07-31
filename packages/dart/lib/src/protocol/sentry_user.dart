@@ -43,13 +43,12 @@ class SentryUser {
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, dynamic>? extras,
     this.unknown,
-  })  : assert(id != null ||
-            username != null ||
-            email != null ||
-            ipAddress != null),
-        data = data == null ? null : Map.from(data),
-        // ignore: deprecated_member_use_from_same_package
-        extras = extras == null ? null : Map.from(extras);
+  }) : assert(
+         id != null || username != null || email != null || ipAddress != null,
+       ),
+       data = data == null ? null : Map.from(data),
+       // ignore: deprecated_member_use_from_same_package
+       extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
   String? id;
@@ -89,32 +88,16 @@ class SentryUser {
   /// Deserializes a [SentryUser] from JSON [Map].
   factory SentryUser.fromJson(Map<String, dynamic> jsonData) {
     final json = AccessAwareMap(jsonData);
-
-    var extras = json['extras'];
-    if (extras != null) {
-      extras = Map<String, dynamic>.from(extras);
-    }
-
-    var data = json['data'];
-    if (data != null) {
-      data = Map<String, dynamic>.from(data);
-    }
-
-    SentryGeo? geo;
-    final geoJson = json['geo'];
-    if (geoJson != null) {
-      geo = SentryGeo.fromJson(Map<String, dynamic>.from(geoJson));
-    }
     return SentryUser(
-      id: json['id'],
-      username: json['username'],
-      email: json['email'],
-      ipAddress: json['ip_address'],
-      data: data,
-      geo: geo,
-      name: json['name'],
+      id: json.readString('id'),
+      username: json.readString('username'),
+      email: json.readString('email'),
+      ipAddress: json.readString('ip_address'),
+      data: json.readMap('data'),
+      geo: json.readObject('geo', SentryGeo.fromJson),
+      name: json.readString('name'),
       // ignore: deprecated_member_use_from_same_package
-      extras: extras,
+      extras: json.readMap('extras'),
       unknown: json.notAccessed(),
     );
   }
@@ -132,13 +115,15 @@ class SentryUser {
     final attributes = <String, SentryAttribute>{};
     final id = this.id;
     if (id != null) {
-      attributes[SemanticAttributesConstants.userId] =
-          SentryAttribute.string(id);
+      attributes[SemanticAttributesConstants.userId] = SentryAttribute.string(
+        id,
+      );
     }
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.userName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.userName] = SentryAttribute.string(
+        name,
+      );
     }
     final email = this.email;
     if (email != null) {
@@ -186,14 +171,14 @@ class SentryUser {
     final geoJson = geo?.toJson();
     return {
       ...?unknown,
-      if (id != null) 'id': id,
-      if (username != null) 'username': username,
-      if (email != null) 'email': email,
-      if (ipAddress != null) 'ip_address': ipAddress,
+      'id': ?id,
+      'username': ?username,
+      'email': ?email,
+      'ip_address': ?ipAddress,
       if (data?.isNotEmpty ?? false) 'data': data,
       // ignore: deprecated_member_use_from_same_package
       if (extras?.isNotEmpty ?? false) 'extras': extras,
-      if (name != null) 'name': name,
+      'name': ?name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
     };
   }

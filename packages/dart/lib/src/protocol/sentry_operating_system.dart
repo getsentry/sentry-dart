@@ -56,13 +56,13 @@ class SentryOperatingSystem {
   factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryOperatingSystem(
-      name: json['name'],
-      version: json['version'],
-      build: json['build'],
-      kernelVersion: json['kernel_version'],
-      rooted: json['rooted'],
-      rawDescription: json['raw_description'],
-      theme: json['theme'],
+      name: json.readString('name'),
+      version: json.readString('version'),
+      build: json.readString('build'),
+      kernelVersion: json.readString('kernel_version'),
+      rooted: json.readBool('rooted'),
+      rawDescription: json.readString('raw_description'),
+      theme: json.readString('theme'),
       unknown: json.notAccessed(),
     );
   }
@@ -71,13 +71,13 @@ class SentryOperatingSystem {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (name != null) 'name': name,
-      if (version != null) 'version': version,
-      if (build != null) 'build': build,
-      if (kernelVersion != null) 'kernel_version': kernelVersion,
-      if (rooted != null) 'rooted': rooted,
-      if (rawDescription != null) 'raw_description': rawDescription,
-      if (theme != null) 'theme': theme,
+      'name': ?name,
+      'version': ?version,
+      'build': ?build,
+      'kernel_version': ?kernelVersion,
+      'rooted': ?rooted,
+      'raw_description': ?rawDescription,
+      'theme': ?theme,
     };
   }
 
@@ -91,8 +91,9 @@ class SentryOperatingSystem {
     final attributes = <String, SentryAttribute>{};
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.osName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.osName] = SentryAttribute.string(
+        name,
+      );
     }
     final version = this.version;
     if (version != null) {
@@ -111,8 +112,9 @@ class SentryOperatingSystem {
     }
     final rooted = this.rooted;
     if (rooted != null) {
-      attributes[SemanticAttributesConstants.osRooted] =
-          SentryAttribute.bool(rooted);
+      attributes[SemanticAttributesConstants.osRooted] = SentryAttribute.bool(
+        rooted,
+      );
     }
     final rawDescription = this.rawDescription;
     if (rawDescription != null) {
@@ -121,8 +123,9 @@ class SentryOperatingSystem {
     }
     final theme = this.theme;
     if (theme != null) {
-      attributes[SemanticAttributesConstants.osTheme] =
-          SentryAttribute.string(theme);
+      attributes[SemanticAttributesConstants.osTheme] = SentryAttribute.string(
+        theme,
+      );
     }
     return attributes;
   }
@@ -139,7 +142,7 @@ class SentryOperatingSystem {
         unknown: other.unknown == null
             ? unknown
             : unknown == null
-                ? null
-                : {...unknown!, ...other.unknown!},
+            ? null
+            : {...unknown!, ...other.unknown!},
       );
 }

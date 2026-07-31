@@ -132,6 +132,31 @@ void main() {
       );
     });
 
+    test(
+      'a native value of unexpected type does not abort the merge',
+      () async {
+        mockLoadContexts({
+          'contexts': 'not-a-map',
+          'tags': 'not-a-map',
+          'fingerprint': 'not-a-list',
+          'breadcrumbs': 'not-a-list',
+          'dist': 'fixture-dist',
+          'environment': 'fixture-environment',
+        });
+        await fixture.registerIntegration();
+
+        final event = await fixture.options.eventProcessors.first.apply(
+          SentryEvent(),
+          Hint(),
+        );
+
+        // Everything after the malformed values still merges, rather than the
+        // whole integration failing as in issue #3301.
+        expect(event?.dist, 'fixture-dist');
+        expect(event?.environment, 'fixture-environment');
+      },
+    );
+
     test('applies loadContextsIntegration eventProcessor', () async {
       mockLoadContexts();
       await fixture.registerIntegration();

@@ -45,11 +45,10 @@ class SdkVersion {
     List<String>? features,
     List<SentryPackage>? packages,
     this.unknown,
-  })  :
-        // List.from prevents from having immutable lists
-        _integrations = List.from(integrations ?? []),
-        _features = List.from(features ?? []),
-        _packages = List.from(packages ?? []);
+  }) : // List.from prevents from having immutable lists
+       _integrations = List.from(integrations ?? []),
+       _features = List.from(features ?? []),
+       _packages = List.from(packages ?? []);
 
   /// The name of the SDK.
   String name;
@@ -78,18 +77,14 @@ class SdkVersion {
   /// Deserializes a [SdkVersion] from JSON [Map].
   factory SdkVersion.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final packagesJson = json['packages'] as List<dynamic>?;
-    final integrationsJson = json['integrations'] as List<dynamic>?;
-    final featuresJson = json['features'] as List<dynamic>?;
-
     return SdkVersion(
-      name: json['name'],
-      version: json['version'],
-      packages: packagesJson
-          ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      integrations: integrationsJson?.map((e) => e as String).toList(),
-      features: featuresJson?.map((e) => e as String).toList(),
+      // Required by the constructor: without them there is no usable SDK
+      // version, so the caller drops this child and keeps the raw JSON.
+      name: json.readString('name')!,
+      version: json.readString('version')!,
+      packages: json.readObjectList('packages', SentryPackage.fromJson),
+      integrations: json.readStringList('integrations'),
+      features: json.readStringList('features'),
       unknown: json.notAccessed(),
     );
   }

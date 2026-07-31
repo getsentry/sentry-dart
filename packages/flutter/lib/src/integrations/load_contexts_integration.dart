@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/enricher/enricher_event_processor.dart';
+import 'package:sentry/src/protocol/access_aware_map.dart';
 import 'package:sentry/src/telemetry/default_attributes.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import '../native/sentry_native_binding.dart';
@@ -148,10 +149,9 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
   }
 
   Future<Contexts> _loadNativeContexts() async {
-    final nativeContexts = await _native.loadContexts() ?? {};
-    final contextsMap = nativeContexts['contexts'] as Map?;
+    final nativeContexts = AccessAwareMap(await _native.loadContexts() ?? {});
     final contexts = Contexts();
-    _mergeNativeWithLocalContexts(contextsMap, contexts);
+    _mergeNativeWithLocalContexts(nativeContexts.readMap('contexts'), contexts);
     return contexts;
   }
 }
@@ -166,16 +166,14 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     // TODO don't copy everything (i.e. avoid unnecessary Map.from())
     try {
-      final infos = await _native.loadContexts() ?? {};
-      final contextsMap = infos['contexts'] as Map?;
-      _mergeNativeWithLocalContexts(contextsMap, event.contexts);
+      final infos = AccessAwareMap(await _native.loadContexts() ?? {});
+      _mergeNativeWithLocalContexts(infos.readMap('contexts'), event.contexts);
 
-      final tagsMap = infos['tags'] as Map?;
+      final tagsMap = infos.readStringMap('tags');
       if (tagsMap != null && tagsMap.isNotEmpty) {
         final tags = event.tags ?? {};
-        final newTags = Map<String, String>.from(tagsMap);
 
-        for (final tag in newTags.entries) {
+        for (final tag in tagsMap.entries) {
           if (!tags.containsKey(tag.key)) {
             tags[tag.key] = tag.value;
           }
@@ -183,13 +181,12 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event.tags = tags;
       }
 
-      final extraMap = infos['extra'] as Map?;
+      final extraMap = infos.readMap('extra');
       if (extraMap != null && extraMap.isNotEmpty) {
         // ignore: deprecated_member_use
         final extras = event.extra ?? {};
-        final newExtras = Map<String, dynamic>.from(extraMap);
 
-        for (final extra in newExtras.entries) {
+        for (final extra in extraMap.entries) {
           if (!extras.containsKey(extra.key)) {
             extras[extra.key] = extra.value;
           }
@@ -199,28 +196,26 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event.extra = extras;
       }
 
-      final userMap = infos['user'] as Map?;
+      final userMap = infos.readMap('user');
       if (event.user == null && userMap != null && userMap.isNotEmpty) {
-        final user = Map<String, dynamic>.from(userMap);
-        event.user = SentryUser.fromJson(user);
+        event.user = SentryUser.fromJson(userMap);
       }
 
-      final distString = infos['dist'] as String?;
+      final distString = infos.readString('dist');
       if (event.dist == null && distString != null) {
         event.dist = distString;
       }
 
-      final environmentString = infos['environment'] as String?;
+      final environmentString = infos.readString('environment');
       if (event.environment == null && environmentString != null) {
         event.environment = environmentString;
       }
 
-      final fingerprintList = infos['fingerprint'] as List?;
+      final fingerprintList = infos.readStringList('fingerprint');
       if (fingerprintList != null && fingerprintList.isNotEmpty) {
         final eventFingerprints = event.fingerprint ?? [];
-        final newFingerprint = List<String>.from(fingerprintList);
 
-        for (final fingerprint in newFingerprint) {
+        for (final fingerprint in fingerprintList) {
           if (!eventFingerprints.contains(fingerprint)) {
             eventFingerprints.add(fingerprint);
           }
@@ -228,25 +223,20 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event.fingerprint = eventFingerprints;
       }
 
-      final levelString = infos['level'] as String?;
+      final levelString = infos.readString('level');
       if (event.level == null && levelString != null) {
         event.level = SentryLevel.fromName(levelString);
       }
 
-      final breadcrumbsList = infos['breadcrumbs'] as List?;
-      if (breadcrumbsList != null &&
-          breadcrumbsList.isNotEmpty &&
+      final breadcrumbsJson = infos.readMapList('breadcrumbs');
+      if (breadcrumbsJson != null &&
+          breadcrumbsJson.isNotEmpty &&
           _options.enableScopeSync) {
-        final breadcrumbsJson = List<Map<dynamic, dynamic>>.from(
-          breadcrumbsList,
-        );
         final breadcrumbs = <Breadcrumb>[];
         final beforeBreadcrumb = _options.beforeBreadcrumb;
 
         for (final breadcrumbJson in breadcrumbsJson) {
-          final breadcrumb = Breadcrumb.fromJson(
-            Map<String, dynamic>.from(breadcrumbJson),
-          );
+          final breadcrumb = Breadcrumb.fromJson(breadcrumbJson);
 
           if (beforeBreadcrumb != null) {
             final processedBreadcrumb = beforeBreadcrumb(breadcrumb, Hint());
@@ -261,33 +251,30 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
         event.breadcrumbs = breadcrumbs;
       }
 
-      final integrationsList = infos['integrations'] as List?;
+      final integrationsList = infos.readStringList('integrations');
       if (integrationsList != null && integrationsList.isNotEmpty) {
-        final integrations = List<String>.from(integrationsList);
         final sdk = event.sdk ?? _options.sdk;
 
-        for (final integration in integrations) {
+        for (final integration in integrationsList) {
           sdk.addIntegration(integration);
         }
 
         event.sdk = sdk;
       }
 
-      final featuresList = infos['features'] as List?;
+      final featuresList = infos.readStringList('features');
       if (featuresList != null && featuresList.isNotEmpty) {
-        final features = List<String>.from(featuresList);
         final sdk = event.sdk ?? _options.sdk;
 
-        for (final feature in features) {
+        for (final feature in featuresList) {
           sdk.addFeature(feature);
         }
 
         event.sdk = sdk;
       }
 
-      final packageMap = infos['package'] as Map?;
-      if (packageMap != null && packageMap.isNotEmpty) {
-        final package = Map<String, String>.from(packageMap);
+      final package = infos.readStringMap('package');
+      if (package != null && package.isNotEmpty) {
         final sdk = event.sdk ?? _options.sdk;
 
         final name = package['sdk_name'];
@@ -326,13 +313,11 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
 }
 
 void _mergeNativeWithLocalContexts(
-  Map<dynamic, dynamic>? contextsMap,
+  Map<String, dynamic>? contextsMap,
   Contexts contexts,
 ) {
   if (contextsMap != null && contextsMap.isNotEmpty) {
-    final nativeContexts = Contexts.fromJson(
-      Map<String, dynamic>.from(contextsMap),
-    );
+    final nativeContexts = Contexts.fromJson(contextsMap);
 
     nativeContexts.forEach((key, dynamic value) {
       if (value != null) {

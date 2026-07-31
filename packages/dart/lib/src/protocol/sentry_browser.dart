@@ -25,18 +25,14 @@ class SentryBrowser {
   factory SentryBrowser.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryBrowser(
-      name: json['name'],
-      version: json['version'],
+      name: json.readString('name'),
+      version: json.readString('version'),
       unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
-      ...?unknown,
-      if (name != null) 'name': name,
-      if (version != null) 'version': version,
-    };
+    return {...?unknown, 'name': ?name, 'version': ?version};
   }
 }

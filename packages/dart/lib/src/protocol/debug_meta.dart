@@ -22,7 +22,7 @@ class DebugMeta {
   }
 
   DebugMeta({this.sdk, List<DebugImage>? images, this.unknown})
-      : _images = images;
+    : _images = images;
 
   @internal
   final Map<String, dynamic>? unknown;
@@ -30,14 +30,10 @@ class DebugMeta {
   /// Deserializes a [DebugMeta] from JSON [Map].
   factory DebugMeta.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final sdkInfoJson = json['sdk_info'];
-    final debugImagesJson = json['images'] as List<dynamic>?;
     return DebugMeta(
-      sdk: sdkInfoJson != null ? SdkInfo.fromJson(sdkInfoJson) : null,
-      images: debugImagesJson
-          ?.map((debugImageJson) =>
-              DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
-          .toList(),
+      sdk: json.readObject('sdk_info', SdkInfo.fromJson),
+      // Growable, because [addDebugImage] mutates it.
+      images: json.readObjectList('images', DebugImage.fromJson)?.toList(),
       unknown: json.notAccessed(),
     );
   }

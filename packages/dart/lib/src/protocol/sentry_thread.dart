@@ -19,12 +19,11 @@ class SentryThread {
   factory SentryThread.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryThread(
-      id: json['id'] as int?,
-      name: json['name'] as String?,
-      crashed: json['crashed'] as bool?,
-      current: json['current'] as bool?,
-      stacktrace:
-          json['stacktrace'] == null ? null : SentryStackTrace.fromJson(json),
+      id: json.readInt('id'),
+      name: json.readString('name'),
+      crashed: json.readBool('crashed'),
+      current: json.readBool('current'),
+      stacktrace: json.readObject('stacktrace', SentryStackTrace.fromJson),
       unknown: json.notAccessed(),
     );
   }
@@ -51,14 +50,13 @@ class SentryThread {
   final Map<String, dynamic>? unknown;
 
   Map<String, dynamic> toJson() {
-    final stacktrace = this.stacktrace;
     return {
       ...?unknown,
-      if (id != null) 'id': id,
-      if (name != null) 'name': name,
-      if (crashed != null) 'crashed': crashed,
-      if (current != null) 'current': current,
-      if (stacktrace != null) 'stacktrace': stacktrace.toJson(),
+      'id': ?id,
+      'name': ?name,
+      'crashed': ?crashed,
+      'current': ?current,
+      'stacktrace': ?stacktrace?.toJson(),
     };
   }
 }

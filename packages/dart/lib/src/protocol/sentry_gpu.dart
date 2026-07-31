@@ -92,21 +92,23 @@ class SentryGpu {
   factory SentryGpu.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryGpu(
-      name: json['name'],
-      id: json['id'],
-      vendorId: json['vendor_id'],
-      vendorName: json['vendor_name'],
-      memorySize: json['memory_size'],
-      apiType: json['api_type'],
-      multiThreadedRendering: json['multi_threaded_rendering'],
-      version: json['version'],
-      npotSupport: json['npot_support'],
-      graphicsShaderLevel: json['graphics_shader_level'],
-      maxTextureSize: json['max_texture_size'],
-      supportsComputeShaders: json['supports_compute_shaders'],
-      supportsDrawCallInstancing: json['supports_draw_call_instancing'],
-      supportsGeometryShaders: json['supports_geometry_shaders'],
-      supportsRayTracing: json['supports_ray_tracing'],
+      name: json.readString('name'),
+      id: json.readInt('id'),
+      vendorId: json.readString('vendor_id'),
+      vendorName: json.readString('vendor_name'),
+      memorySize: json.readInt('memory_size'),
+      apiType: json.readString('api_type'),
+      multiThreadedRendering: json.readBool('multi_threaded_rendering'),
+      version: json.readString('version'),
+      npotSupport: json.readString('npot_support'),
+      graphicsShaderLevel: json.readString('graphics_shader_level'),
+      maxTextureSize: json.readInt('max_texture_size'),
+      supportsComputeShaders: json.readBool('supports_compute_shaders'),
+      supportsDrawCallInstancing: json.readBool(
+        'supports_draw_call_instancing',
+      ),
+      supportsGeometryShaders: json.readBool('supports_geometry_shaders'),
+      supportsRayTracing: json.readBool('supports_ray_tracing'),
       unknown: json.notAccessed(),
     );
   }
@@ -115,27 +117,21 @@ class SentryGpu {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (name != null) 'name': name,
-      if (id != null) 'id': id,
-      if (vendorId != null) 'vendor_id': vendorId,
-      if (vendorName != null) 'vendor_name': vendorName,
-      if (memorySize != null) 'memory_size': memorySize,
-      if (apiType != null) 'api_type': apiType,
-      if (multiThreadedRendering != null)
-        'multi_threaded_rendering': multiThreadedRendering,
-      if (version != null) 'version': version,
-      if (npotSupport != null) 'npot_support': npotSupport,
-      if (graphicsShaderLevel != null)
-        'graphics_shader_level': graphicsShaderLevel,
-      if (maxTextureSize != null) 'max_texture_size': maxTextureSize,
-      if (supportsComputeShaders != null)
-        'supports_compute_shaders': supportsComputeShaders,
-      if (supportsDrawCallInstancing != null)
-        'supports_draw_call_instancing': supportsDrawCallInstancing,
-      if (supportsGeometryShaders != null)
-        'supports_geometry_shaders': supportsGeometryShaders,
-      if (supportsRayTracing != null)
-        'supports_ray_tracing': supportsRayTracing,
+      'name': ?name,
+      'id': ?id,
+      'vendor_id': ?vendorId,
+      'vendor_name': ?vendorName,
+      'memory_size': ?memorySize,
+      'api_type': ?apiType,
+      'multi_threaded_rendering': ?multiThreadedRendering,
+      'version': ?version,
+      'npot_support': ?npotSupport,
+      'graphics_shader_level': ?graphicsShaderLevel,
+      'max_texture_size': ?maxTextureSize,
+      'supports_compute_shaders': ?supportsComputeShaders,
+      'supports_draw_call_instancing': ?supportsDrawCallInstancing,
+      'supports_geometry_shaders': ?supportsGeometryShaders,
+      'supports_ray_tracing': ?supportsRayTracing,
     };
   }
 }

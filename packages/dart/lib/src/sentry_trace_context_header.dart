@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'protocol/access_aware_map.dart';
 import 'utils/sample_rate_format.dart';
-import 'utils/type_safe_map_access.dart';
 
 class SentryTraceContextHeader {
   SentryTraceContextHeader(
@@ -43,18 +42,19 @@ class SentryTraceContextHeader {
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
   factory SentryTraceContextHeader.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
+    final traceId = json.readString('trace_id');
+    final replayId = json.readString('replay_id');
     return SentryTraceContextHeader(
-      SentryId.fromId(json['trace_id']),
-      json['public_key'],
-      release: json['release'],
-      environment: json['environment'],
-      userId: json['user_id'],
-      transaction: json['transaction'],
-      sampleRate: json['sample_rate'],
-      sampled: json['sampled'],
-      replayId:
-          json['replay_id'] == null ? null : SentryId.fromId(json['replay_id']),
-      orgId: json.getValueOrNull('org_id'),
+      traceId != null ? SentryId.fromId(traceId) : const SentryId.empty(),
+      json.readString('public_key') ?? '',
+      release: json.readString('release'),
+      environment: json.readString('environment'),
+      userId: json.readString('user_id'),
+      transaction: json.readString('transaction'),
+      sampleRate: json.readString('sample_rate'),
+      sampled: json.readString('sampled'),
+      replayId: replayId != null ? SentryId.fromId(replayId) : null,
+      orgId: json.readString('org_id'),
       unknown: json.notAccessed(),
     );
   }
@@ -65,14 +65,14 @@ class SentryTraceContextHeader {
       ...?unknown,
       'trace_id': traceId.toString(),
       'public_key': publicKey,
-      if (release != null) 'release': release,
-      if (environment != null) 'environment': environment,
-      if (userId != null) 'user_id': userId,
-      if (transaction != null) 'transaction': transaction,
-      if (sampleRate != null) 'sample_rate': sampleRate,
-      if (sampled != null) 'sampled': sampled,
-      if (replayId != null) 'replay_id': replayId.toString(),
-      if (orgId != null) 'org_id': orgId,
+      'release': ?release,
+      'environment': ?environment,
+      'user_id': ?userId,
+      'transaction': ?transaction,
+      'sample_rate': ?sampleRate,
+      'sampled': ?sampled,
+      'replay_id': ?replayId?.toString(),
+      'org_id': ?orgId,
     };
   }
 

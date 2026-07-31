@@ -21,11 +21,11 @@ class SentryCulture {
   factory SentryCulture.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryCulture(
-      calendar: json['calendar'],
-      displayName: json['display_name'],
-      locale: json['locale'],
-      is24HourFormat: json['is_24_hour_format'],
-      timezone: json['timezone'],
+      calendar: json.readString('calendar'),
+      displayName: json.readString('display_name'),
+      locale: json.readString('locale'),
+      is24HourFormat: json.readBool('is_24_hour_format'),
+      timezone: json.readString('timezone'),
       unknown: json.notAccessed(),
     );
   }
@@ -90,11 +90,11 @@ class SentryCulture {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (calendar != null) 'calendar': calendar!,
-      if (displayName != null) 'display_name': displayName!,
-      if (locale != null) 'locale': locale!,
-      if (is24HourFormat != null) 'is_24_hour_format': is24HourFormat!,
-      if (timezone != null) 'timezone': timezone!,
+      'calendar': ?calendar,
+      'display_name': ?displayName,
+      'locale': ?locale,
+      'is_24_hour_format': ?is24HourFormat,
+      'timezone': ?timezone,
     };
   }
 }

@@ -20,18 +20,14 @@ class SentryPackage {
   factory SentryPackage.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryPackage(
-      json['name'],
-      json['version'],
+      json.readString('name')!,
+      json.readString('version')!,
       unknown: json.notAccessed(),
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
-      ...?unknown,
-      'name': name,
-      'version': version,
-    };
+    return {...?unknown, 'name': name, 'version': version};
   }
 }

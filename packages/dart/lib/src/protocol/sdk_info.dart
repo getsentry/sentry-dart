@@ -24,10 +24,10 @@ class SdkInfo {
   factory SdkInfo.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SdkInfo(
-      sdkName: json['sdk_name'],
-      versionMajor: json['version_major'],
-      versionMinor: json['version_minor'],
-      versionPatchlevel: json['version_patchlevel'],
+      sdkName: json.readString('sdk_name'),
+      versionMajor: json.readInt('version_major'),
+      versionMinor: json.readInt('version_minor'),
+      versionPatchlevel: json.readInt('version_patchlevel'),
       unknown: json.notAccessed(),
     );
   }
@@ -36,10 +36,10 @@ class SdkInfo {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (sdkName != null) 'sdk_name': sdkName,
-      if (versionMajor != null) 'version_major': versionMajor,
-      if (versionMinor != null) 'version_minor': versionMinor,
-      if (versionPatchlevel != null) 'version_patchlevel': versionPatchlevel,
+      'sdk_name': ?sdkName,
+      'version_major': ?versionMajor,
+      'version_minor': ?versionMinor,
+      'version_patchlevel': ?versionPatchlevel,
     };
   }
 }

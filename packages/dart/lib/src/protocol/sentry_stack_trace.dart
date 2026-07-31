@@ -13,8 +13,8 @@ class SentryStackTrace {
     this.unknown,
     @internal this.baseAddr,
     @internal this.buildId,
-  })  : _frames = frames,
-        _registers = Map.from(registers ?? {});
+  }) : _frames = frames,
+       _registers = Map.from(registers ?? {});
 
   List<SentryStackFrame>? _frames;
 
@@ -59,16 +59,11 @@ class SentryStackTrace {
   /// Deserializes a [SentryStackTrace] from JSON [Map].
   factory SentryStackTrace.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    final framesJson = json['frames'] as List<dynamic>?;
     return SentryStackTrace(
-      frames: framesJson != null
-          ? framesJson
-              .map((frameJson) => SentryStackFrame.fromJson(frameJson))
-              .toList()
-          : [],
-      registers: json['registers'],
-      lang: json['lang'],
-      snapshot: json['snapshot'],
+      frames: json.readObjectList('frames', SentryStackFrame.fromJson) ?? [],
+      registers: json.readStringMap('registers'),
+      lang: json.readString('lang'),
+      snapshot: json.readBool('snapshot'),
       unknown: json.notAccessed(),
     );
   }
@@ -78,11 +73,12 @@ class SentryStackTrace {
     return {
       ...?unknown,
       if (_frames?.isNotEmpty ?? false)
-        'frames':
-            _frames?.map((frame) => frame.toJson()).toList(growable: false),
+        'frames': _frames
+            ?.map((frame) => frame.toJson())
+            .toList(growable: false),
       if (_registers?.isNotEmpty ?? false) 'registers': _registers,
-      if (lang != null) 'lang': lang,
-      if (snapshot != null) 'snapshot': snapshot,
+      'lang': ?lang,
+      'snapshot': ?snapshot,
     };
   }
 }

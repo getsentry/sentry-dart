@@ -30,16 +30,19 @@ class SentryFeedback {
   factory SentryFeedback.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 
-    String? associatedEventId = json['associated_event_id'];
+    final associatedEventId = json.readString('associated_event_id');
 
     return SentryFeedback(
-      message: json['message'],
-      contactEmail: json['contact_email'],
-      name: json['name'],
-      replayId: json['replay_id'],
-      url: json['url'],
-      associatedEventId:
-          associatedEventId != null ? SentryId.fromId(associatedEventId) : null,
+      // Required by the constructor: feedback without a message is not
+      // feedback, so the caller drops this child and keeps the raw JSON.
+      message: json.readString('message')!,
+      contactEmail: json.readString('contact_email'),
+      name: json.readString('name'),
+      replayId: json.readString('replay_id'),
+      url: json.readString('url'),
+      associatedEventId: associatedEventId != null
+          ? SentryId.fromId(associatedEventId)
+          : null,
       unknown: json.notAccessed(),
     );
   }
@@ -48,12 +51,11 @@ class SentryFeedback {
     return {
       ...?unknown,
       'message': message,
-      if (contactEmail != null) 'contact_email': contactEmail,
-      if (name != null) 'name': name,
-      if (replayId != null) 'replay_id': replayId,
-      if (url != null) 'url': url,
-      if (associatedEventId != null)
-        'associated_event_id': associatedEventId.toString(),
+      'contact_email': ?contactEmail,
+      'name': ?name,
+      'replay_id': ?replayId,
+      'url': ?url,
+      'associated_event_id': ?associatedEventId?.toString(),
     };
   }
 }

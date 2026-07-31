@@ -27,20 +27,15 @@ class SentryMessage {
   @internal
   final Map<String, dynamic>? unknown;
 
-  SentryMessage(
-    this.formatted, {
-    this.template,
-    this.params,
-    this.unknown,
-  });
+  SentryMessage(this.formatted, {this.template, this.params, this.unknown});
 
   /// Deserializes a [SentryMessage] from JSON [Map].
   factory SentryMessage.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryMessage(
-      json['formatted'],
-      template: json['message'],
-      params: json['params'],
+      json.readString('formatted')!,
+      template: json.readString('message'),
+      params: json.readList('params'),
       unknown: json.notAccessed(),
     );
   }
@@ -50,7 +45,7 @@ class SentryMessage {
     return {
       ...?unknown,
       'formatted': formatted,
-      if (template != null) 'message': template,
+      'message': ?template,
       if (params?.isNotEmpty ?? false) 'params': params,
     };
   }

@@ -97,34 +97,26 @@ class Mechanism {
     this.exceptionId,
     this.parentId,
     this.unknown,
-  })  : _meta = meta != null ? Map.from(meta) : null,
-        _data = data != null ? Map.from(data) : null;
+  }) : _meta = meta != null ? Map.from(meta) : null,
+       _data = data != null ? Map.from(data) : null;
 
   /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> jsonData) {
     final json = AccessAwareMap(jsonData);
-    var data = json['data'];
-    if (data != null) {
-      data = Map<String, dynamic>.from(data as Map);
-    }
-
-    var meta = json['meta'];
-    if (meta != null) {
-      meta = Map<String, dynamic>.from(meta as Map);
-    }
-
     return Mechanism(
-      type: json['type'],
-      description: json['description'],
-      helpLink: json['help_link'],
-      handled: json['handled'],
-      meta: meta,
-      data: data,
-      synthetic: json['synthetic'],
-      isExceptionGroup: json['is_exception_group'],
-      source: json['source'],
-      exceptionId: json['exception_id'],
-      parentId: json['parent_id'],
+      // [type] is required, so an absent or non-String value falls back to the
+      // spec's placeholder for a mechanism the SDK cannot determine.
+      type: json.readString('type') ?? 'generic',
+      description: json.readString('description'),
+      helpLink: json.readString('help_link'),
+      handled: json.readBool('handled'),
+      meta: json.readMap('meta'),
+      data: json.readMap('data'),
+      synthetic: json.readBool('synthetic'),
+      isExceptionGroup: json.readBool('is_exception_group'),
+      source: json.readString('source'),
+      exceptionId: json.readInt('exception_id'),
+      parentId: json.readInt('parent_id'),
       unknown: json.notAccessed(),
     );
   }
@@ -134,16 +126,16 @@ class Mechanism {
     return {
       ...?unknown,
       'type': type,
-      if (description != null) 'description': description,
-      if (helpLink != null) 'help_link': helpLink,
-      if (handled != null) 'handled': handled,
+      'description': ?description,
+      'help_link': ?helpLink,
+      'handled': ?handled,
       if (_meta?.isNotEmpty ?? false) 'meta': _meta,
       if (_data?.isNotEmpty ?? false) 'data': _data,
-      if (synthetic != null) 'synthetic': synthetic,
-      if (isExceptionGroup != null) 'is_exception_group': isExceptionGroup,
-      if (source != null) 'source': source,
-      if (exceptionId != null) 'exception_id': exceptionId,
-      if (parentId != null) 'parent_id': parentId,
+      'synthetic': ?synthetic,
+      'is_exception_group': ?isExceptionGroup,
+      'source': ?source,
+      'exception_id': ?exceptionId,
+      'parent_id': ?parentId,
     };
   }
 }

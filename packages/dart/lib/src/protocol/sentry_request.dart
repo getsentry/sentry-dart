@@ -82,16 +82,15 @@ class SentryRequest {
     Map<String, String>? headers,
     Map<String, String>? env,
     this.unknown,
-  })  : _data = data,
-        _headers = headers != null ? Map.from(headers) : null,
-        // Look for a 'Set-Cookie' header (case insensitive) if not given.
-        cookies = cookies ??
-            headers?.entries
-                .firstWhereOrNull(
-                  (e) => e.key.toLowerCase() == 'cookie',
-                )
-                ?.value,
-        _env = env != null ? Map.from(env) : null;
+  }) : _data = data,
+       _headers = headers != null ? Map.from(headers) : null,
+       // Look for a 'Set-Cookie' header (case insensitive) if not given.
+       cookies =
+           cookies ??
+           headers?.entries
+               .firstWhereOrNull((e) => e.key.toLowerCase() == 'cookie')
+               ?.value,
+       _env = env != null ? Map.from(env) : null;
 
   factory SentryRequest.fromUri({
     required Uri uri,
@@ -122,15 +121,15 @@ class SentryRequest {
   factory SentryRequest.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryRequest(
-      url: json['url'],
-      method: json['method'],
-      queryString: json['query_string'],
-      cookies: json['cookies'],
+      url: json.readString('url'),
+      method: json.readString('method'),
+      queryString: json.readString('query_string'),
+      cookies: json.readString('cookies'),
       data: json['data'],
-      headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
-      env: json.containsKey('env') ? Map.from(json['env']) : null,
-      fragment: json['fragment'],
-      apiTarget: json['api_target'],
+      headers: json.readStringMap('headers'),
+      env: json.readStringMap('env'),
+      fragment: json.readString('fragment'),
+      apiTarget: json.readString('api_target'),
       unknown: json.notAccessed(),
     );
   }
@@ -139,15 +138,15 @@ class SentryRequest {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (url != null) 'url': url,
-      if (method != null) 'method': method,
-      if (queryString != null) 'query_string': queryString,
-      if (_data != null) 'data': _data,
-      if (cookies != null) 'cookies': cookies,
+      'url': ?url,
+      'method': ?method,
+      'query_string': ?queryString,
+      'data': ?_data,
+      'cookies': ?cookies,
       if (headers.isNotEmpty) 'headers': headers,
       if (env.isNotEmpty) 'env': env,
-      if (fragment != null) 'fragment': fragment,
-      if (apiTarget != null) 'api_target': apiTarget,
+      'fragment': ?fragment,
+      'api_target': ?apiTarget,
     };
   }
 }

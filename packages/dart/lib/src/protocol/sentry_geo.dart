@@ -1,3 +1,5 @@
+import 'access_aware_map.dart';
+
 /// Geographical location of the end user or device.
 class SentryGeo {
   SentryGeo({
@@ -8,13 +10,14 @@ class SentryGeo {
     this.subdivision,
   });
 
-  factory SentryGeo.fromJson(Map<String, dynamic> json) {
+  factory SentryGeo.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryGeo(
-      city: json['city'],
-      countryCode: json['country_code'],
-      region: json['region'],
-      subregion: json['subregion'],
-      subdivision: json['subdivision'],
+      city: json.readString('city'),
+      countryCode: json.readString('country_code'),
+      region: json.readString('region'),
+      subregion: json.readString('subregion'),
+      subdivision: json.readString('subdivision'),
     );
   }
 
@@ -35,11 +38,11 @@ class SentryGeo {
 
   Map<String, dynamic> toJson() {
     return {
-      if (city != null) 'city': city,
-      if (countryCode != null) 'country_code': countryCode,
-      if (region != null) 'region': region,
-      if (subregion != null) 'subregion': subregion,
-      if (subdivision != null) 'subdivision': subdivision,
+      'city': ?city,
+      'country_code': ?countryCode,
+      'region': ?region,
+      'subregion': ?subregion,
+      'subdivision': ?subdivision,
     };
   }
 }

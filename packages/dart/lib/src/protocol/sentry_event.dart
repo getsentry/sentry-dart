@@ -15,7 +15,8 @@ class SentryEvent {
     Map<String, String>? modules,
     Map<String, String>? tags,
     @Deprecated(
-        'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+      'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible',
+    )
     Map<String, dynamic>? extra,
     List<String>? fingerprint,
     List<Breadcrumb>? breadcrumbs,
@@ -39,18 +40,18 @@ class SentryEvent {
     this.debugMeta,
     this.type,
     this.unknown,
-  })  : eventId = eventId ?? SentryId.newId(),
-        timestamp = timestamp ?? getUtcDateTime(),
-        contexts = contexts ?? Contexts(),
-        modules = modules != null ? Map.from(modules) : null,
-        tags = tags != null ? Map.from(tags) : null,
-        // ignore: deprecated_member_use_from_same_package
-        extra = extra != null ? Map.from(extra) : null,
-        fingerprint = fingerprint != null ? List.from(fingerprint) : null,
-        breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
-        exceptions = exceptions != null ? List.from(exceptions) : null,
-        threads = threads != null ? List.from(threads) : null,
-        _throwable = throwable;
+  }) : eventId = eventId ?? SentryId.newId(),
+       timestamp = timestamp ?? getUtcDateTime(),
+       contexts = contexts ?? Contexts(),
+       modules = modules != null ? Map.from(modules) : null,
+       tags = tags != null ? Map.from(tags) : null,
+       // ignore: deprecated_member_use_from_same_package
+       extra = extra != null ? Map.from(extra) : null,
+       fingerprint = fingerprint != null ? List.from(fingerprint) : null,
+       breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
+       exceptions = exceptions != null ? List.from(exceptions) : null,
+       threads = threads != null ? List.from(threads) : null,
+       _throwable = throwable;
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -133,7 +134,8 @@ class SentryEvent {
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
   @Deprecated(
-      'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+    'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible',
+  )
   Map<String, dynamic>? extra;
 
   /// List of breadcrumbs for this event.
@@ -197,80 +199,50 @@ class SentryEvent {
   factory SentryEvent.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
 
-    final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
-    final breadcrumbs = breadcrumbsJson
-        ?.map((e) => Breadcrumb.fromJson(e))
-        .toList(growable: false);
+    final threadsJson = json.readMap('threads');
+    final threads = threadsJson != null
+        ? AccessAwareMap(
+            threadsJson,
+          ).readObjectList('values', SentryThread.fromJson)
+        : null;
 
-    final threadValues = json['threads']?['values'] as List<dynamic>?;
-    final threads = threadValues
-        ?.map((e) => SentryThread.fromJson(e))
-        .toList(growable: false);
+    final exceptionJson = json.readMap('exception');
+    final exceptions = exceptionJson != null
+        ? AccessAwareMap(
+            exceptionJson,
+          ).readObjectList('values', SentryException.fromJson)
+        : null;
 
-    final exceptionValues = json['exception']?['values'] as List<dynamic>?;
-    final exceptions = exceptionValues
-        ?.map((e) => SentryException.fromJson(e))
-        .toList(growable: false);
-
-    final modules = json['modules']?.cast<String, String>();
-    final tags = json['tags']?.cast<String, String>();
-
-    final timestampJson = json['timestamp'];
-    final levelJson = json['level'];
-    final fingerprintJson = json['fingerprint'] as List<dynamic>?;
-    final sdkVersionJson = json['sdk'] as Map<String, dynamic>?;
-    final messageJson = json['message'] as Map<String, dynamic>?;
-    final userJson = json['user'] as Map<String, dynamic>?;
-    final contextsJson = json['contexts'] as Map<String, dynamic>?;
-    final requestJson = json['request'] as Map<String, dynamic>?;
-    final debugMetaJson = json['debug_meta'] as Map<String, dynamic>?;
-
-    var extra = json['extra'];
-    if (extra != null) {
-      extra = Map<String, dynamic>.from(extra as Map);
-    }
+    final eventId = json.readString('event_id');
+    final levelJson = json.readString('level');
 
     return SentryEvent(
-      eventId: SentryId.fromId(json['event_id']),
-      timestamp:
-          timestampJson != null ? DateTime.tryParse(timestampJson) : null,
-      modules: modules,
-      tags: tags,
+      eventId: eventId != null ? SentryId.fromId(eventId) : null,
+      timestamp: json.readDateTime('timestamp'),
+      modules: json.readStringMap('modules'),
+      tags: json.readStringMap('tags'),
       // ignore: deprecated_member_use_from_same_package
-      extra: extra,
-      fingerprint:
-          fingerprintJson?.map((e) => e as String).toList(growable: false),
-      breadcrumbs: breadcrumbs,
-      sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
-          ? SdkVersion.fromJson(sdkVersionJson)
-          : null,
-      platform: json['platform'],
-      logger: json['logger'],
-      serverName: json['server_name'],
-      release: json['release'],
-      dist: json['dist'],
-      environment: json['environment'],
-      message: messageJson != null && messageJson.isNotEmpty
-          ? SentryMessage.fromJson(messageJson)
-          : null,
-      transaction: json['transaction'],
+      extra: json.readMap('extra'),
+      fingerprint: json.readStringList('fingerprint'),
+      breadcrumbs: json.readObjectList('breadcrumbs', Breadcrumb.fromJson),
+      sdk: json.readObject('sdk', SdkVersion.fromJson),
+      platform: json.readString('platform'),
+      logger: json.readString('logger'),
+      serverName: json.readString('server_name'),
+      release: json.readString('release'),
+      dist: json.readString('dist'),
+      environment: json.readString('environment'),
+      message: json.readObject('message', SentryMessage.fromJson),
+      transaction: json.readString('transaction'),
       threads: threads,
       level: levelJson != null ? SentryLevel.fromName(levelJson) : null,
-      culprit: json['culprit'],
-      user: userJson != null && userJson.isNotEmpty
-          ? SentryUser.fromJson(userJson)
-          : null,
-      contexts: contextsJson != null && contextsJson.isNotEmpty
-          ? Contexts.fromJson(contextsJson)
-          : null,
-      request: requestJson != null && requestJson.isNotEmpty
-          ? SentryRequest.fromJson(requestJson)
-          : null,
-      debugMeta: debugMetaJson != null && debugMetaJson.isNotEmpty
-          ? DebugMeta.fromJson(debugMetaJson)
-          : null,
+      culprit: json.readString('culprit'),
+      user: json.readObject('user', SentryUser.fromJson),
+      contexts: json.readObject('contexts', Contexts.fromJson),
+      request: json.readObject('request', SentryRequest.fromJson),
+      debugMeta: json.readObject('debug_meta', DebugMeta.fromJson),
       exceptions: exceptions,
-      type: json['type'],
+      type: json.readString('type'),
       unknown: json.notAccessed(),
     );
   }
@@ -316,24 +288,25 @@ class SentryEvent {
       'event_id': eventId.toString(),
       if (timestamp != null)
         'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp!),
-      if (platform != null) 'platform': platform,
-      if (logger != null) 'logger': logger,
-      if (serverName != null) 'server_name': serverName,
-      if (release != null) 'release': release,
-      if (dist != null) 'dist': dist,
-      if (environment != null) 'environment': environment,
+      'platform': ?platform,
+      'logger': ?logger,
+      'server_name': ?serverName,
+      'release': ?release,
+      'dist': ?dist,
+      'environment': ?environment,
       if (modules != null && modules!.isNotEmpty) 'modules': modules,
-      if (transaction != null) 'transaction': transaction,
-      if (level != null) 'level': level!.name,
-      if (culprit != null) 'culprit': culprit,
+      'transaction': ?transaction,
+      'level': ?level?.name,
+      'culprit': ?culprit,
       if (tags?.isNotEmpty ?? false) 'tags': tags,
       // ignore: deprecated_member_use_from_same_package
       if (extra?.isNotEmpty ?? false) 'extra': extra,
       if (type != null) 'type': type,
       if (fingerprint?.isNotEmpty ?? false) 'fingerprint': fingerprint,
       if (breadcrumbs?.isNotEmpty ?? false)
-        'breadcrumbs':
-            breadcrumbs?.map((b) => b.toJson()).toList(growable: false),
+        'breadcrumbs': breadcrumbs
+            ?.map((b) => b.toJson())
+            .toList(growable: false),
       if (messageMap?.isNotEmpty ?? false) 'message': messageMap,
       if (contextsMap.isNotEmpty) 'contexts': contextsMap,
       if (userMap?.isNotEmpty ?? false) 'user': userMap,

@@ -55,11 +55,11 @@ class SentryRuntime {
   factory SentryRuntime.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
     return SentryRuntime(
-      name: json['name'],
-      version: json['version'],
-      compiler: json['compiler'],
-      rawDescription: json['raw_description'],
-      build: json['build'],
+      name: json.readString('name'),
+      version: json.readString('version'),
+      compiler: json.readString('compiler'),
+      rawDescription: json.readString('raw_description'),
+      build: json.readString('build'),
       unknown: json.notAccessed(),
     );
   }
@@ -94,11 +94,11 @@ class SentryRuntime {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (name != null) 'name': name,
-      if (compiler != null) 'compiler': compiler,
-      if (version != null) 'version': version,
-      if (rawDescription != null) 'raw_description': rawDescription,
-      if (build != null) 'build': build,
+      'name': ?name,
+      'compiler': ?compiler,
+      'version': ?version,
+      'raw_description': ?rawDescription,
+      'build': ?build,
     };
   }
 }

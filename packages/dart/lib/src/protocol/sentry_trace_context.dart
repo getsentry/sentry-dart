@@ -47,23 +47,24 @@ class SentryTraceContext {
 
   factory SentryTraceContext.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
+    final spanId = json.readString('span_id');
+    final parentSpanId = json.readString('parent_span_id');
+    final traceId = json.readString('trace_id');
+    final replayId = json.readString('replay_id');
+    final status = json.readString('status');
     return SentryTraceContext(
-      operation: json['op'] as String,
-      spanId: SpanId.fromId(json['span_id'] as String),
-      parentSpanId: json['parent_span_id'] == null
-          ? null
-          : SpanId.fromId(json['parent_span_id'] as String),
-      traceId: SentryId.fromId(json['trace_id'] as String),
-      replayId: json['replay_id'] == null
-          ? null
-          : SentryId.fromId(json['replay_id'] as String),
-      description: json['description'] as String?,
-      status: json['status'] == null
-          ? null
-          : SpanStatus.fromString(json['status'] as String),
+      // Required by the constructor: without it there is no usable trace
+      // context, so the caller drops this child and keeps the raw JSON.
+      operation: json.readString('op')!,
+      spanId: spanId != null ? SpanId.fromId(spanId) : null,
+      parentSpanId: parentSpanId != null ? SpanId.fromId(parentSpanId) : null,
+      traceId: traceId != null ? SentryId.fromId(traceId) : null,
+      replayId: replayId != null ? SentryId.fromId(replayId) : null,
+      description: json.readString('description'),
+      status: status != null ? SpanStatus.fromString(status) : null,
       sampled: true,
-      origin: json['origin'] == null ? null : json['origin'] as String?,
-      data: json['data'] == null ? null : json['data'] as Map<String, dynamic>,
+      origin: json.readString('origin'),
+      data: json.readMap('data'),
       unknown: json.notAccessed(),
     );
   }
@@ -75,12 +76,12 @@ class SentryTraceContext {
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),
       'op': operation,
-      if (parentSpanId != null) 'parent_span_id': parentSpanId!.toString(),
-      if (replayId != null) 'replay_id': replayId!.toString(),
-      if (description != null) 'description': description,
-      if (status != null) 'status': status!.toString(),
-      if (origin != null) 'origin': origin,
-      if (data != null) 'data': data,
+      'parent_span_id': ?parentSpanId?.toString(),
+      'replay_id': ?replayId?.toString(),
+      'description': ?description,
+      'status': ?status?.toString(),
+      'origin': ?origin,
+      'data': ?data,
     };
   }
 
@@ -96,12 +97,13 @@ class SentryTraceContext {
     this.unknown,
     this.replayId,
     this.data,
-  })  : traceId = traceId ?? SentryId.newId(),
-        spanId = spanId ?? SpanId.newId();
+  }) : traceId = traceId ?? SentryId.newId(),
+       spanId = spanId ?? SpanId.newId();
 
   @internal
   factory SentryTraceContext.fromPropagationContext(
-      PropagationContext propagationContext) {
+    PropagationContext propagationContext,
+  ) {
     return SentryTraceContext(
       traceId: propagationContext.traceId,
       spanId: SpanId.newId(),

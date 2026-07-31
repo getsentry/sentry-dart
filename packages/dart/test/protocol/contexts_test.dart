@@ -6,8 +6,9 @@ void main() {
   final _traceId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
   final _spanId = SpanId.fromId('976e0cd945864f60');
   final _parentSpanId = SpanId.fromId('c9c9fc3f9d4346df');
-  final _associatedEventId =
-      SentryId.fromId('8a32c0f9be1d34a5efb2c4a10d80de9a');
+  final _associatedEventId = SentryId.fromId(
+    '8a32c0f9be1d34a5efb2c4a10d80de9a',
+  );
 
   final _trace = SentryTraceContext(
     traceId: _traceId,
@@ -38,9 +39,9 @@ void main() {
     culture: SentryCulture(locale: 'foo-bar'),
     trace: _trace,
     feedback: _feedback,
-    flags: SentryFeatureFlags(values: [
-      SentryFeatureFlag(flag: 'name', result: true),
-    ]),
+    flags: SentryFeatureFlags(
+      values: [SentryFeatureFlag(flag: 'name', result: true)],
+    ),
   );
 
   final _contextsJson = <String, dynamic>{
@@ -57,7 +58,7 @@ void main() {
       'op': 'op',
       'parent_span_id': 'c9c9fc3f9d4346df',
       'description': 'desc',
-      'status': 'ok'
+      'status': 'ok',
     },
     'feedback': {
       'message': 'fixture-message',
@@ -69,7 +70,7 @@ void main() {
     },
     'flags': {
       'values': [
-        {'flag': 'name', 'result': true}
+        {'flag': 'name', 'result': true},
       ],
     },
   };
@@ -78,7 +79,7 @@ void main() {
     runtimes: [
       SentryRuntime(name: 'name'),
       SentryRuntime(name: 'name'),
-      SentryRuntime(key: 'key')
+      SentryRuntime(key: 'key'),
     ],
   );
 
@@ -91,10 +92,7 @@ void main() {
     test('toJson', () {
       final json = _contexts.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(_contextsJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(_contextsJson, json), true);
     });
     test('toJson multiple runtimes', () {
       final json = _contextsMutlipleRuntimes.toJson();
@@ -108,20 +106,28 @@ void main() {
       final contexts = Contexts.fromJson(_contextsJson);
       final json = contexts.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(_contextsJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(_contextsJson, json), true);
     });
     test('fromJson multiple runtimes', () {
-      final contextsMutlipleRuntimes =
-          Contexts.fromJson(_contextsMutlipleRuntimesJson);
+      final contextsMutlipleRuntimes = Contexts.fromJson(
+        _contextsMutlipleRuntimesJson,
+      );
       final json = contextsMutlipleRuntimes.toJson();
 
       expect(
         DeepCollectionEquality().equals(_contextsMutlipleRuntimesJson, json),
         true,
       );
+    });
+
+    test('fromJson with a context that is not a map keeps its siblings', () {
+      final contexts = Contexts.fromJson({
+        'device': 'not-a-map',
+        'app': {'app_name': 'sentry'},
+      });
+
+      expect(contexts.device, isNull);
+      expect(contexts.app?.name, 'sentry');
     });
   });
 
@@ -141,9 +147,13 @@ void main() {
       expect(attributes[SemanticAttributesConstants.osName]?.value, 'iOS');
       expect(attributes[SemanticAttributesConstants.osVersion]?.value, '17.4');
       expect(
-          attributes[SemanticAttributesConstants.deviceBrand]?.value, 'Apple');
-      expect(attributes[SemanticAttributesConstants.deviceModel]?.value,
-          'iPhone14,2');
+        attributes[SemanticAttributesConstants.deviceBrand]?.value,
+        'Apple',
+      );
+      expect(
+        attributes[SemanticAttributesConstants.deviceModel]?.value,
+        'iPhone14,2',
+      );
     });
 
     test('omits sub-contexts that are null', () {
@@ -154,8 +164,10 @@ void main() {
       final attributes = contexts.toAttributes();
 
       expect(attributes[SemanticAttributesConstants.osName]?.value, 'iOS');
-      expect(attributes.containsKey(SemanticAttributesConstants.deviceBrand),
-          false);
+      expect(
+        attributes.containsKey(SemanticAttributesConstants.deviceBrand),
+        false,
+      );
     });
 
     test('includes culture attributes when culture is present', () {
@@ -165,29 +177,38 @@ void main() {
 
       final attributes = contexts.toAttributes();
 
-      expect(attributes[SemanticAttributesConstants.cultureLocale]?.value,
-          'en-US');
-      expect(attributes[SemanticAttributesConstants.cultureTimezone]?.value,
-          'Europe/Vienna');
-    });
-
-    test('emits process.runtime.* from the Dart runtime regardless of order',
-        () {
-      final contexts = Contexts(
-        runtimes: [
-          SentryRuntime(name: 'Flutter', version: '3.24.0'),
-          SentryRuntime(name: 'Dart', version: '3.5.0'),
-        ],
-      );
-
-      final attributes = contexts.toAttributes();
-
-      expect(attributes[SemanticAttributesConstants.processRuntimeName]?.value,
-          'Dart');
       expect(
-          attributes[SemanticAttributesConstants.processRuntimeVersion]?.value,
-          '3.5.0');
+        attributes[SemanticAttributesConstants.cultureLocale]?.value,
+        'en-US',
+      );
+      expect(
+        attributes[SemanticAttributesConstants.cultureTimezone]?.value,
+        'Europe/Vienna',
+      );
     });
+
+    test(
+      'emits process.runtime.* from the Dart runtime regardless of order',
+      () {
+        final contexts = Contexts(
+          runtimes: [
+            SentryRuntime(name: 'Flutter', version: '3.24.0'),
+            SentryRuntime(name: 'Dart', version: '3.5.0'),
+          ],
+        );
+
+        final attributes = contexts.toAttributes();
+
+        expect(
+          attributes[SemanticAttributesConstants.processRuntimeName]?.value,
+          'Dart',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.processRuntimeVersion]?.value,
+          '3.5.0',
+        );
+      },
+    );
 
     test('does not emit process.runtime.* when no Dart runtime is present', () {
       final contexts = Contexts(
@@ -197,9 +218,9 @@ void main() {
       final attributes = contexts.toAttributes();
 
       expect(
-          attributes
-              .containsKey(SemanticAttributesConstants.processRuntimeName),
-          false);
+        attributes.containsKey(SemanticAttributesConstants.processRuntimeName),
+        false,
+      );
     });
 
     test('does not emit process.runtime.* when runtimes list is empty', () {
@@ -208,9 +229,9 @@ void main() {
       final attributes = contexts.toAttributes();
 
       expect(
-          attributes
-              .containsKey(SemanticAttributesConstants.processRuntimeName),
-          false);
+        attributes.containsKey(SemanticAttributesConstants.processRuntimeName),
+        false,
+      );
     });
   });
 }

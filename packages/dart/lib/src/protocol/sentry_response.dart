@@ -1,3 +1,4 @@
+import 'access_aware_map.dart';
 import 'contexts.dart';
 import '../utils/iterable_utils.dart';
 
@@ -47,23 +48,23 @@ class SentryResponse {
     Map<String, String>? headers,
     String? cookies,
     Object? data,
-  })  : _data = data,
-        _headers = headers != null ? Map.from(headers) : null,
-        // Look for a 'Set-Cookie' header (case insensitive) if not given.
-        cookies = cookies ??
-            headers?.entries
-                .firstWhereOrNull(
-                  (e) => e.key.toLowerCase() == 'set-cookie',
-                )
-                ?.value;
+  }) : _data = data,
+       _headers = headers != null ? Map.from(headers) : null,
+       // Look for a 'Set-Cookie' header (case insensitive) if not given.
+       cookies =
+           cookies ??
+           headers?.entries
+               .firstWhereOrNull((e) => e.key.toLowerCase() == 'set-cookie')
+               ?.value;
 
   /// Deserializes a [SentryResponse] from JSON [Map].
-  factory SentryResponse.fromJson(Map<String, dynamic> json) {
+  factory SentryResponse.fromJson(Map<String, dynamic> data) {
+    final json = AccessAwareMap(data);
     return SentryResponse(
-      headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
-      cookies: json['cookies'],
-      bodySize: json['body_size'],
-      statusCode: json['status_code'],
+      headers: json.readStringMap('headers'),
+      cookies: json.readString('cookies'),
+      bodySize: json.readInt('body_size'),
+      statusCode: json.readInt('status_code'),
       data: json['data'],
     );
   }
@@ -72,10 +73,10 @@ class SentryResponse {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       if (headers.isNotEmpty) 'headers': headers,
-      if (cookies != null) 'cookies': cookies,
-      if (bodySize != null) 'body_size': bodySize,
-      if (statusCode != null) 'status_code': statusCode,
-      if (data != null) 'data': data,
+      'cookies': ?cookies,
+      'body_size': ?bodySize,
+      'status_code': ?statusCode,
+      'data': ?data,
     };
   }
 }
