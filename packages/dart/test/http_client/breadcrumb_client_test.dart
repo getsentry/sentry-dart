@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:io';
 
 import 'package:_sentry_testing/_sentry_testing.dart';
@@ -6,6 +8,7 @@ import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/breadcrumb_client.dart';
+import 'package:sentry/src/http_client/network_details_capture.dart';
 import 'package:test/test.dart';
 
 final requestUri = Uri.parse('https://example.com/path?foo=bar#baz');
@@ -248,6 +251,77 @@ void main() {
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
+    test('does not attach network details when capture is not configured',
+        () async {
+      final sut =
+          fixture.getSut(fixture.getClient(statusCode: 200, reason: 'OK'));
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?.containsKey('request'), false);
+      expect(breadcrumb.data?.containsKey('response'), false);
+    });
+
+    test('attaches network details when capture matches the request', () async {
+      final capture = FakeNetworkDetailsCapture();
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?['request'], isA<Map>());
+      expect(breadcrumb.data?['response'], isA<Map>());
+    });
+
+    test(
+        'captures request headers as mutated by a wrapped client during '
+        'send (e.g. tracing headers added after dispatch)', () async {
+      final capture = FakeNetworkDetailsCapture();
+
+      final sut = fixture.getSut(
+        // MockClient's default (non-streaming) handler finalizes a copy of
+        // the request before invoking the callback, so mutations wouldn't
+        // reach the original object; `.streaming` passes the same
+        // `BaseRequest` instance through, matching what TracingClient does.
+        MockClient.streaming((request, bodyStream) async {
+          // Simulates a client further down the chain (e.g. TracingClient)
+          // adding headers to the same request object after BreadcrumbClient
+          // has dispatched it.
+          request.headers['sentry-trace'] = 'abc-123';
+          return StreamedResponse(Stream.value([]), 200, reasonPhrase: 'OK');
+        }),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      final requestHeaders =
+          (breadcrumb.data?['request'] as Map)['headers'] as Map;
+      expect(requestHeaders['sentry-trace'], 'abc-123');
+    });
+
+    test('does not attach network details when capture does not match',
+        () async {
+      final capture = FakeNetworkDetailsCapture(shouldCaptureResult: false);
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?.containsKey('request'), false);
+      expect(breadcrumb.data?.containsKey('response'), false);
+    });
+
     test('close does get called for user defined client', () async {
       final mockHub = MockHub();
 
@@ -278,15 +352,128 @@ void main() {
       // we don't check for anything below a second
       expect(durationString.startsWith('0:00:01'), true);
     });
+
+    test('duration excludes response body capture time', () async {
+      final capture = FakeNetworkDetailsCapture(
+        captureResponseDelay: Duration(seconds: 1),
+      );
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      await sut.get(requestUri);
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      var durationString = breadcrumb.data!['duration']! as String;
+      // captureResponseDelay is 1 second, so a duration below that means it
+      // wasn't included in the measured request duration.
+      expect(durationString.startsWith('0:00:00'), true);
+    });
+
+    test(
+        'breadcrumb reflects status code, not error level, when response '
+        'capture fails after a successful request', () async {
+      final capture = FakeNetworkDetailsCapture(
+        captureResponseError: Exception('capture failed'),
+      );
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+
+      try {
+        await sut.get(requestUri);
+        fail('Method did not throw');
+      } on Exception catch (_) {}
+
+      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(breadcrumb.data?['status_code'], 200);
+      expect(breadcrumb.level, isNot(SentryLevel.error));
+    });
+
+    test(
+        'reads the clock at header arrival, before capturing the response '
+        'body', () async {
+      final callOrder = <String>[];
+      final capture = FakeNetworkDetailsCapture(
+        onCaptureResponse: () => callOrder.add('captureResponse'),
+      );
+
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+        capture,
+      );
+      fixture.hub.options.clock = () {
+        callOrder.add('clock');
+        return DateTime.utc(2024);
+      };
+
+      await sut.get(requestUri);
+
+      // Reversed, this is the bug: the breadcrumb's timestamp would default
+      // to "now" at breadcrumb construction, after body capture completes,
+      // shifting Session Replay network spans to the end of body download.
+      expect(callOrder, ['clock', 'captureResponse']);
+    });
   });
 }
 
 class CloseableMockClient extends Mock implements BaseClient {}
 
+/// A bare-bones [NetworkDetailsCapture] double: real filtering/truncation
+/// behavior is covered by `sentry_flutter`'s concrete implementation; here
+/// we only need something that exercises how [BreadcrumbClient] wires a
+/// capture into the breadcrumb.
+class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
+  FakeNetworkDetailsCapture({
+    this.shouldCaptureResult = true,
+    this.captureResponseDelay,
+    this.captureResponseError,
+    this.onCaptureResponse,
+  });
+
+  final bool shouldCaptureResult;
+  final Duration? captureResponseDelay;
+  final Object? captureResponseError;
+  final void Function()? onCaptureResponse;
+
+  @override
+  bool shouldCapture(Uri url) => shouldCaptureResult;
+
+  @override
+  Map<String, dynamic> captureRequest(BaseRequest request) {
+    return {'headers': Map<String, String>.from(request.headers)};
+  }
+
+  @override
+  Future<(StreamedResponse, Map<String, dynamic>)> captureResponse(
+    StreamedResponse response,
+  ) async {
+    onCaptureResponse?.call();
+    final delay = captureResponseDelay;
+    if (delay != null) {
+      await Future.delayed(delay);
+    }
+    final error = captureResponseError;
+    if (error != null) {
+      throw error;
+    }
+    return (response, {'headers': Map<String, String>.from(response.headers)});
+  }
+}
+
 class Fixture {
-  BreadcrumbClient getSut([MockClient? client]) {
+  BreadcrumbClient getSut(
+      [MockClient? client, NetworkDetailsCapture? networkDetailsCapture]) {
     final mc = client ?? getClient();
-    return BreadcrumbClient(client: mc, hub: hub);
+    return BreadcrumbClient(
+      client: mc,
+      hub: hub,
+      networkDetailsCapture: networkDetailsCapture,
+    );
   }
 
   late MockHub hub = MockHub();
