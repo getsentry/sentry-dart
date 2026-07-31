@@ -8,9 +8,8 @@ class SentryTransformer implements Transformer {
   static const _serializeOp = 'serialize.http.client';
 
   // ignore: public_member_api_docs
-  SentryTransformer({required Transformer transformer, Hub? hub})
-    : _hub = hub ?? HubAdapter(),
-      _transformer = transformer {
+  SentryTransformer({required this._transformer, Hub? hub})
+    : _hub = hub ?? HubAdapter() {
     _spanFactory = _hub.options.spanFactory;
   }
 

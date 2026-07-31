@@ -33,9 +33,8 @@ class SentrySqfliteTransaction extends Transaction
   SentrySqfliteTransaction(
     this._executor, {
     @internal Hub? hub,
-    @internal String? dbName,
-  }) : _hub = hub ?? HubAdapter(),
-       _dbName = dbName;
+    @internal this._dbName,
+  }) : _hub = hub ?? HubAdapter();
 
   @override
   SqfliteDatabase get db => (_executor as SqfliteDatabaseExecutor).db;

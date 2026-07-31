@@ -201,7 +201,7 @@ void main() {
 
     test('Breadcrumb has correct duration', () async {
       final sut = fixture.getSut(
-        MockHttpClientAdapter((options, _, __) async {
+        MockHttpClientAdapter((options, _, _) async {
           expect(options.uri, Uri.parse('https://example.com?foo=bar#baz'));
           await Future<void>.delayed(Duration(seconds: 1));
           return ResponseBody.fromString('', 200);

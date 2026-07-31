@@ -38,9 +38,8 @@ class SentryBatch implements Batch {
   /// final sentryDatabase = SentryDatabase(database);
   /// final batch = sentryDatabase.batch();
   /// ```
-  SentryBatch(this._batch, {@internal Hub? hub, @internal String? dbName})
-    : _hub = hub ?? HubAdapter(),
-      _dbName = dbName {
+  SentryBatch(this._batch, {@internal Hub? hub, @internal this._dbName})
+    : _hub = hub ?? HubAdapter() {
     // ignore: invalid_use_of_internal_member
     _spanFactory = _hub.options.spanFactory;
   }

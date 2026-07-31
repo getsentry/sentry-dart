@@ -28,13 +28,10 @@ class SentryDatabaseExecutor
   // ignore: public_member_api_docs
   SentryDatabaseExecutor(
     this._executor, {
-    // ignore: invalid_use_of_internal_member
-    InstrumentationSpan? parentSpan,
+    this._parentSpan,
     @internal Hub? hub,
-    @internal String? dbName,
-  }) : _parentSpan = parentSpan,
-       _hub = hub ?? HubAdapter(),
-       _dbName = dbName {
+    @internal this._dbName,
+  }) : _hub = hub ?? HubAdapter() {
     // ignore: invalid_use_of_internal_member
     _spanFactory = _hub.options.spanFactory;
   }

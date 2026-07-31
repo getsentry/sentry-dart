@@ -13,9 +13,8 @@ import 'package:sentry/sentry.dart';
 /// given client.
 class BreadcrumbClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
-  BreadcrumbClientAdapter({required HttpClientAdapter client, Hub? hub})
-    : _hub = hub ?? HubAdapter(),
-      _client = client;
+  BreadcrumbClientAdapter({required this._client, Hub? hub})
+    : _hub = hub ?? HubAdapter();
 
   final HttpClientAdapter _client;
   final Hub _hub;
