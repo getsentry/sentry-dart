@@ -1,3 +1,5 @@
+// ignore_for_file: experimental_member_use
+
 import 'package:isar/isar.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -7,7 +9,6 @@ import 'sentry_isar_collection.dart';
 import 'sentry_span_helper.dart';
 
 /// A sentry wrapper around the Isar Database
-@experimental
 class SentryIsar implements Isar {
   @internal
   // ignore: public_member_api_docs
@@ -205,7 +206,6 @@ class SentryIsar implements Isar {
 
   @override
   @visibleForTesting
-  @experimental
   Future<void> verify() {
     return _spanHelper.asyncWrapInSpan('verify', () {
       // ignore: invalid_use_of_visible_for_testing_member

@@ -4,8 +4,7 @@ library;
 // ignore: invalid_export_of_internal_element
 export 'package:sentry/sentry.dart';
 
-export 'src/binding_wrapper.dart'
-    show BindingWrapper, SentryWidgetsFlutterBinding;
+export 'src/binding_wrapper.dart' show SentryWidgetsFlutterBinding;
 export 'src/feedback/sentry_feedback_form.dart';
 export 'src/flutter_sentry_attachment.dart';
 export 'src/integrations/load_release_integration.dart';

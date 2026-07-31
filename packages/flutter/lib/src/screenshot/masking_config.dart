@@ -34,7 +34,6 @@ class SentryMaskingConfig {
   }
 }
 
-@experimental
 enum SentryMaskingDecision {
   /// Mask the widget and its children
   mask,

@@ -23,7 +23,6 @@ import 'sentry_database.dart';
 ///
 /// final database = await openDatabase('path/to/db');
 /// ```
-@experimental
 class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';

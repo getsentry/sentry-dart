@@ -23,7 +23,6 @@ import 'package:path/path.dart' as p;
 /// final database = await openDatabase('path/to/db');
 /// final sentryDatabase = SentryDatabase(database);
 /// ```
-@experimental
 class SentryDatabase extends SentryDatabaseExecutor
     implements Database, SqfliteDatabaseExecutor {
   final Database _database;

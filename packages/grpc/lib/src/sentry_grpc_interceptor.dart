@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:grpc/grpc_or_grpcweb.dart';
 import 'package:grpc/service_api.dart';
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/constants.dart';
 import 'package:sentry/src/tracing/instrumentation/instrumentation.dart';
@@ -35,7 +34,6 @@ import 'version.dart';
 /// ```dart
 /// final interceptor = SentryGrpcInterceptor(captureFailedRequests: true);
 /// ```
-@experimental
 class SentryGrpcInterceptor extends ClientInterceptor {
   /// Integration name registered with the Sentry SDK.
   static const String integrationName = 'GrpcClient';

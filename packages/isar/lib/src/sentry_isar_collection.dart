@@ -1,3 +1,5 @@
+// ignore_for_file: experimental_member_use
+
 import 'dart:typed_data';
 import 'package:isar/isar.dart';
 import 'package:meta/meta.dart';
@@ -6,7 +8,6 @@ import 'package:sentry/sentry.dart';
 import 'sentry_span_helper.dart';
 
 /// Sentry wrapper around IsarCollection
-@experimental
 class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
   final IsarCollection<OBJ> _isarCollection;
   final Hub _hub;
@@ -408,7 +409,6 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   @visibleForTesting
-  @experimental
   Future<void> verify(List<OBJ> objects) {
     return _spanHelper.asyncWrapInSpan(
       'verify',
@@ -423,7 +423,6 @@ class SentryIsarCollection<OBJ> implements IsarCollection<OBJ> {
 
   @override
   @visibleForTesting
-  @experimental
   Future<void> verifyLink(
     String linkName,
     List<int> sourceIds,

@@ -21,7 +21,6 @@ import 'sentry_batch.dart';
 /// ...
 /// });
 /// ```
-@experimental
 class SentrySqfliteTransaction extends Transaction
     implements DatabaseExecutor, SqfliteDatabaseExecutor {
   final DatabaseExecutor _executor;
@@ -33,8 +32,11 @@ class SentrySqfliteTransaction extends Transaction
   SentrySqfliteTransaction(
     this._executor, {
     @internal Hub? hub,
-    @internal this._dbName,
-  }) : _hub = hub ?? HubAdapter();
+    @internal String? dbName,
+  }) : _hub = hub ?? HubAdapter(),
+       // Retain the internal constructor argument name for compatibility.
+       // ignore: prefer_initializing_formals
+       _dbName = dbName;
 
   @override
   SqfliteDatabase get db => (_executor as SqfliteDatabaseExecutor).db;
