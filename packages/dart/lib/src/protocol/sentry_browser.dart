@@ -22,7 +22,7 @@ class SentryBrowser {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryBrowser] from JSON [Map].
-  factory SentryBrowser.fromJson(Map<String, dynamic> data) {
+  factory SentryBrowser.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryBrowser(
       name: json.readString('name'),

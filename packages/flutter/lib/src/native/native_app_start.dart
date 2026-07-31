@@ -21,7 +21,7 @@ class NativeAppStart {
   bool isColdStart;
   Map<dynamic, dynamic> nativeSpanTimes;
 
-  static NativeAppStart? fromJson(Map<String, dynamic> json) {
+  static NativeAppStart? fromJson(Map<String, Object?> json) {
     final appStartTimeValue = json['appStartTime'];
     final pluginRegistrationTime = json['pluginRegistrationTime'];
     final isColdStart = json['isColdStart'];

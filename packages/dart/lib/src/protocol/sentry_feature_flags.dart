@@ -12,7 +12,7 @@ class SentryFeatureFlags {
 
   SentryFeatureFlags({required this.values, this.unknown});
 
-  factory SentryFeatureFlags.fromJson(Map<String, dynamic> data) {
+  factory SentryFeatureFlags.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
 
     return SentryFeatureFlags(

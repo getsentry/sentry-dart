@@ -62,13 +62,13 @@ class AccessAwareMap extends MapBase<String, Object?> {
     return _map.remove(key);
   }
 
-  Map<String, dynamic>? notAccessed() {
+  Map<String, Object?>? notAccessed() {
     if (_accessedKeysWithValues.length == _map.length) {
       return null;
     }
-    Map<String, dynamic> unknown = _map.keys
+    Map<String, Object?> unknown = _map.keys
         .where((key) => !_accessedKeysWithValues.contains(key))
-        .fold<Map<String, dynamic>>({}, (map, key) {
+        .fold<Map<String, Object?>>({}, (map, key) {
           map[key] = _map[key];
           return map;
         });
@@ -138,7 +138,7 @@ extension JsonReaders on AccessAwareMap {
   );
 
   /// A nested JSON object, re-keyed to `String` so native maps are accepted.
-  Map<String, dynamic>? readMap(String key) =>
+  Map<String, Object?>? readMap(String key) =>
       _read(key, 'Map', _toStringKeyedMap);
 
   Map<String, String>? readStringMap(String key) =>
@@ -161,7 +161,7 @@ extension JsonReaders on AccessAwareMap {
   /// A child [fromJson] cannot build at all — a required field missing, or a
   /// value its constructor rejects — is dropped rather than fatal, and its raw
   /// value stays in [AccessAwareMap.notAccessed] so it still round-trips.
-  T? readObject<T>(String key, T Function(Map<String, dynamic> json) fromJson) {
+  T? readObject<T>(String key, T Function(Map<String, Object?> json) fromJson) {
     final map = readMap(key);
     // An empty object carries no fields to build from.
     if (map == null || map.isEmpty) {
@@ -182,7 +182,7 @@ extension JsonReaders on AccessAwareMap {
 
   List<T>? readObjectList<T>(
     String key,
-    T Function(Map<String, dynamic> json) fromJson,
+    T Function(Map<String, Object?> json) fromJson,
   ) {
     final maps = readMapList(key);
     if (maps == null) {
@@ -207,15 +207,15 @@ extension JsonReaders on AccessAwareMap {
 
   /// A JSON array of free-form values, kept as-is — including nulls, which are
   /// meaningful when the element type is unconstrained.
-  List<dynamic>? readList(String key) =>
-      _read(key, 'List', (raw) => raw is List ? List<dynamic>.from(raw) : null);
+  List<Object?>? readList(String key) =>
+      _read(key, 'List', (raw) => raw is List ? List<Object?>.from(raw) : null);
 
   List<int>? readIntList(String key) => _readList(key, 'int', _asInt);
 
   List<String>? readStringList(String key) =>
       _readList(key, 'String', (element) => element is String ? element : null);
 
-  List<Map<String, dynamic>>? readMapList(String key) =>
+  List<Map<String, Object?>>? readMapList(String key) =>
       _readList(key, 'Map', _toStringKeyedMap);
 
   /// Lists are filtered element-wise: an element that does not convert is
@@ -238,9 +238,9 @@ extension JsonReaders on AccessAwareMap {
     return result;
   });
 
-  Map<String, dynamic>? _toStringKeyedMap(Object raw) {
+  Map<String, Object?>? _toStringKeyedMap(Object raw) {
     if (raw is! Map) return null;
-    final result = <String, dynamic>{};
+    final result = <String, Object?>{};
     for (final entry in raw.entries) {
       final key = entry.key;
       if (key is! String) return null;

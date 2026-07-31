@@ -10,7 +10,7 @@ class SentryGeo {
     this.subdivision,
   });
 
-  factory SentryGeo.fromJson(Map<String, dynamic> data) {
+  factory SentryGeo.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryGeo(
       city: json.readString('city'),

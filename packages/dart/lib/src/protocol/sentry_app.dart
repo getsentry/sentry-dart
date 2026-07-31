@@ -64,7 +64,7 @@ class SentryApp {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryApp] from JSON [Map].
-  factory SentryApp.fromJson(Map<String, dynamic> data) {
+  factory SentryApp.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryApp(
       name: json.readString('app_name'),

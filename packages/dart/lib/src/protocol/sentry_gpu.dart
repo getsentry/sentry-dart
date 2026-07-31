@@ -89,7 +89,7 @@ class SentryGpu {
   });
 
   /// Deserializes a [SentryGpu] from JSON [Map].
-  factory SentryGpu.fromJson(Map<String, dynamic> data) {
+  factory SentryGpu.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryGpu(
       name: json.readString('name'),

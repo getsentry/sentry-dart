@@ -73,7 +73,7 @@ class DebugImage {
   });
 
   /// Deserializes a [DebugImage] from JSON [Map].
-  factory DebugImage.fromJson(Map<String, dynamic> data) {
+  factory DebugImage.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return DebugImage(
       // Required by the constructor: an image without a type cannot be built,

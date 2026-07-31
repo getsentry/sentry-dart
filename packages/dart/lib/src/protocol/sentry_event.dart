@@ -195,7 +195,7 @@ class SentryEvent {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryEvent] from JSON [Map].
-  factory SentryEvent.fromJson(Map<String, dynamic> data) {
+  factory SentryEvent.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
 
     final threadsJson = json.readMap('threads');

@@ -39,7 +39,7 @@ class Contexts extends MapView<String, dynamic> {
        });
 
   /// Deserializes [Contexts] from JSON [Map].
-  factory Contexts.fromJson(Map<String, dynamic> data) {
+  factory Contexts.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     final runtime = json.readObject(SentryRuntime.type, SentryRuntime.fromJson);
     final contexts = Contexts(

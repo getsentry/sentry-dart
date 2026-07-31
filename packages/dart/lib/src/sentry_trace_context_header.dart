@@ -40,7 +40,7 @@ class SentryTraceContextHeader {
   final String? orgId;
 
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
-  factory SentryTraceContextHeader.fromJson(Map<String, dynamic> data) {
+  factory SentryTraceContextHeader.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     final traceId = json.readString('trace_id');
     final replayId = json.readString('replay_id');

@@ -53,7 +53,7 @@ class SentryOperatingSystem {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryOperatingSystem] from JSON [Map].
-  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) {
+  factory SentryOperatingSystem.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryOperatingSystem(
       name: json.readString('name'),

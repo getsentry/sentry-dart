@@ -14,7 +14,7 @@ class SentryTransactionInfo {
     return {...?unknown, 'source': source};
   }
 
-  factory SentryTransactionInfo.fromJson(Map<String, dynamic> data) {
+  factory SentryTransactionInfo.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryTransactionInfo(
       json.readString('source')!,

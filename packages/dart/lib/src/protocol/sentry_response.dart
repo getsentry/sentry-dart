@@ -57,7 +57,7 @@ class SentryResponse {
                ?.value;
 
   /// Deserializes a [SentryResponse] from JSON [Map].
-  factory SentryResponse.fromJson(Map<String, dynamic> data) {
+  factory SentryResponse.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryResponse(
       headers: json.readStringMap('headers'),

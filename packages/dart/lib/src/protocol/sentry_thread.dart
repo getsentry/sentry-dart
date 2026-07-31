@@ -16,7 +16,7 @@ class SentryThread {
     this.unknown,
   });
 
-  factory SentryThread.fromJson(Map<String, dynamic> data) {
+  factory SentryThread.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryThread(
       id: json.readInt('id'),

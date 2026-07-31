@@ -42,7 +42,7 @@ class SentryException {
   });
 
   /// Deserializes a [SentryException] from JSON [Map].
-  factory SentryException.fromJson(Map<String, dynamic> data) {
+  factory SentryException.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryException(
       type: json.readString('type'),

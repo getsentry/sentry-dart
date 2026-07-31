@@ -101,7 +101,7 @@ class Mechanism {
        _data = data != null ? Map.from(data) : null;
 
   /// Deserializes a [Mechanism] from JSON [Map].
-  factory Mechanism.fromJson(Map<String, dynamic> jsonData) {
+  factory Mechanism.fromJson(Map<String, Object?> jsonData) {
     final json = AccessAwareMap(jsonData);
     return Mechanism(
       // [type] is required, so an absent or non-String value falls back to the

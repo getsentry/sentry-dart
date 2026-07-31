@@ -17,7 +17,7 @@ class SentryPackage {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryPackage] from JSON [Map].
-  factory SentryPackage.fromJson(Map<String, dynamic> data) {
+  factory SentryPackage.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryPackage(
       json.readString('name')!,

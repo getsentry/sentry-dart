@@ -18,7 +18,7 @@ class SentryCulture {
     this.unknown,
   });
 
-  factory SentryCulture.fromJson(Map<String, dynamic> data) {
+  factory SentryCulture.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryCulture(
       calendar: json.readString('calendar'),

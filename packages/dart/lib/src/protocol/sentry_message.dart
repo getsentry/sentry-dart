@@ -30,7 +30,7 @@ class SentryMessage {
   SentryMessage(this.formatted, {this.template, this.params, this.unknown});
 
   /// Deserializes a [SentryMessage] from JSON [Map].
-  factory SentryMessage.fromJson(Map<String, dynamic> data) {
+  factory SentryMessage.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryMessage(
       json.readString('formatted')!,

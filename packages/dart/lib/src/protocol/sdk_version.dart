@@ -75,7 +75,7 @@ class SdkVersion {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SdkVersion] from JSON [Map].
-  factory SdkVersion.fromJson(Map<String, dynamic> data) {
+  factory SdkVersion.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SdkVersion(
       // Required by the constructor: without them there is no usable SDK

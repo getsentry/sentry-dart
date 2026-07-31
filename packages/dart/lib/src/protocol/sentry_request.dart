@@ -117,7 +117,7 @@ class SentryRequest {
   }
 
   /// Deserializes a [SentryRequest] from JSON [Map].
-  factory SentryRequest.fromJson(Map<String, dynamic> data) {
+  factory SentryRequest.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryRequest(
       url: json.readString('url'),

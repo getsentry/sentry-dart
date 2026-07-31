@@ -27,7 +27,7 @@ class DebugMeta {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [DebugMeta] from JSON [Map].
-  factory DebugMeta.fromJson(Map<String, dynamic> data) {
+  factory DebugMeta.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return DebugMeta(
       sdk: json.readObject('sdk_info', SdkInfo.fromJson),

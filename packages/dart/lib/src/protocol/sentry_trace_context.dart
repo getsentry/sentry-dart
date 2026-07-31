@@ -45,7 +45,7 @@ class SentryTraceContext {
   @internal
   final Map<String, dynamic>? unknown;
 
-  factory SentryTraceContext.fromJson(Map<String, dynamic> data) {
+  factory SentryTraceContext.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     final spanId = json.readString('span_id');
     final parentSpanId = json.readString('parent_span_id');

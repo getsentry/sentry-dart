@@ -27,7 +27,7 @@ class SentryFeedback {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryFeedback] from JSON [Map].
-  factory SentryFeedback.fromJson(Map<String, dynamic> data) {
+  factory SentryFeedback.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
 
     final associatedEventId = json.readString('associated_event_id');

@@ -129,7 +129,7 @@ class SentryStackFrame {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryStackFrame] from JSON [Map].
-  factory SentryStackFrame.fromJson(Map<String, dynamic> data) {
+  factory SentryStackFrame.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryStackFrame(
       absPath: json.readString('abs_path'),

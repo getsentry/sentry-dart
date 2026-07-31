@@ -162,7 +162,7 @@ class Breadcrumb {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [Breadcrumb] from JSON [Map].
-  factory Breadcrumb.fromJson(Map<String, dynamic> jsonData) {
+  factory Breadcrumb.fromJson(Map<String, Object?> jsonData) {
     final json = AccessAwareMap(jsonData);
 
     final levelName = json.readString('level');

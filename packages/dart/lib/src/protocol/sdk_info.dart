@@ -21,7 +21,7 @@ class SdkInfo {
   });
 
   /// Deserializes a [SdkInfo] from JSON [Map].
-  factory SdkInfo.fromJson(Map<String, dynamic> data) {
+  factory SdkInfo.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SdkInfo(
       sdkName: json.readString('sdk_name'),

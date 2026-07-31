@@ -52,7 +52,7 @@ class SentryRuntime {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryRuntime] from JSON [Map].
-  factory SentryRuntime.fromJson(Map<String, dynamic> data) {
+  factory SentryRuntime.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryRuntime(
       name: json.readString('name'),

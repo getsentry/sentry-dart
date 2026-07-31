@@ -56,7 +56,7 @@ class SentryStackTrace {
   final Map<String, dynamic>? unknown;
 
   /// Deserializes a [SentryStackTrace] from JSON [Map].
-  factory SentryStackTrace.fromJson(Map<String, dynamic> data) {
+  factory SentryStackTrace.fromJson(Map<String, Object?> data) {
     final json = AccessAwareMap(data);
     return SentryStackTrace(
       frames: json.readObjectList('frames', SentryStackFrame.fromJson) ?? [],
