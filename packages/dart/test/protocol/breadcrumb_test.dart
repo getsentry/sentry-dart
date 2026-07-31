@@ -31,42 +31,38 @@ void main() {
     test('toJson', () {
       final json = breadcrumb.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(breadcrumbJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(breadcrumbJson, json), true);
     });
 
     test('fromJson', () {
       final breadcrumb = Breadcrumb.fromJson(breadcrumbJson);
       final json = breadcrumb.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(breadcrumbJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(breadcrumbJson, json), true);
     });
   });
 
   group('ctor', () {
     test('Breadcrumb http', () {
       final breadcrumb = Breadcrumb.http(
-          url: Uri.parse('https://example.org'),
-          method: 'GET',
-          level: SentryLevel.fatal,
-          reason: 'OK',
-          statusCode: 200,
-          requestDuration: Duration(milliseconds: 55),
-          timestamp: DateTime.now(),
-          requestBodySize: 2,
-          responseBodySize: 3,
-          httpQuery: 'foo=bar',
-          httpFragment: 'baz');
+        url: Uri.parse('https://example.org'),
+        method: 'GET',
+        level: SentryLevel.fatal,
+        reason: 'OK',
+        statusCode: 200,
+        requestDuration: Duration(milliseconds: 55),
+        timestamp: DateTime.now(),
+        requestBodySize: 2,
+        responseBodySize: 3,
+        httpQuery: 'foo=bar',
+        httpFragment: 'baz',
+      );
       final json = breadcrumb.toJson();
 
       expect(json, {
-        'timestamp':
-            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'timestamp': formatDateAsIso8601WithMillisPrecision(
+          breadcrumb.timestamp,
+        ),
         'category': 'http',
         'data': {
           'url': 'https://example.org',
@@ -79,7 +75,7 @@ void main() {
           'http.query': 'foo=bar',
           'http.fragment': 'baz',
           'start_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch - 55,
-          'end_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch
+          'end_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch,
         },
         'level': 'fatal',
         'type': 'http',
@@ -95,15 +91,16 @@ void main() {
       final json = breadcrumb.toJson();
 
       expect(json, {
-        'timestamp':
-            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'timestamp': formatDateAsIso8601WithMillisPrecision(
+          breadcrumb.timestamp,
+        ),
         'category': 'http',
         'data': {
           'url': 'https://example.org',
           'method': 'GET',
           'duration': '0:00:00.010000',
           'start_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch - 10,
-          'end_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch
+          'end_timestamp': breadcrumb.timestamp.millisecondsSinceEpoch,
         },
         'level': 'info',
         'type': 'http',
@@ -118,28 +115,25 @@ void main() {
       final json = breadcrumb.toJson();
 
       expect(json, {
-        'timestamp':
-            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'timestamp': formatDateAsIso8601WithMillisPrecision(
+          breadcrumb.timestamp,
+        ),
         'category': 'http',
-        'data': {
-          'url': 'https://example.org',
-          'method': 'GET',
-        },
+        'data': {'url': 'https://example.org', 'method': 'GET'},
         'level': 'info',
         'type': 'http',
       });
     });
 
     test('Breadcrumb console', () {
-      final breadcrumb = Breadcrumb.console(
-        message: 'Foo Bar',
-      );
+      final breadcrumb = Breadcrumb.console(message: 'Foo Bar');
       final json = breadcrumb.toJson();
 
       expect(json, {
         'message': 'Foo Bar',
-        'timestamp':
-            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'timestamp': formatDateAsIso8601WithMillisPrecision(
+          breadcrumb.timestamp,
+        ),
         'category': 'console',
         'type': 'debug',
         'level': 'info',
@@ -156,8 +150,9 @@ void main() {
 
       expect(json, {
         'message': 'Foo Bar',
-        'timestamp':
-            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'timestamp': formatDateAsIso8601WithMillisPrecision(
+          breadcrumb.timestamp,
+        ),
         'category': 'console',
         'type': 'debug',
         'level': 'error',
@@ -184,11 +179,7 @@ void main() {
         'category': 'ui.click',
         'type': 'user',
         'level': 'error',
-        'data': {
-          'foo': 'bar',
-          'view.id': 'foo',
-          'view.class': 'bar',
-        },
+        'data': {'foo': 'bar', 'view.id': 'foo', 'view.class': 'bar'},
       });
     });
   });

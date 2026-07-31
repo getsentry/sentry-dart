@@ -24,17 +24,17 @@ class SpotlightHttpTransport extends Transport {
   }
 
   SpotlightHttpTransport._(this._options, this._transport)
-      : _requestHandler = HttpTransportRequestHandler(_options,
-            Uri.parse(_options.spotlight.url ?? _defaultSpotlightUrl()));
+    : _requestHandler = HttpTransportRequestHandler(
+        _options,
+        Uri.parse(_options.spotlight.url ?? _defaultSpotlightUrl()),
+      );
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
     try {
       await _sendToSpotlight(envelope);
     } catch (e) {
-      internalLogger.warning(
-        () => 'Failed to send envelope to Spotlight: $e',
-      );
+      internalLogger.warning(() => 'Failed to send envelope to Spotlight: $e');
       if (_options.automatedTestMode) {
         rethrow;
       }

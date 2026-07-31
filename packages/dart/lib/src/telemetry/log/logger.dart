@@ -5,40 +5,22 @@ import '../../../sentry.dart';
 /// Access via [Sentry.logger].
 abstract interface class SentryLogger {
   /// Logs a message at TRACE level.
-  void trace(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  });
+  void trace(String body, {Map<String, SentryAttribute>? attributes});
 
   /// Logs a message at DEBUG level.
-  void debug(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  });
+  void debug(String body, {Map<String, SentryAttribute>? attributes});
 
   /// Logs a message at INFO level.
-  void info(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  });
+  void info(String body, {Map<String, SentryAttribute>? attributes});
 
   /// Logs a message at WARN level.
-  void warn(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  });
+  void warn(String body, {Map<String, SentryAttribute>? attributes});
 
   /// Logs a message at ERROR level.
-  void error(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  });
+  void error(String body, {Map<String, SentryAttribute>? attributes});
 
   /// Logs a message at FATAL level.
-  void fatal(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  });
+  void fatal(String body, {Map<String, SentryAttribute>? attributes});
 
   /// Provides formatted logging with template strings.
   SentryLoggerFormatter get fmt;

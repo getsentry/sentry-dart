@@ -25,10 +25,7 @@ void main() {
         dist: 'bar',
       );
 
-      await Sentry.init(
-        (options) => options,
-        options: options,
-      );
+      await Sentry.init((options) => options, options: options);
 
       expect(options.dsn, testDsn);
       expect(options.environment, 'prod');
@@ -45,10 +42,7 @@ void main() {
         dist: 'bar',
       );
 
-      await Sentry.init(
-        (options) => options,
-        options: options,
-      );
+      await Sentry.init((options) => options, options: options);
 
       expect(options.dsn, fakeDsn);
       expect(options.environment, 'staging');

@@ -257,28 +257,29 @@ void main() {
     });
 
     test(
-        'should finish with exception and internal error status if request throws',
-        () async {
-      final exception = Exception('test');
-      fixture.mockClient.throwException = exception;
+      'should finish with exception and internal error status if request throws',
+      () async {
+        final exception = Exception('test');
+        fixture.mockClient.throwException = exception;
 
-      final supabase = fixture.getSupabaseClient();
+        final supabase = fixture.getSupabaseClient();
 
-      try {
-        await supabase.from('mock-table').delete().eq('id', 42);
-      } catch (e) {
-        expect(e, exception); // Rethrows
-      }
+        try {
+          await supabase.from('mock-table').delete().eq('id', 42);
+        } catch (e) {
+          expect(e, exception); // Rethrows
+        }
 
-      final span = fixture.mockHub.currentSpan.childSpan;
-      expect(span.finishCalls.length, 1);
+        final span = fixture.mockHub.currentSpan.childSpan;
+        expect(span.finishCalls.length, 1);
 
-      final setThrowableCall = span.setThrowableCalls.first;
-      expect(setThrowableCall, exception);
+        final setThrowableCall = span.setThrowableCalls.first;
+        expect(setThrowableCall, exception);
 
-      final setStatusCall = span.setStatusCalls.first;
-      expect(setStatusCall, SpanStatus.internalError());
-    });
+        final setStatusCall = span.setStatusCalls.first;
+        expect(setStatusCall, SpanStatus.internalError());
+      },
+    );
   });
 
   group('PII', () {
@@ -331,9 +332,7 @@ class Fixture {
   final supabaseUrl = 'https://example.com';
   final supabaseKey = 'YOUR_ANON_KEY';
 
-  final options = SentryOptions(
-    dsn: 'https://example.com/123',
-  );
+  final options = SentryOptions(dsn: 'https://example.com/123');
   final mockClient = MockClient();
   late final mockHub = MockHub(options);
 
@@ -348,10 +347,6 @@ class Fixture {
   }
 
   SupabaseClient getSupabaseClient() {
-    return SupabaseClient(
-      supabaseUrl,
-      supabaseKey,
-      httpClient: getSut(),
-    );
+    return SupabaseClient(supabaseUrl, supabaseKey, httpClient: getSut());
   }
 }

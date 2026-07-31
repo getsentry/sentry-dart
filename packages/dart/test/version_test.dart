@@ -14,8 +14,9 @@ import 'package:yaml/yaml.dart' as yaml;
 void main() {
   group('sdkVersion', () {
     test('matches that of pubspec.yaml', () {
-      final dynamic pubspec =
-          yaml.loadYaml(File('pubspec.yaml').readAsStringSync());
+      final dynamic pubspec = yaml.loadYaml(
+        File('pubspec.yaml').readAsStringSync(),
+      );
       expect(sdkVersion, pubspec['version']);
     });
   });

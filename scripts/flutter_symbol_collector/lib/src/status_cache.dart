@@ -52,7 +52,9 @@ class DirectoryStatusCache implements SymbolArchiveStatusCache {
 
   @override
   Future<void> setStatus(
-      SymbolArchive archive, SymbolArchiveStatus status) async {
+    SymbolArchive archive,
+    SymbolArchiveStatus status,
+  ) async {
     final file = _statusFile(archive);
     Logger.root.info('Setting ${file.path} status to ${status.name}');
     await file.create(recursive: true);

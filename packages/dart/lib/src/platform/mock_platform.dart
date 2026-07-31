@@ -13,11 +13,12 @@ class MockPlatform extends Platform {
   @override
   late final bool supportsNativeIntegration;
 
-  MockPlatform(
-      {OperatingSystem? operatingSystem,
-      String? operatingSystemVersion,
-      bool? isWeb,
-      bool? supportsNativeIntegration}) {
+  MockPlatform({
+    OperatingSystem? operatingSystem,
+    String? operatingSystemVersion,
+    bool? isWeb,
+    bool? supportsNativeIntegration,
+  }) {
     this.isWeb = isWeb ?? super.isWeb;
     this.operatingSystem = operatingSystem ?? super.operatingSystem;
     this.operatingSystemVersion =

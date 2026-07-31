@@ -18,8 +18,8 @@ class TracingClient extends BaseClient {
   static const String integrationName = 'HTTPNetworkTracing';
 
   TracingClient({Client? client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client() {
+    : _hub = hub ?? HubAdapter(),
+      _client = client ?? Client() {
     _spanFactory = _hub.options.spanFactory;
     if (_hub.options.isTracingEnabled()) {
       _hub.options.sdk.addIntegration(integrationName);
@@ -52,7 +52,9 @@ class TracingClient extends BaseClient {
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).
     if (containsTargetOrMatchesRegExp(
-        _hub.options.tracePropagationTargets, request.url.toString())) {
+      _hub.options.tracePropagationTargets,
+      request.url.toString(),
+    )) {
       addTracingHeadersToHttpHeader(
         request.headers,
         _hub,
@@ -62,20 +64,25 @@ class TracingClient extends BaseClient {
 
     instrumentationSpan?.origin = SentryTraceOrigins.autoHttpHttp;
     instrumentationSpan?.setData(
-        SemanticAttributesConstants.httpRequestMethod, request.method);
+      SemanticAttributesConstants.httpRequestMethod,
+      request.method,
+    );
     urlDetails?.applyToSpan(instrumentationSpan);
 
     StreamedResponse? response;
     try {
       response = await _client.send(request);
       instrumentationSpan?.setData(
-          SemanticAttributesConstants.httpResponseStatusCode,
-          response.statusCode);
+        SemanticAttributesConstants.httpResponseStatusCode,
+        response.statusCode,
+      );
       instrumentationSpan?.setData(
-          SemanticAttributesConstants.httpResponseBodySize,
-          response.contentLength);
-      instrumentationSpan?.status =
-          SpanStatus.fromHttpStatusCode(response.statusCode);
+        SemanticAttributesConstants.httpResponseBodySize,
+        response.contentLength,
+      );
+      instrumentationSpan?.status = SpanStatus.fromHttpStatusCode(
+        response.statusCode,
+      );
     } catch (exception) {
       instrumentationSpan?.throwable = exception;
       instrumentationSpan?.status = SpanStatus.internalError();

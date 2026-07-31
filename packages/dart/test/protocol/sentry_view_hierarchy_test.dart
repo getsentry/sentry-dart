@@ -29,11 +29,8 @@ void main() {
             'depth': 1,
             'identifier': 'RenderView#a2216',
             'children': [
-              {
-                'type': 'SentryScreenshotWidget',
-                'depth': 2,
-              },
-            ]
+              {'type': 'SentryScreenshotWidget', 'depth': 2},
+            ],
           },
         ],
       });
@@ -44,9 +41,7 @@ void main() {
 
       final map = viewHierrchy.toJson();
 
-      expect(map, {
-        'rendering_system': 'flutter',
-      });
+      expect(map, {'rendering_system': 'flutter'});
     });
   });
 }

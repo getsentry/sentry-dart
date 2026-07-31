@@ -23,8 +23,11 @@ void main() {
         final bytes = await file.readAsBytes();
         return bytes;
       };
-      final attachmentHeader = SentryEnvelopeItemHeader('attachment',
-          contentType: 'image/png', fileName: 'sentry.png');
+      final attachmentHeader = SentryEnvelopeItemHeader(
+        'attachment',
+        contentType: 'image/png',
+        fileName: 'sentry.png',
+      );
       final attachmentItem = SentryEnvelopeItem(attachmentHeader, dataFactory);
 
       // Envelope
@@ -39,8 +42,9 @@ void main() {
           .envelopeStream(defaultTestOptions())
           .forEach(envelopeData.addAll);
 
-      final expectedEnvelopeFile =
-          File('test_resources/envelope-with-image.envelope');
+      final expectedEnvelopeFile = File(
+        'test_resources/envelope-with-image.envelope',
+      );
       final expectedEnvelopeData = await expectedEnvelopeFile.readAsBytes();
 
       expect(expectedEnvelopeData, envelopeData);
@@ -52,8 +56,9 @@ void main() {
         timestamp: DateTime.utc(1970, 1, 1),
       );
       final sdkVersion = SdkVersion(name: '', version: '');
-      final attachment =
-          IoSentryAttachment.fromPath('this_path_does_not_exist.txt');
+      final attachment = IoSentryAttachment.fromPath(
+        'this_path_does_not_exist.txt',
+      );
       final envelope = SentryEnvelope.fromEvent(
         event,
         sdkVersion,
@@ -65,8 +70,9 @@ void main() {
         ..automatedTestMode =
             false; // We want to skip throwing envelope items in this test.
 
-      final data = (await envelope.envelopeStream(options).toList())
-          .reduce((a, b) => a + b);
+      final data = (await envelope.envelopeStream(options).toList()).reduce(
+        (a, b) => a + b,
+      );
 
       final file = File('test_resources/envelope-no-attachment.envelope');
       final jsonStr = await file.readAsString();

@@ -25,22 +25,18 @@ void main() {
 
     test('GraphQL query creates spanv2', () async {
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          final link = fixture.createSentryTracingLink();
-          final request = Request(
-            operation: Operation(
-              document: parseString('query GetUser { user(id: "1") { name } }'),
-              operationName: 'GetUser',
-            ),
-          );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        final link = fixture.createSentryTracingLink();
+        final request = Request(
+          operation: Operation(
+            document: parseString('query GetUser { user(id: "1") { name } }'),
+            operationName: 'GetUser',
+          ),
+        );
 
-          await link.request(request).first;
-        },
-        parentSpan: null,
-      );
+        await link.request(request).first;
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -52,10 +48,14 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('http.graphql.query'));
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
-          equals('auto.graphql.sentry_link'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('http.graphql.query'),
+      );
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+        equals('auto.graphql.sentry_link'),
+      );
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -64,63 +64,58 @@ void main() {
 
     test('GraphQL mutation creates spanv2', () async {
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          final link = fixture.createSentryTracingLink();
-          final request = Request(
-            operation: Operation(
-              document: parseString(
-                  'mutation CreateUser(\$name: String!) { createUser(name: \$name) { id name } }'),
-              operationName: 'CreateUser',
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        final link = fixture.createSentryTracingLink();
+        final request = Request(
+          operation: Operation(
+            document: parseString(
+              'mutation CreateUser(\$name: String!) { createUser(name: \$name) { id name } }',
             ),
-            variables: {'name': 'John Doe'},
-          );
+            operationName: 'CreateUser',
+          ),
+          variables: {'name': 'John Doe'},
+        );
 
-          await link.request(request).first;
-        },
-        parentSpan: null,
-      );
+        await link.request(request).first;
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
       final childSpans = fixture.processor.getChildSpans();
       expect(childSpans.length, greaterThan(0));
 
-      final span =
-          fixture.processor.findSpanByOperation('http.graphql.mutation');
+      final span = fixture.processor.findSpanByOperation(
+        'http.graphql.mutation',
+      );
       expect(span, isNotNull);
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('http.graphql.mutation'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('http.graphql.mutation'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
 
     test('GraphQL error creates spanv2 with error status', () async {
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          final link = fixture.createSentryTracingLink(
-            shouldReturnError: true,
-            markErrorsAsFailed: true,
-          );
-          final request = Request(
-            operation: Operation(
-              document:
-                  parseString('query GetUser { user(id: "999") { name } }'),
-              operationName: 'GetUser',
-            ),
-          );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        final link = fixture.createSentryTracingLink(
+          shouldReturnError: true,
+          markErrorsAsFailed: true,
+        );
+        final request = Request(
+          operation: Operation(
+            document: parseString('query GetUser { user(id: "999") { name } }'),
+            operationName: 'GetUser',
+          ),
+        );
 
-          await link.request(request).first;
-        },
-        parentSpan: null,
-      );
+        await link.request(request).first;
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -130,41 +125,52 @@ void main() {
 
       expect(span.status, equals(SentrySpanStatusV2.error));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('http.graphql.query'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('http.graphql.query'),
+      );
       expect(span.parentSpan, equals(transactionSpan));
     });
 
-    test('shouldStartTransaction creates root spanv2 when no active span',
-        () async {
-      final link =
-          fixture.createSentryTracingLink(shouldStartTransaction: true);
-      final request = Request(
-        operation: Operation(
-          document: parseString('query GetUser { user(id: "1") { name } }'),
-          operationName: 'GetUser',
-        ),
-      );
+    test(
+      'shouldStartTransaction creates root spanv2 when no active span',
+      () async {
+        final link = fixture.createSentryTracingLink(
+          shouldStartTransaction: true,
+        );
+        final request = Request(
+          operation: Operation(
+            document: parseString('query GetUser { user(id: "1") { name } }'),
+            operationName: 'GetUser',
+          ),
+        );
 
-      await link.request(request).first;
+        await link.request(request).first;
 
-      await fixture.processor.waitForProcessing();
+        await fixture.processor.waitForProcessing();
 
-      final allSpans = fixture.processor.capturedSpans;
-      expect(allSpans.length, greaterThan(0));
+        final allSpans = fixture.processor.capturedSpans;
+        expect(allSpans.length, greaterThan(0));
 
-      final span = fixture.processor.findSpanByOperation('http.graphql.query');
-      expect(span, isNotNull);
-      expect(span!.isEnded, isTrue);
-      expect(span.status, equals(SentrySpanStatusV2.ok));
+        final span = fixture.processor.findSpanByOperation(
+          'http.graphql.query',
+        );
+        expect(span, isNotNull);
+        expect(span!.isEnded, isTrue);
+        expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.parentSpan, isNull);
+        expect(span.parentSpan, isNull);
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('http.graphql.query'));
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
-          equals('auto.graphql.sentry_link'));
-    });
+        expect(
+          span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+          equals('http.graphql.query'),
+        );
+        expect(
+          span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+          equals('auto.graphql.sentry_link'),
+        );
+      },
+    );
   });
 }
 
@@ -233,7 +239,7 @@ class _MockLink extends Link {
     return Stream.value(
       Response(
         data: {
-          'user': {'name': 'John Doe'}
+          'user': {'name': 'John Doe'},
         },
         errors: null,
         response: {},

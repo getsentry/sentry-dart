@@ -15,7 +15,7 @@ void main() {
 
   final sentryStackTraceJson = <String, dynamic>{
     'frames': [
-      {'abs_path': 'abs'}
+      {'abs_path': 'abs'},
     ],
     'registers': {'key': 'value'},
     'lang': 'de',
@@ -27,19 +27,13 @@ void main() {
     test('toJson', () {
       final json = sentryStackTrace.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryStackTraceJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryStackTraceJson, json), true);
     });
     test('fromJson', () {
       final sentryStackTrace = SentryStackTrace.fromJson(sentryStackTraceJson);
       final json = sentryStackTrace.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryStackTraceJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryStackTraceJson, json), true);
     });
   });
 }

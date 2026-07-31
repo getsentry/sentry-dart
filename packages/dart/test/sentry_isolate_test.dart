@@ -40,8 +40,10 @@ void main() {
 
       hub.startTransaction('name', 'operation', bindToScope: true);
 
-      await SentryIsolate.handleIsolateError(
-          hub, [exception.toString(), stackTrace]);
+      await SentryIsolate.handleIsolateError(hub, [
+        exception.toString(),
+        stackTrace,
+      ]);
 
       final span = hub.getSpan();
 
@@ -60,8 +62,10 @@ void main() {
 
       fixture.options.markAutomaticallyCollectedErrorsAsFatal = false;
 
-      await SentryIsolate.handleIsolateError(
-          hub, [exception.toString(), stackTrace]);
+      await SentryIsolate.handleIsolateError(hub, [
+        exception.toString(),
+        stackTrace,
+      ]);
 
       final capturedEvent = client.captureEventCalls.last.event;
       expect(capturedEvent.level, SentryLevel.error);

@@ -8,10 +8,7 @@ import 'test_utils.dart';
 void main() {
   final fixture = Fixture();
 
-  SentryTracer _createTracer({
-    bool? sampled = true,
-    Hub? hub,
-  }) {
+  SentryTracer _createTracer({bool? sampled = true, Hub? hub}) {
     final context = SentryTransactionContext(
       'name',
       'op',

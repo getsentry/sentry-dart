@@ -63,59 +63,55 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
 
   GroupedInMemoryTelemetryBuffer<RecordingSentrySpanV2> _createSpanBuffer(
     SentryOptions options,
-  ) =>
-      GroupedInMemoryTelemetryBuffer(
-        encoder: (RecordingSentrySpanV2 item) =>
-            utf8JsonEncoder.convert(item.toJson()),
-        onFlush: (items) {
-          final futures = items.values.map((itemData) {
-            final span = itemData.$2;
-            final dsc = span.resolveDsc();
-            final replayId = span
-                .attributes[SemanticAttributesConstants.sentryReplayId]?.value;
-            if (replayId is String) {
-              dsc.replayId = SentryId.fromId(replayId);
-            }
-            final envelope = SentryEnvelope.fromSpansData(
-              itemData.$1,
-              options.sdk,
-              traceContext: dsc,
-              inferUserData: options.sendDefaultPii,
-            );
-            return options.transport.send(envelope);
-          }).toList();
-          if (futures.isEmpty) return null;
-          return Future.wait(futures).then((_) {});
-        },
-        groupKeyExtractor: spanGroupKeyExtractor,
-      );
+  ) => GroupedInMemoryTelemetryBuffer(
+    encoder: (RecordingSentrySpanV2 item) =>
+        utf8JsonEncoder.convert(item.toJson()),
+    onFlush: (items) {
+      final futures = items.values.map((itemData) {
+        final span = itemData.$2;
+        final dsc = span.resolveDsc();
+        final replayId =
+            span.attributes[SemanticAttributesConstants.sentryReplayId]?.value;
+        if (replayId is String) {
+          dsc.replayId = SentryId.fromId(replayId);
+        }
+        final envelope = SentryEnvelope.fromSpansData(
+          itemData.$1,
+          options.sdk,
+          traceContext: dsc,
+          inferUserData: options.sendDefaultPii,
+        );
+        return options.transport.send(envelope);
+      }).toList();
+      if (futures.isEmpty) return null;
+      return Future.wait(futures).then((_) {});
+    },
+    groupKeyExtractor: spanGroupKeyExtractor,
+  );
 
   InMemoryTelemetryBuffer<SentryMetric> _createMetricBuffer(
     SentryOptions options,
-  ) =>
-      InMemoryTelemetryBuffer(
-        encoder: (SentryMetric item) => utf8JsonEncoder.convert(item.toJson()),
-        onDrop: (item, {required cause, bytes}) {
-          switch (cause) {
-            case BufferDropCause.encodeFailed:
-              // No encoded bytes available, so the trace_metric_byte size is
-              // unknown.
-              options.recorder.recordLostMetric(
-                DiscardReason.internalSdkError,
-              );
-            case BufferDropCause.tooLarge:
-              options.recorder.recordLostMetric(
-                DiscardReason.bufferOverflow,
-                bytes: bytes,
-              );
-          }
-        },
-        onFlush: (items) {
-          final envelope = SentryEnvelope.fromMetricsData(
-            items.map((item) => item).toList(),
-            options.sdk,
+  ) => InMemoryTelemetryBuffer(
+    encoder: (SentryMetric item) => utf8JsonEncoder.convert(item.toJson()),
+    onDrop: (item, {required cause, bytes}) {
+      switch (cause) {
+        case BufferDropCause.encodeFailed:
+          // No encoded bytes available, so the trace_metric_byte size is
+          // unknown.
+          options.recorder.recordLostMetric(DiscardReason.internalSdkError);
+        case BufferDropCause.tooLarge:
+          options.recorder.recordLostMetric(
+            DiscardReason.bufferOverflow,
+            bytes: bytes,
           );
-          return options.transport.send(envelope).then((_) {});
-        },
+      }
+    },
+    onFlush: (items) {
+      final envelope = SentryEnvelope.fromMetricsData(
+        items.map((item) => item).toList(),
+        options.sdk,
       );
+      return options.transport.send(envelope).then((_) {});
+    },
+  );
 }

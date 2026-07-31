@@ -27,17 +27,18 @@ void main() {
       final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
 
       expect(
-          baggageHeader.value,
-          'sentry-trace_id=$id,'
-          'sentry-public_key=publicKey,'
-          'sentry-release=release,'
-          'sentry-environment=environment,'
-          'sentry-user_id=userId,'
-          'sentry-transaction=transaction,'
-          'sentry-sample_rate=1.0,'
-          'sentry-sample_rand=0.4,'
-          'sentry-sampled=false,'
-          'sentry-replay_id=$replayId');
+        baggageHeader.value,
+        'sentry-trace_id=$id,'
+        'sentry-public_key=publicKey,'
+        'sentry-release=release,'
+        'sentry-environment=environment,'
+        'sentry-user_id=userId,'
+        'sentry-transaction=transaction,'
+        'sentry-sample_rate=1.0,'
+        'sentry-sample_rand=0.4,'
+        'sentry-sampled=false,'
+        'sentry-replay_id=$replayId',
+      );
     });
   });
 }

@@ -22,8 +22,10 @@ class SentryEnvelopeItem {
       contentType: 'application/json',
     );
     return SentryEnvelopeItem(
-        header, () => utf8JsonEncoder.convert(transaction.toJson()),
-        originalObject: transaction);
+      header,
+      () => utf8JsonEncoder.convert(transaction.toJson()),
+      originalObject: transaction,
+    );
   }
 
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
@@ -65,9 +67,7 @@ class SentryEnvelopeItem {
   }
 
   factory SentryEnvelopeItem.fromLogs(List<SentryLog> items) {
-    final payload = {
-      'items': items.map((e) => e.toJson()).toList(),
-    };
+    final payload = {'items': items.map((e) => e.toJson()).toList()};
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
         SentryItemType.log,
@@ -113,7 +113,9 @@ class SentryEnvelopeItem {
   /// This is used by the buffer to send pre-encoded metric batches.
   @internal
   factory SentryEnvelopeItem.fromMetricsData(
-      List<int> payload, int metricsCount) {
+    List<int> payload,
+    int metricsCount,
+  ) {
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
         SentryItemType.metric,

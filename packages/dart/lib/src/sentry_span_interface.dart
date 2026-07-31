@@ -73,11 +73,7 @@ abstract class ISentrySpan {
   SentryTraceHeader toSentryTrace();
 
   /// Set observed measurement for this span or transaction.
-  void setMeasurement(
-    String name,
-    num value, {
-    SentryMeasurementUnit? unit,
-  });
+  void setMeasurement(String name, num value, {SentryMeasurementUnit? unit});
 
   /// Returns the baggage that can be sent as "baggage" header.
   SentryBaggageHeader? toBaggageHeader();

@@ -17,10 +17,7 @@ import 'person.dart';
 import 'utils.dart';
 
 void main() {
-  void verifySpan(
-    String description,
-    SentrySpan? span,
-  ) {
+  void verifySpan(String description, SentrySpan? span) {
     expect(span?.context.operation, SentryIsar.dbOp);
     expect(span?.context.description, description);
     expect(span?.status, SpanStatus.ok());
@@ -42,10 +39,7 @@ void main() {
     Breadcrumb? crumb, {
     String status = 'ok',
   }) {
-    expect(
-      crumb?.message,
-      message,
-    );
+    expect(crumb?.message, message);
     expect(crumb?.type, 'query');
     expect(crumb?.data?['status'], status);
     if (status != 'ok') {
@@ -339,8 +333,9 @@ void main() {
     });
 
     test('throwing deleteAllByIndex adds error span', () async {
-      when(fixture.isarCollection.deleteAllByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.deleteAllByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).deleteAllByIndex('name', []);
       } catch (error) {
@@ -354,8 +349,9 @@ void main() {
     });
 
     test('throwing deleteByIndex adds error span', () async {
-      when(fixture.isarCollection.deleteByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.deleteByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).deleteByIndex('name', []);
       } catch (error) {
@@ -389,8 +385,9 @@ void main() {
     });
 
     test('throwing getAllByIndex adds error span', () async {
-      when(fixture.isarCollection.getAllByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.getAllByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).getAllByIndex('name', []);
       } catch (error) {
@@ -404,8 +401,9 @@ void main() {
     });
 
     test('throwing getByIndex adds error span', () async {
-      when(fixture.isarCollection.getByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.getByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).getByIndex('name', []);
       } catch (error) {
@@ -443,8 +441,9 @@ void main() {
     });
 
     test('throwing importJsonRaw adds error span', () async {
-      when(fixture.isarCollection.importJsonRaw(any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.importJsonRaw(any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture
             .getSut(injectMock: true)
@@ -480,12 +479,13 @@ void main() {
     });
 
     test('throwing putAllByIndex adds error span', () async {
-      when(fixture.isarCollection.putAllByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.putAllByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
-        await fixture
-            .getSut(injectMock: true)
-            .putAllByIndex('name', [Person()]);
+        await fixture.getSut(injectMock: true).putAllByIndex('name', [
+          Person(),
+        ]);
       } catch (error) {
         expect(error, fixture.exception);
       }
@@ -497,8 +497,9 @@ void main() {
     });
 
     test('throwing putByIndex adds error span', () async {
-      when(fixture.isarCollection.putByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.putByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).putByIndex('name', Person());
       } catch (error) {
@@ -748,8 +749,9 @@ void main() {
     });
 
     test('throwing deleteAllByIndex adds error breadcrumb', () async {
-      when(fixture.isarCollection.deleteAllByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.deleteAllByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).deleteAllByIndex('name', []);
       } catch (error) {
@@ -763,8 +765,9 @@ void main() {
     });
 
     test('throwing deleteByIndex adds error breadcrumb', () async {
-      when(fixture.isarCollection.deleteByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.deleteByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).deleteByIndex('name', []);
       } catch (error) {
@@ -806,8 +809,9 @@ void main() {
     });
 
     test('throwing getAllByIndex adds error breadcrumb', () async {
-      when(fixture.isarCollection.getAllByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.getAllByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).getAllByIndex('name', []);
       } catch (error) {
@@ -821,8 +825,9 @@ void main() {
     });
 
     test('throwing getByIndex adds error breadcrumb', () async {
-      when(fixture.isarCollection.getByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.getByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).getByIndex('name', []);
       } catch (error) {
@@ -864,8 +869,9 @@ void main() {
     });
 
     test('throwing importJsonRaw adds error breadcrumb', () async {
-      when(fixture.isarCollection.importJsonRaw(any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.importJsonRaw(any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture
             .getSut(injectMock: true)
@@ -909,12 +915,13 @@ void main() {
     });
 
     test('throwing putAllByIndex adds error breadcrumb', () async {
-      when(fixture.isarCollection.putAllByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.putAllByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
-        await fixture
-            .getSut(injectMock: true)
-            .putAllByIndex('name', [Person()]);
+        await fixture.getSut(injectMock: true).putAllByIndex('name', [
+          Person(),
+        ]);
       } catch (error) {
         expect(error, fixture.exception);
       }
@@ -926,8 +933,9 @@ void main() {
     });
 
     test('throwing putByIndex adds error breadcrumb', () async {
-      when(fixture.isarCollection.putByIndex(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.isarCollection.putByIndex(any, any),
+      ).thenThrow(fixture.exception);
       try {
         await fixture.getSut(injectMock: true).putByIndex('name', Person());
       } catch (error) {

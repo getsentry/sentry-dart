@@ -41,9 +41,6 @@ class SentryAttribute {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'value': value,
-      'type': type,
-    };
+    return {'value': value, 'type': type};
   }
 }

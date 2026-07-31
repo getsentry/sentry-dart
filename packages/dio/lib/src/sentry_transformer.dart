@@ -9,8 +9,8 @@ class SentryTransformer implements Transformer {
 
   // ignore: public_member_api_docs
   SentryTransformer({required Transformer transformer, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _transformer = transformer {
+    : _hub = hub ?? HubAdapter(),
+      _transformer = transformer {
     _spanFactory = _hub.options.spanFactory;
   }
 
@@ -88,8 +88,10 @@ class SentryTransformer implements Transformer {
 
     dynamic transformedResponse;
     try {
-      transformedResponse =
-          await _transformer.transformResponse(options, response);
+      transformedResponse = await _transformer.transformResponse(
+        options,
+        response,
+      );
       span?.status = const SpanStatus.ok();
     } catch (exception) {
       span?.throwable = exception;

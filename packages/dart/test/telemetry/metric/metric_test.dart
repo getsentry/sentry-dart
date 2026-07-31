@@ -51,20 +51,29 @@ void main() {
 
       expect(
         SentryCounterMetric(
-                timestamp: timestamp, name: 't', value: 1, traceId: traceId)
-            .toJson()['type'],
+          timestamp: timestamp,
+          name: 't',
+          value: 1,
+          traceId: traceId,
+        ).toJson()['type'],
         'counter',
       );
       expect(
         SentryGaugeMetric(
-                timestamp: timestamp, name: 't', value: 1, traceId: traceId)
-            .toJson()['type'],
+          timestamp: timestamp,
+          name: 't',
+          value: 1,
+          traceId: traceId,
+        ).toJson()['type'],
         'gauge',
       );
       expect(
         SentryDistributionMetric(
-                timestamp: timestamp, name: 't', value: 1, traceId: traceId)
-            .toJson()['type'],
+          timestamp: timestamp,
+          name: 't',
+          value: 1,
+          traceId: traceId,
+        ).toJson()['type'],
         'distribution',
       );
     });

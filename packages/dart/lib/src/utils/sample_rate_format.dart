@@ -59,23 +59,17 @@ class SampleRateFormat {
   final StringBuffer _buffer = StringBuffer();
 
   factory SampleRateFormat() {
-    var symbols = _NumberSymbols(
-      DECIMAL_SEP: '.',
-      ZERO_DIGIT: '0',
-    );
+    var symbols = _NumberSymbols(DECIMAL_SEP: '.', ZERO_DIGIT: '0');
     var localeZero = symbols.ZERO_DIGIT.codeUnitAt(0);
     var zeroOffset = localeZero - '0'.codeUnitAt(0);
 
-    return SampleRateFormat._(
-      symbols,
-      zeroOffset,
-    );
+    return SampleRateFormat._(symbols, zeroOffset);
   }
 
   SampleRateFormat._(this._symbols, this._zeroOffset)
-      : _minimumIntegerDigits = 1,
-        _maximumFractionDigits = 16,
-        _minimumFractionDigits = 0;
+    : _minimumIntegerDigits = 1,
+      _maximumFractionDigits = 16,
+      _minimumFractionDigits = 0;
 
   /// Format the sample rate
   String format(dynamic sampleRate) {
@@ -187,7 +181,8 @@ class SampleRateFormat {
   dynamic _floor(dynamic number) {
     if (number.isNegative && !number.abs().isNegative) {
       throw ArgumentError(
-          'Internal error: expected positive number, got $number');
+        'Internal error: expected positive number, got $number',
+      );
     }
     return (number is num) ? number.floor() : number ~/ 1;
   }

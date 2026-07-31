@@ -14,8 +14,11 @@ import 'package:meta/meta.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
-  SentryEnvelope(this.header, this.items,
-      {this.containsUnhandledException = false});
+  SentryEnvelope(
+    this.header,
+    this.items, {
+    this.containsUnhandledException = false,
+  });
 
   /// Header describing envelope content.
   final SentryEnvelopeHeader header;
@@ -54,7 +57,7 @@ class SentryEnvelope {
       [
         SentryEnvelopeItem.fromEvent(event),
         if (attachments != null)
-          ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
+          ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e)),
       ],
       containsUnhandledException: containsUnhandledException,
     );
@@ -78,7 +81,7 @@ class SentryEnvelope {
       [
         SentryEnvelopeItem.fromTransaction(transaction),
         if (attachments != null)
-          ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
+          ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e)),
       ],
     );
   }
@@ -87,15 +90,9 @@ class SentryEnvelope {
     List<SentryLog> items,
     SdkVersion sdkVersion,
   ) {
-    return SentryEnvelope(
-      SentryEnvelopeHeader(
-        null,
-        sdkVersion,
-      ),
-      [
-        SentryEnvelopeItem.fromLogs(items),
-      ],
-    );
+    return SentryEnvelope(SentryEnvelopeHeader(null, sdkVersion), [
+      SentryEnvelopeItem.fromLogs(items),
+    ]);
   }
 
   /// Create a [SentryEnvelope] containing raw log data payload.
@@ -104,14 +101,12 @@ class SentryEnvelope {
   factory SentryEnvelope.fromLogsData(
     List<List<int>> encodedLogs,
     SdkVersion sdkVersion,
-  ) =>
-      SentryEnvelope(
-        SentryEnvelopeHeader(null, sdkVersion),
-        [
-          SentryEnvelopeItem.fromLogsData(
-              _buildItemsPayload(encodedLogs), encodedLogs.length)
-        ],
-      );
+  ) => SentryEnvelope(SentryEnvelopeHeader(null, sdkVersion), [
+    SentryEnvelopeItem.fromLogsData(
+      _buildItemsPayload(encodedLogs),
+      encodedLogs.length,
+    ),
+  ]);
 
   /// Create a [SentryEnvelope] containing raw span data payload.
   /// This is used by the span buffer to send pre-encoded spans.
@@ -122,18 +117,25 @@ class SentryEnvelope {
     String? dsn,
     SentryTraceContextHeader? traceContext,
     required bool inferUserData,
-  }) =>
-      SentryEnvelope(
-        SentryEnvelopeHeader(null, sdkVersion,
-            dsn: dsn, traceContext: traceContext),
-        [
-          SentryEnvelopeItem.fromSpansData(
-              _buildItemsPayload(encodedSpans,
-                  additionalTopLevelProperties:
-                      _itemsPayloadProperties(inferUserData: inferUserData)),
-              encodedSpans.length)
-        ],
-      );
+  }) => SentryEnvelope(
+    SentryEnvelopeHeader(
+      null,
+      sdkVersion,
+      dsn: dsn,
+      traceContext: traceContext,
+    ),
+    [
+      SentryEnvelopeItem.fromSpansData(
+        _buildItemsPayload(
+          encodedSpans,
+          additionalTopLevelProperties: _itemsPayloadProperties(
+            inferUserData: inferUserData,
+          ),
+        ),
+        encodedSpans.length,
+      ),
+    ],
+  );
 
   /// Create a [SentryEnvelope] containing raw metric data payload.
   /// This is used by the log batcher to send pre-encoded metric batches.
@@ -141,14 +143,12 @@ class SentryEnvelope {
   factory SentryEnvelope.fromMetricsData(
     List<List<int>> encodedMetrics,
     SdkVersion sdkVersion,
-  ) =>
-      SentryEnvelope(
-        SentryEnvelopeHeader(null, sdkVersion),
-        [
-          SentryEnvelopeItem.fromMetricsData(
-              _buildItemsPayload(encodedMetrics), encodedMetrics.length)
-        ],
-      );
+  ) => SentryEnvelope(SentryEnvelopeHeader(null, sdkVersion), [
+    SentryEnvelopeItem.fromMetricsData(
+      _buildItemsPayload(encodedMetrics),
+      encodedMetrics.length,
+    ),
+  ]);
 
   /// Stream binary data representation of `Envelope` file encoded.
   Stream<List<int>> envelopeStream(SentryOptions options) async* {
@@ -185,8 +185,9 @@ class SentryEnvelope {
   ///
   /// `ingest_settings` controls whether Sentry may infer the user's IP and
   /// user agent from the request.
-  static Map<String, Object> _itemsPayloadProperties(
-      {required bool inferUserData}) {
+  static Map<String, Object> _itemsPayloadProperties({
+    required bool inferUserData,
+  }) {
     final inferSetting = inferUserData ? 'auto' : 'never';
     return {
       'version': 2,

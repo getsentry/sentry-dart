@@ -59,11 +59,14 @@ void main() {
 
     test('Sending with attachments', () async {
       final sut = fixture.getSut();
-      await sut.captureEvent(SentryEvent(), withScope: (scope) {
-        scope.addAttachment(
-          SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'),
-        );
-      });
+      await sut.captureEvent(
+        SentryEvent(),
+        withScope: (scope) {
+          scope.addAttachment(
+            SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'),
+          );
+        },
+      );
       expect(fixture.transport.envelopes.length, 1);
       expect(fixture.transport.envelopes.first.items.length, 2);
       final attachmentEnvelope = fixture.transport.envelopes.first.items[1];
@@ -71,18 +74,9 @@ void main() {
         attachmentEnvelope.header.attachmentType,
         SentryAttachment.typeAttachmentDefault,
       );
-      expect(
-        attachmentEnvelope.header.contentType,
-        isNull,
-      );
-      expect(
-        attachmentEnvelope.header.fileName,
-        'test.txt',
-      );
-      await expectLater(
-        (await attachmentEnvelope.dataFactory()).length,
-        4,
-      );
+      expect(attachmentEnvelope.header.contentType, isNull);
+      expect(attachmentEnvelope.header.fileName, 'test.txt');
+      await expectLater((await attachmentEnvelope.dataFactory()).length, 4);
     });
   });
 
@@ -161,8 +155,9 @@ void main() {
     });
 
     test('fromScreenshotData', () async {
-      final attachment =
-          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final attachment = SentryAttachment.fromScreenshotData(
+        Uint8List.fromList([0, 0, 0, 0]),
+      );
       expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, 'image/png');
       expect(attachment.filename, 'screenshot.png');

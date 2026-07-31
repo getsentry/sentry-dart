@@ -12,62 +12,45 @@ final class DefaultSentryLogger implements SentryLogger {
   final ClockProvider _clockProvider;
   final ScopeProvider _scopeProvider;
 
-  late final SentryLoggerFormatter _formatter =
-      _DefaultSentryLoggerFormatter(this);
+  late final SentryLoggerFormatter _formatter = _DefaultSentryLoggerFormatter(
+    this,
+  );
 
   DefaultSentryLogger({
     required CaptureLogCallback captureLogCallback,
     required ClockProvider clockProvider,
     required ScopeProvider scopeProvider,
-  })  : _captureLogCallback = captureLogCallback,
-        _clockProvider = clockProvider,
-        _scopeProvider = scopeProvider;
+  }) : _captureLogCallback = captureLogCallback,
+       _clockProvider = clockProvider,
+       _scopeProvider = scopeProvider;
 
   @override
-  void trace(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {
+  void trace(String body, {Map<String, SentryAttribute>? attributes}) {
     _captureLog(SentryLogLevel.trace, body, attributes: attributes);
   }
 
   @override
-  void debug(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {
+  void debug(String body, {Map<String, SentryAttribute>? attributes}) {
     _captureLog(SentryLogLevel.debug, body, attributes: attributes);
   }
 
   @override
-  void info(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {
+  void info(String body, {Map<String, SentryAttribute>? attributes}) {
     _captureLog(SentryLogLevel.info, body, attributes: attributes);
   }
 
   @override
-  void warn(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {
+  void warn(String body, {Map<String, SentryAttribute>? attributes}) {
     _captureLog(SentryLogLevel.warn, body, attributes: attributes);
   }
 
   @override
-  void error(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {
+  void error(String body, {Map<String, SentryAttribute>? attributes}) {
     _captureLog(SentryLogLevel.error, body, attributes: attributes);
   }
 
   @override
-  void fatal(
-    String body, {
-    Map<String, SentryAttribute>? attributes,
-  }) {
+  void fatal(String body, {Map<String, SentryAttribute>? attributes}) {
     _captureLog(SentryLogLevel.fatal, body, attributes: attributes);
   }
 
@@ -81,8 +64,10 @@ final class DefaultSentryLogger implements SentryLogger {
     String body, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.logger.${level.value}("$body") called with attributes ${_formatAttributes(attributes)}');
+    internalLogger.debug(
+      () =>
+          'Sentry.logger.${level.value}("$body") called with attributes ${_formatAttributes(attributes)}',
+    );
 
     final log = SentryLog(
       timestamp: _clockProvider(),
@@ -113,14 +98,12 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    _format(
-      templateBody,
-      arguments,
-      attributes,
-      (formattedBody, allAttributes) {
-        _logger.trace(formattedBody, attributes: allAttributes);
-      },
-    );
+    _format(templateBody, arguments, attributes, (
+      formattedBody,
+      allAttributes,
+    ) {
+      _logger.trace(formattedBody, attributes: allAttributes);
+    });
   }
 
   @override
@@ -129,14 +112,12 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    _format(
-      templateBody,
-      arguments,
-      attributes,
-      (formattedBody, allAttributes) {
-        _logger.debug(formattedBody, attributes: allAttributes);
-      },
-    );
+    _format(templateBody, arguments, attributes, (
+      formattedBody,
+      allAttributes,
+    ) {
+      _logger.debug(formattedBody, attributes: allAttributes);
+    });
   }
 
   @override
@@ -145,14 +126,12 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    _format(
-      templateBody,
-      arguments,
-      attributes,
-      (formattedBody, allAttributes) {
-        _logger.info(formattedBody, attributes: allAttributes);
-      },
-    );
+    _format(templateBody, arguments, attributes, (
+      formattedBody,
+      allAttributes,
+    ) {
+      _logger.info(formattedBody, attributes: allAttributes);
+    });
   }
 
   @override
@@ -161,14 +140,12 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    _format(
-      templateBody,
-      arguments,
-      attributes,
-      (formattedBody, allAttributes) {
-        _logger.warn(formattedBody, attributes: allAttributes);
-      },
-    );
+    _format(templateBody, arguments, attributes, (
+      formattedBody,
+      allAttributes,
+    ) {
+      _logger.warn(formattedBody, attributes: allAttributes);
+    });
   }
 
   @override
@@ -177,14 +154,12 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    _format(
-      templateBody,
-      arguments,
-      attributes,
-      (formattedBody, allAttributes) {
-        _logger.error(formattedBody, attributes: allAttributes);
-      },
-    );
+    _format(templateBody, arguments, attributes, (
+      formattedBody,
+      allAttributes,
+    ) {
+      _logger.error(formattedBody, attributes: allAttributes);
+    });
   }
 
   @override
@@ -193,14 +168,12 @@ final class _DefaultSentryLoggerFormatter implements SentryLoggerFormatter {
     List<dynamic> arguments, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    _format(
-      templateBody,
-      arguments,
-      attributes,
-      (formattedBody, allAttributes) {
-        _logger.fatal(formattedBody, attributes: allAttributes);
-      },
-    );
+    _format(templateBody, arguments, attributes, (
+      formattedBody,
+      allAttributes,
+    ) {
+      _logger.fatal(formattedBody, attributes: allAttributes);
+    });
   }
 
   // Helper

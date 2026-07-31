@@ -29,13 +29,10 @@ void main() {
 
     setUp(() async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          options.tracesSampleRate = 1.0;
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.tracesSampleRate = 1.0;
+      });
       anException = Exception('anException');
       fakeEvent = getFakeEvent();
       fakeMessage = getFakeMessage();
@@ -104,17 +101,24 @@ void main() {
     });
 
     test('should capture exception with message', () async {
-      await Sentry.captureException(anException,
-          message: SentryMessage('Sentry rocks'));
+      await Sentry.captureException(
+        anException,
+        message: SentryMessage('Sentry rocks'),
+      );
 
-      expect(client.captureEventCalls.first.event.message?.formatted,
-          'Sentry rocks');
+      expect(
+        client.captureEventCalls.first.event.message?.formatted,
+        'Sentry rocks',
+      );
     });
 
     test('should capture exception withScope', () async {
-      await Sentry.captureException(anException, withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
-      });
+      await Sentry.captureException(
+        anException,
+        withScope: (scope) {
+          scope.setUser(SentryUser(id: 'foo bar'));
+        },
+      );
       expect(client.captureEventCalls.length, 1);
       expect(client.captureEventCalls.first.event.throwable, anException);
       expect(client.captureEventCalls.first.scope?.user?.id, 'foo bar');
@@ -153,7 +157,8 @@ void main() {
 
     test('should start transaction with context', () async {
       final tr = Sentry.startTransactionWithContext(
-          SentryTransactionContext('name', 'operation'));
+        SentryTransactionContext('name', 'operation'),
+      );
       await tr.finish();
 
       expect(client.captureTransactionCalls.length, 1);
@@ -161,7 +166,8 @@ void main() {
 
     test('should start transaction with hint', () async {
       final tr = Sentry.startTransactionWithContext(
-          SentryTransactionContext('name', 'operation'));
+        SentryTransactionContext('name', 'operation'),
+      );
       await tr.finish();
 
       expect(client.captureTransactionCalls.length, 1);
@@ -200,19 +206,13 @@ void main() {
     test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) => options.dsn = fakeDsn,
-      );
+      await Sentry.init(options: options, (options) => options.dsn = fakeDsn);
       expect(Sentry.isEnabled, true);
     });
 
     test('empty DSN', () async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) => options.dsn = '',
-      );
+      await Sentry.init(options: options, (options) => options.dsn = '');
       expect(Sentry.isEnabled, false);
     });
 
@@ -220,23 +220,17 @@ void main() {
       final integration = MockIntegration();
 
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = '';
-          options.addIntegration(integration);
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = '';
+        options.addIntegration(integration);
+      });
 
       expect(integration.callCalls, 1);
     });
 
     test('close disables the SDK', () async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) => options.dsn = fakeDsn,
-      );
+      await Sentry.init(options: options, (options) => options.dsn = fakeDsn);
 
       Sentry.bindClient(MockSentryClient());
 
@@ -257,13 +251,10 @@ void main() {
       final integration = MockIntegration();
 
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          options.addIntegration(integration);
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.addIntegration(integration);
+      });
 
       expect(integration.callCalls, 1);
     });
@@ -272,14 +263,10 @@ void main() {
       late SentryOptions optionsReference;
       final options = defaultTestOptions();
 
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          optionsReference = options;
-        },
-        appRunner: appRunner,
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        optionsReference = options;
+      }, appRunner: appRunner);
 
       expect(
         optionsReference.integrations
@@ -292,14 +279,10 @@ void main() {
     test('should add default integrations', () async {
       late SentryOptions optionsReference;
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          optionsReference = options;
-        },
-        appRunner: appRunner,
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        optionsReference = options;
+      }, appRunner: appRunner);
       expect(
         optionsReference.integrations
             .whereType<IsolateErrorIntegration>()
@@ -318,14 +301,10 @@ void main() {
       late SentryOptions optionsReference;
       final options = defaultTestOptions();
 
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          optionsReference = options;
-        },
-        appRunner: appRunner,
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        optionsReference = options;
+      }, appRunner: appRunner);
 
       expect(
         optionsReference.integrations
@@ -335,19 +314,20 @@ void main() {
       );
     });
 
-    test('should add only web compatible default integrations', () async {
-      final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
+    test(
+      'should add only web compatible default integrations',
+      () async {
+        final options = defaultTestOptions();
+        await Sentry.init(options: options, (options) {
           options.dsn = fakeDsn;
           expect(
             options.integrations.whereType<IsolateErrorIntegration>().length,
             0,
           );
-        },
-      );
-    }, onPlatform: {'vm': Skip()});
+        });
+      },
+      onPlatform: {'vm': Skip()},
+    );
 
     test('addFeatureFlag adds feature flag to scope', () async {
       await Sentry.init(
@@ -358,12 +338,22 @@ void main() {
       await Sentry.addFeatureFlag('foo', true);
 
       expect(
-        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
+        Sentry
+            .currentHub
+            .scope
+            .contexts[SentryFeatureFlags.type]
+            ?.values
+            .first
             .flag,
         equals('foo'),
       );
       expect(
-        Sentry.currentHub.scope.contexts[SentryFeatureFlags.type]?.values.first
+        Sentry
+            .currentHub
+            .scope
+            .contexts[SentryFeatureFlags.type]
+            ?.values
+            .first
             .result,
         equals(true),
       );
@@ -386,14 +376,11 @@ void main() {
 
     test('addFeatureFlag adds feature flag to active stream span', () async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          options.tracesSampleRate = 1.0;
-          options.traceLifecycle = SentryTraceLifecycle.stream;
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.tracesSampleRate = 1.0;
+        options.traceLifecycle = SentryTraceLifecycle.stream;
+      });
 
       await Sentry.startSpan('checkout', (span) async {
         await Sentry.addFeatureFlag('foo', true);
@@ -407,19 +394,14 @@ void main() {
 
     test('addFeatureFlag adds feature flag to active static span', () async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          options.tracesSampleRate = 1.0;
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.tracesSampleRate = 1.0;
+      });
 
-      final transaction = Sentry.startTransaction(
-        'checkout',
-        'operation',
-        bindToScope: true,
-      ) as SentryTracer;
+      final transaction =
+          Sentry.startTransaction('checkout', 'operation', bindToScope: true)
+              as SentryTracer;
       await Sentry.addFeatureFlag('foo', true);
 
       expect(transaction.data['flag.evaluation.foo'], isTrue);
@@ -428,14 +410,11 @@ void main() {
 
     test('addFeatureFlag ignores non-boolean values for active span', () async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          options.tracesSampleRate = 1.0;
-          options.traceLifecycle = SentryTraceLifecycle.stream;
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.tracesSampleRate = 1.0;
+        options.traceLifecycle = SentryTraceLifecycle.stream;
+      });
 
       await Sentry.startSpan('checkout', (span) async {
         await Sentry.addFeatureFlag('foo', 'some string');
@@ -449,13 +428,10 @@ void main() {
       final integration = MockIntegration();
 
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          options.addIntegration(integration);
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.addIntegration(integration);
+      });
 
       await Sentry.close();
 
@@ -465,16 +441,13 @@ void main() {
 
     test('$DeduplicationEventProcessor is added on init', () async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          final count = options.eventProcessors
-              .whereType<DeduplicationEventProcessor>()
-              .length;
-          expect(count, 1);
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        final count = options.eventProcessors
+            .whereType<DeduplicationEventProcessor>()
+            .length;
+        expect(count, 1);
+      });
     });
 
     test('should complete when appRunner completes', () async {
@@ -504,16 +477,14 @@ void main() {
 
     test('should add DartExceptionTypeIdentifier by default', () async {
       final options = defaultTestOptions();
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+      });
 
       expect(options.exceptionTypeIdentifiers.length, 1);
-      final cachingIdentifier = options.exceptionTypeIdentifiers.first
-          as CachingExceptionTypeIdentifier;
+      final cachingIdentifier =
+          options.exceptionTypeIdentifiers.first
+              as CachingExceptionTypeIdentifier;
       expect(
         cachingIdentifier,
         isA<CachingExceptionTypeIdentifier>().having(
@@ -529,12 +500,9 @@ void main() {
       options.runtimeChecker = MockRuntimeChecker(isDebug: true);
 
       expect(options.debug, isFalse);
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+      });
       expect(options.debug, isTrue);
     });
 
@@ -543,30 +511,26 @@ void main() {
       options.runtimeChecker = MockRuntimeChecker(isDebug: true);
 
       expect(options.debug, isFalse);
-      await Sentry.init(
-        options: options,
-        (options) {
-          options.dsn = fakeDsn;
-          options.debug = false;
-        },
-      );
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.debug = false;
+      });
       expect(options.debug, isFalse);
     });
 
-    test('should leave options.debug unchanged when not in debug mode',
-        () async {
-      final options = defaultTestOptions();
-      options.runtimeChecker = MockRuntimeChecker(isDebug: false);
+    test(
+      'should leave options.debug unchanged when not in debug mode',
+      () async {
+        final options = defaultTestOptions();
+        options.runtimeChecker = MockRuntimeChecker(isDebug: false);
 
-      expect(options.debug, isFalse);
-      await Sentry.init(
-        options: options,
-        (options) {
+        expect(options.debug, isFalse);
+        await Sentry.init(options: options, (options) {
           options.dsn = fakeDsn;
-        },
-      );
-      expect(options.debug, isFalse);
-    });
+        });
+        expect(options.debug, isFalse);
+      },
+    );
 
     test('isolate completes when closing sentry', () async {
       final onExit = ReceivePort();
@@ -582,11 +546,7 @@ void main() {
 
       final completer = Completer<void>();
 
-      await Isolate.spawn<String>(
-        _runSentry,
-        'test',
-        onExit: onExit.sendPort,
-      );
+      await Isolate.spawn<String>(_runSentry, 'test', onExit: onExit.sendPort);
 
       var completed = false;
       onExit.listen((message) {
@@ -599,91 +559,85 @@ void main() {
     });
   }, testOn: 'vm');
 
-  test('should complete when appRunner is not called in runZonedGuarded',
-      () async {
-    final completer = Completer();
-    var completed = false;
+  test(
+    'should complete when appRunner is not called in runZonedGuarded',
+    () async {
+      final completer = Completer();
+      var completed = false;
 
-    final options = defaultTestOptions();
-    final init = Sentry.init(
-      options: options,
-      (options) {
-        options.dsn = fakeDsn;
-      },
-      appRunner: () => completer.future,
-      callAppRunnerInRunZonedGuarded: false,
-    ).whenComplete(() => completed = true);
+      final options = defaultTestOptions();
+      final init = Sentry.init(
+        options: options,
+        (options) {
+          options.dsn = fakeDsn;
+        },
+        appRunner: () => completer.future,
+        callAppRunnerInRunZonedGuarded: false,
+      ).whenComplete(() => completed = true);
 
-    await Future(() {
-      // We make the expectation only after all microtasks have completed,
-      // that Sentry.init might have scheduled.
-      expect(completed, false);
-    });
+      await Future(() {
+        // We make the expectation only after all microtasks have completed,
+        // that Sentry.init might have scheduled.
+        expect(completed, false);
+      });
 
-    completer.complete();
-    await init;
+      completer.complete();
+      await init;
 
-    expect(completed, true);
-  });
+      expect(completed, true);
+    },
+  );
 
   test('options.environment debug', () async {
-    final sentryOptions =
-        defaultTestOptions(checker: MockRuntimeChecker(isDebug: true));
-    await Sentry.init(
-      (options) {
-        options.dsn = fakeDsn;
-        expect(options.environment, 'debug');
-        expect(options.debug, true);
-      },
-      options: sentryOptions,
+    final sentryOptions = defaultTestOptions(
+      checker: MockRuntimeChecker(isDebug: true),
     );
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'debug');
+      expect(options.debug, true);
+    }, options: sentryOptions);
   });
 
   test('options.environment profile', () async {
-    final sentryOptions =
-        defaultTestOptions(checker: MockRuntimeChecker(isProfile: true));
-
-    await Sentry.init(
-      (options) {
-        options.dsn = fakeDsn;
-        expect(options.environment, 'profile');
-        expect(options.debug, false);
-      },
-      options: sentryOptions,
+    final sentryOptions = defaultTestOptions(
+      checker: MockRuntimeChecker(isProfile: true),
     );
+
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'profile');
+      expect(options.debug, false);
+    }, options: sentryOptions);
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions =
-        defaultTestOptions(checker: MockRuntimeChecker(isRelease: true));
-    await Sentry.init(
-      (options) {
-        options.dsn = fakeDsn;
-        expect(options.environment, 'production');
-        expect(options.debug, false);
-      },
-      options: sentryOptions,
+    final sentryOptions = defaultTestOptions(
+      checker: MockRuntimeChecker(isRelease: true),
     );
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'production');
+      expect(options.debug, false);
+    }, options: sentryOptions);
   });
 
   test('debug configures internal logger during init', () async {
-    final sentryOptions =
-        defaultTestOptions(checker: MockRuntimeChecker(isDebug: true));
-
-    await Sentry.init(
-      (options) {
-        options.dsn = fakeDsn;
-        options.debug = true;
-        expect(SentryInternalLogger.isEnabled, isTrue);
-
-        options.debug = false;
-        expect(SentryInternalLogger.isEnabled, isFalse);
-
-        options.debug = true;
-        expect(SentryInternalLogger.isEnabled, isTrue);
-      },
-      options: sentryOptions,
+    final sentryOptions = defaultTestOptions(
+      checker: MockRuntimeChecker(isDebug: true),
     );
+
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      options.debug = true;
+      expect(SentryInternalLogger.isEnabled, isTrue);
+
+      options.debug = false;
+      expect(SentryInternalLogger.isEnabled, isFalse);
+
+      options.debug = true;
+      expect(SentryInternalLogger.isEnabled, isTrue);
+    }, options: sentryOptions);
 
     expect(SentryInternalLogger.isEnabled, isTrue);
   });
@@ -704,12 +658,9 @@ void main() {
       configureDiagnosticTestLogger(onLog: fixture.mockLogger);
 
       final exception = Exception("Exception in options callback");
-      await Sentry.init(
-        (options) async {
-          throw exception;
-        },
-        options: sentryOptions,
-      );
+      await Sentry.init((options) async {
+        throw exception;
+      }, options: sentryOptions);
 
       expect(fixture.loggedException, exception);
       expect(fixture.loggedLevel, SentryLevel.error);
@@ -724,12 +675,15 @@ void main() {
       Object? actual;
 
       final completer = Completer<void>();
-      Sentry.runZonedGuarded(() {
-        throw expected;
-      }, (error, stackTrace) {
-        actual = error;
-        completer.complete();
-      });
+      Sentry.runZonedGuarded(
+        () {
+          throw expected;
+        },
+        (error, stackTrace) {
+          actual = error;
+          completer.complete();
+        },
+      );
 
       await completer.future;
 

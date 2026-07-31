@@ -39,9 +39,9 @@ class SentryAttachment {
     String? attachmentType,
     this.contentType,
     bool? addToTransactions,
-  })  : _loader = loader,
-        attachmentType = attachmentType ?? typeAttachmentDefault,
-        addToTransactions = addToTransactions ?? false;
+  }) : _loader = loader,
+       attachmentType = attachmentType ?? typeAttachmentDefault,
+       addToTransactions = addToTransactions ?? false;
 
   /// Creates an [SentryAttachment] from a [Uint8List]
   SentryAttachment.fromUint8List(
@@ -51,12 +51,12 @@ class SentryAttachment {
     String? attachmentType,
     bool? addToTransactions,
   }) : this.fromLoader(
-          attachmentType: attachmentType,
-          loader: () => bytes,
-          filename: fileName,
-          contentType: contentType,
-          addToTransactions: addToTransactions,
-        );
+         attachmentType: attachmentType,
+         loader: () => bytes,
+         filename: fileName,
+         contentType: contentType,
+         addToTransactions: addToTransactions,
+       );
 
   /// Creates an [SentryAttachment] from a [List<int>]
   SentryAttachment.fromIntList(
@@ -66,12 +66,12 @@ class SentryAttachment {
     String? attachmentType,
     bool? addToTransactions,
   }) : this.fromLoader(
-          attachmentType: attachmentType,
-          loader: () => Uint8List.fromList(bytes),
-          filename: fileName,
-          contentType: contentType,
-          addToTransactions: addToTransactions,
-        );
+         attachmentType: attachmentType,
+         loader: () => Uint8List.fromList(bytes),
+         filename: fileName,
+         contentType: contentType,
+         addToTransactions: addToTransactions,
+       );
 
   /// Creates an [SentryAttachment] from [ByteData]
   SentryAttachment.fromByteData(
@@ -81,29 +81,30 @@ class SentryAttachment {
     String? attachmentType,
     bool? addToTransactions,
   }) : this.fromLoader(
-          attachmentType: attachmentType,
-          loader: () => bytes.buffer.asUint8List(),
-          filename: fileName,
-          contentType: contentType,
-          addToTransactions: addToTransactions,
-        );
+         attachmentType: attachmentType,
+         loader: () => bytes.buffer.asUint8List(),
+         filename: fileName,
+         contentType: contentType,
+         addToTransactions: addToTransactions,
+       );
 
   SentryAttachment.fromScreenshotData(Uint8List bytes)
-      : this.fromUint8List(
-          bytes,
-          'screenshot.png',
-          contentType: 'image/png',
-          attachmentType: SentryAttachment.typeAttachmentDefault,
-        );
+    : this.fromUint8List(
+        bytes,
+        'screenshot.png',
+        contentType: 'image/png',
+        attachmentType: SentryAttachment.typeAttachmentDefault,
+      );
 
   SentryAttachment.fromViewHierarchy(SentryViewHierarchy sentryViewHierarchy)
-      : this.fromLoader(
-          loader: () => Uint8List.fromList(
-              utf8JsonEncoder.convert(sentryViewHierarchy.toJson())),
-          filename: 'view-hierarchy.json',
-          contentType: 'application/json',
-          attachmentType: SentryAttachment.typeViewHierarchy,
-        );
+    : this.fromLoader(
+        loader: () => Uint8List.fromList(
+          utf8JsonEncoder.convert(sentryViewHierarchy.toJson()),
+        ),
+        filename: 'view-hierarchy.json',
+        contentType: 'application/json',
+        attachmentType: SentryAttachment.typeViewHierarchy,
+      );
 
   /// Attachment type.
   /// Should be one of the static types declared in [SentryAttachment].

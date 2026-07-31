@@ -53,21 +53,17 @@ class SentryIsar implements Isar {
       hub: hubToUse,
     );
 
-    final isar = await spanHelper.asyncWrapInSpan(
-      'open',
-      () async {
-        return await Isar.open(
-          schemas,
-          directory: directory,
-          name: name,
-          maxSizeMiB: maxSizeMiB,
-          relaxedDurability: relaxedDurability,
-          compactOnLaunch: compactOnLaunch,
-          inspector: inspector,
-        );
-      },
-      dbName: name,
-    );
+    final isar = await spanHelper.asyncWrapInSpan('open', () async {
+      return await Isar.open(
+        schemas,
+        directory: directory,
+        name: name,
+        maxSizeMiB: maxSizeMiB,
+        relaxedDurability: relaxedDurability,
+        compactOnLaunch: compactOnLaunch,
+        inspector: inspector,
+      );
+    }, dbName: name);
 
     return SentryIsar(isar, hubToUse);
   }
@@ -90,21 +86,17 @@ class SentryIsar implements Isar {
       hub: hubToUse,
     );
 
-    final isar = spanHelper.syncWrapInSpan(
-      'openSync',
-      () {
-        return Isar.openSync(
-          schemas,
-          directory: directory,
-          name: name,
-          maxSizeMiB: maxSizeMiB,
-          relaxedDurability: relaxedDurability,
-          compactOnLaunch: compactOnLaunch,
-          inspector: inspector,
-        );
-      },
-      dbName: name,
-    );
+    final isar = spanHelper.syncWrapInSpan('openSync', () {
+      return Isar.openSync(
+        schemas,
+        directory: directory,
+        name: name,
+        maxSizeMiB: maxSizeMiB,
+        relaxedDurability: relaxedDurability,
+        compactOnLaunch: compactOnLaunch,
+        inspector: inspector,
+      );
+    }, dbName: name);
 
     return SentryIsar(isar, hubToUse);
   }
@@ -116,35 +108,23 @@ class SentryIsar implements Isar {
 
   @override
   Future<void> clear() {
-    return _spanHelper.asyncWrapInSpan(
-      'clear',
-      () {
-        return _isar.clear();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('clear', () {
+      return _isar.clear();
+    }, dbName: name);
   }
 
   @override
   void clearSync() {
-    _spanHelper.syncWrapInSpan(
-      'clearSync',
-      () {
-        return _isar.clearSync();
-      },
-      dbName: name,
-    );
+    _spanHelper.syncWrapInSpan('clearSync', () {
+      return _isar.clearSync();
+    }, dbName: name);
   }
 
   @override
   Future<bool> close({bool deleteFromDisk = false}) {
-    return _spanHelper.asyncWrapInSpan(
-      'close',
-      () {
-        return _isar.close(deleteFromDisk: deleteFromDisk);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('close', () {
+      return _isar.close(deleteFromDisk: deleteFromDisk);
+    }, dbName: name);
   }
 
   @override
@@ -154,13 +134,9 @@ class SentryIsar implements Isar {
 
   @override
   Future<void> copyToFile(String targetPath) {
-    return _spanHelper.asyncWrapInSpan(
-      'copyToFile',
-      () {
-        return _isar.copyToFile(targetPath);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('copyToFile', () {
+      return _isar.copyToFile(targetPath);
+    }, dbName: name);
   }
 
   @override
@@ -181,30 +157,22 @@ class SentryIsar implements Isar {
     bool includeIndexes = false,
     bool includeLinks = false,
   }) {
-    return _spanHelper.asyncWrapInSpan(
-      'getSize',
-      () {
-        return _isar.getSize(
-          includeIndexes: includeIndexes,
-          includeLinks: includeLinks,
-        );
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('getSize', () {
+      return _isar.getSize(
+        includeIndexes: includeIndexes,
+        includeLinks: includeLinks,
+      );
+    }, dbName: name);
   }
 
   @override
   int getSizeSync({bool includeIndexes = false, bool includeLinks = false}) {
-    return _spanHelper.syncWrapInSpan(
-      'getSizeSync',
-      () {
-        return _isar.getSizeSync(
-          includeIndexes: includeIndexes,
-          includeLinks: includeLinks,
-        );
-      },
-      dbName: name,
-    );
+    return _spanHelper.syncWrapInSpan('getSizeSync', () {
+      return _isar.getSizeSync(
+        includeIndexes: includeIndexes,
+        includeLinks: includeLinks,
+      );
+    }, dbName: name);
   }
 
   @override
@@ -223,59 +191,39 @@ class SentryIsar implements Isar {
 
   @override
   Future<T> txn<T>(Future<T> Function() callback) {
-    return _spanHelper.asyncWrapInSpan(
-      'txn',
-      () {
-        return _isar.txn(callback);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('txn', () {
+      return _isar.txn(callback);
+    }, dbName: name);
   }
 
   @override
   T txnSync<T>(T Function() callback) {
-    return _spanHelper.syncWrapInSpan(
-      'txnSync',
-      () {
-        return _isar.txnSync(callback);
-      },
-      dbName: name,
-    );
+    return _spanHelper.syncWrapInSpan('txnSync', () {
+      return _isar.txnSync(callback);
+    }, dbName: name);
   }
 
   @override
   @visibleForTesting
   @experimental
   Future<void> verify() {
-    return _spanHelper.asyncWrapInSpan(
-      'verify',
-      () {
-        // ignore: invalid_use_of_visible_for_testing_member
-        return _isar.verify();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('verify', () {
+      // ignore: invalid_use_of_visible_for_testing_member
+      return _isar.verify();
+    }, dbName: name);
   }
 
   @override
   Future<T> writeTxn<T>(Future<T> Function() callback, {bool silent = false}) {
-    return _spanHelper.asyncWrapInSpan(
-      'writeTxn',
-      () {
-        return _isar.writeTxn(callback, silent: silent);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('writeTxn', () {
+      return _isar.writeTxn(callback, silent: silent);
+    }, dbName: name);
   }
 
   @override
   T writeTxnSync<T>(T Function() callback, {bool silent = false}) {
-    return _spanHelper.syncWrapInSpan(
-      'writeTxnSync',
-      () {
-        return _isar.writeTxnSync(callback, silent: silent);
-      },
-      dbName: name,
-    );
+    return _spanHelper.syncWrapInSpan('writeTxnSync', () {
+      return _isar.writeTxnSync(callback, silent: silent);
+    }, dbName: name);
   }
 }

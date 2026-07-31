@@ -15,8 +15,9 @@ class LogCapturePipeline {
 
   Future<void> captureLog(SentryLog log, {Scope? scope}) async {
     if (!_options.enableLogs) {
-      internalLogger
-          .debug('$LogCapturePipeline: Logs disabled, dropping ${log.body}');
+      internalLogger.debug(
+        '$LogCapturePipeline: Logs disabled, dropping ${log.body}',
+      );
       return;
     }
 
@@ -27,8 +28,9 @@ class LogCapturePipeline {
 
       final hint = Hint();
 
-      await _options.lifecycleRegistry
-          .dispatchCallback<OnProcessLog>(OnProcessLog(log, hint));
+      await _options.lifecycleRegistry.dispatchCallback<OnProcessLog>(
+        OnProcessLog(log, hint),
+      );
 
       log.attributes.addAllIfAbsent(defaultAttributes(_options, scope: scope));
 
@@ -61,7 +63,8 @@ class LogCapturePipeline {
           bytes: _approximateLogBytes(log),
         );
         internalLogger.debug(
-            '$LogCapturePipeline: Log "${log.body}" dropped by beforeSendLog');
+          '$LogCapturePipeline: Log "${log.body}" dropped by beforeSendLog',
+        );
         return;
       }
 

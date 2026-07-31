@@ -140,10 +140,7 @@ void main() {
       expect(breadcrumb.message, 'Transaction DB: $inMemoryDatabasePath');
       expect(breadcrumb.category, 'db.sql.transaction');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -161,10 +158,7 @@ void main() {
       expect(breadcrumb.message, 'Transaction DB: $inMemoryDatabasePath');
       expect(breadcrumb.category, 'db.sql.read_transaction');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -187,10 +181,7 @@ void main() {
       );
       expect(insertSpan.context.parentSpanId, trSpan.context.spanId);
       expect(insertSpan.status, SpanStatus.ok());
-      expect(
-        insertSpan.data['db.system.name'],
-        'sqlite',
-      );
+      expect(insertSpan.data['db.system.name'], 'sqlite');
       expect(insertSpan.data['db.namespace'], inMemoryDatabasePath);
 
       expect(
@@ -221,17 +212,19 @@ void main() {
       await db.close();
     });
 
-    test('opening db sets currentDbName with db file without extension',
-        () async {
-      final db = await fixture.getSut(
-        database: await openDatabase('path/database/mydatabase.db'),
-        execute: false,
-      );
+    test(
+      'opening db sets currentDbName with db file without extension',
+      () async {
+        final db = await fixture.getSut(
+          database: await openDatabase('path/database/mydatabase.db'),
+          execute: false,
+        );
 
-      expect(db.dbName, 'mydatabase');
+        expect(db.dbName, 'mydatabase');
 
-      await db.close();
-    });
+        await db.close();
+      },
+    );
 
     test('getVersion does not throw TypeError', () async {
       final db = await fixture.getSut();
@@ -420,10 +413,7 @@ void main() {
       expect(breadcrumb.category, 'db.sql.execute');
       expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -460,10 +450,7 @@ void main() {
       expect(breadcrumb.category, 'db.sql.execute');
       expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -501,15 +488,9 @@ void main() {
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.category, 'db.sql.execute');
-      expect(
-        breadcrumb.message,
-        'INSERT INTO Product (title) VALUES (?)',
-      );
+      expect(breadcrumb.message, 'INSERT INTO Product (title) VALUES (?)');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -547,10 +528,7 @@ void main() {
       expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -588,10 +566,7 @@ void main() {
       expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -628,10 +603,7 @@ void main() {
       expect(breadcrumb.category, 'db.sql.execute');
       expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -641,8 +613,9 @@ void main() {
     test('creates raw insert span', () async {
       final db = await fixture.getSut();
 
-      await db
-          .rawInsert('INSERT INTO Product (title) VALUES (?)', ['Product 1']);
+      await db.rawInsert('INSERT INTO Product (title) VALUES (?)', [
+        'Product 1',
+      ]);
 
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db.sql.execute');
@@ -666,17 +639,15 @@ void main() {
     test('creates raw insert breadcrumb', () async {
       final db = await fixture.getSut();
 
-      await db
-          .rawInsert('INSERT INTO Product (title) VALUES (?)', ['Product 1']);
+      await db.rawInsert('INSERT INTO Product (title) VALUES (?)', [
+        'Product 1',
+      ]);
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.category, 'db.sql.execute');
       expect(breadcrumb.message, 'INSERT INTO Product (title) VALUES (?)');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -714,10 +685,7 @@ void main() {
       expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -755,10 +723,7 @@ void main() {
       expect(breadcrumb.type, 'query');
       expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -795,10 +760,7 @@ void main() {
       expect(breadcrumb.category, 'db.sql.execute');
       expect(breadcrumb.message, 'UPDATE Product SET title = ?');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -835,10 +797,7 @@ void main() {
       expect(breadcrumb.category, 'db.sql.execute');
       expect(breadcrumb.message, 'UPDATE Product SET title = ?');
       expect(breadcrumb.data?['status'], 'ok');
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
       expect(breadcrumb.data?['db.namespace'], inMemoryDatabasePath);
       expect(breadcrumb.type, 'query');
 
@@ -909,8 +868,9 @@ void main() {
       final executor = fixture.getExecutorSut();
 
       await expectLater(
-        () async => await executor
-            .insert('Product', <String, Object?>{'title': 'Product 1'}),
+        () async => await executor.insert('Product', <String, Object?>{
+          'title': 'Product 1',
+        }),
         throwsException,
       );
 
@@ -1031,8 +991,9 @@ void main() {
     });
 
     test('raw query cursor sets span to internal error', () async {
-      when(fixture.executor.rawQueryCursor(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.executor.rawQueryCursor(any, any),
+      ).thenThrow(fixture.exception);
 
       final executor = fixture.getExecutorSut();
 
@@ -1079,8 +1040,9 @@ void main() {
       final executor = fixture.getExecutorSut();
 
       await expectLater(
-        () async => await executor
-            .update('Product', <String, Object?>{'title': 'Product 1'}),
+        () async => await executor.update('Product', <String, Object?>{
+          'title': 'Product 1',
+        }),
         throwsException,
       );
 
@@ -1133,8 +1095,9 @@ void main() {
       final executor = fixture.getExecutorSut();
 
       await expectLater(
-        () async => await executor
-            .insert('Product', <String, Object?>{'title': 'Product 1'}),
+        () async => await executor.insert('Product', <String, Object?>{
+          'title': 'Product 1',
+        }),
         throwsException,
       );
 
@@ -1225,8 +1188,9 @@ void main() {
     });
 
     test('raw query cursor sets breadcrumb to internal error', () async {
-      when(fixture.executor.rawQueryCursor(any, any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.executor.rawQueryCursor(any, any),
+      ).thenThrow(fixture.exception);
 
       final executor = fixture.getExecutorSut();
 
@@ -1263,8 +1227,9 @@ void main() {
       final executor = fixture.getExecutorSut();
 
       await expectLater(
-        () async => await executor
-            .update('Product', <String, Object?>{'title': 'Product 1'}),
+        () async => await executor.update('Product', <String, Object?>{
+          'title': 'Product 1',
+        }),
         throwsException,
       );
 

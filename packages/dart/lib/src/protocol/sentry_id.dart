@@ -12,8 +12,7 @@ class SentryId {
   static final Uuid _uuidGenerator = Uuid();
 
   SentryId._internal({String? id})
-      : _id =
-            id?.replaceAll('-', '') ?? _uuidGenerator.v4().replaceAll('-', '');
+    : _id = id?.replaceAll('-', '') ?? _uuidGenerator.v4().replaceAll('-', '');
 
   /// Generates a new SentryId
   SentryId.newId() : this._internal();

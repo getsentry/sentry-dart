@@ -32,7 +32,8 @@ class ErrorsScreen extends StatelessWidget {
                   ),
                   TooltipButton(
                     onPressed: () => Scaffold.of(context).showBottomSheet(
-                        (context) => const Text('Scaffold error')),
+                      (context) => const Text('Scaffold error'),
+                    ),
                     text:
                         'Creates an uncaught exception and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
                     buttonTitle: 'Flutter error: Scaffold.of()',
@@ -65,16 +66,14 @@ class ErrorsScreen extends StatelessWidget {
                     onPressed: () async => {
                       await Future.microtask(
                         () => throw StateError('Failure in a microtask'),
-                      )
+                      ),
                     },
                     text:
                         'Creates an uncaught exception in a microtask and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
                     buttonTitle: 'Dart: Fail in microtask',
                   ),
                   TooltipButton(
-                    onPressed: () async => {
-                      await compute(loop, 10),
-                    },
+                    onPressed: () async => {await compute(loop, 10)},
                     text:
                         'Creates an uncaught exception in a compute isolate and sends it to Sentry. This demonstrates how our flutter error integration catches unhandled exceptions.',
                     buttonTitle: 'Dart: Fail in compute',
@@ -97,15 +96,19 @@ class ErrorsScreen extends StatelessWidget {
                           exception: Exception('A really bad exception'),
                           silent: false,
                           context: DiagnosticsNode.message(
-                              'while handling a gesture'),
+                            'while handling a gesture',
+                          ),
                           library: 'gesture',
                           informationCollector: () => [
                             DiagnosticsNode.message(
-                                'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                              'Handler: "onTap" Recognizer: TapGestureRecognizer',
+                            ),
                             DiagnosticsNode.message(
-                                'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                              'Handler: "onTap" Recognizer: TapGestureRecognizer',
+                            ),
                             DiagnosticsNode.message(
-                                'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                              'Handler: "onTap" Recognizer: TapGestureRecognizer',
+                            ),
                           ],
                         ),
                       );
@@ -170,33 +173,36 @@ class AndroidExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(spacing: 8, children: [
-      ElevatedButton(
-        onPressed: () async => execute('throw'),
-        child: const Text('Kotlin Throw unhandled exception'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('capture'),
-        child: const Text('Kotlin Capture Exception'),
-      ),
-      ElevatedButton(
-        // ANR is disabled by default, enable it to test it
-        onPressed: () async => execute('anr'),
-        child: const Text('ANR: Block UI 10s (Press until dialog appears)'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('cpp_capture_message'),
-        child: const Text('C++ Capture message'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('crash'),
-        child: const Text('C++ SEGFAULT'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('platform_exception'),
-        child: const Text('Platform exception'),
-      ),
-    ]);
+    return Column(
+      spacing: 8,
+      children: [
+        ElevatedButton(
+          onPressed: () async => execute('throw'),
+          child: const Text('Kotlin Throw unhandled exception'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('capture'),
+          child: const Text('Kotlin Capture Exception'),
+        ),
+        ElevatedButton(
+          // ANR is disabled by default, enable it to test it
+          onPressed: () async => execute('anr'),
+          child: const Text('ANR: Block UI 10s (Press until dialog appears)'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('cpp_capture_message'),
+          child: const Text('C++ Capture message'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('crash'),
+          child: const Text('C++ SEGFAULT'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('platform_exception'),
+          child: const Text('Platform exception'),
+        ),
+      ],
+    );
   }
 }
 
@@ -205,27 +211,30 @@ class CocoaExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(spacing: 8, children: [
-      ElevatedButton(
-        onPressed: () async => execute('fatalError'),
-        child: const Text('Swift fatalError'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('capture'),
-        child: const Text('Swift Capture NSException'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('capture_message'),
-        child: const Text('Swift Capture message'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('throw'),
-        child: const Text('Objective-C Throw unhandled exception'),
-      ),
-      ElevatedButton(
-        onPressed: () async => execute('crash'),
-        child: const Text('Objective-C SEGFAULT'),
-      ),
-    ]);
+    return Column(
+      spacing: 8,
+      children: [
+        ElevatedButton(
+          onPressed: () async => execute('fatalError'),
+          child: const Text('Swift fatalError'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('capture'),
+          child: const Text('Swift Capture NSException'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('capture_message'),
+          child: const Text('Swift Capture message'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('throw'),
+          child: const Text('Objective-C Throw unhandled exception'),
+        ),
+        ElevatedButton(
+          onPressed: () async => execute('crash'),
+          child: const Text('Objective-C SEGFAULT'),
+        ),
+      ],
+    );
   }
 }

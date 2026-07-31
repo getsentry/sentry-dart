@@ -1,7 +1,6 @@
 // ignore_for_file: library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -41,10 +40,7 @@ void main() {
     Breadcrumb? crumb, {
     String status = 'ok',
   }) {
-    expect(
-      crumb?.message,
-      message,
-    );
+    expect(crumb?.message, message);
     expect(crumb?.type, 'query');
     expect(crumb?.data?['db.namespace'], Fixture.dbName);
     expect(crumb?.data?['status'], status);

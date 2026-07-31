@@ -52,8 +52,10 @@ class SecondaryScaffold extends StatelessWidget {
     return Navigator.push(
       context,
       MaterialPageRoute<void>(
-        settings:
-            const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
+        settings: const RouteSettings(
+          name: 'SecondaryScaffold',
+          arguments: 'foobar',
+        ),
         builder: (context) => const SecondaryScaffold(),
       ),
     );

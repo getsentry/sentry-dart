@@ -28,12 +28,16 @@ void main() {
       final after = DateTime.now().toUtc();
 
       expect(span.endTimestamp, isNotNull);
-      expect(span.endTimestamp!.isAfter(before) || span.endTimestamp == before,
-          isTrue,
-          reason: 'endTimestamp should be >= time before end() was called');
-      expect(span.endTimestamp!.isBefore(after) || span.endTimestamp == after,
-          isTrue,
-          reason: 'endTimestamp should be <= time after end() was called');
+      expect(
+        span.endTimestamp!.isAfter(before) || span.endTimestamp == before,
+        isTrue,
+        reason: 'endTimestamp should be >= time before end() was called',
+      );
+      expect(
+        span.endTimestamp!.isBefore(after) || span.endTimestamp == after,
+        isTrue,
+        reason: 'endTimestamp should be <= time after end() was called',
+      );
     });
 
     test('end with custom timestamp sets end time', () {
@@ -110,18 +114,20 @@ void main() {
       expect(span.attributes, equals(attributes));
     });
 
-    test('setAttributesIfAbsent sets attributes only if key does not exist',
-        () {
-      final span = fixture.createSpan(name: 'test-span');
+    test(
+      'setAttributesIfAbsent sets attributes only if key does not exist',
+      () {
+        final span = fixture.createSpan(name: 'test-span');
 
-      final attributes = {
-        'key1': SentryAttribute.string('value1'),
-        'key2': SentryAttribute.int(42),
-      };
-      span.setAttributesIfAbsent(attributes);
+        final attributes = {
+          'key1': SentryAttribute.string('value1'),
+          'key2': SentryAttribute.int(42),
+        };
+        span.setAttributesIfAbsent(attributes);
 
-      expect(span.attributes, equals(attributes));
-    });
+        expect(span.attributes, equals(attributes));
+      },
+    );
 
     test('setAttributesIfAbsent does not override existing attributes', () {
       final span = fixture.createSpan(name: 'test-span');
@@ -197,10 +203,14 @@ void main() {
       test('returns root segmentSpan for deeply nested spans', () {
         final root = fixture.createSpan(name: 'root');
         final child = fixture.createSpan(name: 'child', parentSpan: root);
-        final grandchild =
-            fixture.createSpan(name: 'grandchild', parentSpan: child);
+        final grandchild = fixture.createSpan(
+          name: 'grandchild',
+          parentSpan: child,
+        );
         final greatGrandchild = fixture.createSpan(
-            name: 'great-grandchild', parentSpan: grandchild);
+          name: 'great-grandchild',
+          parentSpan: grandchild,
+        );
 
         expect(grandchild.segmentSpan, same(root));
         expect(greatGrandchild.segmentSpan, same(root));
@@ -226,8 +236,10 @@ void main() {
         final parentTraceId = SentryId.newId();
         final differentTraceId = SentryId.newId();
 
-        final parent =
-            fixture.createSpan(name: 'parent', traceId: parentTraceId);
+        final parent = fixture.createSpan(
+          name: 'parent',
+          traceId: parentTraceId,
+        );
         final child = fixture.createSpan(
           name: 'child',
           parentSpan: parent,
@@ -271,8 +283,10 @@ void main() {
       test('returns same DSC for deeply nested spans', () {
         final root = fixture.createSpan(name: 'root');
         final child = fixture.createSpan(name: 'child', parentSpan: root);
-        final grandchild =
-            fixture.createSpan(name: 'grandchild', parentSpan: child);
+        final grandchild = fixture.createSpan(
+          name: 'grandchild',
+          parentSpan: child,
+        );
 
         final rootDsc = root.resolveDsc();
         final childDsc = child.resolveDsc();
@@ -296,8 +310,11 @@ void main() {
         span.resolveDsc();
         span.resolveDsc();
 
-        expect(callCount, equals(1),
-            reason: 'DSC creator should only be called once');
+        expect(
+          callCount,
+          equals(1),
+          reason: 'DSC creator should only be called once',
+        );
       });
     });
 
@@ -330,12 +347,18 @@ void main() {
         );
         final child = fixture.createSpan(name: 'child', parentSpan: root);
 
-        expect(child.samplingDecision.sampled,
-            equals(root.samplingDecision.sampled));
-        expect(child.samplingDecision.sampleRate,
-            equals(root.samplingDecision.sampleRate));
-        expect(child.samplingDecision.sampleRand,
-            equals(root.samplingDecision.sampleRand));
+        expect(
+          child.samplingDecision.sampled,
+          equals(root.samplingDecision.sampled),
+        );
+        expect(
+          child.samplingDecision.sampleRate,
+          equals(root.samplingDecision.sampleRate),
+        );
+        expect(
+          child.samplingDecision.sampleRand,
+          equals(root.samplingDecision.sampleRand),
+        );
       });
 
       test('returns root decision for deeply nested span', () {
@@ -349,14 +372,20 @@ void main() {
           samplingDecision: decision,
         );
         final child = fixture.createSpan(name: 'child', parentSpan: root);
-        final grandchild =
-            fixture.createSpan(name: 'grandchild', parentSpan: child);
+        final grandchild = fixture.createSpan(
+          name: 'grandchild',
+          parentSpan: child,
+        );
 
         expect(grandchild.samplingDecision.sampled, equals(decision.sampled));
-        expect(grandchild.samplingDecision.sampleRate,
-            equals(decision.sampleRate));
-        expect(grandchild.samplingDecision.sampleRand,
-            equals(decision.sampleRand));
+        expect(
+          grandchild.samplingDecision.sampleRate,
+          equals(decision.sampleRate),
+        );
+        expect(
+          grandchild.samplingDecision.sampleRand,
+          equals(decision.sampleRand),
+        );
       });
     });
 
@@ -426,20 +455,21 @@ void main() {
       });
 
       test(
-          'timestamps are serialized as unix seconds with microsecond precision',
-          () {
-        final span = fixture.createSpan(name: 'test-span');
-        final customEndTime = DateTime.utc(2024, 6, 15, 12, 30, 45, 123, 456);
-        span.end(endTimestamp: customEndTime);
+        'timestamps are serialized as unix seconds with microsecond precision',
+        () {
+          final span = fixture.createSpan(name: 'test-span');
+          final customEndTime = DateTime.utc(2024, 6, 15, 12, 30, 45, 123, 456);
+          span.end(endTimestamp: customEndTime);
 
-        final json = span.toJson();
+          final json = span.toJson();
 
-        final endTimestamp = json['end_timestamp'] as double;
-        final expectedMicros = customEndTime.microsecondsSinceEpoch;
-        final expectedSeconds = expectedMicros / 1000000;
+          final endTimestamp = json['end_timestamp'] as double;
+          final expectedMicros = customEndTime.microsecondsSinceEpoch;
+          final expectedSeconds = expectedMicros / 1000000;
 
-        expect(endTimestamp, closeTo(expectedSeconds, 0.000001));
-      });
+          expect(endTimestamp, closeTo(expectedSeconds, 0.000001));
+        },
+      );
 
       test('serializes updated name', () {
         final span = fixture.createSpan(name: 'original-name');
@@ -494,14 +524,22 @@ void main() {
       expect(() => span.attributes, throwsA(isA<UnimplementedError>()));
 
       expect(() => span.name = 'foo', throwsA(isA<UnimplementedError>()));
-      expect(() => span.status = SentrySpanStatusV2.ok,
-          throwsA(isA<UnimplementedError>()));
-      expect(() => span.setAttribute('k', SentryAttribute.string('v')),
-          throwsA(isA<UnimplementedError>()));
-      expect(() => span.setAttributes({'k': SentryAttribute.string('v')}),
-          throwsA(isA<UnimplementedError>()));
       expect(
-          () => span.removeAttribute('k'), throwsA(isA<UnimplementedError>()));
+        () => span.status = SentrySpanStatusV2.ok,
+        throwsA(isA<UnimplementedError>()),
+      );
+      expect(
+        () => span.setAttribute('k', SentryAttribute.string('v')),
+        throwsA(isA<UnimplementedError>()),
+      );
+      expect(
+        () => span.setAttributes({'k': SentryAttribute.string('v')}),
+        throwsA(isA<UnimplementedError>()),
+      );
+      expect(
+        () => span.removeAttribute('k'),
+        throwsA(isA<UnimplementedError>()),
+      );
       expect(() => span.end(), throwsA(isA<UnimplementedError>()));
     });
   });

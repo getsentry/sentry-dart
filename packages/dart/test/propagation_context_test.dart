@@ -84,8 +84,11 @@ void main() {
         );
         hub.startTransactionWithContext(txContextFalse);
 
-        expect(sut.sampled, isTrue,
-            reason: 'sampled flag must remain unchanged for the trace');
+        expect(
+          sut.sampled,
+          isTrue,
+          reason: 'sampled flag must remain unchanged for the trace',
+        );
       });
 
       test('is reset when a new trace is generated', () {
@@ -149,8 +152,11 @@ void main() {
 
         final header = sut.toSentryTrace();
         expect(header.sampled, isTrue);
-        expect(header.value.split('-').length, 3,
-            reason: 'header must contain the sampled decision');
+        expect(
+          header.value.split('-').length,
+          3,
+          reason: 'header must contain the sampled decision',
+        );
       });
     });
   });

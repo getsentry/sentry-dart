@@ -11,15 +11,18 @@ final githubAuth = githubToken.isEmpty
 final source = FlutterSymbolSource(githubAuth: githubAuth);
 final fs = LocalFileSystem();
 final tempDir = fs.currentDirectory.childDirectory('.temp');
-final stateCache =
-    DirectoryStatusCache(fs.currentDirectory.childDirectory('.cache'));
+final stateCache = DirectoryStatusCache(
+  fs.currentDirectory.childDirectory('.cache'),
+);
 late final SymbolCollectorCli collector;
 
 void main(List<String> arguments) async {
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}'
-        '${record.error == null ? '' : ': ${record.error}'}');
+    print(
+      '${record.level.name}: ${record.time}: ${record.message}'
+      '${record.error == null ? '' : ': ${record.error}'}',
+    );
   });
 
   final parser = ArgParser()..addOption('version', defaultsTo: '');
@@ -36,9 +39,11 @@ void main(List<String> arguments) async {
     await processFlutterVersion(FlutterVersion(argVersion));
   } else {
     // Otherwise, walk all the versions and run for the matching ones.
-    final versionRegex = RegExp(argVersion.isEmpty
-        ? '.*'
-        : '^${argVersion.replaceAll('.', '\\.').replaceAll('*', '.+')}\$');
+    final versionRegex = RegExp(
+      argVersion.isEmpty
+          ? '.*'
+          : '^${argVersion.replaceAll('.', '\\.').replaceAll('*', '.+')}\$',
+    );
     Logger.root.info('Running for all Flutter versions matching $versionRegex');
     final versions = await source
         .listFlutterVersions()
@@ -46,7 +51,8 @@ void main(List<String> arguments) async {
         .where((v) => versionRegex.hasMatch(v.tagName))
         .toList();
     Logger.root.info(
-        'Found ${versions.length} Flutter versions matching $versionRegex');
+      'Found ${versions.length} Flutter versions matching $versionRegex',
+    );
     for (var version in versions) {
       await processFlutterVersion(version);
     }
@@ -65,8 +71,9 @@ Future<void> processFlutterVersion(FlutterVersion version) async {
   for (final archive in archives) {
     final status = await stateCache.getStatus(archive);
     if (status == SymbolArchiveStatus.success) {
-      Logger.root
-          .info('Skipping ${archive.path} - already processed successfully');
+      Logger.root.info(
+        'Skipping ${archive.path} - already processed successfully',
+      );
       continue;
     }
 

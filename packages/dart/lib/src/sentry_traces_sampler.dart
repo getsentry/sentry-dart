@@ -10,13 +10,12 @@ class SentryTracesSampler {
   final SentryOptions _options;
   final Random _random;
 
-  SentryTracesSampler(
-    this._options, {
-    Random? random,
-  }) : _random = random ?? Random() {
+  SentryTracesSampler(this._options, {Random? random})
+    : _random = random ?? Random() {
     if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
       internalLogger.warning(
-          'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.');
+        'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.',
+      );
     }
   }
 
@@ -43,8 +42,11 @@ class SentryTracesSampler {
           return _makeSampleDecision(sampleRate, sampleRand);
         }
       } catch (exception, stackTrace) {
-        internalLogger.error('The tracesSampler callback threw an exception',
-            error: exception, stackTrace: stackTrace);
+        internalLogger.error(
+          'The tracesSampler callback threw an exception',
+          error: exception,
+          stackTrace: stackTrace,
+        );
         if (_options.automatedTestMode) {
           rethrow;
         }
@@ -72,8 +74,11 @@ class SentryTracesSampler {
     double sampleRand,
   ) {
     final sampled = _isSampled(sampleRate, sampleRand: sampleRand);
-    return SentryTracesSamplingDecision(sampled,
-        sampleRate: sampleRate, sampleRand: sampleRand);
+    return SentryTracesSamplingDecision(
+      sampled,
+      sampleRate: sampleRate,
+      sampleRand: sampleRand,
+    );
   }
 
   bool _isSampled(double sampleRate, {double? sampleRand}) {

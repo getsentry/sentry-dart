@@ -23,9 +23,7 @@ class SentryTransactionContext extends SentrySpanContext {
     this.samplingDecision,
     this.parentSamplingDecision,
     super.origin,
-  }) : super(
-          operation: operation,
-        );
+  }) : super(operation: operation);
 
   /// Creates a [SentryTransactionContext] from an incoming [traceHeader] and
   /// optional [baggage].

@@ -23,13 +23,15 @@ void main() {
     fixture.dateTimeToReturn = 0;
 
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+      eventItem,
+    ]);
 
     rateLimiter.updateRetryAfterLimits(
-        '50:transaction:key, 1:default;error;security:organization', null, 1);
+      '50:transaction:key, 1:default;error;security:organization',
+      null,
+      1,
+    );
 
     fixture.dateTimeToReturn = 1001;
 
@@ -39,115 +41,128 @@ void main() {
   });
 
   test(
-      'parse X-Sentry-Rate-Limit and set its values and retry after should be true',
-      () {
-    final rateLimiter = fixture.getSut();
-    fixture.dateTimeToReturn = 0;
-    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+    'parse X-Sentry-Rate-Limit and set its values and retry after should be true',
+    () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
 
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
-    rateLimiter.updateRetryAfterLimits(
+      rateLimiter.updateRetryAfterLimits(
         '50:transaction:key, 2700:default;error;security:organization',
         null,
-        1);
+        1,
+      );
 
-    final result = rateLimiter.filter(envelope);
-    expect(result, isNull);
-  });
-
-  test(
-      'parse X-Sentry-Rate-Limit and set its values and retry after should be false',
-      () {
-    final rateLimiter = fixture.getSut();
-    fixture.dateTimeToReturn = 0;
-    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
-
-    rateLimiter.updateRetryAfterLimits(
-        '1:transaction:key, 1:default;error;security:organization', null, 1);
-
-    fixture.dateTimeToReturn = 1001;
-
-    final result = rateLimiter.filter(envelope);
-    expect(result, isNotNull);
-    expect(1, result!.items.length);
-  });
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    },
+  );
 
   test(
-      'When X-Sentry-Rate-Limit categories are empty, applies to all the categories',
-      () {
-    final rateLimiter = fixture.getSut();
-    fixture.dateTimeToReturn = 0;
-    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    'parse X-Sentry-Rate-Limit and set its values and retry after should be false',
+    () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
 
-    rateLimiter.updateRetryAfterLimits('50::key', null, 1);
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
-    final result = rateLimiter.filter(envelope);
-    expect(result, isNull);
-  });
+      rateLimiter.updateRetryAfterLimits(
+        '1:transaction:key, 1:default;error;security:organization',
+        null,
+        1,
+      );
+
+      fixture.dateTimeToReturn = 1001;
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNotNull);
+      expect(1, result!.items.length);
+    },
+  );
 
   test(
-      'When all categories is set but expired, applies only for specific category',
-      () {
-    final rateLimiter = fixture.getSut();
-    fixture.dateTimeToReturn = 0;
-    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    'When X-Sentry-Rate-Limit categories are empty, applies to all the categories',
+    () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
-    rateLimiter.updateRetryAfterLimits(
-        '1::key, 60:default;error;security:organization', null, 1);
+      rateLimiter.updateRetryAfterLimits('50::key', null, 1);
 
-    fixture.dateTimeToReturn = 1001;
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    },
+  );
 
-    final result = rateLimiter.filter(envelope);
-    expect(result, isNull);
-  });
+  test(
+    'When all categories is set but expired, applies only for specific category',
+    () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
-  test('When category has shorter rate limiting, do not apply new timestamp',
-      () {
-    final rateLimiter = fixture.getSut();
-    fixture.dateTimeToReturn = 0;
-    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+      rateLimiter.updateRetryAfterLimits(
+        '1::key, 60:default;error;security:organization',
+        null,
+        1,
+      );
 
-    rateLimiter.updateRetryAfterLimits(
-        '60:error:key, 1:error:organization', null, 1);
+      fixture.dateTimeToReturn = 1001;
 
-    fixture.dateTimeToReturn = 1001;
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    },
+  );
 
-    final result = rateLimiter.filter(envelope);
-    expect(result, isNull);
-  });
+  test(
+    'When category has shorter rate limiting, do not apply new timestamp',
+    () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
+
+      rateLimiter.updateRetryAfterLimits(
+        '60:error:key, 1:error:organization',
+        null,
+        1,
+      );
+
+      fixture.dateTimeToReturn = 1001;
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    },
+  );
 
   test('When category has longer rate limiting, apply new timestamp', () {
     final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+      eventItem,
+    ]);
 
     rateLimiter.updateRetryAfterLimits(
-        '1:error:key, 5:error:organization', null, 1);
+      '1:error:key, 5:error:organization',
+      null,
+      1,
+    );
 
     fixture.dateTimeToReturn = 1001;
 
@@ -159,10 +174,9 @@ void main() {
     final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+      eventItem,
+    ]);
 
     rateLimiter.updateRetryAfterLimits(null, null, 429);
 
@@ -173,43 +187,49 @@ void main() {
   });
 
   test(
-      'When no sentryRateLimitHeader available, it fallback to retryAfterHeader',
-      () {
-    final rateLimiter = fixture.getSut();
-    fixture.dateTimeToReturn = 0;
-    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    'When no sentryRateLimitHeader available, it fallback to retryAfterHeader',
+    () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
-    rateLimiter.updateRetryAfterLimits(null, '50', 429);
+      rateLimiter.updateRetryAfterLimits(null, '50', 429);
 
-    fixture.dateTimeToReturn = 1001;
+      fixture.dateTimeToReturn = 1001;
 
-    final result = rateLimiter.filter(envelope);
-    expect(result, isNull);
-  });
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+    },
+  );
 
   test('dropping of event recorded', () {
     final rateLimiter = fixture.getSut();
 
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final eventEnvelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    final eventEnvelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+      eventItem,
+    ]);
 
     rateLimiter.updateRetryAfterLimits(
-        '1:error:key, 5:error:organization', null, 1);
+      '1:error:key, 5:error:organization',
+      null,
+      1,
+    );
 
     final result = rateLimiter.filter(eventEnvelope);
     expect(result, isNull);
 
-    expect(fixture.mockRecorder.discardedEvents.first.category,
-        DataCategory.error);
-    expect(fixture.mockRecorder.discardedEvents.first.reason,
-        DiscardReason.rateLimitBackoff);
+    expect(
+      fixture.mockRecorder.discardedEvents.first.category,
+      DataCategory.error,
+    );
+    expect(
+      fixture.mockRecorder.discardedEvents.first.reason,
+      DiscardReason.rateLimitBackoff,
+    );
   });
 
   test('dropping of transaction recorded', () {
@@ -219,13 +239,15 @@ void main() {
     transaction.tracer.startChild('child1');
     transaction.tracer.startChild('child2');
     final eventItem = SentryEnvelopeItem.fromTransaction(transaction);
-    final eventEnvelope = SentryEnvelope(
-      SentryEnvelopeHeader.newEventId(),
-      [eventItem],
-    );
+    final eventEnvelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+      eventItem,
+    ]);
 
     rateLimiter.updateRetryAfterLimits(
-        '1:transaction:key, 5:transaction:organization', null, 1);
+      '1:transaction:key, 5:transaction:organization',
+      null,
+      1,
+    );
 
     final result = rateLimiter.filter(eventEnvelope);
     expect(result, isNull);
@@ -233,14 +255,18 @@ void main() {
     expect(fixture.mockRecorder.discardedEvents.length, 2);
 
     final transactionDiscardedEvent = fixture.mockRecorder.discardedEvents
-        .firstWhereOrNull((element) =>
-            element.category == DataCategory.transaction &&
-            element.reason == DiscardReason.rateLimitBackoff);
+        .firstWhereOrNull(
+          (element) =>
+              element.category == DataCategory.transaction &&
+              element.reason == DiscardReason.rateLimitBackoff,
+        );
 
     final spanDiscardedEvent = fixture.mockRecorder.discardedEvents
-        .firstWhereOrNull((element) =>
-            element.category == DataCategory.span &&
-            element.reason == DiscardReason.rateLimitBackoff);
+        .firstWhereOrNull(
+          (element) =>
+              element.category == DataCategory.span &&
+              element.reason == DiscardReason.rateLimitBackoff,
+        );
 
     expect(transactionDiscardedEvent, isNotNull);
     expect(spanDiscardedEvent, isNotNull);
@@ -253,13 +279,15 @@ void main() {
       fixture.dateTimeToReturn = 0;
 
       final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-      final envelope = SentryEnvelope(
-        SentryEnvelopeHeader.newEventId(),
-        [eventItem],
-      );
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
       rateLimiter.updateRetryAfterLimits(
-          '1:error:key, 5:error:organization', null, 1);
+        '1:error:key, 5:error:organization',
+        null,
+        1,
+      );
 
       expect(rateLimiter.filter(envelope), isNull);
     });
@@ -270,13 +298,15 @@ void main() {
 
       final transaction = fixture.getTransaction();
       final eventItem = SentryEnvelopeItem.fromTransaction(transaction);
-      final envelope = SentryEnvelope(
-        SentryEnvelopeHeader.newEventId(),
-        [eventItem],
-      );
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
       rateLimiter.updateRetryAfterLimits(
-          '1:transaction:key, 5:transaction:organization', null, 1);
+        '1:transaction:key, 5:transaction:organization',
+        null,
+        1,
+      );
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
@@ -296,7 +326,10 @@ void main() {
       );
 
       rateLimiter.updateRetryAfterLimits(
-          '1:trace_metric:key, 5:trace_metric:organization', null, 1);
+        '1:trace_metric:key, 5:trace_metric:organization',
+        null,
+        1,
+      );
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
@@ -320,7 +353,10 @@ void main() {
       );
 
       rateLimiter.updateRetryAfterLimits(
-          '1:trace_metric_byte:key, 5:trace_metric_byte:organization', null, 1);
+        '1:trace_metric_byte:key, 5:trace_metric_byte:organization',
+        null,
+        1,
+      );
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
@@ -341,18 +377,14 @@ void main() {
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test',
-          attributes: {
-            'test': SentryAttribute.string('test'),
-          },
+          attributes: {'test': SentryAttribute.string('test')},
         ),
         SentryLog(
           timestamp: DateTime.now(),
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test2',
-          attributes: {
-            'test2': SentryAttribute.string('test2'),
-          },
+          attributes: {'test2': SentryAttribute.string('test2')},
         ),
       ];
 
@@ -360,7 +392,10 @@ void main() {
       final envelope = SentryEnvelope.fromLogs(logs, sdkVersion);
 
       rateLimiter.updateRetryAfterLimits(
-          '1:log_item:key, 5:log_item:organization', null, 1);
+        '1:log_item:key, 5:log_item:organization',
+        null,
+        1,
+      );
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
@@ -381,9 +416,7 @@ void main() {
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test',
-          attributes: {
-            'test': SentryAttribute.string('test'),
-          },
+          attributes: {'test': SentryAttribute.string('test')},
         ),
       ];
 
@@ -391,7 +424,10 @@ void main() {
       final envelope = SentryEnvelope.fromLogs(logs, sdkVersion);
 
       rateLimiter.updateRetryAfterLimits(
-          '1:log_byte:key, 5:log_byte:organization', null, 1);
+        '1:log_byte:key, 5:log_byte:organization',
+        null,
+        1,
+      );
 
       final result = rateLimiter.filter(envelope);
       expect(result, isNull);
@@ -409,7 +445,9 @@ void main() {
       expect(DataCategory.fromItemType('session'), DataCategory.session);
       expect(DataCategory.fromItemType('attachment'), DataCategory.attachment);
       expect(
-          DataCategory.fromItemType('transaction'), DataCategory.transaction);
+        DataCategory.fromItemType('transaction'),
+        DataCategory.transaction,
+      );
       expect(DataCategory.fromItemType('statsd'), DataCategory.metricBucket);
       expect(DataCategory.fromItemType('log'), DataCategory.logItem);
       expect(DataCategory.fromItemType('unknown'), DataCategory.unknown);
@@ -424,15 +462,16 @@ void main() {
       SentryInternalLogger.configure(
         isEnabled: true,
         minLevel: SentryLevel.warning,
-        logOutput: ({
-          required String name,
-          required SentryLevel level,
-          required String message,
-          Object? error,
-          StackTrace? stackTrace,
-        }) {
-          logCalls.add(_LogCall(level, message));
-        },
+        logOutput:
+            ({
+              required String name,
+              required SentryLevel level,
+              required String message,
+              Object? error,
+              StackTrace? stackTrace,
+            }) {
+              logCalls.add(_LogCall(level, message));
+            },
       );
     });
 
@@ -445,14 +484,16 @@ void main() {
       final rateLimiter = RateLimiter(options);
 
       final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-      final envelope = SentryEnvelope(
-        SentryEnvelopeHeader.newEventId(),
-        [eventItem],
-      );
+      final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+        eventItem,
+      ]);
 
       // Apply rate limit for error (event)
       rateLimiter.updateRetryAfterLimits(
-          '1:error:key, 5:error:organization', null, 1);
+        '1:error:key, 5:error:organization',
+        null,
+        1,
+      );
 
       // Filter should drop the entire envelope
       final result = rateLimiter.filter(envelope);
@@ -466,7 +507,8 @@ void main() {
       expect(
         itemLog.message,
         contains(
-            'Envelope item of type "event" was dropped due to rate limiting'),
+          'Envelope item of type "event" was dropped due to rate limiting',
+        ),
       );
 
       final fullDropLog = logCalls[1];
@@ -477,40 +519,43 @@ void main() {
       );
     });
 
-    test('logs warning for each dropped item only when some items are sent',
-        () {
-      final options = defaultTestOptions();
-      final rateLimiter = RateLimiter(options);
+    test(
+      'logs warning for each dropped item only when some items are sent',
+      () {
+        final options = defaultTestOptions();
+        final rateLimiter = RateLimiter(options);
 
-      // One event (error) and one transaction
-      final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-      final transaction = fixture.getTransaction();
-      final transactionItem = SentryEnvelopeItem.fromTransaction(transaction);
+        // One event (error) and one transaction
+        final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+        final transaction = fixture.getTransaction();
+        final transactionItem = SentryEnvelopeItem.fromTransaction(transaction);
 
-      final envelope = SentryEnvelope(
-        SentryEnvelopeHeader.newEventId(),
-        [eventItem, transactionItem],
-      );
+        final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [
+          eventItem,
+          transactionItem,
+        ]);
 
-      // Apply rate limit only for errors so the transaction can still be sent
-      rateLimiter.updateRetryAfterLimits('60:error:key', null, 1);
+        // Apply rate limit only for errors so the transaction can still be sent
+        rateLimiter.updateRetryAfterLimits('60:error:key', null, 1);
 
-      final result = rateLimiter.filter(envelope);
-      expect(result, isNotNull);
-      expect(result!.items.length, 1);
-      expect(result.items.first.header.type, 'transaction');
+        final result = rateLimiter.filter(envelope);
+        expect(result, isNotNull);
+        expect(result!.items.length, 1);
+        expect(result.items.first.header.type, 'transaction');
 
-      // Expect only 1 warning log: per-item drop (no summary)
-      expect(logCalls.length, 1);
+        // Expect only 1 warning log: per-item drop (no summary)
+        expect(logCalls.length, 1);
 
-      final itemLog = logCalls.first;
-      expect(itemLog.level, SentryLevel.warning);
-      expect(
-        itemLog.message,
-        contains(
-            'Envelope item of type "event" was dropped due to rate limiting'),
-      );
-    });
+        final itemLog = logCalls.first;
+        expect(itemLog.level, SentryLevel.warning);
+        expect(
+          itemLog.message,
+          contains(
+            'Envelope item of type "event" was dropped due to rate limiting',
+          ),
+        );
+      },
+    );
   });
 }
 

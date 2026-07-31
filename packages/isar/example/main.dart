@@ -24,10 +24,7 @@ Future<void> runApp() async {
 
   final dir = await getApplicationDocumentsDirectory();
 
-  final isar = await SentryIsar.open(
-    [UserSchema],
-    directory: dir.path,
-  );
+  final isar = await SentryIsar.open([UserSchema], directory: dir.path);
 
   final newUser = User()
     ..name = 'Joe Dirt'

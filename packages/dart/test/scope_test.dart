@@ -115,9 +115,7 @@ void main() {
       actual = hint;
       return null;
     };
-    final sut = fixture.getSut(
-      beforeBreadcrumbCallback: bb,
-    );
+    final sut = fixture.getSut(beforeBreadcrumbCallback: bb);
 
     final breadcrumb = Breadcrumb(
       message: 'test log',
@@ -417,10 +415,9 @@ void main() {
   test('clones', () async {
     final sut = fixture.getSut();
 
-    await sut.addBreadcrumb(Breadcrumb(
-      message: 'test log',
-      timestamp: DateTime.utc(2019),
-    ));
+    await sut.addBreadcrumb(
+      Breadcrumb(message: 'test log', timestamp: DateTime.utc(2019)),
+    );
     sut.addAttachment(SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'));
     sut.span = NoOpSentrySpan();
     sut.level = SentryLevel.warning;
@@ -489,8 +486,10 @@ void main() {
     expect(clone.attributes['b']?.value, 1);
 
     // mutate clone only
-    clone.setAttributes(
-        {'a': SentryAttribute.string('y'), 'c': SentryAttribute.bool(true)});
+    clone.setAttributes({
+      'a': SentryAttribute.string('y'),
+      'c': SentryAttribute.bool(true),
+    });
 
     // original unchanged
     expect(sut.attributes['a']?.value, 'x');
@@ -543,8 +542,11 @@ void main() {
     final clone = sut.clone();
 
     // Verify the propagation context is shared (same instance)
-    expect(identical(sut.propagationContext, clone.propagationContext), true,
-        reason: 'Propagation context should be the same instance');
+    expect(
+      identical(sut.propagationContext, clone.propagationContext),
+      true,
+      reason: 'Propagation context should be the same instance',
+    );
     expect(clone.propagationContext.traceId, sut.propagationContext.traceId);
   });
 
@@ -571,44 +573,50 @@ void main() {
       expect(flags.values.last.result, equals(false));
     });
 
-    test('updates existing feature flag without dropping oldest in full buffer',
-        () async {
-      final sut = fixture.getSut();
+    test(
+      'updates existing feature flag without dropping oldest in full buffer',
+      () async {
+        final sut = fixture.getSut();
 
-      for (var i = 0; i < 100; i++) {
-        await sut.addFeatureFlag('foo_$i', i.isEven);
-      }
+        for (var i = 0; i < 100; i++) {
+          await sut.addFeatureFlag('foo_$i', i.isEven);
+        }
 
-      await sut.addFeatureFlag('foo_50', true);
+        await sut.addFeatureFlag('foo_50', true);
 
-      final flags = sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
-      expect(flags.values.length, equals(100));
-      expect(flags.values.first.flag, equals('foo_0'));
-      expect(flags.values.last.flag, equals('foo_50'));
-      expect(flags.values.last.result, equals(true));
-    });
+        final flags =
+            sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+        expect(flags.values.length, equals(100));
+        expect(flags.values.first.flag, equals('foo_0'));
+        expect(flags.values.last.flag, equals('foo_50'));
+        expect(flags.values.last.result, equals(true));
+      },
+    );
 
-    test('removes oldest feature flag only when adding over the limit',
-        () async {
-      final sut = fixture.getSut();
+    test(
+      'removes oldest feature flag only when adding over the limit',
+      () async {
+        final sut = fixture.getSut();
 
-      for (var i = 0; i < 100; i++) {
-        await sut.addFeatureFlag('foo_$i', i.isEven);
-      }
+        for (var i = 0; i < 100; i++) {
+          await sut.addFeatureFlag('foo_$i', i.isEven);
+        }
 
-      final flags = sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
-      expect(flags.values.length, equals(100));
-      expect(flags.values.first.flag, equals('foo_0'));
+        final flags =
+            sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+        expect(flags.values.length, equals(100));
+        expect(flags.values.first.flag, equals('foo_0'));
 
-      await sut.addFeatureFlag('foo_100', true);
+        await sut.addFeatureFlag('foo_100', true);
 
-      final updated =
-          sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
-      expect(updated.values.length, equals(100));
-      expect(updated.values.first.flag, equals('foo_1'));
-      expect(updated.values.last.flag, equals('foo_100'));
-      expect(updated.values.last.result, equals(true));
-    });
+        final updated =
+            sut.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+        expect(updated.values.length, equals(100));
+        expect(updated.values.first.flag, equals('foo_1'));
+        expect(updated.values.last.flag, equals('foo_100'));
+        expect(updated.values.last.result, equals(true));
+      },
+    );
 
     test('keeps only the 100 most recent unique feature flags', () async {
       final sut = fixture.getSut();
@@ -667,10 +675,11 @@ void main() {
       await scope.setExtra('company-name', 'Dart Inc');
       await scope.setContexts('theme', 'material');
       await scope.setContexts(
-          SentryFeatureFlags.type,
-          SentryFeatureFlags(
-            values: [SentryFeatureFlag(flag: 'foo', result: true)],
-          ));
+        SentryFeatureFlags.type,
+        SentryFeatureFlags(
+          values: [SentryFeatureFlag(flag: 'foo', result: true)],
+        ),
+      );
       await scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event, Hint());
@@ -680,16 +689,24 @@ void main() {
       expect(updatedEvent?.fingerprint, ['example-dart']);
       expect(updatedEvent?.breadcrumbs, [breadcrumb]);
       expect(updatedEvent?.level, SentryLevel.warning);
-      expect(updatedEvent?.tags,
-          {'etag': '987', 'build': '579', 'page-locale': 'en-us'});
-      expect(
-          updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
+      expect(updatedEvent?.tags, {
+        'etag': '987',
+        'build': '579',
+        'page-locale': 'en-us',
+      });
+      expect(updatedEvent?.extra, {
+        'e-infos': 'abc',
+        'company-name': 'Dart Inc',
+      });
       expect(updatedEvent?.contexts['theme'], {'value': 'material'});
-      expect(updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.flag,
-          'foo');
       expect(
-          updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.result,
-          true);
+        updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.flag,
+        'foo',
+      );
+      expect(
+        updatedEvent?.contexts[SentryFeatureFlags.type]?.values.first.result,
+        true,
+      );
     });
 
     test('apply trace context to event with active span', () async {
@@ -722,63 +739,99 @@ void main() {
       expect(spanId1, isNot(spanId2));
     });
 
-    test('should not apply the scope properties when event already has it ',
-        () async {
-      final eventUser = SentryUser(id: '123');
-      final eventBreadcrumb = Breadcrumb(message: 'event-breadcrumb');
+    test(
+      'should not apply the scope properties when event already has it ',
+      () async {
+        final eventUser = SentryUser(id: '123');
+        final eventBreadcrumb = Breadcrumb(message: 'event-breadcrumb');
 
-      final event = SentryEvent(
-        transaction: '/event/transaction',
-        user: eventUser,
-        fingerprint: ['event-fingerprint'],
-        breadcrumbs: [eventBreadcrumb],
-      );
-      final scope = Scope(defaultTestOptions())
-        ..fingerprint = ['example-dart']
-        ..transaction = '/example/app';
+        final event = SentryEvent(
+          transaction: '/event/transaction',
+          user: eventUser,
+          fingerprint: ['event-fingerprint'],
+          breadcrumbs: [eventBreadcrumb],
+        );
+        final scope = Scope(defaultTestOptions())
+          ..fingerprint = ['example-dart']
+          ..transaction = '/example/app';
 
-      await scope.addBreadcrumb(breadcrumb);
-      await scope.setUser(scopeUser);
+        await scope.addBreadcrumb(breadcrumb);
+        await scope.setUser(scopeUser);
 
-      final updatedEvent = await scope.applyToEvent(event, Hint());
+        final updatedEvent = await scope.applyToEvent(event, Hint());
 
-      expect(updatedEvent?.user, isNotNull);
-      expect(updatedEvent?.user?.id, eventUser.id);
-      expect(updatedEvent?.transaction, '/event/transaction');
-      expect(updatedEvent?.fingerprint, ['event-fingerprint']);
-      expect(updatedEvent?.breadcrumbs, [eventBreadcrumb]);
-    });
+        expect(updatedEvent?.user, isNotNull);
+        expect(updatedEvent?.user?.id, eventUser.id);
+        expect(updatedEvent?.transaction, '/event/transaction');
+        expect(updatedEvent?.fingerprint, ['event-fingerprint']);
+        expect(updatedEvent?.breadcrumbs, [eventBreadcrumb]);
+      },
+    );
 
     test(
-        'should not apply the scope.contexts values if the event already has it',
-        () async {
-      final event = SentryEvent(
-        contexts: Contexts(
-          device: SentryDevice(name: 'event-device'),
-          app: SentryApp(name: 'event-app'),
-          gpu: SentryGpu(name: 'event-gpu'),
-          runtimes: [SentryRuntime(name: 'event-runtime')],
-          browser: SentryBrowser(name: 'event-browser'),
-          operatingSystem: SentryOperatingSystem(name: 'event-os'),
-        ),
-      );
+      'should not apply the scope.contexts values if the event already has it',
+      () async {
+        final event = SentryEvent(
+          contexts: Contexts(
+            device: SentryDevice(name: 'event-device'),
+            app: SentryApp(name: 'event-app'),
+            gpu: SentryGpu(name: 'event-gpu'),
+            runtimes: [SentryRuntime(name: 'event-runtime')],
+            browser: SentryBrowser(name: 'event-browser'),
+            operatingSystem: SentryOperatingSystem(name: 'event-os'),
+          ),
+        );
+        final scope = Scope(defaultTestOptions());
+        await scope.setContexts(
+          SentryDevice.type,
+          SentryDevice(name: 'context-device'),
+        );
+        await scope.setContexts(SentryApp.type, SentryApp(name: 'context-app'));
+        await scope.setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'));
+        await scope.setContexts(SentryRuntime.listType, [
+          SentryRuntime(name: 'context-runtime'),
+        ]);
+        await scope.setContexts(
+          SentryBrowser.type,
+          SentryBrowser(name: 'context-browser'),
+        );
+        await scope.setContexts(
+          SentryOperatingSystem.type,
+          SentryOperatingSystem(name: 'context-os'),
+        );
+
+        final updatedEvent = await scope.applyToEvent(event, Hint());
+
+        expect(updatedEvent?.contexts[SentryDevice.type].name, 'event-device');
+        expect(updatedEvent?.contexts[SentryApp.type].name, 'event-app');
+        expect(updatedEvent?.contexts[SentryGpu.type].name, 'event-gpu');
+        expect(
+          updatedEvent?.contexts[SentryRuntime.listType].first.name,
+          'event-runtime',
+        );
+        expect(
+          updatedEvent?.contexts[SentryBrowser.type].name,
+          'event-browser',
+        );
+        expect(
+          updatedEvent?.contexts[SentryOperatingSystem.type].name,
+          'event-os',
+        );
+      },
+    );
+
+    test('should apply the scope.contexts values', () async {
+      final event = SentryEvent();
       final scope = Scope(defaultTestOptions());
       await scope.setContexts(
         SentryDevice.type,
         SentryDevice(name: 'context-device'),
       );
-      await scope.setContexts(
-        SentryApp.type,
-        SentryApp(name: 'context-app'),
-      );
-      await scope.setContexts(
-        SentryGpu.type,
-        SentryGpu(name: 'context-gpu'),
-      );
-      await scope.setContexts(
-        SentryRuntime.listType,
-        [SentryRuntime(name: 'context-runtime')],
-      );
+      await scope.setContexts(SentryApp.type, SentryApp(name: 'context-app'));
+      await scope.setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'));
+      await scope.setContexts(SentryRuntime.listType, [
+        SentryRuntime(name: 'context-runtime'),
+      ]);
       await scope.setContexts(
         SentryBrowser.type,
         SentryBrowser(name: 'context-browser'),
@@ -787,32 +840,6 @@ void main() {
         SentryOperatingSystem.type,
         SentryOperatingSystem(name: 'context-os'),
       );
-
-      final updatedEvent = await scope.applyToEvent(event, Hint());
-
-      expect(updatedEvent?.contexts[SentryDevice.type].name, 'event-device');
-      expect(updatedEvent?.contexts[SentryApp.type].name, 'event-app');
-      expect(updatedEvent?.contexts[SentryGpu.type].name, 'event-gpu');
-      expect(updatedEvent?.contexts[SentryRuntime.listType].first.name,
-          'event-runtime');
-      expect(updatedEvent?.contexts[SentryBrowser.type].name, 'event-browser');
-      expect(
-          updatedEvent?.contexts[SentryOperatingSystem.type].name, 'event-os');
-    });
-
-    test('should apply the scope.contexts values', () async {
-      final event = SentryEvent();
-      final scope = Scope(defaultTestOptions());
-      await scope.setContexts(
-          SentryDevice.type, SentryDevice(name: 'context-device'));
-      await scope.setContexts(SentryApp.type, SentryApp(name: 'context-app'));
-      await scope.setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'));
-      await scope.setContexts(
-          SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')]);
-      await scope.setContexts(
-          SentryBrowser.type, SentryBrowser(name: 'context-browser'));
-      await scope.setContexts(SentryOperatingSystem.type,
-          SentryOperatingSystem(name: 'context-os'));
       await scope.setContexts('theme', 'material');
       await scope.setContexts('version', 9);
       await scope.setContexts('location', {'city': 'London'});
@@ -828,9 +855,13 @@ void main() {
         'context-runtime',
       );
       expect(
-          updatedEvent?.contexts[SentryBrowser.type].name, 'context-browser');
-      expect(updatedEvent?.contexts[SentryOperatingSystem.type].name,
-          'context-os');
+        updatedEvent?.contexts[SentryBrowser.type].name,
+        'context-browser',
+      );
+      expect(
+        updatedEvent?.contexts[SentryOperatingSystem.type].name,
+        'context-os',
+      );
       expect(updatedEvent?.contexts['theme']['value'], 'material');
       expect(updatedEvent?.contexts['version']['value'], 9);
       expect(updatedEvent?.contexts['location'], {'city': 'London'});
@@ -857,9 +888,7 @@ void main() {
     });
 
     test('should not apply breadcrumbs if feedback event', () async {
-      final feedback = SentryFeedback(
-        message: 'fixture-message',
-      );
+      final feedback = SentryFeedback(message: 'fixture-message');
       final feedbackEvent = SentryEvent(
         type: 'feedback',
         contexts: Contexts(feedback: feedback),
@@ -874,9 +903,7 @@ void main() {
     });
 
     test('should not apply extras if feedback event', () async {
-      final feedback = SentryFeedback(
-        message: 'fixture-message',
-      );
+      final feedback = SentryFeedback(message: 'fixture-message');
       final feedbackEvent = SentryEvent(
         type: 'feedback',
         contexts: Contexts(feedback: feedback),
@@ -936,22 +963,21 @@ void main() {
     expect(true, fixture.mockScopeObserver.calledAddBreadcrumb);
   });
 
-  test('addBreadcrumb passes processed breadcrumb to scope observers',
-      () async {
-    final sut = fixture.getSut(
-      scopeObserver: fixture.mockScopeObserver,
-      beforeBreadcrumbCallback: (
-        Breadcrumb? breadcrumb,
-        Hint hint,
-      ) {
-        breadcrumb?.message = "modified";
-        return breadcrumb;
-      },
-    );
-    await sut.addBreadcrumb(Breadcrumb());
+  test(
+    'addBreadcrumb passes processed breadcrumb to scope observers',
+    () async {
+      final sut = fixture.getSut(
+        scopeObserver: fixture.mockScopeObserver,
+        beforeBreadcrumbCallback: (Breadcrumb? breadcrumb, Hint hint) {
+          breadcrumb?.message = "modified";
+          return breadcrumb;
+        },
+      );
+      await sut.addBreadcrumb(Breadcrumb());
 
-    expect(fixture.mockScopeObserver.addedBreadcrumbs[0].message, "modified");
-  });
+      expect(fixture.mockScopeObserver.addedBreadcrumbs[0].message, "modified");
+    },
+  );
 
   test('clearBreadcrumbs should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
@@ -1015,13 +1041,11 @@ void main() {
 
       fixture.options.automatedTestMode = false;
       final sut = fixture.getSut(
-          beforeBreadcrumbCallback: (
-            Breadcrumb? breadcrumb,
-            Hint hint,
-          ) {
-            throw exception;
-          },
-          debug: true);
+        beforeBreadcrumbCallback: (Breadcrumb? breadcrumb, Hint hint) {
+          throw exception;
+        },
+        debug: true,
+      );
 
       final breadcrumb = Breadcrumb(
         message: 'test log',
@@ -1040,17 +1064,15 @@ void main() {
 
       fixture.options.automatedTestMode = false;
       final sut = fixture.getSut(
-          beforeBreadcrumbCallback: (
-            Breadcrumb? breadcrumb,
-            Hint hint,
-          ) {
-            if (numberOfBeforeBreadcrumbCalls > 0) {
-              throw exception;
-            }
-            numberOfBeforeBreadcrumbCalls += 1;
-            return breadcrumb;
-          },
-          debug: true);
+        beforeBreadcrumbCallback: (Breadcrumb? breadcrumb, Hint hint) {
+          if (numberOfBeforeBreadcrumbCalls > 0) {
+            throw exception;
+          }
+          numberOfBeforeBreadcrumbCalls += 1;
+          return breadcrumb;
+        },
+        debug: true,
+      );
 
       final breadcrumb = Breadcrumb(
         message: 'test log',
@@ -1122,7 +1144,9 @@ class Fixture {
       null;
 
   Breadcrumb? beforeBreadcrumbMutateCallback(
-      Breadcrumb? breadcrumb, Hint hint) {
+    Breadcrumb? breadcrumb,
+    Hint hint,
+  ) {
     breadcrumb?.message = 'new message';
     return breadcrumb;
   }

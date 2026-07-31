@@ -21,9 +21,7 @@ void main() {
     });
 
     test('no captured events when everything goes well', () async {
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200),
-      );
+      final sut = fixture.getSut(client: fixture.getClient(statusCode: 200));
 
       final response = await sut.get(requestUri);
       expect(response.statusCode, 200);
@@ -35,9 +33,7 @@ void main() {
       fixture._hub.options.captureFailedRequests = true;
       fixture._hub.options.sendDefaultPii = true;
 
-      final sut = fixture.getSut(
-        client: createThrowingClient(),
-      );
+      final sut = fixture.getSut(client: createThrowingClient());
 
       await expectLater(
         () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
@@ -68,30 +64,29 @@ void main() {
     });
 
     test(
-        'exception does not gets reported if client throws but override disables capture',
-        () async {
-      fixture._hub.options.captureFailedRequests = true;
-      fixture._hub.options.sendDefaultPii = true;
+      'exception does not gets reported if client throws but override disables capture',
+      () async {
+        fixture._hub.options.captureFailedRequests = true;
+        fixture._hub.options.sendDefaultPii = true;
 
-      final sut = fixture.getSut(
-        client: createThrowingClient(),
-        captureFailedRequests: false,
-      );
+        final sut = fixture.getSut(
+          client: createThrowingClient(),
+          captureFailedRequests: false,
+        );
 
-      await expectLater(
-        () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
-        throwsException,
-      );
+        await expectLater(
+          () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
+          throwsException,
+        );
 
-      expect(fixture.transport.calls, 0);
-    });
+        expect(fixture.transport.calls, 0);
+      },
+    );
 
     test('event not reported if disabled', () async {
       fixture._hub.options.captureFailedRequests = false;
 
-      final sut = fixture.getSut(
-        client: createThrowingClient(),
-      );
+      final sut = fixture.getSut(client: createThrowingClient());
 
       await expectLater(
         () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
@@ -121,8 +116,9 @@ void main() {
       fixture._hub.options.captureFailedRequests = true;
 
       final sut = fixture.getSut(
-          client: fixture.getClient(statusCode: 500),
-          failedRequestTargets: const ["myapi.com"]);
+        client: fixture.getClient(statusCode: 500),
+        failedRequestTargets: const ["myapi.com"],
+      );
 
       final response = await sut.get(requestUri);
 
@@ -135,9 +131,10 @@ void main() {
 
       final sut = fixture.getSut(
         client: fixture.getClient(
-            statusCode: 404,
-            body: 'foo',
-            headers: {'lorem': 'ipsum', 'set-cookie': 'foo=bar'}),
+          statusCode: 404,
+          body: 'foo',
+          headers: {'lorem': 'ipsum', 'set-cookie': 'foo=bar'},
+        ),
         failedRequestStatusCodes: [SentryStatusCode(404)],
       );
 
@@ -150,10 +147,7 @@ void main() {
       final mechanism = exception?.mechanism;
 
       expect(mechanism?.type, 'SentryHttpClient');
-      expect(
-        mechanism?.description,
-        'HTTP Client Error with status code: 404',
-      );
+      expect(mechanism?.description, 'HTTP Client Error with status code: 404');
 
       expect(exception?.type, 'SentryHttpClientError');
       expect(
@@ -174,23 +168,26 @@ void main() {
       final response = eventCall.contexts.response!;
       expect(response.bodySize, 3);
       expect(response.statusCode, 404);
-      expect(response.headers,
-          equals({'lorem': 'ipsum', 'set-cookie': 'foo=bar'}));
+      expect(
+        response.headers,
+        equals({'lorem': 'ipsum', 'set-cookie': 'foo=bar'}),
+      );
       expect(response.cookies, equals('foo=bar'));
     });
 
     test(
-        'just one report on status code reporting with failing requests enabled',
-        () async {
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 404),
-        failedRequestStatusCodes: [SentryStatusCode(404)],
-      );
+      'just one report on status code reporting with failing requests enabled',
+      () async {
+        final sut = fixture.getSut(
+          client: fixture.getClient(statusCode: 404),
+          failedRequestStatusCodes: [SentryStatusCode(404)],
+        );
 
-      await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
+        await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
 
-      expect(fixture.transport.calls, 1);
-    });
+        expect(fixture.transport.calls, 1);
+      },
+    );
 
     test('close does get called for user defined client', () async {
       final mockHub = MockHub();
@@ -207,9 +204,7 @@ void main() {
 
     test('pii is not send on exception', () async {
       fixture._hub.options.captureFailedRequests = true;
-      final sut = fixture.getSut(
-        client: createThrowingClient(),
-      );
+      final sut = fixture.getSut(client: createThrowingClient());
 
       await expectLater(
         () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
@@ -227,13 +222,13 @@ void main() {
 
     test('removes authorization headers', () async {
       fixture._hub.options.captureFailedRequests = true;
-      final sut = fixture.getSut(
-        client: createThrowingClient(),
-      );
+      final sut = fixture.getSut(client: createThrowingClient());
 
       await expectLater(
-        () async => await sut.get(requestUri,
-            headers: {'authorization': 'foo', 'Authorization': 'foo'}),
+        () async => await sut.get(
+          requestUri,
+          headers: {'authorization': 'foo', 'Authorization': 'foo'},
+        ),
         throwsException,
       );
 
@@ -288,26 +283,23 @@ void main() {
         fixture._hub.options.maxRequestBodySize = scenario.maxBodySize;
         fixture.transport.reset();
 
-        final sut = fixture.getSut(
-          client: createThrowingClient(),
-        );
+        final sut = fixture.getSut(client: createThrowingClient());
 
         final request = Request('GET', requestUri)
           // This creates a a request of the specified size
           ..bodyBytes = List.generate(scenario.contentLength, (index) => 0);
 
-        await expectLater(
-          () async => await sut.send(request),
-          throwsException,
-        );
+        await expectLater(() async => await sut.send(request), throwsException);
 
         expect(fixture.transport.calls, 1);
 
         final eventCall = fixture.transport.events.first;
         final capturedRequest = eventCall.request;
         expect(capturedRequest, isNotNull);
-        expect(capturedRequest?.data,
-            scenario.shouldBeIncluded ? isNotNull : isNull);
+        expect(
+          capturedRequest?.data,
+          scenario.shouldBeIncluded ? isNotNull : isNull,
+        );
       }
     });
 
@@ -315,25 +307,22 @@ void main() {
       fixture._hub.options.captureFailedRequests = true;
 
       Request? failedRequest;
-      final client = MockClient(
-        (request) async {
-          failedRequest = request;
-          throw TestException();
-        },
-      );
+      final client = MockClient((request) async {
+        failedRequest = request;
+        throw TestException();
+      });
 
       final sut = fixture.getSut(client: client);
 
       Hint? eventHint;
-      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
-        eventHint = hint;
-        return event;
-      }));
-
-      await expectLater(
-        () async => await sut.get(requestUri),
-        throwsException,
+      fixture.options.addEventProcessor(
+        FunctionEventProcessor((event, hint) {
+          eventHint = hint;
+          return event;
+        }),
       );
+
+      await expectLater(() async => await sut.get(requestUri), throwsException);
 
       expect((eventHint?.get('request') as Request?)?.url, failedRequest?.url);
     });
@@ -341,12 +330,10 @@ void main() {
 }
 
 MockClient createThrowingClient() {
-  return MockClient(
-    (request) async {
-      expect(request.url, requestUri);
-      throw TestException();
-    },
-  );
+  return MockClient((request) async {
+    expect(request.url, requestUri);
+    throw TestException();
+  });
 }
 
 class CloseableMockClient extends Mock implements BaseClient {}
@@ -363,24 +350,26 @@ class Fixture {
   FailedRequestClient getSut({
     MockClient? client,
     List<SentryStatusCode> failedRequestStatusCodes = const [
-      SentryStatusCode.defaultRange()
+      SentryStatusCode.defaultRange(),
     ],
     List<String> failedRequestTargets = const [".*"],
     bool? captureFailedRequests,
   }) {
     final mc = client ?? getClient();
     return FailedRequestClient(
-        client: mc,
-        hub: _hub,
-        failedRequestStatusCodes: failedRequestStatusCodes,
-        failedRequestTargets: failedRequestTargets,
-        captureFailedRequests: captureFailedRequests);
+      client: mc,
+      hub: _hub,
+      failedRequestStatusCodes: failedRequestStatusCodes,
+      failedRequestTargets: failedRequestTargets,
+      captureFailedRequests: captureFailedRequests,
+    );
   }
 
-  MockClient getClient(
-      {int statusCode = 200,
-      String body = '',
-      Map<String, String> headers = const {}}) {
+  MockClient getClient({
+    int statusCode = 200,
+    String body = '',
+    Map<String, String> headers = const {},
+  }) {
     return MockClient((request) async {
       expect(request.url, requestUri);
       return Response(body, statusCode, headers: headers);

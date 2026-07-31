@@ -73,8 +73,11 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
       var uri = Uri.parse(address.host);
       request = SentryRequest.fromUri(uri: uri);
     } catch (exception, stackTrace) {
-      internalLogger.error('Could not parse ${address.host} to Uri',
-          error: exception, stackTrace: stackTrace);
+      internalLogger.error(
+        'Could not parse ${address.host} to Uri',
+        error: exception,
+        stackTrace: stackTrace,
+      );
       if (_options.automatedTestMode) {
         rethrow;
       }

@@ -60,10 +60,7 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
   set origin(String? origin) => _span.origin = origin;
 
   @override
-  Future<void> finish({
-    SpanStatus? status,
-    DateTime? endTimestamp,
-  }) =>
+  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) =>
       _span.finish(status: status, endTimestamp: endTimestamp);
 
   @override
@@ -111,8 +108,10 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
   @override
   set origin(String? origin) {
     if (origin != null) {
-      _span.setAttribute(SemanticAttributesConstants.sentryOrigin,
-          SentryAttribute.string(origin));
+      _span.setAttribute(
+        SemanticAttributesConstants.sentryOrigin,
+        SentryAttribute.string(origin),
+      );
     }
   }
 
@@ -162,7 +161,8 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
       _span.setAttribute(key, value);
     } else {
       internalLogger.info(
-          '$StreamingInstrumentationSpan: Unsupported data type in setData: $value');
+        '$StreamingInstrumentationSpan: Unsupported data type in setData: $value',
+      );
     }
   }
 

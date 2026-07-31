@@ -50,9 +50,9 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     Hub? hub,
     bool? captureFailedRequests,
     bool enableBreadcrumbs = true,
-  })  : _hub = hub ?? HubAdapter(),
-        _captureFailedRequests = captureFailedRequests,
-        _recordBreadcrumbs = enableBreadcrumbs {
+  }) : _hub = hub ?? HubAdapter(),
+       _captureFailedRequests = captureFailedRequests,
+       _recordBreadcrumbs = enableBreadcrumbs {
     _spanFactory = _hub.options.spanFactory;
     _hub.options.sdk.addIntegration(integrationName);
     _hub.options.sdk.addPackage(packageName, sdkVersion);
@@ -161,8 +161,11 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   ) {
     // Inject trace headers; full span lifecycle for streaming will be added later.
     final parentSpan = _spanFactory.getSpan(_hub);
-    final modifiedOptions =
-        _buildModifiedOptions(options, parentSpan, method.path);
+    final modifiedOptions = _buildModifiedOptions(
+      options,
+      parentSpan,
+      method.path,
+    );
     return invoker(method, requests, modifiedOptions);
   }
 
@@ -170,8 +173,9 @@ class SentryGrpcInterceptor extends ClientInterceptor {
   // methodPath format: /package.Service/Method
   void _attachRpcAttributes(InstrumentationSpan span, String methodPath) {
     span.setData(SemanticAttributesConstants.rpcSystem, 'grpc');
-    final path =
-        methodPath.startsWith('/') ? methodPath.substring(1) : methodPath;
+    final path = methodPath.startsWith('/')
+        ? methodPath.substring(1)
+        : methodPath;
     final slash = path.lastIndexOf('/');
     if (slash != -1) {
       span.setData(
@@ -185,10 +189,7 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     }
   }
 
-  void _attachRequestData(
-    InstrumentationSpan span,
-    CallOptions options,
-  ) {
+  void _attachRequestData(InstrumentationSpan span, CallOptions options) {
     if (!_hub.options.sendDefaultPii) return;
     options.metadata.forEach((key, value) {
       final normalizedKey = key.toLowerCase();
@@ -231,20 +232,19 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     String statusName,
     Duration duration,
     SentryLevel level,
-  ) =>
-      _hub.addBreadcrumb(
-        Breadcrumb(
-          type: 'grpc',
-          category: 'grpc.client',
-          level: level,
-          data: {
-            'method': methodPath,
-            'status_code': statusCode,
-            'status': statusName,
-            'duration_ms': duration.inMilliseconds,
-          },
-        ),
-      );
+  ) => _hub.addBreadcrumb(
+    Breadcrumb(
+      type: 'grpc',
+      category: 'grpc.client',
+      level: level,
+      data: {
+        'method': methodPath,
+        'status_code': statusCode,
+        'status': statusName,
+        'duration_ms': duration.inMilliseconds,
+      },
+    ),
+  );
 
   bool _shouldCapture(GrpcError? grpcError) {
     final enabled =
@@ -258,21 +258,20 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     String methodPath,
     GrpcError? grpcError,
     StackTrace stackTrace,
-  ) =>
-      _hub.captureException(
-        error,
-        stackTrace: stackTrace,
-        withScope: (scope) {
-          scope.setContexts('gRPC', {
-            'method': methodPath,
-            if (grpcError != null) ...{
-              'status_code': grpcError.code,
-              'status': grpcError.codeName,
-              if (grpcError.message != null) 'message': grpcError.message,
-            },
-          });
+  ) => _hub.captureException(
+    error,
+    stackTrace: stackTrace,
+    withScope: (scope) {
+      scope.setContexts('gRPC', {
+        'method': methodPath,
+        if (grpcError != null) ...{
+          'status_code': grpcError.code,
+          'status': grpcError.codeName,
+          if (grpcError.message != null) 'message': grpcError.message,
         },
-      );
+      });
+    },
+  );
 
   SpanStatus _grpcStatusToSpanStatus(GrpcError? error) {
     if (error == null) return const SpanStatus.internalError();

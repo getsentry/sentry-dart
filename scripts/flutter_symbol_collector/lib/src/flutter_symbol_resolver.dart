@@ -10,9 +10,9 @@ abstract class FlutterSymbolResolver {
   Platform get platform;
 
   FlutterSymbolResolver(this._bucket, String prefix)
-      : _prefix = prefix.endsWith('/')
-            ? prefix.substring(0, prefix.length - 1)
-            : prefix;
+    : _prefix = prefix.endsWith('/')
+          ? prefix.substring(0, prefix.length - 1)
+          : prefix;
 
   Future<void> tryResolve(String path) async {
     path = '$_prefix/$path';

@@ -17,9 +17,9 @@ class MockEnvelope implements SentryEnvelope {
 
   @override
   SentryEnvelopeHeader get header => SentryEnvelopeHeader(
-        SentryId.empty(),
-        SdkVersion(name: 'fixture-name', version: '1'),
-      );
+    SentryId.empty(),
+    SdkVersion(name: 'fixture-name', version: '1'),
+  );
 
   @override
   List<SentryEnvelopeItem> items = [];

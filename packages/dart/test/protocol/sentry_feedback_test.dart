@@ -31,10 +31,7 @@ void main() {
     test('toJson', () {
       final json = feedback.toJson();
 
-      expect(
-        MapEquality().equals(feedbackJson, json),
-        true,
-      );
+      expect(MapEquality().equals(feedbackJson, json), true);
     });
     test('fromJson', () {
       final feedback = SentryFeedback.fromJson(feedbackJson);
@@ -43,10 +40,7 @@ void main() {
       print(feedback);
       print(json);
 
-      expect(
-        MapEquality().equals(feedbackJson, json),
-        true,
-      );
+      expect(MapEquality().equals(feedbackJson, json), true);
     });
   });
 }

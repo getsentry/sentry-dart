@@ -28,8 +28,10 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
 
     event.contexts
       ..device = _mergeDevice(event.contexts.device, platform.device)
-      ..operatingSystem =
-          _mergeOperatingSystem(event.contexts.operatingSystem, platform)
+      ..operatingSystem = _mergeOperatingSystem(
+        event.contexts.operatingSystem,
+        platform,
+      )
       ..runtimes = _mergeRuntimes(event.contexts.runtimes, platform.runtimes)
       ..app = _mergeApp(event.contexts.app, platform.app)
       ..culture = _mergeCulture(event.contexts.culture, platform.culture);
@@ -48,7 +50,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryOperatingSystem _mergeOperatingSystem(
-      SentryOperatingSystem? existing, Contexts platform) {
+    SentryOperatingSystem? existing,
+    Contexts platform,
+  ) {
     final detected = platform.operatingSystem;
     if (existing == null) {
       return detected ?? SentryOperatingSystem();
@@ -57,7 +61,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   List<SentryRuntime> _mergeRuntimes(
-      List<SentryRuntime> existing, List<SentryRuntime> detected) {
+    List<SentryRuntime> existing,
+    List<SentryRuntime> detected,
+  ) {
     return [...existing, ...detected];
   }
 
@@ -67,7 +73,9 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryCulture _mergeCulture(
-      SentryCulture? existing, SentryCulture? detected) {
+    SentryCulture? existing,
+    SentryCulture? detected,
+  ) {
     existing ??= SentryCulture();
     return existing
       ..locale = existing.locale ?? detected?.locale

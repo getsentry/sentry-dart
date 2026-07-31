@@ -60,8 +60,10 @@ Future<Database> openDatabaseWithSentry(
     );
 
     try {
-      final database =
-          await databaseFactory.openDatabase(path, options: dbOptions);
+      final database = await databaseFactory.openDatabase(
+        path,
+        options: dbOptions,
+      );
 
       final sentryDatabase = SentryDatabase(database, hub: newHub);
 

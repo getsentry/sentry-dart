@@ -27,26 +27,38 @@ void main() {
 
     test('returns "PROXY host:port" for ProxyType.http with host and port', () {
       SentryProxy proxy = SentryProxy(
-          type: SentryProxyType.http, host: 'localhost', port: 8080);
+        type: SentryProxyType.http,
+        host: 'localhost',
+        port: 8080,
+      );
       expect(proxy.toPacString(), equals('PROXY localhost:8080'));
     });
 
     test('returns "PROXY host" for ProxyType.http with host only', () {
-      SentryProxy proxy =
-          SentryProxy(type: SentryProxyType.http, host: 'localhost');
+      SentryProxy proxy = SentryProxy(
+        type: SentryProxyType.http,
+        host: 'localhost',
+      );
       expect(proxy.toPacString(), equals('PROXY localhost'));
     });
 
-    test('returns "SOCKS host:port" for ProxyType.socks with host and port',
-        () {
-      SentryProxy proxy = SentryProxy(
-          type: SentryProxyType.socks, host: 'localhost', port: 8080);
-      expect(proxy.toPacString(), equals('SOCKS localhost:8080'));
-    });
+    test(
+      'returns "SOCKS host:port" for ProxyType.socks with host and port',
+      () {
+        SentryProxy proxy = SentryProxy(
+          type: SentryProxyType.socks,
+          host: 'localhost',
+          port: 8080,
+        );
+        expect(proxy.toPacString(), equals('SOCKS localhost:8080'));
+      },
+    );
 
     test('returns "SOCKS host" for ProxyType.socks with host only', () {
-      SentryProxy proxy =
-          SentryProxy(type: SentryProxyType.socks, host: 'localhost');
+      SentryProxy proxy = SentryProxy(
+        type: SentryProxyType.socks,
+        host: 'localhost',
+      );
       expect(proxy.toPacString(), equals('SOCKS localhost'));
     });
 
@@ -65,10 +77,7 @@ void main() {
     test('toJson', () {
       final json = proxy.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(proxyJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(proxyJson, json), true);
     });
   });
 }

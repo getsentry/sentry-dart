@@ -130,8 +130,8 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
       expect(
-        tr.transaction.contexts.trace
-            ?.data?[SemanticAttributesConstants.sentryTraceLifecycle],
+        tr.transaction.contexts.trace?.data?[SemanticAttributesConstants
+            .sentryTraceLifecycle],
         'static',
       );
     });
@@ -145,8 +145,8 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
       expect(
-        tr.transaction.spans.first
-            .data[SemanticAttributesConstants.sentryTraceLifecycle],
+        tr.transaction.spans.first.data[SemanticAttributesConstants
+            .sentryTraceLifecycle],
         'static',
       );
     });
@@ -219,8 +219,10 @@ void main() {
     test('toSentryTrace returns trace header', () {
       final sut = fixture.getSut();
 
-      expect(sut.toSentryTrace().value,
-          '${sut.context.traceId}-${sut.context.spanId}-1');
+      expect(
+        sut.toSentryTrace().value,
+        '${sut.context.traceId}-${sut.context.spanId}-1',
+      );
     });
 
     test('finish isnt allowed to be called twice', () async {
@@ -345,22 +347,29 @@ void main() {
     });
 
     test(
-        'tracer without finish will not be finished when children are finished',
-        () async {
-      final sut = fixture.getSut(waitForChildren: true);
+      'tracer without finish will not be finished when children are finished',
+      () async {
+        final sut = fixture.getSut(waitForChildren: true);
 
-      final childA = sut.startChild('operation-a', description: 'description');
-      final childB = sut.startChild('operation-b', description: 'description');
+        final childA = sut.startChild(
+          'operation-a',
+          description: 'description',
+        );
+        final childB = sut.startChild(
+          'operation-b',
+          description: 'description',
+        );
 
-      await childA.finish();
-      expect(sut.finished, false);
+        await childA.finish();
+        expect(sut.finished, false);
 
-      await childB.finish();
-      expect(sut.finished, false);
+        await childB.finish();
+        expect(sut.finished, false);
 
-      await sut.finish();
-      expect(sut.finished, true);
-    });
+        await sut.finish();
+        expect(sut.finished, true);
+      },
+    );
 
     test('end trimmed to last child', () async {
       final sut = fixture.getSut(trimEnd: true);
@@ -418,9 +427,12 @@ void main() {
 
       await sut.finish(endTimestamp: rootEndInitial);
 
-      expect(sut.endTimestamp, equals(childB.endTimestamp),
-          reason:
-              'The root end timestamp should be updated to match the latest child end timestamp.');
+      expect(
+        sut.endTimestamp,
+        equals(childB.endTimestamp),
+        reason:
+            'The root end timestamp should be updated to match the latest child end timestamp.',
+      );
     });
 
     test('does not add more spans than configured in options', () async {
@@ -452,21 +464,23 @@ void main() {
       expect(fixture.hub.captureTransactionCalls.isEmpty, true);
     });
 
-    test('scheduleFinish clears a finish request blocked by children',
-        () async {
-      final sut = fixture.getSut(
-        waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 1),
-      );
-      final child = sut.startChild('child');
-      await sut.finish();
+    test(
+      'scheduleFinish clears a finish request blocked by children',
+      () async {
+        final sut = fixture.getSut(
+          waitForChildren: true,
+          autoFinishAfter: Duration(seconds: 1),
+        );
+        final child = sut.startChild('child');
+        await sut.finish();
 
-      sut.scheduleFinish();
-      await child.finish();
+        sut.scheduleFinish();
+        await child.finish();
 
-      expect(sut.finished, isFalse);
-      await sut.finish();
-    });
+        expect(sut.finished, isFalse);
+        await sut.finish();
+      },
+    );
 
     test('tracer sets measurement', () async {
       final sut = fixture.getSut();
@@ -506,14 +520,16 @@ void main() {
       expect(sut.measurements["test"]!.value, 1);
     });
 
-    test('setMeasurementFromChild does not override existing measurements',
-        () async {
-      final sut = fixture.getSut();
-      sut.setMeasurement("test", 1);
-      sut.setMeasurementFromChild("test", 5);
-      expect(sut.measurements.containsKey("test"), true);
-      expect(sut.measurements["test"]!.value, 1);
-    });
+    test(
+      'setMeasurementFromChild does not override existing measurements',
+      () async {
+        final sut = fixture.getSut();
+        sut.setMeasurement("test", 1);
+        sut.setMeasurementFromChild("test", 5);
+        expect(sut.measurements.containsKey("test"), true);
+        expect(sut.measurements["test"]!.value, 1);
+      },
+    );
 
     test('hint passed to hub', () async {
       final hint = Hint();
@@ -539,12 +555,9 @@ void main() {
     });
 
     SentryTracer getSut({SentryTracesSamplingDecision? samplingDecision}) {
-      final decision = samplingDecision ??
-          SentryTracesSamplingDecision(
-            true,
-            sampleRate: 1.0,
-            sampleRand: 0.8,
-          );
+      final decision =
+          samplingDecision ??
+          SentryTracesSamplingDecision(true, sampleRate: 1.0, sampleRand: 0.8);
       final _context = SentryTransactionContext(
         'name',
         'op',
@@ -582,10 +595,7 @@ void main() {
     });
 
     test('sets transactionNameSource to source if not given', () {
-      final _context = SentryTransactionContext(
-        'name',
-        'op',
-      );
+      final _context = SentryTransactionContext('name', 'op');
 
       final tracer = SentryTracer(_context, _hub);
       expect(tracer.transactionNameSource, SentryTransactionNameSource.custom);
@@ -593,10 +603,11 @@ void main() {
 
     test('formats the sample rate correctly', () {
       final sut = getSut(
-          samplingDecision: SentryTracesSamplingDecision(
-        true,
-        sampleRate: 0.00000021,
-      ));
+        samplingDecision: SentryTracesSamplingDecision(
+          true,
+          sampleRate: 0.00000021,
+        ),
+      );
       final baggage = sut.toBaggageHeader();
 
       final newBaggage = SentryBaggage.fromHeader(baggage!.value);
@@ -617,11 +628,9 @@ void main() {
     });
 
     SentryTracer getSut({SentryTracesSamplingDecision? samplingDecision}) {
-      final decision = samplingDecision ??
-          SentryTracesSamplingDecision(
-            true,
-            sampleRate: 1.0,
-          );
+      final decision =
+          samplingDecision ??
+          SentryTracesSamplingDecision(true, sampleRate: 1.0);
       final _context = SentryTransactionContext(
         'name',
         'op',
@@ -651,11 +660,11 @@ void main() {
         final capturedSpans = <ISentrySpan>[];
 
         // Register OnSpanStart callback
-        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
-          (OnSpanStart event) async {
-            capturedSpans.add(event.span);
-          },
-        );
+        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>((
+          OnSpanStart event,
+        ) async {
+          capturedSpans.add(event.span);
+        });
 
         // Create tracer (this should dispatch OnSpanStart for the root span)
         final sut = fixture.getSut();
@@ -667,10 +676,14 @@ void main() {
         // The root span is a SentrySpan, not the SentryTracer itself
         expect(capturedSpans.first, isA<SentrySpan>());
         expect(capturedSpans.first.context.operation, equals('op'));
-        expect(capturedSpans.first.context.description,
-            isNull); // No description set for root span
         expect(
-            capturedSpans.first.context.traceId, equals(sut.context.traceId));
+          capturedSpans.first.context.description,
+          isNull,
+        ); // No description set for root span
+        expect(
+          capturedSpans.first.context.traceId,
+          equals(sut.context.traceId),
+        );
       });
 
       test('dispatches OnSpanStart for child spans', () async {
@@ -678,11 +691,11 @@ void main() {
         final capturedSpans = <ISentrySpan>[];
 
         // Register OnSpanStart callback
-        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
-          (OnSpanStart event) async {
-            capturedSpans.add(event.span);
-          },
-        );
+        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>((
+          OnSpanStart event,
+        ) async {
+          capturedSpans.add(event.span);
+        });
 
         final sut = fixture.getSut();
 
@@ -702,14 +715,20 @@ void main() {
         expect(capturedSpans[0].context.operation, equals('child_op1'));
         expect(capturedSpans[0].context.description, isNull);
         expect(
-            capturedSpans[0].context.parentSpanId, equals(sut.context.spanId));
+          capturedSpans[0].context.parentSpanId,
+          equals(sut.context.spanId),
+        );
 
         // Verify second child span
         expect(capturedSpans[1].context.operation, equals('child_op2'));
         expect(
-            capturedSpans[1].context.description, equals('child description'));
+          capturedSpans[1].context.description,
+          equals('child description'),
+        );
         expect(
-            capturedSpans[1].context.parentSpanId, equals(sut.context.spanId));
+          capturedSpans[1].context.parentSpanId,
+          equals(sut.context.spanId),
+        );
       });
 
       test('dispatches OnSpanStart for nested child spans', () async {
@@ -717,11 +736,11 @@ void main() {
         final capturedSpans = <ISentrySpan>[];
 
         // Register OnSpanStart callback
-        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
-          (OnSpanStart event) async {
-            capturedSpans.add(event.span);
-          },
-        );
+        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>((
+          OnSpanStart event,
+        ) async {
+          capturedSpans.add(event.span);
+        });
 
         final sut = fixture.getSut();
         capturedSpans.clear(); // Clear root span
@@ -738,42 +757,48 @@ void main() {
         // Verify child span
         expect(capturedSpans[0].context.operation, equals('child_op'));
         expect(
-            capturedSpans[0].context.parentSpanId, equals(sut.context.spanId));
+          capturedSpans[0].context.parentSpanId,
+          equals(sut.context.spanId),
+        );
 
         // Verify grandchild span
         expect(capturedSpans[1].context.operation, equals('grandchild_op'));
-        expect(capturedSpans[1].context.parentSpanId,
-            equals(child.context.spanId));
+        expect(
+          capturedSpans[1].context.parentSpanId,
+          equals(child.context.spanId),
+        );
       });
 
-      test('callbacks are called asynchronously without blocking span creation',
-          () async {
-        final fixture = Fixture();
-        var callbackExecuted = false;
+      test(
+        'callbacks are called asynchronously without blocking span creation',
+        () async {
+          final fixture = Fixture();
+          var callbackExecuted = false;
 
-        // Register callback that takes some time
-        fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>(
-          (OnSpanStart event) async {
+          // Register callback that takes some time
+          fixture.hub.options.lifecycleRegistry.registerCallback<OnSpanStart>((
+            OnSpanStart event,
+          ) async {
             await Future.delayed(const Duration(milliseconds: 10));
             callbackExecuted = true;
-          },
-        );
+          });
 
-        // Span creation should complete immediately without waiting for callback
-        final sut = fixture.getSut();
-        final child = sut.startChild('child_op');
+          // Span creation should complete immediately without waiting for callback
+          final sut = fixture.getSut();
+          final child = sut.startChild('child_op');
 
-        // Callback should not have been executed yet (since it's unawaited)
-        expect(callbackExecuted, isFalse);
+          // Callback should not have been executed yet (since it's unawaited)
+          expect(callbackExecuted, isFalse);
 
-        // Wait a bit for the callback to complete
-        await Future.delayed(const Duration(milliseconds: 20));
+          // Wait a bit for the callback to complete
+          await Future.delayed(const Duration(milliseconds: 20));
 
-        // Now callback should have completed
-        expect(callbackExecuted, isTrue);
-        expect(sut.context.operation, equals('op'));
-        expect(child.context.operation, equals('child_op'));
-      });
+          // Now callback should have completed
+          expect(callbackExecuted, isTrue);
+          expect(sut.context.operation, equals('op'));
+          expect(child.context.operation, equals('child_op'));
+        },
+      );
     });
   });
 }
@@ -785,9 +810,7 @@ class Fixture {
 
   final client = MockSentryClient();
 
-  final user = SentryUser(
-    id: 'id',
-  );
+  final user = SentryUser(id: 'id');
 
   final hub = MockHub();
 

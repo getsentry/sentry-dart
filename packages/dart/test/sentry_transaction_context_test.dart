@@ -51,7 +51,9 @@ void main() {
     );
 
     expect(
-        context.transactionNameSource, SentryTransactionNameSource.component);
+      context.transactionNameSource,
+      SentryTransactionNameSource.component,
+    );
   });
 
   test('sets sample rate if baggage is given', () {

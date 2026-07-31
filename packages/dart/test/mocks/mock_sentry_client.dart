@@ -22,12 +22,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     dynamic stackTrace,
     Hint? hint,
   }) async {
-    captureEventCalls.add(CaptureEventCall(
-      event,
-      scope,
-      stackTrace,
-      hint,
-    ));
+    captureEventCalls.add(CaptureEventCall(event, scope, stackTrace, hint));
     return event.eventId;
   }
 
@@ -38,12 +33,9 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     Scope? scope,
     Hint? hint,
   }) async {
-    captureExceptionCalls.add(CaptureExceptionCall(
-      throwable,
-      stackTrace,
-      scope,
-      hint,
-    ));
+    captureExceptionCalls.add(
+      CaptureExceptionCall(throwable, stackTrace, scope, hint),
+    );
     return SentryId.newId();
   }
 
@@ -56,14 +48,9 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     Scope? scope,
     Hint? hint,
   }) async {
-    captureMessageCalls.add(CaptureMessageCall(
-      formatted,
-      level,
-      template,
-      params,
-      scope,
-      hint,
-    ));
+    captureMessageCalls.add(
+      CaptureMessageCall(formatted, level, template, params, scope, hint),
+    );
     return SentryId.newId();
   }
 
@@ -79,11 +66,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     Scope? scope,
     Hint? hint,
   }) async {
-    captureFeedbackCalls.add(CaptureFeedbackCall(
-      feedback,
-      scope,
-      hint,
-    ));
+    captureFeedbackCalls.add(CaptureFeedbackCall(feedback, scope, hint));
     return SentryId.newId();
   }
 
@@ -114,8 +97,9 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     SentryTraceContextHeader? traceContext,
     Hint? hint,
   }) async {
-    captureTransactionCalls
-        .add(CaptureTransactionCall(transaction, traceContext, hint));
+    captureTransactionCalls.add(
+      CaptureTransactionCall(transaction, traceContext, hint),
+    );
     return transaction.eventId;
   }
 }
@@ -126,12 +110,7 @@ class CaptureEventCall {
   final dynamic stackTrace;
   final Hint? hint;
 
-  CaptureEventCall(
-    this.event,
-    this.scope,
-    this.stackTrace,
-    this.hint,
-  );
+  CaptureEventCall(this.event, this.scope, this.stackTrace, this.hint);
 }
 
 class CaptureFeedbackCall {
@@ -139,11 +118,7 @@ class CaptureFeedbackCall {
   final Hint? hint;
   final Scope? scope;
 
-  CaptureFeedbackCall(
-    this.feedback,
-    this.scope,
-    this.hint,
-  );
+  CaptureFeedbackCall(this.feedback, this.scope, this.hint);
 }
 
 class CaptureExceptionCall {
@@ -152,12 +127,7 @@ class CaptureExceptionCall {
   final Scope? scope;
   final Hint? hint;
 
-  CaptureExceptionCall(
-    this.throwable,
-    this.stackTrace,
-    this.scope,
-    this.hint,
-  );
+  CaptureExceptionCall(this.throwable, this.stackTrace, this.scope, this.hint);
 }
 
 class CaptureMessageCall {
