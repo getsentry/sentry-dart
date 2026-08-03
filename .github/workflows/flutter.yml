@@ -82,6 +82,11 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
 
+      - name: Use beta-compatible Android toolchain
+        if: matrix.target == 'android' && matrix.sdk == 'beta'
+        shell: bash
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/use-beta-android-toolchain.sh"
+
       - name: Prepare example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
         if: matrix.target != 'wasm'

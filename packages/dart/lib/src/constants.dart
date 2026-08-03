@@ -73,6 +73,8 @@ class SentryFeatures {
   static const String beforeSendFeedback = 'beforeSendFeedback';
   static const String beforeSendLog = 'beforeSendLog';
   static const String beforeSendMetric = 'beforeSendMetric';
+  static const String replayNetworkDetailsCapturing =
+      'replayNetworkDetailsCapturing';
   static const String standaloneAppStartTracing = 'standaloneAppStartTracing';
 }
 
