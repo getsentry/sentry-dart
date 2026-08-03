@@ -766,10 +766,7 @@ void main() {
       expect(capturedResponse, isNotNull);
       expect(capturedResponse?.bodySize, 6);
       expect(capturedResponse?.statusCode, 200);
-      expect(capturedResponse?.headers, {
-        'foo': 'bar',
-        'content-length': '6',
-      });
+      expect(capturedResponse?.headers, {'foo': 'bar', 'content-length': '6'});
       expect(capturedResponse?.cookies, 'foo=bar');
     });
 
@@ -801,33 +798,34 @@ void main() {
     });
 
     test(
-        '$DioEventProcessor keeps the response body off the event, on the hint',
-        () {
-      final sut = fixture.getSut(sendDefaultPii: true);
+      '$DioEventProcessor keeps the response body off the event, on the hint',
+      () {
+        final sut = fixture.getSut(sendDefaultPii: true);
 
-      final dioError = DioError(
-        requestOptions: requestOptions,
-        response: Response<dynamic>(
-          data: 'foobar',
-          headers: Headers.fromMap(<String, List<String>>{
-            'content-length': ['6'],
-          }),
+        final dioError = DioError(
           requestOptions: requestOptions,
-          statusCode: 404,
-        ),
-      );
-      final event = SentryEvent(
-        throwable: dioError,
-        exceptions: [fixture.sentryError(dioError)],
-      );
+          response: Response<dynamic>(
+            data: 'foobar',
+            headers: Headers.fromMap(<String, List<String>>{
+              'content-length': ['6'],
+            }),
+            requestOptions: requestOptions,
+            statusCode: 404,
+          ),
+        );
+        final event = SentryEvent(
+          throwable: dioError,
+          exceptions: [fixture.sentryError(dioError)],
+        );
 
-      final hint = Hint();
-      final processedEvent = sut.apply(event, hint) as SentryEvent;
+        final hint = Hint();
+        final processedEvent = sut.apply(event, hint) as SentryEvent;
 
-      expect(processedEvent.contexts.response?.statusCode, 404);
-      expect(processedEvent.contexts.response?.data, isNull);
-      expect(hint.response?.data, 'foobar');
-    });
+        expect(processedEvent.contexts.response?.statusCode, 404);
+        expect(processedEvent.contexts.response?.data, isNull);
+        expect(hint.response?.data, 'foobar');
+      },
+    );
 
     test('$DioEventProcessor keeps a response already on the event', () {
       final sut = fixture.getSut(sendDefaultPii: true);
@@ -1018,28 +1016,30 @@ void main() {
   });
 
   group('exception value', () {
-    test('$DioEventProcessor replaces bad response value with the status code',
-        () {
-      final sut = fixture.getSut();
+    test(
+      '$DioEventProcessor replaces bad response value with the status code',
+      () {
+        final sut = fixture.getSut();
 
-      final request = requestOptions.copyWith(method: 'POST');
-      final dioError = DioError.badResponse(
-        statusCode: 502,
-        requestOptions: request,
-        response: Response<dynamic>(statusCode: 502, requestOptions: request),
-      );
-      final event = SentryEvent(
-        throwable: dioError,
-        exceptions: [fixture.sentryError(dioError)],
-      );
+        final request = requestOptions.copyWith(method: 'POST');
+        final dioError = DioError.badResponse(
+          statusCode: 502,
+          requestOptions: request,
+          response: Response<dynamic>(statusCode: 502, requestOptions: request),
+        );
+        final event = SentryEvent(
+          throwable: dioError,
+          exceptions: [fixture.sentryError(dioError)],
+        );
 
-      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+        final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
-      expect(
-        processedEvent.exceptions?.first.value,
-        'HTTP Client Error with status code: 502',
-      );
-    });
+        expect(
+          processedEvent.exceptions?.first.value,
+          'HTTP Client Error with status code: 502',
+        );
+      },
+    );
 
     test('$DioEventProcessor value does not vary with the request path', () {
       final sut = fixture.getSut();
@@ -1063,26 +1063,28 @@ void main() {
       expect(valueForPath('/users/12345'), valueForPath('/users/67890'));
     });
 
-    test('$DioEventProcessor replaces a timeout value with the failure type',
-        () {
-      final sut = fixture.getSut();
+    test(
+      '$DioEventProcessor replaces a timeout value with the failure type',
+      () {
+        final sut = fixture.getSut();
 
-      final dioError = DioError.connectionTimeout(
-        timeout: Duration(seconds: 5),
-        requestOptions: requestOptions,
-      );
-      final event = SentryEvent(
-        throwable: dioError,
-        exceptions: [fixture.sentryError(dioError)],
-      );
+        final dioError = DioError.connectionTimeout(
+          timeout: Duration(seconds: 5),
+          requestOptions: requestOptions,
+        );
+        final event = SentryEvent(
+          throwable: dioError,
+          exceptions: [fixture.sentryError(dioError)],
+        );
 
-      final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+        final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
-      expect(
-        processedEvent.exceptions?.first.value,
-        'HTTP Client Error: connection timeout',
-      );
-    });
+        expect(
+          processedEvent.exceptions?.first.value,
+          'HTTP Client Error: connection timeout',
+        );
+      },
+    );
 
     test('$DioEventProcessor describes a connection error in prose', () {
       final sut = fixture.getSut();
@@ -1104,29 +1106,31 @@ void main() {
       );
     });
 
-    test('$DioEventProcessor timeout value does not vary with the duration',
-        () {
-      final sut = fixture.getSut();
+    test(
+      '$DioEventProcessor timeout value does not vary with the duration',
+      () {
+        final sut = fixture.getSut();
 
-      String valueForTimeout(Duration timeout) {
-        final dioError = DioError.connectionTimeout(
-          timeout: timeout,
-          requestOptions: requestOptions,
+        String valueForTimeout(Duration timeout) {
+          final dioError = DioError.connectionTimeout(
+            timeout: timeout,
+            requestOptions: requestOptions,
+          );
+          final event = SentryEvent(
+            throwable: dioError,
+            exceptions: [fixture.sentryError(dioError)],
+          );
+
+          final processedEvent = sut.apply(event, Hint()) as SentryEvent;
+          return processedEvent.exceptions!.first.value!;
+        }
+
+        expect(
+          valueForTimeout(const Duration(seconds: 5)),
+          valueForTimeout(const Duration(seconds: 30)),
         );
-        final event = SentryEvent(
-          throwable: dioError,
-          exceptions: [fixture.sentryError(dioError)],
-        );
-
-        final processedEvent = sut.apply(event, Hint()) as SentryEvent;
-        return processedEvent.exceptions!.first.value!;
-      }
-
-      expect(
-        valueForTimeout(const Duration(seconds: 5)),
-        valueForTimeout(const Duration(seconds: 30)),
-      );
-    });
+      },
+    );
 
     test('$DioEventProcessor replaces value when Dio provides no message', () {
       final sut = fixture.getSut();
@@ -1236,10 +1240,7 @@ void main() {
 
     expect(processedEvent.exceptions?.length, 2);
 
-    expect(
-      processedEvent.exceptions?[0].value,
-      'HTTP Client Error: unknown',
-    );
+    expect(processedEvent.exceptions?[0].value, 'HTTP Client Error: unknown');
     expect(processedEvent.exceptions?[0].stackTrace, isNotNull);
 
     expect(processedEvent.exceptions?[1].value, exception.toString());

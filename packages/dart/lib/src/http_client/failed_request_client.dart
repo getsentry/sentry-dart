@@ -221,8 +221,9 @@ class FailedRequestClient extends BaseClient {
     if (response != null) {
       final sendPii = _hub.options.sendDefaultPii;
       event.contexts.response = SentryResponse(
-        headers:
-            sendPii ? HttpSanitizer.sanitizedHeaders(response.headers) : null,
+        headers: sendPii
+            ? HttpSanitizer.sanitizedHeaders(response.headers)
+            : null,
         // Read explicitly because sanitizing strips `set-cookie` before
         // SentryResponse can pick it up. `package:http` lowercases header names.
         cookies: sendPii ? response.headers['set-cookie'] : null,

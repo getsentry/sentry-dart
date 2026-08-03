@@ -150,10 +150,7 @@ void main() {
       expect(mechanism?.description, 'HTTP Client Error with status code: 404');
 
       expect(exception?.type, 'SentryHttpClientError');
-      expect(
-        exception?.value,
-        'HTTP Client Error with status code: 404',
-      );
+      expect(exception?.value, 'HTTP Client Error with status code: 404');
       expect(exception?.stackTrace?.snapshot, true);
 
       final request = eventCall.request;
@@ -329,10 +326,7 @@ void main() {
 
       final sut = fixture.getSut(client: createThrowingClient());
 
-      await expectLater(
-        () async => await sut.get(requestUri),
-        throwsException,
-      );
+      await expectLater(() async => await sut.get(requestUri), throwsException);
 
       final exception = fixture.transport.events.first.exceptions?.first;
       expect(exception?.type, 'TestException');

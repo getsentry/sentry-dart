@@ -187,9 +187,7 @@ void main() {
 
     fixture.hub.options.captureFailedRequests = true;
 
-    final sut = fixture.getSut(
-      failedRequestTargets: ['myapi.com'],
-    );
+    final sut = fixture.getSut(failedRequestTargets: ['myapi.com']);
     await sut.onError(error, fixture.errorInterceptorHandler);
 
     expect(fixture.hub.captureExceptionCalls.length, 1);
@@ -229,8 +227,9 @@ void main() {
 
   test('do not capture a request to the dsn', () async {
     final dsnHost = Uri.parse(fixture.hub.options.dsn!).host;
-    final requestOptions =
-        RequestOptions(path: 'https://$dsnHost/api/1/envelope/');
+    final requestOptions = RequestOptions(
+      path: 'https://$dsnHost/api/1/envelope/',
+    );
     final error = DioError(
       requestOptions: requestOptions,
       response: Response(statusCode: 502, requestOptions: requestOptions),
