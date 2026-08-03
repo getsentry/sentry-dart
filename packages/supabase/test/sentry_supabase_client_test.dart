@@ -285,23 +285,25 @@ void main() {
       expect(fixture.options.sdk.integrations, contains(integrationNameErrors));
     });
 
-    test('adds $SentrySupabaseExceptionTypeIdentifier with the error client',
-        () {
-      fixture.getSut(
-        enableBreadcrumbs: false,
-        enableTracing: false,
-        enableErrors: true,
-      );
+    test(
+      'adds $SentrySupabaseExceptionTypeIdentifier with the error client',
+      () {
+        fixture.getSut(
+          enableBreadcrumbs: false,
+          enableTracing: false,
+          enableErrors: true,
+        );
 
-      expect(
-        fixture.options.exceptionTypeIdentifiers.first,
-        isA<CachingExceptionTypeIdentifier>().having(
-          (c) => c.identifier,
-          'wrapped identifier',
-          isA<SentrySupabaseExceptionTypeIdentifier>(),
-        ),
-      );
-    });
+        expect(
+          fixture.options.exceptionTypeIdentifiers.first,
+          isA<CachingExceptionTypeIdentifier>().having(
+            (c) => c.identifier,
+            'wrapped identifier',
+            isA<SentrySupabaseExceptionTypeIdentifier>(),
+          ),
+        );
+      },
+    );
 
     test('does not duplicate $SentrySupabaseExceptionTypeIdentifier', () {
       for (var i = 0; i < 2; i++) {
