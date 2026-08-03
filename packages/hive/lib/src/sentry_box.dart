@@ -24,24 +24,16 @@ class SentryBox<E> extends SentryBoxBase<E> implements Box<E> {
 
   @override
   E? get(key, {E? defaultValue}) {
-    return _spanHelper.syncWrapInSpan(
-      'get',
-      () {
-        return _box.get(key, defaultValue: defaultValue);
-      },
-      dbName: name,
-    );
+    return _spanHelper.syncWrapInSpan('get', () {
+      return _box.get(key, defaultValue: defaultValue);
+    }, dbName: name);
   }
 
   @override
   E? getAt(int index) {
-    return _spanHelper.syncWrapInSpan(
-      'getAt',
-      () {
-        return _box.getAt(index);
-      },
-      dbName: name,
-    );
+    return _spanHelper.syncWrapInSpan('getAt', () {
+      return _box.getAt(index);
+    }, dbName: name);
   }
 
   @override
@@ -50,22 +42,14 @@ class SentryBox<E> extends SentryBoxBase<E> implements Box<E> {
   }
 
   @override
-  Iterable<E> get values => _spanHelper.syncWrapInSpan(
-        'values',
-        () {
-          return _box.values;
-        },
-        dbName: name,
-      );
+  Iterable<E> get values => _spanHelper.syncWrapInSpan('values', () {
+    return _box.values;
+  }, dbName: name);
 
   @override
   Iterable<E> valuesBetween({startKey, endKey}) {
-    return _spanHelper.syncWrapInSpan(
-      'valuesBetween',
-      () {
-        return _box.valuesBetween(startKey: startKey, endKey: endKey);
-      },
-      dbName: name,
-    );
+    return _spanHelper.syncWrapInSpan('valuesBetween', () {
+      return _box.valuesBetween(startKey: startKey, endKey: endKey);
+    }, dbName: name);
   }
 }

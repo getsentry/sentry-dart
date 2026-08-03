@@ -31,8 +31,8 @@ class Breadcrumb {
     SentryLevel? level,
     this.type,
     this.unknown,
-  })  : timestamp = timestamp ?? getUtcDateTime(),
-        level = level ?? SentryLevel.info;
+  }) : timestamp = timestamp ?? getUtcDateTime(),
+       level = level ?? SentryLevel.info;
 
   factory Breadcrumb.http({
     required Uri url,
@@ -63,13 +63,13 @@ class Breadcrumb {
       data: {
         'url': url.toString(),
         'method': method,
-        if (statusCode != null) 'status_code': statusCode,
-        if (reason != null) 'reason': reason,
+        'status_code': ?statusCode,
+        'reason': ?reason,
         if (requestDuration != null) 'duration': requestDuration.toString(),
-        if (requestBodySize != null) 'request_body_size': requestBodySize,
-        if (responseBodySize != null) 'response_body_size': responseBodySize,
-        if (httpQuery != null) 'http.query': httpQuery,
-        if (httpFragment != null) 'http.fragment': httpFragment,
+        'request_body_size': ?requestBodySize,
+        'response_body_size': ?responseBodySize,
+        'http.query': ?httpQuery,
+        'http.fragment': ?httpFragment,
         if (requestDuration != null)
           'start_timestamp':
               timestamp.millisecondsSinceEpoch - requestDuration.inMilliseconds,
@@ -110,11 +110,7 @@ class Breadcrumb {
       category: 'ui.$subCategory',
       type: 'user',
       timestamp: timestamp,
-      data: {
-        if (viewId != null) 'view.id': viewId,
-        if (viewClass != null) 'view.class': viewClass,
-        if (data != null) ...data,
-      },
+      data: {'view.id': ?viewId, 'view.class': ?viewClass, ...?data},
     );
   }
 

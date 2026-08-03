@@ -27,7 +27,7 @@ void main() {
     'api_type': 'fixture-apiType',
     'multi_threaded_rendering': true,
     'version': '4',
-    'npot_support': 'fixture-npotSupport'
+    'npot_support': 'fixture-npotSupport',
   };
   sentryGpuJson.addAll(testUnknown);
 
@@ -35,19 +35,13 @@ void main() {
     test('toJson', () {
       final json = sentryGpu.toJson();
 
-      expect(
-        MapEquality().equals(sentryGpuJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryGpuJson, json), true);
     });
     test('fromJson', () {
       final sentryGpu = SentryGpu.fromJson(sentryGpuJson);
       final json = sentryGpu.toJson();
 
-      expect(
-        MapEquality().equals(sentryGpuJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryGpuJson, json), true);
     });
   });
 }

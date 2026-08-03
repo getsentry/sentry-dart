@@ -32,8 +32,9 @@ void main() {
 
       test('adds itself to sdk.integrations', () {
         expect(
-          fixture.options.sdk.integrations
-              .contains(LoadDartDebugImagesIntegration.integrationName),
+          fixture.options.sdk.integrations.contains(
+            LoadDartDebugImagesIntegration.integrationName,
+          ),
           true,
         );
       });
@@ -47,67 +48,77 @@ void main() {
       });
 
       test(
-          'Event processor does not add debug image if symbolication is not needed',
-          () async {
-        final event = fixture.newEvent(needsSymbolication: false);
-        final resultEvent = await fixture.process(event);
+        'Event processor does not add debug image if symbolication is not needed',
+        () async {
+          final event = fixture.newEvent(needsSymbolication: false);
+          final resultEvent = await fixture.process(event);
 
-        expect(resultEvent, equals(event));
-      });
-
-      test('Event processor does not add debug image if stackTrace is null',
-          () async {
-        final event = fixture.newEvent();
-        final resultEvent = await fixture.process(event);
-
-        expect(resultEvent, equals(event));
-      });
+          expect(resultEvent, equals(event));
+        },
+      );
 
       test(
-          'Event processor does not add debug image if enableDartSymbolication is false',
-          () async {
-        fixture.options.enableDartSymbolication = false;
-        final event = fixture.newEvent();
-        final resultEvent = await fixture.process(event);
+        'Event processor does not add debug image if stackTrace is null',
+        () async {
+          final event = fixture.newEvent();
+          final resultEvent = await fixture.process(event);
 
-        expect(resultEvent, equals(event));
-      });
+          expect(resultEvent, equals(event));
+        },
+      );
 
-      test('Event processor adds debug image when symbolication is needed',
-          () async {
-        final debugImage = await fixture.parseAndProcess('''
+      test(
+        'Event processor does not add debug image if enableDartSymbolication is false',
+        () async {
+          fixture.options.enableDartSymbolication = false;
+          final event = fixture.newEvent();
+          final resultEvent = await fixture.process(event);
+
+          expect(resultEvent, equals(event));
+        },
+      );
+
+      test(
+        'Event processor adds debug image when symbolication is needed',
+        () async {
+          final debugImage = await fixture.parseAndProcess('''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 10000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 ''');
-        expect(debugImage?.debugId, isNotEmpty);
-        expect(debugImage?.imageAddr, equals('0x10000000'));
-      });
+          expect(debugImage?.debugId, isNotEmpty);
+          expect(debugImage?.imageAddr, equals('0x10000000'));
+        },
+      );
 
       test(
-          'Event processor does not add debug image on second stack trace without image address',
-          () async {
-        final debugImage = await fixture.parseAndProcess('''
+        'Event processor does not add debug image on second stack trace without image address',
+        () async {
+          final debugImage = await fixture.parseAndProcess('''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 10000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 ''');
-        expect(debugImage?.debugId, isNotEmpty);
-        expect(debugImage?.imageAddr, equals('0x10000000'));
+          expect(debugImage?.debugId, isNotEmpty);
+          expect(debugImage?.imageAddr, equals('0x10000000'));
 
-        final event = fixture.newEvent(stackTrace: fixture.parse('''
+          final event = fixture.newEvent(
+            stackTrace: fixture.parse('''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-'''));
-        final resultEvent = await fixture.process(event);
-        expect(resultEvent?.debugMeta?.images, isEmpty);
-      });
+'''),
+          );
+          final resultEvent = await fixture.process(event);
+          expect(resultEvent?.debugMeta?.images, isEmpty);
+        },
+      );
 
       test('returns null for invalid stack trace', () async {
-        final event =
-            fixture.newEvent(stackTrace: fixture.parse('Invalid stack trace'));
+        final event = fixture.newEvent(
+          stackTrace: fixture.parse('Invalid stack trace'),
+        );
         final resultEvent = await fixture.process(event);
         expect(resultEvent?.debugMeta?.images, isEmpty);
       });
@@ -127,17 +138,23 @@ isolate_dso_base: 20000000
         }
       });
 
-      test('extracts correct debug ID for Android with long debugId', () async {
-        final debugImage = await fixture.parseAndProcess('''
+      test(
+        'extracts correct debug ID for Android with long debugId',
+        () async {
+          final debugImage = await fixture.parseAndProcess('''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'f1c3bcc0279865fe3058404b2831d9e64135386c'
 isolate_dso_base: 30000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 ''');
 
-        expect(debugImage?.debugId,
-            equals('c0bcc3f1-9827-fe65-3058-404b2831d9e6'));
-      }, skip: !platform.isAndroid);
+          expect(
+            debugImage?.debugId,
+            equals('c0bcc3f1-9827-fe65-3058-404b2831d9e6'),
+          );
+        },
+        skip: !platform.isAndroid,
+      );
 
       test('sets correct type based on platform', () async {
         final debugImage = await fixture.parseAndProcess('''
@@ -198,8 +215,9 @@ isolate_dso_base: 10000000
       ..options.runtimeChecker = MockRuntimeChecker(isSplitDebugInfo: true);
     fixture.callIntegration();
     expect(
-      fixture.options.sdk.integrations
-          .contains(LoadDartDebugImagesIntegration.integrationName),
+      fixture.options.sdk.integrations.contains(
+        LoadDartDebugImagesIntegration.integrationName,
+      ),
       isTrue,
     );
   });
@@ -209,23 +227,26 @@ isolate_dso_base: 10000000
       ..options.runtimeChecker = MockRuntimeChecker(isObfuscated: true);
     fixture.callIntegration();
     expect(
-      fixture.options.sdk.integrations
-          .contains(LoadDartDebugImagesIntegration.integrationName),
+      fixture.options.sdk.integrations.contains(
+        LoadDartDebugImagesIntegration.integrationName,
+      ),
       isTrue,
     );
   });
 
   test(
-      'does not add itself to sdk.integrations if app obfuscation and split debug info is false',
-      () {
-    final fixture = Fixture()..options.runtimeChecker = MockRuntimeChecker();
-    fixture.callIntegration();
-    expect(
-      fixture.options.sdk.integrations
-          .contains(LoadDartDebugImagesIntegration.integrationName),
-      false,
-    );
-  });
+    'does not add itself to sdk.integrations if app obfuscation and split debug info is false',
+    () {
+      final fixture = Fixture()..options.runtimeChecker = MockRuntimeChecker();
+      fixture.callIntegration();
+      expect(
+        fixture.options.sdk.integrations.contains(
+          LoadDartDebugImagesIntegration.integrationName,
+        ),
+        false,
+      );
+    },
+  );
 
   test('does add event processor to options if split debug info is true', () {
     final fixture = Fixture()
@@ -242,12 +263,13 @@ isolate_dso_base: 10000000
   });
 
   test(
-      'does not add event processor to options if app obfuscation and split debug info is false',
-      () {
-    final fixture = Fixture()..options.runtimeChecker = MockRuntimeChecker();
-    fixture.callIntegration();
-    expect(fixture.options.eventProcessors.length, 0);
-  });
+    'does not add event processor to options if app obfuscation and split debug info is false',
+    () {
+      final fixture = Fixture()..options.runtimeChecker = MockRuntimeChecker();
+      fixture.callIntegration();
+      expect(fixture.options.eventProcessors.length, 0);
+    },
+  );
 
   test('does not add itself to sdk.integrations if platform is web', () {
     final fixture = Fixture()
@@ -255,8 +277,9 @@ isolate_dso_base: 10000000
       ..options.platform = MockPlatform(isWeb: true);
     fixture.callIntegration();
     expect(
-      fixture.options.sdk.integrations
-          .contains(LoadDartDebugImagesIntegration.integrationName),
+      fixture.options.sdk.integrations.contains(
+        LoadDartDebugImagesIntegration.integrationName,
+      ),
       false,
     );
   });
@@ -264,12 +287,14 @@ isolate_dso_base: 10000000
   test('debug image is null on unsupported platforms', () async {
     final fixture = Fixture()..options.platform = MockPlatform.linux();
     fixture.callIntegration();
-    final event = fixture.newEvent(stackTrace: fixture.parse('''
+    final event = fixture.newEvent(
+      stackTrace: fixture.parse('''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'b680cb890f9e3c12a24b172d050dec73'
 isolate_dso_base: 40000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-'''));
+'''),
+    );
     final resultEvent = await fixture.process(event);
     expect(resultEvent?.debugMeta?.images.length, 0);
   });
@@ -277,8 +302,10 @@ isolate_dso_base: 40000000
 
 class Fixture {
   final options = defaultTestOptions()
-    ..runtimeChecker =
-        MockRuntimeChecker(isObfuscated: true, isSplitDebugInfo: true);
+    ..runtimeChecker = MockRuntimeChecker(
+      isObfuscated: true,
+      isSplitDebugInfo: true,
+    );
   late final factory = SentryStackTraceFactory(options);
 
   void callIntegration() {
@@ -288,14 +315,17 @@ class Fixture {
 
   SentryStackTrace parse(String stacktrace) => factory.parse(stacktrace);
 
-  SentryEvent newEvent(
-      {bool needsSymbolication = true, SentryStackTrace? stackTrace}) {
-    stackTrace ??= SentryStackTrace(frames: [
-      SentryStackFrame(platform: needsSymbolication ? null : 'dart')
-    ]);
+  SentryEvent newEvent({
+    bool needsSymbolication = true,
+    SentryStackTrace? stackTrace,
+  }) {
+    stackTrace ??= SentryStackTrace(
+      frames: [SentryStackFrame(platform: needsSymbolication ? null : 'dart')],
+    );
     return SentryEvent(
-        threads: [SentryThread(stacktrace: stackTrace)],
-        debugMeta: DebugMeta());
+      threads: [SentryThread(stacktrace: stackTrace)],
+      debugMeta: DebugMeta(),
+    );
   }
 
   FutureOr<SentryEvent?> process(SentryEvent event) =>

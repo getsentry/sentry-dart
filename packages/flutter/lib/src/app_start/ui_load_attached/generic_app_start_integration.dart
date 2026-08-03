@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
+import '../../utils/internal_logger.dart';
 
 // TODO(buenaflor): marking this internal until we can find a robust way to unify the TTID/TTFD implementation as currently it is very fragmented.
 
@@ -45,10 +46,9 @@ class GenericAppStartIntegration extends Integration<SentryFlutterOptions> {
         // This integration is used for TTID/TTFD mainly
         // However this may change in the future.
       } catch (exception, stackTrace) {
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'An exception occurred while executing the $GenericAppStartIntegration',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
         if (options.automatedTestMode) {

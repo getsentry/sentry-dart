@@ -32,8 +32,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnBeforeSendEvent>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>((
+          event,
+        ) {
           event.event.release = '999';
         });
 
@@ -55,8 +56,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnProcessSpan>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnProcessSpan>((
+          event,
+        ) {
           event.span.setAttribute(
             'test-attribute',
             SentryAttribute.string('test-value'),
@@ -119,7 +121,9 @@ class Fixture {
     options.beforeSendTransaction = beforeSendTransaction;
     options.beforeSendFeedback = beforeSendFeedback;
     options.debug = debug;
-    options.log = mockLogger;
+    if (debug) {
+      configureDiagnosticTestLogger(onLog: mockLogger);
+    }
 
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
@@ -127,10 +131,7 @@ class Fixture {
 
     // Internally also creates a SentryClient instance
     final hub = Hub(options);
-    _context = SentryTransactionContext(
-      'name',
-      'op',
-    );
+    _context = SentryTransactionContext('name', 'op');
     tracer = SentryTracer(_context, hub);
 
     // Reset transport
@@ -179,11 +180,10 @@ class Fixture {
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     loggedLevel = level;
-    loggedException = exception;
+    loggedException = error;
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import '../../protocol.dart';
 import '../../sentry_options.dart';
+import '../../utils/internal_logger.dart';
 
 // Get total & free platform memory (in bytes) for linux and windows operating systems.
 // Source: https://github.com/onepub-dev/system_info/blob/8a9bf6b8eb7c86a09b3c3df4bf6d7fa5a6b50732/lib/src/platform/memory.dart
@@ -10,12 +10,13 @@ class PlatformMemory {
     if (options.platform.isWindows) {
       // Check for WMIC (deprecated in newer Windows versions)
       // https://techcommunity.microsoft.com/blog/windows-itpro-blog/wmi-command-line-wmic-utility-deprecation-next-steps/4039242
-      useWindowsWmci =
-          File('C:\\Windows\\System32\\wbem\\wmic.exe').existsSync();
+      useWindowsWmci = File(
+        'C:\\Windows\\System32\\wbem\\wmic.exe',
+      ).existsSync();
       if (!useWindowsWmci) {
         useWindowsPowerShell = File(
-                'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe')
-            .existsSync();
+          'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe',
+        ).existsSync();
       } else {
         useWindowsPowerShell = false;
       }
@@ -78,16 +79,22 @@ class PlatformMemory {
     return memsize;
   }
 
-  Future<String?> _exec(String executable, List<String> arguments,
-      {bool runInShell = false}) async {
+  Future<String?> _exec(
+    String executable,
+    List<String> arguments, {
+    bool runInShell = false,
+  }) async {
     try {
-      final result =
-          await Process.run(executable, arguments, runInShell: runInShell);
+      final result = await Process.run(
+        executable,
+        arguments,
+        runInShell: runInShell,
+      );
       if (result.exitCode == 0) {
         return result.stdout.toString();
       }
     } catch (e) {
-      options.log(SentryLevel.warning, "Failed to run process: $e");
+      internalLogger.warning(() => "Failed to run process: $e");
       if (options.automatedTestMode) {
         rethrow;
       }
@@ -96,7 +103,9 @@ class PlatformMemory {
   }
 
   Future<Map<String, String>?> _wmicGetValueAsMap(
-      String section, List<String> fields) async {
+    String section,
+    List<String> fields,
+  ) async {
     final arguments = <String>[section];
     arguments
       ..add('get')
@@ -126,8 +135,12 @@ class PlatformMemory {
     final command =
         'Get-CimInstance Win32_ComputerSystem | Select-Object -ExpandProperty TotalPhysicalMemory';
 
-    final result = await _exec('powershell.exe',
-        ['-NoProfile', '-NonInteractive', '-Command', command]);
+    final result = await _exec('powershell.exe', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      command,
+    ]);
     if (result == null) {
       return null;
     }

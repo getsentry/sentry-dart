@@ -30,8 +30,9 @@ void main() {
     sut.call(fixture.hub, fixture.options);
     await sut.close();
 
-    final package =
-        fixture.options.sdk.packages.firstWhere((it) => it.name == packageName);
+    final package = fixture.options.sdk.packages.firstWhere(
+      (it) => it.name == packageName,
+    );
     expect(package.name, packageName);
     expect(package.version, sdkVersion);
   });
@@ -76,9 +77,7 @@ void main() {
     sut.call(fixture.hub, fixture.options);
     final logger = Logger('FooBarLogger');
 
-    logger.info(
-      'An info message',
-    );
+    logger.info('An info message');
 
     expect(fixture.hub.breadcrumbs.length, 1);
     final breadcrumbHint =
@@ -89,11 +88,7 @@ void main() {
 
     final exception = Exception('foo bar');
     final stackTrace = StackTrace.current;
-    logger.warning(
-      'A log message',
-      exception,
-      stackTrace,
-    );
+    logger.warning('A log message', exception, stackTrace);
 
     expect(fixture.hub.events.length, 1);
     final errorHint = fixture.hub.events.first.hint?.get('record') as LogRecord;
@@ -135,11 +130,7 @@ void main() {
     final stackTrace = StackTrace.current;
 
     final log = Logger('FooBarLogger');
-    log.warning(
-      'A log message',
-      exception,
-      stackTrace,
-    );
+    log.warning('A log message', exception, stackTrace);
     expect(fixture.hub.events.length, 1);
     expect(fixture.hub.events.first.event.breadcrumbs, null);
     final event = fixture.hub.events.first.event;
@@ -159,31 +150,25 @@ void main() {
     final stackTrace = StackTrace.current;
 
     final log = Logger('FooBarLogger');
-    log.info(
-      'A log message',
-      exception,
-      stackTrace,
-    );
+    log.info('A log message', exception, stackTrace);
     expect(fixture.hub.events.length, 1);
     expect(fixture.hub.events.first.event.breadcrumbs, null);
   });
 
-  test('exception is not recorded as event if minEventLevel under minlevel',
-      () {
-    final sut = fixture.createSut(minEventLevel: Level.SEVERE);
-    sut.call(fixture.hub, fixture.options);
+  test(
+    'exception is not recorded as event if minEventLevel under minlevel',
+    () {
+      final sut = fixture.createSut(minEventLevel: Level.SEVERE);
+      sut.call(fixture.hub, fixture.options);
 
-    final exception = Exception('foo bar');
-    final stackTrace = StackTrace.current;
+      final exception = Exception('foo bar');
+      final stackTrace = StackTrace.current;
 
-    final log = Logger('FooBarLogger');
-    log.warning(
-      'A log message',
-      exception,
-      stackTrace,
-    );
-    expect(fixture.hub.events.length, 0);
-  });
+      final log = Logger('FooBarLogger');
+      log.warning('A log message', exception, stackTrace);
+      expect(fixture.hub.events.length, 0);
+    },
+  );
 
   test('Level.Off is never sent as event', () {
     // even if everything should be logged, Level.Off is never logged
@@ -194,12 +179,7 @@ void main() {
     final stackTrace = StackTrace.current;
 
     final log = Logger('FooBarLogger');
-    log.log(
-      Level.OFF,
-      'A log message',
-      exception,
-      stackTrace,
-    );
+    log.log(Level.OFF, 'A log message', exception, stackTrace);
     expect(fixture.hub.events.length, 0);
   });
 
@@ -220,22 +200,23 @@ void main() {
     });
 
     test(
-        'calls sentry logger when enableLogs is true and level meets threshold',
-        () async {
-      final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+      'calls sentry logger when enableLogs is true and level meets threshold',
+      () async {
+        final mockLogger = MockSentryLogger();
+        final options = TestSentryOptions(mockLogger)..enableLogs = true;
 
-      final sut = fixture.createSut(minSentryLogLevel: Level.INFO);
-      sut.call(fixture.hub, options);
+        final sut = fixture.createSut(minSentryLogLevel: Level.INFO);
+        sut.call(fixture.hub, options);
 
-      final log = Logger('TestLogger');
-      log.severe('Test message');
+        final log = Logger('TestLogger');
+        log.severe('Test message');
 
-      await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 10));
 
-      expect(mockLogger.errorCalls.length, 1);
-      expect(mockLogger.errorCalls.first.message, 'Test message');
-    });
+        expect(mockLogger.errorCalls.length, 1);
+        expect(mockLogger.errorCalls.first.message, 'Test message');
+      },
+    );
 
     test('does not call sentry logger when level is below threshold', () async {
       final mockLogger = MockSentryLogger();
@@ -385,81 +366,100 @@ void main() {
       expect(mockLogger.warnCalls.first.message, 'Warning message');
     });
 
-    test('handles custom Level instances correctly using numeric values',
-        () async {
-      final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+    test(
+      'handles custom Level instances correctly using numeric values',
+      () async {
+        final mockLogger = MockSentryLogger();
+        final options = TestSentryOptions(mockLogger)..enableLogs = true;
 
-      final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
-      sut.call(fixture.hub, options);
+        final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
+        sut.call(fixture.hub, options);
 
-      final log = Logger('TestLogger');
+        final log = Logger('TestLogger');
 
-      // Create custom levels with different numeric values
-      final customError =
-          Level('CUSTOM_ERROR', 1200); // >= SEVERE (1000) -> error
-      final customWarn = Level('CUSTOM_WARN', 950); // >= WARNING (900) -> warn
-      final customInfo = Level('CUSTOM_INFO', 850); // >= INFO (800) -> info
-      final customDebug =
-          Level('CUSTOM_DEBUG', 750); // >= CONFIG (700) -> debug
-      final customTrace = Level('CUSTOM_TRACE', 600); // < CONFIG (700) -> trace
+        // Create custom levels with different numeric values
+        final customError = Level(
+          'CUSTOM_ERROR',
+          1200,
+        ); // >= SEVERE (1000) -> error
+        final customWarn = Level(
+          'CUSTOM_WARN',
+          950,
+        ); // >= WARNING (900) -> warn
+        final customInfo = Level('CUSTOM_INFO', 850); // >= INFO (800) -> info
+        final customDebug = Level(
+          'CUSTOM_DEBUG',
+          750,
+        ); // >= CONFIG (700) -> debug
+        final customTrace = Level(
+          'CUSTOM_TRACE',
+          600,
+        ); // < CONFIG (700) -> trace
 
-      // Test each custom level
-      log.log(customError, 'Custom error message');
-      log.log(customWarn, 'Custom warn message');
-      log.log(customInfo, 'Custom info message');
-      log.log(customDebug, 'Custom debug message');
-      log.log(customTrace, 'Custom trace message');
+        // Test each custom level
+        log.log(customError, 'Custom error message');
+        log.log(customWarn, 'Custom warn message');
+        log.log(customInfo, 'Custom info message');
+        log.log(customDebug, 'Custom debug message');
+        log.log(customTrace, 'Custom trace message');
 
-      await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 10));
 
-      // Verify mappings
-      expect(mockLogger.errorCalls.length, 1);
-      expect(mockLogger.errorCalls.first.message, 'Custom error message');
+        // Verify mappings
+        expect(mockLogger.errorCalls.length, 1);
+        expect(mockLogger.errorCalls.first.message, 'Custom error message');
 
-      expect(mockLogger.warnCalls.length, 1);
-      expect(mockLogger.warnCalls.first.message, 'Custom warn message');
+        expect(mockLogger.warnCalls.length, 1);
+        expect(mockLogger.warnCalls.first.message, 'Custom warn message');
 
-      expect(mockLogger.infoCalls.length, 1);
-      expect(mockLogger.infoCalls.first.message, 'Custom info message');
+        expect(mockLogger.infoCalls.length, 1);
+        expect(mockLogger.infoCalls.first.message, 'Custom info message');
 
-      expect(mockLogger.debugCalls.length, 1);
-      expect(mockLogger.debugCalls.first.message, 'Custom debug message');
+        expect(mockLogger.debugCalls.length, 1);
+        expect(mockLogger.debugCalls.first.message, 'Custom debug message');
 
-      expect(mockLogger.traceCalls.length, 1);
-      expect(mockLogger.traceCalls.first.message, 'Custom trace message');
-    });
+        expect(mockLogger.traceCalls.length, 1);
+        expect(mockLogger.traceCalls.first.message, 'Custom trace message');
+      },
+    );
 
-    test('custom Level instances respect minSentryLogLevel threshold',
-        () async {
-      final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+    test(
+      'custom Level instances respect minSentryLogLevel threshold',
+      () async {
+        final mockLogger = MockSentryLogger();
+        final options = TestSentryOptions(mockLogger)..enableLogs = true;
 
-      final sut = fixture.createSut(minSentryLogLevel: Level.WARNING);
-      sut.call(fixture.hub, options);
+        final sut = fixture.createSut(minSentryLogLevel: Level.WARNING);
+        sut.call(fixture.hub, options);
 
-      final log = Logger('TestLogger');
+        final log = Logger('TestLogger');
 
-      // Create custom levels
-      final customAboveThreshold =
-          Level('CUSTOM_HIGH', 950); // >= WARNING (900)
-      final customBelowThreshold = Level('CUSTOM_LOW', 850); // < WARNING (900)
+        // Create custom levels
+        final customAboveThreshold = Level(
+          'CUSTOM_HIGH',
+          950,
+        ); // >= WARNING (900)
+        final customBelowThreshold = Level(
+          'CUSTOM_LOW',
+          850,
+        ); // < WARNING (900)
 
-      log.log(customAboveThreshold, 'Should be logged');
-      log.log(customBelowThreshold, 'Should not be logged');
+        log.log(customAboveThreshold, 'Should be logged');
+        log.log(customBelowThreshold, 'Should not be logged');
 
-      await Future<void>.delayed(Duration(milliseconds: 10));
+        await Future<void>.delayed(Duration(milliseconds: 10));
 
-      // Only the custom level above threshold should be logged
-      expect(mockLogger.warnCalls.length, 1);
-      expect(mockLogger.warnCalls.first.message, 'Should be logged');
+        // Only the custom level above threshold should be logged
+        expect(mockLogger.warnCalls.length, 1);
+        expect(mockLogger.warnCalls.first.message, 'Should be logged');
 
-      // No other log levels should have been called
-      expect(mockLogger.errorCalls.length, 0);
-      expect(mockLogger.infoCalls.length, 0);
-      expect(mockLogger.debugCalls.length, 0);
-      expect(mockLogger.traceCalls.length, 0);
-    });
+        // No other log levels should have been called
+        expect(mockLogger.errorCalls.length, 0);
+        expect(mockLogger.infoCalls.length, 0);
+        expect(mockLogger.debugCalls.length, 0);
+        expect(mockLogger.traceCalls.length, 0);
+      },
+    );
   });
 }
 
@@ -553,7 +553,7 @@ class TestSentryOptions extends SentryOptions {
   late final SentryLogger logger;
 
   TestSentryOptions(SentryLogger mockLogger)
-      : super(dsn: 'https://abc@def.ingest.sentry.io/1234567') {
+    : super(dsn: 'https://abc@def.ingest.sentry.io/1234567') {
     logger = mockLogger;
     // ignore: invalid_use_of_internal_member
     automatedTestMode = true;

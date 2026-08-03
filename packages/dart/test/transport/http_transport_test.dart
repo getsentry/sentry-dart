@@ -54,7 +54,8 @@ void main() {
     test('returns empty SentryId when client throws exception', () async {
       final httpMock = MockClient((http.Request request) async {
         throw http.ClientException(
-            'Connection closed before full header was received');
+          'Connection closed before full header was received',
+        );
       });
 
       fixture.options.automatedTestMode = false;
@@ -75,7 +76,8 @@ void main() {
     test('records lost event when client throws exception', () async {
       final httpMock = MockClient((http.Request request) async {
         throw http.ClientException(
-            'Connection closed before full header was received');
+          'Connection closed before full header was received',
+        );
       });
 
       fixture.options.automatedTestMode = false;
@@ -91,94 +93,114 @@ void main() {
       await sut.send(envelope);
 
       expect(fixture.clientReportRecorder.discardedEvents.length, 1);
-      expect(fixture.clientReportRecorder.discardedEvents.first.reason,
-          DiscardReason.networkError);
-      expect(fixture.clientReportRecorder.discardedEvents.first.category,
-          DataCategory.error);
-    });
-
-    test('records lost log item and bytes when client throws exception',
-        () async {
-      final httpMock = MockClient((http.Request request) async {
-        throw http.ClientException(
-            'Connection closed before full header was received');
-      });
-
-      fixture.options.automatedTestMode = false;
-      final sut = fixture.getSut(httpMock, MockRateLimiter());
-
-      final logs = [fixture.getLog('log-1'), fixture.getLog('log-2')];
-      final envelope = SentryEnvelope.fromLogs(logs, fixture.options.sdk);
-
-      await sut.send(envelope);
-
-      final lostLog = fixture.clientReportRecorder.lostLogs.single;
-      expect(lostLog.reason, DiscardReason.networkError);
-      expect(lostLog.count, logs.length);
-      expect(lostLog.bytes, greaterThan(0));
-    });
-
-    test('records lost metric count and bytes when client throws exception',
-        () async {
-      final httpMock = MockClient((http.Request request) async {
-        throw http.ClientException(
-            'Connection closed before full header was received');
-      });
-
-      fixture.options.automatedTestMode = false;
-      final sut = fixture.getSut(httpMock, MockRateLimiter());
-
-      final metrics = [
-        [1, 2, 3],
-        [4, 5],
-      ];
-      final envelope =
-          SentryEnvelope.fromMetricsData(metrics, fixture.options.sdk);
-
-      await sut.send(envelope);
-
-      final lostMetric = fixture.clientReportRecorder.lostMetrics.single;
-      expect(lostMetric.reason, DiscardReason.networkError);
-      expect(lostMetric.count, metrics.length);
-      expect(lostMetric.bytes, greaterThan(0));
-    });
-
-    test('records lost transaction and spans when client throws exception',
-        () async {
-      final httpMock = MockClient((http.Request request) async {
-        throw http.ClientException(
-            'Connection closed before full header was received');
-      });
-
-      fixture.options.automatedTestMode = false;
-      final sut = fixture.getSut(httpMock, MockRateLimiter());
-
-      final transaction = fixture.getTransaction();
-      transaction.tracer.startChild('child1');
-      transaction.tracer.startChild('child2');
-      final envelope = SentryEnvelope.fromTransaction(
-        transaction,
-        fixture.options.sdk,
-        dsn: fixture.options.dsn,
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.reason,
+        DiscardReason.networkError,
       );
-
-      await sut.send(envelope);
-
-      final transactionDiscardedEvent = fixture
-          .clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
-              element.category == DataCategory.transaction &&
-              element.reason == DiscardReason.networkError);
-
-      final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
-              element.category == DataCategory.span &&
-              element.reason == DiscardReason.networkError);
-
-      expect(transactionDiscardedEvent, isNotNull);
-      expect(spanDiscardedEvent, isNotNull);
-      expect(spanDiscardedEvent!.quantity, 3);
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
     });
+
+    test(
+      'records lost log item and bytes when client throws exception',
+      () async {
+        final httpMock = MockClient((http.Request request) async {
+          throw http.ClientException(
+            'Connection closed before full header was received',
+          );
+        });
+
+        fixture.options.automatedTestMode = false;
+        final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+        final logs = [fixture.getLog('log-1'), fixture.getLog('log-2')];
+        final envelope = SentryEnvelope.fromLogs(logs, fixture.options.sdk);
+
+        await sut.send(envelope);
+
+        final lostLog = fixture.clientReportRecorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.networkError);
+        expect(lostLog.count, logs.length);
+        expect(lostLog.bytes, greaterThan(0));
+      },
+    );
+
+    test(
+      'records lost metric count and bytes when client throws exception',
+      () async {
+        final httpMock = MockClient((http.Request request) async {
+          throw http.ClientException(
+            'Connection closed before full header was received',
+          );
+        });
+
+        fixture.options.automatedTestMode = false;
+        final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+        final metrics = [
+          [1, 2, 3],
+          [4, 5],
+        ];
+        final envelope = SentryEnvelope.fromMetricsData(
+          metrics,
+          fixture.options.sdk,
+        );
+
+        await sut.send(envelope);
+
+        final lostMetric = fixture.clientReportRecorder.lostMetrics.single;
+        expect(lostMetric.reason, DiscardReason.networkError);
+        expect(lostMetric.count, metrics.length);
+        expect(lostMetric.bytes, greaterThan(0));
+      },
+    );
+
+    test(
+      'records lost transaction and spans when client throws exception',
+      () async {
+        final httpMock = MockClient((http.Request request) async {
+          throw http.ClientException(
+            'Connection closed before full header was received',
+          );
+        });
+
+        fixture.options.automatedTestMode = false;
+        final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+        final transaction = fixture.getTransaction();
+        transaction.tracer.startChild('child1');
+        transaction.tracer.startChild('child2');
+        final envelope = SentryEnvelope.fromTransaction(
+          transaction,
+          fixture.options.sdk,
+          dsn: fixture.options.dsn,
+        );
+
+        await sut.send(envelope);
+
+        final transactionDiscardedEvent = fixture
+            .clientReportRecorder
+            .discardedEvents
+            .firstWhereOrNull(
+              (element) =>
+                  element.category == DataCategory.transaction &&
+                  element.reason == DiscardReason.networkError,
+            );
+
+        final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
+            .firstWhereOrNull(
+              (element) =>
+                  element.category == DataCategory.span &&
+                  element.reason == DiscardReason.networkError,
+            );
+
+        expect(transactionDiscardedEvent, isNotNull);
+        expect(spanDiscardedEvent, isNotNull);
+        expect(spanDiscardedEvent!.quantity, 3);
+      },
+    );
   });
 
   group('updateRetryAfterLimits', () {
@@ -206,8 +228,10 @@ void main() {
 
       await sut.send(envelope);
 
-      expect(mockRateLimiter.envelopeToFilter?.header.eventId,
-          sentryEvent.eventId);
+      expect(
+        mockRateLimiter.envelopeToFilter?.header.eventId,
+        sentryEvent.eventId,
+      );
 
       expect(mockRateLimiter.errorCode, 429);
       expect(mockRateLimiter.retryAfterHeader, '1');
@@ -216,8 +240,11 @@ void main() {
 
     test('sentryRateLimitHeader', () async {
       final httpMock = MockClient((http.Request request) async {
-        return http.Response('{}', 200,
-            headers: {'x-sentry-rate-limits': 'fixture-sentryRateLimitHeader'});
+        return http.Response(
+          '{}',
+          200,
+          headers: {'x-sentry-rate-limits': 'fixture-sentryRateLimitHeader'},
+        );
       });
       final mockRateLimiter = MockRateLimiter();
       final sut = fixture.getSut(httpMock, mockRateLimiter);
@@ -232,8 +259,10 @@ void main() {
 
       expect(mockRateLimiter.errorCode, 200);
       expect(mockRateLimiter.retryAfterHeader, isNull);
-      expect(mockRateLimiter.sentryRateLimitHeader,
-          'fixture-sentryRateLimitHeader');
+      expect(
+        mockRateLimiter.sentryRateLimitHeader,
+        'fixture-sentryRateLimitHeader',
+      );
     });
   });
 
@@ -283,10 +312,14 @@ void main() {
       );
       await sut.send(envelope);
 
-      expect(fixture.clientReportRecorder.discardedEvents.first.reason,
-          DiscardReason.networkError);
-      expect(fixture.clientReportRecorder.discardedEvents.first.category,
-          DataCategory.error);
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.reason,
+        DiscardReason.networkError,
+      );
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
     });
 
     test('does records lost transaction and span for error >= 400', () async {
@@ -306,15 +339,20 @@ void main() {
       await sut.send(envelope);
 
       final transactionDiscardedEvent = fixture
-          .clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
-              element.category == DataCategory.transaction &&
-              element.reason == DiscardReason.networkError);
+          .clientReportRecorder
+          .discardedEvents
+          .firstWhereOrNull(
+            (element) =>
+                element.category == DataCategory.transaction &&
+                element.reason == DiscardReason.networkError,
+          );
 
       final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
-          .firstWhereOrNull((element) =>
-              element.category == DataCategory.span &&
-              element.reason == DiscardReason.networkError);
+          .firstWhereOrNull(
+            (element) =>
+                element.category == DataCategory.span &&
+                element.reason == DiscardReason.networkError,
+          );
 
       expect(transactionDiscardedEvent, isNotNull);
       expect(spanDiscardedEvent, isNotNull);
@@ -340,10 +378,14 @@ void main() {
       );
       await sut.send(envelope);
 
-      expect(fixture.clientReportRecorder.discardedEvents.first.reason,
-          DiscardReason.networkError);
-      expect(fixture.clientReportRecorder.discardedEvents.first.category,
-          DataCategory.feedback);
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.reason,
+        DiscardReason.networkError,
+      );
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.category,
+        DataCategory.feedback,
+      );
     });
 
     test('does not record lost event for error 429', () async {
@@ -377,10 +419,14 @@ void main() {
       );
       await sut.send(envelope);
 
-      expect(fixture.clientReportRecorder.discardedEvents.first.reason,
-          DiscardReason.networkError);
-      expect(fixture.clientReportRecorder.discardedEvents.first.category,
-          DataCategory.error);
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.reason,
+        DiscardReason.networkError,
+      );
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
     });
   });
 }

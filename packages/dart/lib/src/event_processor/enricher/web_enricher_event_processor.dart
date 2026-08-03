@@ -48,13 +48,17 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
   }
 
   SentryCulture _mergeCulture(
-      SentryCulture? existing, SentryCulture? detected) {
+    SentryCulture? existing,
+    SentryCulture? detected,
+  ) {
     existing ??= SentryCulture();
     return existing..timezone = existing.timezone ?? detected?.timezone;
   }
 
   List<SentryRuntime> _mergeRuntimes(
-      List<SentryRuntime> existing, List<SentryRuntime> detected) {
+    List<SentryRuntime> existing,
+    List<SentryRuntime> detected,
+  ) {
     return [...existing, ...detected];
   }
 

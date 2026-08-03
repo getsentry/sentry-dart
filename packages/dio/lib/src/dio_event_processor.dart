@@ -86,8 +86,9 @@ class DioEventProcessor implements EventProcessor {
 
   SentryRequest? _requestFrom(DioError dioError) {
     final options = dioError.requestOptions;
-    final headers = options.headers
-        .map((key, dynamic value) => MapEntry(key, value?.toString() ?? ''));
+    final headers = options.headers.map(
+      (key, dynamic value) => MapEntry(key, value?.toString() ?? ''),
+    );
 
     return SentryRequest.fromUri(
       uri: options.uri,

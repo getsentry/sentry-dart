@@ -4,9 +4,10 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import '../sentry_tracer.dart';
+import '../utils/internal_logger.dart';
 
-typedef OnFinishedCallback = Future<void> Function(
-    {DateTime? endTimestamp, Hint? hint});
+typedef OnFinishedCallback =
+    Future<void> Function({DateTime? endTimestamp, Hint? hint});
 
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
@@ -50,8 +51,11 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish(
-      {SpanStatus? status, DateTime? endTimestamp, Hint? hint}) async {
+  Future<void> finish({
+    SpanStatus? status,
+    DateTime? endTimestamp,
+    Hint? hint,
+  }) async {
     // Prevent concurrent or duplicate finish() calls
     if (_isFinished || _endTimestamp != null) {
       return;
@@ -65,9 +69,9 @@ class SentrySpan extends ISentrySpan {
       if (endTimestamp == null) {
         endTimestamp = _hub.options.clock();
       } else if (endTimestamp.isBefore(_startTimestamp)) {
-        _hub.options.log(
-          SentryLevel.warning,
-          'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
+        internalLogger.warning(
+          () =>
+              'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
         );
         endTimestamp = _hub.options.clock();
       } else {
@@ -77,8 +81,9 @@ class SentrySpan extends ISentrySpan {
       _endTimestamp = endTimestamp;
 
       // Dispatch OnSpanFinish lifecycle event
-      final callback =
-          _hub.options.lifecycleRegistry.dispatchCallback(OnSpanFinish(this));
+      final callback = _hub.options.lifecycleRegistry.dispatchCallback(
+        OnSpanFinish(this),
+      );
       if (callback is Future) {
         await callback;
       }
@@ -92,8 +97,11 @@ class SentrySpan extends ISentrySpan {
       await _finishedCallback?.call(endTimestamp: _endTimestamp, hint: hint);
     }
 
-    return super
-        .finish(status: status, endTimestamp: _endTimestamp, hint: hint);
+    return super.finish(
+      status: status,
+      endTimestamp: _endTimestamp,
+      hint: hint,
+    );
   }
 
   @override
@@ -143,9 +151,9 @@ class SentrySpan extends ISentrySpan {
     }
 
     if (startTimestamp?.isBefore(_startTimestamp) ?? false) {
-      _hub.options.log(
-        SentryLevel.warning,
-        "Start timestamp ($startTimestamp) cannot be before parent span's start timestamp ($_startTimestamp). Returning NoOpSpan.",
+      internalLogger.warning(
+        () =>
+            "Start timestamp ($startTimestamp) cannot be before parent span's start timestamp ($_startTimestamp). Returning NoOpSpan.",
       );
       return NoOpSentrySpan();
     }
@@ -183,11 +191,13 @@ class SentrySpan extends ISentrySpan {
 
   Map<String, dynamic> toJson() {
     final json = _context.toJson();
-    json['start_timestamp'] =
-        formatDateAsIso8601WithMillisPrecision(_startTimestamp);
+    json['start_timestamp'] = formatDateAsIso8601WithMillisPrecision(
+      _startTimestamp,
+    );
     if (_endTimestamp != null) {
-      json['timestamp'] =
-          formatDateAsIso8601WithMillisPrecision(_endTimestamp!);
+      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(
+        _endTimestamp!,
+      );
     }
     if (_data.isNotEmpty) {
       json['data'] = _data;
@@ -220,20 +230,17 @@ class SentrySpan extends ISentrySpan {
 
   @override
   SentryTraceHeader toSentryTrace() => generateSentryTraceHeader(
-        traceId: _context.traceId,
-        spanId: _context.spanId,
-        sampled: samplingDecision?.sampled,
-      );
+    traceId: _context.traceId,
+    spanId: _context.spanId,
+    sampled: samplingDecision?.sampled,
+  );
 
   @override
-  void setMeasurement(
-    String name,
-    num value, {
-    SentryMeasurementUnit? unit,
-  }) {
+  void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
     if (finished) {
-      _hub.options.log(SentryLevel.debug,
-          "The span is already finished. Measurement $name cannot be set");
+      internalLogger.debug(
+        () => "The span is already finished. Measurement $name cannot be set",
+      );
       return;
     }
     _tracer.setMeasurementFromChild(name, value, unit: unit);

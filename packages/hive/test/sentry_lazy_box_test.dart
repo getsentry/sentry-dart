@@ -1,7 +1,6 @@
 // ignore_for_file: library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:hive/hive.dart';
@@ -49,10 +48,7 @@ void main() {
     bool checkName = false,
     String status = 'ok',
   }) {
-    expect(
-      crumb?.message,
-      message,
-    );
+    expect(crumb?.message, message);
     expect(crumb?.type, 'query');
     if (checkName) {
       expect(crumb?.data?['db.namespace'], Fixture.dbName);

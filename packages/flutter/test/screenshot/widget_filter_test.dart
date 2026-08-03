@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -15,12 +17,41 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   final rootBundle = TestAssetBundle();
   final otherBundle = TestAssetBundle();
-  final logger = MockLogger();
+  final capturedLogs = <MockLogItem>[];
   final colorScheme = WidgetFilterColorScheme(
     defaultMask: Colors.white,
     defaultTextMask: Colors.green,
     background: Colors.red,
   );
+
+  setUp(() {
+    capturedLogs.clear();
+    SentryInternalLogger.configure(
+      isEnabled: true,
+      minLevel: SentryLevel.debug,
+      logOutput:
+          ({
+            required String name,
+            required SentryLevel level,
+            required String message,
+            Object? error,
+            StackTrace? stackTrace,
+          }) {
+            capturedLogs.add(
+              MockLogItem(
+                level,
+                message,
+                exception: error,
+                stackTrace: stackTrace,
+              ),
+            );
+          },
+    );
+  });
+
+  tearDown(() {
+    SentryInternalLogger.configure(isEnabled: false);
+  });
 
   final createSut =
       ({
@@ -31,12 +62,11 @@ void main() async {
         final privacyOptions = SentryPrivacyOptions()
           ..maskAllImages = redactImages
           ..maskAllText = redactText;
-        logger.clear();
+        capturedLogs.clear();
         final maskingConfig = privacyOptions.buildMaskingConfig(
-          logger.call,
           runtimeChecker ?? RuntimeChecker(),
         );
-        return WidgetFilter(maskingConfig, logger.call);
+        return WidgetFilter(maskingConfig);
       };
 
   boundsRect(WidgetFilterItem item) =>
@@ -274,7 +304,7 @@ void main() async {
           root: element.renderObject as RenderRepaintBoundary,
           colorScheme: colorScheme,
         );
-        final logMessages = logger.items
+        final logMessages = capturedLogs
             .where((item) => item.level == SentryLevel.warning)
             .map((item) => item.message)
             .toList();

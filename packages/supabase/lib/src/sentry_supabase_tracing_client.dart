@@ -79,7 +79,8 @@ class SentrySupabaseTracingClient extends BaseClient {
       return null;
     }
 
-    final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
+    final dbSchema =
+        supabaseRequest.request.headers['Accept-Profile'] ??
         supabaseRequest.request.headers['Content-Profile'];
     if (dbSchema != null) {
       span.setData(ProposedSemanticAttributes.dbSchema, dbSchema);

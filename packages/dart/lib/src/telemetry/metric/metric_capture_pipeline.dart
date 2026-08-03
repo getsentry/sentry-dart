@@ -14,7 +14,8 @@ class MetricCapturePipeline {
   Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {
     if (!_options.enableMetrics) {
       internalLogger.debug(
-          '$MetricCapturePipeline: Metrics disabled, dropping ${metric.name}');
+        '$MetricCapturePipeline: Metrics disabled, dropping ${metric.name}',
+      );
       return;
     }
 
@@ -25,11 +26,13 @@ class MetricCapturePipeline {
 
       final hint = Hint();
 
-      await _options.lifecycleRegistry
-          .dispatchCallback<OnProcessMetric>(OnProcessMetric(metric, hint));
+      await _options.lifecycleRegistry.dispatchCallback<OnProcessMetric>(
+        OnProcessMetric(metric, hint),
+      );
 
-      metric.attributes
-          .addAllIfAbsent(defaultAttributes(_options, scope: scope));
+      metric.attributes.addAllIfAbsent(
+        defaultAttributes(_options, scope: scope),
+      );
 
       final beforeSendMetric = _options.beforeSendMetric;
       SentryMetric? processedMetric = metric;
@@ -53,13 +56,15 @@ class MetricCapturePipeline {
           bytes: _approximateMetricBytes(metric),
         );
         internalLogger.debug(
-            '$MetricCapturePipeline: Metric ${metric.name} dropped by beforeSendMetric');
+          '$MetricCapturePipeline: Metric ${metric.name} dropped by beforeSendMetric',
+        );
         return;
       }
 
       _options.telemetryProcessor.addMetric(processedMetric);
       internalLogger.debug(
-          '$MetricCapturePipeline: Metric ${processedMetric.name} (${processedMetric.type}) captured');
+        '$MetricCapturePipeline: Metric ${processedMetric.name} (${processedMetric.type}) captured',
+      );
     } catch (exception, stackTrace) {
       _options.recorder.recordLostMetric(
         DiscardReason.internalSdkError,

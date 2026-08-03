@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
-import 'diagnostic_log.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
 import 'platform/platform.dart';
@@ -17,7 +16,6 @@ import 'telemetry/metric/noop_metrics.dart';
 import 'telemetry/processing/processor.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
-import 'dart:developer' as developer;
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -128,20 +126,6 @@ class SentryOptions {
   /// This does not change whether an event is captured.
   MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
 
-  SdkLogCallback _log = noOpLog;
-
-  /// Log callback to log useful debugging information if debug is enabled
-  SdkLogCallback get log => _log;
-
-  @internal
-  set log(SdkLogCallback value) {
-    diagnosticLog = DiagnosticLog(value, this);
-    _log = diagnosticLog!.log;
-  }
-
-  @visibleForTesting
-  DiagnosticLog? diagnosticLog;
-
   final List<EventProcessor> _eventProcessors = [];
 
   /// Are callbacks that run for every event. They can either return a new event which in most cases
@@ -164,14 +148,6 @@ class SentryOptions {
   set debug(bool newValue) {
     _debug = newValue;
     _configureInternalLogger();
-    if (_debug == true &&
-        (log == noOpLog || diagnosticLog?.logger == noOpLog)) {
-      log = debugLog;
-    }
-    if (_debug == false &&
-        (log == debugLog || diagnosticLog?.logger == debugLog)) {
-      log = noOpLog;
-    }
   }
 
   bool _debug = false;
@@ -188,7 +164,9 @@ class SentryOptions {
 
   void _configureInternalLogger() {
     SentryInternalLogger.configure(
-        isEnabled: _debug, minLevel: _diagnosticLevel);
+      isEnabled: _debug,
+      minLevel: _diagnosticLevel,
+    );
   }
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
@@ -404,8 +382,10 @@ class SentryOptions {
   double? get tracesSampleRate => _tracesSampleRate;
 
   set tracesSampleRate(double? tracesSampleRate) {
-    assert(tracesSampleRate == null ||
-        (tracesSampleRate >= 0 && tracesSampleRate <= 1));
+    assert(
+      tracesSampleRate == null ||
+          (tracesSampleRate >= 0 && tracesSampleRate <= 1),
+    );
     _tracesSampleRate = tracesSampleRate;
   }
 
@@ -533,15 +513,20 @@ class SentryOptions {
       List.unmodifiable(_exceptionTypeIdentifiers);
 
   void addExceptionTypeIdentifierByIndex(
-      int index, ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    int index,
+    ExceptionTypeIdentifier exceptionTypeIdentifier,
+  ) {
     _exceptionTypeIdentifiers.insert(
-        index, exceptionTypeIdentifier.withCache());
+      index,
+      exceptionTypeIdentifier.withCache(),
+    );
   }
 
   /// Adds an exception type identifier to the beginning of the list.
   /// This ensures it is processed first and takes precedence over existing identifiers.
   void prependExceptionTypeIdentifier(
-      ExceptionTypeIdentifier exceptionTypeIdentifier) {
+    ExceptionTypeIdentifier exceptionTypeIdentifier,
+  ) {
     addExceptionTypeIdentifierByIndex(0, exceptionTypeIdentifier);
   }
 
@@ -698,8 +683,9 @@ class SentryOptions {
   late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
 
   @internal
-  late SentryStackTraceFactory stackTraceFactory =
-      SentryStackTraceFactory(this);
+  late SentryStackTraceFactory stackTraceFactory = SentryStackTraceFactory(
+    this,
+  );
 
   /// Factory for creating instrumentation spans.
   ///
@@ -709,87 +695,42 @@ class SentryOptions {
   /// Defaults to [LegacyInstrumentationSpanFactory] which uses the legacy [ISentrySpan] API.
   @internal
   InstrumentationSpanFactory spanFactory = LegacyInstrumentationSpanFactory();
-
-  @visibleForTesting
-  void debugLog(
-    SentryLevel level,
-    String message, {
-    String? logger,
-    Object? exception,
-    StackTrace? stackTrace,
-  }) {
-    developer.log(
-      '[${level.name}] $message',
-      level: level.toDartLogLevel(),
-      name: logger ?? 'sentry',
-      time: clock(),
-      error: exception,
-      stackTrace: stackTrace,
-    );
-  }
 }
-
-@visibleForTesting
-void noOpLog(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-}) {}
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
-  SentryEvent event,
-  Hint hint,
-);
+typedef BeforeSendCallback =
+    FutureOr<SentryEvent?> Function(SentryEvent event, Hint hint);
 
 /// This function is called with an SDK specific transaction object and can return a modified transaction
 /// object or nothing to skip reporting the transaction
-typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
-  SentryTransaction transaction,
-  Hint hint,
-);
+typedef BeforeSendTransactionCallback =
+    FutureOr<SentryTransaction?> Function(
+      SentryTransaction transaction,
+      Hint hint,
+    );
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
-  Breadcrumb? breadcrumb,
-  Hint hint,
-);
+typedef BeforeBreadcrumbCallback =
+    Breadcrumb? Function(Breadcrumb? breadcrumb, Hint hint);
 
 /// This function is called right before a log is about to be sent.
 /// Can return a modified log or null to drop the log.
-typedef BeforeSendLogCallback = FutureOr<SentryLog?> Function(
-  SentryLog log,
-  Hint hint,
-);
+typedef BeforeSendLogCallback =
+    FutureOr<SentryLog?> Function(SentryLog log, Hint hint);
 
 /// This function is called right before a metric is about to be emitted.
 /// Can return a modified metric or null to drop the metric.
-typedef BeforeSendMetricCallback = FutureOr<SentryMetric?> Function(
-  SentryMetric metric,
-  Hint hint,
-);
+typedef BeforeSendMetricCallback =
+    FutureOr<SentryMetric?> Function(SentryMetric metric, Hint hint);
 
 /// This function is called right before a span is about to be sent.
-typedef BeforeSendSpanCallback = FutureOr<void> Function(
-  SentrySpanV2 span,
-  Hint hint,
-);
+typedef BeforeSendSpanCallback =
+    FutureOr<void> Function(SentrySpanV2 span, Hint hint);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
 
-/// Logger callback to log useful debugging information if debug is enabled
-typedef SdkLogCallback = void Function(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-});
-
-typedef TracesSamplerCallback = double? Function(
-    SentrySamplingContext samplingContext);
+typedef TracesSamplerCallback =
+    double? Function(SentrySamplingContext samplingContext);

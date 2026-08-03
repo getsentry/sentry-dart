@@ -48,18 +48,21 @@ final _androidOsRegexp = RegExp('^(?<build>.*)\$', caseSensitive: false);
 
 // Linux 5.11.0-1018-gcp #20~20.04.2-Ubuntu SMP Fri Sep 3 01:01:37 UTC 2021
 final _linuxOsRegexp = RegExp(
-    '(?<kernelVersion>[a-z0-9+.\\-]+) (?<build>#.*)\$',
-    caseSensitive: false);
+  '(?<kernelVersion>[a-z0-9+.\\-]+) (?<build>#.*)\$',
+  caseSensitive: false,
+);
 
 // Version 14.5 (Build 18E182)
 final _appleOsRegexp = RegExp(
-    '(?<version>[a-z0-9+.\\-]+)( \\(Build (?<build>[a-z0-9+.\\-]+))\\)?\$',
-    caseSensitive: false);
+  '(?<version>[a-z0-9+.\\-]+)( \\(Build (?<build>[a-z0-9+.\\-]+))\\)?\$',
+  caseSensitive: false,
+);
 
 // "Windows 10 Pro" 10.0 (Build 19043)
 final _windowsOsRegexp = RegExp(
-    ' (?<version>[a-z0-9+.\\-]+)( \\(Build (?<build>[a-z0-9+.\\-]+))\\)?\$',
-    caseSensitive: false);
+  ' (?<version>[a-z0-9+.\\-]+)( \\(Build (?<build>[a-z0-9+.\\-]+))\\)?\$',
+  caseSensitive: false,
+);
 
 extension on RegExpMatch {
   String? namedGroupOrNull(String name) {

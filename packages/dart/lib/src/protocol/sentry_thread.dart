@@ -23,8 +23,9 @@ class SentryThread {
       name: json['name'] as String?,
       crashed: json['crashed'] as bool?,
       current: json['current'] as bool?,
-      stacktrace:
-          json['stacktrace'] == null ? null : SentryStackTrace.fromJson(json),
+      stacktrace: json['stacktrace'] == null
+          ? null
+          : SentryStackTrace.fromJson(json),
       unknown: json.notAccessed(),
     );
   }

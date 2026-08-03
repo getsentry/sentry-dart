@@ -77,13 +77,13 @@ class SentrySupabaseClient extends BaseClient {
     Hub? hub,
     List<SentryStatusCode>? failedRequestStatusCodes,
   }) : _innerClient = _buildWrappedClient(
-          client ?? Client(),
-          enableBreadcrumbs,
-          enableTracing,
-          enableErrors,
-          hub ?? HubAdapter(),
-          failedRequestStatusCodes,
-        );
+         client ?? Client(),
+         enableBreadcrumbs,
+         enableTracing,
+         enableErrors,
+         hub ?? HubAdapter(),
+         failedRequestStatusCodes,
+       );
 
   static Client _buildWrappedClient(
     Client baseClient,

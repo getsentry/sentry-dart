@@ -5,6 +5,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/utils/stacktrace_utils.dart';
 
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 import '../utils/platform_dispatcher_wrapper.dart';
 
 typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
@@ -48,11 +49,9 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       // error printing. To make sure these exceptions are still visible
       // to developers (and to Sentry), we log them explicitly here.
       if (handled) {
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'Uncaught Platform Error',
-          logger: 'sentry.platformError',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
       }

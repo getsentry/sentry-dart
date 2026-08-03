@@ -1,8 +1,8 @@
 part of 'sentry_span_v2.dart';
 
 /// Factory for creating a [SentryTraceContextHeader] from a [RecordingSentrySpanV2].
-typedef DscCreatorCallback = SentryTraceContextHeader Function(
-    RecordingSentrySpanV2 span);
+typedef DscCreatorCallback =
+    SentryTraceContextHeader Function(RecordingSentrySpanV2 span);
 
 /// Called when a span ends, allowing the span to be processed or buffered.
 typedef OnSpanEndCallback = Future<void> Function(RecordingSentrySpanV2 span);
@@ -36,22 +36,18 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// Private constructor. Use [root] or [child] factory constructors.
   RecordingSentrySpanV2._({
     required SentryId traceId,
-    required String name,
-    required OnSpanEndCallback onSpanEnd,
+    required this._name,
+    required this._onSpanEnd,
     required ClockProvider clock,
     required RecordingSentrySpanV2? parentSpan,
-    required DscCreatorCallback dscCreator,
-    required SentryTracesSamplingDecision samplingDecision,
+    required this._dscCreator,
+    required this._samplingDecision,
     DateTime? startTimestamp,
-  })  : _traceId = parentSpan?.traceId ?? traceId,
-        _name = name,
-        _parentSpan = parentSpan,
-        _clock = clock,
-        _onSpanEnd = onSpanEnd,
-        _startTimestamp = (startTimestamp ?? clock()).toUtc(),
-        _segmentSpan = parentSpan?.segmentSpan,
-        _dscCreator = dscCreator,
-        _samplingDecision = samplingDecision;
+  }) : _traceId = parentSpan?.traceId ?? traceId,
+       _parentSpan = parentSpan,
+       _clock = clock,
+       _startTimestamp = (startTimestamp ?? clock()).toUtc(),
+       _segmentSpan = parentSpan?.segmentSpan;
 
   /// Creates a root span with an explicit sampling decision.
   ///
@@ -139,7 +135,8 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
 
     unawaited(_onSpanEnd(this));
     internalLogger.debug(
-        'Span $name ended with start timestamp: $_startTimestamp, end timestamp: $_endTimestamp');
+      'Span $name ended with start timestamp: $_startTimestamp, end timestamp: $_endTimestamp',
+    );
   }
 
   /// The sampling decision for this span's trace.
@@ -202,13 +199,15 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
       'is_segment': _parentSpan == null,
       'name': _name,
       'status': _status.value,
-      'end_timestamp':
-          _endTimestamp == null ? null : toUnixSeconds(_endTimestamp!),
+      'end_timestamp': _endTimestamp == null
+          ? null
+          : toUnixSeconds(_endTimestamp!),
       'start_timestamp': toUnixSeconds(_startTimestamp),
       // Create a copy of attributes in case attributes are mutated during serialization
       if (_attributes.isNotEmpty)
-        'attributes': Map.from(_attributes)
-            .map((key, value) => MapEntry(key, value.toJson())),
+        'attributes': Map.from(
+          _attributes,
+        ).map((key, value) => MapEntry(key, value.toJson())),
       if (_parentSpan != null) 'parent_span_id': _parentSpan.spanId.toString(),
     };
   }

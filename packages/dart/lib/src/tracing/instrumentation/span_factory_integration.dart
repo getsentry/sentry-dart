@@ -14,7 +14,8 @@ class InstrumentationSpanFactorySetupIntegration
     }
 
     options.sdk.addIntegration(integrationName);
-    internalLogger
-        .debug('$integrationName: Span factory configured successfully');
+    internalLogger.debug(
+      '$integrationName: Span factory configured successfully',
+    );
   }
 }

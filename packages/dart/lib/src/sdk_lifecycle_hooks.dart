@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'utils/internal_logger.dart';
 
 @internal
-typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
-    Function(T event);
+typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> =
+    FutureOr<void> Function(T event);
 
 @internal
 abstract class SdkLifecycleEvent {}
@@ -23,13 +24,15 @@ class SdkLifecycleRegistry {
   Map<Type, List<Function>> get lifecycleCallbacks => _lifecycleCallbacks;
 
   void registerCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {
+    SdkLifecycleCallback<T> callback,
+  ) {
     _lifecycleCallbacks[T] ??= [];
     _lifecycleCallbacks[T]?.add(callback);
   }
 
   void removeCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {
+    SdkLifecycleCallback<T> callback,
+  ) {
     final callbacks = _lifecycleCallbacks[T];
     callbacks?.remove(callback);
   }
@@ -44,7 +47,9 @@ class SdkLifecycleRegistry {
   }
 
   Future<void> _dispatchCallbackAsync<T extends SdkLifecycleEvent>(
-      T event, List<Function> callbacks) async {
+    T event,
+    List<Function> callbacks,
+  ) async {
     for (final cb in List<Function>.of(callbacks)) {
       try {
         final result = (cb as SdkLifecycleCallback<T>)(event);
@@ -52,10 +57,9 @@ class SdkLifecycleRegistry {
           await result;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'The SDK lifecycle callback threw an exception',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {

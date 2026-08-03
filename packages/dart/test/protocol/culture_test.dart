@@ -23,33 +23,43 @@ void main() {
       test('maps populated fields to stable semantic attribute keys', () {
         final attributes = _generate().toAttributes();
 
-        expect(attributes[SemanticAttributesConstants.cultureCalendar]?.value,
-            'FooCalendar');
-        expect(attributes[SemanticAttributesConstants.cultureCalendar]?.type,
-            'string');
         expect(
-            attributes[SemanticAttributesConstants.cultureDisplayName]?.value,
-            'FooLanguage');
-        expect(attributes[SemanticAttributesConstants.cultureLocale]?.value,
-            'fo-ba');
+          attributes[SemanticAttributesConstants.cultureCalendar]?.value,
+          'FooCalendar',
+        );
         expect(
-            attributes[SemanticAttributesConstants.cultureIs24HourFormat]
-                ?.value,
-            true);
+          attributes[SemanticAttributesConstants.cultureCalendar]?.type,
+          'string',
+        );
         expect(
-            attributes[SemanticAttributesConstants.cultureIs24HourFormat]?.type,
-            'boolean');
-        expect(attributes[SemanticAttributesConstants.cultureTimezone]?.value,
-            'best-timezone');
+          attributes[SemanticAttributesConstants.cultureDisplayName]?.value,
+          'FooLanguage',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.cultureLocale]?.value,
+          'fo-ba',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.cultureIs24HourFormat]?.value,
+          true,
+        );
+        expect(
+          attributes[SemanticAttributesConstants.cultureIs24HourFormat]?.type,
+          'boolean',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.cultureTimezone]?.value,
+          'best-timezone',
+        );
       });
     });
   });
 }
 
 SentryCulture _generate() => SentryCulture(
-      calendar: 'FooCalendar',
-      displayName: 'FooLanguage',
-      is24HourFormat: true,
-      locale: 'fo-ba',
-      timezone: 'best-timezone',
-    );
+  calendar: 'FooCalendar',
+  displayName: 'FooLanguage',
+  is24HourFormat: true,
+  locale: 'fo-ba',
+  timezone: 'best-timezone',
+);

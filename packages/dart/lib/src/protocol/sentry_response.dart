@@ -46,16 +46,14 @@ class SentryResponse {
     this.statusCode,
     Map<String, String>? headers,
     String? cookies,
-    Object? data,
-  })  : _data = data,
-        _headers = headers != null ? Map.from(headers) : null,
-        // Look for a 'Set-Cookie' header (case insensitive) if not given.
-        cookies = cookies ??
-            headers?.entries
-                .firstWhereOrNull(
-                  (e) => e.key.toLowerCase() == 'set-cookie',
-                )
-                ?.value;
+    this._data,
+  }) : _headers = headers != null ? Map.from(headers) : null,
+       // Look for a 'Set-Cookie' header (case insensitive) if not given.
+       cookies =
+           cookies ??
+           headers?.entries
+               .firstWhereOrNull((e) => e.key.toLowerCase() == 'set-cookie')
+               ?.value;
 
   /// Deserializes a [SentryResponse] from JSON [Map].
   factory SentryResponse.fromJson(Map<String, dynamic> json) {

@@ -46,8 +46,8 @@ import '../utils/http_sanitizer.dart';
 /// ```
 class BreadcrumbClient extends BaseClient {
   BreadcrumbClient({Client? client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client();
+    : _hub = hub ?? HubAdapter(),
+      _client = client ?? Client();
 
   final Client _client;
   final Hub _hub;

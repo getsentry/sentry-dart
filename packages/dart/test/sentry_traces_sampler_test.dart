@@ -39,13 +39,17 @@ void main() {
 
       test('uses tracesSampler callback when provided', () {
         double? sampler(SentrySamplingContext samplingContext) {
-          expect(samplingContext.traceLifecycle,
-              equals(SentryTraceLifecycle.stream));
+          expect(
+            samplingContext.traceLifecycle,
+            equals(SentryTraceLifecycle.stream),
+          );
           return 1.0;
         }
 
-        final sut =
-            fixture.getSut(tracesSampleRate: null, tracesSampler: sampler);
+        final sut = fixture.getSut(
+          tracesSampleRate: null,
+          tracesSampler: sampler,
+        );
         final spanContext = SentrySpanSamplingContextV2('test-span', {});
         final context = SentrySamplingContext.forSpanV2(spanContext);
 
@@ -102,10 +106,7 @@ void main() {
           tracesSampler: sampler,
         );
 
-        final trContext = SentryTransactionContext(
-          'name',
-          'op',
-        );
+        final trContext = SentryTransactionContext('name', 'op');
         final context = SentrySamplingContext.forTransaction(trContext);
 
         expect(sut.sample(context, _sampleRand).sampled, true);
@@ -127,10 +128,7 @@ void main() {
       test('samples with tracesSampleRate 1.0', () {
         final sut = fixture.getSut();
 
-        final trContext = SentryTransactionContext(
-          'name',
-          'op',
-        );
+        final trContext = SentryTransactionContext('name', 'op');
         final context = SentrySamplingContext.forTransaction(trContext);
 
         expect(sut.sample(context, _sampleRand).sampled, true);
@@ -139,10 +137,7 @@ void main() {
       test('does not sample with tracesSampleRate 0.0', () {
         final sut = fixture.getSut(tracesSampleRate: 0.0);
 
-        final trContext = SentryTransactionContext(
-          'name',
-          'op',
-        );
+        final trContext = SentryTransactionContext('name', 'op');
         final context = SentrySamplingContext.forTransaction(trContext);
 
         expect(sut.sample(context, _sampleRand).sampled, false);
@@ -151,10 +146,7 @@ void main() {
       test('does not sample when tracing is disabled', () {
         final sut = fixture.getSut(tracesSampleRate: null, tracesSampler: null);
 
-        final trContext = SentryTransactionContext(
-          'name',
-          'op',
-        );
+        final trContext = SentryTransactionContext('name', 'op');
         final context = SentrySamplingContext.forTransaction(trContext);
         final samplingDecision = sut.sample(context, _sampleRand);
 
@@ -174,10 +166,7 @@ void main() {
 
         fixture.options.tracesSampler = sampler;
 
-        final trContext = SentryTransactionContext(
-          'name',
-          'op',
-        );
+        final trContext = SentryTransactionContext('name', 'op');
         final context = SentrySamplingContext.forTransaction(trContext);
         sut.sample(context, _sampleRand);
 
@@ -202,18 +191,19 @@ class Fixture {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
-    options.log = mockLogger;
+    if (debug) {
+      configureDiagnosticTestLogger(onLog: mockLogger);
+    }
     return SentryTracesSampler(options);
   }
 
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     loggedLevel = level;
-    loggedException = exception;
+    loggedException = error;
   }
 }

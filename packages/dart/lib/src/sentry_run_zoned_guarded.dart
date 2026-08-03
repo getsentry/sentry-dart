@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'utils/internal_logger.dart';
 
 @internal
 class SentryRunZonedGuarded {
@@ -72,12 +73,11 @@ class SentryRunZonedGuarded {
 
         try {
           _isPrinting = true;
-          unawaited(hub.addBreadcrumb(
-            Breadcrumb.console(
-              message: line,
-              level: SentryLevel.debug,
+          unawaited(
+            hub.addBreadcrumb(
+              Breadcrumb.console(message: line, level: SentryLevel.debug),
             ),
-          ));
+          );
           parent.print(zone, line);
         } finally {
           _isPrinting = false;
@@ -98,11 +98,9 @@ class SentryRunZonedGuarded {
     Object exception,
     StackTrace stackTrace,
   ) async {
-    options.log(
-      SentryLevel.error,
+    internalLogger.error(
       'Uncaught zone error',
-      logger: 'sentry.runZonedGuarded',
-      exception: exception,
+      error: exception,
       stackTrace: stackTrace,
     );
 

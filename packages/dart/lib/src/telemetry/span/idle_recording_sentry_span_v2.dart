@@ -50,10 +50,9 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     required this.idleTimeout,
     required this.finalTimeout,
     required this.trimEndTimestamp,
-    required SdkLifecycleRegistry lifecycleRegistry,
+    required this._lifecycleRegistry,
     super.startTimestamp,
-  })  : _lifecycleRegistry = lifecycleRegistry,
-        super._(parentSpan: null) {
+  }) : super._(parentSpan: null) {
     _finalDeadlineTimestamp = _clock().toUtc().add(finalTimeout);
     _lifecycleRegistry.registerCallback<OnSpanStartV2>(_onSpanStartEvent);
     _lifecycleRegistry.registerCallback<OnSpanEndV2>(_onSpanEndEvent);
@@ -143,10 +142,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _cancelFinalTimer();
   }
 
-  void _end(
-    _IdleSpanFinishReason reason, {
-    DateTime? requestedEndTimestamp,
-  }) {
+  void _end(_IdleSpanFinishReason reason, {DateTime? requestedEndTimestamp}) {
     if (_isEnding) return;
 
     _isEnding = true;
@@ -181,7 +177,8 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     super.end(endTimestamp: finalEndTimestamp);
 
     internalLogger.debug(
-      () => 'IdleRecordingSentrySpanV2: finished idle span "$name" '
+      () =>
+          'IdleRecordingSentrySpanV2: finished idle span "$name" '
           'with reason: ${reason.name}',
     );
   }
@@ -196,8 +193,9 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     for (final child in _activeDescendants.values.toList()) {
       if (child.isEnded) continue;
 
-      child.status =
-          deadlineExceeded ? SentrySpanStatusV2.error : SentrySpanStatusV2.ok;
+      child.status = deadlineExceeded
+          ? SentrySpanStatusV2.error
+          : SentrySpanStatusV2.ok;
       if (deadlineExceeded) {
         child.setAttribute(
           SemanticAttributesConstants.sentryStatusMessage,
@@ -213,7 +211,8 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
       _trackLatestChildEnd(childEndTimestamp);
 
       internalLogger.debug(
-        () => 'IdleRecordingSentrySpanV2: finished still-active child span '
+        () =>
+            'IdleRecordingSentrySpanV2: finished still-active child span '
             '"${child.name}"',
       );
     }

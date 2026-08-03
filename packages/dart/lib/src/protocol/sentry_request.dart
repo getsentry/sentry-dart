@@ -78,20 +78,18 @@ class SentryRequest {
     String? cookies,
     this.fragment,
     this.apiTarget,
-    dynamic data,
+    this._data,
     Map<String, String>? headers,
     Map<String, String>? env,
     this.unknown,
-  })  : _data = data,
-        _headers = headers != null ? Map.from(headers) : null,
-        // Look for a 'Set-Cookie' header (case insensitive) if not given.
-        cookies = cookies ??
-            headers?.entries
-                .firstWhereOrNull(
-                  (e) => e.key.toLowerCase() == 'cookie',
-                )
-                ?.value,
-        _env = env != null ? Map.from(env) : null;
+  }) : _headers = headers != null ? Map.from(headers) : null,
+       // Look for a 'Set-Cookie' header (case insensitive) if not given.
+       cookies =
+           cookies ??
+           headers?.entries
+               .firstWhereOrNull((e) => e.key.toLowerCase() == 'cookie')
+               ?.value,
+       _env = env != null ? Map.from(env) : null;
 
   factory SentryRequest.fromUri({
     required Uri uri,

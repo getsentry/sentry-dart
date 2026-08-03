@@ -82,7 +82,10 @@ void main() {
         final span = fixture.createSpan(traceId: spanTraceId);
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.traceId, equals(spanTraceId));
       });
@@ -91,7 +94,10 @@ void main() {
         final span = fixture.createSpan();
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.publicKey, equals('public'));
       });
@@ -101,7 +107,10 @@ void main() {
         final span = fixture.createSpan();
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.release, equals('test-release@1.0.0'));
       });
@@ -111,7 +120,10 @@ void main() {
         final span = fixture.createSpan();
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.environment, equals('test-environment'));
       });
@@ -120,7 +132,10 @@ void main() {
         final span = fixture.createSpan(name: 'my-transaction-name');
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.transaction, equals('my-transaction-name'));
       });
@@ -137,7 +152,10 @@ void main() {
         );
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         // Should use span's sampling decision rate (0.75), not options rate (0.1)
         expect(dsc.sampleRate, equals('0.75'));
@@ -153,7 +171,10 @@ void main() {
         );
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.sampleRand, equals('0.123456'));
       });
@@ -163,7 +184,10 @@ void main() {
         final span = fixture.createSpan();
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.sampled, equals('true'));
       });
@@ -174,7 +198,10 @@ void main() {
         final span = fixture.createSpan();
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.replayId, equals(replayId));
       });
@@ -184,18 +211,26 @@ void main() {
         final span = fixture.createSpan();
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            span, fixture.options, fixture.hub.scope.replayId);
+          span,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         expect(dsc.replayId, isNull);
       });
 
       test('with child span uses segment span name as transaction', () {
         final rootSpan = fixture.createSpan(name: 'root-transaction');
-        final childSpan =
-            fixture.createChildSpan(parent: rootSpan, name: 'child-operation');
+        final childSpan = fixture.createChildSpan(
+          parent: rootSpan,
+          name: 'child-operation',
+        );
 
         final dsc = SentryTraceContextHeader.fromRecordingSpan(
-            childSpan, fixture.options, fixture.hub.scope.replayId);
+          childSpan,
+          fixture.options,
+          fixture.hub.scope.replayId,
+        );
 
         // Should use the root/segment span name, not the child span name
         expect(dsc.transaction, equals('root-transaction'));
@@ -223,7 +258,10 @@ class _Fixture {
       onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
-          span, options, hub.scope.replayId),
+        span,
+        options,
+        hub.scope.replayId,
+      ),
       samplingDecision: samplingDecision ?? SentryTracesSamplingDecision(true),
     );
   }
@@ -238,7 +276,10 @@ class _Fixture {
       onSpanEnd: (_) async {},
       clock: options.clock,
       dscCreator: (span) => SentryTraceContextHeader.fromRecordingSpan(
-          span, options, hub.scope.replayId),
+        span,
+        options,
+        hub.scope.replayId,
+      ),
     );
   }
 }

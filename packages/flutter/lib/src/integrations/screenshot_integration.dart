@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 import '../event_processor/screenshot_event_processor.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 
 /// Adds [ScreenshotEventProcessor] to options event processors if
 /// [SentryFlutterOptions.attachScreenshot] is true
@@ -12,8 +13,7 @@ class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     if (options.isMultiViewApp) {
       // ignore: invalid_use_of_internal_member
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '`ScreenshotIntegration` is not available in multi-view applications.',
       );
       return;

@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 // ignore: implementation_imports
 import '../isolate/isolate_helper.dart';
+import '../utils/internal_logger.dart';
 
 /// Integration for adding thread information to spans.
 ///
@@ -25,10 +26,7 @@ class ThreadInfoIntegration implements Integration<SentryFlutterOptions> {
     _hub = hub;
 
     if (!options.isTracingEnabled()) {
-      options.log(
-        SentryLevel.info,
-        '$integrationName disabled: tracing is not enabled',
-      );
+      internalLogger.info('$integrationName disabled: tracing is not enabled');
       return;
     }
 

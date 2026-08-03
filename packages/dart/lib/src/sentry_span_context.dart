@@ -45,8 +45,8 @@ class SentrySpanContext {
     required this.operation,
     this.description,
     this.origin,
-  })  : traceId = traceId ?? SentryId.newId(),
-        spanId = spanId ?? SpanId.newId();
+  }) : traceId = traceId ?? SentryId.newId(),
+       spanId = spanId ?? SpanId.newId();
 
   @internal
   SentryTraceContext toTraceContext({

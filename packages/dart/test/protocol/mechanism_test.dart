@@ -39,19 +39,13 @@ void main() {
     test('toJson', () {
       final json = mechanism.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(mechanismJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(mechanismJson, json), true);
     });
     test('fromJson', () {
       final mechanism = Mechanism.fromJson(mechanismJson);
       final json = mechanism.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(mechanismJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(mechanismJson, json), true);
     });
   });
 }

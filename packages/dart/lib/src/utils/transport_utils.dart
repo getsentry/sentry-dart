@@ -9,11 +9,16 @@ import '../transport/data_category.dart';
 import 'internal_logger.dart';
 
 class TransportUtils {
-  static void logResponse(SentryEnvelope envelope, Response response,
-      {required String target}) {
+  static void logResponse(
+    SentryEnvelope envelope,
+    Response response, {
+    required String target,
+  }) {
     if (response.statusCode != 200) {
-      internalLogger.error(() =>
-          'Failed to send envelope, statusCode = ${response.statusCode}, body = ${response.body}');
+      internalLogger.error(
+        () =>
+            'Failed to send envelope, statusCode = ${response.statusCode}, body = ${response.body}',
+      );
     } else {
       internalLogger.debug(
         () =>
@@ -23,7 +28,10 @@ class TransportUtils {
   }
 
   static void recordLostEvents(
-      SentryOptions options, SentryEnvelope envelope, DiscardReason reason) {
+    SentryOptions options,
+    SentryEnvelope envelope,
+    DiscardReason reason,
+  ) {
     for (final item in envelope.items) {
       final category = DataCategory.fromItemType(item.header.type);
       if (category == DataCategory.logItem) {

@@ -97,8 +97,9 @@ class Hint {
   // Key/Value Storage
 
   void addAll(Map<String, dynamic> keysAndValues) {
-    final withoutNullValues =
-        keysAndValues.map((key, value) => MapEntry(key, value ?? "null"));
+    final withoutNullValues = keysAndValues.map(
+      (key, value) => MapEntry(key, value ?? "null"),
+    );
     _internalStorage.addAll(withoutNullValues);
   }
 

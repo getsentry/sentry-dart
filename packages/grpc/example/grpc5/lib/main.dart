@@ -13,15 +13,12 @@ import 'package:sentry_grpc/sentry_grpc.dart';
 import 'app_config.dart' as config;
 
 Future<void> main() async {
-  await Sentry.init(
-    (options) {
-      options.dsn = config.exampleDsn;
-      options.tracesSampleRate = 1.0;
-      options.captureFailedRequests = true;
-      options.debug = true;
-    },
-    appRunner: _runApp,
-  );
+  await Sentry.init((options) {
+    options.dsn = config.exampleDsn;
+    options.tracesSampleRate = 1.0;
+    options.captureFailedRequests = true;
+    options.debug = true;
+  }, appRunner: _runApp);
 }
 
 Future<void> _runApp() async {
@@ -201,20 +198,19 @@ class _ErrorDetailsService extends Service {
   String get $name => 'sentry.example.ErrorDetails';
 
   _ErrorDetailsService() {
-    $addMethod(ServiceMethod<List<int>, List<int>>(
-      'GetWithDetails',
-      _handle,
-      false,
-      false,
-      (bytes) => bytes,
-      (bytes) => bytes,
-    ));
+    $addMethod(
+      ServiceMethod<List<int>, List<int>>(
+        'GetWithDetails',
+        _handle,
+        false,
+        false,
+        (bytes) => bytes,
+        (bytes) => bytes,
+      ),
+    );
   }
 
-  Future<List<int>> _handle(
-    ServiceCall call,
-    Future<List<int>> request,
-  ) async {
+  Future<List<int>> _handle(ServiceCall call, Future<List<int>> request) async {
     throw _buildRichGrpcError(StatusCode.invalidArgument);
   }
 }

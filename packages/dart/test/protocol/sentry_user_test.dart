@@ -29,19 +29,13 @@ void main() {
 
       print("$json");
 
-      expect(
-        DeepCollectionEquality().equals(sentryUserJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryUserJson, json), true);
     });
     test('fromJson', () {
       final sentryUser = SentryUser.fromJson(sentryUserJson);
       final json = sentryUser.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryUserJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryUserJson, json), true);
     });
 
     test('toJson only serialises non-null values', () {
@@ -68,32 +62,44 @@ void main() {
   });
 
   group('toAttributes', () {
-    test('returns empty map when id, name, email, and ipAddress are all null',
-        () {
-      expect(SentryUser(username: 'ada').toAttributes(), isEmpty);
-    });
+    test(
+      'returns empty map when id, name, email, and ipAddress are all null',
+      () {
+        expect(SentryUser(username: 'ada').toAttributes(), isEmpty);
+      },
+    );
 
     test(
-        'maps id, name, email, and ipAddress to stable semantic attribute keys',
-        () {
-      final user = SentryUser(
-        id: 'user-123',
-        name: 'Ada Lovelace',
-        email: 'ada@example.com',
-        ipAddress: '127.0.0.1',
-      );
+      'maps id, name, email, and ipAddress to stable semantic attribute keys',
+      () {
+        final user = SentryUser(
+          id: 'user-123',
+          name: 'Ada Lovelace',
+          email: 'ada@example.com',
+          ipAddress: '127.0.0.1',
+        );
 
-      final attributes = user.toAttributes();
+        final attributes = user.toAttributes();
 
-      expect(attributes[SemanticAttributesConstants.userId]?.value, 'user-123');
-      expect(attributes[SemanticAttributesConstants.userId]?.type, 'string');
-      expect(attributes[SemanticAttributesConstants.userName]?.value,
-          'Ada Lovelace');
-      expect(attributes[SemanticAttributesConstants.userEmail]?.value,
-          'ada@example.com');
-      expect(attributes[SemanticAttributesConstants.userIpAddress]?.value,
-          '127.0.0.1');
-    });
+        expect(
+          attributes[SemanticAttributesConstants.userId]?.value,
+          'user-123',
+        );
+        expect(attributes[SemanticAttributesConstants.userId]?.type, 'string');
+        expect(
+          attributes[SemanticAttributesConstants.userName]?.value,
+          'Ada Lovelace',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.userEmail]?.value,
+          'ada@example.com',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.userIpAddress]?.value,
+          '127.0.0.1',
+        );
+      },
+    );
 
     test('maps populated geo fields to stable user.geo.* keys', () {
       final user = SentryUser(
@@ -110,15 +116,25 @@ void main() {
       final attributes = user.toAttributes();
 
       expect(
-          attributes[SemanticAttributesConstants.userGeoCity]?.value, 'Vienna');
-      expect(attributes[SemanticAttributesConstants.userGeoCountryCode]?.value,
-          'AT');
-      expect(attributes[SemanticAttributesConstants.userGeoRegion]?.value,
-          'Vienna');
-      expect(attributes[SemanticAttributesConstants.userGeoSubregion]?.value,
-          'Europe');
-      expect(attributes[SemanticAttributesConstants.userGeoSubdivision]?.value,
-          'Wien');
+        attributes[SemanticAttributesConstants.userGeoCity]?.value,
+        'Vienna',
+      );
+      expect(
+        attributes[SemanticAttributesConstants.userGeoCountryCode]?.value,
+        'AT',
+      );
+      expect(
+        attributes[SemanticAttributesConstants.userGeoRegion]?.value,
+        'Vienna',
+      );
+      expect(
+        attributes[SemanticAttributesConstants.userGeoSubregion]?.value,
+        'Europe',
+      );
+      expect(
+        attributes[SemanticAttributesConstants.userGeoSubdivision]?.value,
+        'Wien',
+      );
     });
 
     test('omits geo attributes when geo is null', () {
@@ -126,24 +142,25 @@ void main() {
 
       final attributes = user.toAttributes();
 
-      expect(attributes.containsKey(SemanticAttributesConstants.userGeoCity),
-          false);
       expect(
-          attributes
-              .containsKey(SemanticAttributesConstants.userGeoCountryCode),
-          false);
+        attributes.containsKey(SemanticAttributesConstants.userGeoCity),
+        false,
+      );
+      expect(
+        attributes.containsKey(SemanticAttributesConstants.userGeoCountryCode),
+        false,
+      );
     });
 
     test('omits fields without a stable semantic key', () {
-      final user = SentryUser(
-        id: 'user-123',
-        username: 'adalovelace',
-      );
+      final user = SentryUser(id: 'user-123', username: 'adalovelace');
 
       final attributes = user.toAttributes();
 
-      expect(attributes.keys,
-          unorderedEquals([SemanticAttributesConstants.userId]));
+      expect(
+        attributes.keys,
+        unorderedEquals([SemanticAttributesConstants.userId]),
+      );
     });
   });
 }

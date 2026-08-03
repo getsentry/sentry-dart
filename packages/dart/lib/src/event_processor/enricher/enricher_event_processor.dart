@@ -8,6 +8,5 @@ abstract class EnricherEventProcessor implements EventProcessor {
   factory EnricherEventProcessor(
     SentryOptions options,
     PlatformContextProvider provider,
-  ) =>
-      enricherEventProcessor(options, provider);
+  ) => enricherEventProcessor(options, provider);
 }

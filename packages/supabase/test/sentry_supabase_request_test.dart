@@ -17,8 +17,10 @@ void main() {
   group('SentrySupabaseRequest', () {
     group('only consider "rest/v1" as the base path', () {
       test('ignores non-rest/v1 paths', () {
-        final request =
-            Request('GET', Uri.parse('https://example.com/foo/v1/users'));
+        final request = Request(
+          'GET',
+          Uri.parse('https://example.com/foo/v1/users'),
+        );
         final supabaseRequest = SentrySupabaseRequest.fromRequest(
           request,
           options: mockOptions,
@@ -29,15 +31,16 @@ void main() {
     group('generateSqlQuery', () {
       group('SELECT operations', () {
         test('basic SELECT', () {
-          final request =
-              Request('GET', Uri.parse('https://example.com/rest/v1/users'));
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
-
-          expect(
-            supabaseRequest.generateSqlQuery(),
-            'SELECT * FROM "users"',
+          final request = Request(
+            'GET',
+            Uri.parse('https://example.com/rest/v1/users'),
           );
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
+
+          expect(supabaseRequest.generateSqlQuery(), 'SELECT * FROM "users"');
         });
       });
 
@@ -47,8 +50,10 @@ void main() {
             'POST',
             Uri.parse('https://example.com/rest/v1/users'),
           )..body = jsonEncode({'name': 'John', 'email': 'john@example.com'});
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -57,11 +62,14 @@ void main() {
         });
 
         test('INSERT with single column', () {
-          final request =
-              Request('POST', Uri.parse('https://example.com/rest/v1/users'))
-                ..body = jsonEncode({'id': 42});
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final request = Request(
+            'POST',
+            Uri.parse('https://example.com/rest/v1/users'),
+          )..body = jsonEncode({'id': 42});
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -76,8 +84,10 @@ void main() {
             'POST',
             Uri.parse('https://example.com/rest/v1/users'),
           )..body = jsonEncode({'name': 'John', 'email': 'john@example.com'});
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -92,8 +102,10 @@ void main() {
             'PATCH',
             Uri.parse('https://example.com/rest/v1/users?id=eq.42'),
           )..body = jsonEncode({'name': 'Jane', 'email': 'jane@example.com'});
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -106,8 +118,10 @@ void main() {
             'PATCH',
             Uri.parse('https://example.com/rest/v1/users?id=eq.42'),
           )..body = jsonEncode({'status': 'active'});
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -116,11 +130,14 @@ void main() {
         });
 
         test('UPDATE without WHERE clause', () {
-          final request =
-              Request('PATCH', Uri.parse('https://example.com/rest/v1/users'))
-                ..body = jsonEncode({'status': 'inactive'});
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final request = Request(
+            'PATCH',
+            Uri.parse('https://example.com/rest/v1/users'),
+          )..body = jsonEncode({'status': 'inactive'});
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -135,8 +152,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?id=eq.42'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -145,15 +164,16 @@ void main() {
         });
 
         test('DELETE without WHERE clause', () {
-          final request =
-              Request('DELETE', Uri.parse('https://example.com/rest/v1/users'));
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
-
-          expect(
-            supabaseRequest.generateSqlQuery(),
-            'DELETE FROM "users"',
+          final request = Request(
+            'DELETE',
+            Uri.parse('https://example.com/rest/v1/users'),
           );
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
+
+          expect(supabaseRequest.generateSqlQuery(), 'DELETE FROM "users"');
         });
       });
 
@@ -163,8 +183,10 @@ void main() {
             'OPTIONS',
             Uri.parse('https://example.com/rest/v1/users'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -181,8 +203,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?id=eq.42'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -193,12 +217,12 @@ void main() {
         test('neq (not equals)', () {
           final request = Request(
             'DELETE',
-            Uri.parse(
-              'https://example.com/rest/v1/users?status=neq.inactive',
-            ),
+            Uri.parse('https://example.com/rest/v1/users?status=neq.inactive'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -211,8 +235,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?deleted=is.null'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -227,8 +253,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?age=gt.18'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -241,8 +269,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?age=gte.21'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -255,8 +285,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?age=lt.65'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -269,8 +301,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?age=lte.64'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -285,8 +319,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?name=like.*john*'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -299,8 +335,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?name=ilike.John'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -317,8 +355,10 @@ void main() {
               'https://example.com/rest/v1/users?status=in.("active","pending")',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -333,8 +373,10 @@ void main() {
               'https://example.com/rest/v1/users?status=in.(active,pending)',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -351,8 +393,10 @@ void main() {
               'https://example.com/rest/v1/users?id=eq.42&status=eq.active&age=gt.18',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -367,8 +411,10 @@ void main() {
               'https://example.com/rest/v1/users?id=eq.42&or=status.eq.inactive',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -383,8 +429,10 @@ void main() {
               'https://example.com/rest/v1/users?id=eq.42&or=status.eq.inactive&or=age.lt.18',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -399,8 +447,10 @@ void main() {
               'https://example.com/rest/v1/users?not=status.eq.deleted',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -413,8 +463,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?id=not.eq.32'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -429,8 +481,10 @@ void main() {
               'https://example.com/rest/v1/users?id=eq.42&age=gt.18&or=status.eq.premium&not=type.eq.bot',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -447,8 +501,10 @@ void main() {
               'https://example.com/rest/v1/users?id=eq.42&status=eq.active',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -461,8 +517,10 @@ void main() {
             'GET',
             Uri.parse('https://example.com/rest/v1/users?select=id,name'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -477,8 +535,10 @@ void main() {
               'https://example.com/rest/v1/users?select=id,name&id=eq.42',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -491,13 +551,12 @@ void main() {
             'GET',
             Uri.parse('https://example.com/rest/v1/users?select='),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
-          expect(
-            supabaseRequest.generateSqlQuery(),
-            'SELECT * FROM "users"',
-          );
+          expect(supabaseRequest.generateSqlQuery(), 'SELECT * FROM "users"');
         });
       });
 
@@ -507,13 +566,12 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?invalid_param'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
-          expect(
-            supabaseRequest.generateSqlQuery(),
-            'DELETE FROM "users"',
-          );
+          expect(supabaseRequest.generateSqlQuery(), 'DELETE FROM "users"');
         });
 
         test('empty query value', () {
@@ -521,13 +579,12 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?id='),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
-          expect(
-            supabaseRequest.generateSqlQuery(),
-            'DELETE FROM "users"',
-          );
+          expect(supabaseRequest.generateSqlQuery(), 'DELETE FROM "users"');
         });
 
         test('query with select that should be skipped in WHERE', () {
@@ -537,8 +594,10 @@ void main() {
               'https://example.com/rest/v1/users?select=name,email&id=eq.42',
             ),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -551,8 +610,10 @@ void main() {
             'DELETE',
             Uri.parse('https://example.com/rest/v1/users?id=unknown.42'),
           );
-          final supabaseRequest =
-              SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
           expect(
             supabaseRequest.generateSqlQuery(),
@@ -568,38 +629,47 @@ void main() {
           'GET',
           Uri.parse('https://example.com/rest/v1/my_table_name'),
         );
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
 
         expect(supabaseRequest.table, 'my_table_name');
       });
 
-      test('parses table name correctly when URL has additional path segments',
-          () {
-        // Test with URL like /rest/v1/users/123 where 'users' is the table name, not '123'
-        final request = Request(
-          'GET',
-          Uri.parse('https://example.com/rest/v1/users/123'),
-        );
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+      test(
+        'parses table name correctly when URL has additional path segments',
+        () {
+          // Test with URL like /rest/v1/users/123 where 'users' is the table name, not '123'
+          final request = Request(
+            'GET',
+            Uri.parse('https://example.com/rest/v1/users/123'),
+          );
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
-        expect(supabaseRequest.table, 'users');
-      });
+          expect(supabaseRequest.table, 'users');
+        },
+      );
 
       test(
-          'parses table name correctly when URL has multiple additional path segments',
-          () {
-        // Test with URL like /rest/v1/users/123/profile where 'users' is the table name
-        final request = Request(
-          'GET',
-          Uri.parse('https://example.com/rest/v1/users/123/profile'),
-        );
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        'parses table name correctly when URL has multiple additional path segments',
+        () {
+          // Test with URL like /rest/v1/users/123/profile where 'users' is the table name
+          final request = Request(
+            'GET',
+            Uri.parse('https://example.com/rest/v1/users/123/profile'),
+          );
+          final supabaseRequest = SentrySupabaseRequest.fromRequest(
+            request,
+            options: mockOptions,
+          )!;
 
-        expect(supabaseRequest.table, 'users');
-      });
+          expect(supabaseRequest.table, 'users');
+        },
+      );
 
       test('returns null for URLs with insufficient path segments', () {
         // Test with URL like /rest/v1 (missing table name)
@@ -607,8 +677,10 @@ void main() {
           'GET',
           Uri.parse('https://example.com/rest/v1'),
         );
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions);
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        );
 
         expect(supabaseRequest, isNull);
       });
@@ -619,47 +691,68 @@ void main() {
           'GET',
           Uri.parse('https://example.com/rest/v1/'),
         );
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions);
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        );
 
         expect(supabaseRequest, isNull);
       });
 
       test('parses operation from HTTP method and headers', () {
         // GET -> SELECT
-        var request =
-            Request('GET', Uri.parse('https://example.com/rest/v1/users'));
-        var supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        var request = Request(
+          'GET',
+          Uri.parse('https://example.com/rest/v1/users'),
+        );
+        var supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
         expect(supabaseRequest.operation.value, 'select');
 
         // POST -> INSERT
-        request =
-            Request('POST', Uri.parse('https://example.com/rest/v1/users'));
-        supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        request = Request(
+          'POST',
+          Uri.parse('https://example.com/rest/v1/users'),
+        );
+        supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
         expect(supabaseRequest.operation.value, 'insert');
 
         // POST with Prefer header -> UPSERT
-        request =
-            Request('POST', Uri.parse('https://example.com/rest/v1/users'))
-              ..headers['Prefer'] = 'resolution=merge-duplicates';
-        supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        request = Request(
+          'POST',
+          Uri.parse('https://example.com/rest/v1/users'),
+        )..headers['Prefer'] = 'resolution=merge-duplicates';
+        supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
         expect(supabaseRequest.operation.value, 'upsert');
 
         // PATCH -> UPDATE
-        request =
-            Request('PATCH', Uri.parse('https://example.com/rest/v1/users'));
-        supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        request = Request(
+          'PATCH',
+          Uri.parse('https://example.com/rest/v1/users'),
+        );
+        supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
         expect(supabaseRequest.operation.value, 'update');
 
         // DELETE -> DELETE
-        request =
-            Request('DELETE', Uri.parse('https://example.com/rest/v1/users'));
-        supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        request = Request(
+          'DELETE',
+          Uri.parse('https://example.com/rest/v1/users'),
+        );
+        supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
         expect(supabaseRequest.operation.value, 'delete');
       });
 
@@ -670,8 +763,10 @@ void main() {
             'https://example.com/rest/v1/users?id=eq.42&name=ilike.John&status=in.("active","pending")&select=id,name',
           ),
         );
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
 
         expect(
           supabaseRequest.query,
@@ -685,30 +780,40 @@ void main() {
       });
 
       test('parses JSON body', () {
-        final request =
-            Request('POST', Uri.parse('https://example.com/rest/v1/users'))
-              ..body = jsonEncode({'name': 'John', 'age': 30});
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions)!;
+        final request = Request(
+          'POST',
+          Uri.parse('https://example.com/rest/v1/users'),
+        )..body = jsonEncode({'name': 'John', 'age': 30});
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        )!;
 
         expect(supabaseRequest.body, {'name': 'John', 'age': 30});
       });
 
       test('handles non-JSON body gracefully', () {
-        final request =
-            Request('POST', Uri.parse('https://example.com/rest/v1/users'))
-              ..body = 'not valid json';
+        final request = Request(
+          'POST',
+          Uri.parse('https://example.com/rest/v1/users'),
+        )..body = 'not valid json';
 
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions);
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        );
         expect(supabaseRequest, isNull);
       });
 
       test('handles empty body', () {
-        final request =
-            Request('POST', Uri.parse('https://example.com/rest/v1/users'));
-        final supabaseRequest =
-            SentrySupabaseRequest.fromRequest(request, options: mockOptions);
+        final request = Request(
+          'POST',
+          Uri.parse('https://example.com/rest/v1/users'),
+        );
+        final supabaseRequest = SentrySupabaseRequest.fromRequest(
+          request,
+          options: mockOptions,
+        );
         expect(supabaseRequest, isNotNull);
         expect(supabaseRequest?.body, isNull);
       });

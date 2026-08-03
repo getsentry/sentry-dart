@@ -95,137 +95,147 @@ void main() {
   });
 
   group('Supabase Context', () {
-    test('should add supabase data to context if select request fails',
-        () async {
-      fixture.mockClient.statusCode = 404;
+    test(
+      'should add supabase data to context if select request fails',
+      () async {
+        fixture.mockClient.statusCode = 404;
 
-      final sut = fixture.getSut(
-        failedRequestStatusCodes: [SentryStatusCode(404)],
-      );
-      final supabase = fixture.getSupabaseClient(sut);
+        final sut = fixture.getSut(
+          failedRequestStatusCodes: [SentryStatusCode(404)],
+        );
+        final supabase = fixture.getSupabaseClient(sut);
 
-      try {
-        await supabase.from('mock-table').select().eq('id', 42);
-      } catch (e) {
-        // Ignore
-      }
+        try {
+          await supabase.from('mock-table').select().eq('id', 42);
+        } catch (e) {
+          // Ignore
+        }
 
-      expect(fixture.mockHub.captureEventCalls.length, 1);
-      final event = fixture.mockHub.captureEventCalls.first.$1;
+        expect(fixture.mockHub.captureEventCalls.length, 1);
+        final event = fixture.mockHub.captureEventCalls.first.$1;
 
-      expect(event.contexts['supabase'], isNotNull);
-      final supabaseContext =
-          event.contexts['supabase'] as Map<String, dynamic>;
-      expect(supabaseContext['table'], 'mock-table');
-      expect(supabaseContext['operation'], 'select');
-      expect(supabaseContext['query'], ['select(*)', 'eq(id, 42)']);
-    });
+        expect(event.contexts['supabase'], isNotNull);
+        final supabaseContext =
+            event.contexts['supabase'] as Map<String, dynamic>;
+        expect(supabaseContext['table'], 'mock-table');
+        expect(supabaseContext['operation'], 'select');
+        expect(supabaseContext['query'], ['select(*)', 'eq(id, 42)']);
+      },
+    );
 
-    test('should add supabase data to context if insert request fails',
-        () async {
-      fixture.mockClient.statusCode = 404;
+    test(
+      'should add supabase data to context if insert request fails',
+      () async {
+        fixture.mockClient.statusCode = 404;
 
-      final sut = fixture.getSut(
-        failedRequestStatusCodes: [SentryStatusCode(404)],
-      );
-      final supabase = fixture.getSupabaseClient(sut);
+        final sut = fixture.getSut(
+          failedRequestStatusCodes: [SentryStatusCode(404)],
+        );
+        final supabase = fixture.getSupabaseClient(sut);
 
-      try {
-        await supabase.from('mock-table').insert({'id': 42});
-      } catch (e) {
-        // Ignore
-      }
+        try {
+          await supabase.from('mock-table').insert({'id': 42});
+        } catch (e) {
+          // Ignore
+        }
 
-      expect(fixture.mockHub.captureEventCalls.length, 1);
-      final event = fixture.mockHub.captureEventCalls.first.$1;
+        expect(fixture.mockHub.captureEventCalls.length, 1);
+        final event = fixture.mockHub.captureEventCalls.first.$1;
 
-      expect(event.contexts['supabase'], isNotNull);
-      final supabaseContext =
-          event.contexts['supabase'] as Map<String, dynamic>;
-      expect(supabaseContext['table'], 'mock-table');
-      expect(supabaseContext['operation'], 'insert');
-      expect(supabaseContext['body'], {'id': 42});
-    });
+        expect(event.contexts['supabase'], isNotNull);
+        final supabaseContext =
+            event.contexts['supabase'] as Map<String, dynamic>;
+        expect(supabaseContext['table'], 'mock-table');
+        expect(supabaseContext['operation'], 'insert');
+        expect(supabaseContext['body'], {'id': 42});
+      },
+    );
 
-    test('should add supabase data to context if update request fails',
-        () async {
-      fixture.mockClient.statusCode = 404;
+    test(
+      'should add supabase data to context if update request fails',
+      () async {
+        fixture.mockClient.statusCode = 404;
 
-      final sut = fixture.getSut(
-        failedRequestStatusCodes: [SentryStatusCode(404)],
-      );
-      final supabase = fixture.getSupabaseClient(sut);
+        final sut = fixture.getSut(
+          failedRequestStatusCodes: [SentryStatusCode(404)],
+        );
+        final supabase = fixture.getSupabaseClient(sut);
 
-      try {
-        await supabase.from('mock-table').update({'id': 1337}).eq('id', 42);
-      } catch (e) {
-        // Ignore
-      }
+        try {
+          await supabase.from('mock-table').update({'id': 1337}).eq('id', 42);
+        } catch (e) {
+          // Ignore
+        }
 
-      expect(fixture.mockHub.captureEventCalls.length, 1);
-      final event = fixture.mockHub.captureEventCalls.first.$1;
+        expect(fixture.mockHub.captureEventCalls.length, 1);
+        final event = fixture.mockHub.captureEventCalls.first.$1;
 
-      expect(event.contexts['supabase'], isNotNull);
-      final supabaseContext =
-          event.contexts['supabase'] as Map<String, dynamic>;
-      expect(supabaseContext['table'], 'mock-table');
-      expect(supabaseContext['operation'], 'update');
-      expect(supabaseContext['body'], {'id': 1337});
-      expect(supabaseContext['query'], ['eq(id, 42)']);
-    });
+        expect(event.contexts['supabase'], isNotNull);
+        final supabaseContext =
+            event.contexts['supabase'] as Map<String, dynamic>;
+        expect(supabaseContext['table'], 'mock-table');
+        expect(supabaseContext['operation'], 'update');
+        expect(supabaseContext['body'], {'id': 1337});
+        expect(supabaseContext['query'], ['eq(id, 42)']);
+      },
+    );
 
-    test('should add supabase data to context if upsert request fails',
-        () async {
-      fixture.mockClient.statusCode = 404;
+    test(
+      'should add supabase data to context if upsert request fails',
+      () async {
+        fixture.mockClient.statusCode = 404;
 
-      final sut = fixture.getSut(
-        failedRequestStatusCodes: [SentryStatusCode(404)],
-      );
-      final supabase = fixture.getSupabaseClient(sut);
+        final sut = fixture.getSut(
+          failedRequestStatusCodes: [SentryStatusCode(404)],
+        );
+        final supabase = fixture.getSupabaseClient(sut);
 
-      try {
-        await supabase.from('mock-table').upsert({'id': 42}).select();
-      } catch (e) {
-        // Ignore
-      }
+        try {
+          await supabase.from('mock-table').upsert({'id': 42}).select();
+        } catch (e) {
+          // Ignore
+        }
 
-      expect(fixture.mockHub.captureEventCalls.length, 1);
-      final event = fixture.mockHub.captureEventCalls.first.$1;
+        expect(fixture.mockHub.captureEventCalls.length, 1);
+        final event = fixture.mockHub.captureEventCalls.first.$1;
 
-      expect(event.contexts['supabase'], isNotNull);
-      final supabaseContext =
-          event.contexts['supabase'] as Map<String, dynamic>;
-      expect(supabaseContext['table'], 'mock-table');
-      expect(supabaseContext['operation'], 'upsert');
-      expect(supabaseContext['body'], {'id': 42});
-      expect(supabaseContext['query'], ['select(*)']);
-    });
+        expect(event.contexts['supabase'], isNotNull);
+        final supabaseContext =
+            event.contexts['supabase'] as Map<String, dynamic>;
+        expect(supabaseContext['table'], 'mock-table');
+        expect(supabaseContext['operation'], 'upsert');
+        expect(supabaseContext['body'], {'id': 42});
+        expect(supabaseContext['query'], ['select(*)']);
+      },
+    );
 
-    test('should add supabase data to context if delete request fails',
-        () async {
-      fixture.mockClient.statusCode = 404;
+    test(
+      'should add supabase data to context if delete request fails',
+      () async {
+        fixture.mockClient.statusCode = 404;
 
-      final sut = fixture.getSut(
-        failedRequestStatusCodes: [SentryStatusCode(404)],
-      );
-      final supabase = fixture.getSupabaseClient(sut);
+        final sut = fixture.getSut(
+          failedRequestStatusCodes: [SentryStatusCode(404)],
+        );
+        final supabase = fixture.getSupabaseClient(sut);
 
-      try {
-        await supabase.from('mock-table').delete().eq('id', 42);
-      } catch (e) {
-        // Ignore
-      }
+        try {
+          await supabase.from('mock-table').delete().eq('id', 42);
+        } catch (e) {
+          // Ignore
+        }
 
-      expect(fixture.mockHub.captureEventCalls.length, 1);
-      final event = fixture.mockHub.captureEventCalls.first.$1;
+        expect(fixture.mockHub.captureEventCalls.length, 1);
+        final event = fixture.mockHub.captureEventCalls.first.$1;
 
-      expect(event.contexts['supabase'], isNotNull);
-      final supabaseContext =
-          event.contexts['supabase'] as Map<String, dynamic>;
-      expect(supabaseContext['table'], 'mock-table');
-      expect(supabaseContext['operation'], 'delete');
-      expect(supabaseContext['query'], ['eq(id, 42)']);
-    });
+        expect(event.contexts['supabase'], isNotNull);
+        final supabaseContext =
+            event.contexts['supabase'] as Map<String, dynamic>;
+        expect(supabaseContext['table'], 'mock-table');
+        expect(supabaseContext['operation'], 'delete');
+        expect(supabaseContext['query'], ['eq(id, 42)']);
+      },
+    );
   });
 
   group('PII', () {
@@ -312,37 +322,37 @@ void main() {
       expect(fixture.mockHub.captureEventCalls.length, 0);
     });
 
-    test('should not capture error for exceptions on non-database requests',
-        () async {
-      final error = Exception('test');
-      fixture.mockClient.throwException = error;
+    test(
+      'should not capture error for exceptions on non-database requests',
+      () async {
+        final error = Exception('test');
+        fixture.mockClient.throwException = error;
 
-      final sut = fixture.getSut();
+        final sut = fixture.getSut();
 
-      // Simulate an auth request that throws
-      final authRequest = Request(
-        'POST',
-        Uri.parse('https://example.com/auth/v1/token?grant_type=password'),
-      );
+        // Simulate an auth request that throws
+        final authRequest = Request(
+          'POST',
+          Uri.parse('https://example.com/auth/v1/token?grant_type=password'),
+        );
 
-      try {
-        await sut.send(authRequest);
-      } catch (e) {
-        expect(e, error); // Error is rethrown
-      }
+        try {
+          await sut.send(authRequest);
+        } catch (e) {
+          expect(e, error); // Error is rethrown
+        }
 
-      // Should not capture any errors for non-database requests
-      expect(fixture.mockHub.captureEventCalls.length, 0);
-    });
+        // Should not capture any errors for non-database requests
+        expect(fixture.mockHub.captureEventCalls.length, 0);
+      },
+    );
   });
 }
 
 class Fixture {
   final supabaseUrl = 'https://example.com';
 
-  final options = SentryOptions(
-    dsn: 'https://example.com/123',
-  );
+  final options = SentryOptions(dsn: 'https://example.com/123');
   final mockClient = MockClient();
   late final mockHub = MockHub(options);
 

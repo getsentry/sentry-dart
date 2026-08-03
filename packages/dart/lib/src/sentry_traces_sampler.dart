@@ -3,19 +3,19 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'utils/internal_logger.dart';
 
 @internal
 class SentryTracesSampler {
   final SentryOptions _options;
   final Random _random;
 
-  SentryTracesSampler(
-    this._options, {
-    Random? random,
-  }) : _random = random ?? Random() {
+  SentryTracesSampler(this._options, {Random? random})
+    : _random = random ?? Random() {
     if (_options.tracesSampler != null && _options.tracesSampleRate != null) {
-      _options.log(SentryLevel.warning,
-          'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.');
+      internalLogger.warning(
+        'Both tracesSampler and traceSampleRate are set. tracesSampler will take precedence and fallback to traceSampleRate if it returns null.',
+      );
     }
   }
 
@@ -42,10 +42,9 @@ class SentryTracesSampler {
           return _makeSampleDecision(sampleRate, sampleRand);
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'The tracesSampler callback threw an exception',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {
@@ -75,8 +74,11 @@ class SentryTracesSampler {
     double sampleRand,
   ) {
     final sampled = _isSampled(sampleRate, sampleRand: sampleRand);
-    return SentryTracesSamplingDecision(sampled,
-        sampleRate: sampleRate, sampleRand: sampleRand);
+    return SentryTracesSamplingDecision(
+      sampled,
+      sampleRate: sampleRate,
+      sampleRand: sampleRand,
+    );
   }
 
   bool _isSampled(double sampleRate, {double? sampleRand}) {

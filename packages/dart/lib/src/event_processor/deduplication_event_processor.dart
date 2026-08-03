@@ -3,6 +3,7 @@ import '../event_processor.dart';
 import '../hint.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
+import '../utils/internal_logger.dart';
 
 /// Deduplicates events with the same [SentryEvent.throwable].
 /// It keeps track of the last [SentryOptions.maxDeduplicationItems]
@@ -32,7 +33,7 @@ class DeduplicationEventProcessor implements EventProcessor {
     }
 
     if (!_options.enableDeduplication) {
-      _options.log(SentryLevel.debug, 'Deduplication is disabled');
+      internalLogger.debug('Deduplication is disabled');
       return event;
     }
     return _deduplicate(event);
@@ -52,10 +53,10 @@ class DeduplicationEventProcessor implements EventProcessor {
     final exceptionHashCode = exception.hashCode;
 
     if (_exceptionToDeduplicate.contains(exceptionHashCode)) {
-      _options.log(
-        SentryLevel.info,
-        'Duplicated exception detected. '
-        'Event ${event.eventId} will be discarded.',
+      internalLogger.info(
+        () =>
+            'Duplicated exception detected. '
+            'Event ${event.eventId} will be discarded.',
       );
       return null;
     }

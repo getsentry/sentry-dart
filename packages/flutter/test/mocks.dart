@@ -1,4 +1,4 @@
-// ignore_for_file: inference_failure_on_function_return_type
+// ignore_for_file: inference_failure_on_function_return_type, invalid_use_of_internal_member
 
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
@@ -10,6 +10,7 @@ import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/binding_wrapper.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
@@ -63,7 +64,6 @@ ISentrySpan startTransactionShim(
 @GenerateMocks(
   [
     Transport,
-    // ignore: invalid_use_of_internal_member
     SentryTracer,
     SentryTransaction,
     SentrySpan,

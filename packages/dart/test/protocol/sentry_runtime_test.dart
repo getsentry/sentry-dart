@@ -24,50 +24,54 @@ void main() {
     test('toJson', () {
       final json = sentryRuntime.toJson();
 
-      expect(
-        MapEquality().equals(sentryRuntimeJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryRuntimeJson, json), true);
     });
     test('fromJson', () {
       final sentryRuntime = SentryRuntime.fromJson(sentryRuntimeJson);
       final json = sentryRuntime.toJson();
 
-      expect(
-        MapEquality().equals(sentryRuntimeJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryRuntimeJson, json), true);
     });
   });
 
   group('toAttributes', () {
-    test('returns empty map when name, version, and rawDescription are null',
-        () {
-      expect(SentryRuntime(compiler: 'dart2js').toAttributes(), isEmpty);
-    });
+    test(
+      'returns empty map when name, version, and rawDescription are null',
+      () {
+        expect(SentryRuntime(compiler: 'dart2js').toAttributes(), isEmpty);
+      },
+    );
 
-    test('maps name, version, and rawDescription to process.runtime.* keys',
-        () {
-      final runtime = SentryRuntime(
-        name: 'Dart',
-        version: '3.5.0',
-        rawDescription: 'Dart VM 3.5.0 (stable)',
-      );
+    test(
+      'maps name, version, and rawDescription to process.runtime.* keys',
+      () {
+        final runtime = SentryRuntime(
+          name: 'Dart',
+          version: '3.5.0',
+          rawDescription: 'Dart VM 3.5.0 (stable)',
+        );
 
-      final attributes = runtime.toAttributes();
+        final attributes = runtime.toAttributes();
 
-      expect(attributes[SemanticAttributesConstants.processRuntimeName]?.value,
-          'Dart');
-      expect(attributes[SemanticAttributesConstants.processRuntimeName]?.type,
-          'string');
-      expect(
+        expect(
+          attributes[SemanticAttributesConstants.processRuntimeName]?.value,
+          'Dart',
+        );
+        expect(
+          attributes[SemanticAttributesConstants.processRuntimeName]?.type,
+          'string',
+        );
+        expect(
           attributes[SemanticAttributesConstants.processRuntimeVersion]?.value,
-          '3.5.0');
-      expect(
+          '3.5.0',
+        );
+        expect(
           attributes[SemanticAttributesConstants.processRuntimeDescription]
               ?.value,
-          'Dart VM 3.5.0 (stable)');
-    });
+          'Dart VM 3.5.0 (stable)',
+        );
+      },
+    );
 
     test('does not include compiler or build without stable semantic keys', () {
       final runtime = SentryRuntime(
@@ -78,8 +82,10 @@ void main() {
 
       final attributes = runtime.toAttributes();
 
-      expect(attributes.keys,
-          unorderedEquals([SemanticAttributesConstants.processRuntimeName]));
+      expect(
+        attributes.keys,
+        unorderedEquals([SemanticAttributesConstants.processRuntimeName]),
+      );
     });
   });
 }

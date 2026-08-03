@@ -23,9 +23,7 @@ void main() {
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test',
-          attributes: {
-            'attribute': SentryAttribute.string('value'),
-          },
+          attributes: {'attribute': SentryAttribute.string('value')},
         );
       }
 
@@ -44,8 +42,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnProcessLog>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnProcessLog>((
+          event,
+        ) {
           event.log.attributes['test'] = SentryAttribute.string('test-value');
         });
 
@@ -75,8 +74,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnBeforeSendEvent>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>((
+          event,
+        ) {
           event.event.release = '999';
         });
 
@@ -127,7 +127,9 @@ class Fixture {
     options.beforeSendTransaction = beforeSendTransaction;
     options.beforeSendFeedback = beforeSendFeedback;
     options.debug = debug;
-    options.log = mockLogger;
+    if (debug) {
+      configureDiagnosticTestLogger(onLog: mockLogger);
+    }
 
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
@@ -135,10 +137,7 @@ class Fixture {
 
     // Internally also creates a SentryClient instance
     final hub = Hub(options);
-    _context = SentryTransactionContext(
-      'name',
-      'op',
-    );
+    _context = SentryTransactionContext('name', 'op');
     tracer = SentryTracer(_context, hub);
 
     // Reset transport
@@ -187,11 +186,10 @@ class Fixture {
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     loggedLevel = level;
-    loggedException = exception;
+    loggedException = error;
   }
 }

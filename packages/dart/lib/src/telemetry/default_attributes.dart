@@ -37,8 +37,10 @@ extension ContextsTelemetryAttributes on Contexts {
   }
 }
 
-Map<String, SentryAttribute> defaultAttributes(SentryOptions options,
-    {Scope? scope}) {
+Map<String, SentryAttribute> defaultAttributes(
+  SentryOptions options, {
+  Scope? scope,
+}) {
   final attributes = <String, SentryAttribute>{};
 
   attributes[SemanticAttributesConstants.sentrySdkName] =

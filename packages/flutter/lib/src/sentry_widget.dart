@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
+import 'utils/internal_logger.dart';
 
 /// Key which is used to identify the [SentryWidget]
 @internal
@@ -33,8 +34,7 @@ class _SentryWidgetState extends State<SentryWidget> {
     Widget content = widget.child;
     if (widget._options?.isMultiViewApp ?? false) {
       // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         '`SentryWidget` is not available in multi-view apps.',
       );
       return content;

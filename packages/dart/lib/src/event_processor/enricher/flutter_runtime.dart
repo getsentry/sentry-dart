@@ -13,7 +13,8 @@ import '../../protocol/sentry_runtime.dart';
 // The const-ness of the properties below ensure that the code
 // is tree shaken in a non-Flutter environment.
 
-const _isFlutterRuntimeInformationAbsent = FlutterVersion.version == null ||
+const _isFlutterRuntimeInformationAbsent =
+    FlutterVersion.version == null ||
     FlutterVersion.channel == null ||
     FlutterVersion.frameworkRevision == null;
 
@@ -23,7 +24,8 @@ final SentryRuntime? flutterRuntime = _isFlutterRuntimeInformationAbsent
         name: 'Flutter',
         version: '${FlutterVersion.version} (${FlutterVersion.channel})',
         build: FlutterVersion.frameworkRevision,
-        rawDescription: '${FlutterVersion.version} (${FlutterVersion.channel}) '
+        rawDescription:
+            '${FlutterVersion.version} (${FlutterVersion.channel}) '
             '- Git hash ${FlutterVersion.frameworkRevision} '
             '- Git URL ${FlutterVersion.gitUrl}',
       );
@@ -58,14 +60,14 @@ abstract class FlutterVersion {
   /// The Flutter framework revision, as a (short) Git commit ID.
   static const String? frameworkRevision =
       bool.hasEnvironment('FLUTTER_FRAMEWORK_REVISION')
-          ? String.fromEnvironment('FLUTTER_FRAMEWORK_REVISION')
-          : null;
+      ? String.fromEnvironment('FLUTTER_FRAMEWORK_REVISION')
+      : null;
 
   /// The Flutter engine revision.
   static const String? engineRevision =
       bool.hasEnvironment('FLUTTER_ENGINE_REVISION')
-          ? String.fromEnvironment('FLUTTER_ENGINE_REVISION')
-          : null;
+      ? String.fromEnvironment('FLUTTER_ENGINE_REVISION')
+      : null;
 
   // This is included since [Platform.version](https://api.dart.dev/stable/dart-io/Platform/version.html)
   // is not included on web platforms.

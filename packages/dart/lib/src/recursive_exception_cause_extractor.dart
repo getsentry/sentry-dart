@@ -1,8 +1,8 @@
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 import 'exception_cause.dart';
-import 'protocol.dart';
 import 'package:meta/meta.dart';
+import 'utils/internal_logger.dart';
 
 /// Extracts inner exceptions recursively
 @internal
@@ -30,17 +30,17 @@ class RecursiveExceptionCauseExtractor {
           ? currentException.throwable
           : currentException;
 
-      final extractor =
-          _options.exceptionCauseExtractor(extractionSourceSource.runtimeType);
+      final extractor = _options.exceptionCauseExtractor(
+        extractionSourceSource.runtimeType,
+      );
 
       try {
         currentExceptionCause = extractor?.cause(extractionSourceSource);
         currentException = currentExceptionCause?.exception;
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
-          'An exception occurred while extracting  exception cause',
-          exception: exception,
+        internalLogger.error(
+          'An exception occurred while extracting exception cause',
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {

@@ -131,13 +131,13 @@ mixin SentryFlutter {
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
         if (options.platform.isWeb) {
-          options.transport = JavascriptTransport(_native!, options);
+          options.transport = JavascriptTransport(_native!);
         } else {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
       if (!options.platform.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!, options));
+        options.addScopeObserver(NativeScopeObserver(_native!));
       }
     }
 
@@ -296,10 +296,9 @@ mixin SentryFlutter {
           spanId: transactionId,
         );
       } catch (exception, stackTrace) {
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'Error while reporting TTFD',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
       }
@@ -534,8 +533,7 @@ mixin SentryFlutter {
   static Future<SentryAttachment?> captureScreenshot() async {
     final options = Sentry.currentHub.options;
     if (!SentryScreenshotWidget.isMounted) {
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'SentryScreenshotWidget could not be found in the widget tree.',
       );
       return null;
@@ -543,10 +541,7 @@ mixin SentryFlutter {
     final processors = options.eventProcessors
         .whereType<ScreenshotEventProcessor>();
     if (processors.isEmpty) {
-      options.log(
-        SentryLevel.debug,
-        'ScreenshotEventProcessor could not be found.',
-      );
+      internalLogger.debug('ScreenshotEventProcessor could not be found.');
       return null;
     }
     final processor = processors.first;
@@ -578,8 +573,7 @@ mixin SentryFlutter {
   }
 
   static void _logNativeIntegrationNotAvailable(String methodName) {
-    Sentry.currentHub.options.log(
-      SentryLevel.debug,
+    internalLogger.debug(
       'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
     );
   }

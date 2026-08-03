@@ -108,9 +108,6 @@ extension SentryDioExtension on Dio {
     );
 
     // intercept transformations
-    transformer = SentryTransformer(
-      transformer: transformer,
-      hub: hub,
-    );
+    transformer = SentryTransformer(transformer: transformer, hub: hub);
   }
 }

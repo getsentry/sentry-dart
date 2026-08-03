@@ -27,7 +27,8 @@ class SentryTransaction extends SentryEvent {
     dynamic throwable,
     Map<String, String>? tags,
     @Deprecated(
-        'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+      'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible',
+    )
     Map<String, dynamic>? extra,
     super.user,
     super.contexts,
@@ -38,14 +39,14 @@ class SentryTransaction extends SentryEvent {
     Map<String, SentryMeasurement>? measurements,
     SentryTransactionInfo? transactionInfo,
   }) : super(
-          timestamp: timestamp ?? tracer.endTimestamp,
-          transaction: transaction ?? tracer.name,
-          throwable: throwable ?? tracer.throwable,
-          tags: tags ?? tracer.tags,
-          // ignore: deprecated_member_use_from_same_package
-          extra: extra ?? tracer.data,
-          type: _type,
-        ) {
+         timestamp: timestamp ?? tracer.endTimestamp,
+         transaction: transaction ?? tracer.name,
+         throwable: throwable ?? tracer.throwable,
+         tags: tags ?? tracer.tags,
+         // ignore: deprecated_member_use_from_same_package
+         extra: extra ?? tracer.data,
+         type: _type,
+       ) {
     startTimestamp = tracer.startTimestamp;
 
     final spanContext = tracer.context;
@@ -59,7 +60,8 @@ class SentryTransaction extends SentryEvent {
       data: data.isEmpty ? null : data,
     );
 
-    this.transactionInfo = transactionInfo ??
+    this.transactionInfo =
+        transactionInfo ??
         SentryTransactionInfo(tracer.transactionNameSource.name);
   }
 
@@ -70,8 +72,9 @@ class SentryTransaction extends SentryEvent {
     if (spans.isNotEmpty) {
       json['spans'] = spans.map((e) => e.toJson()).toList(growable: false);
     }
-    json['start_timestamp'] =
-        formatDateAsIso8601WithMillisPrecision(startTimestamp);
+    json['start_timestamp'] = formatDateAsIso8601WithMillisPrecision(
+      startTimestamp,
+    );
 
     if (measurements.isNotEmpty) {
       final map = <String, dynamic>{};

@@ -7,9 +7,5 @@ class IsolateErrorIntegration extends Integration<SentryOptions> {
   @override
   void call(Hub hub, SentryOptions options) {}
 
-  void handleIsolateError(
-    Hub hub,
-    SentryOptions options,
-    dynamic error,
-  ) {}
+  void handleIsolateError(Hub hub, SentryOptions options, dynamic error) {}
 }

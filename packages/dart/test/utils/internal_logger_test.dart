@@ -18,13 +18,15 @@ void main() {
         Object? error,
         StackTrace? stackTrace,
       }) {
-        logs.add(_CapturedLog(
-          name: name,
-          level: level,
-          message: message,
-          error: error,
-          stackTrace: stackTrace,
-        ));
+        logs.add(
+          _CapturedLog(
+            name: name,
+            level: level,
+            message: message,
+            error: error,
+            stackTrace: stackTrace,
+          ),
+        );
       };
     }
 
@@ -74,30 +76,33 @@ void main() {
         expect(SentryInternalLogger.isEnabled, isTrue);
       });
 
-      test('SentryOptions.diagnosticLevel sets minLevel when set before debug',
-          () {
-        final options = defaultTestOptions();
+      test(
+        'SentryOptions.diagnosticLevel sets minLevel when set before debug',
+        () {
+          final options = defaultTestOptions();
 
-        options.diagnosticLevel = SentryLevel.error;
-        options.debug = true;
+          options.diagnosticLevel = SentryLevel.error;
+          options.debug = true;
 
-        expect(SentryInternalLogger.isEnabled, isTrue);
-        expect(SentryInternalLogger.minLevel, equals(SentryLevel.error));
-      });
+          expect(SentryInternalLogger.isEnabled, isTrue);
+          expect(SentryInternalLogger.minLevel, equals(SentryLevel.error));
+        },
+      );
 
       test(
-          'SentryOptions.diagnosticLevel updates minLevel when set after debug',
-          () {
-        final options = defaultTestOptions();
+        'SentryOptions.diagnosticLevel updates minLevel when set after debug',
+        () {
+          final options = defaultTestOptions();
 
-        options.debug = true;
-        expect(SentryInternalLogger.minLevel, equals(SentryLevel.warning));
+          options.debug = true;
+          expect(SentryInternalLogger.minLevel, equals(SentryLevel.warning));
 
-        options.diagnosticLevel = SentryLevel.error;
+          options.diagnosticLevel = SentryLevel.error;
 
-        expect(SentryInternalLogger.isEnabled, isTrue);
-        expect(SentryInternalLogger.minLevel, equals(SentryLevel.error));
-      });
+          expect(SentryInternalLogger.isEnabled, isTrue);
+          expect(SentryInternalLogger.minLevel, equals(SentryLevel.error));
+        },
+      );
     });
 
     group('logging when enabled', () {
@@ -189,7 +194,7 @@ void main() {
             internalLogger.warning('routed via dev.log on the VM');
           },
           zoneSpecification: ZoneSpecification(
-            print: (_, __, ___, line) => captured.add(line),
+            print: (_, _, _, line) => captured.add(line),
           ),
         );
 

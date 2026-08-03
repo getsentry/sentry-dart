@@ -5,6 +5,7 @@ import 'throwable_mechanism.dart';
 import 'protocol.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
+import 'utils/internal_logger.dart';
 
 /// Conveniently spawn an isolate with an attached sentry error listener.
 class SentryIsolate {
@@ -12,13 +13,15 @@ class SentryIsolate {
   ///
   /// Providing your own `onError` will not add the listener from Sentry SDK.
   static Future<Isolate> spawn<T>(
-      void Function(T message) entryPoint, T message,
-      {bool paused = false,
-      bool errorsAreFatal = true,
-      SendPort? onExit,
-      SendPort? onError,
-      String? debugName,
-      @internal Hub? hub}) async {
+    void Function(T message) entryPoint,
+    T message, {
+    bool paused = false,
+    bool errorsAreFatal = true,
+    SendPort? onExit,
+    SendPort? onError,
+    String? debugName,
+    @internal Hub? hub,
+  }) async {
     return Isolate.spawn(
       entryPoint,
       message,
@@ -32,21 +35,15 @@ class SentryIsolate {
 
   @internal
   static RawReceivePort createPort(Hub hub) {
-    return RawReceivePort(
-      (dynamic error) async {
-        await handleIsolateError(hub, error);
-      },
-    );
+    return RawReceivePort((dynamic error) async {
+      await handleIsolateError(hub, error);
+    });
   }
 
   @visibleForTesting
-
   /// Parse and raise an event out of the Isolate error.
-  static Future<void> handleIsolateError(
-    Hub hub,
-    dynamic error,
-  ) async {
-    hub.options.log(SentryLevel.debug, 'Capture from IsolateError $error');
+  static Future<void> handleIsolateError(Hub hub, dynamic error) async {
+    internalLogger.debug(() => 'Capture from IsolateError $error');
 
     // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
     // error is a list of 2 elements
@@ -60,13 +57,12 @@ class SentryIsolate {
       final String throwable = error.first;
       final String? stackTrace = error.last;
 
-      hub.options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Uncaught isolate error',
-        logger: 'sentry.isolateError',
-        exception: throwable,
-        stackTrace:
-            stackTrace == null ? null : StackTrace.fromString(stackTrace),
+        error: throwable,
+        stackTrace: stackTrace == null
+            ? null
+            : StackTrace.fromString(stackTrace),
       );
 
       //  Isolate errors don't crash the app, but is not handled by the user.

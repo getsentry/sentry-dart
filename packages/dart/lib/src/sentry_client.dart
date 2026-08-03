@@ -34,6 +34,7 @@ import 'utils/isolate_utils.dart';
 import 'utils/regex_utils.dart';
 import 'utils/stacktrace_utils.dart';
 import 'version.dart';
+import 'utils/internal_logger.dart';
 
 /// Default value for [SentryUser.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -78,7 +79,8 @@ class SentryClient {
       options.transport,
     );
     // TODO: Use spotlight integration directly through JS SDK, then we can remove isWeb check
-    final enableFlutterSpotlight = (options.spotlight.enabled &&
+    final enableFlutterSpotlight =
+        (options.spotlight.enabled &&
         (options.platform.isWeb ||
             options.platform.isLinux ||
             options.platform.isWindows));
@@ -111,45 +113,52 @@ class SentryClient {
     Hint? hint,
   }) async {
     if (_isIgnoredError(event)) {
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'Error was ignored as specified in the ignoredErrors options.',
       );
-      _options.recorder
-          .recordLostEvent(DiscardReason.ignored, _getCategory(event));
+      _options.recorder.recordLostEvent(
+        DiscardReason.ignored,
+        _getCategory(event),
+      );
       return _emptySentryId;
     }
 
     if (_options.containsIgnoredExceptionForType(event.throwable)) {
-      _options.log(
-        SentryLevel.debug,
-        'Event was dropped as the exception ${event.throwable.runtimeType.toString()} is ignored.',
+      internalLogger.debug(
+        () =>
+            'Event was dropped as the exception ${event.throwable.runtimeType.toString()} is ignored.',
       );
-      _options.recorder
-          .recordLostEvent(DiscardReason.eventProcessor, _getCategory(event));
+      _options.recorder.recordLostEvent(
+        DiscardReason.eventProcessor,
+        _getCategory(event),
+      );
       return _emptySentryId;
     }
 
     if (_sampleRate() && event.type != 'feedback') {
-      _options.recorder
-          .recordLostEvent(DiscardReason.sampleRate, _getCategory(event));
-      _options.log(
-        SentryLevel.debug,
-        'Event ${event.eventId.toString()} was dropped due to sampling decision.',
+      _options.recorder.recordLostEvent(
+        DiscardReason.sampleRate,
+        _getCategory(event),
+      );
+      internalLogger.debug(
+        () =>
+            'Event ${event.eventId.toString()} was dropped due to sampling decision.',
       );
       return _emptySentryId;
     }
 
     hint ??= Hint();
 
-    SentryEvent? preparedEvent =
-        _prepareEvent(event, hint, stackTrace: stackTrace);
+    SentryEvent? preparedEvent = _prepareEvent(
+      event,
+      hint,
+      stackTrace: stackTrace,
+    );
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);
     } else {
-      _options.log(
-          SentryLevel.debug, 'No scope to apply on event was provided');
+      internalLogger.debug('No scope to apply on event was provided');
     }
 
     // dropped by scope event processors
@@ -171,10 +180,7 @@ class SentryClient {
 
     preparedEvent = _createUserOrSetDefaultIpAddress(preparedEvent);
 
-    preparedEvent = await _runBeforeSend(
-      preparedEvent,
-      hint,
-    );
+    preparedEvent = await _runBeforeSend(preparedEvent, hint);
 
     // dropped by beforeSend
     if (preparedEvent == null) {
@@ -182,8 +188,9 @@ class SentryClient {
     }
 
     // Event is fully processed and ready to be sent
-    await _options.lifecycleRegistry
-        .dispatchCallback(OnBeforeSendEvent(preparedEvent, hint));
+    await _options.lifecycleRegistry.dispatchCallback(
+      OnBeforeSendEvent(preparedEvent, hint),
+    );
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
@@ -203,7 +210,8 @@ class SentryClient {
         scope.propagationContext.baggage ??= SentryBaggage({})
           ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
-            scope.propagationContext.baggage!);
+          scope.propagationContext.baggage!,
+        );
       }
     } else {
       traceContext.replayId = scope?.replayId;
@@ -230,8 +238,11 @@ class SentryClient {
     return isMatchingRegexPattern(message, _options.ignoreErrors);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event, Hint hint,
-      {dynamic stackTrace}) {
+  SentryEvent _prepareEvent(
+    SentryEvent event,
+    Hint hint, {
+    dynamic stackTrace,
+  }) {
     event
       ..serverName = event.serverName ?? _options.serverName
       ..dist = event.dist ?? _options.dist
@@ -257,8 +268,10 @@ class SentryClient {
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final extractedExceptionCauses = _exceptionFactory.extractor
-          .flatten(event.throwableMechanism, stackTrace);
+      final extractedExceptionCauses = _exceptionFactory.extractor.flatten(
+        event.throwableMechanism,
+        stackTrace,
+      );
 
       SentryException? rootException;
       SentryException? currentException;
@@ -307,10 +320,7 @@ class SentryClient {
       }
       return event
         ..exceptions = exceptions
-        ..threads = [
-          ...?event.threads,
-          ...sentryThreads,
-        ];
+        ..threads = [...?event.threads, ...sentryThreads];
     }
 
     // The stacktrace is not part of an exception,
@@ -407,11 +417,11 @@ class SentryClient {
         _prepareEvent(transaction, hint) as SentryTransaction;
 
     if (scope != null) {
-      preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
-          as SentryTransaction?;
+      preparedTransaction =
+          await scope.applyToEvent(preparedTransaction, hint)
+              as SentryTransaction?;
     } else {
-      _options.log(
-          SentryLevel.debug, 'No scope to apply on transaction was provided');
+      internalLogger.debug('No scope to apply on transaction was provided');
     }
 
     // dropped by scope event processors
@@ -419,12 +429,14 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    preparedTransaction = await runEventProcessors(
-      preparedTransaction,
-      hint,
-      _options.eventProcessors,
-      _options,
-    ) as SentryTransaction?;
+    preparedTransaction =
+        await runEventProcessors(
+              preparedTransaction,
+              hint,
+              _options.eventProcessors,
+              _options,
+            )
+            as SentryTransaction?;
 
     // dropped by event processors
     if (preparedTransaction == null) {
@@ -432,18 +444,20 @@ class SentryClient {
     }
 
     if (_isIgnoredTransaction(preparedTransaction)) {
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'Transaction was ignored as specified in the ignoredTransactions options.',
       );
 
       _options.recorder.recordLostEvent(
-          DiscardReason.ignored, _getCategory(preparedTransaction));
+        DiscardReason.ignored,
+        _getCategory(preparedTransaction),
+      );
       return _emptySentryId;
     }
 
-    preparedTransaction = _createUserOrSetDefaultIpAddress(preparedTransaction)
-        as SentryTransaction;
+    preparedTransaction =
+        _createUserOrSetDefaultIpAddress(preparedTransaction)
+            as SentryTransaction;
 
     preparedTransaction =
         await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
@@ -499,11 +513,7 @@ class SentryClient {
       level: SentryLevel.info,
     );
 
-    return captureEvent(
-      feedbackEvent,
-      scope: scope,
-      hint: hint,
-    );
+    return captureEvent(feedbackEvent, scope: scope, hint: hint);
   }
 
   Future<void> captureSpan(SentrySpanV2 span, {Scope? scope}) =>
@@ -524,13 +534,11 @@ class SentryClient {
     _options.httpClient.close();
   }
 
-  Future<SentryEvent?> _runBeforeSend(
-    SentryEvent event,
-    Hint hint,
-  ) async {
+  Future<SentryEvent?> _runBeforeSend(SentryEvent event, Hint hint) async {
     SentryEvent? processedEvent = event;
-    final spanCountBeforeCallback =
-        event is SentryTransaction ? event.spans.length : 0;
+    final spanCountBeforeCallback = event is SentryTransaction
+        ? event.spans.length
+        : 0;
 
     final beforeSend = _options.beforeSend;
     final beforeSendTransaction = _options.beforeSendTransaction;
@@ -562,10 +570,9 @@ class SentryClient {
         }
       }
     } catch (exception, stackTrace) {
-      _options.log(
-        SentryLevel.error,
-        'The $beforeSendName callback threw an exception',
-        exception: exception,
+      internalLogger.error(
+        () => 'The $beforeSendName callback threw an exception',
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {
@@ -578,12 +585,14 @@ class SentryClient {
       _options.recorder.recordLostEvent(discardReason, _getCategory(event));
       if (event is SentryTransaction) {
         // We dropped the whole transaction, the dropped count includes all child spans + 1 root span
-        _options.recorder.recordLostEvent(discardReason, DataCategory.span,
-            count: spanCountBeforeCallback + 1);
+        _options.recorder.recordLostEvent(
+          discardReason,
+          DataCategory.span,
+          count: spanCountBeforeCallback + 1,
+        );
       }
-      _options.log(
-        SentryLevel.debug,
-        '${event.runtimeType} was dropped by $beforeSendName callback',
+      internalLogger.debug(
+        () => '${event.runtimeType} was dropped by $beforeSendName callback',
       );
     } else if (event is SentryTransaction &&
         processedEvent is SentryTransaction) {
@@ -591,8 +600,11 @@ class SentryClient {
       final spanCountAfterCallback = processedEvent.spans.length;
       final droppedSpanCount = spanCountBeforeCallback - spanCountAfterCallback;
       if (droppedSpanCount > 0) {
-        _options.recorder.recordLostEvent(discardReason, DataCategory.span,
-            count: droppedSpanCount);
+        _options.recorder.recordLostEvent(
+          discardReason,
+          DataCategory.span,
+          count: droppedSpanCount,
+        );
       }
     }
 

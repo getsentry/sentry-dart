@@ -8,6 +8,7 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 import '../../sentry_flutter.dart';
 import '../jvm/jvm_exception.dart';
 import '../jvm/jvm_frame.dart';
+import '../utils/internal_logger.dart';
 
 /// Transforms an Android PlatformException to a human readable SentryException
 // Relevant links:
@@ -59,11 +60,10 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
         detailsStackTrace,
       );
     } catch (e, stackTrace) {
-      _options.log(
-        SentryLevel.info,
+      internalLogger.info(
         "Couldn't prettify PlatformException. "
         'The exception will still be reported.',
-        exception: e,
+        error: e,
         stackTrace: stackTrace,
       );
       if (_options.automatedTestMode) {

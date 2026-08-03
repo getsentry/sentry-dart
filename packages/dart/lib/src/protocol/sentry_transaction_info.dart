@@ -11,17 +11,11 @@ class SentryTransactionInfo {
   final Map<String, dynamic>? unknown;
 
   Map<String, dynamic> toJson() {
-    return {
-      ...?unknown,
-      'source': source,
-    };
+    return {...?unknown, 'source': source};
   }
 
   factory SentryTransactionInfo.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
-    return SentryTransactionInfo(
-      json['source'],
-      unknown: json.notAccessed(),
-    );
+    return SentryTransactionInfo(json['source'], unknown: json.notAccessed());
   }
 }

@@ -21,6 +21,7 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i15;
 import 'package:sentry/src/sentry_tracer.dart' as _i3;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i2;
+import 'package:sentry_flutter/src/binding_wrapper.dart' as _i26;
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart'
     as _i19;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i16;
@@ -1497,7 +1498,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
 /// A class which mocks [BindingWrapper].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBindingWrapper extends _i1.Mock implements _i2.BindingWrapper {
+class MockBindingWrapper extends _i1.Mock implements _i26.BindingWrapper {
   MockBindingWrapper() {
     _i1.throwOnMissingStub(this);
   }

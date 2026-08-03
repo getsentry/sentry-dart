@@ -119,10 +119,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'INSERT INTO Product (title) VALUES (?)',
-      );
+      expect(breadcrumb.message, 'INSERT INTO Product (title) VALUES (?)');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -157,10 +154,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'INSERT INTO Product (title) VALUES (?)',
-      );
+      expect(breadcrumb.message, 'INSERT INTO Product (title) VALUES (?)');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -192,10 +186,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'UPDATE Product SET title = ?',
-      );
+      expect(breadcrumb.message, 'UPDATE Product SET title = ?');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -227,10 +218,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'UPDATE Product SET title = ?',
-      );
+      expect(breadcrumb.message, 'UPDATE Product SET title = ?');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -262,10 +250,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'DELETE FROM Product',
-      );
+      expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -297,10 +282,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'DELETE FROM Product',
-      );
+      expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -332,10 +314,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'DELETE FROM Product',
-      );
+      expect(breadcrumb.message, 'DELETE FROM Product');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -367,10 +346,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'SELECT * FROM Product',
-      );
+      expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -402,10 +378,7 @@ void main() {
       await batch.commit();
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.message,
-        'SELECT * FROM Product',
-      );
+      expect(breadcrumb.message, 'SELECT * FROM Product');
       expect(breadcrumb.type, 'query');
 
       await db.close();
@@ -503,88 +476,70 @@ SELECT * FROM Product''';
 
       final span = fixture.tracer.children.last;
       expect(span.data['db.system.name'], 'sqlite');
-      expect(
-        span.data['db.namespace'],
-        (db as SentryDatabase).dbName,
-      );
+      expect(span.data['db.namespace'], (db as SentryDatabase).dbName);
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
-      expect(
-        breadcrumb.data?['db.namespace'],
-        db.dbName,
-      );
+      expect(breadcrumb.data?['db.system.name'], 'sqlite');
+      expect(breadcrumb.data?['db.namespace'], db.dbName);
 
       await db.close();
     });
 
-    test('apply creates a breadcrumb with dbSystem and dbName attributes',
-        () async {
-      final db = await fixture.getDatabase();
-      final batch = db.batch();
+    test(
+      'apply creates a breadcrumb with dbSystem and dbName attributes',
+      () async {
+        final db = await fixture.getDatabase();
+        final batch = db.batch();
 
-      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+        batch.insert('Product', <String, Object?>{'title': 'Product 1'});
 
-      await batch.apply();
+        await batch.apply();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
-      expect(
-        breadcrumb.data?['db.namespace'],
-        (db as SentryDatabase).dbName,
-      );
-      expect(breadcrumb.type, 'query');
+        final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+        expect(breadcrumb.data?['db.system.name'], 'sqlite');
+        expect(breadcrumb.data?['db.namespace'], (db as SentryDatabase).dbName);
+        expect(breadcrumb.type, 'query');
 
-      await db.close();
-    });
+        await db.close();
+      },
+    );
 
-    test('commit creates db span with dbSystem and dbName attributes',
-        () async {
-      final db = await fixture.getDatabase();
-      final batch = db.batch();
+    test(
+      'commit creates db span with dbSystem and dbName attributes',
+      () async {
+        final db = await fixture.getDatabase();
+        final batch = db.batch();
 
-      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+        batch.insert('Product', <String, Object?>{'title': 'Product 1'});
 
-      await batch.commit();
+        await batch.commit();
 
-      final span = fixture.tracer.children.last;
-      expect(span.data['db.system.name'], 'sqlite');
-      expect(
-        span.data['db.namespace'],
-        (db as SentryDatabase).dbName,
-      );
+        final span = fixture.tracer.children.last;
+        expect(span.data['db.system.name'], 'sqlite');
+        expect(span.data['db.namespace'], (db as SentryDatabase).dbName);
 
-      await db.close();
-    });
+        await db.close();
+      },
+    );
 
-    test('commit creates breadcrumb with dbSystem and dbName attributes',
-        () async {
-      final db = await fixture.getDatabase();
-      final batch = db.batch();
+    test(
+      'commit creates breadcrumb with dbSystem and dbName attributes',
+      () async {
+        final db = await fixture.getDatabase();
+        final batch = db.batch();
 
-      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+        batch.insert('Product', <String, Object?>{'title': 'Product 1'});
 
-      await batch.commit();
+        await batch.commit();
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.last;
-      expect(
-        breadcrumb.data?['db.system.name'],
-        'sqlite',
-      );
-      expect(
-        breadcrumb.data?['db.namespace'],
-        (db as SentryDatabase).dbName,
-      );
-      expect(breadcrumb.type, 'query');
+        final breadcrumb = fixture.hub.scope.breadcrumbs.last;
+        expect(breadcrumb.data?['db.system.name'], 'sqlite');
+        expect(breadcrumb.data?['db.namespace'], (db as SentryDatabase).dbName);
+        expect(breadcrumb.type, 'query');
 
-      await db.close();
-    });
+        await db.close();
+      },
+    );
 
     tearDown(() {
       databaseFactory = sqfliteDatabaseFactoryDefault;
@@ -675,9 +630,7 @@ class Fixture {
   final exception = Exception('error');
   late final scope = Scope(options);
 
-  Future<Database> getDatabase({
-    double? tracesSampleRate = 1.0,
-  }) async {
+  Future<Database> getDatabase({double? tracesSampleRate = 1.0}) async {
     options.tracesSampleRate = tracesSampleRate;
     final db = await openDatabase(inMemoryDatabasePath);
     await db.execute('''

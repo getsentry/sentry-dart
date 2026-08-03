@@ -15,18 +15,33 @@ void main() {
       expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'testfile.txt');
-      await expectLater(
-          await attachment.bytes, [102, 111, 111, 32, 98, 97, 114]);
+      await expectLater(await attachment.bytes, [
+        102,
+        111,
+        111,
+        32,
+        98,
+        97,
+        114,
+      ]);
     });
 
     test('fromPath', () async {
-      final attachment =
-          IoSentryAttachment.fromPath('test_resources/testfile.txt');
+      final attachment = IoSentryAttachment.fromPath(
+        'test_resources/testfile.txt',
+      );
       expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'testfile.txt');
-      await expectLater(
-          await attachment.bytes, [102, 111, 111, 32, 98, 97, 114]);
+      await expectLater(await attachment.bytes, [
+        102,
+        111,
+        111,
+        32,
+        98,
+        97,
+        114,
+      ]);
     });
   });
 }

@@ -31,14 +31,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late String content;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          content = await sut.readAsString();
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        content = await sut.readAsString();
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -52,11 +48,15 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('file.read'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('file.read'),
+      );
       expect(span.attributes['file.path']?.value, contains('testfile.txt'));
-      expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
-          equals('auto.file'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
+        equals('auto.file'),
+      );
 
       expect(span.parentSpan, equals(transactionSpan));
       expect(span.traceId, equals(transactionSpan.traceId));
@@ -73,14 +73,10 @@ void main() {
       final sut = fixture.getSut(tempFile, sendDefaultPii: true);
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await sut.writeAsString('Test content');
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await sut.writeAsString('Test content');
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -95,8 +91,10 @@ void main() {
       expect(span!.isEnded, isTrue);
       expect(span.status, equals(SentrySpanStatusV2.ok));
 
-      expect(span.attributes[SemanticAttributesConstants.sentryOp]?.value,
-          equals('file.write'));
+      expect(
+        span.attributes[SemanticAttributesConstants.sentryOp]?.value,
+        equals('file.write'),
+      );
       expect(span.attributes['file.path']?.value, contains('test_write.txt'));
       expect(span.parentSpan, equals(transactionSpan));
 

@@ -5,6 +5,7 @@ import 'origin.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'utils/stacktrace_utils.dart';
+import 'utils/internal_logger.dart';
 
 /// converts [StackTrace] to [SentryStackFrame]s
 class SentryStackTraceFactory {
@@ -12,8 +13,9 @@ class SentryStackTraceFactory {
 
   static final _frameRegex = RegExp(r'^\s*#', multiLine: true);
   static final _baseAddrRegex = RegExp(r'isolate_dso_base[:=] *([A-Fa-f0-9]+)');
-  static final SentryStackFrame _asynchronousGapFrameJson =
-      SentryStackFrame(absPath: '<asynchronous suspension>');
+  static final SentryStackFrame _asynchronousGapFrameJson = SentryStackFrame(
+    absPath: '<asynchronous suspension>',
+  );
 
   SentryStackTraceFactory(this._options);
 
@@ -88,7 +90,8 @@ class SentryStackTraceFactory {
 
       final startOffset = _frameRegex.firstMatch(stackTrace)?.start ?? 0;
       final chain = Chain.parse(
-          startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
+        startOffset == 0 ? stackTrace : stackTrace.substring(startOffset),
+      );
       final info = _StackInfo(chain.traces);
       info.buildId = buildIdRegex.firstMatch(stackTrace)?.group(1);
       info.baseAddr = _baseAddrRegex.firstMatch(stackTrace)?.group(1);
@@ -122,12 +125,13 @@ class SentryStackTraceFactory {
       // We shouldn't get here. If we do, it means there's likely an issue in
       // the parsing so let's fall back and post a stack trace as is, so that at
       // least we get an indication something's wrong and are able to fix it.
-      _options.log(SentryLevel.debug, "Failed to parse stack frame: $member");
+      internalLogger.debug(() => "Failed to parse stack frame: $member");
     }
 
     final platform = _options.platform.isWeb ? 'javascript' : 'dart';
-    final fileName =
-        frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
+    final fileName = frame.uri.pathSegments.isNotEmpty
+        ? frame.uri.pathSegments.last
+        : null;
     final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
 
     final includeModule =
@@ -143,8 +147,8 @@ class SentryStackTraceFactory {
       platform: platform,
       module: includeModule
           ? frame.uri.pathSegments
-              .sublist(0, frame.uri.pathSegments.length - 1)
-              .join('/')
+                .sublist(0, frame.uri.pathSegments.length - 1)
+                .join('/')
           : null,
     );
 

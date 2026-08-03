@@ -23,11 +23,7 @@ class SentryTraceHeader {
     }
   }
 
-  SentryTraceHeader(
-    this.traceId,
-    this.spanId, {
-    this.sampled,
-  });
+  SentryTraceHeader(this.traceId, this.spanId, {this.sampled});
 
   factory SentryTraceHeader.fromTraceHeader(String header) {
     final parts = header.split('-');
@@ -42,10 +38,6 @@ class SentryTraceHeader {
     final traceId = SentryId.fromId(parts[0]);
     final spanId = SpanId.fromId(parts[1]);
 
-    return SentryTraceHeader(
-      traceId,
-      spanId,
-      sampled: sampled,
-    );
+    return SentryTraceHeader(traceId, spanId, sampled: sampled);
   }
 }

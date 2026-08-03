@@ -22,26 +22,30 @@ class SentrySamplingContext {
   // TODO: Remove these placeholders once legacy transaction API is removed.
 
   /// Placeholder for streaming mode where transaction context is not used.
-  static final _unusedTransactionContext =
-      SentryTransactionContext('unused', 'unused');
+  static final _unusedTransactionContext = SentryTransactionContext(
+    'unused',
+    'unused',
+  );
 
   /// Placeholder for static mode where span context is not used.
   static final _unusedSpanContext = SentrySpanSamplingContextV2('unused', {});
 
   SentrySamplingContext(
-      this._transactionContext, this._spanContext, this._traceLifecycle,
-      {Map<String, dynamic>? customSamplingContext})
-      : _customSamplingContext = customSamplingContext ?? {};
+    this._transactionContext,
+    this._spanContext,
+    this._traceLifecycle, {
+    Map<String, dynamic>? customSamplingContext,
+  }) : _customSamplingContext = customSamplingContext ?? {};
 
   /// Creates a sampling context for SpanV2 (streaming mode).
   ///
   /// In streaming mode, the transaction context is not used - only the
   /// span context matters for sampling decisions.
   SentrySamplingContext.forSpanV2(SentrySpanSamplingContextV2 spanContext)
-      : _transactionContext = _unusedTransactionContext,
-        _spanContext = spanContext,
-        _traceLifecycle = SentryTraceLifecycle.stream,
-        _customSamplingContext = {};
+    : _transactionContext = _unusedTransactionContext,
+      _spanContext = spanContext,
+      _traceLifecycle = SentryTraceLifecycle.stream,
+      _customSamplingContext = {};
 
   /// Creates a sampling context for legacy transactions (static mode).
   ///
@@ -50,10 +54,10 @@ class SentrySamplingContext {
   SentrySamplingContext.forTransaction(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
-  })  : _transactionContext = transactionContext,
-        _spanContext = _unusedSpanContext,
-        _traceLifecycle = SentryTraceLifecycle.static,
-        _customSamplingContext = customSamplingContext ?? {};
+  }) : _transactionContext = transactionContext,
+       _spanContext = _unusedSpanContext,
+       _traceLifecycle = SentryTraceLifecycle.static,
+       _customSamplingContext = customSamplingContext ?? {};
 
   /// The Transaction context.
   ///
@@ -63,9 +67,10 @@ class SentrySamplingContext {
   /// This runtime check is a temporary solution for backwards compatibility.
   SentryTransactionContext get transactionContext {
     if (_traceLifecycle != SentryTraceLifecycle.static) {
-      internalLogger
-          .error('transactionContext is only available in static mode. '
-              'Use spanContext for streaming mode.');
+      internalLogger.error(
+        'transactionContext is only available in static mode. '
+        'Use spanContext for streaming mode.',
+      );
     }
     return _transactionContext;
   }
@@ -78,8 +83,10 @@ class SentrySamplingContext {
   /// This runtime check is a temporary solution for backwards compatibility.
   SentrySpanSamplingContextV2 get spanContext {
     if (_traceLifecycle != SentryTraceLifecycle.stream) {
-      internalLogger.error('spanContext is only available in streaming mode. '
-          'Use transactionContext for static mode.');
+      internalLogger.error(
+        'spanContext is only available in streaming mode. '
+        'Use transactionContext for static mode.',
+      );
     }
     return _spanContext;
   }

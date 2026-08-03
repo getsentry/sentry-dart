@@ -20,10 +20,7 @@ void main() {
   test('toTraceContext gets sampled, status, and origin', () {
     final sut = fixture.getSut();
     final aborted = SpanStatus.aborted();
-    final traceContext = sut.toTraceContext(
-      sampled: true,
-      status: aborted,
-    );
+    final traceContext = sut.toTraceContext(sampled: true, status: aborted);
 
     expect(traceContext.sampled, true);
     expect(traceContext.spanId, isNotNull);
@@ -39,9 +36,10 @@ void main() {
 class Fixture {
   SentrySpanContext getSut() {
     return SentrySpanContext(
-        operation: 'op',
-        parentSpanId: SpanId.newId(),
-        description: 'desc',
-        origin: 'manual');
+      operation: 'op',
+      parentSpanId: SpanId.newId(),
+      description: 'desc',
+      origin: 'manual',
+    );
   }
 }

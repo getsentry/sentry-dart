@@ -53,34 +53,36 @@ void main() {
     });
 
     test(
-        'addSentry adds $FailedRequestInterceptor if captureFailedRequests true',
-        () {
-      final dio = fixture.getSut();
+      'addSentry adds $FailedRequestInterceptor if captureFailedRequests true',
+      () {
+        final dio = fixture.getSut();
 
-      fixture.hub.options.captureFailedRequests = true;
+        fixture.hub.options.captureFailedRequests = true;
 
-      dio.addSentry(hub: fixture.hub);
+        dio.addSentry(hub: fixture.hub);
 
-      expect(
-        dio.interceptors.whereType<FailedRequestInterceptor>().length,
-        1,
-      );
-    });
+        expect(
+          dio.interceptors.whereType<FailedRequestInterceptor>().length,
+          1,
+        );
+      },
+    );
 
     test(
-        'addSentry does not add $FailedRequestInterceptor if captureFailedRequests false',
-        () {
-      final dio = fixture.getSut();
+      'addSentry does not add $FailedRequestInterceptor if captureFailedRequests false',
+      () {
+        final dio = fixture.getSut();
 
-      fixture.hub.options.captureFailedRequests = false;
+        fixture.hub.options.captureFailedRequests = false;
 
-      dio.addSentry(hub: fixture.hub);
+        dio.addSentry(hub: fixture.hub);
 
-      expect(
-        dio.interceptors.whereType<FailedRequestInterceptor>().length,
-        0,
-      );
-    });
+        expect(
+          dio.interceptors.whereType<FailedRequestInterceptor>().length,
+          0,
+        );
+      },
+    );
 
     test('addSentry adds $FailedRequestInterceptor if override true', () {
       final dio = fixture.getSut();
@@ -89,13 +91,11 @@ void main() {
 
       dio.addSentry(hub: fixture.hub, captureFailedRequests: true);
 
-      expect(
-        dio.interceptors.whereType<FailedRequestInterceptor>().length,
-        1,
-      );
+      expect(dio.interceptors.whereType<FailedRequestInterceptor>().length, 1);
 
-      final interceptor =
-          dio.interceptors.whereType<FailedRequestInterceptor>().first;
+      final interceptor = dio.interceptors
+          .whereType<FailedRequestInterceptor>()
+          .first;
 
       final requestOptions = RequestOptions(path: 'https://example.com');
       final error = DioError(
@@ -107,19 +107,21 @@ void main() {
       expect(fixture.hub.captureExceptionCalls.length, 1);
     });
 
-    test('addSentry does not add $FailedRequestInterceptor if override false',
-        () {
-      final dio = fixture.getSut();
+    test(
+      'addSentry does not add $FailedRequestInterceptor if override false',
+      () {
+        final dio = fixture.getSut();
 
-      fixture.hub.options.captureFailedRequests = true;
+        fixture.hub.options.captureFailedRequests = true;
 
-      dio.addSentry(hub: fixture.hub, captureFailedRequests: false);
+        dio.addSentry(hub: fixture.hub, captureFailedRequests: false);
 
-      expect(
-        dio.interceptors.whereType<FailedRequestInterceptor>().length,
-        0,
-      );
-    });
+        expect(
+          dio.interceptors.whereType<FailedRequestInterceptor>().length,
+          0,
+        );
+      },
+    );
 
     test('addSentry only adds one $DioEventProcessor', () {
       final dio = fixture.getSut();
@@ -140,10 +142,7 @@ void main() {
 
       dio.addSentry(hub: fixture.hub);
 
-      expect(
-        fixture.hub.options.exceptionCauseExtractor(DioError),
-        isNotNull,
-      );
+      expect(fixture.hub.options.exceptionCauseExtractor(DioError), isNotNull);
     });
 
     test('addSentry adds $DioStackTraceExtractor', () {
@@ -192,10 +191,7 @@ void main() {
 
       dio.addSentry(hub: fixture.hub);
 
-      expect(
-        fixture.hub.options.sdk.integrations.contains('sentry_dio'),
-        true,
-      );
+      expect(fixture.hub.options.sdk.integrations.contains('sentry_dio'), true);
     });
 
     test('addSentry only adds one integration to sdk', () {

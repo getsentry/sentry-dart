@@ -24,18 +24,18 @@ class Contexts extends MapView<String, dynamic> {
     SentryFeedback? feedback,
     SentryFeatureFlags? flags,
   }) : super({
-          SentryDevice.type: device,
-          SentryOperatingSystem.type: operatingSystem,
-          SentryRuntime.listType: List<SentryRuntime>.from(runtimes ?? []),
-          SentryApp.type: app,
-          SentryBrowser.type: browser,
-          SentryGpu.type: gpu,
-          SentryCulture.type: culture,
-          SentryTraceContext.type: trace,
-          SentryResponse.type: response,
-          SentryFeedback.type: feedback,
-          SentryFeatureFlags.type: flags,
-        });
+         SentryDevice.type: device,
+         SentryOperatingSystem.type: operatingSystem,
+         SentryRuntime.listType: List<SentryRuntime>.from(runtimes ?? []),
+         SentryApp.type: app,
+         SentryBrowser.type: browser,
+         SentryGpu.type: gpu,
+         SentryCulture.type: culture,
+         SentryTraceContext.type: trace,
+         SentryResponse.type: response,
+         SentryFeedback.type: feedback,
+         SentryFeatureFlags.type: flags,
+       });
 
   /// Deserializes [Contexts] from JSON [Map].
   factory Contexts.fromJson(Map<String, dynamic> data) {
@@ -45,7 +45,8 @@ class Contexts extends MapView<String, dynamic> {
           : null,
       operatingSystem: data[SentryOperatingSystem.type] != null
           ? SentryOperatingSystem.fromJson(
-              Map.from(data[SentryOperatingSystem.type]))
+              Map.from(data[SentryOperatingSystem.type]),
+            )
           : null,
       app: data[SentryApp.type] != null
           ? SentryApp.fromJson(Map.from(data[SentryApp.type]))
@@ -195,13 +196,17 @@ class Contexts extends MapView<String, dynamic> {
     }
     final flutterVersion = FlutterVersion.version;
     if (flutterVersion != null) {
-      attributes.putIfAbsent(ProposedSemanticAttributes.flutterVersion,
-          () => SentryAttribute.string(flutterVersion));
+      attributes.putIfAbsent(
+        ProposedSemanticAttributes.flutterVersion,
+        () => SentryAttribute.string(flutterVersion),
+      );
     }
     final flutterChannel = FlutterVersion.channel;
     if (flutterChannel != null) {
-      attributes.putIfAbsent(ProposedSemanticAttributes.flutterChannel,
-          () => SentryAttribute.string(flutterChannel));
+      attributes.putIfAbsent(
+        ProposedSemanticAttributes.flutterChannel,
+        () => SentryAttribute.string(flutterChannel),
+      );
     }
     return attributes;
   }

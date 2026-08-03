@@ -36,6 +36,7 @@ import 'transport/task_queue.dart';
 import 'telemetry/log/logger.dart';
 import 'telemetry/log/logger_setup_integration.dart';
 import 'track_before_send_usage_integration.dart';
+import 'utils/internal_logger.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -71,14 +72,12 @@ class Sentry {
       }
       _taskQueue = DefaultTaskQueue<SentryId>(
         sentryOptions.maxQueueSize,
-        sentryOptions.log,
         sentryOptions.recorder,
       );
     } catch (exception, stackTrace) {
-      sentryOptions.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error in options configuration.',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (sentryOptions.automatedTestMode) {
@@ -90,8 +89,12 @@ class Sentry {
       throw ArgumentError('DSN is required.');
     }
 
-    await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded,
-        runZonedGuardedOnError);
+    await _init(
+      sentryOptions,
+      appRunner,
+      callAppRunnerInRunZonedGuarded,
+      runZonedGuardedOnError,
+    );
   }
 
   static Future<void> _initDefaultValues(SentryOptions options) async {
@@ -106,8 +109,7 @@ class Sentry {
 
     if (options.runtimeChecker.isDebugMode()) {
       options.debug = true;
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'Debug mode is enabled: Application is running in a debug environment.',
       );
     }
@@ -165,8 +167,7 @@ class Sentry {
     RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
-      options.log(
-        SentryLevel.warning,
+      internalLogger.warning(
         'Sentry has been already initialized. Previous configuration will be overwritten.',
       );
     }
@@ -182,14 +183,17 @@ class Sentry {
     if (appRunner != null) {
       if (callAppRunnerInRunZonedGuarded) {
         var runIntegrationsAndAppRunner = () async {
-          final integrations = options.integrations
-              .where((i) => i is! RunZonedGuardedIntegration);
+          final integrations = options.integrations.where(
+            (i) => i is! RunZonedGuardedIntegration,
+          );
           await _callIntegrations(integrations, options);
           await appRunner();
         };
 
         final runZonedGuardedIntegration = RunZonedGuardedIntegration(
-            runIntegrationsAndAppRunner, runZonedGuardedOnError);
+          runIntegrationsAndAppRunner,
+          runZonedGuardedOnError,
+        );
         options.addIntegrationByIndex(0, runZonedGuardedIntegration);
 
         // RunZonedGuardedIntegration will run other integrations and appRunner
@@ -206,7 +210,9 @@ class Sentry {
   }
 
   static Future<void> _callIntegrations(
-      Iterable<Integration> integrations, SentryOptions options) async {
+    Iterable<Integration> integrations,
+    SentryOptions options,
+  ) async {
     for (final integration in integrations) {
       final execute = integration(HubAdapter(), options);
       if (execute is Future) {
@@ -221,18 +227,18 @@ class Sentry {
     dynamic stackTrace,
     Hint? hint,
     ScopeCallback? withScope,
-  }) =>
-      _taskQueue.enqueue(
-          () => _hub.captureEvent(
-                event,
-                stackTrace: stackTrace,
-                hint: hint,
-                withScope: withScope,
-              ),
-          SentryId.empty(),
-          event.type != null
-              ? DataCategory.fromItemType(event.type!)
-              : DataCategory.unknown);
+  }) => _taskQueue.enqueue(
+    () => _hub.captureEvent(
+      event,
+      stackTrace: stackTrace,
+      hint: hint,
+      withScope: withScope,
+    ),
+    SentryId.empty(),
+    event.type != null
+        ? DataCategory.fromItemType(event.type!)
+        : DataCategory.unknown,
+  );
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
@@ -241,18 +247,17 @@ class Sentry {
     Hint? hint,
     SentryMessage? message,
     ScopeCallback? withScope,
-  }) =>
-      _taskQueue.enqueue(
-        () => _hub.captureException(
-          throwable,
-          stackTrace: stackTrace,
-          hint: hint,
-          message: message,
-          withScope: withScope,
-        ),
-        SentryId.empty(),
-        DataCategory.error,
-      );
+  }) => _taskQueue.enqueue(
+    () => _hub.captureException(
+      throwable,
+      stackTrace: stackTrace,
+      hint: hint,
+      message: message,
+      withScope: withScope,
+    ),
+    SentryId.empty(),
+    DataCategory.error,
+  );
 
   /// Reports a [message] to Sentry.io.
   static Future<SentryId> captureMessage(
@@ -262,19 +267,18 @@ class Sentry {
     List<dynamic>? params,
     Hint? hint,
     ScopeCallback? withScope,
-  }) =>
-      _taskQueue.enqueue(
-        () => _hub.captureMessage(
-          message,
-          level: level,
-          template: template,
-          params: params,
-          hint: hint,
-          withScope: withScope,
-        ),
-        SentryId.empty(),
-        DataCategory.unknown,
-      );
+  }) => _taskQueue.enqueue(
+    () => _hub.captureMessage(
+      message,
+      level: level,
+      template: template,
+      params: params,
+      hint: hint,
+      withScope: withScope,
+    ),
+    SentryId.empty(),
+    DataCategory.unknown,
+  );
 
   /// Reports [SentryFeedback] to Sentry.io.
   ///
@@ -283,16 +287,11 @@ class Sentry {
     SentryFeedback feedback, {
     Hint? hint,
     ScopeCallback? withScope,
-  }) =>
-      _taskQueue.enqueue(
-        () => _hub.captureFeedback(
-          feedback,
-          hint: hint,
-          withScope: withScope,
-        ),
-        SentryId.empty(),
-        DataCategory.unknown,
-      );
+  }) => _taskQueue.enqueue(
+    () => _hub.captureFeedback(feedback, hint: hint, withScope: withScope),
+    SentryId.empty(),
+    DataCategory.unknown,
+  );
 
   /// Close the client SDK
   static Future<void> close() async {
@@ -360,19 +359,18 @@ class Sentry {
     bool? trimEnd,
     OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
-  }) =>
-      _hub.startTransaction(
-        name,
-        operation,
-        description: description,
-        startTimestamp: startTimestamp,
-        bindToScope: bindToScope,
-        waitForChildren: waitForChildren,
-        autoFinishAfter: autoFinishAfter,
-        trimEnd: trimEnd,
-        onFinish: onFinish,
-        customSamplingContext: customSamplingContext,
-      );
+  }) => _hub.startTransaction(
+    name,
+    operation,
+    description: description,
+    startTimestamp: startTimestamp,
+    bindToScope: bindToScope,
+    waitForChildren: waitForChildren,
+    autoFinishAfter: autoFinishAfter,
+    trimEnd: trimEnd,
+    onFinish: onFinish,
+    customSamplingContext: customSamplingContext,
+  );
 
   /// Creates a Transaction and returns the instance.
   static ISentrySpan startTransactionWithContext(
@@ -384,17 +382,16 @@ class Sentry {
     Duration? autoFinishAfter,
     bool? trimEnd,
     OnTransactionFinish? onFinish,
-  }) =>
-      _hub.startTransactionWithContext(
-        transactionContext,
-        customSamplingContext: customSamplingContext,
-        startTimestamp: startTimestamp,
-        bindToScope: bindToScope,
-        waitForChildren: waitForChildren,
-        autoFinishAfter: autoFinishAfter,
-        trimEnd: trimEnd,
-        onFinish: onFinish,
-      );
+  }) => _hub.startTransactionWithContext(
+    transactionContext,
+    customSamplingContext: customSamplingContext,
+    startTimestamp: startTimestamp,
+    bindToScope: bindToScope,
+    waitForChildren: waitForChildren,
+    autoFinishAfter: autoFinishAfter,
+    trimEnd: trimEnd,
+    onFinish: onFinish,
+  );
 
   /// Starts a new span, executes an async [callback], and ends the span
   /// automatically when the returned future completes.
@@ -436,11 +433,13 @@ class Sentry {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
-  }) =>
-      _hub.startSpan(name, callback,
-          attributes: attributes,
-          parentSpan: parentSpan,
-          startTimestamp: startTimestamp);
+  }) => _hub.startSpan(
+    name,
+    callback,
+    attributes: attributes,
+    parentSpan: parentSpan,
+    startTimestamp: startTimestamp,
+  );
 
   /// Starts a new span, executes a synchronous [callback], and ends the span
   /// before returning the callback result.
@@ -469,11 +468,13 @@ class Sentry {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
-  }) =>
-      _hub.startSpanSync(name, callback,
-          attributes: attributes,
-          parentSpan: parentSpan,
-          startTimestamp: startTimestamp);
+  }) => _hub.startSpanSync(
+    name,
+    callback,
+    attributes: attributes,
+    parentSpan: parentSpan,
+    startTimestamp: startTimestamp,
+  );
 
   /// Creates a span that is not set as the active span.
   ///
@@ -505,9 +506,11 @@ class Sentry {
     String name, {
     Map<String, SentryAttribute>? attributes,
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
-  }) =>
-      _hub.startInactiveSpan(name,
-          attributes: attributes, parentSpan: parentSpan);
+  }) => _hub.startInactiveSpan(
+    name,
+    attributes: attributes,
+    parentSpan: parentSpan,
+  );
 
   /// Gets the current active transaction or span bound to the scope.
   /// Returns `null` if performance is disabled in the options.
@@ -555,14 +558,13 @@ class Sentry {
     void Function(Object error, StackTrace stack)? onError, {
     Map<Object?, Object?>? zoneValues,
     ZoneSpecification? zoneSpecification,
-  }) =>
-      SentryRunZonedGuarded.sentryRunZonedGuarded(
-        _hub,
-        body,
-        onError,
-        zoneValues: zoneValues,
-        zoneSpecification: zoneSpecification,
-      );
+  }) => SentryRunZonedGuarded.sentryRunZonedGuarded(
+    _hub,
+    body,
+    onError,
+    zoneValues: zoneValues,
+    zoneSpecification: zoneSpecification,
+  );
 
   static SentryLogger get logger => currentHub.options.logger;
 

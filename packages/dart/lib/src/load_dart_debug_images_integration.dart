@@ -9,9 +9,9 @@ import 'integration.dart';
 import 'protocol/debug_image.dart';
 import 'protocol/debug_meta.dart';
 import 'protocol/sentry_event.dart';
-import 'protocol/sentry_level.dart';
 import 'protocol/sentry_stack_trace.dart';
 import 'sentry_options.dart';
+import 'utils/internal_logger.dart';
 
 class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
   static const integrationName = 'LoadDartDebugImages';
@@ -23,7 +23,8 @@ class LoadDartDebugImagesIntegration extends Integration<SentryOptions> {
             options.runtimeChecker.isSplitDebugInfoBuild()) &&
         !options.platform.isWeb) {
       options.addEventProcessor(
-          LoadDartDebugImagesIntegrationEventProcessor(options));
+        LoadDartDebugImagesIntegrationEventProcessor(options),
+      );
       options.sdk.addIntegration(integrationName);
     }
   }
@@ -65,10 +66,9 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
     try {
       _debugImage ??= createDebugImage(stackTrace);
     } catch (e, stack) {
-      _options.log(
-        SentryLevel.info,
+      internalLogger.info(
         "Couldn't add Dart debug image to event. The event will still be reported.",
-        exception: e,
+        error: e,
         stackTrace: stack,
       );
       if (_options.automatedTestMode) {
@@ -81,8 +81,9 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
   @visibleForTesting
   DebugImage? createDebugImage(SentryStackTrace stackTrace) {
     if (stackTrace.buildId == null || stackTrace.baseAddr == null) {
-      _options.log(SentryLevel.warning,
-          'Cannot create DebugImage without a build ID and image base address.');
+      internalLogger.warning(
+        'Cannot create DebugImage without a build ID and image base address.',
+      );
       return null;
     }
 
@@ -109,8 +110,7 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
       debugId = _formatHexToUuid(stackTrace.buildId!);
       codeFile = 'App.Framework/App';
     } else {
-      _options.log(
-        SentryLevel.warning,
+      internalLogger.warning(
         'Unsupported platform for creating Dart debug images.',
       );
       return null;
@@ -158,8 +158,11 @@ class LoadDartDebugImagesIntegrationEventProcessor implements EventProcessor {
       return hex;
     }
     if (hex.length != 32) {
-      throw ArgumentError.value(hex, 'hexUUID',
-          'Hex input must be a 32-character hexadecimal string');
+      throw ArgumentError.value(
+        hex,
+        'hexUUID',
+        'Hex input must be a 32-character hexadecimal string',
+      );
     }
 
     return '${hex.substring(0, 8)}-'

@@ -4,9 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
+import 'utils/internal_logger.dart';
 
 /// The methods and properties are modelled after the the real binding class.
-@experimental
+@internal
 class BindingWrapper {
   final Hub _hub;
 
@@ -20,12 +21,10 @@ class BindingWrapper {
     try {
       return _ambiguate(WidgetsBinding.instance);
     } catch (e, s) {
-      _hub.options.log(
-        SentryLevel.error,
+      internalLogger.error(
         'WidgetsBinding.instance was not yet initialized',
-        exception: e,
+        error: e,
         stackTrace: s,
-        logger: 'BindingWrapper',
       );
       if (_hub.options.automatedTestMode) {
         rethrow;
@@ -57,8 +56,7 @@ class SentryWidgetsFlutterBinding extends WidgetsFlutterBinding
       // Try to get the existing binding instance
       return WidgetsBinding.instance;
     } catch (_) {
-      Sentry.currentHub.options.log(
-        SentryLevel.info,
+      internalLogger.info(
         'WidgetsFlutterBinding has not been initialized yet. '
         'Creating $SentryWidgetsFlutterBinding.',
       );
