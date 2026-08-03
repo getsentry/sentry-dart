@@ -829,8 +829,6 @@ void main() {
 
       final processedEvent = sut.apply(event, Hint()) as SentryEvent;
 
-      // A hint is beforeSend-only and never serialized, so the response has to
-      // be on the event for the status code to reach Sentry.
       final response = processedEvent.contexts.response;
       expect(response, isNotNull);
       expect(response?.statusCode, 404);
@@ -861,7 +859,6 @@ void main() {
       final hint = Hint();
       final processedEvent = sut.apply(event, hint) as SentryEvent;
 
-      // The event is serialized and sent; the hint is only handed to beforeSend.
       expect(processedEvent.contexts.response?.statusCode, 404);
       expect(processedEvent.contexts.response?.data, isNull);
       expect(hint.response?.data, 'foobar');

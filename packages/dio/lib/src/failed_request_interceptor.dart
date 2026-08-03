@@ -29,8 +29,6 @@ class FailedRequestInterceptor extends Interceptor {
     // ignore: invalid_use_of_internal_member
     final cfr = _captureFailedRequests ?? _hub.options.captureFailedRequests;
 
-    // Reporting a failed request to the DSN would generate the very request
-    // that failed.
     // ignore: invalid_use_of_internal_member
     if (isSentryRequestUrl(err.requestOptions.uri.toString(), _hub.options)) {
       handler.next(err);
@@ -53,8 +51,6 @@ class FailedRequestInterceptor extends Interceptor {
     );
 
     if (cfr && isFailure && containsRequestTarget) {
-      // The SDK caught the failure and reported it rather than letting it crash
-      // the app, so the session stays healthy.
       final mechanism = Mechanism(
         type: 'SentryDioClientAdapter',
         handled: true,

@@ -77,8 +77,7 @@ extension SentryDioExtension on Dio {
       options.addExceptionStackTraceExtractor(DioStackTraceExtractor());
     }
 
-    // Guarded by the processor's absence so repeated `addSentry` calls don't
-    // register duplicates.
+    // Add DioEventProcessor when it's not already present
     if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {
       options.sdk.addIntegration('sentry_dio');
       options.addEventProcessor(DioEventProcessor(options));

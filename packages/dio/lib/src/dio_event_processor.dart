@@ -4,9 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'dart:convert';
 
-/// Prose for the failure types that arrive without a status code. Only the
-/// types whose enum name reads badly are listed; anything else, including a type
-/// Dio adds in a future minor release, falls back to the name itself.
 const _failureDescriptions = <DioExceptionType, String>{
   DioExceptionType.connectionTimeout: 'connection timeout',
   DioExceptionType.sendTimeout: 'send timeout',
@@ -53,22 +50,17 @@ class DioEventProcessor implements EventProcessor {
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
     event.request = event.request ?? _requestFrom(dioError);
-    // Also on the event, not just the hint: a hint is beforeSend-only and never
-    // serialized, so otherwise the status code and headers never arrive.
-    //
-    // The body is left off deliberately. It stays reachable through the hint in
-    // `beforeSend`, but shipping up to 150 KB of a failed response by default
-    // is more than `sendDefaultPii` asks for, and neither FailedRequestClient
-    // nor the other SDKs put it on the event.
+    // A hint is beforeSend-only and never serialized, so the status code and
+    // headers only reach Sentry from the event. The body stays on the hint
+    // alone: shipping a failed response by default is more than
+    // `sendDefaultPii` asks for.
     event.contexts.response ??= _responseFrom(dioError, withData: false);
     return event;
   }
 
   /// Dio's own messages are paragraphs of remediation advice rather than facts:
   /// a bad response explains what the status code means and links to MDN, and a
-  /// timeout restates the timeout that was configured. sentry-javascript
-  /// likewise never surfaces the underlying error's message, only the synthetic
-  /// one.
+  /// timeout restates the timeout that was configured.
   bool _shouldReplaceValue(DioError dioError) {
     // Never override a message the user chose to build themselves.
     return dioError.stringBuilder == null &&
@@ -76,11 +68,8 @@ class DioEventProcessor implements EventProcessor {
             defaultDioExceptionReadableStringBuilder;
   }
 
-  /// Worded like the other SDKs' HTTP client errors so a Dio 502 and a
-  /// `package:http` 502 read the same. The route is deliberately left out — it
-  /// already travels on [SentryEvent.request] and would make the issue title
-  /// vary per path parameter. The untouched [DioError] stays on
-  /// [SentryException.throwable] for `beforeSend`.
+  /// The route is left out — it already travels on [SentryEvent.request] and
+  /// would make the issue title vary per path parameter.
   String _valueFrom(DioError dioError) {
     final statusCode = dioError.response?.statusCode;
     if (statusCode != null) {

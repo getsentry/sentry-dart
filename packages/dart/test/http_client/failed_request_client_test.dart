@@ -348,8 +348,6 @@ void main() {
       );
 
       final exception = fixture.transport.events.first.exceptions?.first;
-      // The thrown exception is kept as-is, so a description naming a status
-      // code that never arrived would only describe nothing.
       expect(exception?.type, 'TestException');
       expect(exception?.mechanism?.description, isNull);
     });

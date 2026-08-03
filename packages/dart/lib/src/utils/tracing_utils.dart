@@ -138,9 +138,8 @@ bool containsTargetOrMatchesRegExp(
 /// integration must not capture it — otherwise reporting a failure would
 /// generate the very request that failed.
 ///
-/// Compares the host exactly. sentry-javascript's `isSentryRequestUrl` tests
-/// `url.includes(dsn.host)`, which `not-sentry.example.com` would satisfy for a
-/// DSN on `sentry.example.com`, silently dropping that host's failures.
+/// Compares the host exactly, so a lookalike such as `not-sentry.example.com`
+/// is still captured.
 @internal
 bool isSentryRequestUrl(String url, SentryOptions options) {
   try {

@@ -77,8 +77,6 @@ class SentrySupabaseErrorClient extends BaseClient {
     exception ??= SentrySupabaseClientError(
       'Supabase HTTP Client Error with Status Code: ${response?.statusCode}',
     );
-    // The SDK caught the failure and reported it rather than letting it crash
-    // the app, so the session stays healthy.
     final mechanism = Mechanism(type: 'SentrySupabaseClient', handled: true);
     final throwable = ThrowableMechanism(mechanism, exception);
 

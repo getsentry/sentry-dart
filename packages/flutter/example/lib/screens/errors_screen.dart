@@ -178,10 +178,6 @@ Future<void> asyncThrows() async {
   throw StateError('async throws');
 }
 
-/// The three Dio demos below all swallow the exception. `FailedRequestInterceptor`
-/// has already captured the event at that point, so each button produces exactly
-/// one issue rather than a second one from a manual `captureException`.
-
 Future<void> dioBadResponse() async {
   final dio = Dio()
     ..addSentry(
