@@ -38,7 +38,8 @@ class FailedRequestInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
     // A connection-level failure — timeout, DNS error, bad certificate — has no
     // status code to match against, so there is nothing to filter on. A
-    // cancellation is a deliberate user action, not a failure.
+    // cancellation only comes from a CancelToken, so it is caller-initiated
+    // rather than a transport failure.
     final isFailure = statusCode == null
         ? err.type != DioExceptionType.cancel
         : _failedRequestStatusCodes._containsStatusCode(statusCode);

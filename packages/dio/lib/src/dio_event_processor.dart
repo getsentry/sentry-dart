@@ -4,6 +4,11 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'dart:convert';
 
+/// Mirrors Dio's own `toPrettyDescription()`, which is private:
+/// https://github.com/cfug/dio/blob/main/dio/lib/src/dio_exception.dart
+///
+/// A type Dio adds later falls back to its enum name rather than breaking the
+/// build, which a switch would.
 const _failureDescriptions = <DioExceptionType, String>{
   DioExceptionType.connectionTimeout: 'connection timeout',
   DioExceptionType.sendTimeout: 'send timeout',
@@ -11,7 +16,7 @@ const _failureDescriptions = <DioExceptionType, String>{
   DioExceptionType.badCertificate: 'bad certificate',
   DioExceptionType.connectionError: 'connection error',
   DioExceptionType.badResponse: 'bad response',
-  DioExceptionType.cancel: 'cancelled',
+  DioExceptionType.cancel: 'request cancelled',
 };
 
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
