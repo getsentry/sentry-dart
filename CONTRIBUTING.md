@@ -38,6 +38,21 @@ melos bootstrap
 
 This resolves all package dependencies and configures git hooks for pre-commit checks.
 
+### 4. Common commands
+
+Run these from the repo root. Use `melos run --list` to see all available scripts and their
+descriptions.
+
+| Command | What it does |
+|---------|--------------|
+| `melos run analyze:dart` | Run `dart analyze` on Dart-only packages |
+| `melos run analyze:flutter` | Run `flutter analyze` on Flutter packages |
+| `melos run format` | Apply formatting to all packages |
+| `melos run test:dart` | Run tests for Dart-only packages |
+| `melos run test:flutter` | Run tests for Flutter packages |
+| `melos run example:flutter -- <platform>` | Build & run the Flutter example (`ios`, `android`, `web`, `macos`, `windows`, or `linux`) |
+| `melos run e2e:dart` | Run the Dart e2e test against sentry.io (requires `SENTRY_AUTH_TOKEN_E2E`) |
+
 ## Project Structure
 
 ### Core SDKs
