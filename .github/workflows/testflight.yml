@@ -12,6 +12,8 @@ on:
 jobs:
   upload_to_testflight:
     name: Build and Upload to Testflight
+    # Bot PRs (dependabot, renovate) can't access the signing secrets, so the upload would fail anyway.
+    if: github.event.pull_request.user.type != 'Bot'
     runs-on: macos-15
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
