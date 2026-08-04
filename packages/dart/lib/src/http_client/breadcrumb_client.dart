@@ -1,10 +1,13 @@
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
+
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../utils/breadcrumb_log_level.dart';
 import '../utils/url_details.dart';
 import '../utils/http_sanitizer.dart';
+import 'network_details_capture.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records requests as breadcrumbs.
@@ -45,12 +48,17 @@ import '../utils/http_sanitizer.dart';
 /// }
 /// ```
 class BreadcrumbClient extends BaseClient {
-  BreadcrumbClient({Client? client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client();
+  BreadcrumbClient({
+    Client? client,
+    Hub? hub,
+    @internal NetworkDetailsCapture? networkDetailsCapture,
+  })  : _hub = hub ?? HubAdapter(),
+        _client = client ?? Client(),
+        _networkDetailsCapture = networkDetailsCapture;
 
   final Client _client;
   final Hub _hub;
+  final NetworkDetailsCapture? _networkDetailsCapture;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -60,23 +68,66 @@ class BreadcrumbClient extends BaseClient {
     int? statusCode;
     String? reason;
     int? responseBodySize;
+    Map<String, dynamic>? requestDetail;
+    Map<String, dynamic>? responseDetail;
+    DateTime? responseTimestamp;
 
     final stopwatch = Stopwatch();
     stopwatch.start();
 
+    final capture = _networkDetailsCapture;
+    final captureNetworkDetails =
+        capture != null && capture.shouldCapture(request.url);
+
     try {
-      final response = await _client.send(request);
+      StreamedResponse response;
+      try {
+        response = await _client.send(request);
+      } catch (_) {
+        // Only a transport-level failure counts as a request exception for
+        // breadcrumb-level purposes; a capture failure below (once we
+        // already have a real response) shouldn't mark a successful
+        // request as an error.
+        requestHadException = true;
+        rethrow;
+      } finally {
+        // Stopped as soon as headers arrive (success or failure) rather
+        // than in the outer `finally`, so `requestDuration` measures
+        // time-to-headers consistently whether or not network details are
+        // captured. Capturing the response body below can take arbitrarily
+        // long (e.g. downloading a large body) and shouldn't inflate the
+        // measured duration.
+        stopwatch.stop();
+        // Breadcrumb.http anchors start_timestamp/end_timestamp on the
+        // timestamp passed below, so it needs to be taken at the same
+        // moment as the stopwatch above rather than left to default to
+        // "now" when the breadcrumb is built in the outer `finally` -
+        // otherwise both timestamps would drift by however long response
+        // capture takes, even though duration wouldn't. Uses the injectable
+        // clock (matching Hub's own usage) rather than the system clock
+        // directly, so this is fakeable in tests.
+        responseTimestamp = _hub.options.clock();
+      }
 
       statusCode = response.statusCode;
       reason = response.reasonPhrase;
       responseBodySize = response.contentLength;
 
+      if (captureNetworkDetails) {
+        final result = await capture.captureResponse(response);
+        response = result.$1;
+        responseDetail = result.$2;
+      }
+
       return response;
-    } catch (_) {
-      requestHadException = true;
-      rethrow;
     } finally {
-      stopwatch.stop();
+      // Captured after `_client.send` returns (or throws) rather than
+      // before, so that headers set by clients further down the chain
+      // (e.g. TracingClient's sentry-trace/baggage) are reflected instead
+      // of a pre-dispatch snapshot.
+      if (captureNetworkDetails) {
+        requestDetail = capture.captureRequest(request);
+      }
 
       final urlDetails =
           HttpSanitizer.sanitizeUrl(request.url.toString()) ?? UrlDetails();
@@ -95,11 +146,19 @@ class BreadcrumbClient extends BaseClient {
         statusCode: statusCode,
         reason: reason,
         requestDuration: stopwatch.elapsed,
+        timestamp: responseTimestamp,
         requestBodySize: request.contentLength,
         responseBodySize: responseBodySize,
         httpQuery: urlDetails.query,
         httpFragment: urlDetails.fragment,
       );
+
+      if (requestDetail != null) {
+        breadcrumb.data?['request'] = requestDetail;
+      }
+      if (responseDetail != null) {
+        breadcrumb.data?['response'] = responseDetail;
+      }
 
       await _hub.addBreadcrumb(breadcrumb);
     }

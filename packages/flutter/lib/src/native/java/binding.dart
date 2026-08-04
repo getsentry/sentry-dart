@@ -18055,6 +18055,54 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_isEnableLegacyProfiling = _class.instanceMethodId(
+    r'isEnableLegacyProfiling',
+    r'()Z',
+  );
+
+  static final _isEnableLegacyProfiling = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallBooleanMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public boolean isEnableLegacyProfiling()`
+  bool isEnableLegacyProfiling() {
+    return _isEnableLegacyProfiling(reference.pointer,
+            _id_isEnableLegacyProfiling as jni$_.JMethodIDPtr)
+        .boolean;
+  }
+
+  static final _id_setEnableLegacyProfiling = _class.instanceMethodId(
+    r'setEnableLegacyProfiling',
+    r'(Z)V',
+  );
+
+  static final _setEnableLegacyProfiling = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void setEnableLegacyProfiling(boolean z)`
+  void setEnableLegacyProfiling(
+    bool z,
+  ) {
+    _setEnableLegacyProfiling(reference.pointer,
+            _id_setEnableLegacyProfiling as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
   static final _id_getDeadlineTimeout = _class.instanceMethodId(
     r'getDeadlineTimeout',
     r'()J',
