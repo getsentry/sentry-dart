@@ -54,6 +54,20 @@ scripts:
       flutter: true
       dirExists: test
 
+  example:flutter:
+    run: cd packages/flutter/example && ./run.sh
+    description: |
+      Build & run the Flutter example in release mode with obfuscation and symbol upload.
+      Usage: melos run example:flutter -- <ios|android|web|macos|windows|linux>
+
+  e2e:dart:
+    run: cd e2e_test && dart pub get && dart run --define=SENTRY_ENVIRONMENT=e2e
+    description: |
+      Run the Dart e2e test against sentry.io. Requires SENTRY_AUTH_TOKEN_E2E.
+      Keep in sync with .github/workflows/e2e_dart.yml.
+    env:
+      SENTRY_DIST: '1'
+
   # Lifecycle script, executed as part of `melos clean`.
   postclean: melos exec --flutter -- "flutter clean"
 
