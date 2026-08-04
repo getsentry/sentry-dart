@@ -145,6 +145,31 @@ bool containsTargetOrMatchesRegExp(
   return false;
 }
 
+/// Whether [url] points at the configured DSN, in which case an HTTP client
+/// integration must not capture it — otherwise reporting a failure would
+/// generate the very request that failed.
+///
+/// Compares the host exactly, so a lookalike such as `not-sentry.example.com`
+/// is still captured.
+@internal
+bool isSentryRequestUrl(String url, SentryOptions options) {
+  try {
+    final dsnHost = options.parsedDsn.uri?.host;
+    if (dsnHost == null || dsnHost.isEmpty) {
+      return false;
+    }
+    // Empty for a relative URL, which cannot address the DSN.
+    final host = Uri.tryParse(url)?.host;
+    if (host == null || host.isEmpty) {
+      return false;
+    }
+    return host.toLowerCase() == dsnHost.toLowerCase();
+  } catch (_) {
+    // The DSN may be unset or unparseable.
+    return false;
+  }
+}
+
 /// Determines whether an incoming trace should be continued based on org ID matching.
 ///
 /// Returns `true` if the trace should be continued, `false` if a new trace

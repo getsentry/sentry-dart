@@ -64,7 +64,7 @@ class SentrySupabaseErrorClient extends BaseClient {
     exception ??= SentrySupabaseClientError(
       'Supabase HTTP Client Error with Status Code: ${response?.statusCode}',
     );
-    final mechanism = Mechanism(type: 'SentrySupabaseClient');
+    final mechanism = Mechanism(type: 'SentrySupabaseClient', handled: true);
     final throwable = ThrowableMechanism(mechanism, exception);
 
     final event = SentryEvent(throwable: throwable);

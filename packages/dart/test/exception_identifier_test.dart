@@ -35,6 +35,14 @@ void main() {
       final identifier = DartExceptionTypeIdentifier();
       expect(identifier.identifyType(ObfuscatedException()), isNull);
     });
+
+    test('identifies $SentryHttpClientError', () {
+      final identifier = DartExceptionTypeIdentifier();
+      expect(
+        identifier.identifyType(SentryHttpClientError('reason')),
+        'SentryHttpClientError',
+      );
+    });
   });
 
   group('SentryExceptionFactory', () {

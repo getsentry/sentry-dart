@@ -119,6 +119,80 @@ void main() {
     expect(fixture.hub.captureExceptionCalls.length, 0);
   });
 
+  test('capture connection error without a response', () async {
+    final error = DioError.connectionError(
+      requestOptions: RequestOptions(path: 'https://example.com'),
+      reason: "Failed host lookup: 'example.com'",
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
+
+  test('capture timeout without a response', () async {
+    final error = DioError.connectionTimeout(
+      timeout: Duration(seconds: 5),
+      requestOptions: RequestOptions(path: 'https://example.com'),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
+
+  test('do not capture a cancelled request', () async {
+    final error = DioError.requestCancelled(
+      requestOptions: RequestOptions(path: 'https://example.com'),
+      reason: 'user navigated away',
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
+  test('do not capture connection error outside the targets', () async {
+    final error = DioError.connectionError(
+      requestOptions: RequestOptions(path: 'https://example.com'),
+      reason: "Failed host lookup: 'example.com'",
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(failedRequestTargets: ['myapi.com']);
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
+  test('capture target matching the base url', () async {
+    final requestOptions = RequestOptions(
+      path: '/foo/bar',
+      baseUrl: 'https://myapi.com',
+    );
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(failedRequestTargets: ['myapi.com']);
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
+  });
+
   test('don not capture not matching target', () async {
     final requestOptions = RequestOptions(path: 'https://example.com');
     final error = DioError(
@@ -133,6 +207,57 @@ void main() {
 
     expect(fixture.errorInterceptorHandler.nextWasCalled, true);
     expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
+  test('captured request is handled, so it does not end the session', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    final captured = fixture.hub.captureExceptionCalls.first.throwable;
+    expect((captured as ThrowableMechanism).mechanism.handled, true);
+  });
+
+  test('do not capture a request to the dsn', () async {
+    final dsnHost = Uri.parse(fixture.hub.options.dsn!).host;
+    final requestOptions = RequestOptions(
+      path: 'https://$dsnHost/api/1/envelope/',
+    );
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
+  test('capture a host that merely contains the dsn host', () async {
+    final dsnHost = Uri.parse(fixture.hub.options.dsn!).host;
+    final requestOptions = RequestOptions(path: 'https://not-$dsnHost/foo');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.hub.captureExceptionCalls.length, 1);
   });
 }
 

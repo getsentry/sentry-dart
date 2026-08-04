@@ -36,6 +36,8 @@ class DartExceptionTypeIdentifier implements ExceptionTypeIdentifier {
     // dart http package
     if (throwable is ClientException) return 'ClientException';
 
+    if (throwable is SentryHttpClientError) return 'SentryHttpClientError';
+
     // platform specific exceptions
     return identifyPlatformSpecificException(throwable);
   }

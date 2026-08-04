@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'dio_error_extractor.dart';
 import 'dio_event_processor.dart';
+import 'dio_exception_type_identifier.dart';
 import 'dio_stacktrace_extractor.dart';
 import 'failed_request_interceptor.dart';
 import 'sentry_transformer.dart';
@@ -80,6 +81,7 @@ extension SentryDioExtension on Dio {
     if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {
       options.sdk.addIntegration('sentry_dio');
       options.addEventProcessor(DioEventProcessor(options));
+      options.prependExceptionTypeIdentifier(DioExceptionTypeIdentifier());
     }
     options.sdk.addPackage(packageName, sdkVersion);
 

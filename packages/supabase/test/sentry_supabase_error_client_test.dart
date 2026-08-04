@@ -61,7 +61,10 @@ void main() {
       expect(throwableMechanism.throwable, isA<SentrySupabaseClientError>());
 
       final error = throwableMechanism.throwable as SentrySupabaseClientError;
-      expect(error.toString().contains('404'), true);
+      expect(
+        error.toString(),
+        'Supabase HTTP Client Error with Status Code: 404',
+      );
     });
 
     test('should capture error if send throws', () async {

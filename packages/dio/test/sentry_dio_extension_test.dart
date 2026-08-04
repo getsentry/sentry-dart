@@ -1,8 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:dio/dio.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_dio/src/dio_error_extractor.dart';
+import 'package:sentry_dio/src/dio_exception_type_identifier.dart';
 import 'package:sentry_dio/src/dio_stacktrace_extractor.dart';
 import 'package:sentry_dio/src/failed_request_interceptor.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
@@ -151,6 +153,36 @@ void main() {
       expect(
         fixture.hub.options.exceptionStackTraceExtractor(DioError),
         isNotNull,
+      );
+    });
+
+    test('addSentry adds $DioExceptionTypeIdentifier', () {
+      final dio = fixture.getSut();
+
+      dio.addSentry(hub: fixture.hub);
+
+      expect(
+        fixture.hub.options.exceptionTypeIdentifiers.first,
+        isA<CachingExceptionTypeIdentifier>().having(
+          (c) => c.identifier,
+          'wrapped identifier',
+          isA<DioExceptionTypeIdentifier>(),
+        ),
+      );
+    });
+
+    test('addSentry only adds one $DioExceptionTypeIdentifier', () {
+      final dio = fixture.getSut();
+
+      dio.addSentry(hub: fixture.hub);
+      dio.addSentry(hub: fixture.hub);
+
+      expect(
+        fixture.hub.options.exceptionTypeIdentifiers
+            .whereType<CachingExceptionTypeIdentifier>()
+            .where((it) => it.identifier is DioExceptionTypeIdentifier)
+            .length,
+        1,
       );
     });
 

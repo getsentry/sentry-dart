@@ -150,10 +150,7 @@ void main() {
       expect(mechanism?.description, 'HTTP Client Error with status code: 404');
 
       expect(exception?.type, 'SentryHttpClientError');
-      expect(
-        exception?.value,
-        'Exception: HTTP Client Error with status code: 404',
-      );
+      expect(exception?.value, 'HTTP Client Error with status code: 404');
       expect(exception?.stackTrace?.snapshot, true);
 
       final request = eventCall.request;
@@ -168,10 +165,7 @@ void main() {
       final response = eventCall.contexts.response!;
       expect(response.bodySize, 3);
       expect(response.statusCode, 404);
-      expect(
-        response.headers,
-        equals({'lorem': 'ipsum', 'set-cookie': 'foo=bar'}),
-      );
+      expect(response.headers, equals({'lorem': 'ipsum'}));
       expect(response.cookies, equals('foo=bar'));
     });
 
@@ -325,6 +319,46 @@ void main() {
       await expectLater(() async => await sut.get(requestUri), throwsException);
 
       expect((eventHint?.get('request') as Request?)?.url, failedRequest?.url);
+    });
+
+    test('a thrown exception gets no status code description', () async {
+      fixture._hub.options.captureFailedRequests = true;
+
+      final sut = fixture.getSut(client: createThrowingClient());
+
+      await expectLater(() async => await sut.get(requestUri), throwsException);
+
+      final exception = fixture.transport.events.first.exceptions?.first;
+      expect(exception?.type, 'TestException');
+      expect(exception?.mechanism?.description, isNull);
+    });
+
+    test('does not capture a request to the dsn', () async {
+      fixture._hub.options.captureFailedRequests = true;
+
+      final dsnUri = Uri.parse(fixture.options.dsn!);
+      final envelopeUri = Uri.https(dsnUri.host, '/api/1/envelope/');
+
+      final client = MockClient((request) async => Response('', 500));
+      final sut = fixture.getSut(client: client);
+
+      await sut.get(envelopeUri);
+
+      expect(fixture.transport.calls, 0);
+    });
+
+    test('captures a host that merely contains the dsn host', () async {
+      fixture._hub.options.captureFailedRequests = true;
+
+      final dsnUri = Uri.parse(fixture.options.dsn!);
+      final lookalike = Uri.https('not-${dsnUri.host}', '/foo');
+
+      final client = MockClient((request) async => Response('', 500));
+      final sut = fixture.getSut(client: client);
+
+      await sut.get(lookalike);
+
+      expect(fixture.transport.calls, 1);
     });
   });
 }

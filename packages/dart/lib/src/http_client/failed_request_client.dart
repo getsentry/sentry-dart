@@ -6,6 +6,7 @@ import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../type_check_hint.dart';
+import '../utils/http_sanitizer.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client.dart';
 import 'sentry_http_client_error.dart';
@@ -138,6 +139,10 @@ class FailedRequestClient extends BaseClient {
       return;
     }
 
+    if (isSentryRequestUrl(request.url.toString(), _hub.options)) {
+      return;
+    }
+
     // Only check `failedRequestStatusCodes` & `failedRequestTargets` if no exception was thrown.
     if (exception == null) {
       if (!failedRequestStatusCodes._containsStatusCode(statusCode)) {
@@ -151,8 +156,13 @@ class FailedRequestClient extends BaseClient {
       }
     }
 
-    final reason = 'HTTP Client Error with status code: $statusCode';
-    exception ??= SentryHttpClientError(reason);
+    String? reason;
+    if (exception == null) {
+      // Non-null here: a null status code matches no failedRequestStatusCodes
+      // entry, so the check above already returned.
+      reason = 'HTTP Client Error with status code: $statusCode';
+      exception = SentryHttpClientError(reason);
+    }
 
     await _captureEvent(
       exception: exception,
@@ -183,7 +193,11 @@ class FailedRequestClient extends BaseClient {
       data: _hub.options.sendDefaultPii ? _getDataFromRequest(request) : null,
     );
 
-    final mechanism = Mechanism(type: 'SentryHttpClient', description: reason);
+    final mechanism = Mechanism(
+      type: 'SentryHttpClient',
+      description: reason,
+      handled: true,
+    );
 
     bool? snapshot;
     if (exception is SentryHttpClientError) {
@@ -205,8 +219,14 @@ class FailedRequestClient extends BaseClient {
     final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
     if (response != null) {
+      final sendPii = _hub.options.sendDefaultPii;
       event.contexts.response = SentryResponse(
-        headers: _hub.options.sendDefaultPii ? response.headers : null,
+        headers: sendPii
+            ? HttpSanitizer.sanitizedHeaders(response.headers)
+            : null,
+        // Read explicitly because sanitizing strips `set-cookie` before
+        // SentryResponse can pick it up. `package:http` lowercases header names.
+        cookies: sendPii ? response.headers['set-cookie'] : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
       );

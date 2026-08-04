@@ -22,16 +22,33 @@ class FailedRequestInterceptor extends Interceptor {
     // ignore: invalid_use_of_internal_member
     final cfr = _captureFailedRequests ?? _hub.options.captureFailedRequests;
 
-    final containsStatusCode = _failedRequestStatusCodes._containsStatusCode(
-      err.response?.statusCode,
-    );
+    // ignore: invalid_use_of_internal_member
+    if (isSentryRequestUrl(err.requestOptions.uri.toString(), _hub.options)) {
+      handler.next(err);
+      return;
+    }
+
+    final statusCode = err.response?.statusCode;
+    // A connection-level failure — timeout, DNS error, bad certificate — has no
+    // status code to match against, so there is nothing to filter on. A
+    // cancellation only comes from a CancelToken, so it is caller-initiated
+    // rather than a transport failure.
+    final isFailure = statusCode == null
+        ? err.type != DioExceptionType.cancel
+        : _failedRequestStatusCodes._containsStatusCode(statusCode);
+
+    // Match on the resolved URL, not `requestOptions.path`, which is relative
+    // to `baseUrl` and would never match a host-based target.
     final containsRequestTarget = containsTargetOrMatchesRegExp(
       _failedRequestTargets,
-      err.requestOptions.path,
+      err.requestOptions.uri.toString(),
     );
 
-    if (cfr && containsStatusCode && containsRequestTarget) {
-      final mechanism = Mechanism(type: 'SentryDioClientAdapter');
+    if (cfr && isFailure && containsRequestTarget) {
+      final mechanism = Mechanism(
+        type: 'SentryDioClientAdapter',
+        handled: true,
+      );
       final throwableMechanism = ThrowableMechanism(mechanism, err);
 
       _hub.getSpan()?.throwable = err;
