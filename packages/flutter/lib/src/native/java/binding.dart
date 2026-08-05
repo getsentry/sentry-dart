@@ -5615,6 +5615,41 @@ class SentryFlutterPlugin extends jni$_.JObject {
         .check();
   }
 
+  // Hand-authored, mirroring addBreadcrumbFromJsonBytes above exactly (same
+  // `([B)V` descriptor shape) since regenerating this file requires
+  // `scripts/generate-jni-bindings.sh`, which needs a full Android build
+  // toolchain not available in this environment. Re-run that script (or
+  // otherwise verify against a real jnigen run) before merging.
+  static final _id_captureReplayNetworkDetailFromJsonBytes =
+      _class.staticMethodId(
+    r'captureReplayNetworkDetailFromJsonBytes',
+    r'([B)V',
+  );
+
+  static final _captureReplayNetworkDetailFromJsonBytes =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallStaticVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void captureReplayNetworkDetailFromJsonBytes(byte[] bs)`
+  static void captureReplayNetworkDetailFromJsonBytes(
+    jni$_.JByteArray bs,
+  ) {
+    final _$bs = bs.reference;
+    _captureReplayNetworkDetailFromJsonBytes(
+            _class.reference.pointer,
+            _id_captureReplayNetworkDetailFromJsonBytes as jni$_.JMethodIDPtr,
+            _$bs.pointer)
+        .check();
+  }
+
   static final _id_setUserFromJsonBytes = _class.staticMethodId(
     r'setUserFromJsonBytes',
     r'([B)V',

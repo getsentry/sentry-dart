@@ -334,6 +334,15 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> registerSegmentName(String segmentName) {
     // No-op. Replay segment name registration is currently Android-only.
   }
+
+  @override
+  FutureOr<void> captureReplayNetworkDetail(
+    String replayRequestId, {
+    Map<String, dynamic>? request,
+    Map<String, dynamic>? response,
+  }) {
+    // No-op. Replay network detail capture is currently Android-only.
+  }
 }
 
 extension SentryValueExtension on binding.sentry_value_u {

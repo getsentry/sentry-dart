@@ -122,6 +122,15 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
+  FutureOr<void> captureReplayNetworkDetail(
+    String replayRequestId, {
+    Map<String, dynamic>? request,
+    Map<String, dynamic>? response,
+  }) {
+    // No-op for testing
+  }
+
+  @override
   FutureOr<void> clearBreadcrumbs() {
     // No-op for testing
   }
