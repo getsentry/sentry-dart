@@ -1,6 +1,8 @@
 @TestOn('vm')
 library;
 
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
@@ -21,9 +23,57 @@ void main() {
   test('addBreadcrumbCalls', () async {
     when(mock.addBreadcrumb(any)).thenReturn(null);
     final breadcrumb = Breadcrumb();
-    await sut.addBreadcrumb(breadcrumb);
+    await sut.addBreadcrumb(breadcrumb, Hint());
 
     expect(verify(mock.addBreadcrumb(captureAny)).captured.single, breadcrumb);
+  });
+
+  test(
+      'addBreadcrumb does not call captureReplayNetworkDetail when the '
+      'breadcrumb has no replay_request_id', () async {
+    when(mock.addBreadcrumb(any)).thenReturn(null);
+    final breadcrumb =
+        Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
+    final hint = Hint()
+      ..set(TypeCheckHint.replayNetworkRequestDetail,
+          <String, dynamic>{'headers': <String, String>{}});
+
+    await sut.addBreadcrumb(breadcrumb, hint);
+
+    verifyNever(mock.captureReplayNetworkDetail(any,
+        request: anyNamed('request'), response: anyNamed('response')));
+  });
+
+  test(
+      'addBreadcrumb forwards replay network detail via captureReplayNetworkDetail '
+      'when the breadcrumb carries a replay_request_id', () async {
+    when(mock.addBreadcrumb(any)).thenReturn(null);
+    when(mock.captureReplayNetworkDetail(any,
+            request: anyNamed('request'), response: anyNamed('response')))
+        .thenReturn(null);
+
+    final breadcrumb =
+        Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
+    breadcrumb.data?['replay_request_id'] = 'req-1';
+    final requestDetail = <String, dynamic>{'headers': <String, String>{}};
+    final responseDetail = <String, dynamic>{
+      'headers': <String, String>{},
+      'body': 'ok'
+    };
+    final hint = Hint()
+      ..set(TypeCheckHint.replayNetworkRequestDetail, requestDetail)
+      ..set(TypeCheckHint.replayNetworkResponseDetail, responseDetail);
+
+    await sut.addBreadcrumb(breadcrumb, hint);
+
+    final capture = verify(mock.captureReplayNetworkDetail(
+      captureAny,
+      request: captureAnyNamed('request'),
+      response: captureAnyNamed('response'),
+    )).captured;
+    expect(capture[0], 'req-1');
+    expect(capture[1], requestDetail);
+    expect(capture[2], responseDetail);
   });
 
   test('clearBreadcrumbsCalls', () async {

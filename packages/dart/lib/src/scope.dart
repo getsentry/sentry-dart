@@ -250,10 +250,11 @@ class Scope {
 
   /// Adds a breadcrumb to the breadcrumbs queue
   Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
-    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint ?? Hint());
+    final resolvedHint = hint ?? Hint();
+    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, resolvedHint);
     if (addedBreadcrumb != null) {
       await _callScopeObservers((scopeObserver) async =>
-          await scopeObserver.addBreadcrumb(addedBreadcrumb));
+          await scopeObserver.addBreadcrumb(addedBreadcrumb, resolvedHint));
     }
   }
 

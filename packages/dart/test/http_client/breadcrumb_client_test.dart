@@ -263,7 +263,8 @@ void main() {
       expect(breadcrumb.data?.containsKey('response'), false);
     });
 
-    test('attaches network details when capture matches the request', () async {
+    test('attaches network details as a hint, not on the breadcrumb itself',
+        () async {
       final capture = FakeNetworkDetailsCapture();
 
       final sut = fixture.getSut(
@@ -273,9 +274,21 @@ void main() {
 
       await sut.get(requestUri);
 
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
-      expect(breadcrumb.data?['request'], isA<Map>());
-      expect(breadcrumb.data?['response'], isA<Map>());
+      final call = fixture.hub.addBreadcrumbCalls.first;
+      // Never on the breadcrumb itself - that's what leaks into every
+      // subsequent event and native scope. Only an opaque correlation id is.
+      expect(call.crumb.data?.containsKey('request'), false);
+      expect(call.crumb.data?.containsKey('response'), false);
+      expect(call.crumb.data?['replay_request_id'], isA<String>());
+
+      expect(
+        call.hint?.get(TypeCheckHint.replayNetworkRequestDetail),
+        isA<Map>(),
+      );
+      expect(
+        call.hint?.get(TypeCheckHint.replayNetworkResponseDetail),
+        isA<Map>(),
+      );
     });
 
     test(
@@ -300,9 +313,10 @@ void main() {
 
       await sut.get(requestUri);
 
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
-      final requestHeaders =
-          (breadcrumb.data?['request'] as Map)['headers'] as Map;
+      final hint = fixture.hub.addBreadcrumbCalls.first.hint;
+      final requestDetail =
+          hint?.get(TypeCheckHint.replayNetworkRequestDetail) as Map;
+      final requestHeaders = requestDetail['headers'] as Map;
       expect(requestHeaders['sentry-trace'], 'abc-123');
     });
 
