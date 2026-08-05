@@ -1958,6 +1958,21 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as _i12.FutureOr<void>);
 
   @override
+  _i12.FutureOr<void> captureReplayNetworkDetail(
+    String? replayRequestId, {
+    Map<String, dynamic>? request,
+    Map<String, dynamic>? response,
+  }) =>
+      (super.noSuchMethod(Invocation.method(
+        #captureReplayNetworkDetail,
+        [replayRequestId],
+        {
+          #request: request,
+          #response: response,
+        },
+      )) as _i12.FutureOr<void>);
+
+  @override
   _i12.FutureOr<void> setContexts(
     String? key,
     dynamic value,

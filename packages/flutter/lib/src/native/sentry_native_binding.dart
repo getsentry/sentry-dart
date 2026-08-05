@@ -27,6 +27,17 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb);
 
+  /// Delivers Session Replay's captured HTTP request/response detail for the
+  /// `http` breadcrumb identified by [replayRequestId] (its
+  /// `replay_request_id` data field) through a side channel that never
+  /// touches native `Scope`, so it can enrich a replay recording without
+  /// ending up on native-captured events. Currently Android-only.
+  FutureOr<void> captureReplayNetworkDetail(
+    String replayRequestId, {
+    Map<String, dynamic>? request,
+    Map<String, dynamic>? response,
+  });
+
   FutureOr<void> clearBreadcrumbs();
 
   bool get supportsLoadContexts;

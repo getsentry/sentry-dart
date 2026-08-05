@@ -39,8 +39,25 @@ class NativeScopeObserver implements ScopeObserver {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    return _native.addBreadcrumb(breadcrumb);
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb, Hint hint) async {
+    await _native.addBreadcrumb(breadcrumb);
+
+    final replayRequestId = breadcrumb.data?['replay_request_id'];
+    if (replayRequestId is! String) {
+      return;
+    }
+    // ignore: invalid_use_of_internal_member
+    final request = hint.get(TypeCheckHint.replayNetworkRequestDetail);
+    // ignore: invalid_use_of_internal_member
+    final response = hint.get(TypeCheckHint.replayNetworkResponseDetail);
+    if (request == null && response == null) {
+      return;
+    }
+    await _native.captureReplayNetworkDetail(
+      replayRequestId,
+      request: request is Map<String, dynamic> ? request : null,
+      response: response is Map<String, dynamic> ? response : null,
+    );
   }
 
   @override
