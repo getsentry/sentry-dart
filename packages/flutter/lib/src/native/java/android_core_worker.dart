@@ -201,6 +201,49 @@ class AndroidCoreWorker {
     return _addBreadcrumbFromWorker(client, normalizedBreadcrumbJson);
   }
 
+  FutureOr<void> captureReplayNetworkDetail(
+    String replayRequestId, {
+    Map<String, dynamic>? request,
+    Map<String, dynamic>? response,
+  }) {
+    if (_isClosed) return null;
+
+    final normalizedDetailJson = normalize({
+      'replay_request_id': replayRequestId,
+      if (request != null) 'request': request,
+      if (response != null) 'response': response,
+    }) as Map<String, dynamic>;
+    final client = _worker;
+    if (client == null) {
+      _captureReplayNetworkDetail(
+        normalizedDetailJson,
+        automatedTestMode: _config.automatedTestMode,
+      );
+      return null;
+    }
+
+    return _captureReplayNetworkDetailFromWorker(client, normalizedDetailJson);
+  }
+
+  Future<void> _captureReplayNetworkDetailFromWorker(
+    Worker client,
+    Map<String, dynamic> normalizedDetailJson,
+  ) async {
+    try {
+      await client
+          .request(_CaptureReplayNetworkDetailRequest(normalizedDetailJson));
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to capture replay network detail',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
+
   Future<void> _addBreadcrumbFromWorker(
     Worker client,
     Map<String, dynamic> normalizedBreadcrumbJson,
@@ -369,6 +412,11 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
               request.breadcrumb,
               automatedTestMode: _config.automatedTestMode,
             );
+          case _CaptureReplayNetworkDetailRequest request:
+            _captureReplayNetworkDetail(
+              request.detail,
+              automatedTestMode: _config.automatedTestMode,
+            );
           case _ClearBreadcrumbsRequest _:
             _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
           case _SetUserRequest request:
@@ -403,6 +451,12 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
           case _AddBreadcrumbRequest request:
             _addBreadcrumb(
               request.breadcrumb,
+              automatedTestMode: _config.automatedTestMode,
+            );
+            return null;
+          case _CaptureReplayNetworkDetailRequest request:
+            _captureReplayNetworkDetail(
+              request.detail,
               automatedTestMode: _config.automatedTestMode,
             );
             return null;
@@ -476,6 +530,12 @@ class _AddBreadcrumbRequest {
   final Map<String, dynamic> breadcrumb;
 
   const _AddBreadcrumbRequest(this.breadcrumb);
+}
+
+class _CaptureReplayNetworkDetailRequest {
+  final Map<String, dynamic> detail;
+
+  const _CaptureReplayNetworkDetailRequest(this.detail);
 }
 
 class _ClearBreadcrumbsRequest {
@@ -640,6 +700,28 @@ void _addBreadcrumb(
   } catch (exception, stackTrace) {
     internalLogger.error(
       'JNI: Failed to add breadcrumb',
+      error: exception,
+      stackTrace: stackTrace,
+    );
+    if (automatedTestMode) {
+      rethrow;
+    }
+  } finally {
+    jBytes?.release();
+  }
+}
+
+void _captureReplayNetworkDetail(
+  Map<String, dynamic> normalizedDetailJson, {
+  bool automatedTestMode = false,
+}) {
+  JByteArray? jBytes;
+  try {
+    jBytes = _jsonToJByteArray(normalizedDetailJson);
+    native.SentryFlutterPlugin.captureReplayNetworkDetailFromJsonBytes(jBytes);
+  } catch (exception, stackTrace) {
+    internalLogger.error(
+      'JNI: Failed to capture replay network detail',
       error: exception,
       stackTrace: stackTrace,
     );
