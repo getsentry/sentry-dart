@@ -107,6 +107,8 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
 
+    private var replayNetworkDetailCache: ReplayNetworkDetailCache? = null
+
     @SuppressLint("StaticFieldLeak")
     private var applicationContext: Context? = null
 
@@ -141,6 +143,7 @@ class SentryFlutterPlugin :
         Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
       } finally {
         replay = null
+        replayNetworkDetailCache = null
       }
     }
 
@@ -185,6 +188,24 @@ class SentryFlutterPlugin :
         Sentry.addBreadcrumb(breadcrumb)
       } catch (e: Exception) {
         Log.e("Sentry", "Failed to add breadcrumb from JSON bytes", e)
+      }
+    }
+
+    @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
+    @JvmStatic
+    fun captureReplayNetworkDetailFromJsonBytes(bytes: ByteArray) {
+      try {
+        val cache = replayNetworkDetailCache ?: return
+        @Suppress("UNCHECKED_CAST")
+        val detail = parseJsonBytes(bytes) as? Map<String, Any?> ?: return
+        val replayRequestId = detail["replay_request_id"] as? String ?: return
+        @Suppress("UNCHECKED_CAST")
+        val request = detail["request"] as? Map<String, Any?>
+        @Suppress("UNCHECKED_CAST")
+        val response = detail["response"] as? Map<String, Any?>
+        cache.put(replayRequestId, request, response)
+      } catch (e: Exception) {
+        Log.e("Sentry", "Failed to capture replay network detail from JSON bytes", e)
       }
     }
 
@@ -250,6 +271,8 @@ class SentryFlutterPlugin :
         }
 
         val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
+        val networkDetailCache = ReplayNetworkDetailCache()
+        replayNetworkDetailCache = networkDetailCache
 
         replay =
           ReplayIntegration(
@@ -260,7 +283,8 @@ class SentryFlutterPlugin :
             },
             replayCacheProvider = null,
           )
-        replay!!.breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
+        replay!!.breadcrumbConverter =
+          SentryFlutterReplayBreadcrumbConverter(networkDetailCache)
         options.addIntegration(replay!!)
         options.setReplayController(replay)
       } else {

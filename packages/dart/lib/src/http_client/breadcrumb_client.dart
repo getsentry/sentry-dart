@@ -4,6 +4,8 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../hint.dart';
+import '../type_check_hint.dart';
 import '../utils/breadcrumb_log_level.dart';
 import '../utils/url_details.dart';
 import '../utils/http_sanitizer.dart';
@@ -153,14 +155,26 @@ class BreadcrumbClient extends BaseClient {
         httpFragment: urlDetails.fragment,
       );
 
-      if (requestDetail != null) {
-        breadcrumb.data?['request'] = requestDetail;
-      }
-      if (responseDetail != null) {
-        breadcrumb.data?['response'] = responseDetail;
+      // Captured request/response detail (headers/bodies) is a Session
+      // Replay-only concern. It's deliberately kept off the breadcrumb
+      // itself - which becomes part of the Scope and would otherwise ride
+      // along into every subsequent error/transaction event, and into
+      // native crash events once forwarded - and passed as a Hint instead,
+      // so only replay-aware consumers of this specific addBreadcrumb call
+      // ever see it.
+      Hint? hint;
+      if (requestDetail != null || responseDetail != null) {
+        breadcrumb.data?['replay_request_id'] = SentryId.newId().toString();
+        hint = Hint();
+        if (requestDetail != null) {
+          hint.set(TypeCheckHint.replayNetworkRequestDetail, requestDetail);
+        }
+        if (responseDetail != null) {
+          hint.set(TypeCheckHint.replayNetworkResponseDetail, responseDetail);
+        }
       }
 
-      await _hub.addBreadcrumb(breadcrumb);
+      await _hub.addBreadcrumb(breadcrumb, hint: hint);
     }
   }
 
