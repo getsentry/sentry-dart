@@ -68,6 +68,119 @@ void main() {
       expect(serializedFrame.inApp, false);
     });
 
+    group('on web with DDC-style packages/ path', () {
+      test('flutter package frame is not inApp', () {
+        final frame = Frame(
+          Uri.parse(
+              'http://localhost:8080/packages/flutter/src/widgets/framework.dart'),
+          1,
+          2,
+          'buzz',
+        );
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture.getSut().encodeStackTraceFrame(frame)!;
+
+        expect(serializedFrame.inApp, false);
+        expect(serializedFrame.package, 'flutter');
+      });
+
+      test('app package frame is inApp by default', () {
+        final frame = Frame(
+          Uri.parse('http://localhost:8080/packages/my_app/main.dart'),
+          1,
+          2,
+          'buzz',
+        );
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture.getSut().encodeStackTraceFrame(frame)!;
+
+        expect(serializedFrame.inApp, true);
+        expect(serializedFrame.package, 'my_app');
+      });
+
+      test('inAppExcludes applies to matched package name', () {
+        final frame = Frame(
+          Uri.parse('http://localhost:8080/packages/toolkit/baz.dart'),
+          1,
+          2,
+          'buzz',
+        );
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture
+            .getSut(inAppExcludes: ['toolkit']).encodeStackTraceFrame(frame)!;
+
+        expect(serializedFrame.inApp, false);
+      });
+
+      test('dart SDK path frame is not inApp', () {
+        final frame = Frame(
+          Uri.parse('http://localhost:8080/dart-sdk/lib/core/errors.dart'),
+          1,
+          2,
+          'buzz',
+        );
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture.getSut().encodeStackTraceFrame(frame)!;
+
+        expect(serializedFrame.inApp, false);
+      });
+
+      test('abs_path keeps the full package path instead of the basename', () {
+        final frame = Frame(
+          Uri.parse(
+              'http://localhost:8080/packages/flutter/src/widgets/framework.dart'),
+          1,
+          2,
+          'buzz',
+        );
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture.getSut().encodeStackTraceFrame(frame)!;
+
+        expect(serializedFrame.absPath,
+            '${eventOrigin}package:flutter/src/widgets/framework.dart');
+      });
+
+      test('module is populated when includeModuleInStackTrace is enabled', () {
+        final frame = Frame(
+          Uri.parse(
+              'http://localhost:8080/packages/my_app/features/login.dart'),
+          1,
+          2,
+          'buzz',
+        );
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture
+            .getSut(includeModuleInStackTrace: true)
+            .encodeStackTraceFrame(frame)!;
+
+        expect(serializedFrame.module, 'my_app/features');
+      });
+    });
+
+    group('on web release builds with no packages/ path signal', () {
+      test('known Flutter web bootstrap asset is not inApp', () {
+        final frame =
+            Frame(Uri.parse('https://example.com/flutter.js'), 1, 2, 'buzz');
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture.getSut().encodeStackTraceFrame(frame)!;
+
+        expect(serializedFrame.inApp, false);
+      });
+
+      test('single-bundle app frame falls back to considerInAppFramesByDefault',
+          () {
+        final frame =
+            Frame(Uri.parse('https://example.com/main.dart.js'), 1, 2, 'buzz');
+        final fixture = Fixture()..options.platform = MockPlatform(isWeb: true);
+        final serializedFrame = fixture.getSut().encodeStackTraceFrame(frame)!;
+
+        // Honest ceiling: app code and every dependency share this exact
+        // bundle URL in release/profile builds, so there's no way to tell
+        // them apart here - it must fall back to the configured default.
+        expect(serializedFrame.inApp, true);
+      });
+    });
+
     test('apply inAppIncludes with precedence', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame = Fixture().getSut(
@@ -300,6 +413,36 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'platform': 'dart',
         }
       ]);
+    });
+
+    group('with a dart2wasm-style trace missing a message header', () {
+      // No leading newline: this mirrors the real StackTrace.toString()
+      // output on dart2wasm, which - unlike V8 JS errors - never prefixes
+      // the frames with an exception-message line.
+      final wasmTrace =
+          '    at wasm://wasm/00076276:wasm-function[123]:0xaded\n'
+          '    at InstantiatedApp.invokeMain (file:///main2.mjs:352:37)\n'
+          '    at file:///run_wasm2.mjs:6:12';
+
+      test('does not drop the first frame', () {
+        final frames = Fixture()
+            .getSut(considerInAppFramesByDefault: true)
+            .parse(wasmTrace)
+            .frames;
+
+        expect(frames, hasLength(3));
+      });
+    });
+
+    test('a normal V8 trace with a message header keeps its frame count', () {
+      final frames = Fixture()
+          .getSut(considerInAppFramesByDefault: true)
+          .parse('Error: boom\n'
+              '    at Object.deep (main.js:5202:17)\n'
+              '    at main (main.js:5217:9)')
+          .frames;
+
+      expect(frames, hasLength(2));
     });
 
     test('remove frames if only async gap is left', () {

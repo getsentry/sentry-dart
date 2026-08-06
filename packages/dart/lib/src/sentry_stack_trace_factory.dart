@@ -61,6 +61,24 @@ class SentryStackTraceFactory {
     );
   }
 
+  // `package:stack_trace`'s V8 trace parser unconditionally treats the
+  // first line as an exception-message header and skips it. dart2wasm's
+  // `StackTrace.toString()` - unlike a real V8 JS error - never includes
+  // that header, so the parser silently drops the first (often only) real
+  // frame. Detect that shape and prepend a synthetic header line to absorb
+  // the skip instead.
+  static final _v8FrameLineStart = RegExp(r'^\s{0,4}at ');
+
+  String _ensureV8MessageHeader(String stackTrace) {
+    final firstNewline = stackTrace.indexOf('\n');
+    final firstLine =
+        firstNewline == -1 ? stackTrace : stackTrace.substring(0, firstNewline);
+    if (_v8FrameLineStart.hasMatch(firstLine)) {
+      return '\n$stackTrace';
+    }
+    return stackTrace;
+  }
+
   _StackInfo _parseStackTrace(dynamic stackTrace) {
     if (stackTrace is Chain) {
       return _StackInfo(stackTrace.traces);
@@ -87,8 +105,9 @@ class SentryStackTraceFactory {
       //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
 
       final startOffset = _frameRegex.firstMatch(stackTrace)?.start ?? 0;
-      final chain = Chain.parse(
-          startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
+      final trimmed =
+          startOffset == 0 ? stackTrace : stackTrace.substring(startOffset);
+      final chain = Chain.parse(_ensureV8MessageHeader(trimmed));
       final info = _StackInfo(chain.traces);
       info.buildId = buildIdRegex.firstMatch(stackTrace)?.group(1);
       info.baseAddr = _baseAddrRegex.firstMatch(stackTrace)?.group(1);
@@ -100,9 +119,55 @@ class SentryStackTraceFactory {
     return _StackInfo([]);
   }
 
+  // DDC (`flutter run -d chrome`) serves every pub package's sources under
+  // this path prefix - there's no `package:` scheme on web, so this is the
+  // only signal available to recover the package name.
+  static final _webPackagePath = RegExp(r'(?:^|/)packages/([^/]+)/(.+)$');
+
+  // DDC also serves the Dart SDK sources it's compiled against under this
+  // path prefix.
+  static final _webSdkPath = RegExp(r'(?:^|/)dart-sdk/lib/(.+)$');
+
+  /// Rewrites a DDC-served web frame's URI back into the `package:`/`dart:`
+  /// shape [_isInApp] and [_absolutePathForCrashReport] already understand.
+  /// No-op for anything that isn't a recognized DDC path (in particular,
+  /// release/profile web builds, where app and dependency code share a
+  /// single bundle URL with no per-frame signal to recover).
+  Frame _normalizeWebFrame(Frame frame) {
+    final uri = frame.uri;
+    if (uri.scheme == 'package' || uri.scheme == 'dart') {
+      return frame;
+    }
+
+    final packageMatch = _webPackagePath.firstMatch(uri.path);
+    if (packageMatch != null) {
+      return Frame(
+        Uri.parse('package:${packageMatch.group(1)}/${packageMatch.group(2)}'),
+        frame.line,
+        frame.column,
+        frame.member,
+      );
+    }
+
+    final sdkMatch = _webSdkPath.firstMatch(uri.path);
+    if (sdkMatch != null) {
+      return Frame(
+        Uri.parse('dart:${sdkMatch.group(1)}'),
+        frame.line,
+        frame.column,
+        frame.member,
+      );
+    }
+
+    return frame;
+  }
+
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
-  SentryStackFrame? encodeStackTraceFrame(Frame frame) {
+  SentryStackFrame? encodeStackTraceFrame(Frame originalFrame) {
+    final frame = _options.platform.isWeb
+        ? _normalizeWebFrame(originalFrame)
+        : originalFrame;
     final member = frame.member;
 
     if (frame is UnparsedFrame && member != null) {
@@ -209,7 +274,33 @@ class SentryStackTraceFactory {
       return false;
     }
 
+    if (_options.platform.isWeb && _isKnownNonAppWebAsset(frame)) {
+      return false;
+    }
+
     return _options.considerInAppFramesByDefault;
+  }
+
+  // Bundled Flutter/engine web assets that never carry app code. In release
+  // and profile web builds, app code and every pub dependency are compiled
+  // into a single JS/wasm bundle with no per-frame signal to separate them -
+  // this denylist is the honest ceiling of what's classifiable client-side
+  // in that mode.
+  static const _nonAppWebAssets = {
+    'flutter.js',
+    'flutter_bootstrap.js',
+    'flutter_service_worker.js',
+    'canvaskit.js',
+    'skwasm.js',
+    'skwasm_st.js',
+    'skwasm_heavy.js',
+    'dart_sdk.js',
+  };
+
+  bool _isKnownNonAppWebAsset(Frame frame) {
+    final segments = frame.uri.pathSegments;
+    final fileName = segments.isEmpty ? '' : segments.last;
+    return _nonAppWebAssets.contains(fileName);
   }
 }
 
