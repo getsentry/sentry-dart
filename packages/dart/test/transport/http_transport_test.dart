@@ -444,8 +444,8 @@ void main() {
       );
       await sut.send(envelope);
 
-      final sizeLimitLog =
-          logCalls.firstWhereOrNull((call) => call.message.contains('413'));
+      final sizeLimitLog = logCalls.firstWhereOrNull(
+          (call) => call.message.contains('maximum envelope size limit'));
       expect(sizeLimitLog, isNotNull);
       expect(sizeLimitLog!.level, SentryLevel.error);
     });
@@ -464,7 +464,10 @@ void main() {
       );
       await sut.send(envelope);
 
-      expect(logCalls.any((call) => call.message.contains('413')), isFalse);
+      expect(
+          logCalls.any(
+              (call) => call.message.contains('maximum envelope size limit')),
+          isFalse);
     });
   });
 }
