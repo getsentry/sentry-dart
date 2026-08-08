@@ -58,7 +58,8 @@ scripts:
     run: cd packages/flutter/example && ./run.sh
     description: |
       Build & run the Flutter example in release mode with obfuscation and symbol upload.
-      Usage: melos run example:flutter -- <ios|android|web|macos|windows|linux>
+      Usage: melos run example:flutter -- <ios|android|web|macos|linux>
+      Not supported on Windows: melos runs scripts through cmd.exe there, which can't execute run.sh.
 
   e2e:dart:
     run: cd e2e_test && dart pub get && dart run --define=SENTRY_ENVIRONMENT=e2e

@@ -50,7 +50,7 @@ descriptions.
 | `melos run format` | Apply formatting to all packages |
 | `melos run test:dart` | Run tests for Dart-only packages |
 | `melos run test:flutter` | Run tests for Flutter packages |
-| `melos run example:flutter -- <platform>` | Build & run the Flutter example (`ios`, `android`, `web`, `macos`, `windows`, or `linux`) |
+| `melos run example:flutter -- <platform>` | Build & run the Flutter example (`ios`, `android`, `web`, `macos`, or `linux`; not supported on Windows, since melos runs scripts through `cmd.exe` there) |
 | `melos run e2e:dart` | Run the Dart e2e test against sentry.io (requires `SENTRY_AUTH_TOKEN_E2E`) |
 
 ## Project Structure
