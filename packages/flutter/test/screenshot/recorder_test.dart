@@ -205,9 +205,8 @@ void main() async {
   });
 }
 
-/// Extends [ReplayScreenshotRecorder] because it schedules the rendering task
-/// on a later timer tick — the window in which an unobserved error on the image
-/// future escapes to the zone instead of being handled by the recorder.
+/// Extends [ReplayScreenshotRecorder] for its deferred `executeTask` — the
+/// window in which an unobserved error on the image future escapes to the zone.
 class _FailingRenderRecorder extends ReplayScreenshotRecorder {
   _FailingRenderRecorder(super.options);
 

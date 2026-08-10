@@ -72,8 +72,8 @@ Future<Element> pumpTestElement(WidgetTester tester,
   return find.byType(SentryScreenshotWidget).evaluate().first;
 }
 
-/// Pumps a tree whose [SentryScreenshotWidget] is laid out with a zero size,
-/// which a real app hits transiently (e.g. while being resized on Android).
+/// Zero-sized variant of [pumpTestElement], a state real apps hit transiently
+/// (e.g. while being resized).
 Future<Element> pumpZeroSizedTestElement(WidgetTester tester) async {
   await tester.pumpWidget(
     MaterialApp(

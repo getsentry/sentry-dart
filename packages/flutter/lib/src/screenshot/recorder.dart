@@ -78,9 +78,8 @@ class ScreenshotRecorder {
         return Future.value(null);
       }
 
-      // A zero-sized boundary happens transiently on real devices, e.g. while
-      // the app is being resized. There is nothing to capture and the image
-      // dimensions we'd derive from it are invalid, so skip the frame.
+      // A boundary can transiently have no size on real devices, e.g. while
+      // the app is being resized. Rendering it fails on invalid dimensions.
       if (renderObject.size.isEmpty) {
         internalLogger.debug(
           '$logName: Boundary has no size (${renderObject.size}), '
@@ -205,11 +204,10 @@ class _Capture<R> {
   ) {
     final timestamp = DateTime.now();
 
-    // Observe futureImage here instead of inside the task below. The task is
-    // scheduled asynchronously, and an error delivered to a future that nobody
-    // listens to yet goes straight to the current Zone's uncaught error
-    // handler, which the SDK reports as a fatal, unhandled event. Turning the
-    // error into a value keeps it observed until the task can rethrow it.
+    // The task below is scheduled asynchronously, and an error delivered to a
+    // future that nobody listens to yet goes straight to the Zone's uncaught
+    // error handler, where the SDK reports it as a fatal, unhandled event.
+    // Turning the error into a value keeps it observed until the task runs.
     final imageOrError = futureImage.then<Object>((image) => image,
         onError: (Object error, StackTrace stackTrace) =>
             AsyncError(error, stackTrace));
