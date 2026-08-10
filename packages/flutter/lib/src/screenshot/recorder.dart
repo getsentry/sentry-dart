@@ -11,6 +11,7 @@ import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
 import '../sentry_privacy_options.dart';
+import '../utils/internal_logger.dart';
 import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'screenshot.dart';
@@ -81,8 +82,10 @@ class ScreenshotRecorder {
       // the app is being resized. There is nothing to capture and the image
       // dimensions we'd derive from it are invalid, so skip the frame.
       if (renderObject.size.isEmpty) {
-        _log(SentryLevel.debug,
-            "Boundary has no size (${renderObject.size}), skipping capture.");
+        internalLogger.debug(
+          '$logName: Boundary has no size (${renderObject.size}), '
+          'skipping capture.',
+        );
         return Future.value(null);
       }
 
