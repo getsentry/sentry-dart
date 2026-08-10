@@ -121,6 +121,21 @@ void main() async {
     });
   });
 
+  testWidgets('propagates a failed image render in test-mode', (tester) async {
+    await tester.runAsync(() async {
+      await pumpTestElement(tester);
+      final sut = _FailingRenderRecorder(defaultTestOptions()
+        ..bindingUtils = TestBindingWrapper()
+        ..automatedTestMode = true)
+        ..config = ScreenshotRecorderConfig();
+
+      await expectLater(
+          sut.capture<String?>((_) async => 'captured'),
+          throwsA(predicate((Exception e) =>
+              e.toString().contains('testing image render error'))));
+    });
+  });
+
   testWidgets('propagates errors in test-mode', (tester) async {
     final fixture = await _Fixture.create(tester);
     fixture.options
