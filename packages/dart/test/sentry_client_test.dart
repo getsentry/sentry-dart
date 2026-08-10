@@ -1202,6 +1202,22 @@ void main() {
 
       expect(fixture.transport.called(1), true);
     });
+
+    test('runs beforeSend before dropping event due to sampling', () async {
+      var beforeSendCalled = false;
+      final client = fixture.getSut(
+        sampleRate: 0.0,
+        beforeSend: (event, hint) {
+          beforeSendCalled = true;
+          return event;
+        },
+      );
+
+      await client.captureEvent(fakeEvent);
+
+      expect(beforeSendCalled, true);
+      expect(fixture.transport.called(0), true);
+    });
   });
 
   group('SentryClient ignored errors', () {
@@ -2204,8 +2220,6 @@ void main() {
     test('record sample rate dropping event', () async {
       final client = fixture.getSut(sampleRate: 0.0);
 
-      fixture.options.beforeSend = fixture.droppingBeforeSend;
-
       await client.captureEvent(fakeEvent);
 
       expect(
@@ -2217,6 +2231,23 @@ void main() {
         DataCategory.error,
       );
     });
+
+    test(
+      'record beforeSend, not sample rate, when beforeSend drops event',
+      () async {
+        final client = fixture.getSut(sampleRate: 0.0);
+
+        fixture.options.beforeSend = fixture.droppingBeforeSend;
+
+        await client.captureEvent(fakeEvent);
+
+        expect(fixture.recorder.discardedEvents, hasLength(1));
+        expect(
+          fixture.recorder.discardedEvents.first.reason,
+          DiscardReason.beforeSend,
+        );
+      },
+    );
 
     test('record sample rate not dropping feedback', () async {
       final client = fixture.getSut(sampleRate: 0.0);

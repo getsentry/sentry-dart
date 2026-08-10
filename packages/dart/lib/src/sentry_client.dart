@@ -135,18 +135,6 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    if (_sampleRate() && event.type != 'feedback') {
-      _options.recorder.recordLostEvent(
-        DiscardReason.sampleRate,
-        _getCategory(event),
-      );
-      internalLogger.debug(
-        () =>
-            'Event ${event.eventId.toString()} was dropped due to sampling decision.',
-      );
-      return _emptySentryId;
-    }
-
     hint ??= Hint();
 
     SentryEvent? preparedEvent = _prepareEvent(
@@ -184,6 +172,20 @@ class SentryClient {
 
     // dropped by beforeSend
     if (preparedEvent == null) {
+      return _emptySentryId;
+    }
+
+    // Sampling runs last so that the filters above, which the developer
+    // controls, always get the final say on whether an event is dropped.
+    if (preparedEvent.type != 'feedback' && _sampleRate()) {
+      _options.recorder.recordLostEvent(
+        DiscardReason.sampleRate,
+        _getCategory(preparedEvent),
+      );
+      internalLogger.debug(
+        () =>
+            'Event ${event.eventId.toString()} was dropped due to sampling decision.',
+      );
       return _emptySentryId;
     }
 
