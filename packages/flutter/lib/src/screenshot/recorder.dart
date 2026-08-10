@@ -7,7 +7,6 @@ import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
 import '../sentry_privacy_options.dart';
@@ -36,19 +35,13 @@ class ScreenshotRecorder {
     privacyOptions ??= options.privacy;
 
     final maskingConfig =
-        privacyOptions.buildMaskingConfig(_log, options.runtimeChecker);
+        privacyOptions.buildMaskingConfig(options.runtimeChecker);
     _maskingConfig = maskingConfig.length > 0 ? maskingConfig : null;
   }
 
-  void _log(SentryLevel level, String message,
-      {String? logger, Object? exception, StackTrace? stackTrace}) {
-    options.log(level, '$logName: $message',
-        logger: logger, exception: exception, stackTrace: stackTrace);
-  }
-
   void _logError(Object? e, StackTrace stackTrace) =>
-      _log(SentryLevel.error, 'failed to capture screenshot.',
-          exception: e, stackTrace: stackTrace);
+      internalLogger.error('$logName: failed to capture screenshot.',
+          error: e, stackTrace: stackTrace);
 
   /// We must capture a screenshot AND execute the widget filter on the main UI
   /// loop, with no async operations in between, otherwise masks coordinates
@@ -65,16 +58,17 @@ class ScreenshotRecorder {
           context?.findRenderObject() as RenderRepaintBoundary?;
       if (context == null || renderObject == null) {
         if (!_warningLogged) {
-          _log(SentryLevel.warning,
-              "SentryScreenshotWidget is not attached, skipping capture.");
+          internalLogger
+              .warning('$logName: SentryScreenshotWidget is not attached, '
+                  'skipping capture.');
           _warningLogged = true;
         }
         return Future.value(null);
       }
 
       if (config == null) {
-        _log(SentryLevel.warning,
-            "Capture config is not set, skipping capture.");
+        internalLogger
+            .warning('$logName: Capture config is not set, skipping capture.');
         return Future.value(null);
       }
 
@@ -136,7 +130,7 @@ class ScreenshotRecorder {
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
-      final filter = WidgetFilter(_maskingConfig, options.log);
+      final filter = WidgetFilter(_maskingConfig);
       final colorScheme = capture.context.findColorScheme();
       filter.obscure(
         root: capture.root,
