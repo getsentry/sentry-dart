@@ -76,9 +76,8 @@ class ScreenshotRecorder {
       // the app is being resized. Rendering it fails on invalid dimensions.
       if (renderObject.size.isEmpty) {
         internalLogger.debug(
-          '$logName: Boundary has no size (${renderObject.size}), '
-          'skipping capture.',
-        );
+            () => '$logName: Boundary has no size (${renderObject.size}), '
+                'skipping capture.');
         return Future.value(null);
       }
 
