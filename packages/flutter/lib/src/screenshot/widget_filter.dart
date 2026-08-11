@@ -76,7 +76,10 @@ class WidgetFilter {
         }
         break;
       case SentryMaskingDecision.unmask:
-        internalLogger.debug("WidgetFilter unmasked: $widget");
+        assert(() {
+          internalLogger.debug("WidgetFilter unmasked: $widget");
+          return true;
+        }());
         break;
       case SentryMaskingDecision.continueProcessing:
         // If this element should not be obscured, visit and check its children.
