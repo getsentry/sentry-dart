@@ -43,6 +43,8 @@ extension _OutcomeExtension on DiscardReason {
         return 'internal_sdk_error';
       case DiscardReason.ignored:
         return 'ignored';
+      case DiscardReason.sendError:
+        return 'send_error';
     }
   }
 }
