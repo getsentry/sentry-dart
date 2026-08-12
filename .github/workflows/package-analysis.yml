@@ -41,6 +41,14 @@ jobs:
         if: ${{ inputs.package != 'packages/dart' }}
         run: |
           sed -i.bak 's|sentry:.*|sentry:\n    path: ${{ github.workspace }}/packages/dart|g' pubspec.yaml
+      # Each package's CHANGELOG.md is a symlink to the root one. pana copies the
+      # package into a temporary directory without following symlinks, so it
+      # reports a missing changelog and deducts points. Materialise the content.
+      - name: Materialise CHANGELOG symlink
+        run: |
+          if [[ -L CHANGELOG.md ]]; then
+            cp --remove-destination "$(readlink -f CHANGELOG.md)" CHANGELOG.md
+          fi
       - name: Run pana
         id: analysis
         run: |

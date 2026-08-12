@@ -23,6 +23,7 @@ Melos monorepo. Each package lives in `packages/<name>/` with its own `pubspec.y
 
 - Minimum supported: Flutter `3.44.0` | Dart `3.12.0` (enforced by `min_version_test.yml` and the `3.12` leg of `dart.yml`)
 - The `analyze` gate runs on the **latest stable Dart** (currently `3.13`), since `setup-dart` and `.fvmrc` are both unpinned — see the format footgun below
+- `package-analysis` installs `pana` unpinned as well, so a new pana release can move scores below the 140 threshold on its own (0.23.18 stopped following the per-package `CHANGELOG.md` symlink, costing every package 5 points)
 - Use `fvm dart` / `fvm flutter` if available (check with `which fvm`), else `dart` / `flutter`
 
 ## Package Types
