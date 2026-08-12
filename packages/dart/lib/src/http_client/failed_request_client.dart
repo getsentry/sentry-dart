@@ -5,6 +5,7 @@ import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
+import '../tracing/instrumentation/instrumentation.dart';
 import '../type_check_hint.dart';
 import '../utils/tracing_utils.dart';
 import 'sentry_http_client.dart';
@@ -213,10 +214,15 @@ class FailedRequestClient extends BaseClient {
       hint.set(TypeCheckHint.httpResponse, response);
     }
 
+    // Links the error to the `http.client` span of this request, which the
+    // tracing client registered before delegating to us.
+    final span = RequestSpanRegistry.lookup(request);
+
     await _hub.captureEvent(
       event,
       stackTrace: stackTrace,
       hint: hint,
+      withScope: span == null ? null : (scope) => span.applyToScope(scope),
     );
   }
 

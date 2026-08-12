@@ -511,6 +511,9 @@ class UnknownInstrumentationSpan implements InstrumentationSpan {
   SentryBaggageHeader? toBaggageHeader() => null;
 
   @override
+  void applyToScope(Scope scope) {}
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is UnknownInstrumentationSpan && runtimeType == other.runtimeType;
