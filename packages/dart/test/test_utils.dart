@@ -378,13 +378,9 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     client.close();
   });
 
-  test(
-    'sends an exception report (compressed)',
-    () async {
-      await testCaptureException(true, gzip, isWeb);
-    },
-    onPlatform: <String, Skip>{'browser': const Skip()},
-  );
+  test('sends an exception report (compressed)', () async {
+    await testCaptureException(true, gzip, isWeb);
+  }, onPlatform: <String, Skip>{'browser': const Skip()});
 
   test('sends an exception report (uncompressed)', () async {
     await testCaptureException(false, gzip, isWeb);
