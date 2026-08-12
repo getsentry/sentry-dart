@@ -184,7 +184,7 @@ class SentryClient {
       );
       internalLogger.debug(
         () =>
-            'Event ${event.eventId.toString()} was dropped due to sampling decision.',
+            'Event ${preparedEvent.eventId} was dropped due to sampling decision.',
       );
       return _emptySentryId;
     }
