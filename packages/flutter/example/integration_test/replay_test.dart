@@ -184,23 +184,21 @@ void main() {
       skip: !Platform.isAndroid,
     );
 
-    testWidgets(
-      'setReplayConfig applies without error on Android',
-      (tester) async {
-        await setupSentryAndApp(tester);
-        const config = ReplayConfig(
-          windowWidth: 1080,
-          windowHeight: 1920,
-          width: 800,
-          height: 600,
-          frameRate: 1,
-        );
-        await Future.delayed(const Duration(seconds: 2));
+    testWidgets('setReplayConfig applies without error on Android', (
+      tester,
+    ) async {
+      await setupSentryAndApp(tester);
+      const config = ReplayConfig(
+        windowWidth: 1080,
+        windowHeight: 1920,
+        width: 800,
+        height: 600,
+        frameRate: 1,
+      );
+      await Future.delayed(const Duration(seconds: 2));
 
-        // Should not throw
-        await SentryFlutter.native?.setReplayConfig(config);
-      },
-      skip: !Platform.isAndroid,
-    );
+      // Should not throw
+      await SentryFlutter.native?.setReplayConfig(config);
+    }, skip: !Platform.isAndroid);
   });
 }

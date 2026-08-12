@@ -545,34 +545,27 @@ Future<void> spanV2Demo() async {
   // ignore: avoid_print
   print('span3 sync function result: $syncResult');
 
-  await Sentry.startSpan(
-    'spanv2-demo-root',
-    (rootSpan) async {
-      rootSpan.setAttributes({
-        'demo.type': SentryAttribute.string('comprehensive'),
-        'demo.version': SentryAttribute.int(2),
+  await Sentry.startSpan('spanv2-demo-root', (rootSpan) async {
+    rootSpan.setAttributes({
+      'demo.type': SentryAttribute.string('comprehensive'),
+      'demo.version': SentryAttribute.int(2),
+    });
+    rootSpan.setAttribute('root.custom', SentryAttribute.string('root-value'));
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    await Sentry.startSpan('spanv2-demo-child', (childSpan) async {
+      childSpan.setAttributes({
+        'child.operation': SentryAttribute.string('database-query'),
+        'child.rows': SentryAttribute.int(42),
       });
-      rootSpan.setAttribute(
-        'root.custom',
-        SentryAttribute.string('root-value'),
-      );
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future.delayed(const Duration(milliseconds: 30));
 
-      await Sentry.startSpan('spanv2-demo-child', (childSpan) async {
-        childSpan.setAttributes({
-          'child.operation': SentryAttribute.string('database-query'),
-          'child.rows': SentryAttribute.int(42),
-        });
-
-        await Future.delayed(const Duration(milliseconds: 30));
-
-        await Sentry.startSpan('spanv2-demo-nested', (nestedSpan) async {
-          nestedSpan.setAttribute('nested.level', SentryAttribute.int(2));
-          await Future.delayed(const Duration(milliseconds: 20));
-        });
+      await Sentry.startSpan('spanv2-demo-nested', (nestedSpan) async {
+        nestedSpan.setAttribute('nested.level', SentryAttribute.int(2));
+        await Future.delayed(const Duration(milliseconds: 20));
       });
-    },
-    attributes: {'demo.source': SentryAttribute.string('example-app')},
-  );
+    });
+  }, attributes: {'demo.source': SentryAttribute.string('example-app')});
 }
