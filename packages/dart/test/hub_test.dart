@@ -173,7 +173,7 @@ void main() {
 
       try {
         throw 'string error';
-      } catch (exception, _) {
+      } catch (exception) {
         final event = SentryEvent(throwable: exception);
         final span = NoOpSentrySpan();
         hub.setSpanContext(exception, span, 'test');
