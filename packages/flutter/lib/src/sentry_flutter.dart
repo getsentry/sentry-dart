@@ -292,7 +292,7 @@ mixin SentryFlutter {
     if (options is SentryFlutterOptions) {
       try {
         final transactionId = options.timeToDisplayTracker.transactionId;
-        return options.timeToDisplayTracker.reportFullyDisplayed(
+        await options.timeToDisplayTracker.reportFullyDisplayed(
           spanId: transactionId,
         );
       } catch (exception, stackTrace) {
