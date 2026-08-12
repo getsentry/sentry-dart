@@ -18,7 +18,7 @@ platforms:
   web:
 
 dependencies:
-  dio: ^5.2.0
+  dio: ^5.8.0
   sentry: 10.0.0-alpha.3
 
 dev_dependencies:
