@@ -15,6 +15,7 @@ import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
@@ -867,6 +868,33 @@ void main() {
       );
     });
   });
+
+  group('reportFullyDisplayed', () {
+    tearDown(() async {
+      await Sentry.close();
+    });
+
+    test('logs error when the tracker fails', () async {
+      final logs = <(SentryLevel, String)>[];
+      final options = defaultTestOptions(checker: MockRuntimeChecker())
+        ..debug = true;
+      options.log = (level, message, {logger, exception, stackTrace}) {
+        logs.add((level, message));
+      };
+      options.timeToDisplayTracker = _ThrowingTimeToDisplayTracker(options);
+      await Sentry.init((_) {}, options: options);
+
+      // ignore: deprecated_member_use_from_same_package
+      await expectLater(SentryFlutter.reportFullyDisplayed(), completes);
+
+      expect(
+        logs.any((log) =>
+            log.$1 == SentryLevel.error &&
+            log.$2 == 'Error while reporting TTFD'),
+        isTrue,
+      );
+    });
+  });
 }
 
 MockSentryNativeBinding mockNativeBinding() {
@@ -881,6 +909,19 @@ MockSentryNativeBinding mockNativeBinding() {
 }
 
 void appRunner() {}
+
+class _ThrowingTimeToDisplayTracker extends TimeToDisplayTracker {
+  _ThrowingTimeToDisplayTracker(SentryFlutterOptions options)
+      : super(options: options);
+
+  @override
+  Future<void> reportFullyDisplayed({
+    SpanId? spanId,
+    DateTime? endTimestamp,
+  }) async {
+    throw StateError('Failed to report TTFD');
+  }
+}
 
 final class _ExtendedAppStartFixture {
   final now = DateTime.utc(2024, 1, 1, 12);

@@ -30,7 +30,7 @@ void main() {
     SentryException sentryException;
     try {
       throw StateError('a state error');
-    } catch (err, _) {
+    } catch (err) {
       sentryException = fixture.getSut().getSentryException(
             err,
             stackTrace: '',
@@ -45,7 +45,7 @@ void main() {
     SentryException sentryException;
     try {
       throw StateError('a state error');
-    } catch (err, _) {
+    } catch (err) {
       sentryException = fixture.getSut().getSentryException(
             err,
             stackTrace: '',
@@ -60,7 +60,7 @@ void main() {
     SentryException sentryException;
     try {
       throw StateError('a state error');
-    } catch (err, _) {
+    } catch (err) {
       sentryException = fixture.getSut().getSentryException(
         err,
         stackTrace: '''
@@ -88,7 +88,7 @@ void main() {
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)
       '''));
-    } catch (err, _) {
+    } catch (err) {
       sentryException = fixture.getSut().getSentryException(
             err,
           );
@@ -104,7 +104,7 @@ void main() {
     SentryException sentryException;
     try {
       throw Object();
-    } catch (err, _) {
+    } catch (err) {
       sentryException = fixture.getSut().getSentryException(
             err,
           );
