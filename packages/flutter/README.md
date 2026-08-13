@@ -106,10 +106,34 @@ This includes all of Flutters internal access of `AssetBundle`s, like `Image.ass
 
 Please see the instructions [here](https://pub.dev/packages/sentry).
 
+##### Using with Flutter add-to-app
+
+If you [add Flutter to an existing Android or iOS app](https://docs.flutter.dev/add-to-app) that already starts a Sentry native SDK, keep that native init and tell the Flutter SDK not to start another one:
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+Future<void> main() async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+      options.autoInitializeNativeSdk = false;
+    },
+    appRunner: () => runApp(MyApp()),
+  );
+}
+```
+
+The native SDK has to be running before the Flutter engine starts, or events can be dropped. See the [native initialization guide](https://docs.sentry.io/platforms/dart/guides/flutter/native-init/).
+
+This flag only skips Flutter-driven native init. It does not turn the native layer off.
+
 ##### Known limitations
 
 - If you enable the `split-debug-info` feature, you must upload the Debug Symbols manually.
 - Layout related errors are only caught by [FlutterError.onError](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) in debug mode. In release mode, they are removed by the Flutter framework. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes).
+- Session Replay does not work when `autoInitializeNativeSdk` is `false`. Replay is wired up while the Flutter SDK initializes the native SDKs, and that path is skipped if you init native yourself.
 
 ##### Uploading Debug Symbols and Source maps (Android, iOS/macOS and Web)
 

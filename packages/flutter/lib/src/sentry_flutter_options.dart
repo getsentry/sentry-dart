@@ -26,10 +26,12 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Initializes the Native SDKs on init.
-  /// Set this to `false` if you have an existing native SDK and don't want to re-initialize.
+  /// Set this to `false` if you have an existing native SDK and don't want to re-initialize,
+  /// for example in a Flutter [add-to-app](https://docs.flutter.dev/add-to-app) host.
   ///
   /// NOTE: Be careful and only use this if you know what you are doing.
   /// If you use this flag, make sure a native SDK is running before the Flutter Engine initializes or events might not be captured.
+  /// Flutter-driven native setup is skipped, including Session Replay, so replay will not work.
   /// Defaults to `true`.
   bool autoInitializeNativeSdk = true;
 
