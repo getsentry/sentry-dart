@@ -59,14 +59,10 @@ class SentryDatabase extends SentryDatabaseExecutor
   /// final database = await openDatabase('path/to/db');
   /// final sentryDatabase = SentryDatabase(database);
   /// ```
-  SentryDatabase(this._database, {@internal Hub? hub})
+  SentryDatabase(this._database, {@internal super.hub})
     : _hub = hub ?? HubAdapter(),
       dbName = p.basenameWithoutExtension(_database.path),
-      super(
-        _database,
-        hub: hub,
-        dbName: p.basenameWithoutExtension(_database.path),
-      ) {
+      super(_database, dbName: p.basenameWithoutExtension(_database.path)) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     // ignore: invalid_use_of_internal_member

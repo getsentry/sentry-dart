@@ -87,6 +87,27 @@
 ### Enhancements
 
 - (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
+## 9.27.0
+
+### Features
+
+- Add HTTP request/response header and body capture for Session Replay network breadcrumbs, gated by `networkDetailAllowUrls`/`networkDetailDenyUrls`. by @lucas-zimerman in [#3875](https://github.com/getsentry/sentry-dart/pull/3875)
+
+### Fixes
+
+- (dart) Handle HTTP 413 in HttpTransport by @lucas-zimerman in [#3951](https://github.com/getsentry/sentry-dart/pull/3951)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.53.0 by @github-actions in [#3963](https://github.com/getsentry/sentry-dart/pull/3963)
+- chore(deps): update Native SDK to v0.16.2 by @github-actions in [#3952](https://github.com/getsentry/sentry-dart/pull/3952)
+
+### Internal Changes
+
+- Replace curl-pipe-bash with action-setup-cli for Sentry CLI setup by @oioki in [#3949](https://github.com/getsentry/sentry-dart/pull/3949)
+- Remove secrets: inherit from changelog-preview workflow by @oioki in [#3946](https://github.com/getsentry/sentry-dart/pull/3946)
 
 ## 9.26.0
 

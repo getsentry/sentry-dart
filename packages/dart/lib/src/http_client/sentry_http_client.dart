@@ -111,7 +111,11 @@ class SentryHttpClient extends BaseClient {
     // when capturing it as a failed request.
     // However it still should be added for following events.
     if (_hub.options.recordHttpBreadcrumbs) {
-      innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
+      innerClient = BreadcrumbClient(
+        client: innerClient,
+        hub: _hub,
+        networkDetailsCapture: _hub.options.networkDetailsCapture,
+      );
     }
 
     _client = innerClient;
