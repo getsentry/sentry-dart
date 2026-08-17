@@ -314,20 +314,16 @@ void main() {
       );
     });
 
-    test(
-      'should add only web compatible default integrations',
-      () async {
-        final options = defaultTestOptions();
-        await Sentry.init(options: options, (options) {
-          options.dsn = fakeDsn;
-          expect(
-            options.integrations.whereType<IsolateErrorIntegration>().length,
-            0,
-          );
-        });
-      },
-      onPlatform: {'vm': Skip()},
-    );
+    test('should add only web compatible default integrations', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        expect(
+          options.integrations.whereType<IsolateErrorIntegration>().length,
+          0,
+        );
+      });
+    }, onPlatform: {'vm': Skip()});
 
     test('addFeatureFlag adds feature flag to scope', () async {
       await Sentry.init(

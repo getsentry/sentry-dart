@@ -113,36 +113,26 @@ void main() {
     expect(sentryException.stackTrace, isNotNull);
   });
 
-  test(
-    'getSentryException with not thrown Error and frames',
-    () {
-      final sentryException = fixture.getSut().getSentryException(
-        CustomError(),
-      );
+  test('getSentryException with not thrown Error and frames', () {
+    final sentryException = fixture.getSut().getSentryException(CustomError());
 
-      expect(sentryException.type, 'CustomError');
-      expect(sentryException.stackTrace?.frames, isNotEmpty);
+    expect(sentryException.type, 'CustomError');
+    expect(sentryException.stackTrace?.frames, isNotEmpty);
 
-      // skip on browser because [StackTrace.current] still returns null
-    },
-    onPlatform: {'browser': Skip()},
-  );
+    // skip on browser because [StackTrace.current] still returns null
+  }, onPlatform: {'browser': Skip()});
 
-  test(
-    'getSentryException with not thrown Error and empty frames',
-    () {
-      final sentryException = fixture.getSut().getSentryException(
-        CustomError(),
-        stackTrace: StackTrace.empty,
-      );
+  test('getSentryException with not thrown Error and empty frames', () {
+    final sentryException = fixture.getSut().getSentryException(
+      CustomError(),
+      stackTrace: StackTrace.empty,
+    );
 
-      expect(sentryException.type, 'CustomError');
-      expect(sentryException.stackTrace?.frames, isNotEmpty);
+    expect(sentryException.type, 'CustomError');
+    expect(sentryException.stackTrace?.frames, isNotEmpty);
 
-      // skip on browser because [StackTrace.current] still returns null
-    },
-    onPlatform: {'browser': Skip()},
-  );
+    // skip on browser because [StackTrace.current] still returns null
+  }, onPlatform: {'browser': Skip()});
 
   test('reads the snapshot from the mechanism', () {
     final error = StateError('test-error');

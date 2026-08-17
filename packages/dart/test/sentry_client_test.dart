@@ -149,23 +149,19 @@ void main() {
       },
     );
 
-    test(
-      'should not attach isolate info in thread if disabled',
-      () async {
-        final client = fixture.getSut(attachThreads: false);
+    test('should not attach isolate info in thread if disabled', () async {
+      final client = fixture.getSut(attachThreads: false);
 
-        await client.captureException(
-          Exception(),
-          stackTrace: StackTrace.current,
-        );
+      await client.captureException(
+        Exception(),
+        stackTrace: StackTrace.current,
+      );
 
-        final capturedEnvelope = (fixture.transport).envelopes.first;
-        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-        expect(capturedEvent.threads, null);
-      },
-      onPlatform: {'js': Skip("Isolates don't exist on the web")},
-    );
+      expect(capturedEvent.threads, null);
+    }, onPlatform: {'js': Skip("Isolates don't exist on the web")});
 
     test('should capture message', () async {
       final client = fixture.getSut();
