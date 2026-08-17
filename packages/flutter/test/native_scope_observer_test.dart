@@ -23,13 +23,13 @@ void main() {
   test('addBreadcrumbCalls', () async {
     when(mock.addBreadcrumb(any)).thenReturn(null);
     final breadcrumb = Breadcrumb();
-    await sut.addBreadcrumb(breadcrumb, Hint());
+    await sut.addBreadcrumb(breadcrumb);
 
     expect(verify(mock.addBreadcrumb(captureAny)).captured.single, breadcrumb);
   });
 
   test(
-      'addBreadcrumb does not call captureReplayNetworkDetail when the '
+      'addBreadcrumbWithHint does not call captureReplayNetworkDetail when the '
       'breadcrumb has no replay_request_id', () async {
     when(mock.addBreadcrumb(any)).thenReturn(null);
     final breadcrumb =
@@ -38,14 +38,14 @@ void main() {
       ..set(TypeCheckHint.replayNetworkRequestDetail,
           <String, dynamic>{'headers': <String, String>{}});
 
-    await sut.addBreadcrumb(breadcrumb, hint);
+    await sut.addBreadcrumbWithHint(breadcrumb, hint);
 
     verifyNever(mock.captureReplayNetworkDetail(any,
         request: anyNamed('request'), response: anyNamed('response')));
   });
 
   test(
-      'addBreadcrumb forwards replay network detail via captureReplayNetworkDetail '
+      'addBreadcrumbWithHint forwards replay network detail via captureReplayNetworkDetail '
       'when the breadcrumb carries a replay_request_id', () async {
     when(mock.addBreadcrumb(any)).thenReturn(null);
     when(mock.captureReplayNetworkDetail(any,
@@ -64,7 +64,7 @@ void main() {
       ..set(TypeCheckHint.replayNetworkRequestDetail, requestDetail)
       ..set(TypeCheckHint.replayNetworkResponseDetail, responseDetail);
 
-    await sut.addBreadcrumb(breadcrumb, hint);
+    await sut.addBreadcrumbWithHint(breadcrumb, hint);
 
     final capture = verify(mock.captureReplayNetworkDetail(
       captureAny,
@@ -74,6 +74,31 @@ void main() {
     expect(capture[0], 'req-1');
     expect(capture[1], requestDetail);
     expect(capture[2], responseDetail);
+  });
+
+  test(
+      'addBreadcrumbWithHint populates captureReplayNetworkDetail before the '
+      'breadcrumb is visible on the native Scope, so a replay segment built '
+      'in between always sees the detail', () async {
+    when(mock.addBreadcrumb(any)).thenReturn(null);
+    when(mock.captureReplayNetworkDetail(any,
+            request: anyNamed('request'), response: anyNamed('response')))
+        .thenReturn(null);
+
+    final breadcrumb =
+        Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
+    breadcrumb.data?['replay_request_id'] = 'req-1';
+    final hint = Hint()
+      ..set(TypeCheckHint.replayNetworkRequestDetail,
+          <String, dynamic>{'headers': <String, String>{}});
+
+    await sut.addBreadcrumbWithHint(breadcrumb, hint);
+
+    verifyInOrder([
+      mock.captureReplayNetworkDetail(any,
+          request: anyNamed('request'), response: anyNamed('response')),
+      mock.addBreadcrumb(any),
+    ]);
   });
 
   test('clearBreadcrumbsCalls', () async {
