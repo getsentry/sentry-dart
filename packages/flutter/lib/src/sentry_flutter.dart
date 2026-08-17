@@ -36,6 +36,7 @@ import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'replay/integration.dart';
+import 'replay/network_details_capture.dart';
 import 'screenshot/screenshot_support.dart';
 import 'utils/internal_logger.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
@@ -126,6 +127,7 @@ mixin SentryFlutter {
 
   static Future<void> _initDefaultValues(SentryFlutterOptions options) async {
     options.addEventProcessor(FlutterExceptionEventProcessor());
+    options.networkDetailsCapture = FlutterNetworkDetailsCapture(options);
 
     // Not all platforms have a native integration.
     if (_native != null) {
@@ -292,7 +294,7 @@ mixin SentryFlutter {
     if (options is SentryFlutterOptions) {
       try {
         final transactionId = options.timeToDisplayTracker.transactionId;
-        return options.timeToDisplayTracker.reportFullyDisplayed(
+        await options.timeToDisplayTracker.reportFullyDisplayed(
           spanId: transactionId,
         );
       } catch (exception, stackTrace) {

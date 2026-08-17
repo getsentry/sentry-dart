@@ -138,23 +138,19 @@ isolate_dso_base: 20000000
         }
       });
 
-      test(
-        'extracts correct debug ID for Android with long debugId',
-        () async {
-          final debugImage = await fixture.parseAndProcess('''
+      test('extracts correct debug ID for Android with long debugId', () async {
+        final debugImage = await fixture.parseAndProcess('''
 *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
 build_id: 'f1c3bcc0279865fe3058404b2831d9e64135386c'
 isolate_dso_base: 30000000
     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
 ''');
 
-          expect(
-            debugImage?.debugId,
-            equals('c0bcc3f1-9827-fe65-3058-404b2831d9e6'),
-          );
-        },
-        skip: !platform.isAndroid,
-      );
+        expect(
+          debugImage?.debugId,
+          equals('c0bcc3f1-9827-fe65-3058-404b2831d9e6'),
+        );
+      }, skip: !platform.isAndroid);
 
       test('sets correct type based on platform', () async {
         final debugImage = await fixture.parseAndProcess('''

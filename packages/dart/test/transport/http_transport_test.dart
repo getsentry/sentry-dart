@@ -314,7 +314,7 @@ void main() {
 
       expect(
         fixture.clientReportRecorder.discardedEvents.first.reason,
-        DiscardReason.networkError,
+        DiscardReason.sendError,
       );
       expect(
         fixture.clientReportRecorder.discardedEvents.first.category,
@@ -344,14 +344,14 @@ void main() {
           .firstWhereOrNull(
             (element) =>
                 element.category == DataCategory.transaction &&
-                element.reason == DiscardReason.networkError,
+                element.reason == DiscardReason.sendError,
           );
 
       final spanDiscardedEvent = fixture.clientReportRecorder.discardedEvents
           .firstWhereOrNull(
             (element) =>
                 element.category == DataCategory.span &&
-                element.reason == DiscardReason.networkError,
+                element.reason == DiscardReason.sendError,
           );
 
       expect(transactionDiscardedEvent, isNotNull);
@@ -380,7 +380,7 @@ void main() {
 
       expect(
         fixture.clientReportRecorder.discardedEvents.first.reason,
-        DiscardReason.networkError,
+        DiscardReason.sendError,
       );
       expect(
         fixture.clientReportRecorder.discardedEvents.first.category,
@@ -421,11 +421,106 @@ void main() {
 
       expect(
         fixture.clientReportRecorder.discardedEvents.first.reason,
-        DiscardReason.networkError,
+        DiscardReason.sendError,
       );
       expect(
         fixture.clientReportRecorder.discardedEvents.first.category,
         DataCategory.error,
+      );
+    });
+
+    test('does record lost event with send_error for 413', () async {
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 413);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+      await sut.send(envelope);
+
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.reason,
+        DiscardReason.sendError,
+      );
+      expect(
+        fixture.clientReportRecorder.discardedEvents.first.category,
+        DataCategory.error,
+      );
+    });
+  });
+
+  group('413 logging', () {
+    late Fixture fixture;
+    final logCalls = <_LogCall>[];
+
+    setUp(() {
+      fixture = Fixture();
+      logCalls.clear();
+      SentryInternalLogger.configure(
+        isEnabled: true,
+        minLevel: SentryLevel.error,
+        logOutput:
+            ({
+              required String name,
+              required SentryLevel level,
+              required String message,
+              Object? error,
+              StackTrace? stackTrace,
+            }) {
+              logCalls.add(_LogCall(level, message));
+            },
+      );
+    });
+
+    tearDown(() {
+      SentryInternalLogger.configure(isEnabled: false);
+    });
+
+    test('logs error explaining the envelope was discarded for size', () async {
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 413);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+      await sut.send(envelope);
+
+      final sizeLimitLog = logCalls.firstWhereOrNull(
+        (call) => call.message.contains('maximum envelope size limit'),
+      );
+      expect(sizeLimitLog, isNotNull);
+      expect(sizeLimitLog!.level, SentryLevel.error);
+    });
+
+    test('does not log size limit error for a plain 400', () async {
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 400);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+      await sut.send(envelope);
+
+      expect(
+        logCalls.any(
+          (call) => call.message.contains('maximum envelope size limit'),
+        ),
+        isFalse,
       );
     });
   });
@@ -465,4 +560,11 @@ class Fixture {
       attributes: {},
     );
   }
+}
+
+class _LogCall {
+  final SentryLevel level;
+  final String message;
+
+  _LogCall(this.level, this.message);
 }

@@ -11,7 +11,7 @@ environment:
 dependencies:
   gql_error_link: ">=0.2.0 <2.0.0"
   gql_exec: ">=0.4.4 <2.0.0"
-  gql_link: ">=0.5.0 <2.0.0"
+  gql_link: ">=0.5.1 <2.0.0"
   gql: ">=0.14.0 <2.0.0"
   sentry: 10.0.0-alpha.3
 

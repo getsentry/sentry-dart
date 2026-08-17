@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' show ApplyInterceptor;
 import 'package:flutter/material.dart';
@@ -82,6 +84,15 @@ class PerformanceScreen extends StatelessWidget {
                     text:
                         'Attaches web request related spans to the transaction and send it to Sentry.',
                     buttonTitle: 'Dio: Web request',
+                  ),
+                  TooltipButton(
+                    onPressed: () => makeWebRequestWithNetworkDetails(context),
+                    key: const Key('web_request_network_details'),
+                    text:
+                        'Matches this request against options.replay.networkDetailAllowUrls and shows the captured '
+                        'request/response headers and body that get attached to the http breadcrumb for '
+                        'Session Replay.',
+                    buttonTitle: 'Dart: Web request with network details',
                   ),
                   TooltipButton(
                     onPressed: () => showDialogWithTextAndImage(context),
@@ -449,6 +460,52 @@ Future<void> _showDioResponseDialog(
   );
 }
 
+Future<void> makeWebRequestWithNetworkDetails(BuildContext context) async {
+  // options.replay.networkDetailAllowUrls and networkRequestHeaders are configured in
+  // main.dart at SentryFlutter.init() time - the native replay integration
+  // only reads them once, at startup.
+  final client = SentryHttpClient();
+  await client.post(
+    Uri.parse(exampleUrl),
+    headers: {'foo': 'bar', 'content-type': 'application/json'},
+    body: jsonEncode({'credit_card': 'true', 'id': '0000-0000-0000-0000'}),
+  );
+
+  Breadcrumb? httpBreadcrumb;
+  await Sentry.configureScope((scope) {
+    httpBreadcrumb = scope.breadcrumbs
+        .where((breadcrumb) => breadcrumb.category == 'http')
+        .lastOrNull;
+  });
+
+  if (!context.mounted) return;
+  await _showNetworkDetailsDialog(context, httpBreadcrumb);
+}
+
+Future<void> _showNetworkDetailsDialog(
+  BuildContext context,
+  Breadcrumb? breadcrumb,
+) async {
+  const encoder = JsonEncoder.withIndent('  ');
+  await showDialog<void>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Captured http breadcrumb'),
+        content: SingleChildScrollView(
+          child: Text(encoder.convert(breadcrumb?.data ?? {})),
+        ),
+        actions: [
+          MaterialButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 Future<void> showDialogWithTextAndImage(BuildContext context) async {
   Future<void> loadAndShowAssets() async {
     final text = await DefaultAssetBundle.of(
@@ -545,34 +602,27 @@ Future<void> spanV2Demo() async {
   // ignore: avoid_print
   print('span3 sync function result: $syncResult');
 
-  await Sentry.startSpan(
-    'spanv2-demo-root',
-    (rootSpan) async {
-      rootSpan.setAttributes({
-        'demo.type': SentryAttribute.string('comprehensive'),
-        'demo.version': SentryAttribute.int(2),
+  await Sentry.startSpan('spanv2-demo-root', (rootSpan) async {
+    rootSpan.setAttributes({
+      'demo.type': SentryAttribute.string('comprehensive'),
+      'demo.version': SentryAttribute.int(2),
+    });
+    rootSpan.setAttribute('root.custom', SentryAttribute.string('root-value'));
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    await Sentry.startSpan('spanv2-demo-child', (childSpan) async {
+      childSpan.setAttributes({
+        'child.operation': SentryAttribute.string('database-query'),
+        'child.rows': SentryAttribute.int(42),
       });
-      rootSpan.setAttribute(
-        'root.custom',
-        SentryAttribute.string('root-value'),
-      );
 
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future.delayed(const Duration(milliseconds: 30));
 
-      await Sentry.startSpan('spanv2-demo-child', (childSpan) async {
-        childSpan.setAttributes({
-          'child.operation': SentryAttribute.string('database-query'),
-          'child.rows': SentryAttribute.int(42),
-        });
-
-        await Future.delayed(const Duration(milliseconds: 30));
-
-        await Sentry.startSpan('spanv2-demo-nested', (nestedSpan) async {
-          nestedSpan.setAttribute('nested.level', SentryAttribute.int(2));
-          await Future.delayed(const Duration(milliseconds: 20));
-        });
+      await Sentry.startSpan('spanv2-demo-nested', (nestedSpan) async {
+        nestedSpan.setAttribute('nested.level', SentryAttribute.int(2));
+        await Future.delayed(const Duration(milliseconds: 20));
       });
-    },
-    attributes: {'demo.source': SentryAttribute.string('example-app')},
-  );
+    });
+  }, attributes: {'demo.source': SentryAttribute.string('example-app')});
 }
