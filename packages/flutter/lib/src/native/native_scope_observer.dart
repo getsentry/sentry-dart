@@ -4,7 +4,7 @@ import 'package:sentry/sentry.dart';
 
 import 'sentry_native_binding.dart';
 
-class NativeScopeObserver implements ScopeObserver {
+class NativeScopeObserver implements ScopeObserver, HintAwareScopeObserver {
   NativeScopeObserver(this._native, this._options);
 
   final SentryNativeBinding _native;
@@ -39,25 +39,34 @@ class NativeScopeObserver implements ScopeObserver {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb, Hint hint) async {
-    await _native.addBreadcrumb(breadcrumb);
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+    return addBreadcrumbWithHint(breadcrumb, Hint());
+  }
 
+  @override
+  FutureOr<void> addBreadcrumbWithHint(Breadcrumb breadcrumb, Hint hint) async {
     final replayRequestId = breadcrumb.data?['replay_request_id'];
-    if (replayRequestId is! String) {
-      return;
+    if (replayRequestId is String) {
+      // ignore: invalid_use_of_internal_member
+      final request = hint.get(TypeCheckHint.replayNetworkRequestDetail);
+      // ignore: invalid_use_of_internal_member
+      final response = hint.get(TypeCheckHint.replayNetworkResponseDetail);
+      if (request != null || response != null) {
+        // Populate the replay detail cache before the breadcrumb becomes
+        // visible on the native Scope. Session Replay can build a segment
+        // from a background thread as soon as the breadcrumb lands in the
+        // Scope; doing this the other way around leaves a window where the
+        // breadcrumb is visible but its detail hasn't been cached yet,
+        // so the replay segment would never pick it up.
+        await _native.captureReplayNetworkDetail(
+          replayRequestId,
+          request: request is Map<String, dynamic> ? request : null,
+          response: response is Map<String, dynamic> ? response : null,
+        );
+      }
     }
-    // ignore: invalid_use_of_internal_member
-    final request = hint.get(TypeCheckHint.replayNetworkRequestDetail);
-    // ignore: invalid_use_of_internal_member
-    final response = hint.get(TypeCheckHint.replayNetworkResponseDetail);
-    if (request == null && response == null) {
-      return;
-    }
-    await _native.captureReplayNetworkDetail(
-      replayRequestId,
-      request: request is Map<String, dynamic> ? request : null,
-      response: response is Map<String, dynamic> ? response : null,
-    );
+
+    await _native.addBreadcrumb(breadcrumb);
   }
 
   @override
