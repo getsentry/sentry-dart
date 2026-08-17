@@ -35,12 +35,6 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
       return event;
     }
 
-    // Capturing would debounce the next error, which may well be sent.
-    // ignore: invalid_use_of_internal_member
-    if (hint.get(TypeCheckHint.isSampledOut) == true) {
-      return event;
-    }
-
     // skip capturing in case of debouncing (=too many frequent capture requests)
     // the BeforeCaptureCallback may overrule the debouncing decision
     final shouldDebounce = _debouncer.shouldDebounce();

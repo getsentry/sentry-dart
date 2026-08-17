@@ -3,12 +3,12 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/event_processor/replay_event_processor.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 
@@ -65,24 +65,97 @@ void main() {
     );
   }
 
-  for (var sampleRate in [0.5, 0.0]) {
-    test(
-      '$ReplayEventProcessor in options.EventProcessors when onErrorSampleRate=$sampleRate',
-      () async {
-        options.replay.onErrorSampleRate = sampleRate;
-        await sut.call(hub, options);
+  group('$ReplayIntegration when an event is about to be sent', () {
+    late Scope scope;
 
-        if (sampleRate > 0) {
-          expect(
-            options.eventProcessors,
-            anyElement(isA<ReplayEventProcessor>()),
-          );
-        } else {
-          expect(options.eventProcessors, isEmpty);
-        }
-      },
+    setUp(() {
+      scope = Scope(defaultTestOptions());
+      options.replay.onErrorSampleRate = 1.0;
+      when(
+        native.captureReplay(),
+      ).thenAnswer((_) async => SentryId.fromId('42'));
+      when(hub.configureScope(any)).thenAnswer((invocation) async {
+        final callback =
+            invocation.positionalArguments.first
+                as FutureOr<void> Function(Scope);
+        await callback(scope);
+      });
+    });
+
+    Future<void> send(SentryEvent event, {Hint? hint}) async {
+      await sut.call(hub, options);
+      await options.lifecycleRegistry.dispatchCallback(
+        OnBeforeSendEvent(event, hint ?? Hint()),
+      );
+    }
+
+    SentryEvent errorEvent() => SentryEvent(
+      eventId: SentryId.newId(),
+      exceptions: [
+        SentryException(
+          type: 'type',
+          value: 'value',
+          mechanism: Mechanism(type: 'foo'),
+        ),
+      ],
     );
-  }
+
+    SentryEvent feedbackEvent() => SentryEvent(
+      type: 'feedback',
+      contexts: Contexts(feedback: SentryFeedback(message: 'fixture-message')),
+    );
+
+    test('captures replay for an error event', () async {
+      await send(errorEvent());
+
+      verify(native.captureReplay()).called(1);
+      expect(scope.replayId, SentryId.fromId('42'));
+    });
+
+    test('does not capture replay for an event without exceptions', () async {
+      await send(SentryEvent(eventId: SentryId.newId(), exceptions: []));
+
+      verifyNever(native.captureReplay());
+      expect(scope.replayId, isNull);
+    });
+
+    test('captures replay for a feedback event', () async {
+      await send(feedbackEvent());
+
+      verify(native.captureReplay()).called(1);
+      expect(scope.replayId, SentryId.fromId('42'));
+    });
+
+    test('does not capture replay for a widget feedback event', () async {
+      final hint = Hint()..set(TypeCheckHint.isWidgetFeedback, true);
+
+      await send(feedbackEvent(), hint: hint);
+
+      verifyNever(native.captureReplay());
+      expect(scope.replayId, isNull);
+    });
+
+    test('does not capture replay when onErrorSampleRate is zero', () async {
+      options.replay.onErrorSampleRate = 0.0;
+      options.replay.sessionSampleRate = 1.0;
+
+      await send(errorEvent());
+
+      verifyNever(native.captureReplay());
+      expect(scope.replayId, isNull);
+    });
+
+    test('does not capture replay after the integration is closed', () async {
+      await sut.call(hub, options);
+      sut.close();
+
+      await options.lifecycleRegistry.dispatchCallback(
+        OnBeforeSendEvent(errorEvent(), Hint()),
+      );
+
+      verifyNever(native.captureReplay());
+    });
+  });
 
   testWidgets('Configures replay when displayed', (tester) async {
     options.replay.sessionSampleRate = 1.0;

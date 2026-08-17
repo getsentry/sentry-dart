@@ -1,9 +1,10 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../event_processor/replay_event_processor.dart';
 import '../native/sentry_native_binding.dart';
 import 'replay_config.dart';
 
@@ -18,6 +19,7 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
 
   Hub? _hub;
   SentryFlutterOptions? _options;
+  SdkLifecycleCallback<OnBeforeSendEvent>? _onBeforeSendEventCallback;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
@@ -27,9 +29,13 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       _hub = hub;
       _options = options;
 
-      // We only need the integration when error-replay capture is enabled.
+      // We only need the hook when error-replay capture is enabled. It runs in
+      // the send phase rather than as an event processor so that an event
+      // dropped by sampling or `beforeSend` cannot flush the buffered replay.
       if ((replayOptions.onErrorSampleRate ?? 0) > 0) {
-        options.addEventProcessor(ReplayEventProcessor(hub, _native));
+        final callback = _onEventAboutToBeSent;
+        options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(callback);
+        _onBeforeSendEventCallback = callback;
       }
 
       SentryScreenshotWidget.onBuild((status, prevStatus) {
@@ -57,11 +63,33 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
     }
   }
 
+  @override
+  void close() {
+    final callback = _onBeforeSendEventCallback;
+    if (callback != null) {
+      _options?.lifecycleRegistry.removeCallback<OnBeforeSendEvent>(callback);
+      _onBeforeSendEventCallback = null;
+    }
+  }
+
+  Future<void> _onEventAboutToBeSent(OnBeforeSendEvent lifecycleEvent) async {
+    final event = lifecycleEvent.event;
+    final hasEventId = event.eventId != SentryId.empty();
+    final isErrorEvent = hasEventId && event.exceptions?.isNotEmpty == true;
+    final isFeedbackEvent = hasEventId && event.type == 'feedback';
+    // The feedback widget captures the replay itself when the form opens.
+    final isWidgetFeedbackEvent =
+        lifecycleEvent.hint.get(TypeCheckHint.isWidgetFeedback) == true;
+
+    if (isErrorEvent || (isFeedbackEvent && !isWidgetFeedbackEvent)) {
+      await captureReplay();
+    }
+  }
+
   Future<void> captureReplay() async {
     if (_native.supportsReplay && _options?.replay.isEnabled == true) {
       final replayId = await _native.captureReplay();
       _hub?.configureScope((scope) {
-        // ignore: invalid_use_of_internal_member
         scope.replayId = replayId;
       });
     }

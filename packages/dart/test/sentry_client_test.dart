@@ -1214,51 +1214,6 @@ void main() {
       expect(beforeSendCalled, true);
       expect(fixture.transport.called(0), true);
     });
-
-    test('marks hint as sampled out before running event processors', () async {
-      Hint? processorHint;
-      final client = fixture.getSut(
-        sampleRate: 0.0,
-        eventProcessor: FunctionEventProcessor((event, hint) {
-          processorHint = hint;
-          return event;
-        }),
-      );
-
-      await client.captureEvent(fakeEvent);
-
-      expect(processorHint?.get(TypeCheckHint.isSampledOut), true);
-    });
-
-    test('does not mark hint as sampled out for a sampled in event', () async {
-      Hint? processorHint;
-      final client = fixture.getSut(
-        sampleRate: 1.0,
-        eventProcessor: FunctionEventProcessor((event, hint) {
-          processorHint = hint;
-          return event;
-        }),
-      );
-
-      await client.captureEvent(fakeEvent);
-
-      expect(processorHint?.get(TypeCheckHint.isSampledOut), isNull);
-    });
-
-    test('does not mark feedback hint as sampled out', () async {
-      Hint? processorHint;
-      final client = fixture.getSut(
-        sampleRate: 0.0,
-        eventProcessor: FunctionEventProcessor((event, hint) {
-          processorHint = hint;
-          return event;
-        }),
-      );
-
-      await client.captureFeedback(fixture.fakeFeedback());
-
-      expect(processorHint?.get(TypeCheckHint.isSampledOut), isNull);
-    });
   });
 
   group('SentryClient ignored errors', () {

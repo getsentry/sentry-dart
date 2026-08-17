@@ -23,10 +23,4 @@ class TypeCheckHint {
 
   @internal
   static const isWidgetFeedback = 'isWidgetFeedback';
-
-  /// Set when the event lost the sampling decision and will be dropped after
-  /// `beforeSend`. Lets event processors skip capture work that is expensive or
-  /// that would otherwise consume state, such as the attachment debouncers.
-  @internal
-  static const isSampledOut = 'isSampledOut';
 }

@@ -48,12 +48,6 @@ class ScreenshotEventProcessor implements EventProcessor {
       return event; // No need to attach screenshot of feedback form.
     }
 
-    // Capturing would debounce the next error, which may well be sent.
-    // ignore: invalid_use_of_internal_member
-    if (hint.get(TypeCheckHint.isSampledOut) == true) {
-      return event;
-    }
-
     final renderer = _options.rendererWrapper.renderer;
     if (!_options.isScreenshotSupported) {
       internalLogger.debug(
