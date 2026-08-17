@@ -39,12 +39,43 @@ for name in $NAMES; do
   SCOPE="$SCOPE --scope=$name"
 done
 
-# Auto-format staged .dart files and re-stage them
+# Locate the fvm SDK so formatting and analysis match melos `sdkPath` and CI's
+# analyze gate. `.fvm/` is gitignored, so a linked worktree often has no copy of
+# it -- fall back to the main worktree's, which every linked worktree shares.
+resolve_sdk() {
+  if [ -x .fvm/flutter_sdk/bin/dart ]; then
+    echo "$(pwd)/.fvm/flutter_sdk"
+    return
+  fi
+  common_dir=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)
+  if [ -n "$common_dir" ] && [ -x "$(dirname "$common_dir")/.fvm/flutter_sdk/bin/dart" ]; then
+    echo "$(dirname "$common_dir")/.fvm/flutter_sdk"
+  fi
+}
+
+SDK=$(resolve_sdk)
+if [ -n "$SDK" ]; then
+  DART="$SDK/bin/dart"
+  MELOS_SDK="--sdk-path=$SDK"
+else
+  DART=dart
+  MELOS_SDK=--sdk-path=auto
+fi
+echo "Using Dart SDK: $DART"
+echo "               $($DART --version 2>&1)"
+
+# Format staged .dart files, but leave staging to the author: `git add`-ing them
+# here would sweep in deliberately held-back hunks of a partially staged file.
 STAGED_DART=$(git diff --cached --name-only --diff-filter=d -- '*.dart')
 if [ -n "$STAGED_DART" ]; then
-  echo "Formatting staged .dart files..."
-  dart format $STAGED_DART
-  git add $STAGED_DART
+  echo "Checking formatting of staged .dart files..."
+  if ! $DART format --set-exit-if-changed $STAGED_DART; then
+    echo
+    echo "Files were reformatted. Review, 'git add' them, and commit again."
+    echo "If the diff looks unexpectedly large, run 'melos bootstrap' -- a stale"
+    echo ".dart_tool from another branch changes dart_style's output."
+    exit 1
+  fi
 fi
 
 echo "Running pre-commit checks for:$NAMES"
@@ -58,5 +89,5 @@ run_without_git_env() {
   env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE "$@"
 }
 
-run_without_git_env melos exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
-run_without_git_env melos exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings
+run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
+run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings
