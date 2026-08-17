@@ -87,6 +87,7 @@
 ### Enhancements
 
 - (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
+
 ## 9.27.0
 
 ### Features
