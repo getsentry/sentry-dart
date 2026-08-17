@@ -434,6 +434,46 @@ void main() {
             expect(secondHint.screenshot, isNotNull);
           });
         });
+
+        testWidgets(
+          "sampled out event does not consume the debounce timeframe",
+          (tester) async {
+            // Run with real async https://stackoverflow.com/a/54021863
+            await tester.runAsync(() async {
+              // ignore: invalid_use_of_internal_member
+              fixture.options.clock = () =>
+                  DateTime.fromMillisecondsSinceEpoch(0);
+
+              final sut = fixture.getSut(FlutterRenderer.canvasKit, false);
+
+              await tester.pumpWidget(
+                SentryScreenshotWidget(
+                  child: Text(
+                    'Catching Pokémon is a snap!',
+                    textDirection: TextDirection.ltr,
+                  ),
+                ),
+              );
+
+              final throwable = Exception();
+
+              final sampledOutHint = Hint();
+              // ignore: invalid_use_of_internal_member
+              sampledOutHint.set(TypeCheckHint.isSampledOut, true);
+
+              final sentHint = Hint();
+
+              await sut.apply(
+                SentryEvent(throwable: throwable),
+                sampledOutHint,
+              );
+              await sut.apply(SentryEvent(throwable: throwable), sentHint);
+
+              expect(sampledOutHint.screenshot, isNull);
+              expect(sentHint.screenshot, isNotNull);
+            });
+          },
+        );
       });
     },
     skip: kIsWasm

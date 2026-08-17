@@ -326,6 +326,33 @@ void main() {
           expect(secondHint.viewHierarchy, isNotNull);
         });
       });
+
+      testWidgets("sampled out event does not consume the debounce timeframe", (
+        tester,
+      ) async {
+        // Run with real async https://stackoverflow.com/a/54021863
+        await tester.runAsync(() async {
+          // ignore: invalid_use_of_internal_member
+          fixture.options.clock = () => DateTime.fromMillisecondsSinceEpoch(0);
+
+          final sut = fixture.getSut(instance);
+          await tester.pumpWidget(MyApp());
+
+          final throwable = Exception();
+
+          final sampledOutHint = Hint();
+          // ignore: invalid_use_of_internal_member
+          sampledOutHint.set(TypeCheckHint.isSampledOut, true);
+
+          final sentHint = Hint();
+
+          await sut.apply(SentryEvent(throwable: throwable), sampledOutHint);
+          await sut.apply(SentryEvent(throwable: throwable), sentHint);
+
+          expect(sampledOutHint.viewHierarchy, isNull);
+          expect(sentHint.viewHierarchy, isNotNull);
+        });
+      });
     });
   });
 }

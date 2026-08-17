@@ -137,6 +137,14 @@ class SentryClient {
 
     hint ??= Hint();
 
+    // The decision is drawn here so event processors can skip capture work for
+    // an event that will be dropped anyway, but it is only acted on further
+    // down, after the filters the developer controls have had their say.
+    final isSampledOut = event.type != 'feedback' && _sampleRate();
+    if (isSampledOut) {
+      hint.set(TypeCheckHint.isSampledOut, true);
+    }
+
     SentryEvent? preparedEvent = _prepareEvent(
       event,
       hint,
@@ -175,9 +183,9 @@ class SentryClient {
       return _emptySentryId;
     }
 
-    // Sampling runs last so that the filters above, which the developer
+    // Sampling is applied last so that the filters above, which the developer
     // controls, always get the final say on whether an event is dropped.
-    if (preparedEvent.type != 'feedback' && _sampleRate()) {
+    if (isSampledOut) {
       final sampledOutEvent = preparedEvent;
       _options.recorder.recordLostEvent(
         DiscardReason.sampleRate,

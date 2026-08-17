@@ -22,8 +22,15 @@ class ReplayEventProcessor implements EventProcessor {
         // ignore: invalid_use_of_internal_member
         hint.get(TypeCheckHint.isWidgetFeedback) == true;
 
+    // Flushing the buffered replay for an event that is dropped would both
+    // waste the replay and leave a replay ID on the scope.
+    final isSampledOut =
+        // ignore: invalid_use_of_internal_member
+        hint.get(TypeCheckHint.isSampledOut) == true;
+
     final shouldCaptureReplay =
-        isErrorEvent || (isFeedbackEvent && !isWidgetFeedbackEvent);
+        !isSampledOut &&
+        (isErrorEvent || (isFeedbackEvent && !isWidgetFeedbackEvent));
 
     if (shouldCaptureReplay) {
       final replayId = await _binding.captureReplay();

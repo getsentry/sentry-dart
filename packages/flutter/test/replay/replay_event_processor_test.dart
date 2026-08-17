@@ -51,6 +51,15 @@ void main() {
     verifyNever(fixture.binding.captureReplay());
     expect(fixture.scope.replayId, isNull);
   });
+
+  test('does not capture replay for a sampled out error', () async {
+    final hint = Hint()..set(TypeCheckHint.isSampledOut, true);
+
+    await fixture.apply(hint: hint);
+
+    verifyNever(fixture.binding.captureReplay());
+    expect(fixture.scope.replayId, isNull);
+  });
 }
 
 class _Fixture {
@@ -71,7 +80,7 @@ class _Fixture {
     });
     sut = ReplayEventProcessor(hub, binding);
   }
-  Future<SentryEvent?> apply({bool hasException = true}) {
+  Future<SentryEvent?> apply({bool hasException = true, Hint? hint}) {
     final event = SentryEvent(
       eventId: SentryId.newId(),
       exceptions: hasException
@@ -84,6 +93,6 @@ class _Fixture {
             ]
           : [],
     );
-    return sut.apply(event, Hint());
+    return sut.apply(event, hint ?? Hint());
   }
 }
