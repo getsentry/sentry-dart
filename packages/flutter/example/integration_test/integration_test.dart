@@ -247,147 +247,145 @@ void main() {
     await transaction.finish();
   });
 
-  testWidgets(
-    'init maps Dart options into native SDK options on Android',
-    (tester) async {
-      await restoreFlutterOnErrorAfter(() async {
-        await setupSentryWithCustomInit(
-          () async {
-            await tester.pumpWidget(
-              SentryScreenshotWidget(
-                child: DefaultAssetBundle(
-                  bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-                  child: const MyApp(),
-                ),
+  testWidgets('init maps Dart options into native SDK options on Android', (
+    tester,
+  ) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryWithCustomInit(
+        () async {
+          await tester.pumpWidget(
+            SentryScreenshotWidget(
+              child: DefaultAssetBundle(
+                bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+                child: const MyApp(),
               ),
-            );
-          },
-          (options) {
-            options.dsn = fakeDsn;
-            options.debug = true;
-            options.sampleRate = 0.25;
-            options.diagnosticLevel = SentryLevel.error;
-            options.environment = 'init-test-env';
-            options.release = '1.2.3+9';
-            options.dist = '42';
-            options.sendDefaultPii = true;
-            options.attachStacktrace = false;
-            options.maxBreadcrumbs = 7;
-            options.maxCacheItems = 77;
-            options.maxAttachmentSize = 512;
-            options.enableAutoSessionTracking = false;
-            options.autoSessionTrackingInterval = const Duration(seconds: 5);
-            options.enableAutoNativeBreadcrumbs = false;
-            options.enableAutoPerformanceTracing = false;
-            options.sendClientReports = false;
-            options.spotlight = Spotlight(
-              enabled: true,
-              url: 'http://localhost:8999/stream',
-            );
-            options.proxy = SentryProxy(
-              user: 'u',
-              pass: 'p',
-              host: 'proxy.local',
-              port: 8084,
-              type: SentryProxyType.http,
-            );
-            options.replay.quality = SentryReplayQuality.high;
-            options.replay.sessionSampleRate = 0.4;
-            options.replay.onErrorSampleRate = 0.8;
-            options.enableNdkScopeSync = true;
-            options.attachThreads = true;
-            options.anrEnabled = false;
-            options.anrTimeoutInterval = const Duration(seconds: 2);
-            options.connectionTimeout = const Duration(milliseconds: 1234);
-            options.readTimeout = const Duration(milliseconds: 2345);
-            options.enableTombstone = true;
-          },
-        );
-      });
-
-      final options = jni.ScopesAdapter.instance?.options;
-      expect(options, isNotNull);
-      final androidOptions = options!.as(jni.SentryAndroidOptions.type);
-
-      expect(androidOptions, isNotNull);
-      expect(androidOptions.dsn?.toDartString(), fakeDsn);
-      expect(
-        androidOptions.sampleRate?.toDartDouble(releaseOriginal: true),
-        0.25,
+            ),
+          );
+        },
+        (options) {
+          options.dsn = fakeDsn;
+          options.debug = true;
+          options.sampleRate = 0.25;
+          options.diagnosticLevel = SentryLevel.error;
+          options.environment = 'init-test-env';
+          options.release = '1.2.3+9';
+          options.dist = '42';
+          options.sendDefaultPii = true;
+          options.attachStacktrace = false;
+          options.maxBreadcrumbs = 7;
+          options.maxCacheItems = 77;
+          options.maxAttachmentSize = 512;
+          options.enableAutoSessionTracking = false;
+          options.autoSessionTrackingInterval = const Duration(seconds: 5);
+          options.enableAutoNativeBreadcrumbs = false;
+          options.enableAutoPerformanceTracing = false;
+          options.sendClientReports = false;
+          options.spotlight = Spotlight(
+            enabled: true,
+            url: 'http://localhost:8999/stream',
+          );
+          options.proxy = SentryProxy(
+            user: 'u',
+            pass: 'p',
+            host: 'proxy.local',
+            port: 8084,
+            type: SentryProxyType.http,
+          );
+          options.replay.quality = SentryReplayQuality.high;
+          options.replay.sessionSampleRate = 0.4;
+          options.replay.onErrorSampleRate = 0.8;
+          options.enableNdkScopeSync = true;
+          options.attachThreads = true;
+          options.anrEnabled = false;
+          options.anrTimeoutInterval = const Duration(seconds: 2);
+          options.connectionTimeout = const Duration(milliseconds: 1234);
+          options.readTimeout = const Duration(milliseconds: 2345);
+          options.enableTombstone = true;
+        },
       );
-      expect(androidOptions.isDebug, isTrue);
-      final diagnostic = androidOptions.diagnosticLevel;
-      expect(diagnostic, jni.SentryLevel.ERROR);
-      expect(androidOptions.environment?.toDartString(), 'init-test-env');
-      expect(androidOptions.release$1?.toDartString(), '1.2.3+9');
-      expect(androidOptions.dist?.toDartString(), '42');
-      expect(androidOptions.isSendDefaultPii, isTrue);
-      expect(androidOptions.isAttachStacktrace, isFalse);
-      expect(androidOptions.isAttachThreads, isTrue);
-      expect(androidOptions.maxBreadcrumbs, 7);
-      expect(androidOptions.maxCacheItems, 77);
-      expect(androidOptions.maxAttachmentSize, 512);
-      expect(androidOptions.isEnableScopeSync, isTrue);
-      expect(androidOptions.isAnrEnabled, isFalse);
-      expect(androidOptions.anrTimeoutIntervalMillis, 2000);
-      expect(androidOptions.isEnableActivityLifecycleBreadcrumbs, isFalse);
-      expect(androidOptions.isEnableAppLifecycleBreadcrumbs, isFalse);
-      expect(androidOptions.isEnableSystemEventBreadcrumbs, isFalse);
-      expect(androidOptions.isEnableAppComponentBreadcrumbs, isFalse);
-      expect(androidOptions.isEnableUserInteractionBreadcrumbs, isFalse);
-      expect(androidOptions.connectionTimeoutMillis, 1234);
-      expect(androidOptions.readTimeoutMillis, 2345);
-      expect(androidOptions.isEnableSpotlight, isTrue);
-      expect(androidOptions.isSendClientReports, isFalse);
-      expect(
-        androidOptions.spotlightConnectionUrl?.toDartString(),
-        Sentry.currentHub.options.spotlight.url,
-      );
-      expect(
-        androidOptions.sentryClientName?.toDartString(),
-        '$androidSdkName/${jni.BuildConfig.VERSION_NAME?.toDartString()}',
-      );
-      expect(androidOptions.nativeSdkName?.toDartString(), nativeSdkName);
-      expect(androidOptions.sdkVersion?.name.toDartString(), androidSdkName);
-      expect(
-        androidOptions.sdkVersion?.version.toDartString(),
-        jni.BuildConfig.VERSION_NAME?.toDartString(),
-      );
-      final allPackages = androidOptions.sdkVersion?.packageSet
-          .asDart()
-          .map((pkg) {
-            if (pkg == null) return null;
-            return SentryPackage(
-              pkg.name.toDartString(),
-              pkg.version.toDartString(),
-            );
-          })
-          .nonNulls
-          .toList();
-      for (final package in Sentry.currentHub.options.sdk.packages) {
-        final findMatchingPackage = allPackages?.firstWhere(
-          (p) => p.name == package.name && p.version == package.version,
-        );
-        expect(findMatchingPackage, isNotNull);
-      }
-      expect(androidOptions.isEnableAutoTraceIdGeneration, isFalse);
-      expect(androidOptions.isTombstoneEnabled, isTrue);
+    });
 
-      final androidProxy = androidOptions.proxy;
-      expect(androidProxy, isNotNull);
-      expect(androidProxy!.host?.toDartString(), 'proxy.local');
-      expect(androidProxy.port?.toDartString(), '8084');
-      expect(androidProxy.user?.toDartString(), 'u');
-      expect(androidProxy.pass?.toDartString(), 'p');
+    final options = jni.ScopesAdapter.instance?.options;
+    expect(options, isNotNull);
+    final androidOptions = options!.as(jni.SentryAndroidOptions.type);
 
-      final r = androidOptions.sessionReplay;
-      expect(r.quality, jni.SentryReplayOptions$SentryReplayQuality.HIGH);
-      expect(r.sessionSampleRate, isNotNull);
-      expect(r.onErrorSampleRate, isNotNull);
-      expect(r.isTrackConfiguration, isFalse);
-    },
-    skip: !Platform.isAndroid,
-  );
+    expect(androidOptions, isNotNull);
+    expect(androidOptions.dsn?.toDartString(), fakeDsn);
+    expect(
+      androidOptions.sampleRate?.toDartDouble(releaseOriginal: true),
+      0.25,
+    );
+    expect(androidOptions.isDebug, isTrue);
+    final diagnostic = androidOptions.diagnosticLevel;
+    expect(diagnostic, jni.SentryLevel.ERROR);
+    expect(androidOptions.environment?.toDartString(), 'init-test-env');
+    expect(androidOptions.release$1?.toDartString(), '1.2.3+9');
+    expect(androidOptions.dist?.toDartString(), '42');
+    expect(androidOptions.isSendDefaultPii, isTrue);
+    expect(androidOptions.isAttachStacktrace, isFalse);
+    expect(androidOptions.isAttachThreads, isTrue);
+    expect(androidOptions.maxBreadcrumbs, 7);
+    expect(androidOptions.maxCacheItems, 77);
+    expect(androidOptions.maxAttachmentSize, 512);
+    expect(androidOptions.isEnableScopeSync, isTrue);
+    expect(androidOptions.isAnrEnabled, isFalse);
+    expect(androidOptions.anrTimeoutIntervalMillis, 2000);
+    expect(androidOptions.isEnableActivityLifecycleBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableAppLifecycleBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableSystemEventBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableAppComponentBreadcrumbs, isFalse);
+    expect(androidOptions.isEnableUserInteractionBreadcrumbs, isFalse);
+    expect(androidOptions.connectionTimeoutMillis, 1234);
+    expect(androidOptions.readTimeoutMillis, 2345);
+    expect(androidOptions.isEnableSpotlight, isTrue);
+    expect(androidOptions.isSendClientReports, isFalse);
+    expect(
+      androidOptions.spotlightConnectionUrl?.toDartString(),
+      Sentry.currentHub.options.spotlight.url,
+    );
+    expect(
+      androidOptions.sentryClientName?.toDartString(),
+      '$androidSdkName/${jni.BuildConfig.VERSION_NAME?.toDartString()}',
+    );
+    expect(androidOptions.nativeSdkName?.toDartString(), nativeSdkName);
+    expect(androidOptions.sdkVersion?.name.toDartString(), androidSdkName);
+    expect(
+      androidOptions.sdkVersion?.version.toDartString(),
+      jni.BuildConfig.VERSION_NAME?.toDartString(),
+    );
+    final allPackages = androidOptions.sdkVersion?.packageSet
+        .asDart()
+        .map((pkg) {
+          if (pkg == null) return null;
+          return SentryPackage(
+            pkg.name.toDartString(),
+            pkg.version.toDartString(),
+          );
+        })
+        .nonNulls
+        .toList();
+    for (final package in Sentry.currentHub.options.sdk.packages) {
+      final findMatchingPackage = allPackages?.firstWhere(
+        (p) => p.name == package.name && p.version == package.version,
+      );
+      expect(findMatchingPackage, isNotNull);
+    }
+    expect(androidOptions.isEnableAutoTraceIdGeneration, isFalse);
+    expect(androidOptions.isTombstoneEnabled, isTrue);
+
+    final androidProxy = androidOptions.proxy;
+    expect(androidProxy, isNotNull);
+    expect(androidProxy!.host?.toDartString(), 'proxy.local');
+    expect(androidProxy.port?.toDartString(), '8084');
+    expect(androidProxy.user?.toDartString(), 'u');
+    expect(androidProxy.pass?.toDartString(), 'p');
+
+    final r = androidOptions.sessionReplay;
+    expect(r.quality, jni.SentryReplayOptions$SentryReplayQuality.HIGH);
+    expect(r.sessionSampleRate, isNotNull);
+    expect(r.onErrorSampleRate, isNotNull);
+    expect(r.isTrackConfiguration, isFalse);
+  }, skip: !Platform.isAndroid);
 
   testWidgets('loads native contexts through loadContexts', (tester) async {
     await restoreFlutterOnErrorAfter(() async {
@@ -1515,51 +1513,49 @@ void main() {
 
   // We currently only test this on Android
   // Setting up iOS for testing this is a big time effort so we rely on manually testing there for now
-  testWidgets(
-    'setTrace syncs Dart traceId to native Android scope',
-    (tester) async {
-      await restoreFlutterOnErrorAfter(() async {
-        await setupSentryAndApp(tester);
-      });
+  testWidgets('setTrace syncs Dart traceId to native Android scope', (
+    tester,
+  ) async {
+    await restoreFlutterOnErrorAfter(() async {
+      await setupSentryAndApp(tester);
+    });
 
-      final dartTraceId = Sentry.currentHub.scope.propagationContext.traceId
-          .toString();
+    final dartTraceId = Sentry.currentHub.scope.propagationContext.traceId
+        .toString();
 
-      final traceParent = jni.Sentry.traceparent;
-      expect(
-        traceParent,
-        isNotNull,
-        reason: 'Native traceparent should not be null',
-      );
-      final traceHeader = traceParent!.value.toDartString();
+    final traceParent = jni.Sentry.traceparent;
+    expect(
+      traceParent,
+      isNotNull,
+      reason: 'Native traceparent should not be null',
+    );
+    final traceHeader = traceParent!.value.toDartString();
 
-      final nativeTraceId = traceHeader.split('-').first;
-      expect(
-        nativeTraceId,
-        dartTraceId,
-        reason: 'Native traceId should match Dart traceId after initial sync',
-      );
+    final nativeTraceId = traceHeader.split('-').first;
+    expect(
+      nativeTraceId,
+      dartTraceId,
+      reason: 'Native traceId should match Dart traceId after initial sync',
+    );
 
-      Sentry.currentHub.generateNewTrace();
-      final newDartTraceId = Sentry.currentHub.scope.propagationContext.traceId
-          .toString();
+    Sentry.currentHub.generateNewTrace();
+    final newDartTraceId = Sentry.currentHub.scope.propagationContext.traceId
+        .toString();
 
-      // Allow the fire-and-forget dispatch to complete
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+    // Allow the fire-and-forget dispatch to complete
+    await Future<void>.delayed(const Duration(milliseconds: 100));
 
-      final newTraceParent = jni.Sentry.traceparent?.value.toDartString();
-      final newTraceHeader = newTraceParent!.toString();
+    final newTraceParent = jni.Sentry.traceparent?.value.toDartString();
+    final newTraceHeader = newTraceParent!.toString();
 
-      final newNativeTraceId = newTraceHeader.split('-').first;
-      expect(
-        newNativeTraceId,
-        newDartTraceId,
-        reason:
-            'Native traceId should match new Dart traceId after generateNewTrace',
-      );
-    },
-    skip: !Platform.isAndroid,
-  );
+    final newNativeTraceId = newTraceHeader.split('-').first;
+    expect(
+      newNativeTraceId,
+      newDartTraceId,
+      reason:
+          'Native traceId should match new Dart traceId after generateNewTrace',
+    );
+  }, skip: !Platform.isAndroid);
 
   group('e2e', () {
     var output = find.byKey(const Key('output'));
