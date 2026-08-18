@@ -909,7 +909,7 @@ void main() {
         );
       });
 
-      test('removes all callbacks when all features enabled', () async {
+      test('removes all callbacks when trace lifecycle is streaming', () async {
         fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();
