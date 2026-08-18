@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduler.dart';
@@ -93,6 +94,70 @@ void main() {
     guard.complete();
     await stopFuture;
     expect(stopped, isTrue);
+  });
+
+  test('stop() times out and returns if the callback never completes', () {
+    fakeAsync((async) {
+      final guard = Completer<void>();
+      final fixture = _Fixture((_) => guard.future);
+
+      late FrameCallback callback;
+      fixture.registeredCallback.future.then((cb) => callback = cb);
+      fixture.sut.start();
+      async.flushMicrotasks();
+      callback(Duration.zero);
+
+      var stopped = false;
+      unawaited(fixture.sut.stop().then((_) {
+        stopped = true;
+      }));
+      async.elapse(const Duration(milliseconds: 1));
+
+      async.elapse(const Duration(milliseconds: 1999));
+      expect(stopped, isFalse,
+          reason: 'stop() must wait for the in-flight callback up to the '
+              'timeout');
+
+      async.elapse(const Duration(milliseconds: 1));
+      expect(stopped, isTrue);
+    });
+  });
+
+  test(
+      'start() resumes capturing after stop() times out on a stalled '
+      'callback', () {
+    fakeAsync((async) {
+      final guard = Completer<void>();
+      final fixture = _Fixture((_) => guard.future);
+
+      late FrameCallback callback;
+      fixture.registeredCallback.future.then((cb) => callback = cb);
+      fixture.sut.start();
+      async.flushMicrotasks();
+      callback(Duration.zero);
+      expect(fixture.calls, 1);
+
+      var stopped = false;
+      unawaited(fixture.sut.stop().then((_) {
+        stopped = true;
+      }));
+      // +1ms for the pending scheduling timer, +2s for the stop() timeout,
+      // which only starts counting once that first await resolves.
+      async.elapse(const Duration(seconds: 2, milliseconds: 1));
+      expect(stopped, isTrue);
+
+      // The stalled callback's future from before the timeout never
+      // completes. If stop() left a reference to it behind, start() would
+      // wait on it forever instead of registering a new frame callback.
+      fixture.registeredCallback = Completer<FrameCallback>();
+      late FrameCallback secondCallback;
+      fixture.registeredCallback.future.then((cb) => secondCallback = cb);
+      fixture.sut.start();
+      async.flushMicrotasks();
+
+      secondCallback(const Duration(milliseconds: 1));
+      expect(fixture.calls, 2);
+    });
   });
 }
 
