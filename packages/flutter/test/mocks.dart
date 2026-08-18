@@ -226,6 +226,25 @@ class MockLogger {
   }
 
   void clear() => items.clear();
+
+  /// Routes [SentryInternalLogger] output into this logger so tests can assert
+  /// on what the SDK logged.
+  void captureInternalLogs() {
+    // ignore: invalid_use_of_internal_member
+    SentryInternalLogger.configure(
+      isEnabled: true,
+      minLevel: SentryLevel.debug,
+      logOutput: ({
+        required String name,
+        required SentryLevel level,
+        required String message,
+        Object? error,
+        StackTrace? stackTrace,
+      }) =>
+          call(level, message,
+              logger: name, exception: error, stackTrace: stackTrace),
+    );
+  }
 }
 
 class MockLogItem {
