@@ -52,18 +52,14 @@ void main() async {
         expect(sut.shouldMask(element, element.widget), value);
       });
 
-      testWidgets(
-        'will not mask widget of a different type',
-        (tester) async {
-          final rootElement = await pumpTestElement(tester);
-          final element = rootElement.findFirstOfType<Text>();
-          expect(
-            sut.shouldMask(element, element.widget),
-            SentryMaskingDecision.continueProcessing,
-          );
-        },
-        skip: value == SentryMaskingDecision.unmask,
-      );
+      testWidgets('will not mask widget of a different type', (tester) async {
+        final rootElement = await pumpTestElement(tester);
+        final element = rootElement.findFirstOfType<Text>();
+        expect(
+          sut.shouldMask(element, element.widget),
+          SentryMaskingDecision.continueProcessing,
+        );
+      }, skip: value == SentryMaskingDecision.unmask);
     });
   }
 
