@@ -19,7 +19,15 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+
+def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+// android.builtInKotlin lets a project opt out of AGP 9's built-in Kotlin and fall back to the
+// standalone plugin, so it must be honored in addition to the AGP version.
+def builtInKotlin = agpMajor >= 9 && project.findProperty('android.builtInKotlin') != 'false'
+
+if (!builtInKotlin) {
+    apply plugin: 'kotlin-android'
+}
 
 android {
     compileSdkVersion 36
@@ -56,8 +64,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+}
+
+// compilerOptions needs KGP 2.0 / 1.9+. Flutter 3.24-era apps (and this
+// repo's min_version_test) still ship KGP 1.8.x, which only has kotlinOptions.
+def kotlinExt = project.extensions.findByName('kotlin')
+if (kotlinExt?.hasProperty('compilerOptions')) {
+    kotlin {
+        compilerOptions {
+            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+        }
+    }
+} else {
+    android.kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
 }
 
