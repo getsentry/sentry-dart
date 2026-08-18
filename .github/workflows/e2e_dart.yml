@@ -23,6 +23,9 @@ env:
 jobs:
   build:
     name: E2E
+    # Fork PRs do not receive secrets. Skip the live sentry.io round-trip
+    # instead of failing. First-party CI still runs and must have the token.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: 'ubuntu-latest'
     timeout-minutes: 30
     defaults:
@@ -33,12 +36,18 @@ jobs:
       matrix:
         sdk: [stable, beta]
     steps:
+      - name: Require E2E auth token
+        working-directory: ${{ github.workspace }}
+        run: |
+          if [ -z "$SENTRY_AUTH_TOKEN_E2E" ]; then
+            echo "::error::SENTRY_AUTH_TOKEN_E2E is required for first-party CI"
+            exit 1
+          fi
       - uses: dart-lang/setup-dart@7654d458321ee25acccccfdb86cd48bd95768ff1 # pin@v1.8.0
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Run
-        if: env.SENTRY_AUTH_TOKEN != null
         run: |
           dart pub get
           dart run --define=SENTRY_ENVIRONMENT=e2e
