@@ -41,39 +41,34 @@ class EnricherIntegration implements Integration<SentryOptions> {
     _options = options;
     options.addEventProcessor(_enricher);
 
-    if (options.enableLogs) {
-      _logCallback = (event) async {
-        try {
-          final contexts = await _provider.buildContexts();
-          event.log.attributes.addAllIfAbsent(contexts.toMinimalAttributes());
-        } catch (exception, stackTrace) {
-          internalLogger.error(
-            'EnricherIntegration failed to build contexts for $OnProcessLog',
-            error: exception,
-            stackTrace: stackTrace,
-          );
-        }
-      };
-      options.lifecycleRegistry.registerCallback<OnProcessLog>(_logCallback!);
-    }
+    _logCallback = (event) async {
+      try {
+        final contexts = await _provider.buildContexts();
+        event.log.attributes.addAllIfAbsent(contexts.toMinimalAttributes());
+      } catch (exception, stackTrace) {
+        internalLogger.error(
+          'EnricherIntegration failed to build contexts for $OnProcessLog',
+          error: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    };
+    options.lifecycleRegistry.registerCallback<OnProcessLog>(_logCallback!);
 
-    if (options.enableMetrics) {
-      _metricCallback = (event) async {
-        try {
-          final contexts = await _provider.buildContexts();
-          event.metric.attributes
-              .addAllIfAbsent(contexts.toMinimalAttributes());
-        } catch (exception, stackTrace) {
-          internalLogger.error(
-            'EnricherIntegration failed to build contexts for $OnProcessMetric',
-            error: exception,
-            stackTrace: stackTrace,
-          );
-        }
-      };
-      options.lifecycleRegistry
-          .registerCallback<OnProcessMetric>(_metricCallback!);
-    }
+    _metricCallback = (event) async {
+      try {
+        final contexts = await _provider.buildContexts();
+        event.metric.attributes.addAllIfAbsent(contexts.toMinimalAttributes());
+      } catch (exception, stackTrace) {
+        internalLogger.error(
+          'EnricherIntegration failed to build contexts for $OnProcessMetric',
+          error: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    };
+    options.lifecycleRegistry
+        .registerCallback<OnProcessMetric>(_metricCallback!);
 
     if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       _spanCallback = (event) async {
