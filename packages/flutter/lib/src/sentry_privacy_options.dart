@@ -83,6 +83,14 @@ class SentryPrivacyOptions {
       );
     }
 
+    rules.add(
+      const SentryMaskingCustomRule<SensitiveContent>(
+        callback: _maskSensitiveContent,
+        name: 'SensitiveContent',
+        description: 'Mask SensitiveContent widget.',
+      ),
+    );
+
     // In Debug mode, check if users explicitly mask (or unmask) widgets that
     // look like they should be masked, e.g. Videos, WebViews, etc.
     if (runtimeChecker.isDebugMode()) {
@@ -199,4 +207,21 @@ SentryMaskingDecision _maskImagesExceptAssets(Element element, Image widget) {
     }
   }
   return SentryMaskingDecision.mask;
+}
+
+SentryMaskingDecision _maskSensitiveContent(
+  Element element,
+  SensitiveContent widget,
+) {
+  switch (widget.sensitivity) {
+    case ContentSensitivity.sensitive:
+    case ContentSensitivity.autoSensitive:
+      return SentryMaskingDecision.mask;
+    case ContentSensitivity.notSensitive:
+      return SentryMaskingDecision.continueProcessing;
+    // ContentSensitivity also has a private `_unknown` for future native
+    // modes Flutter does not recognize yet. Mask those.
+    default:
+      return SentryMaskingDecision.mask;
+  }
 }
