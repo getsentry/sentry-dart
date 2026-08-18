@@ -4,12 +4,12 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../sentry_asset_bundle.dart';
+import '../utils/internal_logger.dart';
 import 'masking_config.dart';
 
 @internal
 class WidgetFilter {
   final items = <WidgetFilterItem>[];
-  final SdkLogCallback logger;
   final SentryMaskingConfig config;
   late WidgetFilterColorScheme _scheme;
   late RenderObject _root;
@@ -21,7 +21,7 @@ class WidgetFilter {
   @visibleForTesting
   bool throwInObscure = false;
 
-  WidgetFilter(this.config, this.logger);
+  WidgetFilter(this.config);
 
   void obscure({
     required RenderRepaintBoundary root,
@@ -61,7 +61,7 @@ class WidgetFilter {
 
     if (!_isVisible(widget)) {
       assert(() {
-        logger(SentryLevel.debug, "WidgetFilter skipping invisible: $widget");
+        internalLogger.debug("WidgetFilter skipping invisible: $widget");
         return true;
       }());
       return;
@@ -76,7 +76,10 @@ class WidgetFilter {
         }
         break;
       case SentryMaskingDecision.unmask:
-        logger(SentryLevel.debug, "WidgetFilter unmasked: $widget");
+        assert(() {
+          internalLogger.debug("WidgetFilter unmasked: $widget");
+          return true;
+        }());
         break;
       case SentryMaskingDecision.continueProcessing:
         // If this element should not be obscured, visit and check its children.
@@ -97,8 +100,7 @@ class WidgetFilter {
         final parent = element.parent;
         if (!_warnedWidgets.contains(widget.hashCode)) {
           _warnedWidgets.add(widget.hashCode);
-          logger(
-              SentryLevel.warning,
+          internalLogger.warning(
               'WidgetFilter cannot mask widget $widget: $e.'
               'Obscuring the parent instead: ${parent?.widget}.',
               stackTrace: stackTrace);
@@ -136,14 +138,14 @@ class WidgetFilter {
 
     if (!rect.overlaps(_bounds)) {
       assert(() {
-        logger(SentryLevel.debug, "WidgetFilter skipping offscreen: $widget");
+        internalLogger.debug("WidgetFilter skipping offscreen: $widget");
         return true;
       }());
       return null;
     }
 
     assert(() {
-      logger(SentryLevel.debug, "WidgetFilter masking: $widget");
+      internalLogger.debug("WidgetFilter masking: $widget");
       return true;
     }());
 
