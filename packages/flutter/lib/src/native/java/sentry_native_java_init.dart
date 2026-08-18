@@ -236,6 +236,11 @@ void configureAndroidOptions({
         .setConnectionTimeoutMillis(options.connectionTimeout.inMilliseconds);
     androidOptions.setReadTimeoutMillis(options.readTimeout.inMilliseconds);
 
+    final logs = androidOptions.getLogs()..releasedBy(arena);
+    logs.setEnabled(true);
+    final metrics = androidOptions.getMetrics()..releasedBy(arena);
+    metrics.setEnabled(true);
+
     final sentryProxy = native.SentryOptions$Proxy()..releasedBy(arena);
     sentryProxy.setHost(options.proxy?.host?.toJString()?..releasedBy(arena));
     sentryProxy.setPort(
@@ -298,6 +303,26 @@ void configureAndroidOptions({
         options.replay.sessionSampleRate?.toJDouble()?..releasedBy(arena));
     sessionReplay.setOnErrorSampleRate(
         options.replay.onErrorSampleRate?.toJDouble()?..releasedBy(arena));
+
+    if (options.replay.networkDetailAllowUrls.isNotEmpty) {
+      sessionReplay.setNetworkDetailAllowUrls(
+          dartToJStringList(options.replay.networkDetailAllowUrls)
+            ..releasedBy(arena));
+      sessionReplay.setNetworkDetailDenyUrls(
+          dartToJStringList(options.replay.networkDetailDenyUrls)
+            ..releasedBy(arena));
+      // Custom header names and bodies may contain PII, so they mirror the
+      // sendDefaultPii gate used on the Dart side.
+      final extraHeaders = options.sendDefaultPii;
+      sessionReplay.setNetworkRequestHeaders(dartToJStringList(
+          extraHeaders ? options.replay.networkRequestHeaders : const [])
+        ..releasedBy(arena));
+      sessionReplay.setNetworkResponseHeaders(dartToJStringList(
+          extraHeaders ? options.replay.networkResponseHeaders : const [])
+        ..releasedBy(arena));
+      sessionReplay.setNetworkCaptureBodies(
+          options.replay.networkCaptureBodies && options.sendDefaultPii);
+    }
 
     sessionReplay.setTrackConfiguration(false);
     beforeSendReplay.use((cb) {

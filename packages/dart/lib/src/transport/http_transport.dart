@@ -64,9 +64,14 @@ class HttpTransport implements Transport {
     if (response.statusCode == 200) {
       return _parseEventId(response);
     }
+    if (response.statusCode == 413) {
+      internalLogger
+          .error('Envelope discarded because it exceeded Sentry\'s maximum '
+              'envelope size limit (HTTP 413 Content Too Large)');
+    }
     if (response.statusCode >= 400 && response.statusCode != 429) {
       TransportUtils.recordLostEvents(
-          _options, envelope, DiscardReason.networkError);
+          _options, envelope, DiscardReason.sendError);
     }
     if (response.statusCode == 429) {
       internalLogger.warning('Rate limit reached, failed to send envelope');

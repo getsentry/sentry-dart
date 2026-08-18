@@ -8,6 +8,7 @@ import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
 import 'diagnostic_log.dart';
 import 'environment/environment_variables.dart';
+import 'http_client/network_details_capture.dart';
 import 'noop_client.dart';
 import 'platform/platform.dart';
 import 'sentry_exception_factory.dart';
@@ -480,6 +481,15 @@ class SentryOptions {
   /// array, and only attach tracing headers if a match was found.
   final List<String> tracePropagationTargets = ['.*'];
 
+  /// Captures HTTP request/response details for [SentryHttpClient] requests,
+  /// to be shown alongside network spans in Session Replay.
+  ///
+  /// Replay is currently only implemented by `sentry_flutter`, which sets
+  /// this during its own init; `null` otherwise, meaning nothing is
+  /// captured.
+  @internal
+  NetworkDetailsCapture? networkDetailsCapture;
+
   /// This option is used to enable the propagation of the
   /// W3C Trace Context HTTP header traceparent on outgoing HTTP requests.
   /// This is useful when the receiving services only support OTel/W3C propagation
@@ -583,16 +593,6 @@ class SentryOptions {
   ///
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
-
-  /// Enable to capture and send logs to Sentry.
-  ///
-  /// Disabled by default.
-  bool enableLogs = false;
-
-  /// Enable to capture and send metrics to Sentry.
-  ///
-  /// Enabled by default.
-  bool enableMetrics = true;
 
   /// Enables adding the module in [SentryStackFrame.module].
   /// This option only has an effect in non-obfuscated builds.

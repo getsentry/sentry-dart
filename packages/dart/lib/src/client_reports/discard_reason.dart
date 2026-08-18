@@ -14,4 +14,5 @@ enum DiscardReason {
   rateLimitBackoff,
   internalSdkError,
   ignored,
+  sendError,
 }

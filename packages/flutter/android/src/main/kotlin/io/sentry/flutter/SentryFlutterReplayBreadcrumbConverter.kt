@@ -86,16 +86,25 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
       return null
     }
 
+    val eventData =
+      breadcrumb.data
+        .filterKeys { key -> supportedNetworkData.containsKey(key) }
+        .mapKeys { (key, _) -> supportedNetworkData[key] }
+        .toMutableMap()
+
+    // Populated by NetworkDetailsCapture on the Dart side when
+    // networkDetailAllowUrls matches; forwarded as-is since it's already
+    // shaped for the replay player (headers/body per request/response).
+    (breadcrumb.data["request"] as? Map<*, *>)?.let { eventData["request"] = it }
+    (breadcrumb.data["response"] as? Map<*, *>)?.let { eventData["response"] = it }
+
     return RRWebSpanEvent().apply {
       op = "resource.http"
       timestamp = breadcrumb.timestamp.time
       description = url
       startTimestamp = doubleTimestamp(startTimestampMs.toLong())
       endTimestamp = doubleTimestamp(endTimestampMs.toLong())
-      data =
-        breadcrumb.data
-          .filterKeys { key -> supportedNetworkData.containsKey(key) }
-          .mapKeys { (key, _) -> supportedNetworkData[key] }
+      data = eventData
     }
   }
 

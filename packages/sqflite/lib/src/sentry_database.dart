@@ -68,12 +68,11 @@ class SentryDatabase extends SentryDatabaseExecutor
   /// ```
   SentryDatabase(
     this._database, {
-    @internal Hub? hub,
+    @internal super.hub,
   })  : _hub = hub ?? HubAdapter(),
         dbName = p.basenameWithoutExtension(_database.path),
         super(
           _database,
-          hub: hub,
           dbName: p.basenameWithoutExtension(_database.path),
         ) {
     // ignore: invalid_use_of_internal_member

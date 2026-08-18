@@ -35,7 +35,7 @@ GEM
     colored2 (3.1.2)
     commander (4.6.0)
       highline (~> 2.0.0)
-    csv (3.3.5)
+    csv (3.3.6)
     declarative (0.0.20)
     digest-crc (0.7.0)
       rake (>= 12.0.0, < 14.0.0)
@@ -173,7 +173,7 @@ GEM
     httpclient (2.9.0)
       mutex_m
     jmespath (1.6.2)
-    json (2.20.0)
+    json (2.21.2)
     jwt (3.2.0)
       base64
     logger (1.7.0)

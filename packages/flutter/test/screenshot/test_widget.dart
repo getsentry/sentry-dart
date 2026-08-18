@@ -72,6 +72,21 @@ Future<Element> pumpTestElement(WidgetTester tester,
   return find.byType(SentryScreenshotWidget).evaluate().first;
 }
 
+/// Zero-sized variant of [pumpTestElement], a state real apps hit transiently
+/// (e.g. while being resized).
+Future<Element> pumpZeroSizedTestElement(WidgetTester tester) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      home: Center(
+        child: SizedBox.shrink(
+          child: SentryWidget(child: const Text('Centered text')),
+        ),
+      ),
+    ),
+  );
+  return find.byType(SentryScreenshotWidget).evaluate().first;
+}
+
 final testImageData = Uint8List.fromList([
   66, 77, 142, 0, 0, 0, 0, 0, 0, 0, 138, 0, 0, 0, 124, 0, 0, 0, 1, 0,
   0, 0, 255, 255, 255, 255, 1, 0, 32, 0, 3, 0, 0, 0, 4, 0, 0, 0, 19,
