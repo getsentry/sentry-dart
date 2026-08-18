@@ -197,10 +197,9 @@ class _Capture<R> {
   ) {
     final timestamp = DateTime.now();
 
-    // The task below is scheduled asynchronously, and an error delivered to a
-    // future that nobody listens to yet goes straight to the Zone's uncaught
-    // error handler, where the SDK reports it as a fatal, unhandled event.
-    // Turning the error into a value keeps it observed until the task runs.
+    // Don't collapse this to `await futureImage` in the task: an error with
+    // no listener the moment the future completes is already an uncaught zone
+    // error, which the SDK reports as fatal — awaiting later can't retract it.
     final imageOrError = futureImage.then<Object>((image) => image,
         onError: (Object error, StackTrace stackTrace) =>
             AsyncError(error, stackTrace));
