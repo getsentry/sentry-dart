@@ -36,8 +36,10 @@ jobs:
 
       # Fork PRs do not receive secrets; the e2e test skips when the token is
       # empty. First-party CI must still fail if the secret is missing.
+      # Allowlist push / same-repo pull_request so other events (e.g.
+      # pull_request_target) cannot be treated as first-party.
       - name: Require E2E auth token on first-party CI
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         working-directory: ${{ github.workspace }}
         run: |
           if [ -z "$SENTRY_AUTH_TOKEN_E2E" ]; then
@@ -108,8 +110,10 @@ jobs:
 
       # Fork PRs do not receive secrets; the e2e test skips when the token is
       # empty. First-party CI must still fail if the secret is missing.
+      # Allowlist push / same-repo pull_request so other events (e.g.
+      # pull_request_target) cannot be treated as first-party.
       - name: Require E2E auth token on first-party CI
-        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         working-directory: ${{ github.workspace }}
         run: |
           if [ -z "$SENTRY_AUTH_TOKEN_E2E" ]; then

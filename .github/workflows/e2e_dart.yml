@@ -25,7 +25,9 @@ jobs:
     name: E2E
     # Fork PRs do not receive secrets. Skip the live sentry.io round-trip
     # instead of failing. First-party CI still runs and must have the token.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    # Allowlist push / same-repo pull_request so other events (e.g.
+    # pull_request_target) cannot be treated as first-party.
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: 'ubuntu-latest'
     timeout-minutes: 30
     defaults:
