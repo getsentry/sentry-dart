@@ -236,6 +236,11 @@ void configureAndroidOptions({
         .setConnectionTimeoutMillis(options.connectionTimeout.inMilliseconds);
     androidOptions.setReadTimeoutMillis(options.readTimeout.inMilliseconds);
 
+    final logs = androidOptions.getLogs()..releasedBy(arena);
+    logs.setEnabled(true);
+    final metrics = androidOptions.getMetrics()..releasedBy(arena);
+    metrics.setEnabled(true);
+
     final sentryProxy = native.SentryOptions$Proxy()..releasedBy(arena);
     sentryProxy.setHost(options.proxy?.host?.toJString()?..releasedBy(arena));
     sentryProxy.setPort(
