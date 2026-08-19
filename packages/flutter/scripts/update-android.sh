@@ -38,6 +38,9 @@ set-version)
 
     # Regenerate Dart JNI bindings so they stay in sync with the updated Android SDK version
     ../scripts/generate-jni-bindings.sh "$new_version"
+
+    # Regenerate proguard rules so they stay in sync with the JNI class list
+    ../scripts/generate-sentry-java-proguard.sh
     ;;
 *)
     echo "Unknown argument $1"
