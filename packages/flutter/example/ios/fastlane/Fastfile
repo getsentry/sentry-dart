@@ -20,8 +20,17 @@ platform :ios do
       version_number: new_version,
       xcodeproj: "./Runner.xcodeproj"
     )
+
+    # latest_testflight_build_number + 1 races when two CI jobs overlap: both
+    # read the same latest, both upload N+1, and Apple rejects the second as a
+    # redundant binary. Prefer a unique CI-derived number (run_number * 100 +
+    # attempt) and only use TestFlight as a floor so we never go backwards.
+    ci_build = ENV.fetch("FASTLANE_BUNDLE_VERSION", "0").to_i
+    tf_build = latest_testflight_build_number
+    build_number = [ci_build, tf_build + 1].max
+    UI.message("Using build number #{build_number} (CI=#{ci_build}, TestFlight=#{tf_build})")
     increment_build_number(
-      build_number: latest_testflight_build_number + 1,
+      build_number: build_number,
       xcodeproj: "./Runner.xcodeproj"
     )
   end
