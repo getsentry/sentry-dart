@@ -147,8 +147,7 @@ void main() async {
 
   group('$SentryReplayOptions.buildMaskingConfig()', () {
     List<String> rulesAsStrings(SentryPrivacyOptions options) {
-      final config =
-          options.buildMaskingConfig(MockLogger().call, RuntimeChecker());
+      final config = options.buildMaskingConfig(RuntimeChecker());
       return config.rules
           .map((rule) => rule.toString())
           // These normalize the string on VM & js & wasm:
@@ -300,14 +299,22 @@ void main() async {
   });
 
   testWidgets('ignores InheritedWidget and does not log', (tester) async {
-    final logger = MockLogger();
+    final logger = MockLogger()..captureInternalLogs();
     final options = SentryPrivacyOptions();
-    final config =
-        options.buildMaskingConfig(logger.call, MockRuntimeChecker());
+    final config = options.buildMaskingConfig(MockRuntimeChecker());
 
     final rootElement = await pumpTestElement(tester, children: const [
       _PasswordInherited(child: Text('child')),
+      _PasswordWidget(),
     ]);
+
+    // A non-inherited widget matching the same rule does warn. Without this,
+    // the assertion below would also hold if no logs were captured at all.
+    final control = rootElement.findFirstOfType<_PasswordWidget>();
+    config.shouldMask(control, control.widget);
+    expect(
+        logger.items.where((i) => i.level == SentryLevel.warning), isNotEmpty);
+    logger.clear();
 
     final element = rootElement.findFirstOfType<_PasswordInherited>();
     expect(config.shouldMask(element, element.widget),
@@ -346,6 +353,13 @@ extension on Element {
     visitChildren((visitor));
     return result;
   }
+}
+
+class _PasswordWidget extends StatelessWidget {
+  const _PasswordWidget();
+
+  @override
+  Widget build(BuildContext context) => const Text('control');
 }
 
 class _PasswordInherited extends InheritedWidget {

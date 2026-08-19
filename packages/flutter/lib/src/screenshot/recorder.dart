@@ -7,10 +7,10 @@ import 'package:flutter/material.dart' as material;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
 import '../sentry_privacy_options.dart';
+import '../utils/internal_logger.dart';
 import 'masking_config.dart';
 import 'recorder_config.dart';
 import 'screenshot.dart';
@@ -35,19 +35,13 @@ class ScreenshotRecorder {
     privacyOptions ??= options.privacy;
 
     final maskingConfig =
-        privacyOptions.buildMaskingConfig(_log, options.runtimeChecker);
+        privacyOptions.buildMaskingConfig(options.runtimeChecker);
     _maskingConfig = maskingConfig.length > 0 ? maskingConfig : null;
   }
 
-  void _log(SentryLevel level, String message,
-      {String? logger, Object? exception, StackTrace? stackTrace}) {
-    options.log(level, '$logName: $message',
-        logger: logger, exception: exception, stackTrace: stackTrace);
-  }
-
   void _logError(Object? e, StackTrace stackTrace) =>
-      _log(SentryLevel.error, 'failed to capture screenshot.',
-          exception: e, stackTrace: stackTrace);
+      internalLogger.error('$logName: failed to capture screenshot.',
+          error: e, stackTrace: stackTrace);
 
   /// We must capture a screenshot AND execute the widget filter on the main UI
   /// loop, with no async operations in between, otherwise masks coordinates
@@ -64,16 +58,26 @@ class ScreenshotRecorder {
           context?.findRenderObject() as RenderRepaintBoundary?;
       if (context == null || renderObject == null) {
         if (!_warningLogged) {
-          _log(SentryLevel.warning,
-              "SentryScreenshotWidget is not attached, skipping capture.");
+          internalLogger
+              .warning('$logName: SentryScreenshotWidget is not attached, '
+                  'skipping capture.');
           _warningLogged = true;
         }
         return Future.value(null);
       }
 
       if (config == null) {
-        _log(SentryLevel.warning,
-            "Capture config is not set, skipping capture.");
+        internalLogger
+            .warning('$logName: Capture config is not set, skipping capture.');
+        return Future.value(null);
+      }
+
+      // A boundary can transiently have no size on real devices, e.g. while
+      // the app is being resized. Rendering it fails on invalid dimensions.
+      if (renderObject.size.isEmpty) {
+        internalLogger.debug(
+            () => '$logName: Boundary has no size (${renderObject.size}), '
+                'skipping capture.');
         return Future.value(null);
       }
 
@@ -81,7 +85,7 @@ class ScreenshotRecorder {
 
       Timeline.startSync('Sentry::captureScreenshot:RenderObjectToImage',
           flow: flow);
-      final futureImage = renderObject.toImage(pixelRatio: capture.pixelRatio);
+      final futureImage = renderImage(renderObject, capture.pixelRatio);
       Timeline.finishSync(); // Sentry::captureScreenshot:RenderObjectToImage
 
       Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
@@ -118,9 +122,14 @@ class ScreenshotRecorder {
     return Future.sync(task);
   }
 
+  @protected
+  Future<Image> renderImage(
+          RenderRepaintBoundary renderObject, double pixelRatio) =>
+      renderObject.toImage(pixelRatio: pixelRatio);
+
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
-      final filter = WidgetFilter(_maskingConfig, options.log);
+      final filter = WidgetFilter(_maskingConfig);
       final colorScheme = capture.context.findColorScheme();
       filter.obscure(
         root: capture.root,
@@ -187,11 +196,24 @@ class _Capture<R> {
     Flow flow,
   ) {
     final timestamp = DateTime.now();
+
+    // Don't collapse this to `await futureImage` in the task: an error with
+    // no listener the moment the future completes is already an uncaught zone
+    // error, which the SDK reports as fatal — awaiting later can't retract it.
+    final imageOrError = futureImage.then<Object>((image) => image,
+        onError: (Object error, StackTrace stackTrace) =>
+            AsyncError(error, stackTrace));
+
     return () async {
+      final imageResult = await imageOrError;
+      if (imageResult is AsyncError) {
+        Error.throwWithStackTrace(imageResult.error, imageResult.stackTrace);
+      }
+      final image = imageResult as Image;
+
       Timeline.startSync('Sentry::renderScreenshot', flow: flow);
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);
-      final image = await futureImage;
 
       // Note: there's a weird bug when we write image to canvas directly.
       // If the UI is updating quickly in some apps, the image could get
