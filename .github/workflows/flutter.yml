@@ -215,6 +215,25 @@ jobs:
           reporter: github-pr-review
           android: true
           fail_on_error: true
+
+  proguard-rules-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: packages/flutter
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Regenerate proguard rules from ffi-jni.yaml
+        run: ./scripts/generate-sentry-java-proguard.sh
+
+      - name: Fail if proguard rules are out of sync with ffi-jni.yaml
+        run: |
+          if ! git diff --exit-code -- android/proguard-rules.pro; then
+            echo "::error::android/proguard-rules.pro is out of sync with ffi-jni.yaml. Run packages/flutter/scripts/generate-sentry-java-proguard.sh and commit the result."
+            exit 1
+          fi
 # TODO: disabled until the following is fixed https://github.com/natiginfo/action-detekt-all/issues/73
 #  detekt:
 #    runs-on: ubuntu-latest
