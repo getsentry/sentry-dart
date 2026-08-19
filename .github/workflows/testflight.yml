@@ -11,11 +11,11 @@ on:
 
 # One group for the whole workflow: every run uploads the same TestFlight app.
 # Do not use `head_ref || run_id` like the test workflows — on push, head_ref is
-# empty and run_id is unique, so main uploads would still overlap. Keep the
-# in-flight Apple upload running instead of cancelling it.
+# empty and run_id is unique, so main uploads would still overlap. Cancel the
+# stale run so TestFlight tracks the latest commit.
 concurrency:
   group: ${{ github.workflow }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   upload_to_testflight:
