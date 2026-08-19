@@ -1,6 +1,8 @@
 # Keep classes and their nested classes accessed via JNI from the `package:jni`-generated
-# bindings in lib/src/native/java/binding.dart. This list mirrors the `classes:` entries in
-# ffi-jni.yaml -- keep the two in sync when that binding surface changes.
+# bindings in lib/src/native/java/binding.dart. This block is generated from the `classes:`
+# entries in ffi-jni.yaml by scripts/generate-sentry-java-proguard.sh -- do not hand-edit
+# the block below, run the script again after changing ffi-jni.yaml instead.
+# AUTO-GENERATED-START
 -keep,includedescriptorclasses class io.sentry.android.core.SentryAndroid { *; }
 -keep,includedescriptorclasses class io.sentry.android.core.SentryAndroid$* { *; }
 -keep,includedescriptorclasses class io.sentry.android.core.SentryAndroidOptions { *; }
@@ -57,6 +59,7 @@
 -keep,includedescriptorclasses class io.sentry.rrweb.RRWebEvent$* { *; }
 -keep,includedescriptorclasses class io.sentry.SentryTraceHeader { *; }
 -keep,includedescriptorclasses class io.sentry.SentryTraceHeader$* { *; }
+# AUTO-GENERATED-END
 
 # NDK-layer native method signatures and other JNI/reflection needs of the underlying Java SDK
 # are already covered by the consumer proguard rules bundled in the sentry-android-core and
