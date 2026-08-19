@@ -9,9 +9,6 @@ on:
       - '.github/workflows/testflight.yml'
   workflow_dispatch:
 
-# Same shape as other workflows (workflow + branch), but fall back to github.ref
-# instead of run_id. On push, head_ref is empty and run_id is unique, so that
-# fallback would not cancel overlapping main uploads of the same TestFlight app.
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
