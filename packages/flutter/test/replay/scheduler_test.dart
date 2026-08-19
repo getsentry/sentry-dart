@@ -159,10 +159,50 @@ void main() {
       expect(fixture.calls, 2);
     });
   });
+
+  test(
+      'a stalled callback that completes after stop() times out does not '
+      'schedule an extra frame callback on restart', () {
+    fakeAsync((async) {
+      final guard = Completer<void>();
+      final fixture = _Fixture((_) => guard.future);
+
+      late FrameCallback callback;
+      fixture.registeredCallback.future.then((cb) => callback = cb);
+      fixture.sut.start();
+      async.flushMicrotasks();
+      callback(Duration.zero);
+      expect(fixture.postFrameCallbackRegistrations, 1);
+
+      // Let the scheduling timer elapse so _runAfterNextFrame() attaches its
+      // whenComplete() listener to the still-stalled callback future.
+      async.elapse(const Duration(milliseconds: 1));
+
+      unawaited(fixture.sut.stop());
+      async.elapse(const Duration(seconds: 2, milliseconds: 1));
+
+      // Restart before the stalled future ever resolves.
+      fixture.registeredCallback = Completer<FrameCallback>();
+      fixture.sut.start();
+      async.flushMicrotasks();
+      expect(fixture.postFrameCallbackRegistrations, 2,
+          reason: 'start() must register exactly one new frame callback');
+
+      // The old, abandoned callback finally completes. Its stale listener
+      // must not register a second, unwanted frame callback on top of the
+      // one start() just registered.
+      guard.complete();
+      async.flushMicrotasks();
+      expect(fixture.postFrameCallbackRegistrations, 2,
+          reason: 'a stale callback future must not re-trigger scheduling '
+              'after stop() has moved on');
+    });
+  });
 }
 
 class _Fixture {
   var calls = 0;
+  var postFrameCallbackRegistrations = 0;
   late final Scheduler sut;
   var registeredCallback = Completer<FrameCallback>();
   var _frames = 0;
@@ -180,6 +220,7 @@ class _Fixture {
 
   void _addPostFrameCallbackMock(FrameCallback callback,
       {String debugLabel = 'callback'}) {
+    postFrameCallbackRegistrations++;
     if (!registeredCallback.isCompleted) {
       registeredCallback.complete(callback);
     }
