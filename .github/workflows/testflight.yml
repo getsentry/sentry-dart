@@ -9,12 +9,11 @@ on:
       - '.github/workflows/testflight.yml'
   workflow_dispatch:
 
-# One group for the whole workflow: every run uploads the same TestFlight app.
-# Do not use `head_ref || run_id` like the test workflows — on push, head_ref is
-# empty and run_id is unique, so main uploads would still overlap. Cancel the
-# stale run so TestFlight tracks the latest commit.
+# Same shape as other workflows (workflow + branch), but fall back to github.ref
+# instead of run_id. On push, head_ref is empty and run_id is unique, so that
+# fallback would not cancel overlapping main uploads of the same TestFlight app.
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
