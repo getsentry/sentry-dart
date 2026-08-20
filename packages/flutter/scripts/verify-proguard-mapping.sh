@@ -5,8 +5,11 @@ set -euo pipefail
 # rather than just checking that proguard-rules.pro is textually in sync (see
 # generate-sentry-java-proguard.sh --check). Builds the example app in release
 # mode (minifyEnabled) and checks the resulting R8 mapping.txt: every
-# io.sentry.* class listed in ffi-jni.yaml must map to itself, i.e. R8 did not
-# rename or strip it.
+# io.sentry.* class listed in ffi-jni.yaml, and every nested class of it
+# (Outer$Inner), must map to itself, i.e. R8 did not rename or strip it. The
+# nested-class check exists because the outer-class check alone wouldn't
+# catch a regression that drops the `$*` keep rule -- nested classes rename
+# independently of their enclosing class.
 #
 # Usage:
 #   scripts/verify-proguard-mapping.sh
@@ -44,6 +47,7 @@ if [[ ! -f "$mapping_file" ]]; then
 fi
 
 failures=()
+nested_failures=()
 while IFS= read -r class; do
     [[ -z "$class" ]] && continue
     # A class-level mapping.txt entry looks like "original.Name -> obfuscated:".
@@ -51,17 +55,42 @@ while IFS= read -r class; do
     if ! grep -qxF "$class -> $class:" "$mapping_file"; then
         failures+=("$class")
     fi
+
+    # Nested classes (Outer$Inner) get their own class-level entry and are
+    # not covered by the check above, so verify them independently. Skip
+    # classes with a "$$" component (e.g. Outer$$ExternalSyntheticLambda0):
+    # those are R8/D8-synthesized lambda/bridge helpers, not classes jnigen
+    # binds to, and R8 legitimately renames them regardless of keep rules.
+    escaped_class="${class//./\\.}"
+    while IFS= read -r nested_line; do
+        [[ -z "$nested_line" ]] && continue
+        original="${nested_line%% -> *}"
+        [[ "$original" == *'$$'* ]] && continue
+        obfuscated="${nested_line#* -> }"
+        obfuscated="${obfuscated%:}"
+        if [[ "$original" != "$obfuscated" ]]; then
+            nested_failures+=("$nested_line")
+        fi
+    done < <(grep -E "^${escaped_class}\\\$" "$mapping_file" || true)
 done <<<"$classes"
 
-if [[ ${#failures[@]} -gt 0 ]]; then
-    echo "error: the following io.sentry.* classes were renamed or stripped by R8:" >&2
-    for class in "${failures[@]}"; do
-        echo "  - $class" >&2
-        grep -F "$class" "$mapping_file" >&2 || echo "    (not present in $mapping_file at all)" >&2
-    done
+if [[ ${#failures[@]} -gt 0 || ${#nested_failures[@]} -gt 0 ]]; then
+    if [[ ${#failures[@]} -gt 0 ]]; then
+        echo "error: the following io.sentry.* classes were renamed or stripped by R8:" >&2
+        for class in "${failures[@]}"; do
+            echo "  - $class" >&2
+            grep -F "$class" "$mapping_file" >&2 || echo "    (not present in $mapping_file at all)" >&2
+        done
+    fi
+    if [[ ${#nested_failures[@]} -gt 0 ]]; then
+        echo "error: the following nested io.sentry.*\$* classes were renamed by R8:" >&2
+        for nested_line in "${nested_failures[@]}"; do
+            echo "  - $nested_line" >&2
+        done
+    fi
     echo "" >&2
-    echo "Check that android/proguard-rules.pro still keeps these classes; run scripts/generate-sentry-java-proguard.sh if it's out of date." >&2
+    echo "Check that android/proguard-rules.pro still keeps these classes (including the \$* nested-class rule); run scripts/generate-sentry-java-proguard.sh if it's out of date." >&2
     exit 1
 fi
 
-echo "All io.sentry.* classes from $ffi_jni_yaml map to themselves in $mapping_file"
+echo "All io.sentry.* classes from $ffi_jni_yaml, including nested classes, map to themselves in $mapping_file"
