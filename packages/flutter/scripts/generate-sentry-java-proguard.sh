@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# NOTE: This script is required while the following issue isn't completed https://github.com/dart-lang/native/issues/681
+#
 # Regenerates the io.sentry.* R8/ProGuard keep rules in android/proguard-rules.pro
 # from the `classes:` entries in ffi-jni.yaml, so the two never drift apart.
 #

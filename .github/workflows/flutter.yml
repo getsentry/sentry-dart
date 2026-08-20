@@ -216,9 +216,9 @@ jobs:
           android: true
           fail_on_error: true
 
-  proguard-rules-sync:
+  proguard-rules-verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: packages/flutter
@@ -236,15 +236,6 @@ jobs:
             echo "::error::android/proguard-rules.pro is out of sync with ffi-jni.yaml. Run packages/flutter/scripts/generate-sentry-java-proguard.sh and commit the result."
             exit 1
           fi
-
-  proguard-mapping-verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    defaults:
-      run:
-        working-directory: packages/flutter
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
