@@ -53,8 +53,12 @@ generated=$(
 tmp_file=$(mktemp)
 trap 'rm -f "$tmp_file"' EXIT
 
-awk -v gen="$generated" -v start="$start_marker" -v end="$end_marker" '
-    $0 ~ start { print; print gen; in_block=1; next }
+# `gen` is passed via the environment rather than `awk -v` because BSD awk
+# (macOS's /usr/bin/awk) rejects `-v` values containing a literal newline;
+# ENVIRON isn't run through that escape parser, so it works on both.
+export gen="$generated"
+awk -v start="$start_marker" -v end="$end_marker" '
+    $0 ~ start { print; print ENVIRON["gen"]; in_block=1; next }
     $0 ~ end { in_block=0; print; next }
     in_block { next }
     { print }
