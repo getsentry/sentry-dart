@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# NOTE: unlike generate-sentry-java-proguard.sh, this script stays useful even after
+# https://github.com/dart-lang/native/issues/681 is completed and jnigen generates the
+# keep rules itself -- it verifies R8's actual behavior, not just that the rules exist,
+# which guards against R8 upgrades, jnigen bugs, or conflicting rules elsewhere in
+# proguard-rules.pro.
+#
 # Verifies that R8 actually honors the keep rules generated from ffi-jni.yaml,
 # rather than just checking that proguard-rules.pro is textually in sync (see
 # generate-sentry-java-proguard.sh --check). Builds the example app in release

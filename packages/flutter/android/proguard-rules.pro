@@ -2,6 +2,10 @@
 # bindings in lib/src/native/java/binding.dart. This block is generated from the `classes:`
 # entries in ffi-jni.yaml by scripts/generate-sentry-java-proguard.sh -- do not hand-edit
 # the block below, run the script again after changing ffi-jni.yaml instead.
+# NOTE: scripts/generate-sentry-java-proguard.sh (and the CI step that keeps this block in
+# sync with ffi-jni.yaml) is only needed while https://github.com/dart-lang/native/issues/681
+# isn't completed -- once jnigen generates these keep rules itself, that script goes away.
+# This block stays either way; only how it's produced changes.
 # AUTO-GENERATED-START
 -keep,includedescriptorclasses class io.sentry.android.core.SentryAndroid { *; }
 -keep,includedescriptorclasses class io.sentry.android.core.SentryAndroid$* { *; }
