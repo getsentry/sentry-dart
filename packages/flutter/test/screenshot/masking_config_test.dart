@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -15,6 +16,8 @@ void main() async {
     'SentryMaskingConstantRule<SentryMask>(mask)',
     'SentryMaskingConstantRule<SentryUnmask>(unmask)',
   ];
+  const sensitiveContentRule =
+      'SentryMaskingCustomRule<SensitiveContent>(Mask SensitiveContent widget.)';
 
   testWidgets('will not mask if there are no rules', (tester) async {
     final sut = SentryMaskingConfig([]);
@@ -188,6 +191,7 @@ void main() async {
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
         'SentryMaskingConstantRule<RichText>(mask)',
+        sensitiveContentRule,
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
       ]);
     });
@@ -200,6 +204,7 @@ void main() async {
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
         'SentryMaskingConstantRule<Image>(mask)',
+        sensitiveContentRule,
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
       ]);
     });
@@ -212,6 +217,7 @@ void main() async {
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
         'SentryMaskingCustomRule<Image>(Mask all images except asset images.)',
+        sensitiveContentRule,
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
       ]);
     });
@@ -226,6 +232,7 @@ void main() async {
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
         'SentryMaskingConstantRule<RichText>(mask)',
+        sensitiveContentRule,
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
       ]);
     });
@@ -237,8 +244,50 @@ void main() async {
         ..maskAssetImages = false;
       expect(rulesAsStrings(sut), [
         ...alwaysEnabledRules,
+        sensitiveContentRule,
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
       ]);
+    });
+
+    group('when masking SensitiveContent', () {
+      Future<SentryMaskingDecision> decisionFor(
+        WidgetTester tester,
+        ContentSensitivity sensitivity,
+      ) async {
+        final sut = SentryPrivacyOptions()
+          ..maskAllText = false
+          ..maskAllImages = false;
+        final config = sut.buildMaskingConfig(RuntimeChecker());
+        final rootElement = await pumpTestElement(
+          tester,
+          children: [
+            SensitiveContent(sensitivity: sensitivity, child: const SizedBox()),
+          ],
+        );
+        final element = rootElement.findFirstOfType<SensitiveContent>();
+        return config.shouldMask(element, element.widget);
+      }
+
+      testWidgets('with sensitive masks the widget', (tester) async {
+        expect(
+          await decisionFor(tester, ContentSensitivity.sensitive),
+          SentryMaskingDecision.mask,
+        );
+      });
+
+      testWidgets('with autoSensitive masks the widget', (tester) async {
+        expect(
+          await decisionFor(tester, ContentSensitivity.autoSensitive),
+          SentryMaskingDecision.mask,
+        );
+      });
+
+      testWidgets('with notSensitive does not mask the widget', (tester) async {
+        expect(
+          await decisionFor(tester, ContentSensitivity.notSensitive),
+          SentryMaskingDecision.continueProcessing,
+        );
+      });
     });
 
     group('user rules', () {
@@ -248,6 +297,7 @@ void main() async {
         'SentryMaskingConstantRule<Text>(mask)',
         'SentryMaskingConstantRule<EditableText>(mask)',
         'SentryMaskingConstantRule<RichText>(mask)',
+        sensitiveContentRule,
         'SentryMaskingCustomRule<Widget>(Debug-mode-only warning for potentially sensitive widgets.)',
       ];
       test('mask() takes precedence', () {
