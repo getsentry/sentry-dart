@@ -45,6 +45,40 @@ void main() {
 
         expect(capturedEvent.release, '999');
       });
+
+      // Integrations use OnBeforeSendEvent for side effects that must not
+      // happen for an event that is never sent, such as flushing a buffered
+      // replay. Sampling therefore has to run before the callbacks.
+      test(
+        'captureEvent does not trigger OnBeforeSendEvent when sampled out',
+        () async {
+          final client = fixture.getSut(sampleRate: 0.0);
+
+          var dispatched = 0;
+          fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(
+            (_) => dispatched++,
+          );
+
+          await client.captureEvent(SentryEvent());
+
+          expect(dispatched, 0);
+          expect(fixture.transport.envelopes, isEmpty);
+        },
+      );
+
+      test('captureEvent triggers OnBeforeSendEvent when sampled in', () async {
+        final client = fixture.getSut(sampleRate: 1.0);
+
+        var dispatched = 0;
+        fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(
+          (_) => dispatched++,
+        );
+
+        await client.captureEvent(SentryEvent());
+
+        expect(dispatched, 1);
+        expect(fixture.transport.envelopes, hasLength(1));
+      });
     });
 
     group('$SentrySpanV2', () {

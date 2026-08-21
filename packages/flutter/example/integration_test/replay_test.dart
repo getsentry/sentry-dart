@@ -84,7 +84,7 @@ void main() {
         await Sentry.captureException(e, stackTrace: st);
       }
 
-      // After capture, ReplayEventProcessor should set scope.replayId
+      // After capture, ReplayIntegration should set scope.replayId
       await Sentry.configureScope((scope) async {
         expect(
           scope.replayId == null || scope.replayId == const SentryId.empty(),

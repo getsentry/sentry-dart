@@ -87,6 +87,25 @@ void main() {
 
         expect(capturedEvent.release, '999');
       });
+
+      test(
+        'captureEvent does not trigger OnBeforeSendEvent for sampled out event',
+        () async {
+          var called = false;
+          final client = fixture.getSut(sampleRate: 0.0);
+
+          fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(
+            (_) => called = true,
+          );
+
+          await client.captureEvent(
+            SentryEvent(),
+            scope: Scope(fixture.options),
+          );
+
+          expect(called, false);
+        },
+      );
     });
   });
 }

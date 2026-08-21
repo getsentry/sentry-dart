@@ -80,5 +80,14 @@ fi
 
 echo "Running pre-commit checks for:$NAMES"
 
-melos $MELOS_SDK exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
-melos $MELOS_SDK exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings
+# git exports an absolute GIT_DIR to hooks. The Flutter SDK determines its own
+# version by running git inside its checkout, which then resolves against this
+# repository instead and reports `0.0.0-unknown`, so pub refuses to resolve any
+# package with a Flutter SDK constraint. Clear the inherited git environment for
+# the nested tools; they rediscover this repository from the working directory.
+run_without_git_env() {
+  env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE "$@"
+}
+
+run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
+run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings
