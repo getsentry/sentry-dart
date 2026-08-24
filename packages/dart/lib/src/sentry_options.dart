@@ -218,6 +218,9 @@ class SentryOptions {
   /// Configures the sample rate as a percentage of events to be sent in the range of 0.0 to 1.0. if
   /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
   /// sent. Events are picked randomly. Default is null (disabled)
+  ///
+  /// The sampling decision is applied after event processors and [beforeSend],
+  /// so those still run for an event that ends up being sampled out.
   double? sampleRate;
 
   /// Chooses between two tracing systems. You can only use one at a time.
