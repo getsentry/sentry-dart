@@ -29,32 +29,37 @@ void main() {
   });
 
   test(
-      'addBreadcrumbWithHint does not call captureReplayNetworkDetail when the '
-      'breadcrumb has no replay_request_id', () async {
-    when(mock.addBreadcrumb(any)).thenReturn(null);
+      'addBreadcrumbWithHint forwards no network detail when the hint carries none',
+      () async {
+    when(mock.addBreadcrumb(any,
+            networkRequestDetail: anyNamed('networkRequestDetail'),
+            networkResponseDetail: anyNamed('networkResponseDetail')))
+        .thenReturn(null);
     final breadcrumb =
         Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
-    final hint = Hint()
-      ..set(TypeCheckHint.replayNetworkRequestDetail,
-          <String, dynamic>{'headers': <String, String>{}});
 
-    await sut.addBreadcrumbWithHint(breadcrumb, hint);
+    await sut.addBreadcrumbWithHint(breadcrumb, Hint());
 
-    verifyNever(mock.captureReplayNetworkDetail(any,
-        request: anyNamed('request'), response: anyNamed('response')));
+    final capture = verify(mock.addBreadcrumb(
+      captureAny,
+      networkRequestDetail: captureAnyNamed('networkRequestDetail'),
+      networkResponseDetail: captureAnyNamed('networkResponseDetail'),
+    )).captured;
+    expect(capture[0], breadcrumb);
+    expect(capture[1], isNull);
+    expect(capture[2], isNull);
   });
 
   test(
-      'addBreadcrumbWithHint forwards replay network detail via captureReplayNetworkDetail '
-      'when the breadcrumb carries a replay_request_id', () async {
-    when(mock.addBreadcrumb(any)).thenReturn(null);
-    when(mock.captureReplayNetworkDetail(any,
-            request: anyNamed('request'), response: anyNamed('response')))
+      'addBreadcrumbWithHint forwards replay network detail from the hint in the '
+      'same addBreadcrumb call', () async {
+    when(mock.addBreadcrumb(any,
+            networkRequestDetail: anyNamed('networkRequestDetail'),
+            networkResponseDetail: anyNamed('networkResponseDetail')))
         .thenReturn(null);
 
     final breadcrumb =
         Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
-    breadcrumb.data?['replay_request_id'] = 'req-1';
     final requestDetail = <String, dynamic>{'headers': <String, String>{}};
     final responseDetail = <String, dynamic>{
       'headers': <String, String>{},
@@ -66,39 +71,14 @@ void main() {
 
     await sut.addBreadcrumbWithHint(breadcrumb, hint);
 
-    final capture = verify(mock.captureReplayNetworkDetail(
+    final capture = verify(mock.addBreadcrumb(
       captureAny,
-      request: captureAnyNamed('request'),
-      response: captureAnyNamed('response'),
+      networkRequestDetail: captureAnyNamed('networkRequestDetail'),
+      networkResponseDetail: captureAnyNamed('networkResponseDetail'),
     )).captured;
-    expect(capture[0], 'req-1');
+    expect(capture[0], breadcrumb);
     expect(capture[1], requestDetail);
     expect(capture[2], responseDetail);
-  });
-
-  test(
-      'addBreadcrumbWithHint populates captureReplayNetworkDetail before the '
-      'breadcrumb is visible on the native Scope, so a replay segment built '
-      'in between always sees the detail', () async {
-    when(mock.addBreadcrumb(any)).thenReturn(null);
-    when(mock.captureReplayNetworkDetail(any,
-            request: anyNamed('request'), response: anyNamed('response')))
-        .thenReturn(null);
-
-    final breadcrumb =
-        Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
-    breadcrumb.data?['replay_request_id'] = 'req-1';
-    final hint = Hint()
-      ..set(TypeCheckHint.replayNetworkRequestDetail,
-          <String, dynamic>{'headers': <String, String>{}});
-
-    await sut.addBreadcrumbWithHint(breadcrumb, hint);
-
-    verifyInOrder([
-      mock.captureReplayNetworkDetail(any,
-          request: anyNamed('request'), response: anyNamed('response')),
-      mock.addBreadcrumb(any),
-    ]);
   });
 
   test('clearBreadcrumbsCalls', () async {
