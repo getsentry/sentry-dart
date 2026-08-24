@@ -1951,24 +1951,17 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as _i12.FutureOr<void>);
 
   @override
-  _i12.FutureOr<void> addBreadcrumb(_i2.Breadcrumb? breadcrumb) =>
+  _i12.FutureOr<void> addBreadcrumb(
+    _i2.Breadcrumb? breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) =>
       (super.noSuchMethod(Invocation.method(
         #addBreadcrumb,
         [breadcrumb],
-      )) as _i12.FutureOr<void>);
-
-  @override
-  _i12.FutureOr<void> captureReplayNetworkDetail(
-    String? replayRequestId, {
-    Map<String, dynamic>? request,
-    Map<String, dynamic>? response,
-  }) =>
-      (super.noSuchMethod(Invocation.method(
-        #captureReplayNetworkDetail,
-        [replayRequestId],
         {
-          #request: request,
-          #response: response,
+          #networkRequestDetail: networkRequestDetail,
+          #networkResponseDetail: networkResponseDetail,
         },
       )) as _i12.FutureOr<void>);
 

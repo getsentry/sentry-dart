@@ -133,7 +133,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) {
     tryCatchSync('add_breadcrumb', () {
       var cBreadcrumb = breadcrumb.toJson().toNativeValue();
       native.add_breadcrumb(cBreadcrumb);
@@ -333,15 +337,6 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> registerSegmentName(String segmentName) {
     // No-op. Replay segment name registration is currently Android-only.
-  }
-
-  @override
-  FutureOr<void> captureReplayNetworkDetail(
-    String replayRequestId, {
-    Map<String, dynamic>? request,
-    Map<String, dynamic>? response,
-  }) {
-    // No-op. Replay network detail capture is currently Android-only.
   }
 }
 

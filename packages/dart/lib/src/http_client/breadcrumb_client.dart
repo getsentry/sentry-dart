@@ -164,7 +164,6 @@ class BreadcrumbClient extends BaseClient {
       // ever see it.
       Hint? hint;
       if (requestDetail != null || responseDetail != null) {
-        breadcrumb.data?['replay_request_id'] = SentryId.newId().toString();
         hint = Hint();
         if (requestDetail != null) {
           hint.set(TypeCheckHint.replayNetworkRequestDetail, requestDetail);

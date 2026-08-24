@@ -5615,38 +5615,47 @@ class SentryFlutterPlugin extends jni$_.JObject {
         .check();
   }
 
-  // Hand-authored, mirroring addBreadcrumbFromJsonBytes above exactly (same
-  // `([B)V` descriptor shape) since regenerating this file requires
-  // `scripts/generate-jni-bindings.sh`, which needs a full Android build
-  // toolchain not available in this environment. Re-run that script (or
-  // otherwise verify against a real jnigen run) before merging.
-  static final _id_captureReplayNetworkDetailFromJsonBytes =
-      _class.staticMethodId(
-    r'captureReplayNetworkDetailFromJsonBytes',
-    r'([B)V',
+  // Hand-authored overload, mirroring addBreadcrumbFromJsonBytes above but
+  // for the two-byte-array descriptor shape (`([B[B)V`), since regenerating
+  // this file requires `scripts/generate-jni-bindings.sh`, which needs a
+  // full Android build toolchain not available in this environment. Re-run
+  // that script (or otherwise verify against a real jnigen run) before
+  // merging.
+  static final _id_addBreadcrumbFromJsonBytes$1 = _class.staticMethodId(
+    r'addBreadcrumbFromJsonBytes',
+    r'([B[B)V',
   );
 
-  static final _captureReplayNetworkDetailFromJsonBytes =
+  static final _addBreadcrumbFromJsonBytes$1 =
       jni$_.ProtectedJniExtensions.lookup<
-                  jni$_.NativeFunction<
-                      jni$_.JThrowablePtr Function(
-                          jni$_.Pointer<jni$_.Void>,
-                          jni$_.JMethodIDPtr,
-                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-              'globalEnv_CallStaticVoidMethod')
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallStaticVoidMethod')
           .asFunction<
-              jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
-                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `static public final void captureReplayNetworkDetailFromJsonBytes(byte[] bs)`
-  static void captureReplayNetworkDetailFromJsonBytes(
+  /// from: `static public final void addBreadcrumbFromJsonBytes(byte[] bs, byte[] networkDetailBs)`
+  static void addBreadcrumbFromJsonBytes$1(
     jni$_.JByteArray bs,
+    jni$_.JByteArray networkDetailBs,
   ) {
     final _$bs = bs.reference;
-    _captureReplayNetworkDetailFromJsonBytes(
+    final _$networkDetailBs = networkDetailBs.reference;
+    _addBreadcrumbFromJsonBytes$1(
             _class.reference.pointer,
-            _id_captureReplayNetworkDetailFromJsonBytes as jni$_.JMethodIDPtr,
-            _$bs.pointer)
+            _id_addBreadcrumbFromJsonBytes$1 as jni$_.JMethodIDPtr,
+            _$bs.pointer,
+            _$networkDetailBs.pointer)
         .check();
   }
 

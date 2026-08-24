@@ -1,6 +1,7 @@
 package io.sentry.flutter
 
 import io.sentry.Breadcrumb
+import io.sentry.SentryOptions
 import io.sentry.android.replay.DefaultReplayBreadcrumbConverter
 import io.sentry.rrweb.RRWebBreadcrumbEvent
 import io.sentry.rrweb.RRWebEvent
@@ -12,8 +13,8 @@ private const val MAX_PATH_ITEMS = 4
 private const val MAX_PATH_IDENTIFIER_LENGTH = 20
 
 class SentryFlutterReplayBreadcrumbConverter(
-  private val networkDetailCache: ReplayNetworkDetailCache,
-) : DefaultReplayBreadcrumbConverter() {
+  options: SentryOptions,
+) : DefaultReplayBreadcrumbConverter(options) {
   internal companion object {
     private val supportedNetworkData =
       mapOf(
@@ -94,17 +95,12 @@ class SentryFlutterReplayBreadcrumbConverter(
         .mapKeys { (key, _) -> supportedNetworkData[key] }
         .toMutableMap()
 
-    // Populated by NetworkDetailsCapture on the Dart side when
-    // networkDetailAllowUrls matches. Delivered through networkDetailCache
-    // rather than breadcrumb.data itself - the breadcrumb lives in native
-    // Scope and would otherwise attach this detail to crash events too, so
-    // the Dart side sends it via a side channel keyed by replay_request_id
-    // instead, forwarded as-is since it's already shaped for the replay
-    // player (headers/body per request/response).
-    val replayRequestId = breadcrumb.data["replay_request_id"] as? String
-    val detail = replayRequestId?.let { networkDetailCache.consume(it) }
-    detail?.first?.let { eventData["request"] = it }
-    detail?.second?.let { eventData["response"] = it }
+    // Request/response detail (headers/body) reaches this converter through
+    // super.convert() above instead: when present it's delivered via
+    // sentry-java's own SENTRY_REPLAY_NETWORK_DETAILS hint, which requires
+    // the `http.start_timestamp`/`http.end_timestamp` keys super.convert()
+    // checks for - see SentryFlutterPlugin.replayNetworkDetailHint. This
+    // fallback path only runs for breadcrumbs without that detail.
 
     return RRWebSpanEvent().apply {
       op = "resource.http"
