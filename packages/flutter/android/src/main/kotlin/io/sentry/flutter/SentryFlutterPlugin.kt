@@ -15,12 +15,15 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
+import io.sentry.Hint
 import io.sentry.IScope
 import io.sentry.JsonObjectReader
 import io.sentry.ScopesAdapter
 import io.sentry.Sentry
 import io.sentry.SentryOptions
 import io.sentry.SentryOptions.Proxy
+import io.sentry.SpanDataConvention
+import io.sentry.TypeCheckHint.SENTRY_REPLAY_NETWORK_DETAILS
 import io.sentry.android.core.BuildConfig
 import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.SentryAndroid
@@ -33,6 +36,9 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.User
 import io.sentry.transport.CurrentDateProvider
+import io.sentry.util.network.NetworkBody
+import io.sentry.util.network.NetworkRequestData
+import io.sentry.util.network.ReplayNetworkRequestOrResponse
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayInputStream
@@ -107,8 +113,6 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
 
-    private var replayNetworkDetailCache: ReplayNetworkDetailCache? = null
-
     @SuppressLint("StaticFieldLeak")
     private var applicationContext: Context? = null
 
@@ -143,7 +147,6 @@ class SentryFlutterPlugin :
         Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
       } finally {
         replay = null
-        replayNetworkDetailCache = null
       }
     }
 
@@ -191,22 +194,87 @@ class SentryFlutterPlugin :
       }
     }
 
+    // Overload used when the breadcrumb carries Session Replay's captured HTTP
+    // request/response detail. Delivered through sentry-java's own
+    // SENTRY_REPLAY_NETWORK_DETAILS hint (the same mechanism sentry-android's
+    // OkHttp integration uses) rather than a bespoke side channel, so
+    // DefaultReplayBreadcrumbConverter's own (already-tested) conversion picks
+    // it up - see SentryFlutterReplayBreadcrumbConverter.
     @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
     @JvmStatic
-    fun captureReplayNetworkDetailFromJsonBytes(bytes: ByteArray) {
+    fun addBreadcrumbFromJsonBytes(
+      bytes: ByteArray,
+      networkDetailBytes: ByteArray,
+    ) {
       try {
-        val cache = replayNetworkDetailCache ?: return
-        @Suppress("UNCHECKED_CAST")
-        val detail = parseJsonBytes(bytes) as? Map<String, Any?> ?: return
-        val replayRequestId = detail["replay_request_id"] as? String ?: return
-        @Suppress("UNCHECKED_CAST")
-        val request = detail["request"] as? Map<String, Any?>
-        @Suppress("UNCHECKED_CAST")
-        val response = detail["response"] as? Map<String, Any?>
-        cache.put(replayRequestId, request, response)
+        val options = ScopesAdapter.getInstance().options
+        val breadcrumb =
+          jsonObjectReader(bytes).use { reader ->
+            breadcrumbDeserializer.deserialize(reader, options.logger)
+          }
+        val hint = replayNetworkDetailHint(breadcrumb, networkDetailBytes)
+        if (hint != null) {
+          Sentry.addBreadcrumb(breadcrumb, hint)
+        } else {
+          Sentry.addBreadcrumb(breadcrumb)
+        }
       } catch (e: Exception) {
-        Log.e("Sentry", "Failed to capture replay network detail from JSON bytes", e)
+        Log.e("Sentry", "Failed to add breadcrumb with network detail from JSON bytes", e)
       }
+    }
+
+    /**
+     * Builds a [Hint] carrying [networkDetailBytes] as a [NetworkRequestData], the shape
+     * [io.sentry.android.replay.DefaultReplayBreadcrumbConverter] (constructed with
+     * [SentryOptions], see [setupReplay]) already knows how to fold into a replay recording via
+     * its own `beforeBreadcrumb` interception - mirrors `SentryOkHttpInterceptor.sendBreadcrumb`
+     * in sentry-java. Also copies the start/end timestamps onto the [SpanDataConvention] keys
+     * that converter's `isValidForRRWebSpan` requires, since Dart's breadcrumb wire shape (shared
+     * across platforms) doesn't use the `http.` prefix.
+     *
+     * Returns null (nothing to attach) for non-`http` breadcrumbs or malformed/empty detail.
+     */
+    private fun replayNetworkDetailHint(
+      breadcrumb: Breadcrumb,
+      networkDetailBytes: ByteArray,
+    ): Hint? {
+      if (breadcrumb.category != "http") return null
+
+      @Suppress("UNCHECKED_CAST")
+      val detail = parseJsonBytes(networkDetailBytes) as? Map<String, Any?> ?: return null
+      @Suppress("UNCHECKED_CAST")
+      val request = detail["request"] as? Map<String, Any?>
+      @Suppress("UNCHECKED_CAST")
+      val response = detail["response"] as? Map<String, Any?>
+      if (request == null && response == null) return null
+
+      val networkData = NetworkRequestData(breadcrumb.data["method"] as? String)
+      request?.let { networkData.setRequestDetails(toReplayNetworkRequestOrResponse(it)) }
+      response?.let {
+        val statusCode = (breadcrumb.data["status_code"] as? Number)?.toInt() ?: 0
+        networkData.setResponseDetails(statusCode, toReplayNetworkRequestOrResponse(it))
+      }
+
+      breadcrumb.data["start_timestamp"]?.let {
+        breadcrumb.setData(SpanDataConvention.HTTP_START_TIMESTAMP, it)
+      }
+      breadcrumb.data["end_timestamp"]?.let {
+        breadcrumb.setData(SpanDataConvention.HTTP_END_TIMESTAMP, it)
+      }
+
+      return Hint().also { it.set(SENTRY_REPLAY_NETWORK_DETAILS, networkData) }
+    }
+
+    private fun toReplayNetworkRequestOrResponse(
+      raw: Map<String, Any?>,
+    ): ReplayNetworkRequestOrResponse {
+      @Suppress("UNCHECKED_CAST")
+      val rawHeaders = raw["headers"] as? Map<String, Any?>
+      val headers = rawHeaders?.mapValues { it.value.toString() } ?: emptyMap()
+      val body = raw["body"] as? String
+      val networkBody = body?.let { NetworkBody(it) }
+      val size = body?.toByteArray(Charsets.UTF_8)?.size?.toLong()
+      return ReplayNetworkRequestOrResponse(size, networkBody, headers)
     }
 
     @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
@@ -271,8 +339,6 @@ class SentryFlutterPlugin :
         }
 
         val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
-        val networkDetailCache = ReplayNetworkDetailCache()
-        replayNetworkDetailCache = networkDetailCache
 
         replay =
           ReplayIntegration(
@@ -284,7 +350,7 @@ class SentryFlutterPlugin :
             replayCacheProvider = null,
           )
         replay!!.breadcrumbConverter =
-          SentryFlutterReplayBreadcrumbConverter(networkDetailCache)
+          SentryFlutterReplayBreadcrumbConverter(options)
         options.addIntegration(replay!!)
         options.setReplayController(replay)
       } else {

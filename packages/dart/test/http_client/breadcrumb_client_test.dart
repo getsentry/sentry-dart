@@ -276,10 +276,9 @@ void main() {
 
       final call = fixture.hub.addBreadcrumbCalls.first;
       // Never on the breadcrumb itself - that's what leaks into every
-      // subsequent event and native scope. Only an opaque correlation id is.
+      // subsequent event and native scope.
       expect(call.crumb.data?.containsKey('request'), false);
       expect(call.crumb.data?.containsKey('response'), false);
-      expect(call.crumb.data?['replay_request_id'], isA<String>());
 
       expect(
         call.hint?.get(TypeCheckHint.replayNetworkRequestDetail),
