@@ -121,20 +121,22 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) =>
-      _coreWorker?.addBreadcrumb(breadcrumb);
-
-  @override
-  FutureOr<void> captureReplayNetworkDetail(
-    String replayRequestId, {
-    Map<String, dynamic>? request,
-    Map<String, dynamic>? response,
-  }) =>
-      _coreWorker?.captureReplayNetworkDetail(
-        replayRequestId,
-        request: request,
-        response: response,
-      );
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) {
+    final networkDetail =
+        (networkRequestDetail != null || networkResponseDetail != null)
+            ? {
+                if (networkRequestDetail != null)
+                  'request': networkRequestDetail,
+                if (networkResponseDetail != null)
+                  'response': networkResponseDetail,
+              }
+            : null;
+    return _coreWorker?.addBreadcrumb(breadcrumb, networkDetail: networkDetail);
+  }
 
   @override
   FutureOr<void> clearBreadcrumbs() => _coreWorker?.clearBreadcrumbs();

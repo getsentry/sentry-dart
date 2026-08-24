@@ -178,7 +178,11 @@ class SentryNativeChannel
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) async {
     if (options.platform.isAndroid) {
       assert(false,
           'addBreadcrumb should not be used through method channels on Android.');
@@ -449,14 +453,5 @@ class SentryNativeChannel
   @override
   FutureOr<void> registerSegmentName(String segmentName) {
     // No-op. Replay segment name registration is currently Android-only.
-  }
-
-  @override
-  FutureOr<void> captureReplayNetworkDetail(
-    String replayRequestId, {
-    Map<String, dynamic>? request,
-    Map<String, dynamic>? response,
-  }) {
-    // No-op. Replay network detail capture is currently Android-only.
   }
 }

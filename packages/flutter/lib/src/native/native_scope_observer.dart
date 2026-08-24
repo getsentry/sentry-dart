@@ -45,28 +45,16 @@ class NativeScopeObserver implements ScopeObserver, HintAwareScopeObserver {
 
   @override
   FutureOr<void> addBreadcrumbWithHint(Breadcrumb breadcrumb, Hint hint) async {
-    final replayRequestId = breadcrumb.data?['replay_request_id'];
-    if (replayRequestId is String) {
-      // ignore: invalid_use_of_internal_member
-      final request = hint.get(TypeCheckHint.replayNetworkRequestDetail);
-      // ignore: invalid_use_of_internal_member
-      final response = hint.get(TypeCheckHint.replayNetworkResponseDetail);
-      if (request != null || response != null) {
-        // Populate the replay detail cache before the breadcrumb becomes
-        // visible on the native Scope. Session Replay can build a segment
-        // from a background thread as soon as the breadcrumb lands in the
-        // Scope; doing this the other way around leaves a window where the
-        // breadcrumb is visible but its detail hasn't been cached yet,
-        // so the replay segment would never pick it up.
-        await _native.captureReplayNetworkDetail(
-          replayRequestId,
-          request: request is Map<String, dynamic> ? request : null,
-          response: response is Map<String, dynamic> ? response : null,
-        );
-      }
-    }
+    // ignore: invalid_use_of_internal_member
+    final request = hint.get(TypeCheckHint.replayNetworkRequestDetail);
+    // ignore: invalid_use_of_internal_member
+    final response = hint.get(TypeCheckHint.replayNetworkResponseDetail);
 
-    await _native.addBreadcrumb(breadcrumb);
+    await _native.addBreadcrumb(
+      breadcrumb,
+      networkRequestDetail: request is Map<String, dynamic> ? request : null,
+      networkResponseDetail: response is Map<String, dynamic> ? response : null,
+    );
   }
 
   @override
