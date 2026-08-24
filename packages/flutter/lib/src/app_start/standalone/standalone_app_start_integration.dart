@@ -27,7 +27,7 @@ final class StandaloneAppStartIntegration
 
       if (!options.usesStandaloneAppStart) {
         internalLogger.info(
-          'Skipping $_integrationName integration because standalone app-start tracing is disabled or unsupported on this platform.',
+          'Skipping $_integrationName integration because this platform does not support standalone app-start tracing.',
         );
         return;
       }

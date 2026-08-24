@@ -211,9 +211,8 @@ final class AppStartTiming {
   }
 }
 
-/// Per-phase span op for the standalone app-start path, where every phase
-/// carries its own op. The ui.load path instead labels each phase with the
-/// cold/warm op from [UiLoadAppStartTypeSpans].
+/// Per-phase span op for standalone app-start, where every phase carries its
+/// own op. Cold/warm is reported on the `app.start` root as attributes.
 @internal
 extension StandaloneAppStartPhaseSpans on AppStartPhaseKind {
   String get operation => switch (this) {
@@ -222,15 +221,4 @@ extension StandaloneAppStartPhaseSpans on AppStartPhaseKind {
       SentrySpanOperations.appStartPluginRegistration,
     AppStartPhaseKind.sentrySetup => SentrySpanOperations.appStartSentrySetup,
   };
-}
-
-/// Nested-span op/description for the ui.load app-start path
-/// (`app.start.cold` / `Cold Start`). Standalone uses `app.start` as the root
-/// op and puts cold/warm in attributes instead.
-@internal
-extension UiLoadAppStartTypeSpans on AppStartType {
-  String get operation => 'app.start.$name';
-
-  String get description =>
-      this == AppStartType.cold ? 'Cold Start' : 'Warm Start';
 }

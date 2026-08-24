@@ -488,7 +488,6 @@ class Fixture {
     ..transport = transport
     ..tracesSampleRate = 1.0
     ..traceLifecycle = SentryTraceLifecycle.static
-    ..enableStandaloneAppStartTracing = true
     ..clock = () => snapshot;
   late final hub = Hub(options);
   late final navigatorObserver = SentryNavigatorObserver(
