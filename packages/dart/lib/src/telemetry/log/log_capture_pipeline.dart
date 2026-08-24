@@ -14,6 +14,12 @@ class LogCapturePipeline {
   LogCapturePipeline(this._options);
 
   FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+    if (!_options.enableLogs) {
+      internalLogger
+          .debug('$LogCapturePipeline: Logs disabled, dropping ${log.body}');
+      return;
+    }
+
     try {
       if (scope != null) {
         // Populate traceId from scope if not already set

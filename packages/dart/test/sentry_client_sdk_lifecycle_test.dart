@@ -30,6 +30,7 @@ void main() {
       }
 
       test('captureLog triggers OnProcessLog', () async {
+        fixture.options.enableLogs = true;
         fixture.options.environment = 'test-environment';
         fixture.options.release = 'test-release';
 
@@ -60,6 +61,7 @@ void main() {
 
     group('SentryEvent', () {
       test('captureEvent triggers OnBeforeSendEvent', () async {
+        fixture.options.enableLogs = true;
         fixture.options.environment = 'test-environment';
         fixture.options.release = 'test-release';
 

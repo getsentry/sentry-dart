@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/metric/default_metrics.dart';
 import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
+import 'package:sentry/src/telemetry/metric/noop_metrics.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
@@ -13,28 +14,56 @@ void main() {
       fixture = Fixture();
     });
 
-    test('configures DefaultSentryMetrics', () {
-      fixture.sut.call(fixture.hub, fixture.options);
+    group('when metrics are enabled', () {
+      test('configures DefaultSentryMetrics', () {
+        fixture.options.enableMetrics = true;
 
-      expect(fixture.options.metrics, isA<DefaultSentryMetrics>());
+        fixture.sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.options.metrics, isA<DefaultSentryMetrics>());
+      });
+
+      test('adds integration to SDK', () {
+        fixture.options.enableMetrics = true;
+
+        fixture.sut.call(fixture.hub, fixture.options);
+
+        expect(
+          fixture.options.sdk.integrations,
+          contains(MetricsSetupIntegration.integrationName),
+        );
+      });
+
+      test('does not override existing non-noop metrics', () {
+        fixture.options.enableMetrics = true;
+        final customMetrics = _CustomSentryMetrics();
+        fixture.options.metrics = customMetrics;
+
+        fixture.sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.options.metrics, same(customMetrics));
+      });
     });
 
-    test('adds integration to SDK', () {
-      fixture.sut.call(fixture.hub, fixture.options);
+    group('when metrics are disabled', () {
+      test('does not configure metrics', () {
+        fixture.options.enableMetrics = false;
 
-      expect(
-        fixture.options.sdk.integrations,
-        contains(MetricsSetupIntegration.integrationName),
-      );
-    });
+        fixture.sut.call(fixture.hub, fixture.options);
 
-    test('does not override existing non-noop metrics', () {
-      final customMetrics = _CustomSentryMetrics();
-      fixture.options.metrics = customMetrics;
+        expect(fixture.options.metrics, isA<NoOpSentryMetrics>());
+      });
 
-      fixture.sut.call(fixture.hub, fixture.options);
+      test('does not add integration to SDK', () {
+        fixture.options.enableMetrics = false;
 
-      expect(fixture.options.metrics, same(customMetrics));
+        fixture.sut.call(fixture.hub, fixture.options);
+
+        expect(
+          fixture.options.sdk.integrations,
+          isNot(contains(MetricsSetupIntegration.integrationName)),
+        );
+      });
     });
   });
 }

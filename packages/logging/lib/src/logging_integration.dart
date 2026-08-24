@@ -19,7 +19,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// - All log events equal or higher than [minEventLevel] are recorded as a
   /// [SentryEvent].
   /// - All log events equal or higher than [minSentryLogLevel] are logged to
-  /// Sentry.
+  /// Sentry, if [SentryOptions.enableLogs] is true.
   ///
   /// Log levels are mapped to the following Sentry log levels methods:
   ///
@@ -100,7 +100,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
       );
     }
 
-    if (_isLoggable(record.level, _minSentryLogLevel)) {
+    if (_options.enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
       final attributes = {
         'loggerName': SentryAttribute.string(record.loggerName),
         'sequenceNumber': SentryAttribute.int(record.sequenceNumber),

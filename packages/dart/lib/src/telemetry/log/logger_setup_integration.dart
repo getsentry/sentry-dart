@@ -9,6 +9,11 @@ class LoggerSetupIntegration extends Integration<SentryOptions> {
 
   @override
   void call(Hub hub, SentryOptions options) {
+    if (!options.enableLogs) {
+      internalLogger.debug('$integrationName: Logs disabled, skipping setup');
+      return;
+    }
+
     if (options.logger is! NoOpSentryLogger) {
       internalLogger.debug(
           '$integrationName: Custom logger already configured, skipping setup');
