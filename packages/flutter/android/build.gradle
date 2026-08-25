@@ -1,12 +1,15 @@
+import com.android.Version
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 buildscript {
-    ext.kotlin_version = '2.2.20'
+    ext.kotlin_version = '2.3.10'
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:9.3.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
@@ -20,7 +23,7 @@ rootProject.allprojects {
 
 apply plugin: 'com.android.library'
 
-def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+def agpMajor = Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
 // android.builtInKotlin lets a project opt out of AGP 9's built-in Kotlin and fall back to the
 // standalone plugin, so it must be honored in addition to the AGP version.
 def builtInKotlin = agpMajor >= 9 && project.findProperty('android.builtInKotlin') != 'false'
@@ -30,7 +33,7 @@ if (!builtInKotlin) {
 }
 
 android {
-    compileSdkVersion 36
+    compileSdkVersion 37
 
     // Conditional for compatibility with AGP <4.2.
     if (project.android.hasProperty("namespace")) {
@@ -43,7 +46,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 36
+        targetSdkVersion 37
 
         ndk {
             // Flutter does not currently support building for x86 Android (See Issue 9253).
@@ -72,7 +75,7 @@ def kotlinExt = project.extensions.findByName('kotlin')
 if (kotlinExt?.hasProperty('compilerOptions')) {
     kotlin {
         compilerOptions {
-            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
+            jvmTarget = JvmTarget.JVM_1_8
         }
     }
 } else {

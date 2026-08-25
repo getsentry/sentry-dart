@@ -34,10 +34,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
-        languageVersion = System.getenv("KOTLIN_LANGUAGE_VERSION") ?: "1.8"
+        languageVersion = System.getenv("KOTLIN_LANGUAGE_VERSION") ?: "2.3"
     }
 
-    compileSdkVersion 36
+    compileSdkVersion 37
 
     // Consume the sentry-native-ndk Prefab package instead of building our own copy.
     buildFeatures {
@@ -51,7 +51,7 @@ android {
     defaultConfig {
         applicationId "io.sentry.flutter.sample"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 36
+        targetSdkVersion 37
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 
@@ -83,8 +83,17 @@ android {
         release {
             // looks like Flutter requires minifyEnabled to be enabled or it throws
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
+        }
+    }
+
+    // Was android:extractNativeLibs="true" in AndroidManifest.xml; AGP 9 only
+    // accepts it from the build script. Keeps native libs extracted at install
+    // time, which sentry-native's crash handler relies on.
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 
@@ -101,9 +110,12 @@ flutter {
 
 dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
-    // Declared directly (no version) so AGP exposes its Prefab package to CMake.
-    // The version is inherited from io.sentry:sentry-android via the SDK.
-    implementation "io.sentry:sentry-native-ndk"
+    // Declared directly so AGP exposes its Prefab package to CMake; the
+    // transitive copy is runtime-scoped and Prefab never sees it. That also
+    // means the compile classpath carries no version for it, so unlike the
+    // other Sentry artifacts this one has to be pinned here. Keep it in sync
+    // with the version io.sentry:sentry-android-ndk depends on.
+    implementation "io.sentry:sentry-native-ndk:0.16.2"
 }
 
 // Disabled by default because symbol upload fails on CI when SENTRY_AUTH_TOKEN

@@ -20,6 +20,13 @@ analyzer:
   exclude:
     - example/**
     - test/mocks/mocks.mocks.dart
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
 linter:
   rules:

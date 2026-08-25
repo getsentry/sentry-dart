@@ -70,8 +70,11 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
-        return native.SentryFlutterPlugin.getDisplayRefreshRate()
-            ?.intValue(releaseOriginal: true);
+        final refreshRate = native.SentryFlutterPlugin.displayRefreshRate;
+        if (refreshRate == null) return null;
+        final value = refreshRate.intValue();
+        refreshRate.release();
+        return value;
       });
 
   @override
@@ -182,7 +185,7 @@ class SentryNativeJava extends SentryNativeChannel {
         // The passed parameter is `isTerminating`
         _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
 
-        final nativeReplayId = _nativeReplay?.getReplayId();
+        final nativeReplayId = _nativeReplay?.replayId;
         nativeReplayId?.releasedBy(arena);
 
         JString? jString;
@@ -330,7 +333,7 @@ JObject dartToJObject(Object? value) => switch (value) {
 
 @visibleForTesting
 JList<JObject> dartToJList(List<dynamic> values) {
-  final jList = JList.array(JObject.type);
+  final jList = (JArrayList() as JObject) as JList<JObject>;
   for (final v in values.nonNulls) {
     final j = dartToJObject(v);
     jList.add(j);
@@ -341,7 +344,7 @@ JList<JObject> dartToJList(List<dynamic> values) {
 
 @visibleForTesting
 JList<JString?> dartToJStringList(List<String> values) {
-  final jList = JList.array(JString.nullableType);
+  final jList = (JArrayList() as JObject) as JList<JString?>;
   for (final v in values) {
     final j = v.toJString();
     jList.add(j);
@@ -352,11 +355,11 @@ JList<JString?> dartToJStringList(List<String> values) {
 
 @visibleForTesting
 JMap<JString, JObject> dartToJMap(Map<String, dynamic> json) {
-  final jMap = JMap.hash(JString.type, JObject.type);
+  final jMap = (JHashMap() as JObject) as JMap<JString, JObject>;
   for (final entry in json.entries.where((e) => e.value != null)) {
     final jk = entry.key.toJString();
     final jv = dartToJObject(entry.value);
-    jMap[jk] = jv;
+    jMap.put(jk, jv);
     jk.release();
     jv.release();
   }

@@ -1,6 +1,6 @@
 pluginManagement {
-    def kotlinAndroidVersion = System.getenv("KOTLIN_ANDROID_PLUGIN_VERSION") ?: "2.2.20"
-    def androidGradlePluginVersion = System.getenv("ANDROID_GRADLE_PLUGIN_VERSION") ?: "8.11.1"
+    def kotlinAndroidVersion = System.getenv("KOTLIN_ANDROID_PLUGIN_VERSION") ?: "2.3.10"
+    def androidGradlePluginVersion = System.getenv("ANDROID_GRADLE_PLUGIN_VERSION") ?: "9.3.2"
 
     plugins {
         id "org.jetbrains.kotlin.android" version kotlinAndroidVersion

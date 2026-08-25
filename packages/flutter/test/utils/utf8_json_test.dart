@@ -29,7 +29,7 @@ void main() {
       );
     });
 
-    // JByteArray.from copies typed data in bulk but a plain List<int>
+    // JByteArray.of copies typed data in bulk but a plain List<int>
     // element by element, so losing this silently costs a lot on big payloads.
     test('returns typed data', () {
       expect(encodeUtf8Json({'a': 1}), isA<Uint8List>());

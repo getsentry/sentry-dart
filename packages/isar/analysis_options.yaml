@@ -20,6 +20,13 @@ analyzer:
     unnecessary_import: ignore
   exclude:
     - example/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
 linter:
   rules:
