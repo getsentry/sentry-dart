@@ -9,12 +9,6 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
 
   @override
   void call(Hub hub, SentryOptions options) {
-    if (!options.enableMetrics) {
-      internalLogger
-          .debug('$integrationName: Metrics disabled, skipping setup');
-      return;
-    }
-
     if (options.metrics is! NoOpSentryMetrics) {
       internalLogger.debug(
           '$integrationName: Custom metrics already configured, skipping setup');
