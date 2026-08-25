@@ -14,12 +14,12 @@ import 'version.dart';
 class LoggingIntegration implements Integration<SentryOptions> {
   /// Creates the [LoggingIntegration].
   ///
-  /// - All log events equal or higher than [_minBreadcrumbLevel] are recorded as a
+  /// - All log events equal or higher than [minBreadcrumbLevel] are recorded as a
   /// [Breadcrumb].
-  /// - All log events equal or higher than [_minEventLevel] are recorded as a
+  /// - All log events equal or higher than [minEventLevel] are recorded as a
   /// [SentryEvent].
-  /// - All log events equal or higher than [_minSentryLogLevel] are logged to
-  /// Sentry.
+  /// - When [enableLogs] is `true`, all log events equal or higher than
+  /// [minSentryLogLevel] are forwarded as structured Sentry logs.
   ///
   /// Log levels are mapped to the following Sentry log levels methods:
   ///
@@ -41,11 +41,13 @@ class LoggingIntegration implements Integration<SentryOptions> {
     this._minBreadcrumbLevel = Level.INFO,
     this._minEventLevel = Level.SEVERE,
     this._minSentryLogLevel = Level.INFO,
+    this._enableLogs = false,
   });
 
   final Level _minBreadcrumbLevel;
   final Level _minEventLevel;
   final Level _minSentryLogLevel;
+  final bool _enableLogs;
   late StreamSubscription<LogRecord> _subscription;
   late Hub _hub;
   late SentryOptions _options;
@@ -98,7 +100,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
       );
     }
 
-    if (_isLoggable(record.level, _minSentryLogLevel)) {
+    if (_enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
       final attributes = {
         'loggerName': SentryAttribute.string(record.loggerName),
         'sequenceNumber': SentryAttribute.int(record.sequenceNumber),
