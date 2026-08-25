@@ -11,10 +11,6 @@ import 'version.dart';
 
 /// An [Integration] which listens to all messages of the
 /// [logging](https://pub.dev/packages/logging) package.
-///
-/// Adding this integration opts into emitting Sentry logs: log records are
-/// forwarded as structured Sentry logs whenever [SentryOptions.enableLogs]
-/// is `true` (the default).
 class LoggingIntegration implements Integration<SentryOptions> {
   /// Creates the [LoggingIntegration].
   ///
@@ -23,7 +19,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// - All log events equal or higher than [_minEventLevel] are recorded as a
   /// [SentryEvent].
   /// - All log events equal or higher than [_minSentryLogLevel] are logged to
-  /// Sentry, unless [SentryOptions.enableLogs] is set to `false`.
+  /// Sentry.
   ///
   /// Log levels are mapped to the following Sentry log levels methods:
   ///
@@ -102,7 +98,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
       );
     }
 
-    if (_options.enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
+    if (_isLoggable(record.level, _minSentryLogLevel)) {
       final attributes = {
         'loggerName': SentryAttribute.string(record.loggerName),
         'sequenceNumber': SentryAttribute.int(record.sequenceNumber),

@@ -603,7 +603,6 @@ void main() {
         options.bindingUtils = TestBindingWrapper();
 
         options.telemetryProcessor = mockProcessor;
-        options.enableLogs = true;
 
         final observer = SentryWidgetsBindingObserver(
           hub: hub,

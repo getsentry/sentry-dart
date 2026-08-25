@@ -14,13 +14,6 @@ class LogCapturePipeline {
   LogCapturePipeline(this._options);
 
   Future<void> captureLog(SentryLog log, {Scope? scope}) async {
-    if (!_options.enableLogs) {
-      internalLogger.debug(
-        '$LogCapturePipeline: Logs disabled, dropping ${log.body}',
-      );
-      return;
-    }
-
     try {
       if (scope != null) {
         log.attributes.addAllIfAbsent(scope.attributes);

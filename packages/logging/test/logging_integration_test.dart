@@ -184,9 +184,9 @@ void main() {
   });
 
   group('Sentry logger integration', () {
-    test('does not call sentry logger when enableLogs is false', () async {
+    test('calls sentry logger when level meets threshold', () async {
       final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = false;
+      final options = TestSentryOptions(mockLogger);
 
       final sut = fixture.createSut(minSentryLogLevel: Level.INFO);
       sut.call(fixture.hub, options);
@@ -196,31 +196,13 @@ void main() {
 
       await Future<void>.delayed(Duration(milliseconds: 10));
 
-      expect(mockLogger.errorCalls.length, 0);
+      expect(mockLogger.errorCalls.length, 1);
+      expect(mockLogger.errorCalls.first.message, 'Test message');
     });
-
-    test(
-      'calls sentry logger when enableLogs is true and level meets threshold',
-      () async {
-        final mockLogger = MockSentryLogger();
-        final options = TestSentryOptions(mockLogger)..enableLogs = true;
-
-        final sut = fixture.createSut(minSentryLogLevel: Level.INFO);
-        sut.call(fixture.hub, options);
-
-        final log = Logger('TestLogger');
-        log.severe('Test message');
-
-        await Future<void>.delayed(Duration(milliseconds: 10));
-
-        expect(mockLogger.errorCalls.length, 1);
-        expect(mockLogger.errorCalls.first.message, 'Test message');
-      },
-    );
 
     test('does not call sentry logger when level is below threshold', () async {
       final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+      final options = TestSentryOptions(mockLogger);
 
       final sut = fixture.createSut(minSentryLogLevel: Level.SEVERE);
       sut.call(fixture.hub, options);
@@ -235,7 +217,7 @@ void main() {
 
     test('maps all log levels to correct sentry logger methods', () async {
       final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+      final options = TestSentryOptions(mockLogger);
 
       final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
       sut.call(fixture.hub, options);
@@ -288,7 +270,7 @@ void main() {
 
     test('includes all expected attributes in sentry logger calls', () async {
       final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+      final options = TestSentryOptions(mockLogger);
 
       final sut = fixture.createSut(minSentryLogLevel: Level.INFO);
       sut.call(fixture.hub, options);
@@ -327,7 +309,7 @@ void main() {
 
     test('Level.OFF is never sent to sentry logger', () async {
       final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+      final options = TestSentryOptions(mockLogger);
 
       final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
       sut.call(fixture.hub, options);
@@ -346,7 +328,7 @@ void main() {
 
     test('minSentryLogLevel is respected', () async {
       final mockLogger = MockSentryLogger();
-      final options = TestSentryOptions(mockLogger)..enableLogs = true;
+      final options = TestSentryOptions(mockLogger);
 
       final sut = fixture.createSut(minSentryLogLevel: Level.WARNING);
       sut.call(fixture.hub, options);
@@ -370,7 +352,7 @@ void main() {
       'handles custom Level instances correctly using numeric values',
       () async {
         final mockLogger = MockSentryLogger();
-        final options = TestSentryOptions(mockLogger)..enableLogs = true;
+        final options = TestSentryOptions(mockLogger);
 
         final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
         sut.call(fixture.hub, options);
@@ -427,7 +409,7 @@ void main() {
       'custom Level instances respect minSentryLogLevel threshold',
       () async {
         final mockLogger = MockSentryLogger();
-        final options = TestSentryOptions(mockLogger)..enableLogs = true;
+        final options = TestSentryOptions(mockLogger);
 
         final sut = fixture.createSut(minSentryLogLevel: Level.WARNING);
         sut.call(fixture.hub, options);

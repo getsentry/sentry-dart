@@ -42,10 +42,7 @@ void main() {
     group('addLog', () {
       test('routes log to log buffer', () {
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
-        final processor = fixture.getSut(
-          enableLogs: true,
-          logBuffer: mockLogBuffer,
-        );
+        final processor = fixture.getSut(logBuffer: mockLogBuffer);
 
         final log = fixture.createLog();
         processor.addLog(log);
@@ -66,10 +63,7 @@ void main() {
     group('addMetric', () {
       test('routes metric to metric buffer', () {
         final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>();
-        final processor = fixture.getSut(
-          enableMetrics: true,
-          metricBuffer: mockMetricBuffer,
-        );
+        final processor = fixture.getSut(metricBuffer: mockMetricBuffer);
 
         final metric = fixture.createMetric();
         processor.addMetric(metric);
@@ -86,7 +80,6 @@ void main() {
         final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>();
 
         final processor = fixture.getSut(
-          enableLogs: true,
           spanBuffer: mockSpanBuffer,
           logBuffer: mockLogBuffer,
           metricBuffer: mockMetricBuffer,
@@ -165,14 +158,10 @@ class Fixture {
   }
 
   DefaultTelemetryProcessor getSut({
-    bool enableLogs = false,
-    bool enableMetrics = false,
     MockTelemetryBuffer<RecordingSentrySpanV2>? spanBuffer,
     MockTelemetryBuffer<SentryLog>? logBuffer,
     MockTelemetryBuffer<SentryMetric>? metricBuffer,
   }) {
-    options.enableLogs = enableLogs;
-    options.enableMetrics = enableMetrics;
     return DefaultTelemetryProcessor(
       spanBuffer: spanBuffer,
       logBuffer: logBuffer,

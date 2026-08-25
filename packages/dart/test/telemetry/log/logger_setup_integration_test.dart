@@ -1,7 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/log/default_logger.dart';
 import 'package:sentry/src/telemetry/log/logger_setup_integration.dart';
-import 'package:sentry/src/telemetry/log/noop_logger.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
@@ -14,56 +13,28 @@ void main() {
       fixture = Fixture();
     });
 
-    group('when logs are enabled', () {
-      test('configures DefaultSentryLogger', () {
-        fixture.options.enableLogs = true;
+    test('configures DefaultSentryLogger', () {
+      fixture.sut.call(fixture.hub, fixture.options);
 
-        fixture.sut.call(fixture.hub, fixture.options);
-
-        expect(fixture.options.logger, isA<DefaultSentryLogger>());
-      });
-
-      test('adds integration to SDK', () {
-        fixture.options.enableLogs = true;
-
-        fixture.sut.call(fixture.hub, fixture.options);
-
-        expect(
-          fixture.options.sdk.integrations,
-          contains(LoggerSetupIntegration.integrationName),
-        );
-      });
-
-      test('does not override existing non-noop logger', () {
-        fixture.options.enableLogs = true;
-        final customLogger = _CustomSentryLogger();
-        fixture.options.logger = customLogger;
-
-        fixture.sut.call(fixture.hub, fixture.options);
-
-        expect(fixture.options.logger, same(customLogger));
-      });
+      expect(fixture.options.logger, isA<DefaultSentryLogger>());
     });
 
-    group('when logs are disabled', () {
-      test('does not configure logger', () {
-        fixture.options.enableLogs = false;
+    test('adds integration to SDK', () {
+      fixture.sut.call(fixture.hub, fixture.options);
 
-        fixture.sut.call(fixture.hub, fixture.options);
+      expect(
+        fixture.options.sdk.integrations,
+        contains(LoggerSetupIntegration.integrationName),
+      );
+    });
 
-        expect(fixture.options.logger, isA<NoOpSentryLogger>());
-      });
+    test('does not override existing non-noop logger', () {
+      final customLogger = _CustomSentryLogger();
+      fixture.options.logger = customLogger;
 
-      test('does not add integration to SDK', () {
-        fixture.options.enableLogs = false;
+      fixture.sut.call(fixture.hub, fixture.options);
 
-        fixture.sut.call(fixture.hub, fixture.options);
-
-        expect(
-          fixture.options.sdk.integrations,
-          isNot(contains(LoggerSetupIntegration.integrationName)),
-        );
-      });
+      expect(fixture.options.logger, same(customLogger));
     });
   });
 }
