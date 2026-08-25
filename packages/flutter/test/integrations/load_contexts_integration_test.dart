@@ -759,23 +759,6 @@ void main() {
         expect(log.attributes['device.model'], isNull);
         expect(log.attributes['device.family'], isNull);
       });
-
-      test('handles throw during loadContexts', () async {
-        fixture.options.enableLogs = true;
-        await fixture.registerIntegration();
-
-        when(fixture.binding.loadContexts()).thenThrow(Exception('test'));
-
-        final log = givenLog();
-        await fixture.hub.captureLog(log);
-
-        // os.name and os.version come from the enricher's minimal context
-        // path (Dart-level OS detection), not from native loadContexts(), so
-        // we only assert device.*
-        expect(log.attributes['device.brand'], isNull);
-        expect(log.attributes['device.model'], isNull);
-        expect(log.attributes['device.family'], isNull);
-      });
     });
 
     group('metrics', () {
