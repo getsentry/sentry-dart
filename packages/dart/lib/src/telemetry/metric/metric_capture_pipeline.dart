@@ -13,7 +13,7 @@ class MetricCapturePipeline {
 
   Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {
     if (!_options.enableMetrics) {
-      internalLogger.debug(
+      internalLogger.debug(() =>
           '$MetricCapturePipeline: Metrics disabled, dropping ${metric.name}');
       return;
     }
