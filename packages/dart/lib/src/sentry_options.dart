@@ -596,9 +596,9 @@ class SentryOptions {
 
   /// Whether integrations may capture logs automatically.
   ///
-  /// Enabled by default. Logs sent through [logger] are always captured and
+  /// Disabled by default. Logs sent through [logger] are always captured and
   /// are not affected by this option.
-  bool enableLogs = true;
+  bool enableLogs = false;
 
   /// Whether integrations may capture metrics automatically.
   ///
