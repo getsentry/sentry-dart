@@ -706,7 +706,6 @@ void main() {
 
     group('logs', () {
       test('adds device attributes to log from native contexts', () async {
-        fixture.options.enableLogs = true;
         await fixture.registerIntegration();
 
         when(fixture.binding.loadContexts())
@@ -724,9 +723,7 @@ void main() {
         expect(log.attributes['device.family']?.value, 'fixture-device-family');
       });
 
-      test(
-          'does not add os and device attributes to log if enableLogs is false',
-          () async {
+      test('adds device attributes to log when enableLogs is false', () async {
         fixture.options.enableLogs = false;
         await fixture.registerIntegration();
 
@@ -736,15 +733,12 @@ void main() {
         final log = givenLog();
         await fixture.hub.captureLog(log);
 
-        expect(log.attributes['os.name'], isNull);
-        expect(log.attributes['os.version'], isNull);
-        expect(log.attributes['device.brand'], isNull);
-        expect(log.attributes['device.model'], isNull);
-        expect(log.attributes['device.family'], isNull);
+        expect(log.attributes['device.brand']?.value, 'fixture-device-brand');
+        expect(log.attributes['device.model']?.value, 'fixture-device-model');
+        expect(log.attributes['device.family']?.value, 'fixture-device-family');
       });
 
       test('handles throw during loadContexts', () async {
-        fixture.options.enableLogs = true;
         await fixture.registerIntegration();
 
         when(fixture.binding.loadContexts()).thenThrow(Exception('test'));
@@ -762,12 +756,9 @@ void main() {
     });
 
     group('metrics', () {
-      test('adds device attributes to metric when metrics enabled', () async {
-        fixture.options.enableMetrics = true;
+      test('adds device attributes to metric from native contexts', () async {
         mockLoadContexts();
         await fixture.registerIntegration();
-
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
 
         final metric = SentryCounterMetric(
           timestamp: DateTime.now(),
@@ -789,11 +780,14 @@ void main() {
             'fixture-device-family');
       });
 
-      test('does not register callback when metrics disabled', () async {
+      test('registers a metric callback when enableMetrics is false', () async {
         fixture.options.enableMetrics = false;
         await fixture.registerIntegration();
 
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 0);
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+          isNotEmpty,
+        );
       });
     });
 
@@ -891,11 +885,13 @@ void main() {
 
     group('close', () {
       test('removes metric callback from lifecycle registry', () async {
-        fixture.options.enableMetrics = true;
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 1);
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+          isNotEmpty,
+        );
 
         fixture.sut.close();
 
@@ -906,7 +902,6 @@ void main() {
       });
 
       test('removes log callback from lifecycle registry', () async {
-        fixture.options.enableLogs = true;
         await fixture.registerIntegration();
 
         expect(
@@ -941,8 +936,6 @@ void main() {
       });
 
       test('removes all callbacks when all features enabled', () async {
-        fixture.options.enableMetrics = true;
-        fixture.options.enableLogs = true;
         fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();
@@ -966,7 +959,6 @@ void main() {
       });
 
       test('metric callback is not invoked after close', () async {
-        fixture.options.enableMetrics = true;
         mockLoadContexts();
         await fixture.registerIntegration();
 
