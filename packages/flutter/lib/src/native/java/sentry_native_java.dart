@@ -114,8 +114,13 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> close() async {
+    // Started synchronously (not awaited) so its shutdown message is sent
+    // within the caller's own call stack rather than after a microtask
+    // hop - see the comment on AndroidCoreWorker.close(). Awaited afterwards
+    // only so this method's own Future doesn't complete early.
+    final coreWorkerClosed = _coreWorker?.close();
     await _replayRecorder?.stop();
-    await _coreWorker?.close();
+    await coreWorkerClosed;
     _setNativeReplay(null);
     return super.close();
   }

@@ -112,6 +112,35 @@ void main() {
       );
     });
 
+    test('close completes synchronously once started', () async {
+      // A caller reacting to AppLifecycleState.detached - synchronous, with
+      // no guarantee a later microtask ever runs before the engine hosting
+      // this isolate is torn down - relies on close() finishing its
+      // shutdown send within that same call, not after an `await`. See
+      // #3960.
+      late ReceivePort inbox;
+      Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
+        inbox = ReceivePort();
+        addTearDown(inbox.close);
+        final replies = ReceivePort();
+        addTearDown(replies.close);
+        return Worker(inbox.sendPort, replies);
+      }
+
+      final worker =
+          AndroidCoreWorker(SentryFlutterOptions(), spawn: fakeSpawn);
+      await worker.start();
+
+      final result = worker.close();
+
+      expect(result, isNull,
+          reason:
+              'close() must return synchronously (not a pending Future) once '
+              'the worker has started, so its shutdown send cannot be '
+              'deferred past a microtask boundary that may never run.');
+      expect(await inbox.first, '_shutdown_');
+    });
+
     test('close waits for in-flight start', () async {
       final options = SentryFlutterOptions();
       final spawnCompleter = Completer<Worker>();

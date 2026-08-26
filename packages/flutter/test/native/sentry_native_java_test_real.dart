@@ -81,14 +81,42 @@ void main() {
       expect(startCalled, isTrue,
           reason: 'start() should be called during construction');
     });
+
+    test('close() closes the core worker synchronously, before its first await',
+        () async {
+      // The core worker starts unconditionally regardless of
+      // autoInitializeNativeSdk, so close() must be reachable whenever the
+      // engine hosting it is about to be torn down - e.g. from an
+      // AppLifecycleState.detached callback, which is synchronous and gives
+      // no guarantee a later microtask will ever run. An `await` placed
+      // before this call - even on an already-resolved value - would push
+      // it past that guarantee. See #3960.
+      var closeCalled = false;
+
+      AndroidCoreWorker.factory = (options) {
+        return _FakeCoreWorker(onClose: () => closeCalled = true);
+      };
+
+      final options =
+          SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
+      final native = SentryNativeJava(options);
+
+      final closeFuture = native.close();
+      expect(closeCalled, isTrue);
+
+      // Only the synchronous ordering above is under test; the channel used
+      // by the rest of close() isn't mocked here.
+      await closeFuture.catchError((_) {});
+    });
   });
 }
 
 /// Fake core worker for testing that tracks method calls.
 class _FakeCoreWorker implements AndroidCoreWorker {
   final void Function()? onStart;
+  final void Function()? onClose;
 
-  _FakeCoreWorker({this.onStart});
+  _FakeCoreWorker({this.onStart, this.onClose});
 
   @override
   FutureOr<void> start() {
@@ -97,7 +125,7 @@ class _FakeCoreWorker implements AndroidCoreWorker {
 
   @override
   FutureOr<void> close() {
-    // No-op for testing
+    onClose?.call();
   }
 
   @override
