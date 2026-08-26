@@ -216,6 +216,10 @@ final class StaticAppStartTrace implements AppStartTrace {
         SemanticAttributesConstants.appVitalsStartScreen,
         vitals.screen,
       );
+      for (final child in _root.children) {
+        child.data[SemanticAttributesConstants.appVitalsStartScreen] =
+            vitals.screen;
+      }
 
       final measurement = vitals.measurement;
       if (measurement != null) {
