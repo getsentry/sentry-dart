@@ -18,8 +18,9 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// [Breadcrumb].
   /// - All log events equal or higher than [minEventLevel] are recorded as a
   /// [SentryEvent].
-  /// - When [enableLogs] is `true`, all log events equal or higher than
-  /// [minSentryLogLevel] are forwarded as structured Sentry logs.
+  /// - All log events equal or higher than [minSentryLogLevel] are forwarded as
+  /// structured Sentry logs. Raise it, or set it to [Level.OFF], to stop
+  /// forwarding without giving up breadcrumbs and events.
   ///
   /// Log levels are mapped to the following Sentry log levels methods:
   ///
@@ -41,13 +42,11 @@ class LoggingIntegration implements Integration<SentryOptions> {
     this._minBreadcrumbLevel = Level.INFO,
     this._minEventLevel = Level.SEVERE,
     this._minSentryLogLevel = Level.INFO,
-    this._enableLogs = false,
   });
 
   final Level _minBreadcrumbLevel;
   final Level _minEventLevel;
   final Level _minSentryLogLevel;
-  final bool _enableLogs;
   late StreamSubscription<LogRecord> _subscription;
   late Hub _hub;
   late SentryOptions _options;
@@ -100,7 +99,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
       );
     }
 
-    if (_enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
+    if (_isLoggable(record.level, _minSentryLogLevel)) {
       final attributes = {
         'loggerName': SentryAttribute.string(record.loggerName),
         'sequenceNumber': SentryAttribute.int(record.sequenceNumber),

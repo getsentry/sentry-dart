@@ -184,7 +184,7 @@ void main() {
   });
 
   group('Sentry logger integration', () {
-    test('does not call sentry logger when enableLogs is false', () async {
+    test('calls sentry logger when level meets threshold', () async {
       final mockLogger = MockSentryLogger();
       final options = TestSentryOptions(mockLogger);
 
@@ -196,39 +196,15 @@ void main() {
 
       await Future<void>.delayed(Duration(milliseconds: 10));
 
-      expect(mockLogger.errorCalls.length, 0);
+      expect(mockLogger.errorCalls.length, 1);
+      expect(mockLogger.errorCalls.first.message, 'Test message');
     });
-
-    test(
-      'calls sentry logger when enableLogs is true and level meets threshold',
-      () async {
-        final mockLogger = MockSentryLogger();
-        final options = TestSentryOptions(mockLogger);
-
-        final sut = fixture.createSut(
-          minSentryLogLevel: Level.INFO,
-          enableLogs: true,
-        );
-        sut.call(fixture.hub, options);
-
-        final log = Logger('TestLogger');
-        log.severe('Test message');
-
-        await Future<void>.delayed(Duration(milliseconds: 10));
-
-        expect(mockLogger.errorCalls.length, 1);
-        expect(mockLogger.errorCalls.first.message, 'Test message');
-      },
-    );
 
     test('does not call sentry logger when level is below threshold', () async {
       final mockLogger = MockSentryLogger();
       final options = TestSentryOptions(mockLogger);
 
-      final sut = fixture.createSut(
-        minSentryLogLevel: Level.SEVERE,
-        enableLogs: true,
-      );
+      final sut = fixture.createSut(minSentryLogLevel: Level.SEVERE);
       sut.call(fixture.hub, options);
 
       final log = Logger('TestLogger');
@@ -243,10 +219,7 @@ void main() {
       final mockLogger = MockSentryLogger();
       final options = TestSentryOptions(mockLogger);
 
-      final sut = fixture.createSut(
-        minSentryLogLevel: Level.ALL,
-        enableLogs: true,
-      );
+      final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
       sut.call(fixture.hub, options);
 
       final log = Logger('TestLogger');
@@ -299,10 +272,7 @@ void main() {
       final mockLogger = MockSentryLogger();
       final options = TestSentryOptions(mockLogger);
 
-      final sut = fixture.createSut(
-        minSentryLogLevel: Level.INFO,
-        enableLogs: true,
-      );
+      final sut = fixture.createSut(minSentryLogLevel: Level.INFO);
       sut.call(fixture.hub, options);
 
       final log = Logger('TestLogger');
@@ -341,10 +311,7 @@ void main() {
       final mockLogger = MockSentryLogger();
       final options = TestSentryOptions(mockLogger);
 
-      final sut = fixture.createSut(
-        minSentryLogLevel: Level.ALL,
-        enableLogs: true,
-      );
+      final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
       sut.call(fixture.hub, options);
 
       final log = Logger('TestLogger');
@@ -359,14 +326,31 @@ void main() {
       expect(mockLogger.traceCalls.length, 0);
     });
 
+    test('minSentryLogLevel Level.OFF forwards no logs', () async {
+      final mockLogger = MockSentryLogger();
+      final options = TestSentryOptions(mockLogger);
+
+      final sut = fixture.createSut(minSentryLogLevel: Level.OFF);
+      sut.call(fixture.hub, options);
+
+      final log = Logger('TestLogger');
+      log.severe('Error message');
+      log.info('Info message');
+
+      await Future<void>.delayed(Duration(milliseconds: 10));
+
+      expect(mockLogger.errorCalls, isEmpty);
+      expect(mockLogger.warnCalls, isEmpty);
+      expect(mockLogger.infoCalls, isEmpty);
+      expect(mockLogger.debugCalls, isEmpty);
+      expect(mockLogger.traceCalls, isEmpty);
+    });
+
     test('minSentryLogLevel is respected', () async {
       final mockLogger = MockSentryLogger();
       final options = TestSentryOptions(mockLogger);
 
-      final sut = fixture.createSut(
-        minSentryLogLevel: Level.WARNING,
-        enableLogs: true,
-      );
+      final sut = fixture.createSut(minSentryLogLevel: Level.WARNING);
       sut.call(fixture.hub, options);
 
       final log = Logger('TestLogger');
@@ -390,10 +374,7 @@ void main() {
         final mockLogger = MockSentryLogger();
         final options = TestSentryOptions(mockLogger);
 
-        final sut = fixture.createSut(
-          minSentryLogLevel: Level.ALL,
-          enableLogs: true,
-        );
+        final sut = fixture.createSut(minSentryLogLevel: Level.ALL);
         sut.call(fixture.hub, options);
 
         final log = Logger('TestLogger');
@@ -450,10 +431,7 @@ void main() {
         final mockLogger = MockSentryLogger();
         final options = TestSentryOptions(mockLogger);
 
-        final sut = fixture.createSut(
-          minSentryLogLevel: Level.WARNING,
-          enableLogs: true,
-        );
+        final sut = fixture.createSut(minSentryLogLevel: Level.WARNING);
         sut.call(fixture.hub, options);
 
         final log = Logger('TestLogger');
@@ -495,13 +473,11 @@ class Fixture {
     Level minBreadcrumbLevel = Level.INFO,
     Level minEventLevel = Level.SEVERE,
     Level minSentryLogLevel = Level.SEVERE,
-    bool enableLogs = false,
   }) {
     return LoggingIntegration(
       minBreadcrumbLevel: minBreadcrumbLevel,
       minEventLevel: minEventLevel,
       minSentryLogLevel: minSentryLogLevel,
-      enableLogs: enableLogs,
     );
   }
 }

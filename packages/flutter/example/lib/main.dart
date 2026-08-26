@@ -82,9 +82,7 @@ Future<void> setupSentry(
     options.considerInAppFramesByDefault = false;
     options.attachThreads = true;
     options.enableWindowMetricBreadcrumbs = true;
-    options.addIntegration(
-      LoggingIntegration(minEventLevel: Level.INFO, enableLogs: true),
-    );
+    options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
     options.sendDefaultPii = true;
     options.reportSilentFlutterErrors = true;
     options.attachScreenshot = true;
