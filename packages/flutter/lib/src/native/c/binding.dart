@@ -276,9 +276,9 @@ class SentryNative {
   late final _value_get_by_index = _value_get_by_indexPtr
       .asFunction<sentry_value_u Function(sentry_value_u, int)>();
 
-  /// Returns the length of the given map or list.
+  /// Returns the length of the given map, list, or string.
   ///
-  /// If an item is not a list or map, the return value is 0.
+  /// If an item is not a list, map, or string, the return value is 0.
   int value_get_length(
     sentry_value_u value,
   ) {
