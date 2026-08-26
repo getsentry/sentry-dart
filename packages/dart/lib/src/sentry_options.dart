@@ -594,14 +594,16 @@ class SentryOptions {
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
 
-  /// Enable to capture and send logs to Sentry.
+  /// Whether integrations may capture logs automatically.
   ///
-  /// Disabled by default.
-  bool enableLogs = false;
+  /// Enabled by default. Logs sent through [logger] are always captured and
+  /// are not affected by this option.
+  bool enableLogs = true;
 
-  /// Enable to capture and send metrics to Sentry.
+  /// Whether integrations may capture metrics automatically.
   ///
-  /// Enabled by default.
+  /// Enabled by default. Metrics sent through [metrics] are always captured
+  /// and are not affected by this option.
   bool enableMetrics = true;
 
   /// Enables adding the module in [SentryStackFrame.module].

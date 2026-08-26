@@ -18,8 +18,9 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// [Breadcrumb].
   /// - All log events equal or higher than [minEventLevel] are recorded as a
   /// [SentryEvent].
-  /// - All log events equal or higher than [minSentryLogLevel] are logged to
-  /// Sentry, if [SentryOptions.enableLogs] is true.
+  /// - All log events equal or higher than [minSentryLogLevel] are sent to
+  /// Sentry as logs. Set [SentryOptions.enableLogs] to `false` to stop
+  /// forwarding them; breadcrumbs and events are unaffected.
   ///
   /// Log levels are mapped to the following Sentry log levels methods:
   ///
