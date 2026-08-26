@@ -1,5 +1,10 @@
 package io.sentry.flutter.sample
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
 import android.os.Handler
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -10,6 +15,30 @@ import kotlin.concurrent.thread
 class MainActivity : FlutterActivity() {
   private val _channel = "example.flutter.sentry.io"
   private val mutex = Object()
+
+  // Lets `adb shell am broadcast -a io.sentry.flutter.sample.REMOVE_TASK` drive
+  // the exact same teardown as swiping the app off Recents, for the manual
+  // repro harness in lib/memleak_repro_main.dart, see #3960.
+  private val removeTaskReceiver =
+    object : BroadcastReceiver() {
+      override fun onReceive(context: Context?, intent: Intent?) = finishAndRemoveTask()
+    }
+
+  override fun onCreate(savedInstanceState: android.os.Bundle?) {
+    super.onCreate(savedInstanceState)
+    val filter = IntentFilter("io.sentry.flutter.sample.REMOVE_TASK")
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      registerReceiver(removeTaskReceiver, filter, Context.RECEIVER_EXPORTED)
+    } else {
+      @Suppress("UnspecifiedRegisterReceiverFlag")
+      registerReceiver(removeTaskReceiver, filter)
+    }
+  }
+
+  override fun onDestroy() {
+    unregisterReceiver(removeTaskReceiver)
+    super.onDestroy()
+  }
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
@@ -38,6 +67,9 @@ class MainActivity : FlutterActivity() {
         "cpp_capture_message" -> message()
 
         "platform_exception" -> throw RuntimeException("Catch this platform exception!")
+
+        // Used by lib/memleak_repro_main.dart, see #3960.
+        "start_keep_alive_service" -> KeepAliveService.start(this)
 
         else -> result.notImplemented()
       }
