@@ -723,6 +723,21 @@ void main() {
         expect(log.attributes['device.family']?.value, 'fixture-device-family');
       });
 
+      test('adds device attributes to log when enableLogs is false', () async {
+        fixture.options.enableLogs = false;
+        await fixture.registerIntegration();
+
+        when(fixture.binding.loadContexts())
+            .thenAnswer((_) async => defaultContexts);
+
+        final log = givenLog();
+        await fixture.hub.captureLog(log);
+
+        expect(log.attributes['device.brand']?.value, 'fixture-device-brand');
+        expect(log.attributes['device.model']?.value, 'fixture-device-model');
+        expect(log.attributes['device.family']?.value, 'fixture-device-family');
+      });
+
       test('handles throw during loadContexts', () async {
         await fixture.registerIntegration();
 
@@ -741,11 +756,9 @@ void main() {
     });
 
     group('metrics', () {
-      test('adds device attributes to metric', () async {
+      test('adds device attributes to metric from native contexts', () async {
         mockLoadContexts();
         await fixture.registerIntegration();
-
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
 
         final metric = SentryCounterMetric(
           timestamp: DateTime.now(),
@@ -765,6 +778,16 @@ void main() {
             'fixture-device-model');
         expect(attributes[SemanticAttributesConstants.deviceFamily]?.value,
             'fixture-device-family');
+      });
+
+      test('registers a metric callback when enableMetrics is false', () async {
+        fixture.options.enableMetrics = false;
+        await fixture.registerIntegration();
+
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+          isNotEmpty,
+        );
       });
     });
 
@@ -865,7 +888,10 @@ void main() {
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+          isNotEmpty,
+        );
 
         fixture.sut.close();
 
@@ -909,7 +935,7 @@ void main() {
         );
       });
 
-      test('removes all callbacks when trace lifecycle is streaming', () async {
+      test('removes all callbacks when all features enabled', () async {
         fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
         mockLoadContexts();
         await fixture.registerIntegration();

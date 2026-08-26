@@ -183,4 +183,16 @@ void main() {
 
     expect(() => options.parsedDsn, throwsA(isA<StateError>()));
   });
+
+  test('enableMetrics is true by default', () {
+    final options = defaultTestOptions();
+
+    expect(options.enableMetrics, true);
+  });
+
+  test('enableLogs is false by default', () {
+    final options = defaultTestOptions();
+
+    expect(options.enableLogs, false);
+  });
 }
