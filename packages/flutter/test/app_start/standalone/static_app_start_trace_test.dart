@@ -61,6 +61,10 @@ void main() {
         root.children.map((span) => span.data['app.vitals.start.screen']),
         everyElement('launch'),
       );
+      expect(
+        root.children.map((span) => span.data['app.vitals.start.type']),
+        everyElement('cold'),
+      );
     });
 
     test('creates direct standalone breakdown children', () {

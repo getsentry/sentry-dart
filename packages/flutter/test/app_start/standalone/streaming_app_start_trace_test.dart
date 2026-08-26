@@ -87,6 +87,12 @@ void main() {
         everyElement('launch'),
       );
       expect(
+        [child, grandchild].map(
+          (span) => span.attributes['app.vitals.start.type']?.value,
+        ),
+        everyElement('cold'),
+      );
+      expect(
         fixture.children
             .where(
               (span) =>

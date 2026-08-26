@@ -201,7 +201,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   void _processSpan(OnProcessSpan event) {
-    _copyStartScreenFromSegment(event.span);
+    _copyStartVitalsFromSegment(event.span);
 
     if (!identical(event.span, _root) ||
         _state == AppStartTraceState.completed) {
@@ -260,20 +260,28 @@ final class StreamingAppStartTrace implements AppStartTrace {
     }
   }
 
-  void _copyStartScreenFromSegment(RecordingSentrySpanV2 span) {
+  void _copyStartVitalsFromSegment(RecordingSentrySpanV2 span) {
     final segment = span.segmentSpan;
     if (identical(span, segment)) return;
     if (segment.attributes[SemanticAttributesConstants.sentryOp]?.value !=
         SentrySpanOperations.appStart) {
       return;
     }
-    final screen =
-        segment.attributes[SemanticAttributesConstants.appVitalsStartScreen];
-    if (screen == null) return;
-    span.setAttribute(
-      SemanticAttributesConstants.appVitalsStartScreen,
-      screen,
-    );
+    final attributes = segment.attributes;
+    final screen = attributes[SemanticAttributesConstants.appVitalsStartScreen];
+    if (screen != null) {
+      span.setAttribute(
+        SemanticAttributesConstants.appVitalsStartScreen,
+        screen,
+      );
+    }
+    final type = attributes[SemanticAttributesConstants.appVitalsStartType];
+    if (type != null) {
+      span.setAttribute(
+        SemanticAttributesConstants.appVitalsStartType,
+        type,
+      );
+    }
   }
 }
 
