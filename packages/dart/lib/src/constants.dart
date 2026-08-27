@@ -131,6 +131,9 @@ abstract class SemanticAttributesConstants {
   /// The operation name of a span.
   static const sentryOp = 'sentry.op';
 
+  /// The chosen trace lifecycle mode of the SDK (`stream` or `static`).
+  static const sentryTraceLifecycle = 'sentry.trace_lifecycle';
+
   /// The prefix for feature flag evaluations recorded on spans.
   static const featureFlagEvaluationPrefix = 'flag.evaluation.';
 

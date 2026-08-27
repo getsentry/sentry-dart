@@ -119,6 +119,16 @@ void main() {
       });
     });
 
+    test('adds metrics to processor when enableMetrics is false', () async {
+      fixture.options.enableMetrics = false;
+
+      final metric = fixture.createMetric();
+
+      await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
+
+      expect(fixture.processor.addedMetrics, hasLength(1));
+    });
+
     group('when beforeSendMetric is configured', () {
       test('returning null drops the metric', () async {
         fixture.options.beforeSendMetric = (_) => null;

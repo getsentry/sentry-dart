@@ -2425,6 +2425,7 @@ void main() {
       final mockHttpClient = MockHttpClient();
       fixture.options.httpClient = mockHttpClient;
 
+      fixture.options.enableLogs = true;
       final client = fixture.getSut();
 
       // Create a completer to control when flush completes
