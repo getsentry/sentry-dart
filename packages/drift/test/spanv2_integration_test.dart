@@ -3,7 +3,7 @@
 library;
 
 import 'package:_sentry_testing/_sentry_testing.dart';
-import 'package:drift/drift.dart' hide isNotNull;
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
@@ -173,6 +173,49 @@ void main() {
       );
       expect(span.parentSpan, equals(transactionSpan));
     });
+
+    // Drift never captures: it marks the span and rethrows, so the error is
+    // reported later by application code or a global handler.
+    group('when a failing query is reported after it escaped', () {
+      test('links the error to the db span', () async {
+        final db = fixture.db;
+
+        late SentrySpanV2 transactionSpan;
+        Object? escapedError;
+        await fixture.hub.startSpan(
+          'test-transaction',
+          (span) async {
+            transactionSpan = span;
+            try {
+              await db.customStatement('SELECT * FROM missing_table');
+            } catch (e) {
+              escapedError = e;
+            }
+          },
+          parentSpan: null,
+        );
+
+        await fixture.hub.captureException(escapedError);
+
+        await fixture.processor.waitForProcessing();
+        final dbSpan = fixture.processor.findSpanByOperation('db.sql.query')!;
+
+        final traceContext = fixture.capturedEvents.first.contexts.trace;
+        expect(traceContext?.spanId, dbSpan.spanId);
+        expect(traceContext?.parentSpanId, transactionSpan.spanId);
+        expect(traceContext?.traceId, transactionSpan.traceId);
+        expect(traceContext?.operation, 'db.sql.query');
+      });
+
+      test('does not link an error that no span marked', () async {
+        await fixture.hub.captureException(StateError('unrelated'));
+
+        expect(
+          fixture.capturedEvents.first.contexts.trace?.parentSpanId,
+          isNull,
+        );
+      });
+    });
   });
 }
 
@@ -181,6 +224,7 @@ class Fixture {
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
   late AppDatabase db;
+  final capturedEvents = <SentryEvent>[];
 
   static const String dbName = 'test-db';
 
@@ -189,7 +233,13 @@ class Fixture {
     options = defaultTestOptions()
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      // Records the event after the scope was applied and drops it, so no
+      // transport is involved.
+      ..beforeSend = (event, hint) {
+        capturedEvents.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
@@ -207,6 +257,7 @@ class Fixture {
 
   Future<void> tearDown() async {
     processor.clear();
+    capturedEvents.clear();
 
     try {
       await db.close();

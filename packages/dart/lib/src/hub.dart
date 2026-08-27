@@ -101,6 +101,8 @@ class Hub {
         scope = s;
       }
 
+      scope = _linkEventToSpan(scope, item.scope, event.throwable);
+
       try {
         if (_options.isTracingEnabled()) {
           event = _assignTraceContext(event);
@@ -158,6 +160,8 @@ class Hub {
       } else {
         scope = s;
       }
+
+      scope = _linkEventToSpan(scope, item.scope, throwable);
 
       try {
         var event = SentryEvent(
@@ -354,6 +358,35 @@ class Hub {
         );
       }
     }
+  }
+
+  /// Attaches the span the captured event belongs to onto [scope] so that the
+  /// two are linked.
+  ///
+  /// Copies [scope] first when it is still [hubScope], because the span must
+  /// not outlive the capture: nothing would unset it afterwards and every later
+  /// event would link to an already ended span.
+  ///
+  /// Preference goes to the most specific attribution. A span already on
+  /// [scope] was set by a `withScope` callback, so it wins outright. A span
+  /// that [throwable] aborted beats the ambient one, which merely happened to
+  /// be open at capture time.
+  ///
+  /// Static tracing has no span to link here — it links through
+  /// [_assignTraceContext] instead.
+  Scope _linkEventToSpan(Scope scope, Scope hubScope, Object? throwable) {
+    if (_options.traceLifecycle == SentryTraceLifecycle.static ||
+        scope.getActiveSpan() != null) {
+      return scope;
+    }
+    final span = ThrowableSpanRegistry.lookup(throwable) ?? getActiveSpan();
+    if (span == null) {
+      return scope;
+    }
+    if (identical(scope, hubScope)) {
+      scope = scope.clone();
+    }
+    return scope..setActiveSpan(span);
   }
 
   FutureOr<Scope> _cloneAndRunWithScope(
