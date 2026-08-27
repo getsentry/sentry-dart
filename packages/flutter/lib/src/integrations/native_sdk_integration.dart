@@ -27,7 +27,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
     // tell whether one view detaching means it's safe to close - same
     // reasoning as WidgetsBindingIntegration's multi-view gate.
     if (!options.isMultiViewApp) {
-      final observer = _NativeBindingLifecycleObserver(_native);
+      final observer = _NativeBindingLifecycleObserver(this);
       _lifecycleObserver = observer;
       options.bindingUtils.instance?.addObserver(observer);
     }
@@ -63,6 +63,10 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
     // The native binding may start background resources unconditionally
     // (e.g. Android's AndroidCoreWorker), regardless of autoInitializeNativeSdk,
     // so close() must always run to stop them. See #3960.
+    await _closeNative();
+  }
+
+  Future<void> _closeNative() async {
     try {
       await _native.close();
     } catch (exception, stackTrace) {
@@ -84,9 +88,9 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 /// unconditionally don't outlive it. See
 /// https://github.com/getsentry/sentry-dart/issues/3960.
 class _NativeBindingLifecycleObserver with WidgetsBindingObserver {
-  _NativeBindingLifecycleObserver(this._native);
+  _NativeBindingLifecycleObserver(this._integration);
 
-  final SentryNativeBinding _native;
+  final NativeSdkIntegration _integration;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -96,7 +100,9 @@ class _NativeBindingLifecycleObserver with WidgetsBindingObserver {
       // their critical shutdown work (if any) synchronously, before their
       // first `await`, so it runs within this call stack rather than after
       // a microtask hop that may never come. See #3960.
-      _native.close();
+      // Routed through _closeNative() so errors from its asynchronous tail
+      // are still logged instead of becoming unhandled Future errors.
+      unawaited(_integration._closeNative());
     }
   }
 }

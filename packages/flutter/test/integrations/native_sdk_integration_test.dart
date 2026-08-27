@@ -96,6 +96,30 @@ void main() {
       verify(fixture.binding.close()).called(1);
     });
 
+    test(
+        'logs a fatal error instead of leaking an unhandled future error '
+        'when detached close fails', () async {
+      fixture.options.automatedTestMode = false;
+      when(fixture.binding.close()).thenAnswer((_) async => throw Exception());
+
+      SentryLevel? loggedLevel;
+      // ignore: invalid_use_of_internal_member
+      fixture.options.log = (level, message, {exception, logger, stackTrace}) {
+        loggedLevel = level;
+      };
+
+      await fixture.registerIntegration();
+      // A prior test may have already left the shared, real
+      // TestWidgetsFlutterBinding singleton in the detached state, in which
+      // case re-sending 'detached' is a no-op - force a state change first.
+      await _sendLifecycle('resumed');
+      await _sendLifecycle('detached');
+      // Let the unawaited close's async tail run.
+      await pumpEventQueue();
+
+      expect(loggedLevel, SentryLevel.fatal);
+    });
+
     test('does not close native binding on other lifecycle changes', () async {
       await fixture.registerIntegration();
 
