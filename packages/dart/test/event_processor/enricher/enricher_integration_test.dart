@@ -35,7 +35,11 @@ void main() {
       });
     });
 
-    group('when processing logs', () {
+    group('when enableLogs is true', () {
+      setUp(() {
+        fixture.options.enableLogs = true;
+      });
+
       test('adds minimal device and os attributes to logs', () async {
         fixture.getSut().call(HubAdapter(), fixture.options);
         final log = fixture.givenLog();
@@ -72,20 +76,28 @@ void main() {
 
         expect(log.attributes['device.brand']?.value, 'existing');
       });
+    });
 
-      test('registers a log callback when enableLogs is false', () {
+    group('when enableLogs is false', () {
+      setUp(() {
         fixture.options.enableLogs = false;
+      });
 
+      test('does not register a log callback', () {
         fixture.getSut().call(HubAdapter(), fixture.options);
 
         expect(
           fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
-          isNotEmpty,
+          anyOf(isNull, isEmpty),
         );
       });
     });
 
-    group('when processing metrics', () {
+    group('when enableMetrics is true', () {
+      setUp(() {
+        fixture.options.enableMetrics = true;
+      });
+
       test('adds minimal device attributes to metrics', () async {
         fixture.getSut().call(HubAdapter(), fixture.options);
         final metric = fixture.givenMetric();
@@ -98,15 +110,19 @@ void main() {
         expect(metric.attributes['device.model']?.value, 'enricher-model');
         expect(metric.attributes['device.family']?.value, 'enricher-family');
       });
+    });
 
-      test('registers a metric callback when enableMetrics is false', () {
+    group('when enableMetrics is false', () {
+      setUp(() {
         fixture.options.enableMetrics = false;
+      });
 
+      test('does not register a metric callback', () {
         fixture.getSut().call(HubAdapter(), fixture.options);
 
         expect(
           fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
-          isNotEmpty,
+          anyOf(isNull, isEmpty),
         );
       });
     });
@@ -183,7 +199,10 @@ void main() {
 
     group('when closing', () {
       test('removes all registered lifecycle callbacks', () {
-        fixture.options.traceLifecycle = SentryTraceLifecycle.stream;
+        fixture.options
+          ..enableLogs = true
+          ..enableMetrics = true
+          ..traceLifecycle = SentryTraceLifecycle.stream;
         final sut = fixture.getSut();
         sut.call(HubAdapter(), fixture.options);
 

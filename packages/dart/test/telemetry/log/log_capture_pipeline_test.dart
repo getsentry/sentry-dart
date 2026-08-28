@@ -146,14 +146,16 @@ void main() {
       });
     });
 
-    test('adds logs to processor when enableLogs is false', () async {
-      fixture.options.enableLogs = false;
+    group('when logs are disabled', () {
+      test('does not add logs to processor', () async {
+        fixture.options.enableLogs = false;
 
-      final log = givenLog();
+        final log = givenLog();
 
-      await fixture.pipeline.captureLog(log, scope: fixture.scope);
+        await fixture.pipeline.captureLog(log, scope: fixture.scope);
 
-      expect(fixture.processor.addedLogs, hasLength(1));
+        expect(fixture.processor.addedLogs, isEmpty);
+      });
     });
 
     group('when beforeSendLog is configured', () {
@@ -293,7 +295,8 @@ void main() {
 class Fixture {
   final options = defaultTestOptions()
     ..environment = 'test-env'
-    ..release = 'test-release';
+    ..release = 'test-release'
+    ..enableLogs = true;
 
   final processor = MockTelemetryProcessor();
   final recorder = MockClientReportRecorder();
