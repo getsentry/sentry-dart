@@ -78,13 +78,24 @@ class ScreenshotRecorder {
         return Future.value(null);
       }
 
+      // A boundary can transiently have no size on real devices, e.g. while
+      // the app is being resized. Rendering it fails on invalid dimensions.
+      if (renderObject.size.isEmpty) {
+        internalLogger.debug(
+          () =>
+              '$logName: Boundary has no size (${renderObject.size}), '
+              'skipping capture.',
+        );
+        return Future.value(null);
+      }
+
       final capture = _Capture<R>.create(renderObject, config!, context);
 
       Timeline.startSync(
         'Sentry::captureScreenshot:RenderObjectToImage',
         flow: flow,
       );
-      final futureImage = renderObject.toImage(pixelRatio: capture.pixelRatio);
+      final futureImage = renderImage(renderObject, capture.pixelRatio);
       Timeline.finishSync(); // Sentry::captureScreenshot:RenderObjectToImage
 
       Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
@@ -124,6 +135,12 @@ class ScreenshotRecorder {
     // first await, i.e. it's the same as if the code was executed directly.
     return Future.sync(task);
   }
+
+  @protected
+  Future<Image> renderImage(
+    RenderRepaintBoundary renderObject,
+    double pixelRatio,
+  ) => renderObject.toImage(pixelRatio: pixelRatio);
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
@@ -199,11 +216,26 @@ class _Capture<R> {
     Flow flow,
   ) {
     final timestamp = DateTime.now();
+
+    // Don't collapse this to `await futureImage` in the task: an error with
+    // no listener the moment the future completes is already an uncaught zone
+    // error, which the SDK reports as fatal — awaiting later can't retract it.
+    final imageOrError = futureImage.then<Object>(
+      (image) => image,
+      onError: (Object error, StackTrace stackTrace) =>
+          AsyncError(error, stackTrace),
+    );
+
     return () async {
+      final imageResult = await imageOrError;
+      if (imageResult is AsyncError) {
+        Error.throwWithStackTrace(imageResult.error, imageResult.stackTrace);
+      }
+      final image = imageResult as Image;
+
       Timeline.startSync('Sentry::renderScreenshot', flow: flow);
       final recorder = PictureRecorder();
       final canvas = Canvas(recorder);
-      final image = await futureImage;
 
       // Note: there's a weird bug when we write image to canvas directly.
       // If the UI is updating quickly in some apps, the image could get

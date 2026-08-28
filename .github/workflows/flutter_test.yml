@@ -34,6 +34,19 @@ jobs:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # Fork PRs do not receive secrets; the e2e test skips when the token is
+      # empty. First-party CI must still fail if the secret is missing.
+      # Allowlist push / same-repo pull_request so other events (e.g.
+      # pull_request_target) cannot be treated as first-party.
+      - name: Require E2E auth token on first-party CI
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+        working-directory: ${{ github.workspace }}
+        run: |
+          if [ -z "$SENTRY_AUTH_TOKEN_E2E" ]; then
+            echo "::error::SENTRY_AUTH_TOKEN_E2E is required for first-party CI"
+            exit 1
+          fi
+
       - name: Enable KVM group perms
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
@@ -94,6 +107,19 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Fork PRs do not receive secrets; the e2e test skips when the token is
+      # empty. First-party CI must still fail if the secret is missing.
+      # Allowlist push / same-repo pull_request so other events (e.g.
+      # pull_request_target) cannot be treated as first-party.
+      - name: Require E2E auth token on first-party CI
+        if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+        working-directory: ${{ github.workspace }}
+        run: |
+          if [ -z "$SENTRY_AUTH_TOKEN_E2E" ]; then
+            echo "::error::SENTRY_AUTH_TOKEN_E2E is required for first-party CI"
+            exit 1
+          fi
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5

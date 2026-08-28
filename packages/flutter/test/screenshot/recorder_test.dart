@@ -3,12 +3,15 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/replay/replay_recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder.dart';
 import 'package:sentry_flutter/src/screenshot/recorder_config.dart';
 import 'package:sentry_flutter/src/screenshot/screenshot.dart';
@@ -97,6 +100,62 @@ void main() async {
       );
 
       expect(await fixture.capture(), '427x854');
+    });
+  });
+
+  testWidgets('skips capture when the boundary has no size', (tester) async {
+    await tester.runAsync(() async {
+      final targetResolution = SentryScreenshotQuality.high.targetResolution();
+      final fixture = await _Fixture.createZeroSized(
+        tester,
+        width: targetResolution,
+        height: targetResolution,
+      );
+
+      expect(await fixture.capture(), isNull);
+    });
+  });
+
+  testWidgets('handles a failed image render without escaping to the zone', (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      await pumpTestElement(tester);
+      final sut = _FailingRenderRecorder(
+        defaultTestOptions()
+          ..bindingUtils = TestBindingWrapper()
+          ..automatedTestMode = false,
+      )..config = ScreenshotRecorderConfig();
+
+      final uncaught = <Object>[];
+      String? result;
+      await runZonedGuarded(() async {
+        result = await sut.capture<String?>((_) async => 'captured');
+      }, (error, stackTrace) => uncaught.add(error));
+
+      expect(uncaught, isEmpty);
+      expect(result, isNull);
+    });
+  });
+
+  testWidgets('propagates a failed image render in test-mode', (tester) async {
+    await tester.runAsync(() async {
+      await pumpTestElement(tester);
+      final sut = _FailingRenderRecorder(
+        defaultTestOptions()
+          ..bindingUtils = TestBindingWrapper()
+          ..automatedTestMode = true,
+      )..config = ScreenshotRecorderConfig();
+
+      await expectLater(
+        sut.capture<String?>((_) async => 'captured'),
+        throwsA(
+          predicate(
+            (Exception e) =>
+                e.toString().contains('testing image render error'),
+          ),
+        ),
+      );
     });
   });
 
@@ -194,6 +253,18 @@ void main() async {
   });
 }
 
+/// Extends [ReplayScreenshotRecorder] for its deferred `executeTask` — the
+/// window in which an unobserved error on the image future escapes to the zone.
+class _FailingRenderRecorder extends ReplayScreenshotRecorder {
+  _FailingRenderRecorder(super.options);
+
+  @override
+  Future<Image> renderImage(
+    RenderRepaintBoundary renderObject,
+    double pixelRatio,
+  ) async => throw Exception('testing image render error');
+}
+
 class _Fixture {
   late final ScreenshotRecorder sut = ScreenshotRecorder(
     options,
@@ -217,6 +288,16 @@ class _Fixture {
   }) async {
     final fixture = _Fixture(width: width, height: height);
     await pumpTestElement(tester);
+    return fixture;
+  }
+
+  static Future<_Fixture> createZeroSized(
+    WidgetTester tester, {
+    double? width,
+    double? height,
+  }) async {
+    final fixture = _Fixture(width: width, height: height);
+    await pumpZeroSizedTestElement(tester);
     return fixture;
   }
 

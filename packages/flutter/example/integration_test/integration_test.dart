@@ -1628,7 +1628,7 @@ void main() {
       );
       expect('integration', environment['value']);
     });
-  });
+  }, skip: authToken.isEmpty ? 'SENTRY_AUTH_TOKEN_E2E not provided' : false);
 }
 
 class Fixture {

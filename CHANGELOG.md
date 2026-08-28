@@ -87,6 +87,30 @@
 ### Enhancements
 
 - (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
+## 9.28.0
+
+### Features
+
+- (dart) Add sentry.trace_lifecycle span attribute by @buenaflor in [#3985](https://github.com/getsentry/sentry-dart/pull/3985)
+- Copy `app.vitals.start.screen` onto standalone `app.start` children so app start spans can be drilled down by launch screen. by @buenaflor in [#3988](https://github.com/getsentry/sentry-dart/pull/3988)
+- `enableLogs` and `enableMetrics` now only control automatic collection. Logs and metrics sent through `Sentry.logger` and `Sentry.metrics` are always captured, regardless of these options. by @buenaflor in [#3982](https://github.com/getsentry/sentry-dart/pull/3982)
+
+### Fixes
+
+#### Dart
+
+- Record client report outcome for dropped spans by @lucas-zimerman in [#3971](https://github.com/getsentry/sentry-dart/pull/3971)
+- Read Windows total physical memory via the native `GlobalMemoryStatusEx` API instead of spawning the deprecated `wmic.exe` (or PowerShell) process. by @cf-rhett in [#3894](https://github.com/getsentry/sentry-dart/pull/3894)
+
+#### Flutter
+
+- Narrow Android R8 keep rule from io.sentry.** to bound classes by @lucas-zimerman in [#3972](https://github.com/getsentry/sentry-dart/pull/3972)
+- Skip screenshot capture of a zero-sized boundary by @buenaflor in [#3954](https://github.com/getsentry/sentry-dart/pull/3954)
+- Support AGP 9's built-in Kotlin by @TheoGermain in [#3970](https://github.com/getsentry/sentry-dart/pull/3970)
+
+### Dependencies
+
+- chore(deps): update Native SDK to v0.16.4 by @github-actions in [#3986](https://github.com/getsentry/sentry-dart/pull/3986)
 
 ## 9.27.0
 

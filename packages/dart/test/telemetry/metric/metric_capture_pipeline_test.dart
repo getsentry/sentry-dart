@@ -142,16 +142,14 @@ void main() {
       });
     });
 
-    group('when metrics are disabled', () {
-      test('does not add metrics to processor', () async {
-        fixture.options.enableMetrics = false;
+    test('adds metrics to processor when enableMetrics is false', () async {
+      fixture.options.enableMetrics = false;
 
-        final metric = fixture.createMetric();
+      final metric = fixture.createMetric();
 
-        await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
+      await fixture.pipeline.captureMetric(metric, scope: fixture.scope);
 
-        expect(fixture.processor.addedMetrics, isEmpty);
-      });
+      expect(fixture.processor.addedMetrics, hasLength(1));
     });
 
     group('when beforeSendMetric is configured', () {
@@ -258,8 +256,7 @@ void main() {
 class Fixture {
   final options = defaultTestOptions()
     ..environment = 'test-env'
-    ..release = 'test-release'
-    ..enableMetrics = true;
+    ..release = 'test-release';
 
   final processor = MockTelemetryProcessor();
   final recorder = MockClientReportRecorder();
