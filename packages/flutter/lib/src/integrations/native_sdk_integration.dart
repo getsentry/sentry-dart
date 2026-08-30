@@ -18,6 +18,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
   SentryFlutterOptions? _options;
   final SentryNativeBinding _native;
   _NativeBindingLifecycleObserver? _lifecycleObserver;
+  bool _nativeClosed = false;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -67,6 +68,15 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
   }
 
   Future<void> _closeNative() async {
+    // Both the detach observer and an explicit Sentry.close() call reach
+    // this method, and either order is possible - guard against invoking a
+    // second native close, since the underlying native SDKs aren't
+    // guaranteed to tolerate being closed twice.
+    if (_nativeClosed) {
+      return;
+    }
+    _nativeClosed = true;
+
     try {
       await _native.close();
     } catch (exception, stackTrace) {

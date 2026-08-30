@@ -143,6 +143,17 @@ void main() {
       verifyNever(fixture.binding.close());
     });
 
+    test('does not close native binding twice when detach precedes close',
+        () async {
+      await fixture.registerIntegration();
+
+      await _sendLifecycle('resumed');
+      await _sendLifecycle('detached');
+      await fixture.sut.close();
+
+      verify(fixture.binding.close()).called(1);
+    });
+
     test('stops observing lifecycle after close', () async {
       await fixture.registerIntegration();
 
