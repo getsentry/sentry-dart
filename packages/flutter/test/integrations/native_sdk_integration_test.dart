@@ -91,6 +91,10 @@ void main() {
     test('closes native binding when app lifecycle becomes detached', () async {
       await fixture.registerIntegration();
 
+      // A prior test may have already left the shared, real
+      // TestWidgetsFlutterBinding singleton in the detached state, in which
+      // case re-sending 'detached' is a no-op - force a state change first.
+      await _sendLifecycle('resumed');
       await _sendLifecycle('detached');
 
       verify(fixture.binding.close()).called(1);
