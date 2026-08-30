@@ -87,6 +87,15 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 /// its Android Activity is destroyed - so background resources it started
 /// unconditionally don't outlive it. See
 /// https://github.com/getsentry/sentry-dart/issues/3960.
+///
+/// Known limitation: this close is permanent for the lifetime of this
+/// isolate. A cached/reused engine that goes `detached` and is later
+/// reattached to a new Activity (add-to-app hosts) will not have its native
+/// SDK restarted - `SentryFlutter.init` typically isn't called again on
+/// reattach, since skipping that re-run is the point of caching the engine.
+/// #3960's repro doesn't involve engine reattachment, so this is left
+/// unhandled here rather than risk depending on unverified re-init semantics
+/// in the underlying native SDKs.
 class _NativeBindingLifecycleObserver with WidgetsBindingObserver {
   _NativeBindingLifecycleObserver(this._integration);
 
