@@ -5,6 +5,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
@@ -28,6 +29,28 @@ void main() async {
       await fixture.nextFrame(false);
       await stopFuture;
       expect(fixture.capturedImages, ['1000x750', '1000x750']);
+    });
+  });
+
+  testWidgets('skips capture while app is not resumed', (tester) async {
+    await tester.runAsync(() async {
+      final fixture = await _Fixture.create(tester);
+      await fixture.nextFrame(true);
+      expect(fixture.capturedImages, ['1000x750']);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await fixture.nextFrame(false);
+      expect(fixture.capturedImages, ['1000x750']);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await fixture.nextFrame(true);
+      expect(fixture.capturedImages, ['1000x750', '1000x750']);
+
+      final stopFuture = fixture.sut.stop();
+      await fixture.nextFrame(false);
+      await stopFuture;
     });
   });
 }
