@@ -51,39 +51,35 @@ class LoadContextsIntegration implements Integration<SentryFlutterOptions> {
       options.removeEventProcessor(enricherEventProcessor);
       options.addEventProcessor(enricherEventProcessor);
     }
-    if (options.enableLogs) {
-      _logCallback = (event) async {
-        try {
-          final attributes = await _cachedSessionAttributes();
-          event.log.attributes.addAllIfAbsent(attributes);
-        } catch (exception, stackTrace) {
-          internalLogger.error(
-            'LoadContextsIntegration failed to load contexts for $OnProcessLog',
-            error: exception,
-            stackTrace: stackTrace,
-          );
-        }
-      };
-      options.lifecycleRegistry.registerCallback<OnProcessLog>(_logCallback!);
-    }
+    _logCallback = (event) async {
+      try {
+        final attributes = await _cachedSessionAttributes();
+        event.log.attributes.addAllIfAbsent(attributes);
+      } catch (exception, stackTrace) {
+        internalLogger.error(
+          'LoadContextsIntegration failed to load contexts for $OnProcessLog',
+          error: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    };
+    options.lifecycleRegistry.registerCallback<OnProcessLog>(_logCallback!);
 
-    if (options.enableMetrics) {
-      _metricCallback = (event) async {
-        try {
-          final attributes = await _cachedSessionAttributes();
-          event.metric.attributes.addAllIfAbsent(attributes);
-        } catch (exception, stackTrace) {
-          internalLogger.error(
-            'LoadContextsIntegration failed to load contexts for $OnProcessMetric',
-            error: exception,
-            stackTrace: stackTrace,
-          );
-        }
-      };
-      options.lifecycleRegistry.registerCallback<OnProcessMetric>(
-        _metricCallback!,
-      );
-    }
+    _metricCallback = (event) async {
+      try {
+        final attributes = await _cachedSessionAttributes();
+        event.metric.attributes.addAllIfAbsent(attributes);
+      } catch (exception, stackTrace) {
+        internalLogger.error(
+          'LoadContextsIntegration failed to load contexts for $OnProcessMetric',
+          error: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    };
+    options.lifecycleRegistry.registerCallback<OnProcessMetric>(
+      _metricCallback!,
+    );
 
     if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       _spanCallback = (event) async {

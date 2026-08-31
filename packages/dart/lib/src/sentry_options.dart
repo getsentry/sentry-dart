@@ -570,19 +570,6 @@ class SentryOptions {
   /// This is opt-in, as it can lead to existing exception beeing grouped as new ones.
   bool groupExceptions = false;
 
-  /// Enable to capture and send logs to Sentry.
-  ///
-  /// Enabled by default. Logs are only sent when they are emitted, either by
-  /// calling a [SentryLogger] method via `Sentry.logger`, or by explicitly
-  /// adding an integration that emits logs (e.g. `LoggingIntegration` from
-  /// the `sentry_logging` package).
-  bool enableLogs = true;
-
-  /// Enable to capture and send metrics to Sentry.
-  ///
-  /// Enabled by default.
-  bool enableMetrics = true;
-
   /// Enables adding the module in [SentryStackFrame.module].
   /// This option only has an effect in non-obfuscated builds.
   /// Enabling this option may change grouping.
