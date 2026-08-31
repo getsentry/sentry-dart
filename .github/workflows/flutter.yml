@@ -175,15 +175,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Regenerate proguard rules from ffi-jni.yaml
+      - name: Regenerate proguard rules from the JNI class list
         run: ./scripts/generate-sentry-java-proguard.sh
 
-      - name: Fail if proguard rules are out of sync with ffi-jni.yaml
+      - name: Fail if proguard rules are out of sync with the JNI class list
         run: |
           diff_output=$(git diff -- android/proguard-rules.pro)
           if [[ -n "$diff_output" ]]; then
             echo "$diff_output"
-            echo "::error::android/proguard-rules.pro is out of sync with ffi-jni.yaml. Run packages/flutter/scripts/generate-sentry-java-proguard.sh and commit the result."
+            echo "::error::android/proguard-rules.pro is out of sync with tool/jnigen.dart. Run packages/flutter/scripts/generate-sentry-java-proguard.sh and commit the result."
             exit 1
           fi
 
@@ -196,7 +196,7 @@ jobs:
         with:
           channel: stable
 
-      - name: Verify R8 keeps every io.sentry.* class from ffi-jni.yaml
+      - name: Verify R8 keeps every io.sentry.* class from tool/jnigen.dart
         run: ./scripts/verify-proguard-mapping.sh
 # TODO: disabled until the following is fixed https://github.com/natiginfo/action-detekt-all/issues/73
 #  detekt:

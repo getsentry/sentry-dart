@@ -7,11 +7,11 @@ set -euo pipefail
 # which guards against R8 upgrades, jnigen bugs, or conflicting rules elsewhere in
 # proguard-rules.pro.
 #
-# Verifies that R8 actually honors the keep rules generated from ffi-jni.yaml,
-# rather than just checking that proguard-rules.pro is textually in sync (see
-# generate-sentry-java-proguard.sh --check). Builds the example app in release
-# mode (minifyEnabled) and checks the resulting R8 mapping.txt: every
-# io.sentry.* class listed in ffi-jni.yaml, and every nested class of it
+# Verifies that R8 actually honors the keep rules generated from the JNI class
+# list, rather than just checking that proguard-rules.pro is textually in sync
+# (see generate-sentry-java-proguard.sh --check). Builds the example app in
+# release mode (minifyEnabled) and checks the resulting R8 mapping.txt: every
+# io.sentry.* class listed in tool/jnigen.dart, and every nested class of it
 # (Outer$Inner), must map to itself, i.e. R8 did not rename or strip it. The
 # nested-class check exists because the outer-class check alone wouldn't
 # catch a regression that drops the `$*` keep rule -- nested classes rename
@@ -24,24 +24,10 @@ set -euo pipefail
 cd "$(dirname "$0")/../"
 flutter_root="$(pwd)"
 
-ffi_jni_yaml="ffi-jni.yaml"
+jnigen_dart="tool/jnigen.dart"
 mapping_file="example/build/app/outputs/mapping/release/mapping.txt"
 
-# Extract the io.sentry.* entries from ffi-jni.yaml's `classes:` list. Kept in
-# sync with the same extraction in generate-sentry-java-proguard.sh.
-classes=$(awk '
-    /^classes:/ { in_classes=1; next }
-    in_classes && /^[^[:space:]]/ { in_classes=0 }
-    in_classes && /^[[:space:]]*-[[:space:]]*io\.sentry\./ {
-        sub(/^[[:space:]]*-[[:space:]]*/, "")
-        print
-    }
-' "$ffi_jni_yaml")
-
-if [[ -z "$classes" ]]; then
-    echo "error: found no io.sentry.* classes in $ffi_jni_yaml" >&2
-    exit 1
-fi
+classes=$(./scripts/list-jni-sentry-classes.sh)
 
 cd example
 flutter build apk --release --target-platform=android-x64
@@ -99,4 +85,4 @@ if [[ ${#failures[@]} -gt 0 || ${#nested_failures[@]} -gt 0 ]]; then
     exit 1
 fi
 
-echo "All io.sentry.* classes from $ffi_jni_yaml, including nested classes, map to themselves in $mapping_file"
+echo "All io.sentry.* classes from $jnigen_dart, including nested classes, map to themselves in $mapping_file"
