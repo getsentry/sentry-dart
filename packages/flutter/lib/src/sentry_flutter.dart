@@ -17,12 +17,10 @@ import 'event_processor/widget_event_processor.dart';
 import 'file_system_transport.dart';
 import 'flutter_exception_type_identifier.dart';
 import 'frame_callback_handler.dart';
+import 'app_start/generic_app_start_integration.dart';
 import 'app_start/standalone/app_start_trace.dart';
-import 'app_start/standalone/standalone_app_start_integration.dart';
 import 'app_start/standalone/standalone_app_start_handler.dart';
-import 'app_start/ui_load_attached/generic_app_start_integration.dart';
-import 'app_start/ui_load_attached/native_app_start_handler.dart';
-import 'app_start/ui_load_attached/native_app_start_handler_v2.dart';
+import 'app_start/standalone/standalone_app_start_integration.dart';
 import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
@@ -202,25 +200,16 @@ mixin SentryFlutter {
           integrations.add(LoadContextsIntegration(native));
         }
         integrations.add(FramesTrackingIntegration(native));
-        if (platform.isIOS || platform.isAndroid || platform.isMacOS) {
+        if (platform.isIOS || platform.isAndroid) {
           final frameCallbackHandler = DefaultFrameCallbackHandler();
           integrations.add(
-            NativeAppStartIntegration(
-              frameCallbackHandler,
-              NativeAppStartHandler(native),
-              NativeAppStartHandlerV2(native),
+            StandaloneAppStartIntegration(
+              StandaloneAppStartHandler(
+                frameCallbackHandler: frameCallbackHandler,
+                native: native,
+              ),
             ),
           );
-          if (platform.isIOS || platform.isAndroid) {
-            integrations.add(
-              StandaloneAppStartIntegration(
-                StandaloneAppStartHandler(
-                  frameCallbackHandler: frameCallbackHandler,
-                  native: native,
-                ),
-              ),
-            );
-          }
         }
         integrations.add(ReplayIntegration(native));
       } else {
@@ -234,7 +223,10 @@ mixin SentryFlutter {
       options.enableDartSymbolication = false;
     }
 
-    if (platform.isWeb || platform.isLinux || platform.isWindows) {
+    if (platform.isWeb ||
+        platform.isLinux ||
+        platform.isWindows ||
+        platform.isMacOS) {
       integrations.add(GenericAppStartIntegration());
     }
 
@@ -362,10 +354,9 @@ mixin SentryFlutter {
   /// [finishExtendedAppStart] in a `try` / `finally` so an early return or a
   /// throw cannot strand it.
   ///
-  /// Requires [SentryFlutterOptions.enableStandaloneAppStartTracing] on iOS or
-  /// Android. Does nothing on other platforms, once the first frame has
-  /// rendered, or when the App Start is already extended — each of those is
-  /// logged rather than reported back to the caller.
+  /// Requires tracing on iOS or Android. Does nothing on other platforms, once
+  /// the first frame has rendered, or when the App Start is already extended —
+  /// each of those is logged rather than reported back to the caller.
   ///
   /// Call this in [init]'s `appRunner` before `runApp`:
   ///
@@ -374,8 +365,7 @@ mixin SentryFlutter {
   ///   (options) {
   ///     options
   ///       ..dsn = 'YOUR_DSN'
-  ///       ..tracesSampleRate = 1.0
-  ///       ..enableStandaloneAppStartTracing = true;
+  ///       ..tracesSampleRate = 1.0;
   ///   },
   ///   appRunner: () async {
   ///     SentryFlutter.extendAppStart();

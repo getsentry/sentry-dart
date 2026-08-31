@@ -13,7 +13,7 @@ import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_int
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
-import 'package:sentry_flutter/src/app_start/ui_load_attached/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
@@ -39,7 +39,7 @@ final platformAgnosticIntegrations = [
 
 final webIntegrations = [ConnectivityIntegration, WebSessionIntegration];
 
-final linuxWindowsAndWebIntegrations = [GenericAppStartIntegration];
+final genericAppStartIntegrations = [GenericAppStartIntegration];
 
 final nonWebIntegrations = [OnErrorIntegration];
 
@@ -107,10 +107,6 @@ void main() {
 
       expect(SentryFlutter.native, isNotNull);
       expect(
-        options.integrations.whereType<NativeAppStartIntegration>(),
-        hasLength(1),
-      );
-      expect(
         options.integrations.whereType<StandaloneAppStartIntegration>(),
         hasLength(1),
       );
@@ -128,7 +124,7 @@ void main() {
     }, testOn: 'vm');
 
     test(
-      'iOS activates standalone app start when enabled in callback',
+      'iOS activates standalone app start by default when tracing is enabled',
       () async {
         late final SentryFlutterOptions options;
         final sentryFlutterOptions =
@@ -140,8 +136,7 @@ void main() {
           (configured) async {
             configured
               ..dsn = fakeDsn
-              ..tracesSampleRate = 1.0
-              ..enableStandaloneAppStartTracing = true;
+              ..tracesSampleRate = 1.0;
             options = configured;
           },
           appRunner: appRunner,
@@ -185,10 +180,6 @@ void main() {
       );
 
       expect(
-        options.integrations.whereType<NativeAppStartIntegration>(),
-        hasLength(1),
-      );
-      expect(
         options.integrations.whereType<StandaloneAppStartIntegration>(),
         hasLength(1),
       );
@@ -225,6 +216,7 @@ void main() {
           ...iOsAndMacOsIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [...nonWebIntegrations],
       );
@@ -236,7 +228,10 @@ void main() {
       );
 
       expect(SentryFlutter.native, isNotNull);
-      expect(integrations.whereType<NativeAppStartIntegration>(), hasLength(1));
+      expect(
+        integrations.whereType<GenericAppStartIntegration>(),
+        hasLength(1),
+      );
       expect(integrations.whereType<StandaloneAppStartIntegration>(), isEmpty);
 
       await Sentry.close();
@@ -272,7 +267,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -320,7 +315,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -367,7 +362,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -435,7 +430,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -480,7 +475,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -787,27 +782,14 @@ void main() {
       expect(fixture.trace.extensionEnd, fixture.now);
     });
 
-    test(
-      'APIs stay inactive after close and when standalone app start is disabled',
-      () async {
-        await Sentry.close();
+    test('APIs stay inactive after close', () async {
+      await Sentry.close();
 
-        SentryFlutter.extendAppStart();
-        expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
-        expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
-        await SentryFlutter.finishExtendedAppStart();
-
-        final disabledOptions = defaultTestOptions(
-          checker: MockRuntimeChecker(),
-        )..enableStandaloneAppStartTracing = false;
-        await Sentry.init((_) {}, options: disabledOptions);
-
-        SentryFlutter.extendAppStart();
-        expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
-        expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
-        await SentryFlutter.finishExtendedAppStart();
-      },
-    );
+      SentryFlutter.extendAppStart();
+      expect(SentryFlutter.getExtendedAppStartSpan(), isNull);
+      expect(SentryFlutter.getExtendedAppStartSpanV2(), isNull);
+      await SentryFlutter.finishExtendedAppStart();
+    });
 
     test('APIs are safe without an active trace', () async {
       fixture.options.standaloneAppStartTrace = null;

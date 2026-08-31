@@ -16,11 +16,8 @@ import '../app_start_timing.dart';
 /// *what* is reported. Keeping the rules here is what makes that agreement
 /// checkable in one place rather than by diffing two enrichment methods.
 ///
-/// Deliberately scoped to `standalone/` rather than shared with the
-/// `ui_load_attached/` path, which reports overlapping values through its own
-/// code. That path is slated for removal in v10, leaving standalone as the
-/// only way app starts are reported, so the two are kept unentangled and the
-/// duplication resolves when it is deleted.
+/// Scoped to `standalone/` because this is the only way app starts are
+/// reported.
 @internal
 final class AppStartVitals {
   AppStartVitals._({
