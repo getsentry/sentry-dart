@@ -5,13 +5,15 @@
 - High-level review guidance for the entire monorepo.
 - Optimize for **signal over noise**: only comment when there’s material correctness, security/privacy, performance, or API-quality impact.
 - If you find anything to flag, mention that you flagged this in the review because it was mentioned in this rules file.
-- Do not flag the issues below if they appear only in tests.
+- Do not flag the issues below if they appear only in tests (unless covered by Testing conventions below).
+- These rules operationalize the Sentry SDK [philosophy](https://develop.sentry.dev/sdk/getting-started/philosophy/) and [principles](https://develop.sentry.dev/sdk/getting-started/principles/): protect customer apps and data, prefer safe defaults, keep the base SDK lean, stay compatible, and never let SDK or callback failures become Sentry traffic or host crashes.
 
 **Reviewer style**
 
 - Be concise. Quote exact lines/spans and propose a minimal fix (tiny diff/code block).
 - If something is subjective, ask a brief question rather than asserting.
 - Prefer principles over nitpicks; avoid noisy style-only comments that don’t impact behavior.
+- Limit to high-confidence findings; no drive-by refactors unrelated to the diff.
 
 ---
 
@@ -31,6 +33,7 @@
 
 - **Breaking changes**: Signature/behavior changes, renamed/removed symbols, altered nullability/defaults, or event/telemetry shape changes **without** deprecation/migration notes.
 - **Behavioral compatibility**: Silent changes to defaults, sampling, or feature toggles that affect existing apps.
+- **Support floor drops**: Raising min Dart/Flutter/iOS/Android versions, or dropping a supported platform, without explicit docs/changelog/migration callout.
 
 ### C. Dependency Updates
 
@@ -39,6 +42,7 @@
   - Review mentioned changes for potential compatibility issues in the current codebase.
   - Flag breaking API changes, deprecated features being removed, new requirements, or behavioral changes that could affect existing integrations.
   - Check if version bumps require corresponding changes in native bridge code, method channels, or platform-specific implementations.
+- **New baseline dependencies**: Flag new runtime dependencies on the base SDK path. Integration-only optional deps are fine when justified; baseline deps increase license, maintenance, and supply-chain surface.
 
 ---
 
@@ -52,9 +56,10 @@
 
 **Correctness & safety**
 
-- Add/update tests with behavioral changes and bug fixes.
-- Handle error paths explicitly.
+- Add/update tests with behavioral changes and bug fixes. Tests must prove user-visible or SDK behavior (payloads, contracts), not merely coverage or "did not throw".
+- Handle error paths explicitly; never let SDK init or instrumentation failures crash the host app. Prefer graceful degrade / no-op when a path cannot safely run.
 - Avoid global mutable state; prefer immutability and clear ownership.
+- Do not capture exceptions thrown inside the SDK itself or inside user callbacks (`beforeSend`, `tracesSampler`, and similar). Swallow gracefully and emit an error-level SDK log — capturing here can loop. See [Never capture your own exceptions](https://develop.sentry.dev/sdk/getting-started/principles/#never-capture-your-own-exceptions).
 
 **DRY & cohesion**
 
@@ -99,10 +104,13 @@
 
 **Tracing & spans**
 
-- Any span started must be **closed**.
+- Any span started must be **closed** (including on error paths).
 - For _automated_ instrumented spans, always set:
-    - `sentry.origin`
-    - `sentry.op` using a standard operation where applicable (see [Sentry’s list of standard ops](https://develop.sentry.dev/sdk/telemetry/traces/span-operations/)).
+    - `sentry.origin` — only `[a-zA-Z0-9_.]`; flag non-conforming values ([trace origin](https://develop.sentry.dev/sdk/telemetry/traces/trace-origin/))
+    - `sentry.op` — lowercase snake_case segments joined by `.` where applicable ([span ops](https://develop.sentry.dev/sdk/telemetry/traces/span-operations/))
+- If attribute values are known at span start, set them at start rather than via immediate follow-up setters, so samplers / ignore rules see full context.
+- When instrumentation catches errors: prefer letting user errors propagate. Flag swallowing without capture, and capture that would double-report an error still bubbling to the app.
+- When capturing user/app exceptions, set mechanism `handled` and a stable `type` identifying the integration/site when the API supports it.
 
 **Structured logs**
 
@@ -111,6 +119,30 @@
 **Initialization & error paths**
 
 - Wrap dangerous or failure-prone paths (especially during `Sentry`/`SentryFlutter` init) in `try/catch`, add actionable context, and ensure fallbacks keep the app usable.
+- Never let SDK initialization failure crash the host application.
+
+**Defaults & OOTB**
+
+- Prefer auto-enabling integrations when safe; flag new required config that could reasonably default.
+- Avoid heavy in-SDK transforms of wire-format data when rawer collection + server-side processing would do.
+
+---
+
+## 4) Testing conventions
+
+- `feat` PRs: prefer at least one integration or E2E-style test covering the new behavior.
+- `fix` PRs: prefer a regression test that fails without the fix and passes with it; if unclear from the diff, ask the author.
+- Flag likely flakes: sleeps/timeouts instead of signals; start-wait-after-act instead of register-wait-then-act; multi-request waits that assume a hard order.
+
+---
+
+## 5) What NOT to flag
+
+- Pure style/formatting owned by `dart format` / analyzer lints
+- Speculative refactors or cleanup with no clear user benefit or linked motivation
+- Idiomatic platform hooks solely for being "non-pure" — only flag when unsafe or host-harmful
+- Test-only issues outside Testing conventions
+- Conventional commit format when CI already validates it
 
 ---
 
@@ -121,5 +153,7 @@
 - [ ] **CRITICAL:** For dependency updates (`chore(deps):`), changelog reviewed for breaking changes or compatibility issues.
 - [ ] Spans started are always closed; automated spans/logs include `sentry.origin` (+ valid `sentry.op` for spans).
 - [ ] Dangerous init paths guarded; app remains usable on failure.
+- [ ] No SDK-own / callback exception capture (no self-capture loops).
+- [ ] Capture/mechanism and no swallow/double-report on instrumentation paths.
 - [ ] No `!` on nullable targets; async gaps guarded; resources disposed.
-- [ ] Tests/docs/CHANGELOG updated for behavior changes.
+- [ ] Tests prove behavior (feat/fix bar); docs/CHANGELOG updated for behavior changes.
