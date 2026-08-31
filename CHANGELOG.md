@@ -1,5 +1,22 @@
 # Changelog
 
+## 10.0.0-alpha.4
+
+### Features
+
+- Remove the `enableLogs` and `enableMetrics` options. Logs and metrics are now always enabled and can no longer be disabled through `SentryOptions`. Remove any `options.enableLogs` / `options.enableMetrics` assignments from your SDK init. If you use the [logging integration](https://docs.sentry.io/platforms/dart/integrations/logging/), it now forwards log records as Sentry logs as soon as it is added — raise `minSentryLogLevel`, or set it to `Level.OFF`, to opt out. by @buenaflor in [#3983](https://github.com/getsentry/sentry-dart/pull/3983)
+- `enableStandaloneAppStartTracing` is removed. App start is always a standalone `app.start` root on Android and iOS when tracing is enabled. The legacy ui.load-attached app start path is gone. by @buenaflor in [#3981](https://github.com/getsentry/sentry-dart/pull/3981)
+- (replay) Mask SensitiveContent by default by @buenaflor in [#3973](https://github.com/getsentry/sentry-dart/pull/3973)
+
+### Fixes
+
+- Sampling now runs after `beforeSend` instead of before it, so `ignoreErrors`, ignored exception types, event processors and `beforeSend` all take precedence over the `sampleRate` decision. An event dropped by `beforeSend` is now reported as a `before_send` discard rather than a `sample_rate` one, and `beforeSend` now runs for events that are later sampled out. ([#3855](https://github.com/getsentry/sentry-dart/issues/3855)) by @buenaflor in [#3955](https://github.com/getsentry/sentry-dart/pull/3955)
+- (http) Align HTTP client error type and value by @buenaflor in [#3934](https://github.com/getsentry/sentry-dart/pull/3934)
+
+### Internal Changes
+
+- Migrate the Android plugin to Flutter's built-in Kotlin. `sentry_flutter` no longer applies the Kotlin Gradle Plugin itself, which silences Flutter 3.44's warning about plugins applying KGP and unblocks apps moving to AGP 9. by @buenaflor in [#3961](https://github.com/getsentry/sentry-dart/pull/3961)
+
 ## 10.0.0-alpha.3
 
 ### Features
