@@ -165,6 +165,39 @@ jobs:
           reporter: github-pr-review
           android: true
           fail_on_error: true
+
+  proguard-rules-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: packages/flutter
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Regenerate proguard rules from the JNI class list
+        run: ./scripts/generate-sentry-java-proguard.sh
+
+      - name: Fail if proguard rules are out of sync with the JNI class list
+        run: |
+          diff_output=$(git diff -- android/proguard-rules.pro)
+          if [[ -n "$diff_output" ]]; then
+            echo "$diff_output"
+            echo "::error::android/proguard-rules.pro is out of sync with tool/jnigen.dart. Run packages/flutter/scripts/generate-sentry-java-proguard.sh and commit the result."
+            exit 1
+          fi
+
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        with:
+          channel: stable
+
+      - name: Verify R8 keeps every io.sentry.* class from tool/jnigen.dart
+        run: ./scripts/verify-proguard-mapping.sh
 # TODO: disabled until the following is fixed https://github.com/natiginfo/action-detekt-all/issues/73
 #  detekt:
 #    runs-on: ubuntu-latest
