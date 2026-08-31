@@ -203,13 +203,16 @@ Future testCaptureException(
         'sentry_browser_test.dart.browser_test.dart.wasm',
       ]),
     );
+    // dart2js and dart2wasm decorate the frame name, and how they do it moves
+    // with the compiler and the browser: a module prefix (`module0.`, `M.`) and
+    // an ` inner` suffix for the inner function have all appeared. Match the
+    // function name itself rather than an exact spelling, so a toolchain bump
+    // doesn't fail this on naming alone.
     expect(
       topFrame['function'],
       anyOf([
         'Object.wrapException',
-        'testCaptureException',
-        'module0.testCaptureException',
-        'M.testCaptureException',
+        matches(RegExp(r'(^|\.)testCaptureException\b')),
       ]),
     );
 
