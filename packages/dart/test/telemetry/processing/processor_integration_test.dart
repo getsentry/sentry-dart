@@ -1,6 +1,7 @@
 import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/telemetry/processing/in_memory_buffer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
@@ -219,6 +220,29 @@ void main() {
           fixture.transport.envelopes.first.header.traceContext?.replayId,
           SentryId.fromId('42'),
         );
+      });
+
+      test('oversized span records buffer overflow client report', () async {
+        final options = fixture.options;
+        fixture.getSut().call(fixture.hub, options);
+
+        final processor =
+            options.telemetryProcessor as DefaultTelemetryProcessor;
+        final span = fixture.createSpan()
+          ..setAttribute(
+            'oversized',
+            SentryAttribute.string('x' * (1024 * 1024)),
+          );
+        span.end();
+        processor.addSpan(span);
+        await processor.flush();
+
+        expect(fixture.transport.envelopes, isEmpty);
+
+        final discardedEvent = fixture.recorder.discardedEvents.single;
+        expect(discardedEvent.reason, DiscardReason.bufferOverflow);
+        expect(discardedEvent.category, DataCategory.span);
+        expect(discardedEvent.quantity, 1);
       });
 
       test('adds span replay_id attribute to frozen envelope DSC', () async {

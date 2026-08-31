@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
 import '../../client_reports/discard_reason.dart';
+import '../../transport/data_category.dart';
 import '../../utils/internal_logger.dart';
 import 'in_memory_buffer.dart';
 import 'processor.dart';
@@ -66,6 +67,20 @@ class InMemoryTelemetryProcessorIntegration extends Integration<SentryOptions> {
   ) => GroupedInMemoryTelemetryBuffer(
     encoder: (RecordingSentrySpanV2 item) =>
         utf8JsonEncoder.convert(item.toJson()),
+    onDrop: (item, {required cause, bytes}) {
+      switch (cause) {
+        case BufferDropCause.encodeFailed:
+          options.recorder.recordLostEvent(
+            DiscardReason.internalSdkError,
+            DataCategory.span,
+          );
+        case BufferDropCause.tooLarge:
+          options.recorder.recordLostEvent(
+            DiscardReason.bufferOverflow,
+            DataCategory.span,
+          );
+      }
+    },
     onFlush: (items) {
       final futures = items.values.map((itemData) {
         final span = itemData.$2;

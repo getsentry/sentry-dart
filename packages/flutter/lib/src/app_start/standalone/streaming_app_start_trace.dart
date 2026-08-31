@@ -71,6 +71,8 @@ final class StreamingAppStartTrace implements AppStartTrace {
           ),
           SemanticAttributesConstants.appVitalsStartType:
               SentryAttribute.string(timing.type.name),
+          SemanticAttributesConstants.appVitalsStartScreen:
+              SentryAttribute.string(startScreenNameProvider()),
         },
       );
       if (createdRoot is! IdleRecordingSentrySpanV2) return null;
@@ -97,6 +99,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
         startScreenNameProvider: startScreenNameProvider,
         onCompleted: onCompleted,
       );
+      hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
+        trace._processSpan,
+      );
       for (final phase in timing.phases) {
         final child = hub.startInactiveSpan(
           phase.description,
@@ -106,9 +111,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
         );
         child.end(endTimestamp: phase.endTimestamp);
       }
-      hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
-        trace._processSpan,
-      );
       return trace;
     } catch (error, stackTrace) {
       internalLogger.error(
@@ -187,10 +189,16 @@ final class StreamingAppStartTrace implements AppStartTrace {
   void recordFirstFrame(DateTime endTimestamp) {
     if (_state.isTerminal || _endTimestamp != null) return;
     _endTimestamp = endTimestamp.toUtc();
+    _root.setAttribute(
+      SemanticAttributesConstants.appVitalsStartScreen,
+      SentryAttribute.string(_startScreenNameProvider()),
+    );
     _firstFrameRenderSpan.end(endTimestamp: _endTimestamp);
   }
 
   void _processSpan(OnProcessSpan event) {
+    _copyStartVitalsFromSegment(event.span);
+
     if (!identical(event.span, _root) ||
         _state == AppStartTraceState.completed) {
       return;
@@ -246,6 +254,27 @@ final class StreamingAppStartTrace implements AppStartTrace {
       await _extensionLifecycle.close();
     } finally {
       _root.end();
+    }
+  }
+
+  void _copyStartVitalsFromSegment(RecordingSentrySpanV2 span) {
+    final segment = span.segmentSpan;
+    if (identical(span, segment)) return;
+    if (segment.attributes[SemanticAttributesConstants.sentryOp]?.value !=
+        SentrySpanOperations.appStart) {
+      return;
+    }
+    final attributes = segment.attributes;
+    final screen = attributes[SemanticAttributesConstants.appVitalsStartScreen];
+    if (screen != null) {
+      span.setAttribute(
+        SemanticAttributesConstants.appVitalsStartScreen,
+        screen,
+      );
+    }
+    final type = attributes[SemanticAttributesConstants.appVitalsStartType];
+    if (type != null) {
+      span.setAttribute(SemanticAttributesConstants.appVitalsStartType, type);
     }
   }
 }
