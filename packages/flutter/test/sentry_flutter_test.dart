@@ -39,7 +39,7 @@ final platformAgnosticIntegrations = [
 
 final webIntegrations = [ConnectivityIntegration, WebSessionIntegration];
 
-final linuxWindowsAndWebIntegrations = [GenericAppStartIntegration];
+final genericAppStartIntegrations = [GenericAppStartIntegration];
 
 final nonWebIntegrations = [OnErrorIntegration];
 
@@ -216,7 +216,7 @@ void main() {
           ...iOsAndMacOsIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [...nonWebIntegrations],
       );
@@ -267,7 +267,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -315,7 +315,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -362,7 +362,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -430,7 +430,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
@@ -475,7 +475,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
-          ...linuxWindowsAndWebIntegrations,
+          ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
           ...iOsAndMacOsIntegrations,

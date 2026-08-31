@@ -37,14 +37,6 @@ void main() {
       );
     });
 
-    test('does not start the handler on an unsupported platform', () async {
-      fixture.options.platform = MockPlatform.macOS();
-
-      await fixture.getSut().call(fixture.hub, fixture.options);
-
-      expect(fixture.handler.startCalls, 0);
-    });
-
     test(
       'does not add standalone app-start tracing feature when tracing is disabled',
       () async {

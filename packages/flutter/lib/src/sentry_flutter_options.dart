@@ -180,12 +180,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
 
-  /// Whether app start is reported as a standalone `app.start` root.
-  ///
-  /// True on Android and iOS, where native app-start timestamps are available.
-  @meta.internal
-  bool get usesStandaloneAppStart => platform.isIOS || platform.isAndroid;
-
   @meta.internal
   AppStartTrace? standaloneAppStartTrace;
 
