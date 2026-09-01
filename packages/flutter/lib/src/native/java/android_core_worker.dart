@@ -184,29 +184,44 @@ class AndroidCoreWorker {
     }
   }
 
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkDetail,
+  }) {
     if (_isClosed) return null;
 
     final normalizedBreadcrumbJson =
         normalize(breadcrumb.toJson()) as Map<String, dynamic>;
+    final normalizedNetworkDetailJson = networkDetail == null
+        ? null
+        : normalize(networkDetail) as Map<String, dynamic>;
     final client = _worker;
     if (client == null) {
       _addBreadcrumb(
         normalizedBreadcrumbJson,
+        normalizedNetworkDetailJson,
         automatedTestMode: _config.automatedTestMode,
       );
       return null;
     }
 
-    return _addBreadcrumbFromWorker(client, normalizedBreadcrumbJson);
+    return _addBreadcrumbFromWorker(
+      client,
+      normalizedBreadcrumbJson,
+      normalizedNetworkDetailJson,
+    );
   }
 
   Future<void> _addBreadcrumbFromWorker(
     Worker client,
     Map<String, dynamic> normalizedBreadcrumbJson,
+    Map<String, dynamic>? normalizedNetworkDetailJson,
   ) async {
     try {
-      await client.request(_AddBreadcrumbRequest(normalizedBreadcrumbJson));
+      await client.request(_AddBreadcrumbRequest(
+        normalizedBreadcrumbJson,
+        normalizedNetworkDetailJson,
+      ));
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Android core worker failed to add breadcrumb',
@@ -367,6 +382,7 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
           case _AddBreadcrumbRequest request:
             _addBreadcrumb(
               request.breadcrumb,
+              request.networkDetail,
               automatedTestMode: _config.automatedTestMode,
             );
           case _ClearBreadcrumbsRequest _:
@@ -403,6 +419,7 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
           case _AddBreadcrumbRequest request:
             _addBreadcrumb(
               request.breadcrumb,
+              request.networkDetail,
               automatedTestMode: _config.automatedTestMode,
             );
             return null;
@@ -474,8 +491,9 @@ class _LoadContextsRequest {
 
 class _AddBreadcrumbRequest {
   final Map<String, dynamic> breadcrumb;
+  final Map<String, dynamic>? networkDetail;
 
-  const _AddBreadcrumbRequest(this.breadcrumb);
+  const _AddBreadcrumbRequest(this.breadcrumb, this.networkDetail);
 }
 
 class _ClearBreadcrumbsRequest {
@@ -630,13 +648,27 @@ Map<String, dynamic>? _loadContexts({bool automatedTestMode = false}) {
 }
 
 void _addBreadcrumb(
-  Map<String, dynamic> normalizedBreadcrumbJson, {
+  Map<String, dynamic> normalizedBreadcrumbJson,
+  Map<String, dynamic>? normalizedNetworkDetailJson, {
   bool automatedTestMode = false,
 }) {
   JByteArray? jBytes;
+  JByteArray? jNetworkDetailBytes;
   try {
     jBytes = _jsonToJByteArray(normalizedBreadcrumbJson);
-    native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
+    if (normalizedNetworkDetailJson == null) {
+      native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes(jBytes);
+    } else {
+      // Sent together in a single call so the native SDK can attach the
+      // network detail as a Hint on the very same addBreadcrumb call -
+      // there is no separate call (and therefore no window) in which the
+      // breadcrumb could land on Scope without its detail.
+      jNetworkDetailBytes = _jsonToJByteArray(normalizedNetworkDetailJson);
+      native.SentryFlutterPlugin.addBreadcrumbFromJsonBytes$1(
+        jBytes,
+        jNetworkDetailBytes,
+      );
+    }
   } catch (exception, stackTrace) {
     internalLogger.error(
       'JNI: Failed to add breadcrumb',
@@ -648,6 +680,7 @@ void _addBreadcrumb(
     }
   } finally {
     jBytes?.release();
+    jNetworkDetailBytes?.release();
   }
 }
 

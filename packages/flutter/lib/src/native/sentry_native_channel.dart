@@ -178,7 +178,11 @@ class SentryNativeChannel
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) async {
     if (options.platform.isAndroid) {
       assert(false,
           'addBreadcrumb should not be used through method channels on Android.');

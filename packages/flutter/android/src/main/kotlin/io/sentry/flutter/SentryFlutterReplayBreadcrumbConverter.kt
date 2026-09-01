@@ -1,6 +1,7 @@
 package io.sentry.flutter
 
 import io.sentry.Breadcrumb
+import io.sentry.SentryOptions
 import io.sentry.android.replay.DefaultReplayBreadcrumbConverter
 import io.sentry.rrweb.RRWebBreadcrumbEvent
 import io.sentry.rrweb.RRWebEvent
@@ -11,7 +12,9 @@ private const val MILLIS_PER_SECOND = 1000.0
 private const val MAX_PATH_ITEMS = 4
 private const val MAX_PATH_IDENTIFIER_LENGTH = 20
 
-class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter() {
+class SentryFlutterReplayBreadcrumbConverter(
+  options: SentryOptions,
+) : DefaultReplayBreadcrumbConverter(options) {
   internal companion object {
     private val supportedNetworkData =
       mapOf(
@@ -92,11 +95,12 @@ class SentryFlutterReplayBreadcrumbConverter : DefaultReplayBreadcrumbConverter(
         .mapKeys { (key, _) -> supportedNetworkData[key] }
         .toMutableMap()
 
-    // Populated by NetworkDetailsCapture on the Dart side when
-    // networkDetailAllowUrls matches; forwarded as-is since it's already
-    // shaped for the replay player (headers/body per request/response).
-    (breadcrumb.data["request"] as? Map<*, *>)?.let { eventData["request"] = it }
-    (breadcrumb.data["response"] as? Map<*, *>)?.let { eventData["response"] = it }
+    // Request/response detail (headers/body) reaches this converter through
+    // super.convert() above instead: when present it's delivered via
+    // sentry-java's own SENTRY_REPLAY_NETWORK_DETAILS hint, which requires
+    // the `http.start_timestamp`/`http.end_timestamp` keys super.convert()
+    // checks for - see SentryFlutterPlugin.replayNetworkDetailHint. This
+    // fallback path only runs for breadcrumbs without that detail.
 
     return RRWebSpanEvent().apply {
       op = "resource.http"
