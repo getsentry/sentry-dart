@@ -179,10 +179,10 @@ class SentryNativeJava extends SentryNativeChannel {
       return using((arena) {
         _nativeReplay ??=
             native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-        // The passed parameter is `isTerminating`
-        _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
-
-        final nativeReplayId = _nativeReplay?.getReplayId();
+        // The passed parameter is `isTerminating`. The returned id is empty when
+        // nothing was captured, e.g. when onErrorSampleRate didn't sample.
+        final nativeReplayId =
+            _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
         nativeReplayId?.releasedBy(arena);
 
         JString? jString;
