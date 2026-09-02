@@ -17,6 +17,12 @@ cd "$(dirname "$0")/../"
 
 binding_path="lib/src/native/java/binding.dart"
 
+# Keep in sync with generate-jni-bindings.sh: jnigen 0.14.2 cannot read Kotlin
+# metadata newer than 2.1.0, which the example's default KGP 2.2.20 emits, and
+# Flutter's own KGP floor has to be waived to build below it.
+export KOTLIN_ANDROID_PLUGIN_VERSION="${KOTLIN_ANDROID_PLUGIN_VERSION:-2.1.21}"
+export ORG_GRADLE_PROJECT_skipDependencyChecks=true
+
 # Use fvm if available, otherwise bare commands.
 if command -v fvm &> /dev/null; then
     FLUTTER="fvm flutter"
