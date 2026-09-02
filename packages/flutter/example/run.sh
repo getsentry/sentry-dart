@@ -11,6 +11,11 @@ CURRENT_DATE=$(date +%Y-%m-%d_%H-%M-%S)
 
 export SENTRY_RELEASE="$CURRENT_DATE"@"$VERSION"
 
+if [ $# -lt 1 ]; then
+    echo -e "[\033[92mrun\033[0m] Pass the platform you'd like to run: android, ios, macos, windows, linux, web"
+    exit 1
+fi
+
 echo -e "[\033[92mrun\033[0m] $1"
 
 # using 'build' as the base dir because `flutter clean` will delete it, so we don't end up with leftover symbols from a previous build
