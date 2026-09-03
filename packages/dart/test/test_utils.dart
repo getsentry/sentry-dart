@@ -167,13 +167,14 @@ Future testCaptureException(
           'sentry_browser_test.dart.browser_test.dart.js',
           'sentry_browser_test.dart.browser_test.dart.wasm'
         ]));
+    // the symbol is mangled differently per compiler and SDK version:
+    // dart2js emits `Object.wrapException`, dart2wasm prefixes the frame with a
+    // module name and may append a suffix such as ` inner` for the async body
     expect(
         topFrame['function'],
         anyOf([
           'Object.wrapException',
-          'testCaptureException',
-          'module0.testCaptureException',
-          'M.testCaptureException'
+          contains('testCaptureException'),
         ]));
 
     expect(data['event_id'], sentryId.toString());
