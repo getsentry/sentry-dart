@@ -3452,6 +3452,101 @@ class ReplayIntegration extends jni$_.JObject {
     _start(reference.pointer, _id_start as jni$_.JMethodIDPtr).check();
   }
 
+  static final _id_startBuffering = _class.instanceMethodId(
+    r'startBuffering',
+    r'()V',
+  );
+
+  static final _startBuffering = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void startBuffering()`
+  void startBuffering() {
+    _startBuffering(reference.pointer, _id_startBuffering as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_onAppForegrounded = _class.instanceMethodId(
+    r'onAppForegrounded',
+    r'(Z)V',
+  );
+
+  static final _onAppForegrounded = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.VarArgs<(jni$_.Int32,)>)>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `public void onAppForegrounded(boolean z)`
+  void onAppForegrounded(
+    bool z,
+  ) {
+    _onAppForegrounded(reference.pointer,
+            _id_onAppForegrounded as jni$_.JMethodIDPtr, z ? 1 : 0)
+        .check();
+  }
+
+  static final _id_onAppBackgrounded = _class.instanceMethodId(
+    r'onAppBackgrounded',
+    r'()V',
+  );
+
+  static final _onAppBackgrounded = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void onAppBackgrounded()`
+  void onAppBackgrounded() {
+    _onAppBackgrounded(
+            reference.pointer, _id_onAppBackgrounded as jni$_.JMethodIDPtr)
+        .check();
+  }
+
+  static final _id_onAppSessionEnded = _class.instanceMethodId(
+    r'onAppSessionEnded',
+    r'()V',
+  );
+
+  static final _onAppSessionEnded = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void onAppSessionEnded()`
+  void onAppSessionEnded() {
+    _onAppSessionEnded(
+            reference.pointer, _id_onAppSessionEnded as jni$_.JMethodIDPtr)
+        .check();
+  }
+
   static final _id_resume = _class.instanceMethodId(
     r'resume',
     r'()V',
@@ -3476,28 +3571,29 @@ class ReplayIntegration extends jni$_.JObject {
 
   static final _id_captureReplay = _class.instanceMethodId(
     r'captureReplay',
-    r'(Ljava/lang/Boolean;)V',
+    r'(Ljava/lang/Boolean;)Lio/sentry/protocol/SentryId;',
   );
 
   static final _captureReplay = jni$_.ProtectedJniExtensions.lookup<
               jni$_.NativeFunction<
-                  jni$_.JThrowablePtr Function(
+                  jni$_.JniResult Function(
                       jni$_.Pointer<jni$_.Void>,
                       jni$_.JMethodIDPtr,
                       jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
-          'globalEnv_CallVoidMethod')
+          'globalEnv_CallObjectMethod')
       .asFunction<
-          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+          jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
 
-  /// from: `public void captureReplay(java.lang.Boolean boolean)`
-  void captureReplay(
+  /// from: `public io.sentry.protocol.SentryId captureReplay(java.lang.Boolean boolean)`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryId captureReplay(
     jni$_.JBoolean? boolean,
   ) {
     final _$boolean = boolean?.reference ?? jni$_.jNullReference;
-    _captureReplay(reference.pointer, _id_captureReplay as jni$_.JMethodIDPtr,
-            _$boolean.pointer)
-        .check();
+    return _captureReplay(reference.pointer,
+            _id_captureReplay as jni$_.JMethodIDPtr, _$boolean.pointer)
+        .object<SentryId>(const $SentryId$Type());
   }
 
   static final _id_getReplayId = _class.instanceMethodId(
@@ -3523,6 +3619,28 @@ class ReplayIntegration extends jni$_.JObject {
     return _getReplayId(
             reference.pointer, _id_getReplayId as jni$_.JMethodIDPtr)
         .object<SentryId>(const $SentryId$Type());
+  }
+
+  static final _id_flush = _class.instanceMethodId(
+    r'flush',
+    r'()V',
+  );
+
+  static final _flush = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public void flush()`
+  void flush() {
+    _flush(reference.pointer, _id_flush as jni$_.JMethodIDPtr).check();
   }
 
   static final _id_setBreadcrumbConverter = _class.instanceMethodId(
