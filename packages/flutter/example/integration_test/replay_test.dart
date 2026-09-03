@@ -63,6 +63,19 @@ void main() {
     testWidgets('captureReplay sets native replay ID', (tester) async {
       if (!(Platform.isAndroid || Platform.isIOS)) return;
       await setupSentryAndApp(tester);
+
+      // Since sentry-java 8.54.0 init posts the replay start to the main looper
+      // instead of running it inline, so capturing right away can land before
+      // recording began. Wait for the id the replayStarted callback publishes.
+      if (Platform.isAndroid) {
+        final deadline = DateTime.now().add(const Duration(seconds: 10));
+        while (DateTime.now().isBefore(deadline)) {
+          final started = SentryFlutter.native?.replayId;
+          if (started != null && started != const SentryId.empty()) break;
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+        }
+      }
+
       final id = await SentryFlutter.native?.captureReplay();
       expect(id, isA<SentryId>());
       expect(SentryFlutter.native?.replayId, isNotNull);
