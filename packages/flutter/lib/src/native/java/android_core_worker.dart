@@ -63,11 +63,24 @@ class AndroidCoreWorker {
     }
   }
 
-  FutureOr<void> close() async {
+  // Deliberately not `async`: when the worker has already started (the
+  // common case), this must send its shutdown message synchronously, in the
+  // same call stack as the caller - e.g. an app-lifecycle callback that runs
+  // right before the engine that hosts this isolate is torn down. An `await`
+  // here, even on an already-completed Future, yields to the event loop, and
+  // that turn may never come. See #3960.
+  FutureOr<void> close() {
     _isClosed = true;
-    await _startFuture;
-    _worker?.close();
-    _worker = null;
+    final startFuture = _startFuture;
+    if (startFuture == null) {
+      _worker?.close();
+      _worker = null;
+      return null;
+    }
+    return startFuture.then((_) {
+      _worker?.close();
+      _worker = null;
+    });
   }
 
   void captureEnvelope(
