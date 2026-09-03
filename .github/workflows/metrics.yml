@@ -57,7 +57,7 @@ jobs:
         if: ${{ matrix.platform == 'android' }}
         with:
           java-version: '17'
-          distribution: 'adopt'
+          distribution: 'temurin'
 
       - run: ./metrics/prepare.sh
 
