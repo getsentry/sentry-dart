@@ -50,7 +50,7 @@ void main() {
     expect(version.engineVersion, throwsA(isA<HttpException>()));
   });
 
-  test('listSymbolArchives() supports expected platforms', () async {
+  test('listSymbolArchives() supports legacy Apple symbol archives', () async {
     final archives = await sut.listSymbolArchives(FlutterVersion('3.13.4'));
     const prefix = 'flutter/9064459a8b0dcd32877107f6002cc429a71659d1';
     expect(
@@ -58,8 +58,21 @@ void main() {
         equals([
           'ios - $prefix/ios-release/Flutter.dSYM.zip',
           'macos - $prefix/darwin-x64-release/FlutterMacOS.dSYM.zip',
-          'android - flutter/9064459a8b0dcd32877107f6002cc429a71659d1/android-arm-release/symbols.zip',
-          'android - flutter/9064459a8b0dcd32877107f6002cc429a71659d1/android-arm64-release/symbols.zip'
+          'android - $prefix/android-arm-release/symbols.zip',
+          'android - $prefix/android-arm64-release/symbols.zip'
+        ]));
+  });
+
+  test('listSymbolArchives() supports Apple artifact cache archives', () async {
+    final archives = await sut.listSymbolArchives(FlutterVersion('3.38.0'));
+    const prefix = 'flutter/cb467e31a54207dc987aca5bb0941c4d2e3fd9ed';
+    expect(
+        archives.map((v) => '${v.platform.operatingSystem} - ${v.path}'),
+        equals([
+          'ios - $prefix/ios-release/artifacts.zip',
+          'macos - $prefix/darwin-x64-release/framework.zip',
+          'android - $prefix/android-arm-release/symbols.zip',
+          'android - $prefix/android-arm64-release/symbols.zip'
         ]));
   });
 
