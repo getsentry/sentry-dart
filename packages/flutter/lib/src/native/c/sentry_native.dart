@@ -120,10 +120,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get supportsCaptureEnvelope => false;
 
   @override
-  FutureOr<void> captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
     throw UnsupportedError('$SentryNative.captureEnvelope() is not supported');
   }
 

@@ -110,10 +110,7 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
-  void captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
+  void captureEnvelope(Uint8List envelopeData) {
     // No-op for testing
   }
 

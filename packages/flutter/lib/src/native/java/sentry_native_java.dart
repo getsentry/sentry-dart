@@ -54,11 +54,8 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<void> captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
-    _coreWorker?.captureEnvelope(envelopeData, containsUnhandledException);
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
+    _coreWorker?.captureEnvelope(envelopeData);
   }
 
   @override

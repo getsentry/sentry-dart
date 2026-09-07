@@ -120,10 +120,7 @@ class SentryNativeChannel
   bool get supportsCaptureEnvelope => true;
 
   @override
-  FutureOr<void> captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
     if (options.platform.isAndroid) {
       assert(
         false,
@@ -131,10 +128,7 @@ class SentryNativeChannel
       );
       return null;
     }
-    return channel.invokeMethod('captureEnvelope', [
-      envelopeData,
-      containsUnhandledException,
-    ]);
+    return channel.invokeMethod('captureEnvelope', envelopeData);
   }
 
   @override

@@ -4,14 +4,14 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i12;
-import 'dart:developer' as _i21;
+import 'dart:developer' as _i22;
 import 'dart:typed_data' as _i17;
 import 'dart:ui' as _i6;
 
 import 'package:flutter/foundation.dart' as _i8;
 import 'package:flutter/gestures.dart' as _i7;
 import 'package:flutter/rendering.dart' as _i10;
-import 'package:flutter/scheduler.dart' as _i20;
+import 'package:flutter/scheduler.dart' as _i21;
 import 'package:flutter/services.dart' as _i4;
 import 'package:flutter/src/widgets/_window.dart' as _i11;
 import 'package:flutter/src/widgets/binding.dart' as _i5;
@@ -21,18 +21,18 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i15;
 import 'package:sentry/src/sentry_tracer.dart' as _i3;
 import 'package:sentry_flutter/sentry_flutter.dart' as _i2;
-import 'package:sentry_flutter/src/binding_wrapper.dart' as _i26;
+import 'package:sentry_flutter/src/binding_wrapper.dart' as _i20;
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart'
     as _i19;
 import 'package:sentry_flutter/src/native/sentry_native_binding.dart' as _i16;
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart'
-    as _i23;
-import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart'
-    as _i25;
-import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart'
     as _i24;
+import 'package:sentry_flutter/src/navigation/time_to_full_display_tracker.dart'
+    as _i26;
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart'
+    as _i25;
 import 'package:sentry_flutter/src/replay/replay_config.dart' as _i18;
-import 'package:sentry_flutter/src/web/sentry_js_binding.dart' as _i22;
+import 'package:sentry_flutter/src/web/sentry_js_binding.dart' as _i23;
 
 import 'mocks.dart' as _i14;
 
@@ -1327,16 +1327,8 @@ class MockSentryNativeBinding extends _i1.Mock
           as _i12.FutureOr<void>);
 
   @override
-  _i12.FutureOr<void> captureEnvelope(
-    _i17.Uint8List? envelopeData,
-    bool? containsUnhandledException,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#captureEnvelope, [
-              envelopeData,
-              containsUnhandledException,
-            ]),
-          )
+  _i12.FutureOr<void> captureEnvelope(_i17.Uint8List? envelopeData) =>
+      (super.noSuchMethod(Invocation.method(#captureEnvelope, [envelopeData]))
           as _i12.FutureOr<void>);
 
   @override
@@ -1498,7 +1490,7 @@ class MockSentryDelayedFramesTracker extends _i1.Mock
 /// A class which mocks [BindingWrapper].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBindingWrapper extends _i1.Mock implements _i26.BindingWrapper {
+class MockBindingWrapper extends _i1.Mock implements _i20.BindingWrapper {
   MockBindingWrapper() {
     _i1.throwOnMissingStub(this);
   }
@@ -1627,16 +1619,16 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   );
 
   @override
-  _i20.SchedulingStrategy get schedulingStrategy =>
+  _i21.SchedulingStrategy get schedulingStrategy =>
       (super.noSuchMethod(
             Invocation.getter(#schedulingStrategy),
             returnValue:
                 ({
                   required int priority,
-                  required _i20.SchedulerBinding scheduler,
+                  required _i21.SchedulerBinding scheduler,
                 }) => false,
           )
-          as _i20.SchedulingStrategy);
+          as _i21.SchedulingStrategy);
 
   @override
   int get transientCallbackCount =>
@@ -1663,12 +1655,12 @@ class MockWidgetsFlutterBinding extends _i1.Mock
           as bool);
 
   @override
-  _i20.SchedulerPhase get schedulerPhase =>
+  _i21.SchedulerPhase get schedulerPhase =>
       (super.noSuchMethod(
             Invocation.getter(#schedulerPhase),
-            returnValue: _i20.SchedulerPhase.idle,
+            returnValue: _i21.SchedulerPhase.idle,
           )
-          as _i20.SchedulerPhase);
+          as _i21.SchedulerPhase);
 
   @override
   bool get framesEnabled =>
@@ -1698,7 +1690,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
           as Duration);
 
   @override
-  set schedulingStrategy(_i20.SchedulingStrategy? value) => super.noSuchMethod(
+  set schedulingStrategy(_i21.SchedulingStrategy? value) => super.noSuchMethod(
     Invocation.setter(#schedulingStrategy, value),
     returnValueForMissingStub: null,
   );
@@ -2235,10 +2227,10 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   _i12.Future<T> scheduleTask<T>(
-    _i20.TaskCallback<T>? task,
-    _i20.Priority? priority, {
+    _i21.TaskCallback<T>? task,
+    _i21.Priority? priority, {
     String? debugLabel,
-    _i21.Flow? flow,
+    _i22.Flow? flow,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -2279,7 +2271,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   int scheduleFrameCallback(
-    _i20.FrameCallback? callback, {
+    _i21.FrameCallback? callback, {
     bool? rescheduling = false,
     bool? scheduleNewFrame = true,
   }) =>
@@ -2329,7 +2321,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
           as bool);
 
   @override
-  void addPersistentFrameCallback(_i20.FrameCallback? callback) =>
+  void addPersistentFrameCallback(_i21.FrameCallback? callback) =>
       super.noSuchMethod(
         Invocation.method(#addPersistentFrameCallback, [callback]),
         returnValueForMissingStub: null,
@@ -2337,7 +2329,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 
   @override
   void addPostFrameCallback(
-    _i20.FrameCallback? callback, {
+    _i21.FrameCallback? callback, {
     String? debugLabel = 'callback',
   }) => super.noSuchMethod(
     Invocation.method(
@@ -2391,11 +2383,11 @@ class MockWidgetsFlutterBinding extends _i1.Mock
   );
 
   @override
-  _i20.PerformanceModeRequestHandle? requestPerformanceMode(
+  _i21.PerformanceModeRequestHandle? requestPerformanceMode(
     _i6.DartPerformanceMode? mode,
   ) =>
       (super.noSuchMethod(Invocation.method(#requestPerformanceMode, [mode]))
-          as _i20.PerformanceModeRequestHandle?);
+          as _i21.PerformanceModeRequestHandle?);
 
   @override
   void handleDrawFrame() => super.noSuchMethod(
@@ -2601,6 +2593,16 @@ class MockWidgetsFlutterBinding extends _i1.Mock
     Invocation.method(#removeSemanticsActionListener, [listener]),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i6.Rect? getRectOfSemanticsNodeInViewCoordinates(int? viewId, int? nodeId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getRectOfSemanticsNodeInViewCoordinates, [
+              viewId,
+              nodeId,
+            ]),
+          )
+          as _i6.Rect?);
 
   @override
   _i13.SemanticsHandle ensureSemantics() =>
@@ -2846,7 +2848,7 @@ class MockWidgetsFlutterBinding extends _i1.Mock
 /// A class which mocks [SentryJsBinding].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSentryJsBinding extends _i1.Mock implements _i22.SentryJsBinding {
+class MockSentryJsBinding extends _i1.Mock implements _i23.SentryJsBinding {
   MockSentryJsBinding() {
     _i1.throwOnMissingStub(this);
   }
@@ -2892,7 +2894,7 @@ class MockSentryJsBinding extends _i1.Mock implements _i22.SentryJsBinding {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTimeToDisplayTracker extends _i1.Mock
-    implements _i23.TimeToDisplayTracker {
+    implements _i24.TimeToDisplayTracker {
   MockTimeToDisplayTracker() {
     _i1.throwOnMissingStub(this);
   }
@@ -3000,7 +3002,7 @@ class MockTimeToDisplayTracker extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTimeToInitialDisplayTracker extends _i1.Mock
-    implements _i24.TimeToInitialDisplayTracker {
+    implements _i25.TimeToInitialDisplayTracker {
   MockTimeToInitialDisplayTracker() {
     _i1.throwOnMissingStub(this);
   }
@@ -3030,7 +3032,7 @@ class MockTimeToInitialDisplayTracker extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTimeToFullDisplayTracker extends _i1.Mock
-    implements _i25.TimeToFullDisplayTracker {
+    implements _i26.TimeToFullDisplayTracker {
   MockTimeToFullDisplayTracker() {
     _i1.throwOnMissingStub(this);
   }

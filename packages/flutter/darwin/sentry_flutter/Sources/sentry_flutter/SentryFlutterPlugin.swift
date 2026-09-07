@@ -421,9 +421,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [Any],
-              !arguments.isEmpty,
-              let data = (arguments.first as? FlutterStandardTypedData)?.data else {
+        guard let data = (call.arguments as? FlutterStandardTypedData)?.data else {
             print("Envelope is null or empty!")
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
@@ -433,7 +431,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "3", message: "Cannot parse the envelope data", details: nil))
             return
         }
-        SentrySDK.internal.envelope.capture(envelope)
+        SentrySDK.internal.envelope.captureNonTerminating(envelope)
         result("")
         return
     }

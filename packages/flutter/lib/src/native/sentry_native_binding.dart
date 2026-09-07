@@ -18,10 +18,7 @@ abstract class SentryNativeBinding {
 
   bool get supportsCaptureEnvelope;
 
-  FutureOr<void> captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  );
+  FutureOr<void> captureEnvelope(Uint8List envelopeData);
 
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope);
 
