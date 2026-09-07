@@ -439,7 +439,10 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         return
     }
 
-    private func updateSessionForDroppedEventNonTerminating(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+    private func updateSessionForDroppedEventNonTerminating(
+        _ call: FlutterMethodCall,
+        result: @escaping FlutterResult
+    ) {
         guard let unhandled = call.arguments as? Bool else {
             result(FlutterError(code: "4", message: "Unhandled flag is null", details: nil))
             return
