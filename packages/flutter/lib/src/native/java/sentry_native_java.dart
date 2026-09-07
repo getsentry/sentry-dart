@@ -59,6 +59,11 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    return _coreWorker?.updateSessionForDroppedEventNonTerminating(unhandled);
+  }
+
+  @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
       _coreWorker?.loadDebugImages(stackTrace);
 

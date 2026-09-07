@@ -238,6 +238,18 @@ void main() {
       worker.close();
     });
 
+    test('awaits sampled out session update', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      final payload = await fixture.expectPendingRequest(
+        worker.updateSessionForDroppedEventNonTerminating(true),
+      );
+
+      expect((payload as dynamic).unhandled, true);
+    });
+
     test('requests debug images by instruction addresses', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();

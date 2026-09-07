@@ -187,6 +187,9 @@ class SentryClient {
         () =>
             'Event ${sampledOutEvent.eventId} was dropped due to sampling decision.',
       );
+      await _options.lifecycleRegistry.dispatchCallback(
+        OnEventSampledOut(sampledOutEvent, hint),
+      );
       return _emptySentryId;
     }
 

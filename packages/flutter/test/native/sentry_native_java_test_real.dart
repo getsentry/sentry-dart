@@ -115,6 +115,11 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    // No-op for testing
+  }
+
+  @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     return null;
   }

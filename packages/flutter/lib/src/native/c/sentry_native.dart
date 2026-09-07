@@ -125,6 +125,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    throw UnsupportedError(
+      '$SentryNative.updateSessionForDroppedEventNonTerminating() is not supported',
+    );
+  }
+
+  @override
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
     throw UnsupportedError("Not supported on this platform");
   }

@@ -83,6 +83,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "captureEnvelope":
             captureEnvelope(call, result: result)
 
+        case "updateSessionForDroppedEventNonTerminating":
+            updateSessionForDroppedEventNonTerminating(call, result: result)
+
         case "fetchNativeAppStart":
             fetchNativeAppStart(result: result)
 
@@ -434,6 +437,15 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         SentrySDK.internal.envelope.captureNonTerminating(envelope)
         result("")
         return
+    }
+
+    private func updateSessionForDroppedEventNonTerminating(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let unhandled = call.arguments as? Bool else {
+            result(FlutterError(code: "4", message: "Unhandled flag is null", details: nil))
+            return
+        }
+        SentrySDK.internal.envelope.updateSessionForDroppedEventNonTerminating(unhandled: unhandled)
+        result("")
     }
 
     struct TimeSpan {

@@ -25,6 +25,7 @@ import 'integrations/connectivity/connectivity_integration.dart';
 import 'integrations/flutter_framework_feature_flag_integration.dart';
 import 'integrations/frames_tracking_integration.dart';
 import 'integrations/integrations.dart';
+import 'integrations/native_session_integration.dart';
 import 'integrations/replay_telemetry_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'integrations/native_trace_sync_integration.dart';
@@ -191,6 +192,9 @@ mixin SentryFlutter {
       // We also need to call this before the native sdk integrations so release is properly propagated.
       integrations.add(LoadReleaseIntegration());
       integrations.add(createSdkIntegration(native));
+      if (platform.isAndroid || platform.isIOS || platform.isMacOS) {
+        integrations.add(NativeSessionIntegration(native));
+      }
       if (native.supportsTraceSync) {
         integrations.add(NativeTraceSyncIntegration(native));
       }

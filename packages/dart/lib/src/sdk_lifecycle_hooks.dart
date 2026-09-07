@@ -86,6 +86,15 @@ class OnBeforeSendEvent extends SdkLifecycleEvent {
   final Hint hint;
 }
 
+/// Dispatched when an event is dropped by the configured sample rate.
+@internal
+class OnEventSampledOut extends SdkLifecycleEvent {
+  OnEventSampledOut(this.event, this.hint);
+
+  final SentryEvent event;
+  final Hint hint;
+}
+
 /// Dispatched when a sampled span is started.
 @internal
 class OnSpanStart extends SdkLifecycleEvent {
