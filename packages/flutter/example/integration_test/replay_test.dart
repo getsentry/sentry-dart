@@ -33,7 +33,11 @@ Future<void> _waitUntilReplayId({SentryId? differentFrom}) async {
   while (SentryFlutter.native?.replayId == null ||
       SentryFlutter.native?.replayId == differentFrom) {
     if (!DateTime.now().isBefore(deadline)) {
-      fail('Replay ID was not set after 10s');
+      fail(
+        differentFrom == null
+            ? 'Replay ID was not set after 10s'
+            : 'Replay ID stayed at $differentFrom for 10s',
+      );
     }
     await Future<void>.delayed(const Duration(milliseconds: 50));
   }
@@ -203,9 +207,8 @@ void main() {
 
       final replay =
           native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-      if (replay != null) {
-        addTearDown(replay.release);
-      }
+      // Release the reference so a failing assertion doesn't leak it.
+      addTearDown(() => replay?.release());
       expect(replay, isNull);
     }, skip: !Platform.isAndroid);
 

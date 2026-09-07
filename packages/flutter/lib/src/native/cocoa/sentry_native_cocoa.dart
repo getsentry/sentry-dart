@@ -63,6 +63,14 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
+  Future<void> stopReplay() async {
+    await super.stopReplay();
+    // iOS has no "replay stopped" callback, so without this the last known ID
+    // would keep being attached to telemetry.
+    _replayId = null;
+  }
+
+  @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
     // Note: unused on iOS.
   }

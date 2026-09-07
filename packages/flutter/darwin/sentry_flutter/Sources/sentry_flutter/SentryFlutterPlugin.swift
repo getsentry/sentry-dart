@@ -155,41 +155,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(nil)
 #endif
 
-        case "startReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            SentrySDK.internal.replay.start()
-#endif
-            result("")
-
-        case "startReplayBuffering":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            SentrySDK.internal.replay.startBuffering()
-#endif
-            result("")
-
-        case "pauseReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            SentrySDK.internal.replay.pause()
-#endif
-            result("")
-
-        case "resumeReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            SentrySDK.internal.replay.resume()
-#endif
-            result("")
-
-        case "stopReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            SentrySDK.internal.replay.stop()
-#endif
-            result("")
-
-        case "flushReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            SentrySDK.internal.replay.flush()
-#endif
-            result("")
+        case "startReplay", "startReplayBuffering", "pauseReplay", "resumeReplay", "stopReplay", "flushReplay":
+            controlReplay(call.method, result: result)
 
         case "setTrace":
             let arguments = call.arguments as? [String: Any?]
@@ -200,6 +167,29 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         default:
             result(FlutterMethodNotImplemented)
         }
+    }
+
+    private func controlReplay(_ method: String, result: @escaping FlutterResult) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+        let replay = SentrySDK.internal.replay
+        switch method {
+        case "startReplay":
+            replay.start()
+        case "startReplayBuffering":
+            replay.startBuffering()
+        case "pauseReplay":
+            replay.pause()
+        case "resumeReplay":
+            replay.resume()
+        case "stopReplay":
+            replay.stop()
+        case "flushReplay":
+            replay.flush()
+        default:
+            break
+        }
+#endif
+        result("")
     }
 
     // swiftlint:disable:next cyclomatic_complexity

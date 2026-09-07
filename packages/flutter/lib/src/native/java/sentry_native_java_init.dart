@@ -135,6 +135,7 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
         await owner._replayRecorder?.pause();
       },
       replayStopped: () async {
+        owner._replayId = null;
         hub.configureScope((s) {
           // ignore: invalid_use_of_internal_member
           s.replayId = null;

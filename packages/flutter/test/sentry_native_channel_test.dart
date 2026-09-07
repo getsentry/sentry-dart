@@ -3,6 +3,7 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -488,36 +489,43 @@ void main() {
         if (mockPlatform.isAndroid) {
           return;
         }
-        for (final method in [
-          'startReplay',
-          'startReplayBuffering',
-          'pauseReplay',
-          'resumeReplay',
-          'stopReplay',
-          'flushReplay',
-        ]) {
+        final controls = <String, FutureOr<void> Function()>{
+          'startReplay': sut.startReplay,
+          'startReplayBuffering': sut.startReplayBuffering,
+          'pauseReplay': sut.pauseReplay,
+          'resumeReplay': sut.resumeReplay,
+          'stopReplay': sut.stopReplay,
+          'flushReplay': sut.flushReplay,
+        };
+
+        for (final entry in controls.entries) {
           when(
-            channel.invokeMethod<void>(method),
+            channel.invokeMethod<void>(entry.key),
           ).thenAnswer((_) => Future.value());
-        }
 
-        await sut.startReplay();
-        await sut.startReplayBuffering();
-        await sut.pauseReplay();
-        await sut.resumeReplay();
+          await entry.value();
+
+          verify(channel.invokeMethod<void>(entry.key)).called(1);
+        }
+      });
+
+      test('stopReplay clears the last known replay ID', () async {
+        if (!mockPlatform.isIOS) {
+          return;
+        }
+        when(
+          channel.invokeMethod<String>('captureReplay', any),
+        ).thenAnswer((_) => Future.value(SentryId.newId().toString()));
+        when(
+          channel.invokeMethod<void>('stopReplay'),
+        ).thenAnswer((_) => Future.value());
+
+        await sut.captureReplay();
+        expect(sut.replayId, isNotNull);
+
         await sut.stopReplay();
-        await sut.flushReplay();
 
-        for (final method in [
-          'startReplay',
-          'startReplayBuffering',
-          'pauseReplay',
-          'resumeReplay',
-          'stopReplay',
-          'flushReplay',
-        ]) {
-          verify(channel.invokeMethod<void>(method)).called(1);
-        }
+        expect(sut.replayId, isNull);
       });
 
       test(

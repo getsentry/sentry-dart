@@ -31,18 +31,16 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
 
     options.sdk.addIntegration(replayIntegrationName);
 
-    if (replayOptions.isEnabled) {
-      _hub = hub;
-      _options = options;
+    _hub = hub;
+    _options = options;
 
-      // We only need the hook when error-replay capture is enabled. It runs in
-      // the send phase rather than as an event processor so that an event
-      // dropped by sampling or `beforeSend` cannot flush the buffered replay.
-      if ((replayOptions.onErrorSampleRate ?? 0) > 0) {
-        final callback = _onEventAboutToBeSent;
-        options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(callback);
-        _onBeforeSendEventCallback = callback;
-      }
+    // We only need the hook when error-replay capture is enabled. It runs in
+    // the send phase rather than as an event processor so that an event
+    // dropped by sampling or `beforeSend` cannot flush the buffered replay.
+    if ((replayOptions.onErrorSampleRate ?? 0) > 0) {
+      final callback = _onEventAboutToBeSent;
+      options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(callback);
+      _onBeforeSendEventCallback = callback;
     }
 
     _removeOnBuildCallback?.call();
@@ -83,6 +81,9 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       _options?.lifecycleRegistry.removeCallback<OnBeforeSendEvent>(callback);
       _onBeforeSendEventCallback = null;
     }
+
+    _hub = null;
+    _options = null;
   }
 
   Future<void> _onEventAboutToBeSent(OnBeforeSendEvent lifecycleEvent) async {
@@ -100,6 +101,9 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
   }
 
   Future<void> captureReplay() async {
+    // A replay started through `SentryFlutter.replay` is only sent by
+    // `SentryFlutter.replay.flush()`; error and feedback events send the buffer
+    // only for the configured sample rates.
     if (_native.supportsReplay && _options?.replay.isEnabled == true) {
       final replayId = await _native.captureReplay();
       _hub?.configureScope((scope) {

@@ -558,10 +558,11 @@ mixin SentryFlutter {
 
   static SentryNativeBinding? _native;
 
-  /// Controls Session Replay recording on supported native platforms.
-  static SentryReplay get replay => _replay;
-
-  static final SentryReplay _replay = createSentryReplay(() => _native);
+  /// Controls Session Replay recording.
+  ///
+  /// Only Android and iOS support Session Replay. On every other platform the
+  /// methods on the returned [SentryReplay] are no-ops.
+  static final SentryReplay replay = createSentryReplay(() => _native);
 
   /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
   /// This should not be used in production code.

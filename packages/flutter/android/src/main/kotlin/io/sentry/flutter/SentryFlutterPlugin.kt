@@ -97,8 +97,11 @@ class SentryFlutterPlugin :
     // Stub
   }
   private fun closeNativeSdk(result: Result) {
-    tearDownReplayIntegration()
+    // Let the SDK shut the ReplayIntegration down as part of its own teardown,
+    // then drop our reference so a closed integration can't be reached through
+    // privateSentryGetReplayIntegration().
     ScopesAdapter.getInstance().close()
+    tearDownReplayIntegration()
 
     result.success("")
   }

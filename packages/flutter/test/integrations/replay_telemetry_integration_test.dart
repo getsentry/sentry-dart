@@ -21,17 +21,42 @@ void main() {
   });
 
   group('$ReplayTelemetryIntegration', () {
-    group('when replay is disabled', () {
-      test('does not register', () async {
+    group('when automatic sampling is disabled', () {
+      setUp(() {
         fixture.options.replay.sessionSampleRate = 0.0;
         fixture.options.replay.onErrorSampleRate = 0.0;
+      });
+
+      test('registers so manually started replays are covered', () async {
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        expect(fixture.options.sdk.integrations, contains('ReplayTelemetry'));
+      });
+
+      test('adds replay_id for a manually started session replay', () async {
+        fixture.scope.replayId = SentryId.fromId('test-replay-id');
 
         await fixture.getSut().call(fixture.hub, fixture.options);
 
-        expect(
-          fixture.options.sdk.integrations,
-          isNot(contains('ReplayTelemetry')),
-        );
+        final log = fixture.createTestLog();
+        await fixture.hub.captureLog(log);
+
+        expect(log.attributes[_replayId]?.value, 'testreplayid');
+        expect(log.attributes.containsKey(_replayIsBuffering), false);
+      });
+
+      test('adds replay_id for a manually buffered replay', () async {
+        when(
+          fixture.nativeBinding.replayId,
+        ).thenReturn(SentryId.fromId('test-replay-id'));
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        final log = fixture.createTestLog();
+        await fixture.hub.captureLog(log);
+
+        expect(log.attributes[_replayId]?.value, 'testreplayid');
+        expect(log.attributes[_replayIsBuffering]?.value, true);
       });
     });
 
@@ -271,80 +296,55 @@ void main() {
       });
     });
 
-    group('with zero or null sample rates', () {
-      for (final rate in [0.0, null]) {
-        test(
-          'ignores scope replayId when sessionSampleRate is $rate',
-          () async {
-            fixture.options.replay.sessionSampleRate = rate;
-            fixture.options.replay.onErrorSampleRate = 0.5;
-            fixture.scope.replayId = SentryId.fromId('test-replay-id');
+    group('when no replay is running', () {
+      setUp(() {
+        fixture.options.replay.sessionSampleRate = 0.5;
+        fixture.options.replay.onErrorSampleRate = 0.5;
+      });
 
-            await fixture.getSut().call(fixture.hub, fixture.options);
+      test('adds no replay_id to logs without a replay ID', () async {
+        await fixture.getSut().call(fixture.hub, fixture.options);
 
-            final log = fixture.createTestLog();
-            await fixture.hub.captureLog(log);
+        final log = fixture.createTestLog();
+        await fixture.hub.captureLog(log);
 
-            expect(log.attributes.containsKey(_replayId), false);
-          },
+        expect(log.attributes.containsKey(_replayId), false);
+      });
+
+      test('adds no replay_id to spans without a replay ID', () async {
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        final span = fixture.createTestSpan();
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span, Hint()),
         );
 
-        test(
-          'ignores scope replayId for spans when sessionSampleRate is $rate',
-          () async {
-            fixture.options.replay.sessionSampleRate = rate;
-            fixture.options.replay.onErrorSampleRate = 0.5;
-            fixture.scope.replayId = SentryId.fromId('test-replay-id');
+        expect(span.attributes.containsKey(_replayId), false);
+      });
 
-            await fixture.getSut().call(fixture.hub, fixture.options);
+      test('ignores an empty native replay ID for logs', () async {
+        when(fixture.nativeBinding.replayId).thenReturn(SentryId.empty());
 
-            final span = fixture.createTestSpan();
-            await fixture.options.lifecycleRegistry.dispatchCallback(
-              OnProcessSpan(span, Hint()),
-            );
+        await fixture.getSut().call(fixture.hub, fixture.options);
 
-            expect(span.attributes.containsKey(_replayId), false);
-          },
+        final log = fixture.createTestLog();
+        await fixture.hub.captureLog(log);
+
+        expect(log.attributes.containsKey(_replayId), false);
+      });
+
+      test('ignores an empty native replay ID for spans', () async {
+        when(fixture.nativeBinding.replayId).thenReturn(SentryId.empty());
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        final span = fixture.createTestSpan();
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnProcessSpan(span, Hint()),
         );
 
-        test(
-          'ignores native replayId when onErrorSampleRate is $rate',
-          () async {
-            fixture.options.replay.sessionSampleRate = 0.5;
-            fixture.options.replay.onErrorSampleRate = rate;
-            when(
-              fixture.nativeBinding.replayId,
-            ).thenReturn(SentryId.fromId('test-replay-id'));
-
-            await fixture.getSut().call(fixture.hub, fixture.options);
-
-            final log = fixture.createTestLog();
-            await fixture.hub.captureLog(log);
-
-            expect(log.attributes.containsKey(_replayId), false);
-          },
-        );
-
-        test(
-          'ignores native replayId for spans when onErrorSampleRate is $rate',
-          () async {
-            fixture.options.replay.sessionSampleRate = 0.5;
-            fixture.options.replay.onErrorSampleRate = rate;
-            when(
-              fixture.nativeBinding.replayId,
-            ).thenReturn(SentryId.fromId('test-replay-id'));
-
-            await fixture.getSut().call(fixture.hub, fixture.options);
-
-            final span = fixture.createTestSpan();
-            await fixture.options.lifecycleRegistry.dispatchCallback(
-              OnProcessSpan(span, Hint()),
-            );
-
-            expect(span.attributes.containsKey(_replayId), false);
-          },
-        );
-      }
+        expect(span.attributes.containsKey(_replayId), false);
+      });
     });
 
     group('when closed', () {

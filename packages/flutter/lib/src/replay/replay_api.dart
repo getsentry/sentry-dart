@@ -5,7 +5,10 @@ import 'package:meta/meta.dart';
 import '../native/sentry_native_binding.dart';
 import '../utils/internal_logger.dart';
 
-/// Controls Session Replay recording on supported native platforms.
+/// Controls Session Replay recording.
+///
+/// Only Android and iOS support Session Replay. On every other platform these
+/// methods are no-ops.
 abstract interface class SentryReplay {
   /// Starts a new replay session.
   ///
@@ -54,13 +57,16 @@ final class _SentryReplay implements SentryReplay {
     final native = _nativeProvider();
     if (native == null) {
       internalLogger.debug(
-        'Native integration is not available. Make sure SentryFlutter is '
-        'initialized before accessing the SentryFlutter.replay.$operation API.',
+        'SentryFlutter.replay.$operation() was ignored because the native '
+        'integration is unavailable. Make sure SentryFlutter.init() ran first.',
       );
       return;
     }
     if (!native.supportsReplay) {
-      internalLogger.debug('Session Replay is not supported on this platform.');
+      internalLogger.debug(
+        'SentryFlutter.replay.$operation() was ignored because Session Replay '
+        'is not supported on this platform.',
+      );
       return;
     }
     await callback(native);

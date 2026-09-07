@@ -22,42 +22,26 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
-    if (!options.replay.isEnabled) {
-      return;
-    }
-    final sessionSampleRate = options.replay.sessionSampleRate ?? 0;
-    final onErrorSampleRate = options.replay.onErrorSampleRate ?? 0;
-
+    // Not gated on `options.replay.isEnabled`: a replay can also be started
+    // manually through `SentryFlutter.replay` while both sample rates are zero.
     _options = options;
 
     _onProcessLog = (OnProcessLog event) {
-      final attributes = _replayAttributes(
-        hub.scope.replayId,
-        sessionSampleRate: sessionSampleRate,
-        onErrorSampleRate: onErrorSampleRate,
-      );
+      final attributes = _replayAttributes(hub.scope.replayId);
       if (attributes != null) {
         event.log.attributes.addAll(attributes);
       }
     };
 
     _onProcessMetric = (OnProcessMetric event) {
-      final attributes = _replayAttributes(
-        hub.scope.replayId,
-        sessionSampleRate: sessionSampleRate,
-        onErrorSampleRate: onErrorSampleRate,
-      );
+      final attributes = _replayAttributes(hub.scope.replayId);
       if (attributes != null) {
         event.metric.attributes.addAll(attributes);
       }
     };
 
     _onProcessSpan = (OnProcessSpan event) {
-      final attributes = _replayAttributes(
-        hub.scope.replayId,
-        sessionSampleRate: sessionSampleRate,
-        onErrorSampleRate: onErrorSampleRate,
-      );
+      final attributes = _replayAttributes(hub.scope.replayId);
       if (attributes != null) {
         event.span.setAttributes(attributes);
       }
@@ -86,32 +70,24 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     options.sdk.addIntegration(integrationName);
   }
 
+  /// Resolves the running replay from SDK state rather than from the sample
+  /// rates, so manually started replays are covered too.
+  ///
+  /// The native layer puts the replay ID on the scope only while recording in
+  /// session mode, so a replay the binding knows about but the scope doesn't is
+  /// buffering.
   ({SentryId replayId, bool replayIsBuffering})? _replayContext(
-    SentryId? scopeReplayId, {
-    required double sessionSampleRate,
-    required double onErrorSampleRate,
-  }) {
+    SentryId? scopeReplayId,
+  ) {
     final replayId = scopeReplayId ?? _native?.replayId;
-    final replayIsBuffering = replayId != null && scopeReplayId == null;
-
-    if (sessionSampleRate > 0 && replayId != null && !replayIsBuffering) {
-      return (replayId: replayId, replayIsBuffering: replayIsBuffering);
-    } else if (onErrorSampleRate > 0 && replayId != null && replayIsBuffering) {
-      return (replayId: replayId, replayIsBuffering: replayIsBuffering);
+    if (replayId == null || replayId == SentryId.empty()) {
+      return null;
     }
-    return null;
+    return (replayId: replayId, replayIsBuffering: scopeReplayId == null);
   }
 
-  Map<String, SentryAttribute>? _replayAttributes(
-    SentryId? scopeReplayId, {
-    required double sessionSampleRate,
-    required double onErrorSampleRate,
-  }) {
-    final replayContext = _replayContext(
-      scopeReplayId,
-      sessionSampleRate: sessionSampleRate,
-      onErrorSampleRate: onErrorSampleRate,
-    );
+  Map<String, SentryAttribute>? _replayAttributes(SentryId? scopeReplayId) {
+    final replayContext = _replayContext(scopeReplayId);
     if (replayContext == null) {
       return null;
     }

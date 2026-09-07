@@ -48,6 +48,11 @@ class SentryNativeJava extends SentryNativeChannel {
     _nativeReplay = nativeReplay;
   }
 
+  /// The native replay integration, looked up on first use and cached until
+  /// [_setNativeReplay] drops it. Null while no replay integration is set up.
+  native.ReplayIntegration? get _replay => _nativeReplay ??=
+      native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+
   @override
   void init(Hub hub) {
     initSentryAndroid(hub: hub, options: options, owner: this);
@@ -188,10 +193,8 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId captureReplay() {
     final id = tryCatchSync<SentryId>('captureReplay', () {
       return using((arena) {
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
         // The passed parameter is `isTerminating`
-        final nativeReplayId = _nativeReplay?.captureReplay(
+        final nativeReplayId = _replay?.captureReplay(
           false.toJBoolean()..releasedBy(arena),
         );
         nativeReplayId?.releasedBy(arena);
@@ -214,44 +217,24 @@ class SentryNativeJava extends SentryNativeChannel {
     return id ?? SentryId.empty();
   }
 
-  void _controlReplay(
-    String operation,
-    void Function(native.ReplayIntegration replay) callback,
-  ) {
-    tryCatchSync(operation, () {
-      _nativeReplay ??=
-          native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-      final replay = _nativeReplay;
-      if (replay != null) {
-        callback(replay);
-      }
-    });
-  }
+  @override
+  void startReplay() => tryCatchSync('startReplay', () => _replay?.start());
 
   @override
-  void startReplay() =>
-      _controlReplay('startReplay', (replay) => replay.start());
+  void startReplayBuffering() =>
+      tryCatchSync('startReplayBuffering', () => _replay?.startBuffering());
 
   @override
-  void startReplayBuffering() => _controlReplay(
-    'startReplayBuffering',
-    (replay) => replay.startBuffering(),
-  );
+  void pauseReplay() => tryCatchSync('pauseReplay', () => _replay?.pause());
 
   @override
-  void pauseReplay() =>
-      _controlReplay('pauseReplay', (replay) => replay.pause());
+  void resumeReplay() => tryCatchSync('resumeReplay', () => _replay?.resume());
 
   @override
-  void resumeReplay() =>
-      _controlReplay('resumeReplay', (replay) => replay.resume());
+  void stopReplay() => tryCatchSync('stopReplay', () => _replay?.stop());
 
   @override
-  void stopReplay() => _controlReplay('stopReplay', (replay) => replay.stop());
-
-  @override
-  void flushReplay() =>
-      _controlReplay('flushReplay', (replay) => replay.flush());
+  void flushReplay() => tryCatchSync('flushReplay', () => _replay?.flush());
 
   @override
   void setReplayConfig(
@@ -303,9 +286,7 @@ class SentryNativeJava extends SentryNativeChannel {
       0, // bitRate is currently not used
     );
 
-    _nativeReplay ??=
-        native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-    _nativeReplay?.onConfigurationChanged(replayConfig);
+    _replay?.onConfigurationChanged(replayConfig);
 
     replayConfig.release();
   });
@@ -340,9 +321,7 @@ class SentryNativeJava extends SentryNativeChannel {
       using((arena) {
         final jTraceId = traceId.toString().toJString()..releasedBy(arena);
         final sentryId = native.SentryId.new$2(jTraceId)..releasedBy(arena);
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-        _nativeReplay?.registerTraceId(sentryId);
+        _replay?.registerTraceId(sentryId);
       });
     });
   }
@@ -356,9 +335,7 @@ class SentryNativeJava extends SentryNativeChannel {
     tryCatchSync('registerSegmentName', () {
       using((arena) {
         final jSegmentName = segmentName.toJString()..releasedBy(arena);
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-        _nativeReplay?.registerSegmentName(jSegmentName);
+        _replay?.registerSegmentName(jSegmentName);
       });
     });
   }
