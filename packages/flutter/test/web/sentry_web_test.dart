@@ -227,7 +227,7 @@ void main() {
 
         test('methods execute without calling JS binding', () {
           sut.addBreadcrumb(Breadcrumb());
-          sut.captureEnvelope(Uint8List(0), false);
+          sut.captureEnvelope(Uint8List(0));
           sut.clearBreadcrumbs();
           sut.displayRefreshRate();
           sut.fetchNativeAppStart();

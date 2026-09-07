@@ -301,7 +301,7 @@ void main() {
 
           final data = Uint8List.fromList([1, 2, 3]);
 
-          expect(() => sut.captureEnvelope(data, false), matcher);
+          expect(() => sut.captureEnvelope(data), matcher);
 
           verifyZeroInteractions(channel);
         } else {
@@ -310,11 +310,11 @@ void main() {
           late Uint8List captured;
           when(channel.invokeMethod('captureEnvelope', any)).thenAnswer(
             (invocation) async => {
-              captured = invocation.positionalArguments[1][0] as Uint8List,
+              captured = invocation.positionalArguments[1] as Uint8List,
             },
           );
 
-          await sut.captureEnvelope(data, false);
+          await sut.captureEnvelope(data);
 
           expect(captured, data);
         }

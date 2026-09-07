@@ -71,10 +71,7 @@ class AndroidCoreWorker {
     _worker = null;
   }
 
-  void captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
+  void captureEnvelope(Uint8List envelopeData) {
     if (_isClosed) return;
 
     final client = _worker;
@@ -84,29 +81,17 @@ class AndroidCoreWorker {
       );
       _captureEnvelope(
         envelopeData,
-        containsUnhandledException,
         automatedTestMode: _config.automatedTestMode,
       );
       return;
     }
 
-    _captureEnvelopeFromWorker(
-      client,
-      envelopeData,
-      containsUnhandledException,
-    );
+    _captureEnvelopeFromWorker(client, envelopeData);
   }
 
-  void _captureEnvelopeFromWorker(
-    Worker client,
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
+  void _captureEnvelopeFromWorker(Worker client, Uint8List envelopeData) {
     client.send(
-      _CaptureEnvelopeRequest(
-        TransferableTypedData.fromList([envelopeData]),
-        containsUnhandledException,
-      ),
+      _CaptureEnvelopeRequest(TransferableTypedData.fromList([envelopeData])),
     );
   }
 
@@ -363,11 +348,7 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
     switch (msg) {
       case _CaptureEnvelopeRequest request:
         final data = request.envelopeData.materialize().asUint8List();
-        _captureEnvelope(
-          data,
-          request.containsUnhandledException,
-          automatedTestMode: _config.automatedTestMode,
-        );
+        _captureEnvelope(data, automatedTestMode: _config.automatedTestMode);
       case _AddBreadcrumbRequest request:
         _addBreadcrumb(
           request.breadcrumb,
@@ -456,12 +437,8 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
 
 class _CaptureEnvelopeRequest {
   final TransferableTypedData envelopeData;
-  final bool containsUnhandledException;
 
-  const _CaptureEnvelopeRequest(
-    this.envelopeData,
-    this.containsUnhandledException,
-  );
+  const _CaptureEnvelopeRequest(this.envelopeData);
 }
 
 class _LoadDebugImagesRequest {
@@ -504,18 +481,14 @@ class _RemoveContextsRequest {
 }
 
 void _captureEnvelope(
-  Uint8List envelopeData,
-  bool containsUnhandledException, {
+  Uint8List envelopeData, {
   bool automatedTestMode = false,
 }) {
   JObject? id;
   JByteArray? byteArray;
   try {
     byteArray = toJByteArray(envelopeData);
-    id = native.InternalSentrySdk.captureEnvelope(
-      byteArray,
-      containsUnhandledException,
-    );
+    id = native.InternalSentrySdk.captureEnvelopeNonTerminating(byteArray);
 
     if (id == null) {
       internalLogger.error(

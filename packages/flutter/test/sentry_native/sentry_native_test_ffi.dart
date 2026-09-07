@@ -266,7 +266,7 @@ void main() {
 
       test('captureEnvelope', () async {
         final data = Uint8List.fromList([1, 2, 3]);
-        expect(() => sut.captureEnvelope(data, false), throwsUnsupportedError);
+        expect(() => sut.captureEnvelope(data), throwsUnsupportedError);
       });
 
       test('loadContexts', () async {

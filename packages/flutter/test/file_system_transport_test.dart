@@ -43,7 +43,7 @@ void main() {
 
   test('$FileSystemTransport returns emptyId if channel throws', () async {
     fixture.options.automatedTestMode = false;
-    when(fixture.binding.captureEnvelope(any, false)).thenThrow(Exception());
+    when(fixture.binding.captureEnvelope(any)).thenThrow(Exception());
 
     final transport = fixture.getSut();
     final event = SentryEvent();
@@ -62,63 +62,57 @@ void main() {
     expect(SentryId.empty(), sentryId);
   });
 
-  test(
-    'sets unhandled exception flag in captureEnvelope to true for unhandled exception',
-    () async {
-      final transport = fixture.getSut();
+  test('forwards an envelope containing an unhandled exception', () async {
+    final transport = fixture.getSut();
 
-      final unhandledException = SentryException(
-        mechanism: Mechanism(type: 'UnhandledException', handled: false),
-        threadId: 99,
-        type: 'Exception',
-        value: 'Unhandled exception',
-      );
-      final event = SentryEvent(exceptions: [unhandledException]);
-      final sdkVersion = SdkVersion(
-        name: 'fixture-sdkName',
-        version: 'fixture-sdkVersion',
-      );
-      final envelope = SentryEnvelope.fromEvent(
-        event,
-        sdkVersion,
-        dsn: fixture.options.dsn,
-      );
+    final unhandledException = SentryException(
+      mechanism: Mechanism(type: 'UnhandledException', handled: false),
+      threadId: 99,
+      type: 'Exception',
+      value: 'Unhandled exception',
+    );
+    final event = SentryEvent(exceptions: [unhandledException]);
+    final sdkVersion = SdkVersion(
+      name: 'fixture-sdkName',
+      version: 'fixture-sdkVersion',
+    );
+    final envelope = SentryEnvelope.fromEvent(
+      event,
+      sdkVersion,
+      dsn: fixture.options.dsn,
+    );
 
-      await transport.send(envelope);
+    await transport.send(envelope);
 
-      verify(fixture.binding.captureEnvelope(captureAny, true)).captured.single
-          as Uint8List;
-    },
-  );
+    verify(fixture.binding.captureEnvelope(captureAny)).captured.single
+        as Uint8List;
+  });
 
-  test(
-    'sets unhandled exception flag in captureEnvelope to false for handled exception',
-    () async {
-      final transport = fixture.getSut();
+  test('forwards an envelope containing a handled exception', () async {
+    final transport = fixture.getSut();
 
-      final unhandledException = SentryException(
-        mechanism: Mechanism(type: 'UnhandledException', handled: true),
-        threadId: 99,
-        type: 'Exception',
-        value: 'Unhandled exception',
-      );
-      final event = SentryEvent(exceptions: [unhandledException]);
-      final sdkVersion = SdkVersion(
-        name: 'fixture-sdkName',
-        version: 'fixture-sdkVersion',
-      );
-      final envelope = SentryEnvelope.fromEvent(
-        event,
-        sdkVersion,
-        dsn: fixture.options.dsn,
-      );
+    final unhandledException = SentryException(
+      mechanism: Mechanism(type: 'UnhandledException', handled: true),
+      threadId: 99,
+      type: 'Exception',
+      value: 'Unhandled exception',
+    );
+    final event = SentryEvent(exceptions: [unhandledException]);
+    final sdkVersion = SdkVersion(
+      name: 'fixture-sdkName',
+      version: 'fixture-sdkVersion',
+    );
+    final envelope = SentryEnvelope.fromEvent(
+      event,
+      sdkVersion,
+      dsn: fixture.options.dsn,
+    );
 
-      await transport.send(envelope);
+    await transport.send(envelope);
 
-      verify(fixture.binding.captureEnvelope(captureAny, false)).captured.single
-          as Uint8List;
-    },
-  );
+    verify(fixture.binding.captureEnvelope(captureAny)).captured.single
+        as Uint8List;
+  });
 
   test('$FileSystemTransport asserts the event', () async {
     final transport = fixture.getSut();
@@ -138,9 +132,7 @@ void main() {
     await transport.send(envelope);
 
     final envelopeData =
-        verify(
-              fixture.binding.captureEnvelope(captureAny, false),
-            ).captured.single
+        verify(fixture.binding.captureEnvelope(captureAny)).captured.single
             as Uint8List;
     final envelopeString = utf8.decode(envelopeData);
     final lines = envelopeString.split('\n');
@@ -174,7 +166,7 @@ class Fixture {
   final binding = MockSentryNativeBinding();
 
   Fixture() {
-    when(binding.captureEnvelope(any, any)).thenReturn(null);
+    when(binding.captureEnvelope(any)).thenReturn(null);
   }
 
   FileSystemTransport getSut() {

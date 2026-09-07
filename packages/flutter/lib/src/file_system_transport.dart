@@ -17,10 +17,7 @@ class FileSystemTransport implements Transport {
     final envelopeData = bytesBuilder.takeBytes();
 
     try {
-      await _native.captureEnvelope(
-        envelopeData,
-        envelope.containsUnhandledException,
-      );
+      await _native.captureEnvelope(envelopeData);
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Failed to save envelope',

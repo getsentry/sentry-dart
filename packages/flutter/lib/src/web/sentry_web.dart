@@ -65,10 +65,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
     _logNotSupported('capture raw envelope data');
   }
 

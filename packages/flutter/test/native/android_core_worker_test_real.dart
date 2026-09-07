@@ -32,7 +32,7 @@ void main() {
       );
 
       final worker = AndroidCoreWorker(options);
-      worker.captureEnvelope(Uint8List.fromList([1, 2, 3]), false);
+      worker.captureEnvelope(Uint8List.fromList([1, 2, 3]));
 
       expect(
         logs.any(
@@ -168,10 +168,9 @@ void main() {
       await worker.start();
 
       final payload = Uint8List.fromList([4, 5, 6]);
-      worker.captureEnvelope(payload, true);
+      worker.captureEnvelope(payload);
 
       final msg = await inboxes.last.first as dynamic;
-      expect(msg.containsUnhandledException, true);
       final transferable = msg.envelopeData as TransferableTypedData;
       final data = transferable.materialize().asUint8List();
       expect(data, [4, 5, 6]);
@@ -204,7 +203,7 @@ void main() {
       worker.close();
     });
 
-    test('sends envelope capture requests sequentially with flags', () async {
+    test('sends envelope capture requests sequentially', () async {
       final options = SentryFlutterOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
@@ -221,16 +220,13 @@ void main() {
       final worker = AndroidCoreWorker(options, spawn: fakeSpawn);
       await worker.start();
 
-      worker.captureEnvelope(Uint8List.fromList([10]), true);
-      worker.captureEnvelope(Uint8List.fromList([11]), false);
+      worker.captureEnvelope(Uint8List.fromList([10]));
+      worker.captureEnvelope(Uint8List.fromList([11]));
 
       final inbox = inboxes.last;
       final msgs = await inbox.take(2).toList();
       final msg1 = msgs[0] as dynamic;
       final msg2 = msgs[1] as dynamic;
-
-      expect(msg1.containsUnhandledException, true);
-      expect(msg2.containsUnhandledException, false);
 
       final t1 = msg1.envelopeData as TransferableTypedData;
       final t2 = msg2.envelopeData as TransferableTypedData;

@@ -899,7 +899,7 @@ MockSentryNativeBinding mockNativeBinding() {
   when(result.supportsLoadContexts).thenReturn(true);
   when(result.supportsCaptureEnvelope).thenReturn(true);
   when(result.supportsReplay).thenReturn(false);
-  when(result.captureEnvelope(any, any)).thenReturn(null);
+  when(result.captureEnvelope(any)).thenReturn(null);
   when(result.init(any)).thenReturn(null);
   when(result.close()).thenReturn(null);
   return result;
