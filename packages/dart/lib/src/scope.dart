@@ -254,9 +254,8 @@ class Scope {
     final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, resolvedHint);
     if (addedBreadcrumb != null) {
       await _callScopeObservers((scopeObserver) async {
-        if (scopeObserver is HintAwareScopeObserver) {
-          await (scopeObserver as HintAwareScopeObserver)
-              .addBreadcrumbWithHint(addedBreadcrumb, resolvedHint);
+        if (scopeObserver case final HintAwareScopeObserver observer) {
+          await observer.addBreadcrumbWithHint(addedBreadcrumb, resolvedHint);
         } else {
           await scopeObserver.addBreadcrumb(addedBreadcrumb);
         }
