@@ -14,7 +14,7 @@ abstract class FlutterSymbolResolver {
             ? prefix.substring(0, prefix.length - 1)
             : prefix;
 
-  Future<void> tryResolve(String path) async {
+  Future<bool> tryResolve(String path) async {
     path = '$_prefix/$path';
     final matches = await _bucket
         .list(prefix: path)
@@ -22,9 +22,12 @@ abstract class FlutterSymbolResolver {
         .where((v) => v.name == path) // because it's a prefix search
         .map((v) => v.name)
         .toList();
-    if (matches.isNotEmpty) {
-      _resolvedFiles.add(SymbolArchive(matches.single, platform));
+    if (matches.isEmpty) {
+      return false;
     }
+
+    _resolvedFiles.add(SymbolArchive(matches.single, platform));
+    return true;
   }
 
   Future<List<SymbolArchive>> listArchives();
@@ -38,7 +41,12 @@ class IosSymbolResolver extends FlutterSymbolResolver {
 
   @override
   Future<List<SymbolArchive>> listArchives() async {
-    await tryResolve('ios-release/Flutter.dSYM.zip');
+    // Since Flutter 3.24, dSYMs are embedded in the artifact cache's
+    // Flutter.xcframework instead of always being uploaded separately.
+    // See https://github.com/flutter/flutter/blob/main/docs/engine/Crashes.md#ios.
+    if (!await tryResolve('ios-release/Flutter.dSYM.zip')) {
+      await tryResolve('ios-release/artifacts.zip');
+    }
     return _resolvedFiles;
   }
 }
@@ -51,8 +59,12 @@ class MacOSSymbolResolver extends FlutterSymbolResolver {
 
   @override
   Future<List<SymbolArchive>> listArchives() async {
-    // darwin-x64-release directory contains a fat (arm64+x86_64) binary.
-    await tryResolve('darwin-x64-release/FlutterMacOS.dSYM.zip');
+    // Since Flutter 3.27, dSYMs are embedded in the artifact cache's
+    // FlutterMacOS.xcframework instead of being uploaded separately.
+    // See https://github.com/flutter/flutter/blob/main/docs/engine/Crashes.md#macos.
+    if (!await tryResolve('darwin-x64-release/FlutterMacOS.dSYM.zip')) {
+      await tryResolve('darwin-x64-release/framework.zip');
+    }
     return _resolvedFiles;
   }
 }
