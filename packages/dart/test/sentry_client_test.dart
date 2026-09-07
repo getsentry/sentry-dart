@@ -1176,6 +1176,20 @@ void main() {
       expect(fixture.transport.called(1), true);
     });
 
+    test('does not dispatch sampled out event when captured', () async {
+      var callbacks = 0;
+      fixture.options.lifecycleRegistry.registerCallback<OnEventSampledOut>((
+        event,
+      ) {
+        callbacks++;
+      });
+      final client = fixture.getSut(sampleRate: 1.0);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(callbacks, 0);
+    });
+
     test('do not capture event, sample rate is 0% disabled', () async {
       final client = fixture.getSut(sampleRate: 0.0);
       await client.captureEvent(fakeEvent);
@@ -1213,6 +1227,81 @@ void main() {
 
       expect(beforeSendCalled, true);
       expect(fixture.transport.called(0), true);
+    });
+
+    test('dispatches the final event when sampling drops it', () async {
+      final finalEvent = SentryEvent(message: SentryMessage('final'));
+      final hint = Hint();
+      OnEventSampledOut? sampledOut;
+      fixture.options.lifecycleRegistry.registerCallback<OnEventSampledOut>((
+        event,
+      ) {
+        sampledOut = event;
+      });
+      final client = fixture.getSut(
+        sampleRate: 0.0,
+        beforeSend: (event, hint) => finalEvent,
+      );
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      expect(sampledOut?.event, same(finalEvent));
+      expect(sampledOut?.hint, same(hint));
+    });
+
+    test(
+      'does not dispatch sampled out event when beforeSend drops it',
+      () async {
+        var callbacks = 0;
+        fixture.options.lifecycleRegistry.registerCallback<OnEventSampledOut>((
+          event,
+        ) {
+          callbacks++;
+        });
+        final client = fixture.getSut(
+          sampleRate: 0.0,
+          beforeSend: (event, hint) => null,
+        );
+
+        await client.captureEvent(fakeEvent);
+
+        expect(callbacks, 0);
+      },
+    );
+
+    test(
+      'does not dispatch sampled out event when a processor drops it',
+      () async {
+        var callbacks = 0;
+        fixture.options.lifecycleRegistry.registerCallback<OnEventSampledOut>((
+          event,
+        ) {
+          callbacks++;
+        });
+        final client = fixture.getSut(
+          sampleRate: 0.0,
+          eventProcessor: DropAllEventProcessor(),
+        );
+
+        await client.captureEvent(fakeEvent);
+
+        expect(callbacks, 0);
+      },
+    );
+
+    test('does not dispatch sampled out event when ignored', () async {
+      var callbacks = 0;
+      fixture.options.ignoreErrors = ['ignored'];
+      fixture.options.lifecycleRegistry.registerCallback<OnEventSampledOut>((
+        event,
+      ) {
+        callbacks++;
+      });
+      final client = fixture.getSut(sampleRate: 0.0);
+
+      await client.captureEvent(SentryEvent(message: SentryMessage('ignored')));
+
+      expect(callbacks, 0);
     });
   });
 

@@ -95,6 +95,44 @@ class AndroidCoreWorker {
     );
   }
 
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    if (_isClosed) return null;
+
+    final client = _worker;
+    if (client == null) {
+      _updateSessionForDroppedEventNonTerminating(
+        unhandled,
+        automatedTestMode: _config.automatedTestMode,
+      );
+      return null;
+    }
+
+    return _updateSessionForDroppedEventNonTerminatingFromWorker(
+      client,
+      unhandled,
+    );
+  }
+
+  Future<void> _updateSessionForDroppedEventNonTerminatingFromWorker(
+    Worker client,
+    bool unhandled,
+  ) async {
+    try {
+      await client.request(
+        _UpdateSessionForDroppedEventNonTerminatingRequest(unhandled),
+      );
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to update session for dropped event',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
+
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
     if (_isClosed) return null;
 
@@ -384,6 +422,12 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
         );
       case _LoadContextsRequest _:
         return _loadContexts(automatedTestMode: _config.automatedTestMode);
+      case _UpdateSessionForDroppedEventNonTerminatingRequest request:
+        _updateSessionForDroppedEventNonTerminating(
+          request.unhandled,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
       case _AddBreadcrumbRequest request:
         _addBreadcrumb(
           request.breadcrumb,
@@ -439,6 +483,12 @@ class _CaptureEnvelopeRequest {
   final TransferableTypedData envelopeData;
 
   const _CaptureEnvelopeRequest(this.envelopeData);
+}
+
+class _UpdateSessionForDroppedEventNonTerminatingRequest {
+  final bool unhandled;
+
+  const _UpdateSessionForDroppedEventNonTerminatingRequest(this.unhandled);
 }
 
 class _LoadDebugImagesRequest {
@@ -507,6 +557,26 @@ void _captureEnvelope(
   } finally {
     byteArray?.release();
     id?.release();
+  }
+}
+
+void _updateSessionForDroppedEventNonTerminating(
+  bool unhandled, {
+  bool automatedTestMode = false,
+}) {
+  try {
+    native.InternalSentrySdk.updateSessionForDroppedEventNonTerminating(
+      unhandled,
+    );
+  } catch (exception, stackTrace) {
+    internalLogger.error(
+      'Failed to update session for dropped event',
+      error: exception,
+      stackTrace: stackTrace,
+    );
+    if (automatedTestMode) {
+      rethrow;
+    }
   }
 }
 

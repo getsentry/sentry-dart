@@ -132,6 +132,21 @@ class SentryNativeChannel
   }
 
   @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    if (options.platform.isAndroid) {
+      assert(
+        false,
+        'updateSessionForDroppedEventNonTerminating should not be used through method channels on Android.',
+      );
+      return null;
+    }
+    return channel.invokeMethod(
+      'updateSessionForDroppedEventNonTerminating',
+      unhandled,
+    );
+  }
+
+  @override
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) {
     throw UnsupportedError("Not supported on this platform");
   }

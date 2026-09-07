@@ -70,6 +70,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    _logNotSupported('update session for dropped non-terminating event');
+  }
+
+  @override
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) =>
       tryCatchAsync('captureStructuredEnvelope', () async {
         final List<dynamic> envelopeItems = [];

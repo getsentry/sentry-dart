@@ -1332,6 +1332,17 @@ class MockSentryNativeBinding extends _i1.Mock
           as _i12.FutureOr<void>);
 
   @override
+  _i12.FutureOr<void> updateSessionForDroppedEventNonTerminating(
+    bool? unhandled,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#updateSessionForDroppedEventNonTerminating, [
+              unhandled,
+            ]),
+          )
+          as _i12.FutureOr<void>);
+
+  @override
   _i12.FutureOr<void> captureStructuredEnvelope(_i2.SentryEnvelope? envelope) =>
       (super.noSuchMethod(
             Invocation.method(#captureStructuredEnvelope, [envelope]),

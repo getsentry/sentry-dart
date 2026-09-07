@@ -269,6 +269,13 @@ void main() {
         expect(() => sut.captureEnvelope(data), throwsUnsupportedError);
       });
 
+      test('updateSessionForDroppedEventNonTerminating', () async {
+        expect(
+          () => sut.updateSessionForDroppedEventNonTerminating(true),
+          throwsUnsupportedError,
+        );
+      });
+
       test('loadContexts', () async {
         expect(await sut.loadContexts(), isNull);
       });

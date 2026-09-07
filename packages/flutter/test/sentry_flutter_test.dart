@@ -12,6 +12,7 @@ import 'package:sentry_flutter/src/flutter_exception_type_identifier.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
+import 'package:sentry_flutter/src/integrations/native_session_integration.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart';
 import 'package:sentry_flutter/src/integrations/web_session_integration.dart';
@@ -42,6 +43,8 @@ final webIntegrations = [ConnectivityIntegration, WebSessionIntegration];
 final genericAppStartIntegrations = [GenericAppStartIntegration];
 
 final nonWebIntegrations = [OnErrorIntegration];
+
+final nativeSessionIntegrations = [NativeSessionIntegration];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [LoadContextsIntegration];
@@ -92,6 +95,7 @@ void main() {
         integrations: options.integrations,
         shouldHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
+          ...nativeSessionIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
           ReplayIntegration,
@@ -108,6 +112,10 @@ void main() {
       expect(SentryFlutter.native, isNotNull);
       expect(
         options.integrations.whereType<StandaloneAppStartIntegration>(),
+        hasLength(1),
+      );
+      expect(
+        options.integrations.whereType<NativeSessionIntegration>(),
         hasLength(1),
       );
 
@@ -214,6 +222,7 @@ void main() {
         integrations: integrations,
         shouldHaveIntegrations: [
           ...iOsAndMacOsIntegrations,
+          ...nativeSessionIntegrations,
           ...platformAgnosticIntegrations,
           ...nonWebIntegrations,
           ...genericAppStartIntegrations,

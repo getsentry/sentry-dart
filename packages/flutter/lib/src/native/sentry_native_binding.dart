@@ -20,6 +20,8 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> captureEnvelope(Uint8List envelopeData);
 
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled);
+
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope);
 
   FutureOr<void> setUser(SentryUser? user);

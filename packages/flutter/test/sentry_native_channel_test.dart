@@ -320,6 +320,27 @@ void main() {
         }
       });
 
+      test('updates session for sampled out unhandled event', () async {
+        if (mockPlatform.isAndroid) {
+          return;
+        }
+        when(
+          channel.invokeMethod(
+            'updateSessionForDroppedEventNonTerminating',
+            true,
+          ),
+        ).thenAnswer((_) => Future.value());
+
+        await sut.updateSessionForDroppedEventNonTerminating(true);
+
+        verify(
+          channel.invokeMethod(
+            'updateSessionForDroppedEventNonTerminating',
+            true,
+          ),
+        );
+      });
+
       test('loadContexts', () async {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
