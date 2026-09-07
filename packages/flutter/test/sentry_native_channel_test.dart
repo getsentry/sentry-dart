@@ -484,6 +484,42 @@ void main() {
         }
       });
 
+      test('manual replay controls invoke native methods', () async {
+        if (mockPlatform.isAndroid) {
+          return;
+        }
+        for (final method in [
+          'startReplay',
+          'startReplayBuffering',
+          'pauseReplay',
+          'resumeReplay',
+          'stopReplay',
+          'flushReplay',
+        ]) {
+          when(
+            channel.invokeMethod<void>(method),
+          ).thenAnswer((_) => Future.value());
+        }
+
+        await sut.startReplay();
+        await sut.startReplayBuffering();
+        await sut.pauseReplay();
+        await sut.resumeReplay();
+        await sut.stopReplay();
+        await sut.flushReplay();
+
+        for (final method in [
+          'startReplay',
+          'startReplayBuffering',
+          'pauseReplay',
+          'resumeReplay',
+          'stopReplay',
+          'flushReplay',
+        ]) {
+          verify(channel.invokeMethod<void>(method)).called(1);
+        }
+      });
+
       test(
         'captureReplay returns empty ID when native result is null',
         () async {

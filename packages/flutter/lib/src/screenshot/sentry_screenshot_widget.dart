@@ -66,11 +66,13 @@ class SentryScreenshotWidget extends StatefulWidget {
 
   /// Registers a persistent callback that is called whenever the widget is
   /// built. The callback is called with the current and previous widget status.
-  /// To unregister, return false;
+  /// To unregister, return false or call the returned function.
   /// If the widget is already built, the callback is called immediately.
   /// Note: the callback must not throw and it must not call onBuild().
   @internal
-  static void onBuild(SentryScreenshotWidgetOnBuildCallback callback) {
+  static void Function() onBuild(
+    SentryScreenshotWidgetOnBuildCallback callback,
+  ) {
     bool register = true;
     final currentStatus = _status;
     if (currentStatus != null) {
@@ -79,6 +81,7 @@ class SentryScreenshotWidget extends StatefulWidget {
     if (register) {
       _onBuild.add(callback);
     }
+    return () => _onBuild.remove(callback);
   }
 }
 

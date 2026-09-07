@@ -214,6 +214,45 @@ class SentryNativeJava extends SentryNativeChannel {
     return id ?? SentryId.empty();
   }
 
+  void _controlReplay(
+    String operation,
+    void Function(native.ReplayIntegration replay) callback,
+  ) {
+    tryCatchSync(operation, () {
+      _nativeReplay ??=
+          native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+      final replay = _nativeReplay;
+      if (replay != null) {
+        callback(replay);
+      }
+    });
+  }
+
+  @override
+  void startReplay() =>
+      _controlReplay('startReplay', (replay) => replay.start());
+
+  @override
+  void startReplayBuffering() => _controlReplay(
+    'startReplayBuffering',
+    (replay) => replay.startBuffering(),
+  );
+
+  @override
+  void pauseReplay() =>
+      _controlReplay('pauseReplay', (replay) => replay.pause());
+
+  @override
+  void resumeReplay() =>
+      _controlReplay('resumeReplay', (replay) => replay.resume());
+
+  @override
+  void stopReplay() => _controlReplay('stopReplay', (replay) => replay.stop());
+
+  @override
+  void flushReplay() =>
+      _controlReplay('flushReplay', (replay) => replay.flush());
+
   @override
   void setReplayConfig(
     ReplayConfig config,

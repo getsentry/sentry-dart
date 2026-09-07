@@ -36,6 +36,7 @@ import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
 import 'replay/integration.dart';
 import 'replay/network_details_capture.dart';
+import 'replay/replay_api.dart';
 import 'screenshot/screenshot_support.dart';
 import 'utils/internal_logger.dart';
 import 'utils/platform_dispatcher_wrapper.dart';
@@ -556,6 +557,11 @@ mixin SentryFlutter {
   static set native(SentryNativeBinding? value) => _native = value;
 
   static SentryNativeBinding? _native;
+
+  /// Controls Session Replay recording on supported native platforms.
+  static SentryReplay get replay => _replay;
+
+  static final SentryReplay _replay = createSentryReplay(() => _native);
 
   /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
   /// This should not be used in production code.

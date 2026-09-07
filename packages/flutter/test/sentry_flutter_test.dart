@@ -705,6 +705,29 @@ void main() {
     await expectLater(SentryFlutter.pauseAppHangTracking(), completes);
   });
 
+  test(
+    'replay screenshot handler is available when automatic sampling is disabled',
+    () async {
+      final options = defaultTestOptions(checker: MockRuntimeChecker())
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = native.channel;
+      await SentryFlutter.init(
+        (options) {},
+        appRunner: appRunner,
+        options: options,
+      );
+      final replayId = SentryId.newId();
+
+      await native.invokeFromNative('captureReplayScreenshot', {
+        'replayId': replayId.toString(),
+        'replayIsBuffering': false,
+      });
+
+      expect(SentryFlutter.native?.replayId, replayId);
+      await Sentry.close();
+    },
+  );
+
   group('extended app start', () {
     late _ExtendedAppStartFixture fixture;
 

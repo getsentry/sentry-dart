@@ -22,9 +22,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    // We only need these when replay is enabled (session or error capture)
-    // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.replay.isEnabled) {
+    if (supportsReplay) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':

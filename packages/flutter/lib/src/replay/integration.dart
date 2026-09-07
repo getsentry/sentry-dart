@@ -20,12 +20,18 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
   Hub? _hub;
   SentryFlutterOptions? _options;
   SdkLifecycleCallback<OnBeforeSendEvent>? _onBeforeSendEventCallback;
+  void Function()? _removeOnBuildCallback;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     final replayOptions = options.replay;
-    if (_native.supportsReplay && replayOptions.isEnabled) {
-      options.sdk.addIntegration(replayIntegrationName);
+    if (!_native.supportsReplay) {
+      return null;
+    }
+
+    options.sdk.addIntegration(replayIntegrationName);
+
+    if (replayOptions.isEnabled) {
       _hub = hub;
       _options = options;
 
@@ -37,34 +43,41 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
         options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(callback);
         _onBeforeSendEventCallback = callback;
       }
-
-      SentryScreenshotWidget.onBuild((status, prevStatus) {
-        // Skip config update if the difference is negligible (e.g., due to floating-point precision)
-        // e.g a size.height of 200.00001 and 200.001 could be treated as equals
-        if (prevStatus != null && status.matches(prevStatus)) {
-          return true;
-        }
-
-        _native.setReplayConfig(
-          ReplayConfig(
-            windowWidth: status.size?.width ?? 0.0,
-            windowHeight: status.size?.height ?? 0.0,
-            width:
-                replayOptions.quality.resolutionScalingFactor *
-                (status.size?.width ?? 0.0),
-            height:
-                replayOptions.quality.resolutionScalingFactor *
-                (status.size?.height ?? 0.0),
-          ),
-        );
-
-        return true;
-      });
     }
+
+    _removeOnBuildCallback?.call();
+    _removeOnBuildCallback = SentryScreenshotWidget.onBuild((
+      status,
+      prevStatus,
+    ) {
+      // Skip config update if the difference is negligible (e.g., due to floating-point precision)
+      // e.g a size.height of 200.00001 and 200.001 could be treated as equals
+      if (prevStatus != null && status.matches(prevStatus)) {
+        return true;
+      }
+
+      _native.setReplayConfig(
+        ReplayConfig(
+          windowWidth: status.size?.width ?? 0.0,
+          windowHeight: status.size?.height ?? 0.0,
+          width:
+              replayOptions.quality.resolutionScalingFactor *
+              (status.size?.width ?? 0.0),
+          height:
+              replayOptions.quality.resolutionScalingFactor *
+              (status.size?.height ?? 0.0),
+        ),
+      );
+
+      return true;
+    });
   }
 
   @override
   void close() {
+    _removeOnBuildCallback?.call();
+    _removeOnBuildCallback = null;
+
     final callback = _onBeforeSendEventCallback;
     if (callback != null) {
       _options?.lifecycleRegistry.removeCallback<OnBeforeSendEvent>(callback);

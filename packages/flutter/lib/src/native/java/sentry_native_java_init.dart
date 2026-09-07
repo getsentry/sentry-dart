@@ -110,8 +110,6 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
   required Hub hub,
   required SentryNativeJava owner,
 }) {
-  if (!options.replay.isEnabled) return null;
-
   return native.ReplayRecorderCallbacks.implement(
     native.$ReplayRecorderCallbacks(
       replayStarted: (JString replayIdString, bool replayIsBuffering) async {

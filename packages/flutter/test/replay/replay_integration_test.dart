@@ -58,9 +58,7 @@ void main() {
       () {
         options.replay.sessionSampleRate = sampleRate;
         sut.call(hub, options);
-        var matcher = contains(replayIntegrationName);
-        matcher = sampleRate > 0 ? matcher : isNot(matcher);
-        expect(options.sdk.integrations, matcher);
+        expect(options.sdk.integrations, contains(replayIntegrationName));
       },
     );
   }
@@ -172,6 +170,31 @@ void main() {
     expect(config.frameRate, 1);
     expect(config.width, 800);
     expect(config.height, 600);
+  });
+
+  testWidgets('configures replay when automatic sampling is disabled', (
+    tester,
+  ) async {
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    verify(native.setReplayConfig(any)).called(1);
+  });
+
+  testWidgets('does not configure replay after close', (tester) async {
+    when(native.setReplayConfig(any)).thenReturn(null);
+    sut.call(hub, options);
+    sut.close();
+
+    TestWidgetsFlutterBinding.ensureInitialized();
+    await pumpTestElement(tester);
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    verifyNever(native.setReplayConfig(any));
   });
 
   testWidgets('Adjusts resolution based on quality', (tester) async {

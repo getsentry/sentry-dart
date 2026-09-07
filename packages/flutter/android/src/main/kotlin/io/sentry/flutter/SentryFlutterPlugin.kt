@@ -97,6 +97,7 @@ class SentryFlutterPlugin :
     // Stub
   }
   private fun closeNativeSdk(result: Result) {
+    tearDownReplayIntegration()
     ScopesAdapter.getInstance().close()
 
     result.success("")
@@ -241,8 +242,7 @@ class SentryFlutterPlugin :
 
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
-      val replayOptions = options.sessionReplay
-      if ((replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) && replayCallbacks != null) {
+      if (replayCallbacks != null) {
         val ctx = applicationContext
         if (ctx == null) {
           Log.w("Sentry", "setupReplay called before applicationContext initialized")
