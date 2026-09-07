@@ -35,6 +35,7 @@ class NativeSessionIntegration implements Integration<SentryFlutterOptions> {
     _options?.lifecycleRegistry.removeCallback<OnEventSampledOut>(
       _updateSessionForSampledOutEvent,
     );
+    _options = null;
   }
 
   Future<void> _updateSessionForSampledOutEvent(
