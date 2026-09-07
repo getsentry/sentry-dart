@@ -1,5 +1,14 @@
 # Changelog
 
+## 9.29.0
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): Update Android SDK to v8.54.0 by @buenaflor in [#4001](https://github.com/getsentry/sentry-dart/pull/4001)
+- chore(deps): update Native SDK to v0.16.5 by @github-actions in [#3998](https://github.com/getsentry/sentry-dart/pull/3998)
+
 ## 9.28.0
 
 ### Features
