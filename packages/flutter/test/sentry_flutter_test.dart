@@ -705,16 +705,30 @@ void main() {
     await expectLater(SentryFlutter.pauseAppHangTracking(), completes);
   });
 
-  test(
-    'replay screenshot handler is available when automatic sampling is disabled',
-    () async {
-      final options = defaultTestOptions(checker: MockRuntimeChecker())
-        ..platform = MockPlatform.iOS()
-        ..methodChannel = native.channel;
+  // Only the Cocoa binding tracks a replay ID, and it is never built for the
+  // browser, so these run on the VM with a mocked iOS platform.
+  group('replay', () {
+    setUp(() async {
+      loadTestPackage();
+    });
+
+    tearDown(() async {
+      await Sentry.close();
+    });
+
+    test('screenshot handler is set up when sampling is disabled', () async {
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.iOS()
+            ..methodChannel = native.channel;
       await SentryFlutter.init(
-        (options) {},
+        (options) {
+          options.replay
+            ..sessionSampleRate = 0
+            ..onErrorSampleRate = 0;
+        },
         appRunner: appRunner,
-        options: options,
+        options: sentryFlutterOptions,
       );
       final replayId = SentryId.newId();
 
@@ -724,9 +738,8 @@ void main() {
       });
 
       expect(SentryFlutter.native?.replayId, replayId);
-      await Sentry.close();
-    },
-  );
+    }, testOn: 'vm');
+  });
 
   group('extended app start', () {
     late _ExtendedAppStartFixture fixture;
