@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -60,6 +62,22 @@ void main() {
       await SentryFlutter.replay.flush();
 
       verify(native.flushReplay()).called(1);
+    });
+
+    test('waits for an asynchronous native call', () async {
+      final nativeCall = Completer<void>();
+      when(native.startReplay()).thenAnswer((_) => nativeCall.future);
+      var completed = false;
+
+      unawaited(SentryFlutter.replay.start().then((_) => completed = true));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(completed, false);
+
+      nativeCall.complete();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(completed, true);
     });
 
     test('completes when native integration is unavailable', () async {

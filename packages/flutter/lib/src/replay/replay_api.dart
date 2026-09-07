@@ -7,6 +7,8 @@ import '../utils/internal_logger.dart';
 
 /// Controls Session Replay recording.
 ///
+/// Access via `SentryFlutter.replay`.
+///
 /// Only Android and iOS support Session Replay. On every other platform these
 /// methods are no-ops.
 abstract interface class SentryReplay {
@@ -41,53 +43,44 @@ abstract interface class SentryReplay {
 }
 
 @internal
-SentryReplay createSentryReplay(
-  SentryNativeBinding? Function() nativeProvider,
-) => _SentryReplay(nativeProvider);
-
-final class _SentryReplay implements SentryReplay {
-  _SentryReplay(this._nativeProvider);
+final class DefaultSentryReplay implements SentryReplay {
+  DefaultSentryReplay(this._nativeProvider);
 
   final SentryNativeBinding? Function() _nativeProvider;
 
-  Future<void> _invoke(
-    String operation,
-    FutureOr<void> Function(SentryNativeBinding native) callback,
-  ) async {
+  /// The binding to control, or null when there is nothing to control because
+  /// the SDK isn't initialized or the platform has no Session Replay.
+  SentryNativeBinding? get _native {
     final native = _nativeProvider();
     if (native == null) {
       internalLogger.debug(
-        'SentryFlutter.replay.$operation() was ignored because the native '
-        'integration is unavailable. Make sure SentryFlutter.init() ran first.',
+        'SentryFlutter.replay was used before SentryFlutter.init(), so the '
+        'native integration is unavailable.',
       );
-      return;
+      return null;
     }
     if (!native.supportsReplay) {
-      internalLogger.debug(
-        'SentryFlutter.replay.$operation() was ignored because Session Replay '
-        'is not supported on this platform.',
-      );
-      return;
+      internalLogger.debug('Session Replay is not supported on this platform.');
+      return null;
     }
-    await callback(native);
+    return native;
   }
 
   @override
-  Future<void> start() => _invoke('start', (native) => native.startReplay());
+  Future<void> start() async => _native?.startReplay();
 
   @override
-  Future<void> startBuffering() =>
-      _invoke('startBuffering', (native) => native.startReplayBuffering());
+  Future<void> startBuffering() async => _native?.startReplayBuffering();
 
   @override
-  Future<void> pause() => _invoke('pause', (native) => native.pauseReplay());
+  Future<void> pause() async => _native?.pauseReplay();
 
   @override
-  Future<void> resume() => _invoke('resume', (native) => native.resumeReplay());
+  Future<void> resume() async => _native?.resumeReplay();
 
   @override
-  Future<void> stop() => _invoke('stop', (native) => native.stopReplay());
+  Future<void> stop() async => _native?.stopReplay();
 
   @override
-  Future<void> flush() => _invoke('flush', (native) => native.flushReplay());
+  Future<void> flush() async => _native?.flushReplay();
 }

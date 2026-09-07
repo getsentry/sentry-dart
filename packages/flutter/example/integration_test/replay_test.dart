@@ -62,35 +62,33 @@ void main() {
     await Sentry.close();
   });
 
-  Future<void> setupSentryAndApp(
-    WidgetTester tester, {
-    String? dsn,
-    bool enableAutomaticReplay = true,
-  }) async {
-    Future<void> appRunner() async {
-      await tester.pumpWidget(
-        SentryScreenshotWidget(
-          child: DefaultAssetBundle(
-            bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-            child: const MyApp(),
-          ),
-        ),
-      );
-    }
+  Future<void> pumpApp(WidgetTester tester) => tester.pumpWidget(
+    SentryScreenshotWidget(
+      child: DefaultAssetBundle(
+        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+        child: const MyApp(),
+      ),
+    ),
+  );
 
-    if (enableAutomaticReplay) {
-      await setupSentry(appRunner, dsn ?? fakeDsn, isIntegrationTest: true);
-    } else {
-      await SentryFlutter.init((options) {
+  Future<void> setupSentryAndApp(WidgetTester tester, {String? dsn}) =>
+      setupSentry(
+        () => pumpApp(tester),
+        dsn ?? fakeDsn,
+        isIntegrationTest: true,
+      );
+
+  /// Installs Session Replay but never samples it, so a recording can only be
+  /// started through `SentryFlutter.replay`.
+  Future<void> setupWithoutAutomaticReplay(WidgetTester tester) =>
+      SentryFlutter.init((options) {
         options
-          ..dsn = dsn ?? fakeDsn
+          ..dsn = fakeDsn
           ..automatedTestMode = true;
         options.replay
           ..sessionSampleRate = 0
           ..onErrorSampleRate = 0;
-      }, appRunner: appRunner);
-    }
-  }
+      }, appRunner: () => pumpApp(tester));
 
   group('Replay recording', () {
     testWidgets('native binding is initialized', (tester) async {
@@ -157,7 +155,6 @@ void main() {
     }, skip: !Platform.isAndroid);
 
     testWidgets('manual replay controls complete on mobile', (tester) async {
-      if (!(Platform.isAndroid || Platform.isIOS)) return;
       await setupSentryAndApp(tester);
 
       await SentryFlutter.replay.pause();
@@ -168,13 +165,12 @@ void main() {
       await SentryFlutter.replay.flush();
       await SentryFlutter.replay.stop();
       await SentryFlutter.replay.start();
-    });
+    }, skip: !(Platform.isAndroid || Platform.isIOS));
 
     testWidgets('manual start records when automatic sampling is disabled', (
       tester,
     ) async {
-      if (!(Platform.isAndroid || Platform.isIOS)) return;
-      await setupSentryAndApp(tester, enableAutomaticReplay: false);
+      await setupWithoutAutomaticReplay(tester);
 
       await SentryFlutter.replay.start();
 
@@ -196,7 +192,7 @@ void main() {
       }
       await SentryFlutter.replay.flush();
       await _waitUntilReplayId(differentFrom: firstReplayId);
-    });
+    }, skip: !(Platform.isAndroid || Platform.isIOS));
 
     testWidgets('close tears down the native replay integration on Android', (
       tester,
