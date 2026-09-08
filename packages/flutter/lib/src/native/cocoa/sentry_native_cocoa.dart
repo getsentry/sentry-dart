@@ -11,6 +11,7 @@ import 'cocoa_replay_recorder.dart';
 class SentryNativeCocoa extends SentryNativeChannel {
   CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
+  Hub? _hub;
 
   SentryNativeCocoa(super.options);
 
@@ -22,6 +23,7 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
+    _hub = hub;
     if (supportsReplay) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
@@ -65,9 +67,13 @@ class SentryNativeCocoa extends SentryNativeChannel {
   @override
   Future<void> stopReplay() async {
     await super.stopReplay();
-    // iOS has no "replay stopped" callback, so without this the last known ID
-    // would keep being attached to telemetry.
+    // iOS reports replay IDs only through the screenshot provider, which goes
+    // quiet once recording stops. Android has `replayStopped` for this.
     _replayId = null;
+    _hub?.configureScope((s) {
+      // ignore: invalid_use_of_internal_member
+      s.replayId = null;
+    });
   }
 
   @override

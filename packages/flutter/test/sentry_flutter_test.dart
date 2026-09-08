@@ -739,6 +739,29 @@ void main() {
 
       expect(SentryFlutter.native?.replayId, replayId);
     }, testOn: 'vm');
+
+    test('stop clears the finished replay ID off the scope', () async {
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.iOS()
+            ..methodChannel = native.channel;
+      when(native.handler('stopReplay', any)).thenAnswer((_) => Future.value());
+      await SentryFlutter.init(
+        (options) {},
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+      await native.invokeFromNative('captureReplayScreenshot', {
+        'replayId': SentryId.newId().toString(),
+        'replayIsBuffering': false,
+      });
+      expect(Sentry.currentHub.scope.replayId, isNotNull);
+
+      await SentryFlutter.replay.stop();
+
+      expect(SentryFlutter.native?.replayId, isNull);
+      expect(Sentry.currentHub.scope.replayId, isNull);
+    }, testOn: 'vm');
   });
 
   group('extended app start', () {
