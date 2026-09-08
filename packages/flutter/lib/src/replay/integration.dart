@@ -20,7 +20,7 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
   Hub? _hub;
   SentryFlutterOptions? _options;
   SdkLifecycleCallback<OnBeforeSendEvent>? _onBeforeSendEventCallback;
-  void Function()? _removeOnBuildCallback;
+  void Function()? _removeOnBuildListener;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
@@ -43,8 +43,8 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       _onBeforeSendEventCallback = callback;
     }
 
-    _removeOnBuildCallback?.call();
-    _removeOnBuildCallback = SentryScreenshotWidget.onBuild((
+    _removeOnBuildListener?.call();
+    _removeOnBuildListener = SentryScreenshotWidget.onBuild((
       status,
       prevStatus,
     ) {
@@ -73,8 +73,8 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   void close() {
-    _removeOnBuildCallback?.call();
-    _removeOnBuildCallback = null;
+    _removeOnBuildListener?.call();
+    _removeOnBuildListener = null;
 
     final callback = _onBeforeSendEventCallback;
     if (callback != null) {
