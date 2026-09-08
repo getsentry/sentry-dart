@@ -18,7 +18,7 @@ runs:
       if: ${{ matrix.target == 'android' }}
       with:
         java-version: '17'
-        distribution: 'adopt'
+        distribution: 'temurin'
 
     # Install required dependencies for Flutter on Linux on Ubuntu
     - name: 'Setup Linux'
