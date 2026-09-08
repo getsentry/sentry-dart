@@ -277,18 +277,18 @@ class SentryNativeJava extends SentryNativeChannel {
       adjWidth = newWidth;
     }
 
-    final replayConfig = native.ScreenshotRecorderConfig(
-      adjWidth.round(),
-      adjHeight.round(),
-      adjWidth / config.windowWidth,
-      adjHeight / config.windowHeight,
-      config.frameRate,
-      0, // bitRate is currently not used
-    );
+    using((arena) {
+      final replayConfig = native.ScreenshotRecorderConfig(
+        adjWidth.round(),
+        adjHeight.round(),
+        adjWidth / config.windowWidth,
+        adjHeight / config.windowHeight,
+        config.frameRate,
+        0, // bitRate is currently not used
+      )..releasedBy(arena);
 
-    _replay?.onConfigurationChanged(replayConfig);
-
-    replayConfig.release();
+      _replay?.onConfigurationChanged(replayConfig);
+    });
   });
 
   @override
