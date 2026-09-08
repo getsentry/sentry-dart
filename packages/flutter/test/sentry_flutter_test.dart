@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -758,6 +759,34 @@ void main() {
       expect(Sentry.currentHub.scope.replayId, isNotNull);
 
       await SentryFlutter.replay.stop();
+
+      expect(SentryFlutter.native?.replayId, isNull);
+      expect(Sentry.currentHub.scope.replayId, isNull);
+    }, testOn: 'vm');
+
+    test('stop clears the replay ID when the native call fails', () async {
+      final sentryFlutterOptions =
+          defaultTestOptions(checker: MockRuntimeChecker())
+            ..platform = MockPlatform.iOS()
+            ..methodChannel = native.channel;
+      when(
+        native.handler('stopReplay', any),
+      ).thenAnswer((_) => Future.error(PlatformException(code: 'stop-failed')));
+      await SentryFlutter.init(
+        (options) {},
+        appRunner: appRunner,
+        options: sentryFlutterOptions,
+      );
+      await native.invokeFromNative('captureReplayScreenshot', {
+        'replayId': SentryId.newId().toString(),
+        'replayIsBuffering': false,
+      });
+      expect(Sentry.currentHub.scope.replayId, isNotNull);
+
+      await expectLater(
+        SentryFlutter.replay.stop(),
+        throwsA(isA<PlatformException>()),
+      );
 
       expect(SentryFlutter.native?.replayId, isNull);
       expect(Sentry.currentHub.scope.replayId, isNull);

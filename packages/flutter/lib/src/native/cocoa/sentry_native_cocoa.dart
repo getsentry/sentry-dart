@@ -66,14 +66,17 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> stopReplay() async {
-    await super.stopReplay();
-    // iOS reports replay IDs only through the screenshot provider, which goes
-    // quiet once recording stops. Android has `replayStopped` for this.
-    _replayId = null;
-    _hub?.configureScope((s) {
-      // ignore: invalid_use_of_internal_member
-      s.replayId = null;
-    });
+    try {
+      await super.stopReplay();
+    } finally {
+      // iOS reports replay IDs only through the screenshot provider, which goes
+      // quiet once recording stops. Android has `replayStopped` for this.
+      _replayId = null;
+      _hub?.configureScope((s) {
+        // ignore: invalid_use_of_internal_member
+        s.replayId = null;
+      });
+    }
   }
 
   @override
