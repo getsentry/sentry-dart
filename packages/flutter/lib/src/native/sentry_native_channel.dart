@@ -28,12 +28,12 @@ class SentryNativeChannel
   SentryNativeChannel(this.options)
       : channel = SentrySafeMethodChannel(options);
 
-  // Tracks whether the native SDK's own init actually ran, so close() -
-  // which may now run even when autoInitializeNativeSdk is false, since the
+  // Tracks whether this binding auto-initialized the native SDK, so close()
+  // - which may now run even when autoInitializeNativeSdk is false, since the
   // native binding may start background resources unconditionally (see
   // #3960) - doesn't tear down a native SDK the app initialized itself.
   @protected
-  bool nativeSdkInitialized = false;
+  bool nativeSdkAutoInitialized = false;
 
   void _logNotSupported(String operation) => options.log(
       SentryLevel.debug, 'SentryNativeChannel: $operation is not supported');
@@ -45,7 +45,7 @@ class SentryNativeChannel
           false, 'init should not be used through method channels on Android.');
       return null;
     }
-    nativeSdkInitialized = true;
+    nativeSdkAutoInitialized = true;
     return channel.invokeMethod('initNativeSdk', <String, dynamic>{
       'dsn': options.dsn,
       'sampleRate': options.sampleRate,
@@ -104,7 +104,7 @@ class SentryNativeChannel
 
   @override
   FutureOr<void> close() {
-    if (!nativeSdkInitialized) {
+    if (!nativeSdkAutoInitialized) {
       return null;
     }
     return channel.invokeMethod('closeNativeSdk');

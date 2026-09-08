@@ -52,7 +52,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void init(Hub hub) {
-    nativeSdkInitialized = true;
+    nativeSdkAutoInitialized = true;
     initSentryAndroid(hub: hub, options: options, owner: this);
   }
 
