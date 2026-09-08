@@ -22,10 +22,9 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
-    // Deliberately not gated on `options.replay.isEnabled`: with both sample
-    // rates at zero a replay can still be started through `SentryFlutter.replay`.
-    // Registering unconditionally is safe because `_replayAttributes` keys off
-    // whether a replay is actually recording, not off the configuration.
+    // Deliberately not gated on `options.replay.isEnabled`: a replay can also
+    // be started manually while both sample rates are zero. See
+    // [_replayAttributes] for what decides whether anything is attached.
     _options = options;
 
     _onProcessLog = (OnProcessLog event) {
@@ -72,11 +71,9 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     options.sdk.addIntegration(integrationName);
   }
 
-  /// Attributes describing the replay that is currently recording, or `null`
-  /// when none is.
-  ///
-  /// Derived from live SDK state rather than from the sample rates, so replays
-  /// started manually through `SentryFlutter.replay` are covered too.
+  /// Attributes for the currently recording replay, keyed off live SDK state
+  /// rather than the sample rates so that manually started replays are covered
+  /// too. Null when nothing is recording.
   Map<String, SentryAttribute>? _replayAttributes(SentryId? scopeReplayId) {
     final replayId = scopeReplayId ?? _native?.replayId;
     if (replayId == null || replayId == SentryId.empty()) {

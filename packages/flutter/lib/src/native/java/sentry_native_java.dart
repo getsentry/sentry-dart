@@ -48,8 +48,8 @@ class SentryNativeJava extends SentryNativeChannel {
     _nativeReplay = nativeReplay;
   }
 
-  /// The native replay integration, looked up on first use and cached until
-  /// [_setNativeReplay] drops it. Null while no replay integration is set up.
+  /// Cached JNI reference to the native replay integration. Only
+  /// [_setNativeReplay] may drop it, which releases the previous reference.
   native.ReplayIntegration? get _replay => _nativeReplay ??=
       native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
 
