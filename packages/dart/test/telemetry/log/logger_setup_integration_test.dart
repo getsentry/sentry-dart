@@ -38,6 +38,14 @@ void main() {
 
       expect(fixture.options.logger, same(customLogger));
     });
+
+    test('configures DefaultSentryLogger when enableLogs is false', () {
+      fixture.options.enableLogs = false;
+
+      fixture.sut.call(fixture.hub, fixture.options);
+
+      expect(fixture.options.logger, isA<DefaultSentryLogger>());
+    });
   });
 }
 

@@ -25,3 +25,6 @@ dart run jnigen --config ffi-jni.yaml
 
 # Format the generated code so that it passes CI linters.
 dart format "$binding_path"
+
+# Regenerate proguard rules so they stay in sync with the JNI class list.
+./scripts/generate-sentry-java-proguard.sh

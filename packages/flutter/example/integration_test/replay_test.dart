@@ -8,9 +8,33 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
+import 'package:sentry_flutter/src/native/java/binding.dart' as native;
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
+
+/// Since sentry-java 8.54.0 the replay lifecycle transitions are posted to the
+/// Android main looper, so the state settles a turn after the call returns.
+Future<void> _waitUntilRecording(
+  native.ReplayIntegration replay,
+  bool expected,
+) async {
+  final deadline = DateTime.now().add(const Duration(seconds: 10));
+  while (replay.isRecording() != expected) {
+    if (!DateTime.now().isBefore(deadline)) {
+      fail('Replay stayed at isRecording=${!expected} for 10s');
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+  }
+}
+
+/// Returns the native replay integration, registering its release.
+native.ReplayIntegration _replayIntegration() {
+  final replay = native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+  expect(replay, isNotNull);
+  addTearDown(replay!.release);
+  return replay;
+}
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -63,11 +87,38 @@ void main() {
     testWidgets('captureReplay sets native replay ID', (tester) async {
       if (!(Platform.isAndroid || Platform.isIOS)) return;
       await setupSentryAndApp(tester);
+
+      // init posts the replay start rather than running it inline, so
+      // capturing right away would land before recording began.
+      if (Platform.isAndroid) {
+        await _waitUntilRecording(_replayIntegration(), true);
+      }
+
       final id = await SentryFlutter.native?.captureReplay();
       expect(id, isA<SentryId>());
       expect(SentryFlutter.native?.replayId, isNotNull);
       expect(SentryFlutter.native?.replayId, isNot(const SentryId.empty()));
     });
+
+    testWidgets('captureReplay only returns an ID while recording',
+        (tester) async {
+      await setupSentryAndApp(tester);
+      final replay = _replayIntegration();
+
+      // Let the start posted by init land first. Stopping out of INITIAL is not
+      // an allowed transition, so it would no-op and then start underneath us.
+      await _waitUntilRecording(replay, true);
+
+      replay.stop();
+      await _waitUntilRecording(replay, false);
+      expect(
+          await SentryFlutter.native?.captureReplay(), const SentryId.empty());
+
+      replay.start();
+      await _waitUntilRecording(replay, true);
+      expect(await SentryFlutter.native?.captureReplay(),
+          isNot(const SentryId.empty()));
+    }, skip: !Platform.isAndroid);
 
     // We would like to add a test that ensures a native-initiated replay stop
     // clears the replay ID from the scope. Currently we can't add that test

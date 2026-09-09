@@ -130,6 +130,16 @@ void main() {
       });
     });
 
+    test('adds logs to processor when enableLogs is false', () async {
+      fixture.options.enableLogs = false;
+
+      final log = givenLog();
+
+      await fixture.pipeline.captureLog(log, scope: fixture.scope);
+
+      expect(fixture.processor.addedLogs, hasLength(1));
+    });
+
     group('when beforeSendLog is configured', () {
       test('returning null drops the log', () async {
         fixture.options.beforeSendLog = (_) => null;

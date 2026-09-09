@@ -128,6 +128,17 @@ void main() {
             'release-from-lifecycle-callback');
       });
 
+      test('adds sentry.trace_lifecycle stream attribute', () async {
+        final span = fixture.createRecordingSpan();
+        await fixture.pipeline.captureSpan(span, scope: fixture.scope);
+
+        expect(
+          span.attributes[SemanticAttributesConstants.sentryTraceLifecycle]
+              ?.value,
+          'stream',
+        );
+      });
+
       test('preserves array attributes on captured spans', () async {
         final span = fixture.createRecordingSpan();
         span.setAttribute('tags', SentryAttribute.stringArray(['a', 'b']));

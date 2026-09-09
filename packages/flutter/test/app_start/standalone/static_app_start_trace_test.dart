@@ -35,6 +35,38 @@ void main() {
       expect(root.data['app.vitals.start.screen'], 'root /');
     });
 
+    test('stamps the screen resolved at the first frame, not at child creation',
+        () async {
+      var screen = 'root /';
+      final sut = fixture.getSut(startScreenNameProvider: () => screen)!;
+      final root = fixture.root!.tracer;
+      expect(sut.tryExtend(fixture.processStart), isTrue);
+      final extension = sut.extendedSpan as SentrySpan;
+      final child = extension.startChild('extended child') as SentrySpan;
+      screen = 'launch';
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      await pumpEventQueue(times: 10);
+      await sut.finishExtended(
+        fixture.processStart.add(const Duration(milliseconds: 600)),
+      );
+      await child.finish(
+        endTimestamp:
+            fixture.processStart.add(const Duration(milliseconds: 700)),
+      );
+      await root.finish(endTimestamp: fixture.rootFinish);
+
+      expect(root.data['app.vitals.start.screen'], 'launch');
+      expect(
+        root.children.map((span) => span.data['app.vitals.start.screen']),
+        everyElement('launch'),
+      );
+      expect(
+        root.children.map((span) => span.data['app.vitals.start.type']),
+        everyElement('cold'),
+      );
+    });
+
     test('creates direct standalone breakdown children', () {
       fixture.getSut();
       final root = fixture.root!.tracer;
@@ -1024,7 +1056,10 @@ class Fixture {
     );
   }
 
-  StaticAppStartTrace? getSut({AppStartTiming? timing}) {
+  StaticAppStartTrace? getSut({
+    AppStartTiming? timing,
+    String Function()? startScreenNameProvider,
+  }) {
     options.lifecycleRegistry.registerCallback<OnSpanStart>((event) {
       final span = event.span;
       if (span is SentrySpan && span.isRootSpan) root ??= span;
@@ -1032,7 +1067,7 @@ class Fixture {
     final trace = StaticAppStartTrace.tryCreate(
       hub: hub,
       timing: timing ?? this.timing,
-      startScreenNameProvider: () => 'root /',
+      startScreenNameProvider: startScreenNameProvider ?? () => 'root /',
     );
     // Otherwise the 30s final-timeout timer outlives the test.
     addTearDown(() => trace?.close());

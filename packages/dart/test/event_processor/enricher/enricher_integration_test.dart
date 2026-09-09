@@ -69,6 +69,17 @@ void main() {
 
         expect(log.attributes['device.brand']?.value, 'existing');
       });
+
+      test('registers a log callback when enableLogs is false', () {
+        fixture.options.enableLogs = false;
+
+        fixture.getSut().call(HubAdapter(), fixture.options);
+
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessLog],
+          isNotEmpty,
+        );
+      });
     });
 
     group('when processing metrics', () {
@@ -82,6 +93,17 @@ void main() {
         expect(metric.attributes['device.brand']?.value, 'enricher-brand');
         expect(metric.attributes['device.model']?.value, 'enricher-model');
         expect(metric.attributes['device.family']?.value, 'enricher-family');
+      });
+
+      test('registers a metric callback when enableMetrics is false', () {
+        fixture.options.enableMetrics = false;
+
+        fixture.getSut().call(HubAdapter(), fixture.options);
+
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+          isNotEmpty,
+        );
       });
     });
 

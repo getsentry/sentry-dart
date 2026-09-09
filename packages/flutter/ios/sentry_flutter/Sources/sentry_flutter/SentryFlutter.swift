@@ -79,7 +79,6 @@ public final class SentryFlutter {
         if let enableSpotlight = data["enableSpotlight"] as? Bool {
             options.enableSpotlight = enableSpotlight
         }
-        options.experimental.enableLogs = true
         if let proxy = data["proxy"] as? [String: Any],
            let host = proxy["host"] as? String,
            let port = proxy["port"] as? Int,

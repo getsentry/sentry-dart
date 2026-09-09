@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     name: "Create class diagrams of all packages"
     steps:
-      - uses: dart-lang/setup-dart@7654d458321ee25acccccfdb86cd48bd95768ff1 # pin@v1.8.0
+      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # pin@v1.8.1
         with:
           sdk: stable
 

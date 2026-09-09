@@ -36,6 +36,14 @@ void main() {
 
       expect(fixture.options.metrics, same(customMetrics));
     });
+
+    test('configures DefaultSentryMetrics when enableMetrics is false', () {
+      fixture.options.enableMetrics = false;
+
+      fixture.sut.call(fixture.hub, fixture.options);
+
+      expect(fixture.options.metrics, isA<DefaultSentryMetrics>());
+    });
   });
 }
 

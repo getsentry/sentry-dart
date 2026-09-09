@@ -398,6 +398,7 @@ class Fixture {
   late final scope = Scope(options);
 
   Fixture() {
+    options.enableLogs = true;
     options.environment = 'test';
     options.release = 'test-release';
 

@@ -35,6 +35,75 @@ void main() {
       expect(root.attributes['sentry.segment.name']?.value, 'App Start');
     });
 
+    test('stamps spans captured after the first frame with that screen',
+        () async {
+      var screen = 'root /';
+      final sut = fixture.getSut(startScreenNameProvider: () => screen)!;
+      expect(
+        sut.tryExtend(
+          fixture.processStart.add(const Duration(milliseconds: 400)),
+        ),
+        isTrue,
+      );
+      final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
+      final child = fixture.hub.startInactiveSpan(
+        'extended child',
+        parentSpan: extension,
+      ) as RecordingSentrySpanV2;
+      final grandchild = fixture.hub.startInactiveSpan(
+        'extended grandchild',
+        parentSpan: child,
+      ) as RecordingSentrySpanV2;
+      screen = 'launch';
+
+      sut.recordFirstFrame(fixture.naturalEnd);
+      await sut.finishExtended(
+        fixture.processStart.add(const Duration(milliseconds: 600)),
+      );
+      child.end(
+        endTimestamp:
+            fixture.processStart.add(const Duration(milliseconds: 700)),
+      );
+      grandchild.end(
+        endTimestamp:
+            fixture.processStart.add(const Duration(milliseconds: 750)),
+      );
+      fixture.root!.end(endTimestamp: fixture.rootFinish);
+      await pumpEventQueue(times: 10);
+
+      expect(
+        fixture.root!.attributes['app.vitals.start.screen']?.value,
+        'launch',
+      );
+      expect(
+        [
+          fixture.children.firstWhere(
+            (span) => span.name == 'First frame render',
+          ),
+          extension,
+          child,
+          grandchild,
+        ].map((span) => span.attributes['app.vitals.start.screen']?.value),
+        everyElement('launch'),
+      );
+      expect(
+        [child, grandchild].map(
+          (span) => span.attributes['app.vitals.start.type']?.value,
+        ),
+        everyElement('cold'),
+      );
+      expect(
+        fixture.children
+            .where(
+              (span) =>
+                  span.name == 'App start to plugin registration' ||
+                  span.name == 'Before Sentry Init Setup',
+            )
+            .map((span) => span.attributes['app.vitals.start.screen']?.value),
+        everyElement('root /'),
+      );
+    });
+
     test('measures the later extension endpoint instead of the root endpoint',
         () async {
       final sut = fixture.getSut()!;
@@ -681,11 +750,13 @@ class Fixture {
     });
   }
 
-  StreamingAppStartTrace? getSut() {
+  StreamingAppStartTrace? getSut({
+    String Function()? startScreenNameProvider,
+  }) {
     final trace = StreamingAppStartTrace.tryCreate(
       hub: hub,
       timing: timing,
-      startScreenNameProvider: () => 'root /',
+      startScreenNameProvider: startScreenNameProvider ?? () => 'root /',
     );
     // Otherwise the root's idle and deadline timers outlive the test.
     addTearDown(() => trace?.close());
