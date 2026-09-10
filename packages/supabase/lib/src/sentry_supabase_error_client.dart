@@ -94,7 +94,17 @@ class SentrySupabaseErrorClient extends BaseClient {
         'body': supabaseRequest.body,
     };
 
-    return _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+    // Links the error to the span of this request, which the tracing client
+    // registered before we saw the response.
+    // ignore: invalid_use_of_internal_member
+    final span = RequestSpanRegistry.lookup(request);
+
+    return _hub.captureEvent(
+      event,
+      stackTrace: stackTrace,
+      hint: hint,
+      withScope: span == null ? null : (scope) => span.applyToScope(scope),
+    );
   }
 }
 

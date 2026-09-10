@@ -4,11 +4,13 @@ import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry_dio/src/failed_request_interceptor.dart';
 import 'package:sentry_dio/src/tracing_client_adapter.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_http_client_adapter.dart';
+import 'mocks/mock_transport.dart';
 
 final requestUri = Uri.parse('https://example.com/api/users');
 
@@ -113,6 +115,55 @@ void main() {
       );
       expect(span.parentSpan, equals(transactionSpan));
     });
+
+    group('when a failed request is captured', () {
+      test('links the error to the http.client span', () async {
+        final dio = fixture.getDio(
+          // Responds instead of throwing, so the DioException is the one Dio
+          // itself creates for the bad status code.
+          mockAdapter: fixture.getRespondingMockAdapter(statusCode: 500),
+          captureFailedRequests: true,
+        );
+
+        late SentrySpanV2 transactionSpan;
+        await fixture.hub.startSpan(
+          'test-transaction',
+          (span) async {
+            transactionSpan = span;
+            try {
+              await dio.get<dynamic>('/api/users');
+            } catch (_) {}
+          },
+          parentSpan: null,
+        );
+
+        await fixture.processor.waitForProcessing();
+        final httpSpan = fixture.processor.findSpanByOperation('http.client')!;
+
+        final traceContext = fixture.transport.events.first.contexts.trace;
+        expect(traceContext?.spanId, httpSpan.spanId);
+        expect(traceContext?.parentSpanId, transactionSpan.spanId);
+        expect(traceContext?.traceId, transactionSpan.traceId);
+        expect(traceContext?.operation, 'http.client');
+      });
+
+      test('does not link the error when no span is active', () async {
+        final dio = fixture.getDio(
+          mockAdapter: fixture.getRespondingMockAdapter(statusCode: 500),
+          captureFailedRequests: true,
+        );
+
+        try {
+          await dio.get<dynamic>('/api/users');
+        } catch (_) {}
+
+        expect(fixture.processor.findSpanByOperation('http.client'), isNull);
+        expect(
+          fixture.transport.events.first.contexts.trace?.parentSpanId,
+          isNull,
+        );
+      });
+    });
   });
 }
 
@@ -120,23 +171,50 @@ class Fixture {
   late final Hub hub;
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
+  final transport = MockTransport();
 
   Fixture() {
     processor = FakeTelemetryProcessor();
     options = defaultTestOptions()
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      ..transport = transport;
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
     options.integrations.last.call(hub, options);
   }
 
-  Dio getDio({required MockHttpClientAdapter mockAdapter}) {
+  Dio getDio({
+    required MockHttpClientAdapter mockAdapter,
+    bool captureFailedRequests = false,
+  }) {
     final dio = Dio(BaseOptions(baseUrl: 'https://example.com'));
     dio.httpClientAdapter = TracingClientAdapter(client: mockAdapter, hub: hub);
+    if (captureFailedRequests) {
+      dio.interceptors.insert(
+        0,
+        FailedRequestInterceptor(
+          hub: hub,
+          failedRequestStatusCodes: [SentryStatusCode.range(500, 599)],
+          captureFailedRequests: true,
+        ),
+      );
+    }
     return dio;
+  }
+
+  MockHttpClientAdapter getRespondingMockAdapter({required int statusCode}) {
+    return MockHttpClientAdapter((_, __, ___) async {
+      return ResponseBody.fromString(
+        '{"error": "Internal Server Error"}',
+        statusCode,
+        headers: {
+          'content-type': ['application/json'],
+        },
+      );
+    });
   }
 
   MockHttpClientAdapter getMockAdapter({

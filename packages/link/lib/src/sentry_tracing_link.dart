@@ -54,6 +54,9 @@ class SentryTracingLink extends Link {
       sentryOperation,
       shouldStartTransaction,
     );
+    if (span != null) {
+      RequestSpanRegistry.register(request, span);
+    }
     return forward!(request).transform(StreamTransformer.fromHandlers(
       handleData: (data, sink) {
         final hasGraphQlError = data.errors?.isNotEmpty ?? false;

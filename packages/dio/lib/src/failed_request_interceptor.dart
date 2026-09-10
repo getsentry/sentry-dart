@@ -42,7 +42,16 @@ class FailedRequestInterceptor extends Interceptor {
 
       _hub.getSpan()?.throwable = err;
 
-      await _hub.captureException(throwableMechanism);
+      // Links the error to the `http.client` span of this request, which the
+      // tracing adapter registered. The span has already ended by now, but its
+      // ids are what the link is resolved by.
+      // ignore: invalid_use_of_internal_member
+      final span = RequestSpanRegistry.lookup(err.requestOptions);
+
+      await _hub.captureException(
+        throwableMechanism,
+        withScope: span == null ? null : (scope) => span.applyToScope(scope),
+      );
     }
     handler.next(err);
   }

@@ -143,6 +143,7 @@ class SentryGrpcInterceptor extends ClientInterceptor {
               method.path,
               grpcError,
               stackTrace,
+              span,
             );
           }
         },
@@ -258,11 +259,13 @@ class SentryGrpcInterceptor extends ClientInterceptor {
     String methodPath,
     GrpcError? grpcError,
     StackTrace stackTrace,
+    InstrumentationSpan? span,
   ) =>
       _hub.captureException(
         error,
         stackTrace: stackTrace,
         withScope: (scope) {
+          span?.applyToScope(scope);
           scope.setContexts('gRPC', {
             'method': methodPath,
             if (grpcError != null) ...{

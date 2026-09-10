@@ -730,6 +730,37 @@ void main() {
           scope.span!.traceContext()!.traceId, capturedTraceContext!.traceId);
     });
 
+    test(
+        'uses the segment dsc for trace header if an active span v2 is on scope',
+        () async {
+      final client = fixture.getSut();
+
+      final span = fixture.createRecordingSpanV2(name: 'root-span');
+      final scope = Scope(fixture.options)..setActiveSpan(span);
+
+      await client.captureEvent(SentryEvent(), scope: scope);
+
+      final capturedTraceContext =
+          fixture.transport.envelopes.first.header.traceContext;
+
+      expect(capturedTraceContext?.traceId, span.traceId);
+      expect(capturedTraceContext?.transaction, 'root-span');
+      expect(capturedTraceContext?.sampled, 'true');
+    });
+
+    test('does not mutate the frozen segment dsc with the replay id', () async {
+      final client = fixture.getSut();
+
+      final span = fixture.createRecordingSpanV2();
+      final scope = Scope(fixture.options)
+        ..setActiveSpan(span)
+        ..replayId = SentryId.fromId('1' * 32);
+
+      await client.captureEvent(SentryEvent(), scope: scope);
+
+      expect(span.resolveDsc().replayId, isNull);
+    });
+
     test('should contain a transaction in the envelope', () async {
       try {
         throw StateError('Error');
@@ -2564,6 +2595,18 @@ class Fixture {
 
   SentryLevel? loggedLevel;
   Object? loggedException;
+
+  RecordingSentrySpanV2 createRecordingSpanV2({String name = 'test-span'}) {
+    return RecordingSentrySpanV2.root(
+      name: name,
+      traceId: SentryId.newId(),
+      onSpanEnd: (_) async {},
+      clock: options.clock,
+      dscCreator: (span) =>
+          SentryTraceContextHeader.fromRecordingSpan(span, options, null),
+      samplingDecision: SentryTracesSamplingDecision(true),
+    );
+  }
 
   SentryClient getSut({
     bool sendDefaultPii = false,

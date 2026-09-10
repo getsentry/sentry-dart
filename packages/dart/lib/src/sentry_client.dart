@@ -198,15 +198,18 @@ class SentryClient {
     }
 
     var traceContext = scope?.span?.traceContext();
-    if (traceContext == null) {
-      if (scope != null) {
-        scope.propagationContext.baggage ??= SentryBaggage({})
-          ..setValuesFromScope(scope, _options);
-        traceContext = SentryTraceContextHeader.fromBaggage(
-            scope.propagationContext.baggage!);
-      }
-    } else {
+    if (traceContext != null) {
       traceContext.replayId = scope?.replayId;
+    } else {
+      // Frozen and shared by every span of the segment, so it must not be
+      // mutated here. It already carries the replay id.
+      traceContext = scope?.getActiveSpan()?.resolveDsc();
+    }
+    if (traceContext == null && scope != null) {
+      scope.propagationContext.baggage ??= SentryBaggage({})
+        ..setValuesFromScope(scope, _options);
+      traceContext = SentryTraceContextHeader.fromBaggage(
+          scope.propagationContext.baggage!);
     }
 
     final envelope = SentryEnvelope.fromEvent(

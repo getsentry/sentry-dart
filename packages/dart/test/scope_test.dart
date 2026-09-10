@@ -630,6 +630,60 @@ void main() {
       expect(spanId1, isNot(spanId2));
     });
 
+    test('apply trace context to event with active span v2', () async {
+      final event = SentryEvent();
+      final rootSpan = fixture.createSpan(name: 'root-span');
+      final childSpan = fixture.createChildSpan(rootSpan, name: 'http.client');
+      childSpan.setAttribute(
+          SemanticAttributesConstants.sentryOp, SentryAttribute.string('op'));
+      final scope = fixture.getSut()..setActiveSpan(childSpan);
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      final traceContext = updatedEvent?.contexts.trace;
+      expect(traceContext?.traceId, rootSpan.traceId);
+      expect(traceContext?.spanId, childSpan.spanId);
+      expect(traceContext?.parentSpanId, rootSpan.spanId);
+      expect(traceContext?.operation, 'op');
+      expect(traceContext?.description, 'http.client');
+      expect(traceContext?.sampled, isTrue);
+    });
+
+    test('apply segment span name as transaction with active span v2',
+        () async {
+      final event = SentryEvent();
+      final rootSpan = fixture.createSpan(name: 'root-span');
+      final childSpan = fixture.createChildSpan(rootSpan);
+      final scope = fixture.getSut()..setActiveSpan(childSpan);
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      expect(updatedEvent?.transaction, 'root-span');
+    });
+
+    test('apply keeps scope transaction with active span v2', () async {
+      final event = SentryEvent();
+      final scope = fixture.getSut()
+        ..transaction = '/route/from/scope'
+        ..setActiveSpan(fixture.createSpan(name: 'root-span'));
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      expect(updatedEvent?.transaction, '/route/from/scope');
+    });
+
+    test('apply prefers legacy span over active span v2', () async {
+      final event = SentryEvent();
+      final scope = fixture.getSut()
+        ..span = fixture.sentryTracer
+        ..setActiveSpan(fixture.createSpan());
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      expect(updatedEvent?.contexts.trace?.spanId,
+          fixture.sentryTracer.context.spanId);
+    });
+
     test('should not apply the scope properties when event already has it ',
         () async {
       final eventUser = SentryUser(id: '123');
@@ -1002,6 +1056,20 @@ class Fixture {
       dscCreator: (_) =>
           SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
       samplingDecision: SentryTracesSamplingDecision(true),
+    );
+  }
+
+  RecordingSentrySpanV2 createChildSpan(
+    RecordingSentrySpanV2 parent, {
+    String name = 'child-span',
+  }) {
+    return RecordingSentrySpanV2.child(
+      parent: parent,
+      name: name,
+      onSpanEnd: (_) async {},
+      clock: options.clock,
+      dscCreator: (_) =>
+          SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
     );
   }
 

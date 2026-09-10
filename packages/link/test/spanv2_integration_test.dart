@@ -8,6 +8,7 @@ import 'package:gql_exec/gql_exec.dart';
 import 'package:gql_link/gql_link.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry_link/src/sentry_link.dart';
 import 'package:sentry_link/src/sentry_tracing_link.dart';
 import 'package:test/test.dart';
 
@@ -165,6 +166,49 @@ void main() {
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           equals('auto.graphql.sentry_link'));
     });
+
+    group('when a GraphQL error is captured', () {
+      test('links the error to the GraphQL span', () async {
+        late SentrySpanV2 transactionSpan;
+        await fixture.hub.startSpan(
+          'test-transaction',
+          (span) async {
+            transactionSpan = span;
+            await fixture
+                .createSentryGqlLink(shouldReturnError: true)
+                .request(fixture.getUserRequest())
+                .first;
+          },
+          parentSpan: null,
+        );
+
+        await fixture.processor.waitForProcessing();
+        final graphQlSpan =
+            fixture.processor.findSpanByOperation('http.graphql.query')!;
+
+        final traceContext = fixture.capturedEvents.first.contexts.trace;
+        expect(traceContext?.spanId, graphQlSpan.spanId);
+        expect(traceContext?.parentSpanId, transactionSpan.spanId);
+        expect(traceContext?.traceId, transactionSpan.traceId);
+        expect(traceContext?.operation, 'http.graphql.query');
+      });
+
+      test('does not link the error when no span is active', () async {
+        await fixture
+            .createSentryGqlLink(shouldReturnError: true)
+            .request(fixture.getUserRequest())
+            .first;
+
+        expect(
+          fixture.processor.findSpanByOperation('http.graphql.query'),
+          isNull,
+        );
+        expect(
+          fixture.capturedEvents.first.contexts.trace?.parentSpanId,
+          isNull,
+        );
+      });
+    });
   });
 }
 
@@ -172,6 +216,7 @@ class Fixture {
   late final Hub hub;
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
+  final capturedEvents = <SentryEvent>[];
 
   Fixture() {
     processor = FakeTelemetryProcessor();
@@ -179,7 +224,13 @@ class Fixture {
       ..automatedTestMode = true
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      // Records the event after the scope was applied and drops it, so no
+      // transport is involved.
+      ..beforeSend = (event, hint) {
+        capturedEvents.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
@@ -202,8 +253,30 @@ class Fixture {
     return Link.from([sentryLink, mockLink]);
   }
 
+  /// Mirrors how [SentryGql.link] composes the error link above the tracing
+  /// link.
+  Link createSentryGqlLink({bool shouldReturnError = false}) {
+    return Link.from([
+      SentryLink.link(hub: hub),
+      SentryTracingLink(
+        shouldStartTransaction: false,
+        graphQlErrorsMarkTransactionAsFailed: true,
+        hub: hub,
+      ),
+      _MockLink(shouldReturnError: shouldReturnError),
+    ]);
+  }
+
+  Request getUserRequest() => Request(
+        operation: Operation(
+          document: parseString('query GetUser { user(id: "999") { name } }'),
+          operationName: 'GetUser',
+        ),
+      );
+
   Future<void> tearDown() async {
     processor.clear();
+    capturedEvents.clear();
     await hub.close();
   }
 }
