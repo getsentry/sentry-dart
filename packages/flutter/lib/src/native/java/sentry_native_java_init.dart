@@ -110,8 +110,6 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
   required Hub hub,
   required SentryNativeJava owner,
 }) {
-  if (!options.replay.isEnabled) return null;
-
   return native.ReplayRecorderCallbacks.implement(
     native.$ReplayRecorderCallbacks(
       replayStarted: (JString replayIdString, bool replayIsBuffering) async {
@@ -120,11 +118,27 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
         );
 
         owner._replayId = replayId;
+        hub.configureScope((s) {
+          // ignore: invalid_use_of_internal_member
+          s.replayId = !replayIsBuffering ? replayId : null;
+        });
         owner._setNativeReplay(
           native.SentryFlutterPlugin.privateSentryGetReplayIntegration(),
         );
         owner._replayRecorder = AndroidReplayRecorder.factory(options);
+        final config = owner._replayConfig;
+        if (config != null) {
+          owner._applyReplayConfig(config);
+        }
         await owner._replayRecorder!.start();
+      },
+      replayStateChanged: (JString replayIdString, bool replayIsBuffering) {
+        final replayId = SentryId.fromId(
+          replayIdString.toDartString(releaseOriginal: true),
+        );
+        if (replayId == SentryId.empty() || owner._replayId != replayId) {
+          return;
+        }
         hub.configureScope((s) {
           // ignore: invalid_use_of_internal_member
           s.replayId = !replayIsBuffering ? replayId : null;
@@ -137,6 +151,7 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
         await owner._replayRecorder?.pause();
       },
       replayStopped: () async {
+        owner._replayId = null;
         hub.configureScope((s) {
           // ignore: invalid_use_of_internal_member
           s.replayId = null;
