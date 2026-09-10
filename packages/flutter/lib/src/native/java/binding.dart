@@ -2518,6 +2518,31 @@ class SentryAndroidOptions extends SentryOptions {
             _id_setEnableAnrFingerprinting as jni$_.JMethodIDPtr, z ? 1 : 0)
         .check();
   }
+
+  static final _id_getMonotonicTicker = _class.instanceMethodId(
+    r'getMonotonicTicker',
+    r'()Lio/sentry/time/MonotonicTicker;',
+  );
+
+  static final _getMonotonicTicker = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.time.MonotonicTicker getMonotonicTicker()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getMonotonicTicker() {
+    return _getMonotonicTicker(
+            reference.pointer, _id_getMonotonicTicker as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
 }
 
 final class $SentryAndroidOptions$NullableType
@@ -2736,6 +2761,64 @@ class InternalSentrySdk extends jni$_.JObject {
     return _captureEnvelope(_class.reference.pointer,
             _id_captureEnvelope as jni$_.JMethodIDPtr, _$bs.pointer, z ? 1 : 0)
         .object<SentryId?>(const $SentryId$NullableType());
+  }
+
+  static final _id_captureEnvelopeNonTerminating = _class.staticMethodId(
+    r'captureEnvelopeNonTerminating',
+    r'([B)Lio/sentry/protocol/SentryId;',
+  );
+
+  static final _captureEnvelopeNonTerminating =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JniResult Function(
+                          jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr,
+                          jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+              'globalEnv_CallStaticObjectMethod')
+          .asFunction<
+              jni$_.JniResult Function(jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public io.sentry.protocol.SentryId captureEnvelopeNonTerminating(byte[] bs)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static SentryId? captureEnvelopeNonTerminating(
+    jni$_.JByteArray bs,
+  ) {
+    final _$bs = bs.reference;
+    return _captureEnvelopeNonTerminating(
+            _class.reference.pointer,
+            _id_captureEnvelopeNonTerminating as jni$_.JMethodIDPtr,
+            _$bs.pointer)
+        .object<SentryId?>(const $SentryId$NullableType());
+  }
+
+  static final _id_updateSessionForDroppedEventNonTerminating =
+      _class.staticMethodId(
+    r'updateSessionForDroppedEventNonTerminating',
+    r'(Z)V',
+  );
+
+  static final _updateSessionForDroppedEventNonTerminating =
+      jni$_.ProtectedJniExtensions.lookup<
+                  jni$_.NativeFunction<
+                      jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+                          jni$_.JMethodIDPtr, jni$_.VarArgs<(jni$_.Int32,)>)>>(
+              'globalEnv_CallStaticVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>, jni$_.JMethodIDPtr, int)>();
+
+  /// from: `static public void updateSessionForDroppedEventNonTerminating(boolean z)`
+  static void updateSessionForDroppedEventNonTerminating(
+    bool z,
+  ) {
+    _updateSessionForDroppedEventNonTerminating(
+            _class.reference.pointer,
+            _id_updateSessionForDroppedEventNonTerminating
+                as jni$_.JMethodIDPtr,
+            z ? 1 : 0)
+        .check();
   }
 
   static final _id_getAppStartMeasurement = _class.staticMethodId(
@@ -20141,6 +20224,56 @@ class SentryOptions extends jni$_.JObject {
         .check();
   }
 
+  static final _id_getEpochClock = _class.instanceMethodId(
+    r'getEpochClock',
+    r'()Lio/sentry/time/EpochClock;',
+  );
+
+  static final _getEpochClock = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.time.EpochClock getEpochClock()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getEpochClock() {
+    return _getEpochClock(
+            reference.pointer, _id_getEpochClock as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
+  static final _id_getMonotonicTicker = _class.instanceMethodId(
+    r'getMonotonicTicker',
+    r'()Lio/sentry/time/MonotonicTicker;',
+  );
+
+  static final _getMonotonicTicker = jni$_.ProtectedJniExtensions.lookup<
+          jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )>>('globalEnv_CallObjectMethod')
+      .asFunction<
+          jni$_.JniResult Function(
+            jni$_.Pointer<jni$_.Void>,
+            jni$_.JMethodIDPtr,
+          )>();
+
+  /// from: `public io.sentry.time.MonotonicTicker getMonotonicTicker()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JObject getMonotonicTicker() {
+    return _getMonotonicTicker(
+            reference.pointer, _id_getMonotonicTicker as jni$_.JMethodIDPtr)
+        .object<jni$_.JObject>(const jni$_.JObjectType());
+  }
+
   static final _id_addPerformanceCollector = _class.instanceMethodId(
     r'addPerformanceCollector',
     r'(Lio/sentry/IPerformanceCollector;)V',
@@ -34157,6 +34290,230 @@ final class $Scope$IWithPropagationContext$Type
   }
 }
 
+/// from: `io.sentry.Scope$IWithSession`
+class Scope$IWithSession extends jni$_.JObject {
+  @jni$_.internal
+  @core$_.override
+  final jni$_.JObjType<Scope$IWithSession> $type;
+
+  @jni$_.internal
+  Scope$IWithSession.fromReference(
+    jni$_.JReference reference,
+  )   : $type = type,
+        super.fromReference(reference);
+
+  static final _class = jni$_.JClass.forName(r'io/sentry/Scope$IWithSession');
+
+  /// The type which includes information such as the signature of this class.
+  static const nullableType = $Scope$IWithSession$NullableType();
+  static const type = $Scope$IWithSession$Type();
+  static final _id_accept = _class.instanceMethodId(
+    r'accept',
+    r'(Lio/sentry/Session;)V',
+  );
+
+  static final _accept = jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>)>>(
+          'globalEnv_CallVoidMethod')
+      .asFunction<
+          jni$_.JThrowablePtr Function(jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr, jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public abstract void accept(io.sentry.Session session)`
+  void accept(
+    jni$_.JObject? session,
+  ) {
+    final _$session = session?.reference ?? jni$_.jNullReference;
+    _accept(reference.pointer, _id_accept as jni$_.JMethodIDPtr,
+            _$session.pointer)
+        .check();
+  }
+
+  /// Maps a specific port to the implemented interface.
+  static final core$_.Map<int, $Scope$IWithSession> _$impls = {};
+  static jni$_.JObjectPtr _$invoke(
+    int port,
+    jni$_.JObjectPtr descriptor,
+    jni$_.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      jni$_.MethodInvocation.fromAddresses(
+        0,
+        descriptor.address,
+        args.address,
+      ),
+    );
+  }
+
+  static final jni$_.Pointer<
+          jni$_.NativeFunction<
+              jni$_.JObjectPtr Function(
+                  jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)>>
+      _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
+
+  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
+    int $p,
+    jni$_.MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d == r'accept(Lio/sentry/Session;)V') {
+        _$impls[$p]!.accept(
+          $a![0]?.as(const jni$_.JObjectType(), releaseOriginal: true),
+        );
+        return jni$_.nullptr;
+      }
+    } catch (e) {
+      return jni$_.ProtectedJniExtensions.newDartException(e);
+    }
+    return jni$_.nullptr;
+  }
+
+  static void implementIn(
+    jni$_.JImplementer implementer,
+    $Scope$IWithSession $impl,
+  ) {
+    late final jni$_.RawReceivePort $p;
+    $p = jni$_.RawReceivePort(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = jni$_.MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    implementer.add(
+      r'io.sentry.Scope$IWithSession',
+      $p,
+      _$invokePointer,
+      [
+        if ($impl.accept$async) r'accept(Lio/sentry/Session;)V',
+      ],
+    );
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+  }
+
+  factory Scope$IWithSession.implement(
+    $Scope$IWithSession $impl,
+  ) {
+    final $i = jni$_.JImplementer();
+    implementIn($i, $impl);
+    return Scope$IWithSession.fromReference(
+      $i.implementReference(),
+    );
+  }
+}
+
+abstract base mixin class $Scope$IWithSession {
+  factory $Scope$IWithSession({
+    required void Function(jni$_.JObject? session) accept,
+    bool accept$async,
+  }) = _$Scope$IWithSession;
+
+  void accept(jni$_.JObject? session);
+  bool get accept$async => false;
+}
+
+final class _$Scope$IWithSession with $Scope$IWithSession {
+  _$Scope$IWithSession({
+    required void Function(jni$_.JObject? session) accept,
+    this.accept$async = false,
+  }) : _accept = accept;
+
+  final void Function(jni$_.JObject? session) _accept;
+  final bool accept$async;
+
+  void accept(jni$_.JObject? session) {
+    return _accept(session);
+  }
+}
+
+final class $Scope$IWithSession$NullableType
+    extends jni$_.JObjType<Scope$IWithSession?> {
+  @jni$_.internal
+  const $Scope$IWithSession$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/Scope$IWithSession;';
+
+  @jni$_.internal
+  @core$_.override
+  Scope$IWithSession? fromReference(jni$_.JReference reference) =>
+      reference.isNull
+          ? null
+          : Scope$IWithSession.fromReference(
+              reference,
+            );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Scope$IWithSession?> get nullableType => this;
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Scope$IWithSession$NullableType).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Scope$IWithSession$NullableType) &&
+        other is $Scope$IWithSession$NullableType;
+  }
+}
+
+final class $Scope$IWithSession$Type
+    extends jni$_.JObjType<Scope$IWithSession> {
+  @jni$_.internal
+  const $Scope$IWithSession$Type();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/Scope$IWithSession;';
+
+  @jni$_.internal
+  @core$_.override
+  Scope$IWithSession fromReference(jni$_.JReference reference) =>
+      Scope$IWithSession.fromReference(
+        reference,
+      );
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType get superType => const jni$_.JObjectNullableType();
+
+  @jni$_.internal
+  @core$_.override
+  jni$_.JObjType<Scope$IWithSession?> get nullableType =>
+      const $Scope$IWithSession$NullableType();
+
+  @jni$_.internal
+  @core$_.override
+  final superCount = 1;
+
+  @core$_.override
+  int get hashCode => ($Scope$IWithSession$Type).hashCode;
+
+  @core$_.override
+  bool operator ==(Object other) {
+    return other.runtimeType == ($Scope$IWithSession$Type) &&
+        other is $Scope$IWithSession$Type;
+  }
+}
+
 /// from: `io.sentry.Scope$IWithTransaction`
 class Scope$IWithTransaction extends jni$_.JObject {
   @jni$_.internal
@@ -35813,7 +36170,7 @@ class Scope extends jni$_.JObject {
   /// from: `public io.sentry.Session withSession(io.sentry.Scope$IWithSession iWithSession)`
   /// The returned object must be released after use, by calling the [release] method.
   jni$_.JObject? withSession(
-    jni$_.JObject iWithSession,
+    Scope$IWithSession iWithSession,
   ) {
     final _$iWithSession = iWithSession.reference;
     return _withSession(reference.pointer,
