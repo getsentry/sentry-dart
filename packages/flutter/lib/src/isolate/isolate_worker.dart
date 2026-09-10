@@ -56,9 +56,25 @@ class Worker {
     return await completer.future;
   }
 
+  /// Requests that the worker shut itself down when the calling isolate
+  /// exits - even an abrupt exit, such as its isolate group being torn down
+  /// - rather than relying on a Dart-level callback that may never get a
+  /// chance to run in that isolate again.
+  ///
+  /// Call this from the isolate that owns this [Worker] (i.e. the one that
+  /// obtained it from [spawnWorker]). Unlike a callback tied to a host
+  /// engine/view detaching, this only fires when that owning isolate is
+  /// actually gone, so a worker survives a cached engine detaching and
+  /// later reattaching to a new host view.
+  void closeOnOwnerExit() {
+    Isolate.current.addOnExitListener(_workerPort, response: _shutdownCommand);
+  }
+
   void close() {
     if (_closed) return;
     _closed = true;
+    // Harmless no-op if closeOnOwnerExit() was never called for this port.
+    Isolate.current.removeOnExitListener(_workerPort);
     _workerPort.send(_shutdownCommand);
     if (_pending.isEmpty) {
       _responses.close();

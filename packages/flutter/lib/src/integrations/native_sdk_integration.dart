@@ -97,6 +97,14 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 /// unconditionally don't outlive it. See
 /// https://github.com/getsentry/sentry-dart/issues/3960.
 ///
+/// Android's core JNI worker isolate (`AndroidCoreWorker`, the resource
+/// #3960 was actually about) no longer depends on this observer for its own
+/// cleanup - it ties its shutdown directly to this isolate's exit instead,
+/// so it survives a cached engine detaching and later reattaching. This
+/// observer still closes everything else the native SDK owns (e.g. the
+/// crash handler, replay recorder), which remains subject to the limitation
+/// below.
+///
 /// Known limitation: this close is permanent for the lifetime of this
 /// isolate. A cached/reused engine that goes `detached` and is later
 /// reattached to a new Activity (add-to-app hosts) will not have its native

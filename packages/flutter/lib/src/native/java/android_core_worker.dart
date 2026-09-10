@@ -52,6 +52,18 @@ class AndroidCoreWorker {
         return;
       }
       _worker = worker;
+      // Tie the worker's shutdown to this isolate's own exit rather than to
+      // AppLifecycleState.detached: detached fires on view detachment, which
+      // doesn't mean the isolate/engine hosting this worker actually died -
+      // a cached engine (add-to-app) can reattach to a new host view later.
+      // This way the worker keeps running across reattachment and only shuts
+      // down when the isolate that spawned it is actually gone. See #3960
+      // and the native_sdk_integration.dart detach-observer discussion.
+      //
+      // Known gap: if this isolate exits between the `await` above returning
+      // and this call running, the worker is never registered and leaks -
+      // same class of unpreventable race already accepted for close().
+      worker.closeOnOwnerExit();
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Failed to start Android core worker',

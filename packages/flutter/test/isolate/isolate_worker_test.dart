@@ -51,6 +51,21 @@ class _DebugNameHandler extends WorkerHandler {
   }
 }
 
+/// On request, registers its own exit listener so a test can observe when
+/// this worker isolate terminates.
+class _SelfExitObserverHandler extends WorkerHandler {
+  @override
+  Future<void> onMessage(Object? message) async {}
+
+  @override
+  Future<Object?> onRequest(Object? payload) async {
+    if (payload is SendPort) {
+      Isolate.current.addOnExitListener(payload, response: 'worker_exited');
+    }
+    return 'registered';
+  }
+}
+
 void _entryEcho((SendPort, WorkerConfig) init) {
   final (host, config) = init;
   runWorker(config, host, _EchoHandler());
@@ -69,6 +84,29 @@ void _entryDelay((SendPort, WorkerConfig) init) {
 void _entryDebugName((SendPort, WorkerConfig) init) {
   final (host, config) = init;
   runWorker(config, host, _DebugNameHandler());
+}
+
+void _entrySelfExitObserver((SendPort, WorkerConfig) init) {
+  final (host, config) = init;
+  runWorker(config, host, _SelfExitObserverHandler());
+}
+
+/// Plays the role of AndroidCoreWorker's owning isolate: spawns a worker,
+/// calls [Worker.closeOnOwnerExit] on it, then signals readiness.
+Future<void> _ownerEntry(({SendPort ready, SendPort observed}) ports) async {
+  final worker = await spawnWorker(
+    const WorkerConfig(
+      debug: true,
+      diagnosticLevel: SentryLevel.debug,
+      debugName: 'OwnerExitWorker',
+    ),
+    _entrySelfExitObserver,
+  );
+  // Round trip, not a fire-and-forget send: guarantees the worker has
+  // registered its self-exit listener before this isolate is killed.
+  await worker.request(ports.observed);
+  worker.closeOnOwnerExit();
+  ports.ready.send('ready');
 }
 
 void main() {
@@ -179,6 +217,35 @@ void main() {
       worker.close();
       // Fire-and-forget send should be safe and not throw even after close.
       expect(() => worker.send('ignored'), returnsNormally);
+    });
+
+    test('worker shuts itself down when its owner isolate exits abruptly',
+        () async {
+      final ready = ReceivePort();
+      final observed = ReceivePort();
+
+      final owner = await Isolate.spawn(
+        _ownerEntry,
+        (ready: ready.sendPort, observed: observed.sendPort),
+      );
+      addTearDown(() {
+        ready.close();
+        observed.close();
+      });
+
+      // Owner has spawned its worker, called closeOnOwnerExit() on it, and
+      // the worker has confirmed its own self-exit listener is registered.
+      await ready.first;
+
+      // Simulate abrupt engine/isolate-group teardown - not a graceful Dart
+      // return from the owner's entry point.
+      owner.kill(priority: Isolate.immediate);
+
+      // The runtime should still deliver the shutdown message to the worker
+      // from its now-dead owner, causing the worker to close its own inbox
+      // and terminate, which fires the worker's self-exit listener.
+      final result = await observed.first.timeout(const Duration(seconds: 10));
+      expect(result, 'worker_exited');
     });
 
     test('debugName propagates to worker isolate', () async {
