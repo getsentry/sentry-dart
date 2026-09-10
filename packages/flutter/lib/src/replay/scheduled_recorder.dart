@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../screenshot/screenshot.dart';
+import '../utils/internal_logger.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';
 import 'scheduler.dart';
@@ -97,8 +98,8 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
       frameDuration,
       (_) async {
         if (!_canStartCapture) {
-          options.log(SentryLevel.debug,
-              '$logName: skipping capture, app is not resumed.');
+          internalLogger
+              .debug(() => '$logName: skipping capture, app is not resumed.');
           return;
         }
         await capture(_onImageCaptured);
