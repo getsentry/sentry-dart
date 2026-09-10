@@ -5,6 +5,7 @@ import 'package:sentry/sentry.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 
 Integration<SentryFlutterOptions> createSdkIntegration(
     SentryNativeBinding native) {
@@ -41,10 +42,9 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
       await _native.init(hub);
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {
-      options.log(
-        SentryLevel.fatal,
+      internalLogger.fatal(
         'nativeSdkIntegration failed to be installed',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options?.automatedTestMode ?? false) {
@@ -80,10 +80,9 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
     try {
       await _native.close();
     } catch (exception, stackTrace) {
-      _options?.log(
-        SentryLevel.fatal,
+      internalLogger.fatal(
         'nativeSdkIntegration failed to be closed',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options?.automatedTestMode ?? false) {

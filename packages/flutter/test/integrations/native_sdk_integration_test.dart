@@ -108,9 +108,22 @@ void main() {
 
       SentryLevel? loggedLevel;
       // ignore: invalid_use_of_internal_member
-      fixture.options.log = (level, message, {exception, logger, stackTrace}) {
-        loggedLevel = level;
-      };
+      SentryInternalLogger.configure(
+        isEnabled: true,
+        minLevel: SentryLevel.fatal,
+        logOutput: ({
+          required String name,
+          required SentryLevel level,
+          required String message,
+          Object? error,
+          StackTrace? stackTrace,
+        }) {
+          loggedLevel = level;
+        },
+      );
+      addTearDown(() =>
+          // ignore: invalid_use_of_internal_member
+          SentryInternalLogger.configure(isEnabled: false));
 
       await fixture.registerIntegration();
       // A prior test may have already left the shared, real
