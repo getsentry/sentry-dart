@@ -198,6 +198,48 @@ void main() {
               'after stop() has moved on');
     });
   });
+
+  test(
+      'a stalled callback that completes after stop() times out does not '
+      'schedule an extra frame callback when stop() races the scheduling '
+      'timer', () {
+    fakeAsync((async) {
+      final guard = Completer<void>();
+      final fixture = _Fixture((_) => guard.future);
+
+      late FrameCallback callback;
+      fixture.registeredCallback.future.then((cb) => callback = cb);
+      fixture.sut.start();
+      async.flushMicrotasks();
+      callback(Duration.zero);
+      expect(fixture.postFrameCallbackRegistrations, 1);
+
+      // stop() is called before the 1ms scheduling timer elapses: the timer
+      // only fires while stop() is already suspended awaiting it below, i.e.
+      // after _generation has been bumped - unlike the test above, which
+      // lets the timer elapse (and _runAfterNextFrame() attach its listener)
+      // first.
+      unawaited(fixture.sut.stop());
+      async.elapse(const Duration(seconds: 2, milliseconds: 1));
+
+      // Restart before the stalled future ever resolves.
+      fixture.registeredCallback = Completer<FrameCallback>();
+      fixture.sut.start();
+      async.flushMicrotasks();
+      expect(fixture.postFrameCallbackRegistrations, 2,
+          reason: 'start() must register exactly one new frame callback');
+
+      // The old, abandoned callback finally completes. Its listener - even
+      // though it was only attached to the stalled future after stop() had
+      // already bumped the generation - must not register a second,
+      // unwanted frame callback on top of the one start() just registered.
+      guard.complete();
+      async.flushMicrotasks();
+      expect(fixture.postFrameCallbackRegistrations, 2,
+          reason: 'a stale callback future must not re-trigger scheduling '
+              'after stop() raced the scheduling timer');
+    });
+  });
 }
 
 class _Fixture {

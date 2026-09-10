@@ -21,12 +21,11 @@ class Scheduler {
   bool _running = false;
   Future<void>? _scheduled;
   Future<void>? _runningCallback;
-  // Bumped by stop() to invalidate whenComplete() listeners registered by
-  // _runAfterNextFrame() on a still-in-flight callback future. Futures can't
-  // be un-listened, so a stalled callback that finally completes after
-  // stop() has already moved on (timed out, or a restart is underway) would
-  // otherwise still fire its stale listener and re-schedule _run().
+  // Generation _runningCallback belongs to, captured with it in _run().
+  // Bumped by stop() so a stale whenComplete() listener can't re-schedule
+  // _run() for an abandoned callback.
   int _generation = 0;
+  int _runningCallbackGeneration = 0;
 
   final void Function(FrameCallback callback) _addPostFrameCallback;
 
@@ -67,11 +66,13 @@ class Scheduler {
 
   @pragma('vm:prefer-inline')
   void _runAfterNextFrame() {
-    final generation = _generation;
-    final runningCallback = _runningCallback ?? Future.value();
-    runningCallback.whenComplete(() {
-      // A stop() happened since this listener was registered: the callback
-      // future it was watching is abandoned, so don't act on it.
+    final runningCallback = _runningCallback;
+    final generation =
+        runningCallback == null ? _generation : _runningCallbackGeneration;
+    (runningCallback ?? Future.value()).whenComplete(() {
+      // A stop() happened since runningCallback started: it's abandoned, so
+      // don't act on it, even though this listener may only have been
+      // attached afterwards.
       if (generation != _generation) return;
       _scheduled = null;
       _addPostFrameCallback(_run);
@@ -81,6 +82,7 @@ class Scheduler {
   void _run(Duration sinceSchedulerEpoch) {
     if (!_running) return;
     _runningCallback = _callback(sinceSchedulerEpoch);
+    _runningCallbackGeneration = _generation;
     _scheduleNext();
   }
 }
