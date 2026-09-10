@@ -25,6 +25,7 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
   AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
+  ReplayConfig? _replayConfig;
 
   SentryNativeJava(super.options) {
     // Initialize core worker here in the ctor instead of init().
@@ -131,6 +132,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> close() async {
+    _replayConfig = null;
     await _replayRecorder?.stop();
     await _coreWorker?.close();
     _setNativeReplay(null);
@@ -209,7 +211,11 @@ class SentryNativeJava extends SentryNativeChannel {
             ? SentryId.empty()
             : SentryId.fromId(jString.toDartString());
 
-        _replayId = result;
+        // A rejected error capture does not end the active buffered replay.
+        // Keep its lifecycle ID so a later manual flush can promote it.
+        if (result != SentryId.empty()) {
+          _replayId = result;
+        }
         return result;
       });
     });
@@ -234,10 +240,20 @@ class SentryNativeJava extends SentryNativeChannel {
   void stopReplay() => tryCatchSync('stopReplay', () => _replay?.stop());
 
   @override
-  void flushReplay() => tryCatchSync('flushReplay', () => _replay?.flush());
+  void flushReplay() => tryCatchSync(
+    'flushReplay',
+    native.SentryFlutterPlugin.privateSentryFlushReplay,
+  );
 
   @override
-  void setReplayConfig(
+  void setReplayConfig(ReplayConfig config) {
+    // Native discards configuration while replay is inactive. Keep it for the
+    // next start, which need not coincide with a widget size change.
+    _replayConfig = config;
+    _applyReplayConfig(config);
+  }
+
+  void _applyReplayConfig(
     ReplayConfig config,
   ) => tryCatchSync('setReplayConfig', () {
     // Since codec block size is 16, so we have to adjust the width and height to it,

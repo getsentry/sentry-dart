@@ -10,18 +10,10 @@ import '../mocks.mocks.dart';
 
 void main() {
   group('$SentryReplay', () {
-    late MockSentryNativeBinding native;
+    late Fixture fixture;
 
     setUp(() {
-      native = MockSentryNativeBinding();
-      when(native.supportsReplay).thenReturn(true);
-      when(native.startReplay()).thenReturn(null);
-      when(native.startReplayBuffering()).thenReturn(null);
-      when(native.pauseReplay()).thenReturn(null);
-      when(native.resumeReplay()).thenReturn(null);
-      when(native.stopReplay()).thenReturn(null);
-      when(native.flushReplay()).thenReturn(null);
-      SentryFlutter.native = native;
+      fixture = Fixture();
     });
 
     tearDown(() {
@@ -29,53 +21,53 @@ void main() {
     });
 
     test('start forwards to the native binding', () async {
-      await SentryFlutter.replay.start();
+      await fixture.getSut().start();
 
-      verify(native.startReplay()).called(1);
+      verify(fixture.native.startReplay()).called(1);
     });
 
     test('startBuffering forwards to the native binding', () async {
-      await SentryFlutter.replay.startBuffering();
+      await fixture.getSut().startBuffering();
 
-      verify(native.startReplayBuffering()).called(1);
+      verify(fixture.native.startReplayBuffering()).called(1);
     });
 
     test('pause forwards to the native binding', () async {
-      await SentryFlutter.replay.pause();
+      await fixture.getSut().pause();
 
-      verify(native.pauseReplay()).called(1);
+      verify(fixture.native.pauseReplay()).called(1);
     });
 
     test('resume forwards to the native binding', () async {
-      await SentryFlutter.replay.resume();
+      await fixture.getSut().resume();
 
-      verify(native.resumeReplay()).called(1);
+      verify(fixture.native.resumeReplay()).called(1);
     });
 
     test('stop forwards to the native binding', () async {
-      await SentryFlutter.replay.stop();
+      await fixture.getSut().stop();
 
-      verify(native.stopReplay()).called(1);
+      verify(fixture.native.stopReplay()).called(1);
     });
 
     test('flush forwards to the native binding', () async {
-      await SentryFlutter.replay.flush();
+      await fixture.getSut().flush();
 
-      verify(native.flushReplay()).called(1);
+      verify(fixture.native.flushReplay()).called(1);
     });
 
     test('waits for an asynchronous native call', () async {
       final nativeCall = Completer<void>();
-      when(native.startReplay()).thenAnswer((_) => nativeCall.future);
+      when(fixture.native.startReplay()).thenAnswer((_) => nativeCall.future);
       var completed = false;
 
-      unawaited(SentryFlutter.replay.start().then((_) => completed = true));
-      await Future<void>.delayed(Duration.zero);
+      final start = fixture.getSut().start().then((_) => completed = true);
+      await Future<void>.value();
 
       expect(completed, false);
 
       nativeCall.complete();
-      await Future<void>.delayed(Duration.zero);
+      await start;
 
       expect(completed, true);
     });
@@ -83,15 +75,32 @@ void main() {
     test('completes when native integration is unavailable', () async {
       SentryFlutter.native = null;
 
-      await expectLater(SentryFlutter.replay.start(), completes);
+      await expectLater(fixture.getSut().start(), completes);
     });
 
     test('does not invoke replay when the platform is unsupported', () async {
-      when(native.supportsReplay).thenReturn(false);
+      when(fixture.native.supportsReplay).thenReturn(false);
 
-      await SentryFlutter.replay.start();
+      await fixture.getSut().start();
 
-      verifyNever(native.startReplay());
+      verifyNever(fixture.native.startReplay());
     });
   });
+}
+
+class Fixture {
+  final native = MockSentryNativeBinding();
+
+  Fixture() {
+    when(native.supportsReplay).thenReturn(true);
+    when(native.startReplay()).thenReturn(null);
+    when(native.startReplayBuffering()).thenReturn(null);
+    when(native.pauseReplay()).thenReturn(null);
+    when(native.resumeReplay()).thenReturn(null);
+    when(native.stopReplay()).thenReturn(null);
+    when(native.flushReplay()).thenReturn(null);
+    SentryFlutter.native = native;
+  }
+
+  SentryReplay getSut() => SentryFlutter.replay;
 }
