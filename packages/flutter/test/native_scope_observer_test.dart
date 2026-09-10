@@ -1,6 +1,8 @@
 @TestOn('vm')
 library;
 
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
@@ -24,6 +26,59 @@ void main() {
     await sut.addBreadcrumb(breadcrumb);
 
     expect(verify(mock.addBreadcrumb(captureAny)).captured.single, breadcrumb);
+  });
+
+  test(
+      'addBreadcrumbWithHint forwards no network detail when the hint carries none',
+      () async {
+    when(mock.addBreadcrumb(any,
+            networkRequestDetail: anyNamed('networkRequestDetail'),
+            networkResponseDetail: anyNamed('networkResponseDetail')))
+        .thenReturn(null);
+    final breadcrumb =
+        Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
+
+    await sut.addBreadcrumbWithHint(breadcrumb, Hint());
+
+    final capture = verify(mock.addBreadcrumb(
+      captureAny,
+      networkRequestDetail: captureAnyNamed('networkRequestDetail'),
+      networkResponseDetail: captureAnyNamed('networkResponseDetail'),
+    )).captured;
+    expect(capture[0], breadcrumb);
+    expect(capture[1], isNull);
+    expect(capture[2], isNull);
+  });
+
+  test(
+      'addBreadcrumbWithHint forwards replay network detail from the hint in the '
+      'same addBreadcrumb call', () async {
+    when(mock.addBreadcrumb(any,
+            networkRequestDetail: anyNamed('networkRequestDetail'),
+            networkResponseDetail: anyNamed('networkResponseDetail')))
+        .thenReturn(null);
+
+    final breadcrumb =
+        Breadcrumb.http(url: Uri.parse('https://example.com'), method: 'GET');
+    final requestDetail = <String, dynamic>{'headers': <String, String>{}};
+    final responseDetail = <String, dynamic>{
+      'headers': <String, String>{},
+      'body': 'ok'
+    };
+    final hint = Hint()
+      ..set(TypeCheckHint.replayNetworkRequestDetail, requestDetail)
+      ..set(TypeCheckHint.replayNetworkResponseDetail, responseDetail);
+
+    await sut.addBreadcrumbWithHint(breadcrumb, hint);
+
+    final capture = verify(mock.addBreadcrumb(
+      captureAny,
+      networkRequestDetail: captureAnyNamed('networkRequestDetail'),
+      networkResponseDetail: captureAnyNamed('networkResponseDetail'),
+    )).captured;
+    expect(capture[0], breadcrumb);
+    expect(capture[1], requestDetail);
+    expect(capture[2], responseDetail);
   });
 
   test('clearBreadcrumbsCalls', () async {

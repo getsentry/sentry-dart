@@ -25,7 +25,19 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> setUser(SentryUser? user);
 
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb);
+  /// Adds [breadcrumb] to native Scope.
+  ///
+  /// If [breadcrumb] carries Session Replay's captured HTTP request/response
+  /// detail, pass it via [networkRequestDetail]/[networkResponseDetail] so
+  /// the native SDK can enrich a replay recording with it. This never
+  /// touches native `Scope` directly, so it can't end up on native-captured
+  /// events. Currently Android-only; other platforms ignore these
+  /// parameters.
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  });
 
   FutureOr<void> clearBreadcrumbs();
 

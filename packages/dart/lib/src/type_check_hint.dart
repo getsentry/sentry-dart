@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'http_client/breadcrumb_client.dart';
 import 'http_client/failed_request_client.dart';
 
 /// Constants used for Type Check hints.
@@ -23,4 +24,18 @@ class TypeCheckHint {
 
   @internal
   static const isWidgetFeedback = 'isWidgetFeedback';
+
+  /// Session Replay's captured request detail for an `http` breadcrumb, set
+  /// by [BreadcrumbClient] when its injected network details capturer
+  /// captures one. Replay-only: never persisted on the breadcrumb itself so
+  /// it can't leak into events unrelated to Session Replay.
+  @internal
+  static const replayNetworkRequestDetail = 'replayNetworkRequestDetail';
+
+  /// Session Replay's captured response detail for an `http` breadcrumb, set
+  /// by [BreadcrumbClient] when its injected network details capturer
+  /// captures one. Replay-only: never persisted on the breadcrumb itself so
+  /// it can't leak into events unrelated to Session Replay.
+  @internal
+  static const replayNetworkResponseDetail = 'replayNetworkResponseDetail';
 }

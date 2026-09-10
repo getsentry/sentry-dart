@@ -5104,6 +5104,44 @@ class SentryFlutterPlugin$Companion extends jni$_.JObject {
         .check();
   }
 
+  static final _id_addBreadcrumbFromJsonBytes$1 = _class.instanceMethodId(
+    r'addBreadcrumbFromJsonBytes',
+    r'([B[B)V',
+  );
+
+  static final _addBreadcrumbFromJsonBytes$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `public final void addBreadcrumbFromJsonBytes(byte[] bs, byte[] bs1)`
+  void addBreadcrumbFromJsonBytes$1(
+    jni$_.JByteArray bs,
+    jni$_.JByteArray bs1,
+  ) {
+    final _$bs = bs.reference;
+    final _$bs1 = bs1.reference;
+    _addBreadcrumbFromJsonBytes$1(
+            reference.pointer,
+            _id_addBreadcrumbFromJsonBytes$1 as jni$_.JMethodIDPtr,
+            _$bs.pointer,
+            _$bs1.pointer)
+        .check();
+  }
+
   static final _id_setUserFromJsonBytes = _class.instanceMethodId(
     r'setUserFromJsonBytes',
     r'([B)V',
@@ -5813,6 +5851,44 @@ class SentryFlutterPlugin extends jni$_.JObject {
     final _$bs = bs.reference;
     _addBreadcrumbFromJsonBytes(_class.reference.pointer,
             _id_addBreadcrumbFromJsonBytes as jni$_.JMethodIDPtr, _$bs.pointer)
+        .check();
+  }
+
+  static final _id_addBreadcrumbFromJsonBytes$1 = _class.staticMethodId(
+    r'addBreadcrumbFromJsonBytes',
+    r'([B[B)V',
+  );
+
+  static final _addBreadcrumbFromJsonBytes$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+              jni$_.NativeFunction<
+                  jni$_.JThrowablePtr Function(
+                      jni$_.Pointer<jni$_.Void>,
+                      jni$_.JMethodIDPtr,
+                      jni$_.VarArgs<
+                          (
+                            jni$_.Pointer<jni$_.Void>,
+                            jni$_.Pointer<jni$_.Void>
+                          )>)>>('globalEnv_CallStaticVoidMethod')
+          .asFunction<
+              jni$_.JThrowablePtr Function(
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.JMethodIDPtr,
+                  jni$_.Pointer<jni$_.Void>,
+                  jni$_.Pointer<jni$_.Void>)>();
+
+  /// from: `static public final void addBreadcrumbFromJsonBytes(byte[] bs, byte[] bs1)`
+  static void addBreadcrumbFromJsonBytes$1(
+    jni$_.JByteArray bs,
+    jni$_.JByteArray bs1,
+  ) {
+    final _$bs = bs.reference;
+    final _$bs1 = bs1.reference;
+    _addBreadcrumbFromJsonBytes$1(
+            _class.reference.pointer,
+            _id_addBreadcrumbFromJsonBytes$1 as jni$_.JMethodIDPtr,
+            _$bs.pointer,
+            _$bs1.pointer)
         .check();
   }
 

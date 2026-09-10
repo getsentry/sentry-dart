@@ -133,7 +133,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) {
     tryCatchSync('add_breadcrumb', () {
       var cBreadcrumb = breadcrumb.toJson().toNativeValue();
       native.add_breadcrumb(cBreadcrumb);
