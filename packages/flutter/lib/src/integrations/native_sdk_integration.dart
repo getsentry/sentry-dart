@@ -19,7 +19,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
   SentryFlutterOptions? _options;
   final SentryNativeBinding _native;
   _NativeBindingLifecycleObserver? _lifecycleObserver;
-  bool _nativeClosed = false;
+  Future<void>? _closeFuture;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -64,21 +64,36 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
     // The native binding may start background resources unconditionally
     // (e.g. Android's AndroidCoreWorker), regardless of autoInitializeNativeSdk,
     // so close() must always run to stop them. See #3960.
-    await _closeNative();
+    await _closeNative(isExplicit: true);
   }
 
-  Future<void> _closeNative() async {
-    // Both the detach observer and an explicit Sentry.close() call reach
-    // this method, and either order is possible - guard against invoking a
-    // second native close, since the underlying native SDKs aren't
-    // guaranteed to tolerate being closed twice.
-    if (_nativeClosed) {
-      return;
+  // Both the detach observer and an explicit Sentry.close() call reach this
+  // method, and either order is possible - the underlying native SDKs
+  // aren't guaranteed to tolerate being closed twice, so only the first
+  // caller actually invokes _native.close(); later callers await that same
+  // in-flight/completed close instead of returning immediately, so
+  // Sentry.close() never resolves before native cleanup has actually
+  // finished.
+  //
+  // Known limitation: isExplicit is only honored on the first call. If a
+  // detach fires first (isExplicit: false, Android's worker deliberately
+  // left running) and a genuine Sentry.close() only arrives afterwards,
+  // this returns the already-completed detach close without revisiting the
+  // worker. #3960's repro doesn't call Sentry.close() after detach, so this
+  // is documented rather than solved speculatively.
+  Future<void> _closeNative({required bool isExplicit}) {
+    final existing = _closeFuture;
+    if (existing != null) {
+      return existing;
     }
-    _nativeClosed = true;
+    final future = _doCloseNative(isExplicit: isExplicit);
+    _closeFuture = future;
+    return future;
+  }
 
+  Future<void> _doCloseNative({required bool isExplicit}) async {
     try {
-      await _native.close();
+      await _native.close(isExplicit: isExplicit);
     } catch (exception, stackTrace) {
       internalLogger.fatal(
         'nativeSdkIntegration failed to be closed',
@@ -99,11 +114,13 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 ///
 /// Android's core JNI worker isolate (`AndroidCoreWorker`, the resource
 /// #3960 was actually about) no longer depends on this observer for its own
-/// cleanup - it ties its shutdown directly to this isolate's exit instead,
-/// so it survives a cached engine detaching and later reattaching. This
-/// observer still closes everything else the native SDK owns (e.g. the
-/// crash handler, replay recorder), which remains subject to the limitation
-/// below.
+/// cleanup - it ties its shutdown directly to this isolate's exit instead
+/// (see AndroidCoreWorker.closeOnOwnerExit), so it survives a cached engine
+/// detaching and later reattaching. This observer still closes everything
+/// else the native SDK owns (e.g. the crash handler, replay recorder),
+/// which remains subject to the limitation below. It calls _closeNative
+/// with isExplicit: false precisely so SentryNativeJava.close() knows not
+/// to force the worker closed on this non-terminal signal.
 ///
 /// Known limitation: this close is permanent for the lifetime of this
 /// isolate. A cached/reused engine that goes `detached` and is later
@@ -128,7 +145,10 @@ class _NativeBindingLifecycleObserver with WidgetsBindingObserver {
       // a microtask hop that may never come. See #3960.
       // Routed through _closeNative() so errors from its asynchronous tail
       // are still logged instead of becoming unhandled Future errors.
-      unawaited(_integration._closeNative());
+      // isExplicit: false - a detach doesn't necessarily mean the engine is
+      // gone for good, so resources that are safe to keep running across a
+      // reattach (e.g. Android's core worker isolate) are left alone here.
+      unawaited(_integration._closeNative(isExplicit: false));
     }
   }
 }

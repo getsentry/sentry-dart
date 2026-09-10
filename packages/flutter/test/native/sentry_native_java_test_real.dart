@@ -108,6 +108,26 @@ void main() {
       // by the rest of close() isn't mocked here.
       await closeFuture.catchError((_) {});
     });
+
+    test('close(isExplicit: false) leaves the core worker running', () async {
+      // isExplicit: false is how NativeSdkIntegration's detach observer
+      // calls this - a detach doesn't mean the engine is gone for good
+      // (e.g. a cached engine may reattach), so the worker manages its own
+      // shutdown via closeOnOwnerExit() instead of being force-closed here.
+      var closeCalled = false;
+
+      AndroidCoreWorker.factory = (options) {
+        return _FakeCoreWorker(onClose: () => closeCalled = true);
+      };
+
+      final options =
+          SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
+      final native = SentryNativeJava(options);
+
+      await native.close(isExplicit: false).catchError((_) {});
+
+      expect(closeCalled, isFalse);
+    });
   });
 }
 

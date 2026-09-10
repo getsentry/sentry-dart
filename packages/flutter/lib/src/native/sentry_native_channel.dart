@@ -103,7 +103,7 @@ class SentryNativeChannel
   }
 
   @override
-  FutureOr<void> close() {
+  FutureOr<void> close({bool isExplicit = true}) {
     if (!nativeSdkAutoInitialized) {
       return null;
     }

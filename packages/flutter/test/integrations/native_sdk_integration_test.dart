@@ -27,7 +27,8 @@ void main() {
       fixture = IntegrationTestFixture(NativeSdkIntegration.new);
       fixture.options.bindingUtils = TestBindingWrapper();
       when(fixture.binding.init(any)).thenReturn(null);
-      when(fixture.binding.close()).thenReturn(null);
+      when(fixture.binding.close(isExplicit: anyNamed('isExplicit')))
+          .thenReturn(null);
     });
 
     // Every call() registers a lifecycle observer on the shared, real
@@ -63,7 +64,7 @@ void main() {
     test('closes native SDK', () async {
       await fixture.registerIntegration();
       await fixture.sut.close();
-      verify(fixture.binding.close()).called(1);
+      verify(fixture.binding.close(isExplicit: true)).called(1);
     });
 
     test('does not call native sdk when auto init disabled', () async {
@@ -79,7 +80,7 @@ void main() {
       fixture.options.autoInitializeNativeSdk = false;
       await fixture.registerIntegration();
       await fixture.sut.close();
-      verify(fixture.binding.close()).called(1);
+      verify(fixture.binding.close(isExplicit: true)).called(1);
     });
 
     test('is not added in case of an exception', () async {
@@ -97,14 +98,18 @@ void main() {
       await _sendLifecycle('resumed');
       await _sendLifecycle('detached');
 
-      verify(fixture.binding.close()).called(1);
+      // isExplicit: false - a detach isn't necessarily terminal (e.g. a
+      // cached engine may reattach later), so resources safe to keep across
+      // that (Android's core worker isolate) must be told not to close.
+      verify(fixture.binding.close(isExplicit: false)).called(1);
     });
 
     test(
         'logs a fatal error instead of leaking an unhandled future error '
         'when detached close fails', () async {
       fixture.options.automatedTestMode = false;
-      when(fixture.binding.close()).thenAnswer((_) async => throw Exception());
+      when(fixture.binding.close(isExplicit: anyNamed('isExplicit')))
+          .thenAnswer((_) async => throw Exception());
 
       SentryLevel? loggedLevel;
       // ignore: invalid_use_of_internal_member
@@ -144,7 +149,7 @@ void main() {
       await _sendLifecycle('paused');
       await _sendLifecycle('resumed');
 
-      verifyNever(fixture.binding.close());
+      verifyNever(fixture.binding.close(isExplicit: anyNamed('isExplicit')));
     });
 
     test('does not observe lifecycle in multi-view apps', () async {
@@ -153,7 +158,7 @@ void main() {
 
       await _sendLifecycle('detached');
 
-      verifyNever(fixture.binding.close());
+      verifyNever(fixture.binding.close(isExplicit: anyNamed('isExplicit')));
     });
 
     test('does not close native binding twice when detach precedes close',
@@ -164,7 +169,12 @@ void main() {
       await _sendLifecycle('detached');
       await fixture.sut.close();
 
-      verify(fixture.binding.close()).called(1);
+      // Known limitation (see _closeNative's doc comment): the detach call
+      // that already ran (isExplicit: false) wins - the later explicit
+      // close() just awaits it rather than re-invoking with isExplicit:
+      // true, so this stays at exactly 1 call total.
+      verify(fixture.binding.close(isExplicit: false)).called(1);
+      verifyNever(fixture.binding.close(isExplicit: true));
     });
 
     test('stops observing lifecycle after close', () async {
@@ -174,7 +184,7 @@ void main() {
       clearInteractions(fixture.binding);
       await _sendLifecycle('detached');
 
-      verifyNever(fixture.binding.close());
+      verifyNever(fixture.binding.close(isExplicit: anyNamed('isExplicit')));
     });
   });
 }
@@ -186,5 +196,5 @@ class _ThrowingMockSentryNative extends MockSentryNativeBinding {
   }
 
   @override
-  Future<void> close() async {}
+  Future<void> close({bool? isExplicit = true}) async {}
 }

@@ -6,8 +6,11 @@ const androidSdkName = 'sentry.java.android.flutter';
 @internal
 const nativeSdkName = 'sentry.native.android.flutter';
 
-/// Initializes the Sentry Android SDK.
-void initSentryAndroid({
+/// Initializes the Sentry Android SDK. Returns whether native init was
+/// actually attempted - false if it bailed out early (e.g. a null
+/// application context), so the caller doesn't record the native SDK as
+/// initialized when it isn't.
+bool initSentryAndroid({
   required Hub hub,
   required SentryFlutterOptions options,
   required SentryNativeJava owner,
@@ -20,13 +23,13 @@ void initSentryAndroid({
 
   final beforeSendReplayCallback = createBeforeSendReplayCallback(options);
 
-  using((arena) {
+  return using((arena) {
     final context = native.SentryFlutterPlugin.getApplicationContext()
       ?..releasedBy(arena);
     if (context == null) {
       internalLogger.error(
           'Failed to initialize Sentry Android, application context is null.');
-      return;
+      return false;
     }
 
     final optionsConfiguration = native.Sentry$OptionsConfiguration.implement(
@@ -51,6 +54,7 @@ void initSentryAndroid({
     optionsConfiguration.use((cb) {
       native.SentryAndroid.init$2(context, cb);
     });
+    return true;
   });
 }
 
