@@ -11,6 +11,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 import 'package:sentry_flutter/src/native/java/android_core_worker.dart';
 
+import '../mocks.dart';
+
 void main() {
   group('AndroidCoreWorker host behavior', () {
     test('logs when sending envelopes in main isolate', () {
@@ -113,11 +115,6 @@ void main() {
     });
 
     test('close completes synchronously once started', () async {
-      // A caller reacting to AppLifecycleState.detached - synchronous, with
-      // no guarantee a later microtask ever runs before the engine hosting
-      // this isolate is torn down - relies on close() finishing its
-      // shutdown send within that same call, not after an `await`. See
-      // #3960.
       late ReceivePort inbox;
       Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
         inbox = ReceivePort();
@@ -127,8 +124,7 @@ void main() {
         return Worker(inbox.sendPort, replies);
       }
 
-      final worker =
-          AndroidCoreWorker(SentryFlutterOptions(), spawn: fakeSpawn);
+      final worker = AndroidCoreWorker(defaultTestOptions(), spawn: fakeSpawn);
       await worker.start();
 
       final result = worker.close();

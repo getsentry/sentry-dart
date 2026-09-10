@@ -3,12 +3,16 @@
 library;
 
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';
 import 'package:sentry_flutter/src/native/java/android_core_worker.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
+
+import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   // the ReplaySizeAdjustment tests assumes a constant video block size of 16
@@ -52,100 +56,72 @@ void main() {
     });
   });
 
-  group('CoreWorker initialization', () {
+  group('$SentryNativeJava', () {
+    late Fixture fixture;
     late AndroidCoreWorker Function(SentryFlutterOptions) originalFactory;
 
     setUp(() {
       originalFactory = AndroidCoreWorker.factory;
+      fixture = Fixture();
+      AndroidCoreWorker.factory = (_) => fixture.worker;
     });
 
     tearDown(() {
       AndroidCoreWorker.factory = originalFactory;
     });
 
+    test('closes the worker explicitly after detach and reattach', () async {
+      final binding = TestWidgetsFlutterBinding.ensureInitialized();
+      fixture.options
+        ..autoInitializeNativeSdk = false
+        ..bindingUtils = TestBindingWrapper();
+      final integration = NativeSdkIntegration(fixture.getSut());
+      await integration.call(MockHub(), fixture.options);
+      addTearDown(integration.close);
+
+      for (final state in ['resumed', 'detached', 'resumed']) {
+        await binding.defaultBinaryMessenger.handlePlatformMessage(
+          'flutter/lifecycle',
+          const StringCodec().encodeMessage('AppLifecycleState.$state'),
+          (_) {},
+        );
+      }
+      await integration.close();
+
+      expect(fixture.worker.closed, isTrue);
+    });
+
     test('starts core worker in constructor', () {
-      var factoryCalled = false;
-      var startCalled = false;
+      fixture.getSut();
 
-      AndroidCoreWorker.factory = (options) {
-        factoryCalled = true;
-        return _FakeCoreWorker(onStart: () => startCalled = true);
-      };
-
-      final options =
-          SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
-      SentryNativeJava(options);
-
-      expect(factoryCalled, isTrue,
-          reason: 'Factory should be called during construction');
-      expect(startCalled, isTrue,
-          reason: 'start() should be called during construction');
+      expect(fixture.worker.started, isTrue);
     });
 
     test('close() closes the core worker synchronously, before its first await',
         () async {
-      // The core worker starts unconditionally regardless of
-      // autoInitializeNativeSdk, so close() must be reachable whenever the
-      // engine hosting it is about to be torn down - e.g. from an
-      // AppLifecycleState.detached callback, which is synchronous and gives
-      // no guarantee a later microtask will ever run. An `await` placed
-      // before this call - even on an already-resolved value - would push
-      // it past that guarantee. See #3960.
-      var closeCalled = false;
-
-      AndroidCoreWorker.factory = (options) {
-        return _FakeCoreWorker(onClose: () => closeCalled = true);
-      };
-
-      final options =
-          SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
-      final native = SentryNativeJava(options);
+      final native = fixture.getSut();
 
       final closeFuture = native.close();
-      expect(closeCalled, isTrue);
+      expect(fixture.worker.closed, isTrue);
 
-      // Only the synchronous ordering above is under test; the channel used
-      // by the rest of close() isn't mocked here.
-      await closeFuture.catchError((_) {});
-    });
-
-    test('close(isExplicit: false) leaves the core worker running', () async {
-      // isExplicit: false is how NativeSdkIntegration's detach observer
-      // calls this - a detach doesn't mean the engine is gone for good
-      // (e.g. a cached engine may reattach), so the worker manages its own
-      // shutdown via closeOnOwnerExit() instead of being force-closed here.
-      var closeCalled = false;
-
-      AndroidCoreWorker.factory = (options) {
-        return _FakeCoreWorker(onClose: () => closeCalled = true);
-      };
-
-      final options =
-          SentryFlutterOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567');
-      final native = SentryNativeJava(options);
-
-      await native.close(isExplicit: false).catchError((_) {});
-
-      expect(closeCalled, isFalse);
+      await closeFuture;
     });
   });
 }
 
 /// Fake core worker for testing that tracks method calls.
 class _FakeCoreWorker implements AndroidCoreWorker {
-  final void Function()? onStart;
-  final void Function()? onClose;
-
-  _FakeCoreWorker({this.onStart, this.onClose});
+  bool started = false;
+  bool closed = false;
 
   @override
   FutureOr<void> start() {
-    onStart?.call();
+    started = true;
   }
 
   @override
   FutureOr<void> close() {
-    onClose?.call();
+    closed = true;
   }
 
   @override
@@ -188,4 +164,11 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   FutureOr<void> removeContexts(String key) {
     // No-op for testing
   }
+}
+
+class Fixture {
+  final options = defaultTestOptions();
+  final worker = _FakeCoreWorker();
+
+  SentryNativeJava getSut() => SentryNativeJava(options);
 }

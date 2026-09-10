@@ -1931,14 +1931,6 @@ class MockSentryNativeBinding extends _i1.Mock
       )) as _i12.FutureOr<void>);
 
   @override
-  _i12.FutureOr<void> close({bool? isExplicit = true}) =>
-      (super.noSuchMethod(Invocation.method(
-        #close,
-        [],
-        {#isExplicit: isExplicit},
-      )) as _i12.FutureOr<void>);
-
-  @override
   _i12.FutureOr<void> captureEnvelope(
     _i18.Uint8List? envelopeData,
     bool? containsUnhandledException,

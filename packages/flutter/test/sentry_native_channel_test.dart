@@ -500,6 +500,27 @@ void main() {
 
         verifyZeroInteractions(channel);
       });
+
+      if (!mockPlatform.isAndroid) {
+        test('does not close the native SDK when init was never called',
+            () async {
+          await sut.close();
+
+          verifyNever(channel.invokeMethod('closeNativeSdk'));
+        });
+
+        test('closes the native SDK after init ran', () async {
+          when(channel.invokeMethod('initNativeSdk', any))
+              .thenAnswer((_) => Future.value());
+          when(channel.invokeMethod('closeNativeSdk'))
+              .thenAnswer((_) => Future.value());
+
+          await sut.init(MockHub());
+          await sut.close();
+
+          verify(channel.invokeMethod('closeNativeSdk')).called(1);
+        });
+      }
     });
   }
 
@@ -592,44 +613,6 @@ void main() {
       final args = await callInitAndCaptureArgs(options);
 
       expect(args['captureFailedRequests'], true);
-    });
-  });
-
-  group('close() and autoInitializeNativeSdk', () {
-    late SentryNativeBinding sut;
-    late MockMethodChannel channel;
-
-    setUp(() {
-      channel = MockMethodChannel();
-      final options = defaultTestOptions()
-        ..platform = MockPlatform.iOS()
-        ..methodChannel = channel;
-      sut = createBinding(options);
-    });
-
-    test(
-        'does not close the native SDK when init was never called '
-        '(autoInitializeNativeSdk: false)', () async {
-      // The native binding may start background resources unconditionally
-      // regardless of autoInitializeNativeSdk (see #3960), so close() must
-      // always run - but it must not tear down a native SDK the app
-      // initialized itself, which is exactly what
-      // autoInitializeNativeSdk: false is for.
-      await sut.close();
-
-      verifyNever(channel.invokeMethod('closeNativeSdk'));
-    });
-
-    test('closes the native SDK after init ran', () async {
-      when(channel.invokeMethod('initNativeSdk', any))
-          .thenAnswer((_) => Future.value());
-      when(channel.invokeMethod('closeNativeSdk'))
-          .thenAnswer((_) => Future.value());
-
-      await sut.init(MockHub());
-      await sut.close();
-
-      verify(channel.invokeMethod('closeNativeSdk')).called(1);
     });
   });
 }

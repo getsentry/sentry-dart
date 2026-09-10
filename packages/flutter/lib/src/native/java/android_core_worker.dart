@@ -52,17 +52,8 @@ class AndroidCoreWorker {
         return;
       }
       _worker = worker;
-      // Tie the worker's shutdown to this isolate's own exit rather than to
-      // AppLifecycleState.detached: detached fires on view detachment, which
-      // doesn't mean the isolate/engine hosting this worker actually died -
-      // a cached engine (add-to-app) can reattach to a new host view later.
-      // This way the worker keeps running across reattachment and only shuts
-      // down when the isolate that spawned it is actually gone. See #3960
-      // and the native_sdk_integration.dart detach-observer discussion.
-      //
-      // Known gap: if this isolate exits between the `await` above returning
-      // and this call running, the worker is never registered and leaks -
-      // same class of unpreventable race already accepted for close().
+      // A view can detach while its cached engine keeps running. Only owner
+      // exit should stop the worker automatically. See #3960.
       worker.closeOnOwnerExit();
     } catch (exception, stackTrace) {
       internalLogger.error(
@@ -75,12 +66,7 @@ class AndroidCoreWorker {
     }
   }
 
-  // Deliberately not `async`: when the worker has already started (the
-  // common case), this must send its shutdown message synchronously, in the
-  // same call stack as the caller - e.g. an app-lifecycle callback that runs
-  // right before the engine that hosts this isolate is torn down. An `await`
-  // here, even on an already-completed Future, yields to the event loop, and
-  // that turn may never come. See #3960.
+  // Send shutdown immediately when startup has completed.
   FutureOr<void> close() {
     _isClosed = true;
     final startFuture = _startFuture;

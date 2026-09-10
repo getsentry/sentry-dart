@@ -118,22 +118,13 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
-  Future<void> close({bool isExplicit = true}) async {
-    // The core worker isolate manages its own shutdown via
-    // AndroidCoreWorker.closeOnOwnerExit() (tied to this isolate's real
-    // exit), so it survives a detach that isn't terminal - e.g. a cached
-    // engine reattaching to a new host view. Only force it closed here on a
-    // genuine explicit close (isExplicit: false is NativeSdkIntegration's
-    // detach observer). Started synchronously (not awaited) so its shutdown
-    // message is sent within the caller's own call stack rather than after
-    // a microtask hop - see the comment on AndroidCoreWorker.close().
-    // Awaited afterwards only so this method's own Future doesn't complete
-    // early.
-    final coreWorkerClosed = isExplicit ? _coreWorker?.close() : null;
+  Future<void> close() async {
+    // Start worker shutdown before awaiting replay cleanup.
+    final coreWorkerClosed = _coreWorker?.close();
     await _replayRecorder?.stop();
     await coreWorkerClosed;
     _setNativeReplay(null);
-    return super.close(isExplicit: isExplicit);
+    return super.close();
   }
 
   @override

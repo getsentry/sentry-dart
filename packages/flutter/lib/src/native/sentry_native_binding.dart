@@ -12,14 +12,7 @@ import 'native_app_start.dart';
 abstract class SentryNativeBinding {
   FutureOr<void> init(Hub hub);
 
-  /// [isExplicit] distinguishes a direct, application-triggered close (e.g.
-  /// `Sentry.close()`) from one triggered by the engine hosting this binding
-  /// merely detaching from its host view - which doesn't necessarily mean
-  /// the engine is gone for good (see NativeSdkIntegration's detach
-  /// observer). Implementations that own resources safe to keep running
-  /// across such a detach (e.g. Android's core JNI worker isolate) should
-  /// only tear them down when [isExplicit] is true.
-  FutureOr<void> close({bool isExplicit = true});
+  FutureOr<void> close();
 
   FutureOr<NativeAppStart?> fetchNativeAppStart();
 

@@ -52,7 +52,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> close({bool isExplicit = true}) {
+  FutureOr<void> close() {
     tryCatchSync('close', () {
       _binding.close();
     });

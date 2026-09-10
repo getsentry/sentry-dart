@@ -107,7 +107,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> close({bool isExplicit = true}) {
+  FutureOr<void> close() {
     if (!_nativeSdkAutoInitialized) {
       return null;
     }
