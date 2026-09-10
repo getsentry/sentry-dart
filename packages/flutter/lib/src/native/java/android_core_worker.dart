@@ -52,6 +52,9 @@ class AndroidCoreWorker {
         return;
       }
       _worker = worker;
+      // A view can detach while its cached engine keeps running. Only owner
+      // exit should stop the worker automatically. See #3960.
+      worker.closeOnOwnerExit();
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Failed to start Android core worker',
@@ -63,11 +66,19 @@ class AndroidCoreWorker {
     }
   }
 
-  FutureOr<void> close() async {
+  // Send shutdown immediately when startup has completed.
+  FutureOr<void> close() {
     _isClosed = true;
-    await _startFuture;
-    _worker?.close();
-    _worker = null;
+    final startFuture = _startFuture;
+    if (startFuture == null) {
+      _worker?.close();
+      _worker = null;
+      return null;
+    }
+    return startFuture.then((_) {
+      _worker?.close();
+      _worker = null;
+    });
   }
 
   void captureEnvelope(

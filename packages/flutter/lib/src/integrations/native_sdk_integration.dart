@@ -4,6 +4,7 @@ import 'package:sentry/sentry.dart';
 
 import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
+import '../utils/internal_logger.dart';
 
 Integration<SentryFlutterOptions> createSdkIntegration(
     SentryNativeBinding native) {
@@ -16,6 +17,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 
   SentryFlutterOptions? _options;
   final SentryNativeBinding _native;
+  Future<void>? _closeFuture;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -29,10 +31,9 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
       await _native.init(hub);
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {
-      options.log(
-        SentryLevel.fatal,
+      internalLogger.fatal(
         'nativeSdkIntegration failed to be installed',
-        exception: exception,
+        error: exception,
         stackTrace: stackTrace,
       );
       if (_options?.automatedTestMode ?? false) {
@@ -42,20 +43,20 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
   }
 
   @override
-  Future<void> close() async {
-    if (_options?.autoInitializeNativeSdk == true) {
-      try {
-        await _native.close();
-      } catch (exception, stackTrace) {
-        _options?.log(
-          SentryLevel.fatal,
-          'nativeSdkIntegration failed to be closed',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options?.automatedTestMode ?? false) {
-          rethrow;
-        }
+  Future<void> close() => _closeFuture ??= _closeNative();
+
+  Future<void> _closeNative() async {
+    // Android starts its worker even when native SDK initialization is disabled.
+    try {
+      await _native.close();
+    } catch (exception, stackTrace) {
+      internalLogger.fatal(
+        'nativeSdkIntegration failed to be closed',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_options?.automatedTestMode ?? false) {
+        rethrow;
       }
     }
   }

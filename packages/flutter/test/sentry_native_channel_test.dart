@@ -500,6 +500,27 @@ void main() {
 
         verifyZeroInteractions(channel);
       });
+
+      if (!mockPlatform.isAndroid) {
+        test('does not close the native SDK when init was never called',
+            () async {
+          await sut.close();
+
+          verifyNever(channel.invokeMethod('closeNativeSdk'));
+        });
+
+        test('closes the native SDK after init ran', () async {
+          when(channel.invokeMethod('initNativeSdk', any))
+              .thenAnswer((_) => Future.value());
+          when(channel.invokeMethod('closeNativeSdk'))
+              .thenAnswer((_) => Future.value());
+
+          await sut.init(MockHub());
+          await sut.close();
+
+          verify(channel.invokeMethod('closeNativeSdk')).called(1);
+        });
+      }
     });
   }
 

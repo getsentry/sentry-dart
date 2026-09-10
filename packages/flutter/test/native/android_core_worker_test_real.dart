@@ -11,6 +11,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 import 'package:sentry_flutter/src/native/java/android_core_worker.dart';
 
+import '../mocks.dart';
+
 void main() {
   group('AndroidCoreWorker host behavior', () {
     test('logs when sending envelopes in main isolate', () {
@@ -110,6 +112,29 @@ void main() {
             e.$2.contains('Failed to start Android core worker')),
         isTrue,
       );
+    });
+
+    test('close completes synchronously once started', () async {
+      late ReceivePort inbox;
+      Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
+        inbox = ReceivePort();
+        addTearDown(inbox.close);
+        final replies = ReceivePort();
+        addTearDown(replies.close);
+        return Worker(inbox.sendPort, replies);
+      }
+
+      final worker = AndroidCoreWorker(defaultTestOptions(), spawn: fakeSpawn);
+      await worker.start();
+
+      final result = worker.close();
+
+      expect(result, isNull,
+          reason:
+              'close() must return synchronously (not a pending Future) once '
+              'the worker has started, so its shutdown send cannot be '
+              'deferred past a microtask boundary that may never run.');
+      expect(await inbox.first, '_shutdown_');
     });
 
     test('close waits for in-flight start', () async {
