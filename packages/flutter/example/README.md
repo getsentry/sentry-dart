@@ -21,6 +21,18 @@ You need to install [Flutter](https://flutter.dev/docs/get-started/install) in
 order to run this sample. Once you have Flutter installed you can run it via
 `flutter run`.
 
+## Manual Replay demo
+
+On Android or iOS, run `flutter run --dart-define=MANUAL_REPLAY=true`
+and open **Manual Replay** from the home screen. This sets both automatic
+replay sample rates to zero for the app run. Without the flag, the example
+keeps its usual automatic sampling configuration.
+
+Try opt-in recording, pause/resume around dummy input, or buffering recent
+activity and sending it with **Send replay**. Flushing continues recording;
+use **Stop** when finished. Switching scenarios or going back stops replay.
+The activity log reports API completion, not confirmed recording or upload.
+
 You should see something like this:
 
 <img src="img/ios_simulator.png" />

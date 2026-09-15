@@ -14,6 +14,8 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 bool isIntegrationTest = false;
 
+const manualReplay = bool.fromEnvironment('MANUAL_REPLAY');
+
 Future<void> execute(String method) async {
   await _methodChannel.invokeMethod(method);
 }
