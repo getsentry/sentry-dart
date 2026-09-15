@@ -99,8 +99,8 @@ Future<void> setupSentry(
     options.navigatorKey = config.navigatorKey;
     options.traceLifecycle = SentryTraceLifecycle.stream;
 
-    options.replay.sessionSampleRate = config.manualReplay ? 0.0 : 1.0;
-    options.replay.onErrorSampleRate = config.manualReplay ? 0.0 : 1.0;
+    options.replay.sessionSampleRate = 1.0;
+    options.replay.onErrorSampleRate = 1.0;
     options.replay.networkDetailAllowUrls.add(config.exampleUrl);
     options.replay.networkRequestHeaders.add('foo');
 
