@@ -10,6 +10,7 @@ import 'screens/app_start_workload_screen.dart';
 import 'screens/events_screen.dart';
 import 'screens/logs_screen.dart';
 import 'screens/metrics_screen.dart';
+import 'screens/manual_replay_screen.dart';
 import 'screens/other_screen.dart';
 import 'screens/performance_screen.dart';
 import 'theme_provider.dart';
@@ -115,6 +116,16 @@ class HomeScreen extends StatelessWidget {
                       onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const OtherScreen()),
+                      ),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.video_camera_back,
+                      label: 'Manual Replay',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManualReplayScreen(),
+                        ),
                       ),
                     ),
                   ],

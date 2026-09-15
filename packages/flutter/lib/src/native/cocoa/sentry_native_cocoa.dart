@@ -11,6 +11,7 @@ import 'cocoa_replay_recorder.dart';
 class SentryNativeCocoa extends SentryNativeChannel {
   CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
+  Hub? _hub;
 
   SentryNativeCocoa(super.options);
 
@@ -22,9 +23,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    // We only need these when replay is enabled (session or error capture)
-    // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.replay.isEnabled) {
+    _hub = hub;
+    if (supportsReplay) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':
@@ -62,6 +62,21 @@ class SentryNativeCocoa extends SentryNativeChannel {
     final replayId = await super.captureReplay();
     _replayId = replayId;
     return replayId;
+  }
+
+  @override
+  Future<void> stopReplay() async {
+    try {
+      await super.stopReplay();
+    } finally {
+      // iOS reports replay IDs only through the screenshot provider, which goes
+      // quiet once recording stops. Android has `replayStopped` for this.
+      _replayId = null;
+      _hub?.configureScope((s) {
+        // ignore: invalid_use_of_internal_member
+        s.replayId = null;
+      });
+    }
   }
 
   @override

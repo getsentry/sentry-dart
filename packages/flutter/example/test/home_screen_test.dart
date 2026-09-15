@@ -20,6 +20,7 @@ void main() {
         expect(find.text('Sentry Flutter Example'), findsOneWidget);
         expect(find.text('Errors'), findsOneWidget);
         expect(find.text('Performance'), findsOneWidget);
+        expect(find.text('Manual Replay'), findsOneWidget);
         expect(
           tester.getTopLeft(find.text('App-start workloads')).dy,
           greaterThan(600),

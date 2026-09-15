@@ -1,5 +1,18 @@
 # Changelog
 
+## 10.0.0-alpha.5
+
+### Features
+
+#### Flutter
+
+- Unsampled errors affect release health by @buenaflor in [#4008](https://github.com/getsentry/sentry-dart/pull/4008)
+- Unhandled Flutter errors do not mark sessions as crashed but unhandled instead by @buenaflor in [#4007](https://github.com/getsentry/sentry-dart/pull/4007)
+
+### Internal Changes
+
+- (deps) Bump Android 8.55.0, Cocoa 9.27.0 by @buenaflor in [#4006](https://github.com/getsentry/sentry-dart/pull/4006)
+
 ## 10.0.0-alpha.4
 
 ### Features

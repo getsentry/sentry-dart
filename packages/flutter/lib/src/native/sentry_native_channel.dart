@@ -426,6 +426,25 @@ class SentryNativeChannel
   }
 
   @override
+  FutureOr<void> startReplay() => channel.invokeMethod('startReplay');
+
+  @override
+  FutureOr<void> startReplayBuffering() =>
+      channel.invokeMethod('startReplayBuffering');
+
+  @override
+  FutureOr<void> pauseReplay() => channel.invokeMethod('pauseReplay');
+
+  @override
+  FutureOr<void> resumeReplay() => channel.invokeMethod('resumeReplay');
+
+  @override
+  FutureOr<void> stopReplay() => channel.invokeMethod('stopReplay');
+
+  @override
+  FutureOr<void> flushReplay() => channel.invokeMethod('flushReplay');
+
+  @override
   FutureOr<void> captureSession() {
     _logNotSupported('capturing session');
   }
