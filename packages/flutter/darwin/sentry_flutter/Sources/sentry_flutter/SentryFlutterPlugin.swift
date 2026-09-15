@@ -147,15 +147,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "nativeCrash":
             crash()
 
-        case "captureReplay":
-#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-            SentrySDK.internal.replay.capture()
-            result(SentrySDK.internal.replay.replayId)
-#else
-            result(nil)
-#endif
-
-        case "startReplay", "startReplayBuffering", "pauseReplay", "resumeReplay", "stopReplay", "flushReplay":
+        case "captureReplay", "startReplay", "startReplayBuffering", "pauseReplay",
+             "resumeReplay", "stopReplay", "flushReplay":
             controlReplay(call.method, result: result)
 
         case "setTrace":
@@ -173,6 +166,10 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
         let replay = SentrySDK.internal.replay
         switch method {
+        case "captureReplay":
+            replay.capture()
+            result(replay.replayId)
+            return
         case "startReplay":
             replay.start()
         case "startReplayBuffering":
@@ -189,7 +186,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             break
         }
 #endif
-        result("")
+        result(nil)
     }
 
     // swiftlint:disable:next cyclomatic_complexity
