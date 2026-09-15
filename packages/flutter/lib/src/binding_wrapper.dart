@@ -101,12 +101,16 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   @override
   void drawFrame() {
     final recorder = _appStartRecorder;
+    if (recorder == null) {
+      super.drawFrame();
+      return;
+    }
     var succeeded = false;
     try {
       super.drawFrame();
       succeeded = true;
     } finally {
-      recorder?.endFrame(deferred: !sendFramesToEngine, succeeded: succeeded);
+      recorder.endFrame(deferred: !sendFramesToEngine, succeeded: succeeded);
     }
   }
 

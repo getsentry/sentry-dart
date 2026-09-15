@@ -70,9 +70,9 @@ class StandaloneAppStartHandler {
       );
       return;
     }
-    final recorder = AppStartRecorder(clock: options.clock);
-    _recorder = recorder;
     if (binding is SentryWidgetsBindingMixin) {
+      final recorder = AppStartRecorder(clock: options.clock);
+      _recorder = recorder;
       _recordingBinding = binding;
       binding.startAppStartRecording(recorder);
     }
