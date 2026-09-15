@@ -304,6 +304,36 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> startReplay() {
+    _logNotSupported('starting replay');
+  }
+
+  @override
+  FutureOr<void> startReplayBuffering() {
+    _logNotSupported('starting replay buffering');
+  }
+
+  @override
+  FutureOr<void> pauseReplay() {
+    _logNotSupported('pausing replay');
+  }
+
+  @override
+  FutureOr<void> resumeReplay() {
+    _logNotSupported('resuming replay');
+  }
+
+  @override
+  FutureOr<void> stopReplay() {
+    _logNotSupported('stopping replay');
+  }
+
+  @override
+  FutureOr<void> flushReplay() {
+    _logNotSupported('flushing replay');
+  }
+
+  @override
   FutureOr<void> startSession({bool ignoreDuration = false}) {
     _logNotSupported('starting session');
   }

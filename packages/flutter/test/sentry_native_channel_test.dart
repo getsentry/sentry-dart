@@ -3,6 +3,7 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -482,6 +483,49 @@ void main() {
           verify(channel.invokeMethod<String>('captureReplay'));
           expect(returnedId, sentryId);
         }
+      });
+
+      test('manual replay controls invoke native methods', () async {
+        if (mockPlatform.isAndroid) {
+          return;
+        }
+        final controls = <String, FutureOr<void> Function()>{
+          'startReplay': sut.startReplay,
+          'startReplayBuffering': sut.startReplayBuffering,
+          'pauseReplay': sut.pauseReplay,
+          'resumeReplay': sut.resumeReplay,
+          'stopReplay': sut.stopReplay,
+          'flushReplay': sut.flushReplay,
+        };
+
+        for (final entry in controls.entries) {
+          when(
+            channel.invokeMethod<void>(entry.key),
+          ).thenAnswer((_) => Future.value());
+
+          await entry.value();
+
+          verify(channel.invokeMethod<void>(entry.key)).called(1);
+        }
+      });
+
+      test('stopReplay clears the last known replay ID', () async {
+        if (!mockPlatform.isIOS) {
+          return;
+        }
+        when(
+          channel.invokeMethod<String>('captureReplay', any),
+        ).thenAnswer((_) => Future.value(SentryId.newId().toString()));
+        when(
+          channel.invokeMethod<void>('stopReplay'),
+        ).thenAnswer((_) => Future.value());
+
+        await sut.captureReplay();
+        expect(sut.replayId, isNotNull);
+
+        await sut.stopReplay();
+
+        expect(sut.replayId, isNull);
       });
 
       test(

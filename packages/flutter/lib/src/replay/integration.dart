@@ -20,56 +20,70 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
   Hub? _hub;
   SentryFlutterOptions? _options;
   SdkLifecycleCallback<OnBeforeSendEvent>? _onBeforeSendEventCallback;
+  void Function()? _removeOnBuildListener;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     final replayOptions = options.replay;
-    if (_native.supportsReplay && replayOptions.isEnabled) {
-      options.sdk.addIntegration(replayIntegrationName);
-      _hub = hub;
-      _options = options;
+    if (!_native.supportsReplay) {
+      return null;
+    }
 
-      // We only need the hook when error-replay capture is enabled. It runs in
-      // the send phase rather than as an event processor so that an event
-      // dropped by sampling or `beforeSend` cannot flush the buffered replay.
-      if ((replayOptions.onErrorSampleRate ?? 0) > 0) {
-        final callback = _onEventAboutToBeSent;
-        options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(callback);
-        _onBeforeSendEventCallback = callback;
+    options.sdk.addIntegration(replayIntegrationName);
+
+    _hub = hub;
+    _options = options;
+
+    // We only need the hook when error-replay capture is enabled. It runs in
+    // the send phase rather than as an event processor so that an event
+    // dropped by sampling or `beforeSend` cannot flush the buffered replay.
+    if ((replayOptions.onErrorSampleRate ?? 0) > 0) {
+      final callback = _onEventAboutToBeSent;
+      options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(callback);
+      _onBeforeSendEventCallback = callback;
+    }
+
+    _removeOnBuildListener?.call();
+    _removeOnBuildListener = SentryScreenshotWidget.onBuild((
+      status,
+      prevStatus,
+    ) {
+      // Skip config update if the difference is negligible (e.g., due to floating-point precision)
+      // e.g a size.height of 200.00001 and 200.001 could be treated as equals
+      if (prevStatus != null && status.matches(prevStatus)) {
+        return true;
       }
 
-      SentryScreenshotWidget.onBuild((status, prevStatus) {
-        // Skip config update if the difference is negligible (e.g., due to floating-point precision)
-        // e.g a size.height of 200.00001 and 200.001 could be treated as equals
-        if (prevStatus != null && status.matches(prevStatus)) {
-          return true;
-        }
+      _native.setReplayConfig(
+        ReplayConfig(
+          windowWidth: status.size?.width ?? 0.0,
+          windowHeight: status.size?.height ?? 0.0,
+          width:
+              replayOptions.quality.resolutionScalingFactor *
+              (status.size?.width ?? 0.0),
+          height:
+              replayOptions.quality.resolutionScalingFactor *
+              (status.size?.height ?? 0.0),
+        ),
+      );
 
-        _native.setReplayConfig(
-          ReplayConfig(
-            windowWidth: status.size?.width ?? 0.0,
-            windowHeight: status.size?.height ?? 0.0,
-            width:
-                replayOptions.quality.resolutionScalingFactor *
-                (status.size?.width ?? 0.0),
-            height:
-                replayOptions.quality.resolutionScalingFactor *
-                (status.size?.height ?? 0.0),
-          ),
-        );
-
-        return true;
-      });
-    }
+      return true;
+    });
   }
 
   @override
   void close() {
+    _removeOnBuildListener?.call();
+    _removeOnBuildListener = null;
+
     final callback = _onBeforeSendEventCallback;
     if (callback != null) {
       _options?.lifecycleRegistry.removeCallback<OnBeforeSendEvent>(callback);
       _onBeforeSendEventCallback = null;
     }
+
+    _hub = null;
+    _options = null;
   }
 
   Future<void> _onEventAboutToBeSent(OnBeforeSendEvent lifecycleEvent) async {
@@ -87,6 +101,9 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
   }
 
   Future<void> captureReplay() async {
+    // A replay started through `SentryFlutter.replay` is only sent by
+    // `SentryFlutter.replay.flush()`; error and feedback events send the buffer
+    // only for the configured sample rates.
     if (_native.supportsReplay && _options?.replay.isEnabled == true) {
       final replayId = await _native.captureReplay();
       _hub?.configureScope((scope) {

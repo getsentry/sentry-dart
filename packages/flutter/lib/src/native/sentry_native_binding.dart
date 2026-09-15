@@ -64,6 +64,18 @@ abstract class SentryNativeBinding {
 
   FutureOr<SentryId> captureReplay();
 
+  FutureOr<void> startReplay();
+
+  FutureOr<void> startReplayBuffering();
+
+  FutureOr<void> pauseReplay();
+
+  FutureOr<void> resumeReplay();
+
+  FutureOr<void> stopReplay();
+
+  FutureOr<void> flushReplay();
+
   /// Starts a new session.
   ///
   /// Note: This is used on web platforms. Android and iOS handle sessions
