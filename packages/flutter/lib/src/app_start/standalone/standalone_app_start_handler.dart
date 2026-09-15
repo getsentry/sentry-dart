@@ -1,14 +1,18 @@
 // ignore_for_file: invalid_use_of_internal_member, experimental_member_use
 
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
+import '../../binding_wrapper.dart';
+import '../app_start_frame_recorder.dart';
 import '../../native/sentry_native_binding.dart';
 import '../../navigation/root_route.dart';
 import '../../utils/internal_logger.dart';
+import '../app_start_frame_phases.dart';
 import '../app_start_timing.dart';
 import 'app_start_display_tracking.dart';
 import 'app_start_trace.dart';
@@ -29,6 +33,14 @@ class StandaloneAppStartHandler {
   /// Set by [_prepareTimeToDisplay]; `null` until then.
   AppStartDisplayTracking? _displayTracking;
 
+  AppStartFrameRecorder? _recorder;
+  SentryWidgetsBindingMixin? _recordingBinding;
+  AppStartFramePhases? _firstFrame;
+  DateTime? _startupStart;
+  bool _nativeReady = false;
+  bool _receivedFirstFrame = false;
+  bool _recordedFirstFrame = false;
+
   bool _started = false;
   bool _closed = false;
 
@@ -46,6 +58,30 @@ class StandaloneAppStartHandler {
     }
     _started = true;
     _options = options;
+
+    final binding = options.bindingUtils.instance;
+    // A pending raster callback is not proof that rendering has not started.
+    // Requiring an unattached root rejects the submission-to-callback window.
+    if (binding == null ||
+        binding.rootElement != null ||
+        binding.firstFrameRasterized) {
+      internalLogger.info(
+        'Skipping app start: first-frame observation began too late',
+      );
+      return;
+    }
+    final recorder = AppStartFrameRecorder(clock: options.clock);
+    _recorder = recorder;
+    if (binding is SentryWidgetsBindingMixin) {
+      _recordingBinding = binding;
+      binding.startAppStartRecording(recorder);
+    }
+    try {
+      _registerFirstFrameCallback(options);
+    } catch (_) {
+      _stopObservation();
+      rethrow;
+    }
 
     AppStartTiming? timing;
     try {
@@ -98,8 +134,15 @@ class StandaloneAppStartHandler {
 
     // Runs even without a trace, so the initial route still reports its
     // display timings.
-    _prepareTimeToDisplay(options, timing?.processStartTimestamp);
-    _registerFirstFrameCallback(options);
+    _startupStart = timing?.processStartTimestamp;
+    _prepareTimeToDisplay(options, _startupStart);
+    _nativeReady = true;
+    if (options.standaloneAppStartTrace == null) {
+      _detachFrameworkObserver();
+      _recorder?.cancel();
+      _recorder = null;
+    }
+    unawaited(_recordFirstFrame(options));
   }
 
   AppStartTrace? _createAppStartTrace(
@@ -127,7 +170,10 @@ class StandaloneAppStartHandler {
   /// Stops exposing the trace once it can no longer be extended, so a reported
   /// app start does not stay reachable — and retained — for the process
   /// lifetime.
-  void _unpublishTrace() => _options?.standaloneAppStartTrace = null;
+  void _unpublishTrace() {
+    _options?.standaloneAppStartTrace = null;
+    _stopObservation();
+  }
 
   String _resolveStartScreenName() => resolveRouteDisplayName(_startScreenName);
 
@@ -144,43 +190,80 @@ class StandaloneAppStartHandler {
   }
 
   void _registerFirstFrameCallback(SentryFlutterOptions options) {
-    void callback(List<FrameTiming> timings) async {
-      if (_closed || timings.isEmpty) return;
-
-      final endTimestamp = DateTime.fromMicrosecondsSinceEpoch(
-        timings.first.timestampInMicroseconds(FramePhase.rasterFinishWallTime),
-      );
-
-      _removeTimingsCallback();
-
-      try {
-        // Freeze the launch screen during first frame before enrichment;
-        // the user may navigate away before the app-start span finishes.
-        _startScreenName ??= SentryNavigatorObserver.currentRouteName;
-
-        options.standaloneAppStartTrace?.recordFirstFrame(endTimestamp);
-
-        // Keep display tracking last because TTFD may wait for its timeout.
-        await _displayTracking?.record(endTimestamp);
-      } catch (error, stackTrace) {
-        internalLogger.error(
-          'Failed to record standalone app-start first frame',
-          error: error,
-          stackTrace: stackTrace,
-        );
-        if (options.automatedTestMode) {
-          rethrow;
-        }
+    void callback(List<FrameTiming> timings) {
+      if (_closed ||
+          _timingsCallback == null ||
+          _receivedFirstFrame ||
+          timings.isEmpty) {
+        return;
       }
+      _receivedFirstFrame = true;
+      _firstFrame = AppStartFramePhases.tryResolve(timings.first);
+      _recorder?.freeze();
+      _detachFrameworkObserver();
+      _removeTimingsCallback();
+      _startScreenName ??= SentryNavigatorObserver.currentRouteName;
+      unawaited(_recordFirstFrame(options));
     }
 
     _timingsCallback = callback;
     _frameCallbackHandler.addTimingsCallback(callback);
   }
 
+  Future<void> _recordFirstFrame(SentryFlutterOptions options) async {
+    if (_closed ||
+        !_nativeReady ||
+        !_receivedFirstFrame ||
+        _recordedFirstFrame) {
+      return;
+    }
+    _recordedFirstFrame = true;
+    final firstFrame = _firstFrame;
+    _firstFrame = null;
+    if (firstFrame == null) {
+      _recorder?.cancel();
+      _recorder = null;
+      return;
+    }
+    try {
+      final startupStart = _startupStart;
+      final phases = startupStart == null
+          ? firstFrame
+          : _recorder?.resolve(startupStart, firstFrame) ?? firstFrame;
+      _recorder?.cancel();
+      _recorder = null;
+      options.standaloneAppStartTrace?.recordFirstFrame(
+        firstFrame.rasterFinish,
+        framePhases: phases,
+      );
+      await _displayTracking?.record(firstFrame.rasterFinish);
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'Failed to record standalone app-start first frame',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      if (options.automatedTestMode) rethrow;
+    }
+  }
+
+  void _detachFrameworkObserver() {
+    final recorder = _recorder;
+    if (recorder != null) _recordingBinding?.stopAppStartRecording(recorder);
+    _recordingBinding = null;
+  }
+
+  void _stopObservation() {
+    _removeTimingsCallback();
+    _detachFrameworkObserver();
+    _recorder?.cancel();
+    _recorder = null;
+    _firstFrame = null;
+  }
+
   Future<void> close() async {
     _closed = true;
-    _removeTimingsCallback();
+    _stopObservation();
     // Read before closing: a trace that reports while closing unpublishes
     // itself, and this teardown still has to await the one it started with.
     final trace = _options?.standaloneAppStartTrace;

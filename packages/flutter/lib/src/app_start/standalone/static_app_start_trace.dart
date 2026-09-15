@@ -8,6 +8,8 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../utils/internal_logger.dart';
+import '../app_start_frame_phases.dart';
+import '../app_start_span_kind.dart';
 import '../app_start_timing.dart';
 import 'app_start_trace.dart';
 import 'app_start_vitals.dart';
@@ -16,7 +18,9 @@ import 'app_start_vitals.dart';
 final class StaticAppStartTrace implements AppStartTrace {
   final AppStartTiming _timing;
   final SentryTracer _root;
-  final ISentrySpan _firstFrameRenderSpan;
+
+  final ISentrySpan _sentryInitSpan;
+
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
   final void Function()? _onCompleted;
@@ -24,6 +28,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   final _StaticAppStartExtensionLifecycle _extensionLifecycle;
   Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
+  DateTime? _initEndTimestamp;
   AppStartTraceState _state = AppStartTraceState.open;
 
   // One way flag — never cleared — once the final deadline starts draining
@@ -39,7 +44,7 @@ final class StaticAppStartTrace implements AppStartTrace {
     required Hub hub,
     required this._timing,
     required SentryTracer root,
-    required this._firstFrameRenderSpan,
+    required this._sentryInitSpan,
     required this._finalDeadlineTimestamp,
     required this._startScreenNameProvider,
     required this._onCompleted,
@@ -87,25 +92,26 @@ final class StaticAppStartTrace implements AppStartTrace {
       );
       if (createdRoot is! SentryTracer) return null;
       root = createdRoot;
+      root.pauseIdleTimeout();
 
       if (root.samplingDecision?.sampled != true) {
         return _abort(root, 'root span is not sampled');
       }
 
-      final firstFrameRenderSpan = root.startChild(
-        SentrySpanOperations.appStartFirstFrameRender,
-        description: appStartFirstFrameRenderDescription,
+      final sentryInitSpan = root.startChild(
+        AppStartSpanKind.sentryInit.operation,
+        description: AppStartSpanKind.sentryInit.description,
         startTimestamp: timing.sentrySetupTimestamp,
       )..origin = SentryTraceOrigins.autoAppStart;
-      if (firstFrameRenderSpan.samplingDecision?.sampled != true) {
-        return _abort(root, 'first-frame span is not sampled');
+      if (sentryInitSpan.samplingDecision?.sampled != true) {
+        return _abort(root, 'sentry-init span is not sampled');
       }
 
       trace = StaticAppStartTrace._(
         hub: hub,
         timing: timing,
         root: root,
-        firstFrameRenderSpan: firstFrameRenderSpan,
+        sentryInitSpan: sentryInitSpan,
         finalDeadlineTimestamp: createdAt
             .add(standaloneAppStartFinalTimeout)
             .toUtc(),
@@ -149,7 +155,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       logAppStartExtensionRefusal('the app start already ended');
       return false;
     }
-    if (_firstFrameRenderSpan.endTimestamp != null) {
+    if (_endTimestamp != null) {
       logAppStartExtensionRefusal('the first frame already rendered');
       return false;
     }
@@ -174,13 +180,63 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordFirstFrame(DateTime endTimestamp) {
+  void recordInitEnd(DateTime endTimestamp) {
+    if (_isFinalizingOrTerminal || _initEndTimestamp != null) return;
+    _initEndTimestamp = endTimestamp.toUtc();
+    unawaited(_finishSpan(_sentryInitSpan, endTimestamp: _initEndTimestamp));
+    if (_endTimestamp != null) {
+      _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
+    }
+  }
+
+  @override
+  void recordFirstFrame(
+    DateTime endTimestamp, {
+    AppStartFramePhases? framePhases,
+  }) {
     if (_state.isTerminal || _endTimestamp != null) return;
     // Set before finishing the child: finishing the last outstanding child can
     // complete the tracer, which enriches from _endTimestamp.
     _endTimestamp = endTimestamp.toUtc();
     _root.scheduleFinish();
-    unawaited(_finishSpan(_firstFrameRenderSpan, endTimestamp: _endTimestamp));
+
+    if (framePhases != null) {
+      for (final interval in framePhases.frameSpans) {
+        final child = _startSpineChild(
+          interval.kind,
+          startTimestamp: interval.startTimestamp,
+        );
+        interval.data.forEach(child.setData);
+        unawaited(_finishSpan(child, endTimestamp: interval.endTimestamp));
+      }
+      if (framePhases.omittedBuilds > 0) {
+        _root.setData(
+          SemanticAttributesConstants.appStartOmittedBuilds,
+          framePhases.omittedBuilds,
+        );
+      }
+    }
+    if (_initEndTimestamp != null) {
+      _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
+    }
+  }
+
+  /// Creates a measured child directly under the startup root.
+  ISentrySpan _startSpineChild(
+    AppStartSpanKind kind, {
+    required DateTime startTimestamp,
+  }) {
+    final span = _root.startChild(
+      kind.operation,
+      description: kind.description,
+      startTimestamp: startTimestamp,
+    )..origin = SentryTraceOrigins.autoAppStart;
+
+    final threadName = kind.threadName;
+    if (threadName != null) {
+      span.setData(SemanticAttributesConstants.threadName, threadName);
+    }
+    return span;
   }
 
   @override

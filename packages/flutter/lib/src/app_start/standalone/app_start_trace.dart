@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import '../../utils/internal_logger.dart';
+import '../app_start_frame_phases.dart';
 
 @internal
 const standaloneAppStartRootName = 'App Start';
@@ -99,11 +100,17 @@ abstract interface class AppStartTrace {
   /// root open on their own until they end or the root hits its deadline.
   Future<void> finishExtended(DateTime endTimestamp);
 
-  /// Ends the first-frame span and marks [endTimestamp] as the app-start end.
-  ///
-  /// The root is not ended here — it stays open for its idle timeout so late
-  /// children can still attach.
-  void recordFirstFrame(DateTime endTimestamp);
+  /// Records the end of SDK setup, before entering the app runner when one
+  /// is supplied. An app runner may still perform application work before
+  /// calling `runApp`.
+  void recordInitEnd(DateTime endTimestamp);
+
+  /// Emits resolved framework/raster intervals and records the automatic
+  /// startup endpoint. The root retains its existing idle/extension lifecycle.
+  void recordFirstFrame(
+    DateTime endTimestamp, {
+    AppStartFramePhases? framePhases,
+  });
 
   /// Abandons the trace on SDK close, flushing whatever is still open.
   Future<void> close();

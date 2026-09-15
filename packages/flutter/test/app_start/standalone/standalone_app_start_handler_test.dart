@@ -16,8 +16,10 @@ import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 import '../../fake_frame_callback_handler.dart';
 import '../../mocks.dart';
 import '../../mocks.mocks.dart';
+import '../first_frame_timing.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('$StandaloneAppStartHandler', () {
     late Fixture fixture;
 
@@ -29,6 +31,117 @@ void main() {
       await fixture.getSut().close();
       fixture.setCurrentRouteName(null);
     });
+
+    test(
+      'registers timing observation before awaiting native startup data',
+      () async {
+        final pending = Completer<NativeAppStart?>();
+        when(
+          fixture.native.fetchNativeAppStart(),
+        ).thenAnswer((_) => pending.future);
+        final started = fixture.startLifecycle();
+        final registered = fixture.frameHandler.timingsCallback != null;
+        pending.complete(fixture.nativeAppStart());
+        await started;
+        expect(registered, isTrue);
+      },
+    );
+
+    test(
+      'does not wait for full display when replaying an early frame',
+      () async {
+        fixture.options.enableTimeToFullDisplayTracing = true;
+        final pending = Completer<NativeAppStart?>();
+        when(
+          fixture.native.fetchNativeAppStart(),
+        ).thenAnswer((_) => pending.future);
+        var initialized = false;
+        final started = fixture.startLifecycle().then(
+          (_) => initialized = true,
+        );
+        fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+        pending.complete(fixture.nativeAppStart());
+        await pumpEventQueue(times: 10);
+        try {
+          expect(initialized, isTrue);
+        } finally {
+          await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+            spanId: fixture.options.timeToDisplayTracker.transactionId,
+          );
+          await started;
+        }
+      },
+    );
+
+    test(
+      'retains the first timing received while native data is pending',
+      () async {
+        final pending = Completer<NativeAppStart?>();
+        when(
+          fixture.native.fetchNativeAppStart(),
+        ).thenAnswer((_) => pending.future);
+        final started = fixture.startLifecycle();
+        fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+        pending.complete(fixture.nativeAppStart());
+        await started;
+        await pumpEventQueue();
+        final raster = fixture.appStartRoots.single.tracer.children.singleWhere(
+          (span) => span.context.description == 'Frame Rasterization',
+        );
+        expect(raster.endTimestamp, fixture.firstFrameEnd);
+      },
+    );
+
+    test(
+      'rejects initialization after attachment even before raster reporting',
+      () async {
+        fixture.binding.rootElement = RootElement(
+          const RootWidget(child: SizedBox()),
+        );
+        expect(fixture.binding.firstFrameRasterized, isFalse);
+        await fixture.startLifecycle();
+        expect(fixture.appStartRoots, isEmpty);
+        expect(fixture.frameHandler.timingsCallback, isNull);
+        verifyNever(fixture.native.fetchNativeAppStart());
+      },
+    );
+
+    test('rejects initialization after first rasterization', () async {
+      fixture.binding.firstFrameRasterized = true;
+      await fixture.startLifecycle();
+      expect(fixture.appStartRoots, isEmpty);
+      expect(fixture.frameHandler.timingsCallback, isNull);
+    });
+
+    test('ignores a queued timing callback after trace completion', () async {
+      await fixture.startLifecycle();
+      final callback = fixture.frameHandler.timingsCallback!;
+      final root = fixture.appStartRoots.single.tracer;
+      await root.finish();
+      callback([fixture.frameTiming]);
+      await pumpEventQueue();
+      expect(
+        root.children.map((span) => span.context.description),
+        isNot(contains('Frame Rasterization')),
+      );
+    });
+
+    test(
+      'records first timing only once even when its callback is retained',
+      () async {
+        await fixture.startLifecycle();
+        final callback = fixture.frameHandler.timingsCallback!;
+        callback([fixture.frameTiming, fixture.frameTiming]);
+        callback([fixture.frameTiming]);
+        await pumpEventQueue();
+        expect(
+          fixture.appStartRoots.single.tracer.children.where(
+            (span) => span.context.description == 'Frame Rasterization',
+          ),
+          hasLength(1),
+        );
+      },
+    );
 
     test('installs standalone trace before the first frame', () async {
       await fixture.startLifecycle();
@@ -360,14 +473,14 @@ void main() {
       fixture.options.enableTimeToFullDisplayTracing = true;
       await fixture.startLifecycle();
       final root = fixture.appStartRoots.single.tracer;
-      final firstFrameSpan = root.children.singleWhere(
-        (span) =>
-            span.context.operation ==
-            SentrySpanOperations.appStartFirstFrameRender,
-      );
 
       fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
       await pumpEventQueue(times: 10);
+
+      final firstFrameSpan = root.children.singleWhere(
+        (span) =>
+            span.context.operation == SentrySpanOperations.appStartFrameRaster,
+      );
 
       try {
         expect(firstFrameSpan.finished, isTrue);
@@ -459,6 +572,8 @@ void main() {
 class Fixture {
   final frameHandler = _RecordingFrameCallbackHandler();
   final native = MockSentryNativeBinding();
+  final binding = _BindingState();
+  final bindingWrapper = MockBindingWrapper();
   final transport = _FakeTransport();
   final rootSpans = <SentrySpan>[];
   final streamRootSpans = <IdleRecordingSentrySpanV2>[];
@@ -475,13 +590,17 @@ class Fixture {
   final processStart = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
   final setup = DateTime.fromMillisecondsSinceEpoch(200, isUtc: true);
   final snapshot = DateTime.fromMillisecondsSinceEpoch(300, isUtc: true);
-  final frameTiming = FrameTiming(
-    vsyncStart: 400000,
-    buildStart: 400000,
-    buildFinish: 400000,
-    rasterStart: 400000,
-    rasterFinish: 400000,
-    rasterFinishWallTime: 400000,
+  late final firstVsync = DateTime.fromMillisecondsSinceEpoch(350, isUtc: true);
+  late final firstFrameEnd = DateTime.fromMillisecondsSinceEpoch(
+    400,
+    isUtc: true,
+  );
+  late final frameTiming = fakeFirstFrameTiming(
+    vsyncStart: firstVsync,
+    buildStart: DateTime.fromMillisecondsSinceEpoch(360, isUtc: true),
+    buildFinish: DateTime.fromMillisecondsSinceEpoch(380, isUtc: true),
+    rasterStart: DateTime.fromMillisecondsSinceEpoch(390, isUtc: true),
+    rasterFinish: firstFrameEnd,
   );
 
   late final options = defaultTestOptions(platform: MockPlatform.android())
@@ -501,6 +620,8 @@ class Fixture {
   );
 
   Fixture() {
+    options.bindingUtils = bindingWrapper;
+    when(bindingWrapper.instance).thenReturn(binding);
     SentryFlutter.sentrySetupStartTime = setup;
     options.lifecycleRegistry.registerCallback<OnSpanStart>((event) {
       if (event.span is SentrySpan && (event.span as SentrySpan).isRootSpan) {
@@ -538,7 +659,15 @@ class Fixture {
         nativeSpanTimes: {},
       );
 
-  Future<void> startLifecycle() => getSut().start(options);
+  /// Installs the handler, then records the init-end anchor the way
+  /// `SentryFlutter.init` does once its integrations have run.
+  ///
+  /// Without it `Sentry Initialization` never closes, so the root would keep
+  /// waiting for it instead of reporting at the first frame.
+  Future<void> startLifecycle() async {
+    await getSut().start(options);
+    options.standaloneAppStartTrace?.recordInitEnd(snapshot);
+  }
 
   Future<_ExtendedScenarioSnapshot> runExtendedScenario() async {
     final extensionStart = processStart.add(const Duration(milliseconds: 250));
@@ -764,4 +893,14 @@ class _RecordingFrameCallbackHandler extends FakeFrameCallbackHandler {
     registeredTimingsCallbacks.remove(callback);
     super.removeTimingsCallback(callback);
   }
+}
+
+// Only the observation eligibility getters are exercised at this seam.
+class _BindingState implements WidgetsBinding {
+  @override
+  RootElement? rootElement;
+  @override
+  bool firstFrameRasterized = false;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

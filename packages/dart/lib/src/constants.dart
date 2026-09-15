@@ -4,10 +4,12 @@ import 'package:meta/meta.dart';
 class SentrySpanOperations {
   static const String appStart = 'app.start';
   static const String appStartExtended = 'app.start.extended';
-  static const String appStartPluginRegistration =
-      'app.start.plugin_registration';
-  static const String appStartSentrySetup = 'app.start.sentry_setup';
-  static const String appStartFirstFrameRender = 'app.start.first_frame_render';
+  static const String appStartPreInit = 'app.start.pre_init';
+  static const String appStartSentryInit = 'app.start.sentry_init';
+  static const String appStartRootWidgetAttachment =
+      'app.start.root_widget_attachment';
+  static const String appStartFrameBuild = 'app.start.frame_build';
+  static const String appStartFrameRaster = 'app.start.frame_raster';
   static const String appStartNative = 'app.start.native';
   static const String uiLoad = 'ui.load';
   static const String uiTimeToInitialDisplay = 'ui.load.initial_display';
@@ -67,6 +69,9 @@ class SentryFeatures {
 /// for more details.
 @internal
 abstract class SemanticAttributesConstants {
+  static const appStartFrameWarmUp = 'app.start.frame.warm_up';
+  static const appStartFrameDeferred = 'app.start.frame.deferred';
+  static const appStartOmittedBuilds = 'app.start.frame_builds.omitted';
   SemanticAttributesConstants._();
 
   /// The source of the segment span name.

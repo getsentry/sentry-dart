@@ -4,6 +4,8 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../utils/internal_logger.dart';
+import '../app_start_frame_phases.dart';
+import '../app_start_span_kind.dart';
 import '../app_start_timing.dart';
 import 'app_start_trace.dart';
 import 'app_start_vitals.dart';
@@ -13,19 +15,22 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final Hub _hub;
   final AppStartTiming _timing;
   final IdleRecordingSentrySpanV2 _root;
-  final RecordingSentrySpanV2 _firstFrameRenderSpan;
+
+  final RecordingSentrySpanV2 _sentryInitSpan;
+
   final String Function() _startScreenNameProvider;
   final void Function()? _onCompleted;
 
   final _StreamingAppStartExtensionLifecycle _extensionLifecycle;
   DateTime? _endTimestamp;
+  DateTime? _initEndTimestamp;
   AppStartTraceState _state = AppStartTraceState.open;
 
   StreamingAppStartTrace._({
     required Hub hub,
     required AppStartTiming timing,
     required IdleRecordingSentrySpanV2 root,
-    required this._firstFrameRenderSpan,
+    required this._sentryInitSpan,
     required this._startScreenNameProvider,
     required this._onCompleted,
   }) : _hub = hub,
@@ -77,25 +82,26 @@ final class StreamingAppStartTrace implements AppStartTrace {
       );
       if (createdRoot is! IdleRecordingSentrySpanV2) return null;
       root = createdRoot;
+      root.pauseIdleTimeout();
 
-      final firstFrameRenderSpan = hub.startInactiveSpan(
-        appStartFirstFrameRenderDescription,
+      final sentryInitSpan = hub.startInactiveSpan(
+        AppStartSpanKind.sentryInit.description,
         parentSpan: root,
         startTimestamp: timing.sentrySetupTimestamp,
         attributes: _childAttributes(
           timing,
-          SentrySpanOperations.appStartFirstFrameRender,
+          AppStartSpanKind.sentryInit.operation,
         ),
       );
-      if (firstFrameRenderSpan is! RecordingSentrySpanV2) {
-        return _abort(root, reason: 'first-frame span is not recording');
+      if (sentryInitSpan is! RecordingSentrySpanV2) {
+        return _abort(root, reason: 'sentry-init span is not recording');
       }
 
       final trace = StreamingAppStartTrace._(
         hub: hub,
         timing: timing,
         root: root,
-        firstFrameRenderSpan: firstFrameRenderSpan,
+        sentryInitSpan: sentryInitSpan,
         startScreenNameProvider: startScreenNameProvider,
         onCompleted: onCompleted,
       );
@@ -161,7 +167,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       logAppStartExtensionRefusal('the app start already ended');
       return false;
     }
-    if (_firstFrameRenderSpan.isEnded) {
+    if (_endTimestamp != null) {
       logAppStartExtensionRefusal('the first frame already rendered');
       return false;
     }
@@ -186,14 +192,70 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordFirstFrame(DateTime endTimestamp) {
+  void recordInitEnd(DateTime endTimestamp) {
+    if (_state.isTerminal || _initEndTimestamp != null) return;
+    _initEndTimestamp = endTimestamp.toUtc();
+    _sentryInitSpan.end(endTimestamp: _initEndTimestamp);
+    if (_endTimestamp != null) {
+      _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
+    }
+  }
+
+  @override
+  void recordFirstFrame(
+    DateTime endTimestamp, {
+    AppStartFramePhases? framePhases,
+  }) {
     if (_state.isTerminal || _endTimestamp != null) return;
     _endTimestamp = endTimestamp.toUtc();
     _root.setAttribute(
       SemanticAttributesConstants.appVitalsStartScreen,
       SentryAttribute.string(_startScreenNameProvider()),
     );
-    _firstFrameRenderSpan.end(endTimestamp: _endTimestamp);
+
+    if (framePhases != null) {
+      for (final interval in framePhases.frameSpans) {
+        final child = _startSpineChild(
+          interval.kind,
+          startTimestamp: interval.startTimestamp,
+        );
+        interval.data.forEach(
+          (key, value) => child?.setAttribute(key, SentryAttribute.bool(value)),
+        );
+        child?.end(endTimestamp: interval.endTimestamp);
+      }
+      if (framePhases.omittedBuilds > 0) {
+        _root.setAttribute(
+          SemanticAttributesConstants.appStartOmittedBuilds,
+          SentryAttribute.int(framePhases.omittedBuilds),
+        );
+      }
+    }
+    if (_initEndTimestamp != null) {
+      _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
+    }
+  }
+
+  /// Creates a measured child directly under the startup root.
+  RecordingSentrySpanV2? _startSpineChild(
+    AppStartSpanKind kind, {
+    required DateTime startTimestamp,
+  }) {
+    final threadName = kind.threadName;
+    final span = _hub.startInactiveSpan(
+      kind.description,
+      parentSpan: _root,
+      startTimestamp: startTimestamp,
+      attributes: {..._childAttributes(_timing, kind.operation)},
+    );
+    if (span is! RecordingSentrySpanV2) return null;
+    if (threadName != null) {
+      span.setAttribute(
+        SemanticAttributesConstants.threadName,
+        SentryAttribute.string(threadName),
+      );
+    }
+    return span;
   }
 
   void _processSpan(OnProcessSpan event) {

@@ -8,6 +8,11 @@ const String exampleDsn =
 /// This is an exampleUrl that will be used to demonstrate how http requests are captured.
 const String exampleUrl = 'https://jsonplaceholder.typicode.com/todos/';
 
+// Deliberately expensive startup workloads. Rebuild and cold-launch after changes.
+const bool prolongRootWidgetAttachment = true;
+const bool prolongFrameBuild = true;
+const bool prolongFrameRasterization = true;
+
 const _methodChannel = MethodChannel('example.flutter.sentry.io');
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

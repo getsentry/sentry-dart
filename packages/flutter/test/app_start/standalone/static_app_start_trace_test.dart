@@ -3,13 +3,17 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/app_start/app_start_frame_phases.dart';
+import 'package:sentry_flutter/src/app_start/app_start_span_kind.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/app_start/standalone/static_app_start_trace.dart';
 
 import '../../mocks.dart';
 import '../../mocks.mocks.dart';
+import '../first_frame_timing.dart';
 
 void main() {
   group('$StaticAppStartTrace', () {
@@ -19,11 +23,34 @@ void main() {
       fixture = Fixture();
     });
 
+    test('retains app start when the span budget is exhausted', () {
+      fakeAsync((async) {
+        fixture.options.maxSpans = 2;
+        final sut = fixture.getSut()!;
+        sut.recordInitEnd(fixture.initEnd);
+        async.flushMicrotasks();
+        async.elapse(const Duration(seconds: 4));
+        expect(fixture.root!.tracer.finished, isFalse);
+        sut.recordFirstFrame(
+          fixture.naturalEnd,
+          framePhases: fixture.framePhases,
+        );
+        async.flushMicrotasks();
+        async.elapse(const Duration(seconds: 4));
+        expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
+        expect(fixture.root!.tracer.endTimestamp, fixture.naturalEnd);
+        expect(
+          fixture.child('Sentry Initialization').endTimestamp,
+          fixture.initEnd,
+        );
+      });
+    });
+
     test('encodes the standalone root after natural end', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!.tracer;
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await pumpEventQueue(times: 10);
       await root.finish(endTimestamp: fixture.rootFinish);
 
@@ -46,7 +73,7 @@ void main() {
         final child = extension.startChild('extended child') as SentrySpan;
         screen = 'launch';
 
-        sut.recordFirstFrame(fixture.naturalEnd);
+        fixture.completeStartup(sut);
         await pumpEventQueue(times: 10);
         await sut.finishExtended(
           fixture.processStart.add(const Duration(milliseconds: 600)),
@@ -74,7 +101,7 @@ void main() {
       fixture.getSut();
       final root = fixture.root!.tracer;
 
-      expect(root.children, hasLength(3));
+      expect(root.children, hasLength(2));
       expect(
         root.children.map((span) => span.context.parentSpanId),
         everyElement(root.context.spanId),
@@ -101,7 +128,7 @@ void main() {
 
     test('rejects extension after the first frame', () {
       final sut = fixture.getSut()!;
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
 
       expect(
         sut.tryExtend(fixture.processStart.add(const Duration(seconds: 1))),
@@ -183,7 +210,7 @@ void main() {
       final extension = sut.extendedSpan as SentrySpan;
       final child = extension.startChild('extended child') as SentrySpan;
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await extension.finish(
         endTimestamp: extensionStart.add(const Duration(seconds: 1)),
       );
@@ -326,7 +353,7 @@ void main() {
       final extension = sut.extendedSpan as SentrySpan;
       final child = extension.startChild('extended child') as SentrySpan;
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await sut.finishExtended(extensionStart.add(const Duration(seconds: 1)));
       expect(child.finished, isFalse);
 
@@ -348,7 +375,7 @@ void main() {
       );
       expect(sut.tryExtend(extensionStart), isTrue);
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await sut.finishExtended(extensionEnd);
       await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
       await pumpEventQueue(times: 10);
@@ -367,11 +394,12 @@ void main() {
       expect(sut.tryExtend(extensionStart), isTrue);
 
       await sut.finishExtended(extensionEnd);
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
       await pumpEventQueue(times: 10);
 
       expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
+      expect(fixture.root!.tracer.endTimestamp, fixture.naturalEnd);
     });
 
     test(
@@ -400,7 +428,7 @@ void main() {
         await sut.finishExtended(laterEnd);
         onSpanFinishBlocker.complete();
         await directFinish;
-        sut.recordFirstFrame(fixture.naturalEnd);
+        fixture.completeStartup(sut);
         await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
         await pumpEventQueue(times: 10);
 
@@ -421,7 +449,7 @@ void main() {
       );
       expect(sut.tryExtend(extensionStart), isTrue);
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await sut.finishExtended(extensionEnd);
       final unrelated = fixture.root!.tracer.startChild(
         'unrelated child',
@@ -444,37 +472,124 @@ void main() {
       expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 600);
     });
 
-    test('uses the first frame render operation for its span', () {
+    test('opens Sentry Initialization when init starts', () {
       fixture.getSut();
-      final firstFrame = fixture.root!.tracer.children.firstWhere(
-        (span) => span.context.description == 'First frame render',
-      );
+      final sentryInit = fixture.child('Sentry Initialization');
 
-      expect(firstFrame.context.operation, 'app.start.first_frame_render');
+      expect(sentryInit.context.operation, 'app.start.sentry_init');
+      expect(sentryInit.origin, 'auto.app.start');
+      expect(sentryInit.startTimestamp, fixture.sentrySetup);
+      expect(sentryInit.finished, isFalse);
     });
 
-    test('sets app-start origin on its first-frame render span', () {
-      fixture.getSut();
-      final firstFrame = fixture.root!.tracer.children.firstWhere(
-        (span) => span.context.description == 'First frame render',
-      );
-
-      expect(firstFrame.origin, 'auto.app.start');
-    });
-
-    test('keeps the root open after recording the first frame', () async {
+    test('emits measured framework and raster phases as siblings', () async {
       final sut = fixture.getSut()!;
-      final root = fixture.root!.tracer;
-      final firstFrame = root.children.firstWhere(
-        (span) => span.context.description == 'First frame render',
-      );
-
-      sut.recordFirstFrame(fixture.naturalEnd);
+      final measured = fixture.framePhases.withFrameworkSpans([
+        AppStartFrameSpan(
+          kind: AppStartSpanKind.rootWidgetAttachment,
+          startTimestamp: fixture.sentrySetup,
+          endTimestamp: fixture.initEnd,
+        ),
+        AppStartFrameSpan(
+          kind: AppStartSpanKind.frameBuild,
+          startTimestamp: fixture.initEnd,
+          endTimestamp: fixture.framePhases.rasterStart,
+          data: {'app.start.frame.deferred': true},
+        ),
+      ], omittedBuilds: 2);
+      sut.recordInitEnd(fixture.initEnd);
+      sut.recordFirstFrame(fixture.naturalEnd, framePhases: measured);
       await pumpEventQueue(times: 10);
-
-      expect(firstFrame.finished, isTrue);
-      expect(root.finished, isFalse);
+      final build = fixture.child('Frame Build');
+      expect(build.context.parentSpanId, fixture.root!.context.spanId);
+      expect(build.data['app.start.frame.deferred'], isTrue);
+      expect(fixture.child('Root Widget Attachment').data['thread.name'], 'ui');
+      expect(build.data['thread.name'], 'ui');
+      expect(
+        fixture.child('Frame Rasterization').data['thread.name'],
+        'raster',
+      );
+      expect(
+        fixture.child('Frame Rasterization').startTimestamp,
+        fixture.framePhases.rasterStart,
+      );
+      expect(
+        fixture.child('Frame Rasterization').endTimestamp,
+        fixture.naturalEnd,
+      );
+      expect(fixture.root!.tracer.data['app.start.frame_builds.omitted'], 2);
+      expect(
+        fixture.root!.tracer.children.map((span) => span.context.description),
+        isNot(contains('First Frame Render')),
+      );
+      expect(
+        fixture.root!.tracer.children.map((span) => span.context.description),
+        isNot(contains('Post-Init Startup')),
+      );
     });
+
+    test('does not fabricate build spans from engine timing', () async {
+      final sut = fixture.getSut()!;
+      fixture.completeStartup(sut);
+      await pumpEventQueue(times: 10);
+      expect(
+        fixture.root!.tracer.children.map((span) => span.context.description),
+        isNot(contains('Frame Build')),
+      );
+      expect(fixture.child('Frame Rasterization').finished, isTrue);
+      expect(fixture.root!.tracer.finished, isFalse);
+    });
+
+    test(
+      'keeps the raster measurement when initialization ends later',
+      () async {
+        final sut = fixture.getSut()!;
+        final lateInit = fixture.naturalEnd.add(
+          const Duration(milliseconds: 20),
+        );
+        sut.recordFirstFrame(
+          fixture.naturalEnd,
+          framePhases: fixture.framePhases,
+        );
+        sut.recordInitEnd(lateInit);
+        await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
+        await pumpEventQueue(times: 10);
+        expect(fixture.child('Sentry Initialization').endTimestamp, lateInit);
+        expect(fixture.root!.tracer.endTimestamp, lateInit);
+        expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
+      },
+    );
+
+    test(
+      'ends initialization independently of first-frame reporting',
+      () async {
+        final sut = fixture.getSut()!;
+        sut.recordFirstFrame(
+          fixture.naturalEnd,
+          framePhases: fixture.framePhases,
+        );
+        sut.recordInitEnd(fixture.initEnd);
+        await pumpEventQueue(times: 10);
+        expect(
+          fixture.child('Sentry Initialization').endTimestamp,
+          fixture.initEnd,
+        );
+      },
+    );
+
+    test(
+      'omits frame detail when no trustworthy timing is available',
+      () async {
+        final sut = fixture.getSut()!;
+        sut.recordInitEnd(fixture.initEnd);
+        sut.recordFirstFrame(fixture.naturalEnd);
+        await pumpEventQueue(times: 10);
+        expect(
+          fixture.root!.tracer.children.map((span) => span.context.description),
+          isNot(contains('Frame Rasterization')),
+        );
+      },
+    );
 
     test('omits duration and retains metadata at deadline', () async {
       fixture.getSut();
@@ -512,7 +627,7 @@ void main() {
     });
 
     test(
-      'returns null and finishes the root when first frame render span creation fails',
+      'returns null and finishes the root when sentry init span creation fails',
       () async {
         final trace = fixture.getSut(
           timing: fixture.withFirstFrameBeforeProcessStart(),
@@ -571,7 +686,7 @@ void main() {
         isTrue,
       );
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       // Closing force-ends the extension long after the first frame, and that
       // endpoint must not become the app start's.
       fixture.clock = fixture.processStart.add(const Duration(seconds: 5));
@@ -638,7 +753,7 @@ void main() {
       final root = fixture.root!.tracer;
 
       await tester.pump(Duration(seconds: 2));
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await tester.pump(Duration(seconds: 1));
 
       expect(root.finished, isFalse);
@@ -656,7 +771,7 @@ void main() {
       final root = fixture.root!.tracer;
 
       await tester.pump(Duration(seconds: 4));
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await tester.pump();
 
       expect(root.finished, isFalse);
@@ -673,9 +788,7 @@ void main() {
     ) async {
       fixture.getSut();
       final root = fixture.root!.tracer;
-      final firstFrame = root.children.firstWhere(
-        (span) => span.context.description == 'First frame render',
-      );
+      final sentryInit = fixture.child('Sentry Initialization');
       final deadline = fixture.createdAt.add(Duration(seconds: 30));
 
       await tester.pump(Duration(seconds: 30));
@@ -684,9 +797,9 @@ void main() {
       expect(root.finished, isTrue);
       expect(root.status, SpanStatus.deadlineExceeded());
       expect(root.endTimestamp, deadline);
-      expect(firstFrame.finished, isTrue);
-      expect(firstFrame.status, SpanStatus.deadlineExceeded());
-      expect(firstFrame.endTimestamp, deadline);
+      expect(sentryInit.finished, isTrue);
+      expect(sentryInit.status, SpanStatus.deadlineExceeded());
+      expect(sentryInit.endTimestamp, deadline);
       expect(root.measurements['app_start_cold'], isNull);
     });
 
@@ -747,7 +860,7 @@ void main() {
       var extensionAccepted = false;
       fixture.options.lifecycleRegistry.registerCallback<OnSpanFinish>((event) {
         if (event.span.context.operation ==
-            SentrySpanOperations.appStartFirstFrameRender) {
+            SentrySpanOperations.appStartFrameRaster) {
           extensionAccepted = sut.tryExtend(fixture.createdAt);
         }
       });
@@ -885,7 +998,7 @@ void main() {
           isTrue,
         );
 
-        sut.recordFirstFrame(fixture.naturalEnd);
+        fixture.completeStartup(sut);
         await tester.pump(Duration(seconds: 30));
         await tester.pump();
 
@@ -908,7 +1021,7 @@ void main() {
       final extension = sut.extendedSpan as SentrySpan;
       extension.startChild('extended child');
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await sut.finishExtended(
         fixture.processStart.add(const Duration(milliseconds: 600)),
       );
@@ -980,21 +1093,13 @@ void main() {
 
       await trace.close();
 
-      verify(mockFixture.firstFrameBarrier.finish()).called(1);
-      // Both phase children were finished while the trace was built, so the
-      // flush must leave them alone.
+      verify(mockFixture.sentryInitChild.finish()).called(1);
+      // The phase child was finished while the trace was built, so the flush
+      // must leave it alone.
       verify(
-        mockFixture.pluginRegistrationChild.finish(
-          endTimestamp: mockFixture.pluginRegistration,
-        ),
+        mockFixture.preInitChild.finish(endTimestamp: mockFixture.sentrySetup),
       ).called(1);
-      verify(
-        mockFixture.sentrySetupChild.finish(
-          endTimestamp: mockFixture.sentrySetup,
-        ),
-      ).called(1);
-      verifyNever(mockFixture.pluginRegistrationChild.finish());
-      verifyNever(mockFixture.sentrySetupChild.finish());
+      verifyNever(mockFixture.preInitChild.finish());
       verify(mockFixture.root.finish()).called(1);
     });
 
@@ -1046,13 +1151,7 @@ void main() {
         await pumpEventQueue(times: 10);
 
         expect(trace, isNull);
-        verify(mockFixture.firstFrameBarrier.finish()).called(1);
-        verify(
-          mockFixture.pluginRegistrationChild.finish(
-            endTimestamp: mockFixture.pluginRegistration,
-          ),
-        ).called(1);
-        verifyNever(mockFixture.pluginRegistrationChild.finish());
+        verify(mockFixture.sentryInitChild.finish()).called(1);
         verify(mockFixture.root.finish()).called(1);
       },
     );
@@ -1077,38 +1176,56 @@ class Fixture {
     ..traceLifecycle = SentryTraceLifecycle.static
     ..clock = () => clock;
   late final hub = Hub(options);
-  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
   late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
-    pluginRegistrationTimestamp: pluginRegistration,
     sentrySetupTimestamp: sentrySetup,
     phases: [
       AppStartPhase(
-        kind: AppStartPhaseKind.pluginRegistration,
-        description: 'App start to plugin registration',
+        kind: AppStartPhaseKind.preInit,
+        description: 'Pre-Init Startup',
         startTimestamp: processStart,
-        endTimestamp: pluginRegistration,
-      ),
-      AppStartPhase(
-        kind: AppStartPhaseKind.sentrySetup,
-        description: 'Before Sentry Init Setup',
-        startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,
       ),
     ],
   );
 
+  late final initEnd = processStart.add(Duration(milliseconds: 220));
+
+  /// The first frame's phases, laid out so it starts well after [initEnd] and
+  /// rasterizes at [naturalEnd].
+  late final framePhases = AppStartFramePhases.tryResolve(
+    fakeFirstFrameTiming(
+      vsyncStart: processStart.add(Duration(milliseconds: 250)),
+      buildStart: processStart.add(Duration(milliseconds: 260)),
+      buildFinish: processStart.add(Duration(milliseconds: 300)),
+      rasterStart: processStart.add(Duration(milliseconds: 310)),
+      rasterFinish: naturalEnd,
+    ),
+  )!;
+
   AppStartTiming withFirstFrameBeforeProcessStart() {
     return AppStartTiming(
       type: timing.type,
       processStartTimestamp: processStart,
-      pluginRegistrationTimestamp: pluginRegistration,
       sentrySetupTimestamp: processStart.subtract(Duration(milliseconds: 1)),
       phases: timing.phases,
     );
   }
+
+  /// Drives the whole startup in production order: init ends, then the first
+  /// frame renders. `Sentry Initialization` stays open until init ends, so a
+  /// test that only records the frame never lets the root report.
+  void completeStartup(StaticAppStartTrace sut) {
+    sut.recordInitEnd(initEnd);
+    sut.recordFirstFrame(naturalEnd, framePhases: framePhases);
+  }
+
+  /// The root child named [description], which must be unique.
+  SentrySpan child(String description) => root!.tracer.children.singleWhere(
+    (span) => span.context.description == description,
+  );
 
   StaticAppStartTrace? getSut({
     AppStartTiming? timing,
@@ -1136,7 +1253,6 @@ class _FakeTransport implements Transport {
 
 class MockCreationFixture {
   final processStart = DateTime.utc(2024, 1, 1, 12);
-  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
   late final createdAt = processStart.add(Duration(milliseconds: 300));
 
@@ -1144,32 +1260,25 @@ class MockCreationFixture {
 
   late final hub = MockHub();
   late final root = MockSentryTracer();
-  late final firstFrameBarrier = MockSentrySpan();
-  late final pluginRegistrationChild = MockSentrySpan();
-  late final sentrySetupChild = MockSentrySpan();
+  late final sentryInitChild = MockSentrySpan();
+  late final preInitChild = MockSentrySpan();
 
   late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
-    pluginRegistrationTimestamp: pluginRegistration,
     sentrySetupTimestamp: sentrySetup,
     phases: [
       AppStartPhase(
-        kind: AppStartPhaseKind.pluginRegistration,
-        description: 'App start to plugin registration',
+        kind: AppStartPhaseKind.preInit,
+        description: 'Pre-Init Startup',
         startTimestamp: processStart,
-        endTimestamp: pluginRegistration,
-      ),
-      AppStartPhase(
-        kind: AppStartPhaseKind.sentrySetup,
-        description: 'Before Sentry Init Setup',
-        startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,
       ),
     ],
   );
 
   MockCreationFixture() {
+    when(root.pauseIdleTimeout()).thenAnswer((_) {});
     when(hub.options).thenReturn(options);
     when(
       hub.startTransactionWithContext(
@@ -1193,16 +1302,12 @@ class MockCreationFixture {
     ).thenAnswer((_) async {});
 
     when(
-      firstFrameBarrier.samplingDecision,
+      sentryInitChild.samplingDecision,
     ).thenReturn(SentryTracesSamplingDecision(true));
 
     // `finished` has to follow `finish()` the way a real span does, otherwise
     // the `!finished` guards in the trace are never exercised.
-    for (final child in [
-      firstFrameBarrier,
-      pluginRegistrationChild,
-      sentrySetupChild,
-    ]) {
+    for (final child in [sentryInitChild, preInitChild]) {
       var finished = false;
       when(child.finished).thenAnswer((_) => finished);
       when(
@@ -1215,11 +1320,7 @@ class MockCreationFixture {
         finished = true;
       });
     }
-    when(root.children).thenReturn([
-      firstFrameBarrier,
-      pluginRegistrationChild,
-      sentrySetupChild,
-    ]);
+    when(root.children).thenReturn([sentryInitChild, preInitChild]);
 
     when(
       root.startChild(
@@ -1230,10 +1331,8 @@ class MockCreationFixture {
     ).thenAnswer((invocation) {
       final operation = invocation.positionalArguments.first as String;
       return switch (operation) {
-        SentrySpanOperations.appStartFirstFrameRender => firstFrameBarrier,
-        SentrySpanOperations.appStartPluginRegistration =>
-          pluginRegistrationChild,
-        SentrySpanOperations.appStartSentrySetup => sentrySetupChild,
+        SentrySpanOperations.appStartSentryInit => sentryInitChild,
+        SentrySpanOperations.appStartPreInit => preInitChild,
         _ => throw StateError('Unexpected child operation: $operation'),
       };
     });
@@ -1262,10 +1361,8 @@ class MockPhaseCreationFailureFixture extends MockCreationFixture {
     ).thenAnswer((invocation) {
       final operation = invocation.positionalArguments.first as String;
       return switch (operation) {
-        SentrySpanOperations.appStartFirstFrameRender => firstFrameBarrier,
-        SentrySpanOperations.appStartPluginRegistration =>
-          pluginRegistrationChild,
-        SentrySpanOperations.appStartSentrySetup => throw StateError(
+        SentrySpanOperations.appStartSentryInit => sentryInitChild,
+        SentrySpanOperations.appStartPreInit => throw StateError(
           'failed to start $operation',
         ),
         _ => throw StateError('Unexpected child operation: $operation'),

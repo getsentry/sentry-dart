@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/app_start/app_start_frame_phases.dart';
 import 'package:sentry_flutter/src/app_start/standalone/app_start_trace.dart';
 
 final class TestAppStartTrace implements AppStartTrace {
@@ -14,6 +15,7 @@ final class TestAppStartTrace implements AppStartTrace {
   /// past its first frame, or winding down.
   final bool refuseExtension;
 
+  DateTime? initEnd;
   DateTime? extensionStart;
   DateTime? extensionEnd;
 
@@ -36,7 +38,15 @@ final class TestAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordFirstFrame(DateTime endTimestamp) {}
+  void recordInitEnd(DateTime endTimestamp) {
+    initEnd = endTimestamp;
+  }
+
+  @override
+  void recordFirstFrame(
+    DateTime endTimestamp, {
+    AppStartFramePhases? framePhases,
+  }) {}
 
   @override
   Future<void> close() async {}

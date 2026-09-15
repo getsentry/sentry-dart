@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
+import 'app_start/app_start_frame_recorder.dart';
 import 'utils/internal_logger.dart';
 
 /// The methods and properties are modelled after the the real binding class.
@@ -72,6 +73,43 @@ typedef FrameTimingCallback =
     void Function(DateTime startTimestamp, DateTime endTimestamp);
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
+  AppStartFrameRecorder? _appStartRecorder;
+
+  @internal
+  void startAppStartRecording(AppStartFrameRecorder recorder) {
+    _appStartRecorder = recorder;
+  }
+
+  @internal
+  void stopAppStartRecording(AppStartFrameRecorder recorder) {
+    if (identical(_appStartRecorder, recorder)) _appStartRecorder = null;
+  }
+
+  @override
+  void attachToBuildOwner(RootWidget widget) {
+    final recorder = _appStartRecorder;
+    recorder?.beginAttachment(hasRoot: rootElement != null);
+    var succeeded = false;
+    try {
+      super.attachToBuildOwner(widget);
+      succeeded = true;
+    } finally {
+      recorder?.endAttachment(succeeded: succeeded);
+    }
+  }
+
+  @override
+  void drawFrame() {
+    final recorder = _appStartRecorder;
+    var succeeded = false;
+    try {
+      super.drawFrame();
+      succeeded = true;
+    } finally {
+      recorder?.endFrame(deferred: !sendFramesToEngine, succeeded: succeeded);
+    }
+  }
+
   FrameTimingCallback? _onDelayedFrame;
   FrameTimingCallback? get onDelayedFrame => _onDelayedFrame;
   Duration? _expectedFrameDuration;
@@ -112,6 +150,8 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
+    final recorder = _appStartRecorder;
+    recorder?.beginFrame(warmUp: rawTimeStamp == null);
     if (_isTrackingActive) {
       try {
         _stopwatch.start();
@@ -122,7 +162,12 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
       }
     }
 
-    super.handleBeginFrame(rawTimeStamp);
+    try {
+      super.handleBeginFrame(rawTimeStamp);
+    } catch (_) {
+      recorder?.endFrame(deferred: !sendFramesToEngine, succeeded: false);
+      rethrow;
+    }
   }
 
   @override

@@ -24,6 +24,8 @@ class SentryTracer extends ISentrySpan {
 
   Timer? _autoFinishAfterTimer;
   Duration? _autoFinishAfter;
+  bool _idleTimeoutPaused = false;
+  DateTime? _minimumEndTimestamp;
 
   @visibleForTesting
   Timer? get autoFinishAfterTimer => _autoFinishAfterTimer;
@@ -122,6 +124,11 @@ class SentryTracer extends ISentrySpan {
       if (latestEndTime != null) {
         _rootEndTimestamp = latestEndTime;
       }
+    }
+
+    final minimumEnd = _minimumEndTimestamp;
+    if (minimumEnd != null && _rootEndTimestamp.isBefore(minimumEnd)) {
+      _rootEndTimestamp = minimumEnd;
     }
 
     // the callback should run before because if the span is finished,
@@ -433,7 +440,23 @@ class SentryTracer extends ISentrySpan {
     }
   }
 
+  /// Suspends automatic idle completion while the owner observes startup.
+  void pauseIdleTimeout() {
+    _idleTimeoutPaused = true;
+    _autoFinishAfterTimer?.cancel();
+    _finishStatus = SentryTracerFinishStatus.notFinishing();
+  }
+
+  /// Restarts idle completion after startup observation has finished.
+  void resumeIdleTimeout({DateTime? minimumEndTimestamp}) {
+    _minimumEndTimestamp = minimumEndTimestamp?.toUtc();
+    if (finished) return;
+    _idleTimeoutPaused = false;
+    _scheduleTimer();
+  }
+
   void _scheduleTimer() {
+    if (_idleTimeoutPaused) return;
     final autoFinishAfter = _autoFinishAfter;
     if (autoFinishAfter != null) {
       _autoFinishAfterTimer?.cancel();

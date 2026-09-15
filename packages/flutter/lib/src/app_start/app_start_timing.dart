@@ -10,23 +10,21 @@ import '../utils/internal_logger.dart';
 /// process, OS forking, or unreproducible outliers).
 const _maxAppStartAge = Duration(seconds: 60);
 
+/// Description for everything before `SentryFlutter.init` began.
+///
+/// Deliberately not split at `pluginRegistrationTime`. That timestamp records
+/// when Sentry's *native* plugin happened to be attached, which moves with
+/// plugin ordering and marks no milestone in the app's own startup — so it
+/// bounds no span, and is only used to reject an incoherent payload.
 @internal
-const appStartPluginRegistrationDescription =
-    'App start to plugin registration';
-
-@internal
-const appStartSentrySetupDescription = 'Before Sentry Init Setup';
-
-/// Description for the first-frame phase (end timestamp arrives after parse).
-@internal
-const appStartFirstFrameRenderDescription = 'First frame render';
+const appStartPreInitDescription = 'Pre-Init Startup';
 
 @internal
 enum AppStartType { cold, warm }
 
 /// Which part of the startup timeline a phase covers.
 @internal
-enum AppStartPhaseKind { native, pluginRegistration, sentrySetup }
+enum AppStartPhaseKind { native, preInit }
 
 /// A span-ready app-start phase (native, plugin registration, or setup).
 @internal
@@ -70,17 +68,15 @@ final class AppStartTiming {
   AppStartTiming({
     required this.type,
     required this.processStartTimestamp,
-    required this.pluginRegistrationTimestamp,
     required this.sentrySetupTimestamp,
     required this.phases,
   });
 
   final AppStartType type;
   final DateTime processStartTimestamp;
-  final DateTime pluginRegistrationTimestamp;
   final DateTime sentrySetupTimestamp;
 
-  /// Native + plugin registration + sentry setup phases, ready to become spans.
+  /// Native detail phases plus the pre-init roll-up, ready to become spans.
   final List<AppStartPhase> phases;
 
   Iterable<AppStartPhase> get nativePhases =>
@@ -112,8 +108,8 @@ final class AppStartTiming {
   /// payload is not a coherent timeline — plugin registration before process
   /// start, or setup before plugin registration.
   ///
-  /// [sentrySetupTimestamp] is when Flutter Sentry finished init (Dart-side).
-  /// It ends the "Before Sentry Init Setup" phase.
+  /// [sentrySetupTimestamp] is when `SentryFlutter.init` started (Dart-side).
+  /// It ends the [AppStartPhaseKind.preInit] phase.
   ///
   /// Coherent is not the same as reportable: this only rejects a timeline that
   /// contradicts itself, which needs nothing beyond the payload. Whether the
@@ -139,12 +135,10 @@ final class AppStartTiming {
     return AppStartTiming(
       type: nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
       processStartTimestamp: processStart,
-      pluginRegistrationTimestamp: pluginRegistration,
       sentrySetupTimestamp: setup,
       phases: _buildPhases(
         nativeAppStart: nativeAppStart,
         processStart: processStart,
-        pluginRegistration: pluginRegistration,
         setup: setup,
       ),
     );
@@ -153,20 +147,13 @@ final class AppStartTiming {
   static List<AppStartPhase> _buildPhases({
     required NativeAppStart nativeAppStart,
     required DateTime processStart,
-    required DateTime pluginRegistration,
     required DateTime setup,
   }) => [
     ..._parseNativePhases(nativeAppStart, earliestTimestamp: processStart),
     AppStartPhase(
-      kind: AppStartPhaseKind.pluginRegistration,
-      description: appStartPluginRegistrationDescription,
+      kind: AppStartPhaseKind.preInit,
+      description: appStartPreInitDescription,
       startTimestamp: processStart,
-      endTimestamp: pluginRegistration,
-    ),
-    AppStartPhase(
-      kind: AppStartPhaseKind.sentrySetup,
-      description: appStartSentrySetupDescription,
-      startTimestamp: pluginRegistration,
       endTimestamp: setup,
     ),
   ];
@@ -217,8 +204,6 @@ final class AppStartTiming {
 extension StandaloneAppStartPhaseSpans on AppStartPhaseKind {
   String get operation => switch (this) {
     AppStartPhaseKind.native => SentrySpanOperations.appStartNative,
-    AppStartPhaseKind.pluginRegistration =>
-      SentrySpanOperations.appStartPluginRegistration,
-    AppStartPhaseKind.sentrySetup => SentrySpanOperations.appStartSentrySetup,
+    AppStartPhaseKind.preInit => SentrySpanOperations.appStartPreInit,
   };
 }

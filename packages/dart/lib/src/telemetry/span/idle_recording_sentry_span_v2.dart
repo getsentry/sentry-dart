@@ -27,6 +27,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   /// This flag is set at the start of [_end] to guard against re-entrant calls
   /// while teardown (cancelling timers, finishing descendants) is still in progress.
   bool _isEnding = false;
+  bool _idleTimeoutPaused = false;
   Timer? _idleTimer;
   Timer? _finalTimer;
   late final DateTime _finalDeadlineTimestamp;
@@ -58,6 +59,23 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
     _lifecycleRegistry.registerCallback<OnSpanEndV2>(_onSpanEndEvent);
     _startIdleTimer();
     _startFinalTimer();
+  }
+
+  /// Suspends idle completion without changing the absolute final deadline.
+  @internal
+  void pauseIdleTimeout() {
+    _idleTimeoutPaused = true;
+    _cancelIdleTimer();
+  }
+
+  /// Restarts idle completion once the owner finishes observing startup.
+  @internal
+  void resumeIdleTimeout({DateTime? minimumEndTimestamp}) {
+    if (minimumEndTimestamp != null) {
+      _trackLatestChildEnd(minimumEndTimestamp.toUtc());
+    }
+    _idleTimeoutPaused = false;
+    resetIdleTimer();
   }
 
   void resetIdleTimer() {
@@ -114,6 +132,7 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   }
 
   void _startIdleTimer() {
+    if (_idleTimeoutPaused) return;
     _cancelIdleTimer();
     _idleTimer = Timer(idleTimeout, () {
       _end(_IdleSpanFinishReason.idleTimeout);

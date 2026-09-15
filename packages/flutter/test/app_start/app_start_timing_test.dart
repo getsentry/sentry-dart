@@ -21,6 +21,17 @@ void main() {
       ]);
     });
 
+    test('builds one pre-init phase spanning process start to setup', () {
+      final timing = fixture.parse()!;
+
+      final preInit = timing.phases.singleWhere(
+        (phase) => phase.kind == AppStartPhaseKind.preInit,
+      );
+      expect(preInit.description, 'Pre-Init Startup');
+      expect(preInit.startTimestamp, fixture.processStart);
+      expect(preInit.endTimestamp, fixture.sentrySetup);
+    });
+
     test('returns null when plugin registration precedes process start', () {
       final data = fixture.parse(
         pluginRegistration: fixture.processStart.subtract(
