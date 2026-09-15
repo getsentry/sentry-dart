@@ -1,20 +1,24 @@
+// ignore_for_file: invalid_use_of_internal_member
 import 'dart:ui';
 
 import 'package:meta/meta.dart';
-
-import 'app_start_span_kind.dart';
+import 'package:sentry/sentry.dart';
 
 /// A measured startup interval, ready for either span protocol.
 @internal
-final class AppStartFrameSpan {
-  AppStartFrameSpan({
-    required this.kind,
+final class AppStartRecordedInterval {
+  AppStartRecordedInterval({
+    required this.description,
+    required this.operation,
+    this.threadName,
     required this.startTimestamp,
     required this.endTimestamp,
     Map<String, bool> data = const {},
   }) : data = Map.unmodifiable(data);
 
-  final AppStartSpanKind kind;
+  final String description;
+  final String operation;
+  final String? threadName;
   final DateTime startTimestamp;
   final DateTime endTimestamp;
   final Map<String, bool> data;
@@ -26,30 +30,27 @@ final class AppStartFrameSpan {
 /// Only raster timing is derived from [FrameTiming]; framework work must be
 /// observed at the binding instead.
 @internal
-final class AppStartFramePhases {
-  AppStartFramePhases._({
-    required this.rasterStart,
+final class AppStartResult {
+  AppStartResult._({
     required this.rasterFinish,
-    required List<AppStartFrameSpan> frameSpans,
+    required List<AppStartRecordedInterval> intervals,
     this.omittedBuilds = 0,
-  }) : frameSpans = List.unmodifiable(frameSpans);
+  }) : intervals = List.unmodifiable(intervals);
 
-  final DateTime rasterStart;
   final DateTime rasterFinish;
-  final List<AppStartFrameSpan> frameSpans;
+  final List<AppStartRecordedInterval> intervals;
   final int omittedBuilds;
 
-  AppStartFramePhases withFrameworkSpans(
-    List<AppStartFrameSpan> spans, {
+  AppStartResult withFrameworkIntervals(
+    Iterable<AppStartRecordedInterval> frameworkIntervals, {
     required int omittedBuilds,
-  }) => AppStartFramePhases._(
-    rasterStart: rasterStart,
+  }) => AppStartResult._(
     rasterFinish: rasterFinish,
-    frameSpans: [...spans, ...frameSpans],
+    intervals: [...frameworkIntervals, ...intervals],
     omittedBuilds: omittedBuilds,
   );
 
-  static AppStartFramePhases? tryResolve(FrameTiming timing) {
+  static AppStartResult? tryResolve(FrameTiming timing) {
     final anchor = timing.timestampInMicroseconds(
       FramePhase.rasterFinishWallTime,
     );
@@ -67,12 +68,13 @@ final class AppStartFramePhases {
       isUtc: true,
     );
     final rasterStart = rasterFinish.subtract(Duration(microseconds: duration));
-    return AppStartFramePhases._(
-      rasterStart: rasterStart,
+    return AppStartResult._(
       rasterFinish: rasterFinish,
-      frameSpans: [
-        AppStartFrameSpan(
-          kind: AppStartSpanKind.frameRaster,
+      intervals: [
+        AppStartRecordedInterval(
+          description: 'Frame Rasterization',
+          operation: SentrySpanOperations.appStartFrameRaster,
+          threadName: 'raster',
           startTimestamp: rasterStart,
           endTimestamp: rasterFinish,
         ),

@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import '../../utils/internal_logger.dart';
-import '../app_start_frame_phases.dart';
+import '../app_start_result.dart';
 
 @internal
 const standaloneAppStartRootName = 'App Start';
@@ -109,7 +109,7 @@ abstract interface class AppStartTrace {
   /// startup endpoint. The root retains its existing idle/extension lifecycle.
   void recordFirstFrame(
     DateTime endTimestamp, {
-    AppStartFramePhases? framePhases,
+    AppStartResult? appStartResult,
   });
 
   /// Abandons the trace on SDK close, flushing whatever is still open.

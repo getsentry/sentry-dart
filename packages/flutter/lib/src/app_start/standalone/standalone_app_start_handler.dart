@@ -8,11 +8,11 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../../frame_callback_handler.dart';
 import '../../binding_wrapper.dart';
-import '../app_start_frame_recorder.dart';
+import '../app_start_recorder.dart';
 import '../../native/sentry_native_binding.dart';
 import '../../navigation/root_route.dart';
 import '../../utils/internal_logger.dart';
-import '../app_start_frame_phases.dart';
+import '../app_start_result.dart';
 import '../app_start_timing.dart';
 import 'app_start_display_tracking.dart';
 import 'app_start_trace.dart';
@@ -33,9 +33,9 @@ class StandaloneAppStartHandler {
   /// Set by [_prepareTimeToDisplay]; `null` until then.
   AppStartDisplayTracking? _displayTracking;
 
-  AppStartFrameRecorder? _recorder;
+  AppStartRecorder? _recorder;
   SentryWidgetsBindingMixin? _recordingBinding;
-  AppStartFramePhases? _firstFrame;
+  AppStartResult? _firstFrame;
   DateTime? _startupStart;
   bool _nativeReady = false;
   bool _receivedFirstFrame = false;
@@ -70,7 +70,7 @@ class StandaloneAppStartHandler {
       );
       return;
     }
-    final recorder = AppStartFrameRecorder(clock: options.clock);
+    final recorder = AppStartRecorder(clock: options.clock);
     _recorder = recorder;
     if (binding is SentryWidgetsBindingMixin) {
       _recordingBinding = binding;
@@ -198,7 +198,7 @@ class StandaloneAppStartHandler {
         return;
       }
       _receivedFirstFrame = true;
-      _firstFrame = AppStartFramePhases.tryResolve(timings.first);
+      _firstFrame = AppStartResult.tryResolve(timings.first);
       _recorder?.freeze();
       _detachFrameworkObserver();
       _removeTimingsCallback();
@@ -227,14 +227,14 @@ class StandaloneAppStartHandler {
     }
     try {
       final startupStart = _startupStart;
-      final phases = startupStart == null
+      final appStartResult = startupStart == null
           ? firstFrame
           : _recorder?.resolve(startupStart, firstFrame) ?? firstFrame;
       _recorder?.cancel();
       _recorder = null;
       options.standaloneAppStartTrace?.recordFirstFrame(
         firstFrame.rasterFinish,
-        framePhases: phases,
+        appStartResult: appStartResult,
       );
       await _displayTracking?.record(firstFrame.rasterFinish);
     } catch (error, stackTrace) {

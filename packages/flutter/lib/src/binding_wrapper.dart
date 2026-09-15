@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
-import 'app_start/app_start_frame_recorder.dart';
+import 'app_start/app_start_recorder.dart';
 import 'utils/internal_logger.dart';
 
 /// The methods and properties are modelled after the the real binding class.
@@ -73,15 +73,15 @@ typedef FrameTimingCallback =
     void Function(DateTime startTimestamp, DateTime endTimestamp);
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
-  AppStartFrameRecorder? _appStartRecorder;
+  AppStartRecorder? _appStartRecorder;
 
   @internal
-  void startAppStartRecording(AppStartFrameRecorder recorder) {
+  void startAppStartRecording(AppStartRecorder recorder) {
     _appStartRecorder = recorder;
   }
 
   @internal
-  void stopAppStartRecording(AppStartFrameRecorder recorder) {
+  void stopAppStartRecording(AppStartRecorder recorder) {
     if (identical(_appStartRecorder, recorder)) _appStartRecorder = null;
   }
 

@@ -4,8 +4,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/app_start/app_start_frame_phases.dart';
-import 'package:sentry_flutter/src/app_start/app_start_span_kind.dart';
+import 'package:sentry_flutter/src/app_start/app_start_result.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/app_start/standalone/streaming_app_start_trace.dart';
 
@@ -58,7 +57,7 @@ void main() {
       );
       sut.recordFirstFrame(
         fixture.naturalEnd,
-        framePhases: fixture.framePhases,
+        appStartResult: fixture.appStartResult,
       );
       fixture.root!.end(endTimestamp: fixture.rootFinish);
       await tester.pump();
@@ -632,25 +631,29 @@ void main() {
 
     test('emits measured framework and raster phases as siblings', () async {
       final sut = fixture.getSut()!;
-      final measured = fixture.framePhases.withFrameworkSpans([
-        AppStartFrameSpan(
-          kind: AppStartSpanKind.rootWidgetAttachment,
+      final measured = fixture.appStartResult.withFrameworkIntervals([
+        AppStartRecordedInterval(
+          description: 'Root Widget Attachment',
+          operation: SentrySpanOperations.appStartRootWidgetAttachment,
+          threadName: 'ui',
           startTimestamp: fixture.sentrySetup,
           endTimestamp: fixture.initEnd,
         ),
-        AppStartFrameSpan(
-          kind: AppStartSpanKind.frameBuild,
+        AppStartRecordedInterval(
+          description: 'Frame Build',
+          operation: SentrySpanOperations.appStartFrameBuild,
+          threadName: 'ui',
           startTimestamp: fixture.initEnd,
-          endTimestamp: fixture.framePhases.rasterStart,
-          data: {'app.start.frame.deferred': true},
+          endTimestamp: fixture.appStartResult.intervals.single.startTimestamp,
+          data: {'flutter.frame.deferred': true},
         ),
       ], omittedBuilds: 2);
       sut.recordInitEnd(fixture.initEnd);
-      sut.recordFirstFrame(fixture.naturalEnd, framePhases: measured);
+      sut.recordFirstFrame(fixture.naturalEnd, appStartResult: measured);
       await pumpEventQueue(times: 10);
       final build = fixture.child('Frame Build');
       expect(build.parentSpan, fixture.root);
-      expect(build.attributes['app.start.frame.deferred']?.value, isTrue);
+      expect(build.attributes['flutter.frame.deferred']?.value, isTrue);
       expect(
         fixture
             .child('Root Widget Attachment')
@@ -665,14 +668,14 @@ void main() {
       );
       expect(
         fixture.child('Frame Rasterization').startTimestamp,
-        fixture.framePhases.rasterStart,
+        fixture.appStartResult.intervals.single.startTimestamp,
       );
       expect(
         fixture.child('Frame Rasterization').endTimestamp,
         fixture.naturalEnd,
       );
       expect(
-        fixture.root!.attributes['app.start.frame_builds.omitted']?.value,
+        fixture.root!.attributes['flutter.frame.builds.omitted']?.value,
         2,
       );
       expect(
@@ -706,7 +709,7 @@ void main() {
         );
         sut.recordFirstFrame(
           fixture.naturalEnd,
-          framePhases: fixture.framePhases,
+          appStartResult: fixture.appStartResult,
         );
         sut.recordInitEnd(lateInit);
         fixture.root!.end(endTimestamp: fixture.rootFinish);
@@ -723,7 +726,7 @@ void main() {
         final sut = fixture.getSut()!;
         sut.recordFirstFrame(
           fixture.naturalEnd,
-          framePhases: fixture.framePhases,
+          appStartResult: fixture.appStartResult,
         );
         sut.recordInitEnd(fixture.initEnd);
         await pumpEventQueue(times: 10);
@@ -923,7 +926,7 @@ class Fixture {
 
   /// The first frame's phases, laid out so it starts well after [initEnd] and
   /// rasterizes at [naturalEnd].
-  late final framePhases = AppStartFramePhases.tryResolve(
+  late final appStartResult = AppStartResult.tryResolve(
     fakeFirstFrameTiming(
       vsyncStart: processStart.add(Duration(milliseconds: 250)),
       buildStart: processStart.add(Duration(milliseconds: 260)),
@@ -938,7 +941,7 @@ class Fixture {
   /// test that only records the frame never lets the root report.
   void completeStartup(StreamingAppStartTrace sut) {
     sut.recordInitEnd(initEnd);
-    sut.recordFirstFrame(naturalEnd, framePhases: framePhases);
+    sut.recordFirstFrame(naturalEnd, appStartResult: appStartResult);
   }
 
   /// The span named [description], which must be unique.

@@ -3,24 +3,22 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import '../utils/internal_logger.dart';
-import 'app_start_frame_phases.dart';
-import 'app_start_span_kind.dart';
+import 'app_start_result.dart';
 
 enum _RecorderState { observing, frozen, closed }
 
 /// Collects framework work without claiming that each frame was submitted.
 /// Both trace formats consume the same result after the raster cutoff is known.
 @internal
-final class AppStartFrameRecorder {
-  AppStartFrameRecorder({required this.clock});
+final class AppStartRecorder {
+  AppStartRecorder({required this.clock});
 
   final DateTime Function() clock;
-  final _builds = <AppStartFrameSpan>[];
+  final _builds = <AppStartRecordedInterval>[];
   _RecorderState _state = _RecorderState.observing;
   bool _attachmentAttempted = false;
-  bool _attached = false;
   DateTime? _attachmentStart;
-  AppStartFrameSpan? _attachment;
+  AppStartRecordedInterval? _attachment;
   DateTime? _frameStart;
   bool _warmUp = false;
   int _omittedBuilds = 0;
@@ -38,16 +36,17 @@ final class AppStartFrameRecorder {
     if (!succeeded || start == null) return;
     final end = _now();
     if (end == null || end.isBefore(start)) return;
-    _attached = true;
-    _attachment = AppStartFrameSpan(
-      kind: AppStartSpanKind.rootWidgetAttachment,
+    _attachment = AppStartRecordedInterval(
+      description: 'Root Widget Attachment',
+      operation: SentrySpanOperations.appStartRootWidgetAttachment,
+      threadName: 'ui',
       startTimestamp: start,
       endTimestamp: end,
     );
   }
 
   void beginFrame({required bool warmUp}) {
-    if (_state != _RecorderState.observing || !_attached) return;
+    if (_state != _RecorderState.observing || _attachment == null) return;
     _frameStart = _now();
     _warmUp = warmUp;
   }
@@ -64,13 +63,15 @@ final class AppStartFrameRecorder {
       return;
     }
     _builds.add(
-      AppStartFrameSpan(
-        kind: AppStartSpanKind.frameBuild,
+      AppStartRecordedInterval(
+        description: 'Frame Build',
+        operation: SentrySpanOperations.appStartFrameBuild,
+        threadName: 'ui',
         startTimestamp: start,
         endTimestamp: end,
         data: {
-          SemanticAttributesConstants.appStartFrameWarmUp: _warmUp,
-          SemanticAttributesConstants.appStartFrameDeferred: deferred,
+          ProposedSemanticAttributes.flutterFrameWarmUp: _warmUp,
+          ProposedSemanticAttributes.flutterFrameDeferred: deferred,
         },
       ),
     );
@@ -84,31 +85,26 @@ final class AppStartFrameRecorder {
     _frameStart = null;
   }
 
-  AppStartFramePhases resolve(
-    DateTime startupStart,
-    AppStartFramePhases raster,
-  ) {
+  AppStartResult resolve(DateTime startupStart, AppStartResult raster) {
     freeze();
     if (_state == _RecorderState.closed) return raster;
-    final candidates = _builds.toList();
-    final attachment = _attachment;
-    if (attachment != null) candidates.insert(0, attachment);
-    final intervals = candidates
+    final intervals = <AppStartRecordedInterval>[?_attachment, ..._builds]
         .where(
           (span) =>
               !span.startTimestamp.isBefore(startupStart) &&
               !span.endTimestamp.isAfter(raster.rasterFinish),
-        )
-        .toList();
-    final omittedBuilds = _omittedBuilds;
+        );
+    final result = raster.withFrameworkIntervals(
+      intervals,
+      omittedBuilds: _omittedBuilds,
+    );
     cancel();
-    return raster.withFrameworkSpans(intervals, omittedBuilds: omittedBuilds);
+    return result;
   }
 
   void cancel() {
+    freeze();
     _state = _RecorderState.closed;
-    _attachmentStart = null;
-    _frameStart = null;
     _attachment = null;
     _builds.clear();
   }

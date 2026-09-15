@@ -69,9 +69,6 @@ class SentryFeatures {
 /// for more details.
 @internal
 abstract class SemanticAttributesConstants {
-  static const appStartFrameWarmUp = 'app.start.frame.warm_up';
-  static const appStartFrameDeferred = 'app.start.frame.deferred';
-  static const appStartOmittedBuilds = 'app.start.frame_builds.omitted';
   SemanticAttributesConstants._();
 
   /// The source of the segment span name.
@@ -462,6 +459,24 @@ abstract class SemanticAttributesConstants {
 @internal
 abstract class ProposedSemanticAttributes {
   ProposedSemanticAttributes._();
+
+  /// Whether this Flutter framework frame ran as a warm-up frame.
+  ///
+  /// Distinguishes framework passes that engine build timings may not cover.
+  /// No canonical Sentry attribute currently describes this state.
+  static const flutterFrameWarmUp = 'flutter.frame.warm_up';
+
+  /// Whether sending frames to the engine was disabled at draw completion.
+  ///
+  /// False does not prove that this frame was submitted or rasterized.
+  /// No canonical Sentry attribute currently describes Flutter deferral.
+  static const flutterFrameDeferred = 'flutter.frame.deferred';
+
+  /// The number of observed build intervals omitted because the buffer was full.
+  ///
+  /// Emitted on the parent span; this does not count dropped rendering frames.
+  /// No canonical Sentry attribute currently describes omitted build detail.
+  static const flutterFrameBuildsOmitted = 'flutter.frame.builds.omitted';
 
   /// The Flutter SDK version used to compile the app (e.g. `3.24.0`).
   ///

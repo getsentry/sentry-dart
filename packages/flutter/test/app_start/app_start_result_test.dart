@@ -1,43 +1,47 @@
+// ignore_for_file: invalid_use_of_internal_member
+import 'package:sentry/sentry.dart';
 import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/app_start/app_start_frame_phases.dart';
-import 'package:sentry_flutter/src/app_start/app_start_span_kind.dart';
+import 'package:sentry_flutter/src/app_start/app_start_result.dart';
 
 void main() {
-  group('$AppStartFramePhases', () {
+  group('$AppStartResult', () {
     late Fixture fixture;
     setUp(() {
       fixture = Fixture();
     });
     test('does not infer framework work from engine build timestamps', () {
-      final phases = AppStartFramePhases.tryResolve(fixture.timing())!;
-      expect(phases.frameSpans.map((span) => span.kind), [
-        AppStartSpanKind.frameRaster,
+      final timings = AppStartResult.tryResolve(fixture.timing())!;
+      expect(timings.intervals.map((span) => span.operation), [
+        SentrySpanOperations.appStartFrameRaster,
       ]);
     });
     test('anchors raster duration on the wall clock endpoint', () {
-      final phases = AppStartFramePhases.tryResolve(fixture.timing())!;
-      expect(phases.rasterStart, DateTime.utc(2024, 1, 1, 12, 0, 0, 812));
-      expect(phases.rasterFinish, fixture.rasterFinishWall);
+      final timings = AppStartResult.tryResolve(fixture.timing())!;
+      expect(
+        timings.intervals.single.startTimestamp,
+        DateTime.utc(2024, 1, 1, 12, 0, 0, 812),
+      );
+      expect(timings.rasterFinish, fixture.rasterFinishWall);
     });
     test(
       'retains raster timing when engine build timestamps are inconsistent',
       () {
-        final phases = AppStartFramePhases.tryResolve(
+        final timings = AppStartResult.tryResolve(
           fixture.timing(buildStart: 0, buildFinish: 999999),
         )!;
-        expect(phases.frameSpans.single.endTimestamp, fixture.rasterFinishWall);
+        expect(timings.intervals.single.endTimestamp, fixture.rasterFinishWall);
       },
     );
     test('rejects reversed raster timing', () {
       expect(
-        AppStartFramePhases.tryResolve(fixture.timing(rasterStart: 900000)),
+        AppStartResult.tryResolve(fixture.timing(rasterStart: 900000)),
         isNull,
       );
     });
     test('rejects missing wall clock timing', () {
       expect(
-        AppStartFramePhases.tryResolve(
+        AppStartResult.tryResolve(
           fixture.timing(rasterFinishWallTime: DateTime.utc(1970)),
         ),
         isNull,
@@ -49,7 +53,7 @@ void main() {
 class Fixture {
   /// Arbitrary offset standing in for the engine's monotonic epoch, which does
   /// not match `DateTime`'s. Every phase below is derived relative to it, so a
-  /// resolver that reads the phases as epoch microseconds lands in 1970.
+  /// resolver that reads the timings as epoch microseconds lands in 1970.
   static const _monotonicEpochOffset = 5000000;
 
   final rasterFinishWall = DateTime.utc(2024, 1, 1, 12, 0, 0, 869);

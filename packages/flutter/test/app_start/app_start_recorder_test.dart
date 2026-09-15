@@ -1,12 +1,12 @@
 // ignore_for_file: invalid_use_of_internal_member
+import 'package:sentry/sentry.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/app_start/app_start_frame_phases.dart';
-import 'package:sentry_flutter/src/app_start/app_start_frame_recorder.dart';
-import 'package:sentry_flutter/src/app_start/app_start_span_kind.dart';
+import 'package:sentry_flutter/src/app_start/app_start_result.dart';
+import 'package:sentry_flutter/src/app_start/app_start_recorder.dart';
 import 'first_frame_timing.dart';
 
 void main() {
-  group('$AppStartFrameRecorder', () {
+  group('$AppStartRecorder', () {
     late Fixture fixture;
     setUp(() {
       fixture = Fixture();
@@ -20,19 +20,29 @@ void main() {
       fixture.advance(20);
       sut.endFrame(deferred: true);
       final result = sut.resolve(fixture.start, fixture.raster);
-      expect(result.frameSpans.map((span) => span.kind), [
-        AppStartSpanKind.rootWidgetAttachment,
-        AppStartSpanKind.frameBuild,
-        AppStartSpanKind.frameRaster,
+      expect(result.intervals.map((span) => span.operation), [
+        SentrySpanOperations.appStartRootWidgetAttachment,
+        SentrySpanOperations.appStartFrameBuild,
+        SentrySpanOperations.appStartFrameRaster,
       ]);
-      final build = result.frameSpans[1];
+      expect(result.intervals.map((span) => span.description), [
+        'Root Widget Attachment',
+        'Frame Build',
+        'Frame Rasterization',
+      ]);
+      expect(result.intervals.map((span) => span.threadName), [
+        'ui',
+        'ui',
+        'raster',
+      ]);
+      final build = result.intervals[1];
       expect(
         build.endTimestamp.difference(build.startTimestamp),
         const Duration(milliseconds: 20),
       );
       expect(build.data, {
-        'app.start.frame.warm_up': true,
-        'app.start.frame.deferred': true,
+        'flutter.frame.warm_up': true,
+        'flutter.frame.deferred': true,
       });
     });
 
@@ -47,8 +57,8 @@ void main() {
       }
       final result = sut.resolve(fixture.start, fixture.raster);
       expect(
-        result.frameSpans.where(
-          (span) => span.kind == AppStartSpanKind.frameBuild,
+        result.intervals.where(
+          (span) => span.operation == SentrySpanOperations.appStartFrameBuild,
         ),
         hasLength(10),
       );
@@ -68,9 +78,9 @@ void main() {
         fixture.advance(5);
         sut.endFrame(deferred: false);
         final result = sut.resolve(fixture.start, fixture.raster);
-        expect(result.frameSpans.map((span) => span.kind), [
-          AppStartSpanKind.rootWidgetAttachment,
-          AppStartSpanKind.frameRaster,
+        expect(result.intervals.map((span) => span.operation), [
+          SentrySpanOperations.appStartRootWidgetAttachment,
+          SentrySpanOperations.appStartFrameRaster,
         ]);
         expect(
           result.rasterFinish,
@@ -90,9 +100,9 @@ void main() {
       expect(
         sut
             .resolve(fixture.start, fixture.raster)
-            .frameSpans
-            .map((span) => span.kind),
-        [AppStartSpanKind.frameRaster],
+            .intervals
+            .map((span) => span.operation),
+        [SentrySpanOperations.appStartFrameRaster],
       );
     });
     test('freezes observations while native timing is pending', () {
@@ -106,9 +116,12 @@ void main() {
       expect(
         sut
             .resolve(fixture.start, fixture.raster)
-            .frameSpans
-            .map((span) => span.kind),
-        [AppStartSpanKind.rootWidgetAttachment, AppStartSpanKind.frameRaster],
+            .intervals
+            .map((span) => span.operation),
+        [
+          SentrySpanOperations.appStartRootWidgetAttachment,
+          SentrySpanOperations.appStartFrameRaster,
+        ],
       );
     });
     test('does not claim initial attachment for an existing root', () {
@@ -120,9 +133,9 @@ void main() {
       expect(
         sut
             .resolve(fixture.start, fixture.raster)
-            .frameSpans
-            .map((span) => span.kind),
-        [AppStartSpanKind.frameRaster],
+            .intervals
+            .map((span) => span.operation),
+        [SentrySpanOperations.appStartFrameRaster],
       );
     });
     test('does not record a failed build or unmatched completion', () {
@@ -136,13 +149,16 @@ void main() {
       expect(
         sut
             .resolve(fixture.start, fixture.raster)
-            .frameSpans
-            .map((span) => span.kind),
-        [AppStartSpanKind.rootWidgetAttachment, AppStartSpanKind.frameRaster],
+            .intervals
+            .map((span) => span.operation),
+        [
+          SentrySpanOperations.appStartRootWidgetAttachment,
+          SentrySpanOperations.appStartFrameRaster,
+        ],
       );
     });
     test('does not let clock failures escape into framework execution', () {
-      final sut = AppStartFrameRecorder(clock: () => throw StateError('clock'));
+      final sut = AppStartRecorder(clock: () => throw StateError('clock'));
       expect(() {
         sut.beginAttachment(hasRoot: false);
         sut.endAttachment();
@@ -152,9 +168,9 @@ void main() {
       expect(
         sut
             .resolve(fixture.start, fixture.raster)
-            .frameSpans
-            .map((span) => span.kind),
-        [AppStartSpanKind.frameRaster],
+            .intervals
+            .map((span) => span.operation),
+        [SentrySpanOperations.appStartFrameRaster],
       );
     });
   });
@@ -165,7 +181,7 @@ class Fixture {
   late DateTime now = start;
   void advance(int milliseconds) =>
       now = now.add(Duration(milliseconds: milliseconds));
-  late final raster = AppStartFramePhases.tryResolve(
+  late final raster = AppStartResult.tryResolve(
     fakeFirstFrameTiming(
       vsyncStart: start.add(const Duration(milliseconds: 90)),
       buildStart: start.add(const Duration(milliseconds: 90)),
@@ -174,5 +190,5 @@ class Fixture {
       rasterFinish: start.add(const Duration(milliseconds: 100)),
     ),
   )!;
-  AppStartFrameRecorder getSut() => AppStartFrameRecorder(clock: () => now);
+  AppStartRecorder getSut() => AppStartRecorder(clock: () => now);
 }

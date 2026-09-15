@@ -8,8 +8,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../utils/internal_logger.dart';
-import '../app_start_frame_phases.dart';
-import '../app_start_span_kind.dart';
+import '../app_start_result.dart';
 import '../app_start_timing.dart';
 import 'app_start_trace.dart';
 import 'app_start_vitals.dart';
@@ -99,8 +98,8 @@ final class StaticAppStartTrace implements AppStartTrace {
       }
 
       final sentryInitSpan = root.startChild(
-        AppStartSpanKind.sentryInit.operation,
-        description: AppStartSpanKind.sentryInit.description,
+        SentrySpanOperations.appStartSentryInit,
+        description: 'Sentry Initialization',
         startTimestamp: timing.sentrySetupTimestamp,
       )..origin = SentryTraceOrigins.autoAppStart;
       if (sentryInitSpan.samplingDecision?.sampled != true) {
@@ -192,7 +191,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   @override
   void recordFirstFrame(
     DateTime endTimestamp, {
-    AppStartFramePhases? framePhases,
+    AppStartResult? appStartResult,
   }) {
     if (_state.isTerminal || _endTimestamp != null) return;
     // Set before finishing the child: finishing the last outstanding child can
@@ -200,19 +199,16 @@ final class StaticAppStartTrace implements AppStartTrace {
     _endTimestamp = endTimestamp.toUtc();
     _root.scheduleFinish();
 
-    if (framePhases != null) {
-      for (final interval in framePhases.frameSpans) {
-        final child = _startSpineChild(
-          interval.kind,
-          startTimestamp: interval.startTimestamp,
-        );
+    if (appStartResult != null) {
+      for (final interval in appStartResult.intervals) {
+        final child = _startMeasuredChild(interval);
         interval.data.forEach(child.setData);
         unawaited(_finishSpan(child, endTimestamp: interval.endTimestamp));
       }
-      if (framePhases.omittedBuilds > 0) {
+      if (appStartResult.omittedBuilds > 0) {
         _root.setData(
-          SemanticAttributesConstants.appStartOmittedBuilds,
-          framePhases.omittedBuilds,
+          ProposedSemanticAttributes.flutterFrameBuildsOmitted,
+          appStartResult.omittedBuilds,
         );
       }
     }
@@ -222,17 +218,14 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   /// Creates a measured child directly under the startup root.
-  ISentrySpan _startSpineChild(
-    AppStartSpanKind kind, {
-    required DateTime startTimestamp,
-  }) {
+  ISentrySpan _startMeasuredChild(AppStartRecordedInterval interval) {
     final span = _root.startChild(
-      kind.operation,
-      description: kind.description,
-      startTimestamp: startTimestamp,
+      interval.operation,
+      description: interval.description,
+      startTimestamp: interval.startTimestamp,
     )..origin = SentryTraceOrigins.autoAppStart;
 
-    final threadName = kind.threadName;
+    final threadName = interval.threadName;
     if (threadName != null) {
       span.setData(SemanticAttributesConstants.threadName, threadName);
     }
