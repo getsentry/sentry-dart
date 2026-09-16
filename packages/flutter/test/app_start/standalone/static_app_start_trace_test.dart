@@ -499,7 +499,7 @@ void main() {
           endTimestamp: fixture.appStartResult.intervals.single.startTimestamp,
           data: {'flutter.frame.deferred': true},
         ),
-      ], omittedBuilds: 2);
+      ]);
       sut.recordInitEnd(fixture.initEnd);
       sut.recordFirstFrame(fixture.naturalEnd, appStartResult: measured);
       await pumpEventQueue(times: 10);
@@ -520,7 +520,6 @@ void main() {
         fixture.child('Frame Rasterization').endTimestamp,
         fixture.naturalEnd,
       );
-      expect(fixture.root!.tracer.data['flutter.frame.builds.omitted'], 2);
       expect(
         fixture.root!.tracer.children.map((span) => span.context.description),
         unorderedEquals([

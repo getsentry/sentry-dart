@@ -205,12 +205,6 @@ final class StaticAppStartTrace implements AppStartTrace {
         interval.data.forEach(child.setData);
         unawaited(_finishSpan(child, endTimestamp: interval.endTimestamp));
       }
-      if (appStartResult.omittedBuilds > 0) {
-        _root.setData(
-          ProposedSemanticAttributes.flutterFrameBuildsOmitted,
-          appStartResult.omittedBuilds,
-        );
-      }
     }
     if (_initEndTimestamp != null) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);

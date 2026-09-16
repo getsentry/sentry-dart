@@ -472,12 +472,6 @@ abstract class ProposedSemanticAttributes {
   /// No canonical Sentry attribute currently describes Flutter deferral.
   static const flutterFrameDeferred = 'flutter.frame.deferred';
 
-  /// The number of observed build intervals omitted because the buffer was full.
-  ///
-  /// Emitted on the parent span; this does not count dropped rendering frames.
-  /// No canonical Sentry attribute currently describes omitted build detail.
-  static const flutterFrameBuildsOmitted = 'flutter.frame.builds.omitted';
-
   /// The Flutter SDK version used to compile the app (e.g. `3.24.0`).
   ///
   /// Emitted separately from [SemanticAttributesConstants.processRuntimeName]

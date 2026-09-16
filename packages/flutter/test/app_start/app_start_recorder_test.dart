@@ -46,7 +46,7 @@ void main() {
       });
     });
 
-    test('retains at most ten complete builds and counts omitted detail', () {
+    test('retains at most ten complete builds', () {
       final sut = fixture.getSut();
       sut.beginAttachment(hasRoot: false);
       sut.endAttachment();
@@ -62,7 +62,6 @@ void main() {
         ),
         hasLength(10),
       );
-      expect(result.omittedBuilds, 2);
     });
     test(
       'omits later and crossing builds without changing raster completion',

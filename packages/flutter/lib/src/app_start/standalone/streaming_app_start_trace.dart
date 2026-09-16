@@ -220,12 +220,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
         );
         child?.end(endTimestamp: interval.endTimestamp);
       }
-      if (appStartResult.omittedBuilds > 0) {
-        _root.setAttribute(
-          ProposedSemanticAttributes.flutterFrameBuildsOmitted,
-          SentryAttribute.int(appStartResult.omittedBuilds),
-        );
-      }
     }
     if (_initEndTimestamp != null) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);

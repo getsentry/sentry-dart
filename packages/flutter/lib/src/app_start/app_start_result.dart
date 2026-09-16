@@ -34,20 +34,16 @@ final class AppStartResult {
   AppStartResult._({
     required this.rasterFinish,
     required List<AppStartRecordedInterval> intervals,
-    this.omittedBuilds = 0,
   }) : intervals = List.unmodifiable(intervals);
 
   final DateTime rasterFinish;
   final List<AppStartRecordedInterval> intervals;
-  final int omittedBuilds;
 
   AppStartResult withFrameworkIntervals(
-    Iterable<AppStartRecordedInterval> frameworkIntervals, {
-    required int omittedBuilds,
-  }) => AppStartResult._(
+    Iterable<AppStartRecordedInterval> frameworkIntervals,
+  ) => AppStartResult._(
     rasterFinish: rasterFinish,
     intervals: [...frameworkIntervals, ...intervals],
-    omittedBuilds: omittedBuilds,
   );
 
   static AppStartResult? tryResolve(FrameTiming timing) {

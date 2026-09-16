@@ -21,7 +21,6 @@ final class AppStartRecorder {
   AppStartRecordedInterval? _rootAttachment;
   DateTime? _frameBuildStart;
   bool _isWarmUpFrame = false;
-  int _omittedBuilds = 0;
 
   void beginAttachment({required bool hasRoot}) {
     if (_state != _RecorderState.observing || _rootAttachmentAttempted) return;
@@ -59,7 +58,6 @@ final class AppStartRecorder {
     final end = _now();
     if (end == null || end.isBefore(start)) return;
     if (_frameBuilds.length == 10) {
-      _omittedBuilds++;
       return;
     }
     _frameBuilds.add(
@@ -94,10 +92,7 @@ final class AppStartRecorder {
               !interval.startTimestamp.isBefore(startupStart) &&
               !interval.endTimestamp.isAfter(rasterResult.rasterFinish),
         );
-    final result = rasterResult.withFrameworkIntervals(
-      intervals,
-      omittedBuilds: _omittedBuilds,
-    );
+    final result = rasterResult.withFrameworkIntervals(intervals);
     cancel();
     return result;
   }

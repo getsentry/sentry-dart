@@ -32,10 +32,8 @@ a gap rather than being attributed to build or raster work.
 
 The SDK retains at most ten complete Frame Build intervals, plus the initial attachment while awaiting the
 first raster report. Only intervals contained within the automatic startup
-window are emitted. Crossing intervals are omitted, not truncated. The
-`flutter.frame.builds.omitted` attribute counts observed build intervals
-omitted because the buffer was full; it can include work after raster completion
-but before callback delivery. Frame Build spans carry `flutter.frame.warm_up` and
+window are emitted. Crossing intervals are omitted, not truncated.
+Frame Build spans carry `flutter.frame.warm_up` and
 `flutter.frame.deferred`, the latter observed at draw completion, not a claim
 that a scene was submitted.
 
