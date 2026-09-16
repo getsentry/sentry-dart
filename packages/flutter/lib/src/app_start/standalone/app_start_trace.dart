@@ -107,10 +107,7 @@ abstract interface class AppStartTrace {
 
   /// Emits resolved framework/raster intervals and records the automatic
   /// startup endpoint. The root retains its existing idle/extension lifecycle.
-  void recordFirstFrame(
-    DateTime endTimestamp, {
-    AppStartResult? appStartResult,
-  });
+  void recordFirstFrame(AppStartResult result);
 
   /// Abandons the trace on SDK close, flushing whatever is still open.
   Future<void> close();

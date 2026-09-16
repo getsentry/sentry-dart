@@ -27,7 +27,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   final _StaticAppStartExtensionLifecycle _extensionLifecycle;
   Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
-  DateTime? _initEndTimestamp;
+  bool _initCompleted = false;
   AppStartTraceState _state = AppStartTraceState.open;
 
   // One way flag — never cleared — once the final deadline starts draining
@@ -56,7 +56,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   /// Opens the standalone root and its breakdown children.
   ///
   /// Returns `null` when the app start must not be reported: an unsampled
-  /// root, an unsampled first-frame span, or a failure while building the
+  /// root, an unsampled initialization span, or a failure while building the
   /// children. Anything already created is flushed, so no span outlives a
   /// failed creation.
   ///
@@ -180,33 +180,28 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   @override
   void recordInitEnd(DateTime endTimestamp) {
-    if (_isFinalizingOrTerminal || _initEndTimestamp != null) return;
-    _initEndTimestamp = endTimestamp.toUtc();
-    unawaited(_finishSpan(_sentryInitSpan, endTimestamp: _initEndTimestamp));
+    if (_isFinalizingOrTerminal || _initCompleted) return;
+    _initCompleted = true;
+    unawaited(_finishSpan(_sentryInitSpan, endTimestamp: endTimestamp.toUtc()));
     if (_endTimestamp != null) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }
 
   @override
-  void recordFirstFrame(
-    DateTime endTimestamp, {
-    AppStartResult? appStartResult,
-  }) {
+  void recordFirstFrame(AppStartResult result) {
     if (_state.isTerminal || _endTimestamp != null) return;
     // Set before finishing the child: finishing the last outstanding child can
     // complete the tracer, which enriches from _endTimestamp.
-    _endTimestamp = endTimestamp.toUtc();
+    _endTimestamp = result.rasterFinish;
     _root.scheduleFinish();
 
-    if (appStartResult != null) {
-      for (final interval in appStartResult.intervals) {
-        final child = _startIntervalSpan(interval);
-        interval.data.forEach(child.setData);
-        unawaited(_finishSpan(child, endTimestamp: interval.endTimestamp));
-      }
+    for (final interval in result.intervals) {
+      final child = _startIntervalSpan(interval);
+      interval.data.forEach(child.setData);
+      unawaited(_finishSpan(child, endTimestamp: interval.endTimestamp));
     }
-    if (_initEndTimestamp != null) {
+    if (_initCompleted) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }

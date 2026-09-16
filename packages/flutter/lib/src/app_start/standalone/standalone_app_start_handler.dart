@@ -233,10 +233,7 @@ class StandaloneAppStartHandler {
       }
       _recorder?.cancel();
       _recorder = null;
-      options.standaloneAppStartTrace?.recordFirstFrame(
-        rasterResult.rasterFinish,
-        appStartResult: result,
-      );
+      options.standaloneAppStartTrace?.recordFirstFrame(result);
       await _displayTracking?.record(rasterResult.rasterFinish);
     } catch (error, stackTrace) {
       internalLogger.error(

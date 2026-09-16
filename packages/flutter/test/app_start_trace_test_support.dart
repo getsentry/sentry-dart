@@ -43,10 +43,7 @@ final class TestAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordFirstFrame(
-    DateTime endTimestamp, {
-    AppStartResult? appStartResult,
-  }) {}
+  void recordFirstFrame(AppStartResult result) {}
 
   @override
   Future<void> close() async {}

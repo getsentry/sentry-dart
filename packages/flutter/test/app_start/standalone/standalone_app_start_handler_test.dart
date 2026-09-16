@@ -143,6 +143,33 @@ void main() {
       },
     );
 
+    test(
+      'does not replace invalid first raster timing with a later frame',
+      () async {
+        await fixture.startLifecycle();
+        final callback = fixture.frameHandler.timingsCallback!;
+        callback([
+          FrameTiming(
+            vsyncStart: 1,
+            buildStart: 2,
+            buildFinish: 3,
+            rasterStart: 4,
+            rasterFinish: 5,
+            rasterFinishWallTime: 0,
+          ),
+        ]);
+        expect(fixture.frameHandler.timingsCallback, isNull);
+        callback([fixture.frameTiming]);
+        await pumpEventQueue();
+        expect(
+          fixture.appStartRoots.single.tracer.children.map(
+            (span) => span.context.operation,
+          ),
+          isNot(contains(SentrySpanOperations.appStartFrameRaster)),
+        );
+      },
+    );
+
     test('installs standalone trace before the first frame', () async {
       await fixture.startLifecycle();
       await pumpEventQueue();

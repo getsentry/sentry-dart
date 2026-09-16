@@ -22,7 +22,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   final _StreamingAppStartExtensionLifecycle _extensionLifecycle;
   DateTime? _endTimestamp;
-  DateTime? _initEndTimestamp;
+  bool _initCompleted = false;
   AppStartTraceState _state = AppStartTraceState.open;
 
   StreamingAppStartTrace._({
@@ -44,7 +44,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   /// Opens the standalone root and its breakdown children.
   ///
   /// Returns `null` when the app start must not be reported: a root or
-  /// first-frame span the SDK did not record, or a failure while building the
+  /// initialization span the SDK did not record, or a failure while building the
   /// children. Anything already created is flushed, so no span outlives a
   /// failed creation.
   ///
@@ -192,36 +192,31 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   @override
   void recordInitEnd(DateTime endTimestamp) {
-    if (_state.isTerminal || _initEndTimestamp != null) return;
-    _initEndTimestamp = endTimestamp.toUtc();
-    _sentryInitSpan.end(endTimestamp: _initEndTimestamp);
+    if (_state.isTerminal || _initCompleted) return;
+    _initCompleted = true;
+    _sentryInitSpan.end(endTimestamp: endTimestamp.toUtc());
     if (_endTimestamp != null) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }
 
   @override
-  void recordFirstFrame(
-    DateTime endTimestamp, {
-    AppStartResult? appStartResult,
-  }) {
+  void recordFirstFrame(AppStartResult result) {
     if (_state.isTerminal || _endTimestamp != null) return;
-    _endTimestamp = endTimestamp.toUtc();
+    _endTimestamp = result.rasterFinish;
     _root.setAttribute(
       SemanticAttributesConstants.appVitalsStartScreen,
       SentryAttribute.string(_startScreenNameProvider()),
     );
 
-    if (appStartResult != null) {
-      for (final interval in appStartResult.intervals) {
-        final child = _startIntervalSpan(interval);
-        interval.data.forEach(
-          (key, value) => child?.setAttribute(key, SentryAttribute.bool(value)),
-        );
-        child?.end(endTimestamp: interval.endTimestamp);
-      }
+    for (final interval in result.intervals) {
+      final child = _startIntervalSpan(interval);
+      interval.data.forEach(
+        (key, value) => child?.setAttribute(key, SentryAttribute.bool(value)),
+      );
+      child?.end(endTimestamp: interval.endTimestamp);
     }
-    if (_initEndTimestamp != null) {
+    if (_initCompleted) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }

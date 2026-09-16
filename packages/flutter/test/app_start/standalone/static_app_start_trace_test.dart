@@ -31,10 +31,7 @@ void main() {
         async.flushMicrotasks();
         async.elapse(const Duration(seconds: 4));
         expect(fixture.root!.tracer.finished, isFalse);
-        sut.recordFirstFrame(
-          fixture.naturalEnd,
-          appStartResult: fixture.appStartResult,
-        );
+        sut.recordFirstFrame(fixture.appStartResult);
         async.flushMicrotasks();
         async.elapse(const Duration(seconds: 4));
         expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
@@ -506,7 +503,7 @@ void main() {
           ),
         ]);
         sut.recordInitEnd(fixture.initEnd);
-        sut.recordFirstFrame(fixture.naturalEnd, appStartResult: result);
+        sut.recordFirstFrame(result);
         await pumpEventQueue(times: 10);
         final build = fixture.child('Frame Build');
         expect(build.context.parentSpanId, fixture.root!.context.spanId);
@@ -559,10 +556,7 @@ void main() {
         final lateInit = fixture.naturalEnd.add(
           const Duration(milliseconds: 20),
         );
-        sut.recordFirstFrame(
-          fixture.naturalEnd,
-          appStartResult: fixture.appStartResult,
-        );
+        sut.recordFirstFrame(fixture.appStartResult);
         sut.recordInitEnd(lateInit);
         await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
         await pumpEventQueue(times: 10);
@@ -576,29 +570,12 @@ void main() {
       'ends initialization independently of first-frame reporting',
       () async {
         final sut = fixture.getSut()!;
-        sut.recordFirstFrame(
-          fixture.naturalEnd,
-          appStartResult: fixture.appStartResult,
-        );
+        sut.recordFirstFrame(fixture.appStartResult);
         sut.recordInitEnd(fixture.initEnd);
         await pumpEventQueue(times: 10);
         expect(
           fixture.child('Sentry Initialization').endTimestamp,
           fixture.initEnd,
-        );
-      },
-    );
-
-    test(
-      'omits frame detail when no trustworthy timing is available',
-      () async {
-        final sut = fixture.getSut()!;
-        sut.recordInitEnd(fixture.initEnd);
-        sut.recordFirstFrame(fixture.naturalEnd);
-        await pumpEventQueue(times: 10);
-        expect(
-          fixture.root!.tracer.children.map((span) => span.context.description),
-          isNot(contains('Frame Rasterization')),
         );
       },
     );
@@ -1231,7 +1208,7 @@ class Fixture {
   /// test that only records the frame never lets the root report.
   void completeStartup(StaticAppStartTrace sut) {
     sut.recordInitEnd(initEnd);
-    sut.recordFirstFrame(naturalEnd, appStartResult: appStartResult);
+    sut.recordFirstFrame(appStartResult);
   }
 
   /// The root child named [description], which must be unique.
