@@ -25,55 +25,49 @@ void main() {
       await Sentry.close();
     });
 
-    testWidgets(
-      'captures frames when started after the widget builds',
-      (tester) async {
-        final replay = await fixture.getSut(tester);
+    testWidgets('captures frames when started after the widget builds', (
+      tester,
+    ) async {
+      final replay = await fixture.getSut(tester);
 
-        await replay.start();
+      await replay.start();
 
-        await fixture.expectFrame(tester);
-      },
-      skip: !Platform.isAndroid,
-    );
+      await fixture.expectFrame(tester);
+    }, skip: !Platform.isAndroid);
 
-    testWidgets(
-      'captures frames after stop and restart without resizing',
-      (tester) async {
-        final replay = await fixture.getSut(tester);
-        await replay.start();
-        final firstRecorder = await fixture.expectFrame(tester);
-        final firstId = fixture.native.replayId;
+    testWidgets('captures frames after stop and restart without resizing', (
+      tester,
+    ) async {
+      final replay = await fixture.getSut(tester);
+      await replay.start();
+      final firstRecorder = await fixture.expectFrame(tester);
+      final firstId = fixture.native.replayId;
 
-        await replay.stop();
-        await fixture.waitFor(
-          () => fixture.native.testRecorder == null,
-          'Replay recorder did not stop',
-        );
-        await replay.start();
+      await replay.stop();
+      await fixture.waitFor(
+        () => fixture.native.testRecorder == null,
+        'Replay recorder did not stop',
+      );
+      await replay.start();
 
-        final secondRecorder = await fixture.expectFrame(tester);
-        expect(secondRecorder, isNot(same(firstRecorder)));
-        expect(fixture.native.replayId, isNot(firstId));
-      },
-      skip: !Platform.isAndroid,
-    );
+      final secondRecorder = await fixture.expectFrame(tester);
+      expect(secondRecorder, isNot(same(firstRecorder)));
+      expect(fixture.native.replayId, isNot(firstId));
+    }, skip: !Platform.isAndroid);
 
-    testWidgets(
-      'captures frames when flushing without an active replay',
-      (tester) async {
-        final replay = await fixture.getSut(tester);
+    testWidgets('captures frames when flushing without an active replay', (
+      tester,
+    ) async {
+      final replay = await fixture.getSut(tester);
 
-        await replay.flush();
+      await replay.flush();
 
-        await fixture.expectFrame(tester);
-        await fixture.expectTelemetry(
-          fixture.native.replayId!,
-          isBuffering: false,
-        );
-      },
-      skip: !Platform.isAndroid,
-    );
+      await fixture.expectFrame(tester);
+      await fixture.expectTelemetry(
+        fixture.native.replayId!,
+        isBuffering: false,
+      );
+    }, skip: !Platform.isAndroid);
 
     testWidgets('links telemetry after flushing a manual buffer', (
       tester,
@@ -122,27 +116,25 @@ void main() {
       skip: !Platform.isAndroid,
     );
 
-    testWidgets(
-      'links telemetry after error sampling rejects a buffer',
-      (tester) async {
-        final replay = await fixture.getSut(tester);
-        await replay.startBuffering();
-        await fixture.expectFrame(tester);
-        final replayId = fixture.native.replayId!;
-        // Zero error sampling deterministically exercises the native rejection
-        // path also taken by an unsampled error with a fractional sample rate.
-        expect(fixture.native.captureReplay(), const SentryId.empty());
+    testWidgets('links telemetry after error sampling rejects a buffer', (
+      tester,
+    ) async {
+      final replay = await fixture.getSut(tester);
+      await replay.startBuffering();
+      await fixture.expectFrame(tester);
+      final replayId = fixture.native.replayId!;
+      // Zero error sampling deterministically exercises the native rejection
+      // path also taken by an unsampled error with a fractional sample rate.
+      expect(fixture.native.captureReplay(), const SentryId.empty());
 
-        await replay.flush();
+      await replay.flush();
 
-        await fixture.waitFor(
-          () => Sentry.currentHub.scope.replayId == replayId,
-          'Rejected error capture prevented manual buffer promotion',
-        );
-        await fixture.expectTelemetry(replayId, isBuffering: false);
-      },
-      skip: !Platform.isAndroid,
-    );
+      await fixture.waitFor(
+        () => Sentry.currentHub.scope.replayId == replayId,
+        'Rejected error capture prevented manual buffer promotion',
+      );
+      await fixture.expectTelemetry(replayId, isBuffering: false);
+    }, skip: !Platform.isAndroid);
   });
 }
 

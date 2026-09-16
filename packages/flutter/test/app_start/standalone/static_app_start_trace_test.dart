@@ -13,6 +13,7 @@ import 'package:sentry_flutter/src/app_start/standalone/static_app_start_trace.d
 import '../../mocks.dart';
 import '../../mocks.mocks.dart';
 import '../first_frame_timing.dart';
+import '../root_isolate_helper.dart';
 
 void main() {
   group('$StaticAppStartTrace', () {
@@ -481,7 +482,7 @@ void main() {
     test(
       'emits recorded framework and raster intervals as sibling spans',
       () async {
-        final threadInfo = ThreadInfoIntegration();
+        final threadInfo = ThreadInfoIntegration(RootIsolateHelper());
         threadInfo.call(fixture.hub, fixture.options);
         addTearDown(threadInfo.close);
         final sut = fixture.getSut()!;
