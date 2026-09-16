@@ -12,7 +12,6 @@ import '../app_start_recorder.dart';
 import '../../native/sentry_native_binding.dart';
 import '../../navigation/root_route.dart';
 import '../../utils/internal_logger.dart';
-import '../app_start_result.dart';
 import '../app_start_timing.dart';
 import 'app_start_display_tracking.dart';
 import 'app_start_trace.dart';
@@ -35,7 +34,7 @@ class StandaloneAppStartHandler {
 
   AppStartRecorder? _recorder;
   SentryWidgetsBindingMixin? _recordingBinding;
-  AppStartResult? _pendingRasterResult;
+  AppStartRecordedInterval? _pendingRasterInterval;
   DateTime? _processStartTimestamp;
   // Resolution can complete without usable timing data.
   bool _nativeTimingResolved = false;
@@ -198,9 +197,7 @@ class StandaloneAppStartHandler {
         return;
       }
       _rasterTimingResolved = true;
-      _pendingRasterResult = AppStartResult.tryResolveRasterTiming(
-        timings.first,
-      );
+      _pendingRasterInterval = tryResolveAppStartRasterInterval(timings.first);
       _recorder?.freeze();
       _detachFrameworkObserver();
       _removeTimingsCallback();
@@ -217,9 +214,9 @@ class StandaloneAppStartHandler {
       return;
     }
     // Consume before awaiting display tracking so this result is handled once.
-    final rasterResult = _pendingRasterResult;
-    _pendingRasterResult = null;
-    if (rasterResult == null) {
+    final rasterInterval = _pendingRasterInterval;
+    _pendingRasterInterval = null;
+    if (rasterInterval == null) {
       _recorder?.cancel();
       _recorder = null;
       return;
@@ -227,14 +224,19 @@ class StandaloneAppStartHandler {
     try {
       final processStart = _processStartTimestamp;
       final recorder = _recorder;
-      var result = rasterResult;
-      if (processStart != null && recorder != null) {
-        result = recorder.resolve(processStart, rasterResult);
-      }
+      final frameworkIntervals = processStart != null && recorder != null
+          ? recorder.resolve(
+              processStart: processStart,
+              rasterFinish: rasterInterval.endTimestamp,
+            )
+          : const <AppStartRecordedInterval>[];
       _recorder?.cancel();
       _recorder = null;
-      options.standaloneAppStartTrace?.recordFirstFrame(result);
-      await _displayTracking?.record(rasterResult.rasterFinish);
+      options.standaloneAppStartTrace?.recordFirstFrame(
+        rasterInterval,
+        frameworkIntervals: frameworkIntervals,
+      );
+      await _displayTracking?.record(rasterInterval.endTimestamp);
     } catch (error, stackTrace) {
       internalLogger.error(
         'Failed to record standalone app-start first frame',
@@ -256,7 +258,7 @@ class StandaloneAppStartHandler {
     _detachFrameworkObserver();
     _recorder?.cancel();
     _recorder = null;
-    _pendingRasterResult = null;
+    _pendingRasterInterval = null;
   }
 
   Future<void> close() async {

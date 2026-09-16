@@ -1,11 +1,12 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:ui';
+
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../utils/internal_logger.dart';
-import 'app_start_result.dart';
 
 /// Rejects app starts older / longer than 60s (late init, backgrounded
 /// process, OS forking, or unreproducible outliers).
@@ -171,4 +172,61 @@ final class AppStartTiming {
     intervals.sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
     return intervals;
   }
+}
+
+/// A measured startup interval, ready for either span protocol.
+@internal
+final class AppStartRecordedInterval {
+  AppStartRecordedInterval({
+    required this.description,
+    required this.operation,
+    required this.startTimestamp,
+    required this.endTimestamp,
+    Map<String, bool> data = const {},
+  }) : data = Map.unmodifiable(data);
+
+  final String description;
+  final String operation;
+  final DateTime startTimestamp;
+  final DateTime endTimestamp;
+  final Map<String, bool> data;
+}
+
+/// Resolves the engine's raster timestamps to one wall-clock interval.
+/// Build/vsync timestamps may be placeholders for warm-up frames, so they
+/// cannot supply framework intervals here.
+@internal
+AppStartRecordedInterval? tryResolveAppStartRasterInterval(FrameTiming timing) {
+  final rasterFinishWallMicros = timing.timestampInMicroseconds(
+    FramePhase.rasterFinishWallTime,
+  );
+  final rasterStartMicros = timing.timestampInMicroseconds(
+    FramePhase.rasterStart,
+  );
+  final rasterFinishMicros = timing.timestampInMicroseconds(
+    FramePhase.rasterFinish,
+  );
+  final rasterDurationMicros = rasterFinishMicros - rasterStartMicros;
+  if (rasterFinishWallMicros <= 0 ||
+      rasterStartMicros < 0 ||
+      rasterDurationMicros < 0 ||
+      rasterDurationMicros > rasterFinishWallMicros) {
+    return null;
+  }
+
+  // The engine timestamps use a different epoch. Project the duration back
+  // from its wall-clock endpoint rather than interpreting them as dates.
+  final rasterFinish = DateTime.fromMicrosecondsSinceEpoch(
+    rasterFinishWallMicros,
+    isUtc: true,
+  );
+  final rasterStart = rasterFinish.subtract(
+    Duration(microseconds: rasterDurationMicros),
+  );
+  return AppStartRecordedInterval(
+    description: 'Frame Rasterization',
+    operation: SentrySpanOperations.appStartFrameRaster,
+    startTimestamp: rasterStart,
+    endTimestamp: rasterFinish,
+  );
 }

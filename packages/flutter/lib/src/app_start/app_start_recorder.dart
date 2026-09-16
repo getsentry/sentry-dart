@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import '../utils/internal_logger.dart';
-import 'app_start_result.dart';
+import 'app_start_timing.dart';
 
 enum _RecorderState { observing, frozen, closed }
 
@@ -81,16 +81,19 @@ final class AppStartRecorder {
     _frameBuildStart = null;
   }
 
-  AppStartResult resolve(DateTime processStart, AppStartResult rasterResult) {
+  List<AppStartRecordedInterval> resolve({
+    required DateTime processStart,
+    required DateTime rasterFinish,
+  }) {
     freeze();
-    if (_state == _RecorderState.closed) return rasterResult;
+    if (_state == _RecorderState.closed) return const [];
     final intervals =
         <AppStartRecordedInterval>[?_rootAttachment, ..._frameBuilds].where(
           (interval) =>
               !interval.startTimestamp.isBefore(processStart) &&
-              !interval.endTimestamp.isAfter(rasterResult.rasterFinish),
+              !interval.endTimestamp.isAfter(rasterFinish),
         );
-    final result = rasterResult.withFrameworkIntervals(intervals);
+    final result = List<AppStartRecordedInterval>.unmodifiable(intervals);
     cancel();
     return result;
   }

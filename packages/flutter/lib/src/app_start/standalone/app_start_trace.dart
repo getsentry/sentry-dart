@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import '../../utils/internal_logger.dart';
-import '../app_start_result.dart';
+import '../app_start_timing.dart';
 
 @internal
 const standaloneAppStartRootName = 'App Start';
@@ -107,7 +107,10 @@ abstract interface class AppStartTrace {
 
   /// Emits resolved framework/raster intervals and records the automatic
   /// startup endpoint. The root retains its existing idle/extension lifecycle.
-  void recordFirstFrame(AppStartResult result);
+  void recordFirstFrame(
+    AppStartRecordedInterval rasterInterval, {
+    List<AppStartRecordedInterval> frameworkIntervals = const [],
+  });
 
   /// Abandons the trace on SDK close, flushing whatever is still open.
   Future<void> close();

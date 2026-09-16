@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
-import 'package:sentry_flutter/src/app_start/app_start_result.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/app_start/standalone/streaming_app_start_trace.dart';
 
@@ -35,7 +34,7 @@ void main() {
         fixture.child('Sentry Initialization').endTimestamp,
         fixture.initEnd,
       );
-      sut.recordFirstFrame(fixture.appStartResult);
+      sut.recordFirstFrame(fixture.rasterInterval);
       fixture.root!.end(endTimestamp: fixture.rootFinish);
       await tester.pump();
       expect(fixture.root!.endTimestamp, fixture.naturalEnd);
@@ -613,7 +612,7 @@ void main() {
         threadInfo.call(fixture.hub, fixture.options);
         addTearDown(threadInfo.close);
         final sut = fixture.getSut()!;
-        final result = fixture.appStartResult.withFrameworkIntervals([
+        final frameworkIntervals = [
           AppStartRecordedInterval(
             description: 'Root Widget Attachment',
             operation: SentrySpanOperations.appStartRootWidgetAttachment,
@@ -624,13 +623,15 @@ void main() {
             description: 'Frame Build',
             operation: SentrySpanOperations.appStartFrameBuild,
             startTimestamp: fixture.initEnd,
-            endTimestamp:
-                fixture.appStartResult.intervals.single.startTimestamp,
+            endTimestamp: fixture.rasterInterval.startTimestamp,
             data: {'flutter.frame.deferred': true},
           ),
-        ]);
+        ];
         sut.recordInitEnd(fixture.initEnd);
-        sut.recordFirstFrame(result);
+        sut.recordFirstFrame(
+          fixture.rasterInterval,
+          frameworkIntervals: frameworkIntervals,
+        );
         await pumpEventQueue(times: 10);
         final build = fixture.child('Frame Build');
         expect(build.parentSpan, fixture.root);
@@ -648,7 +649,7 @@ void main() {
         expect(raster.attributes.containsKey('thread.id'), isFalse);
         expect(
           fixture.child('Frame Rasterization').startTimestamp,
-          fixture.appStartResult.intervals.single.startTimestamp,
+          fixture.rasterInterval.startTimestamp,
         );
         expect(
           fixture.child('Frame Rasterization').endTimestamp,
@@ -686,7 +687,7 @@ void main() {
         final lateInit = fixture.naturalEnd.add(
           const Duration(milliseconds: 20),
         );
-        sut.recordFirstFrame(fixture.appStartResult);
+        sut.recordFirstFrame(fixture.rasterInterval);
         sut.recordInitEnd(lateInit);
         fixture.root!.end(endTimestamp: fixture.rootFinish);
         await pumpEventQueue(times: 10);
@@ -700,7 +701,7 @@ void main() {
       'ends initialization independently of first-frame reporting',
       () async {
         final sut = fixture.getSut()!;
-        sut.recordFirstFrame(fixture.appStartResult);
+        sut.recordFirstFrame(fixture.rasterInterval);
         sut.recordInitEnd(fixture.initEnd);
         await pumpEventQueue(times: 10);
         expect(
@@ -885,7 +886,7 @@ class Fixture {
 
   /// Engine frame timing that starts after [initEnd] and
   /// rasterizes at [naturalEnd].
-  late final appStartResult = AppStartResult.tryResolveRasterTiming(
+  late final rasterInterval = tryResolveAppStartRasterInterval(
     fakeFirstFrameTiming(
       vsyncStart: processStart.add(Duration(milliseconds: 250)),
       buildStart: processStart.add(Duration(milliseconds: 260)),
@@ -900,7 +901,7 @@ class Fixture {
   /// test that only records the frame never lets the root report.
   void completeStartup(StreamingAppStartTrace sut) {
     sut.recordInitEnd(initEnd);
-    sut.recordFirstFrame(appStartResult);
+    sut.recordFirstFrame(rasterInterval);
   }
 
   /// The span named [description], which must be unique.

@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../utils/internal_logger.dart';
-import '../app_start_result.dart';
 import '../app_start_timing.dart';
 import 'app_start_trace.dart';
 import 'app_start_vitals.dart';
@@ -195,17 +194,21 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordFirstFrame(AppStartResult result) {
+  void recordFirstFrame(
+    AppStartRecordedInterval rasterInterval, {
+    List<AppStartRecordedInterval> frameworkIntervals = const [],
+  }) {
     if (_state.isTerminal || _endTimestamp != null) return;
-    _endTimestamp = result.rasterFinish;
+    _endTimestamp = rasterInterval.endTimestamp;
     _root.setAttribute(
       SemanticAttributesConstants.appVitalsStartScreen,
       SentryAttribute.string(_startScreenNameProvider()),
     );
 
-    for (final interval in result.intervals) {
+    for (final interval in frameworkIntervals) {
       _recordInterval(interval);
     }
+    _recordInterval(rasterInterval);
     if (_initCompleted) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }

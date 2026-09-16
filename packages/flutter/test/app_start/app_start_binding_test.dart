@@ -3,7 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/app_start/app_start_recorder.dart';
-import 'package:sentry_flutter/src/app_start/app_start_result.dart';
+import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import '../binding.dart';
 import 'first_frame_timing.dart';
 
@@ -36,19 +36,19 @@ void main() {
       }
       binding.scheduleFrame();
       await tester.pump();
-      final result = fixture.getSut().resolve(
-        fixture.start,
-        fixture.rasterResult,
+      final intervals = fixture.getSut().resolve(
+        processStart: fixture.start,
+        rasterFinish: fixture.rasterInterval.endTimestamp,
       );
       expect(
-        result.intervals.where(
+        intervals.where(
           (interval) =>
               interval.operation ==
               SentrySpanOperations.appStartRootWidgetAttachment,
         ),
         hasLength(1),
       );
-      final builds = result.intervals.where(
+      final builds = intervals.where(
         (interval) =>
             interval.operation == SentrySpanOperations.appStartFrameBuild,
       );
@@ -74,7 +74,7 @@ class Fixture {
     },
   );
   AppStartRecorder getSut() => recorder;
-  late final rasterResult = AppStartResult.tryResolveRasterTiming(
+  late final rasterInterval = tryResolveAppStartRasterInterval(
     fakeFirstFrameTiming(
       vsyncStart: start.add(const Duration(milliseconds: 90)),
       buildStart: start.add(const Duration(milliseconds: 90)),
