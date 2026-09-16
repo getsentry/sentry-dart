@@ -212,7 +212,7 @@ class Fixture {
         sentrySetupTimestamp: processStart.add(
           const Duration(milliseconds: 200),
         ),
-        phases: [],
+        intervals: [],
       );
 
   AppStartVitals resolve({

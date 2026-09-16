@@ -118,13 +118,8 @@ final class StaticAppStartTrace implements AppStartTrace {
         onCompleted: onCompleted,
       );
 
-      for (final phase in timing.phases) {
-        final child = root.startChild(
-          phase.kind.operation,
-          description: phase.description,
-          startTimestamp: phase.startTimestamp,
-        )..origin = SentryTraceOrigins.autoAppStart;
-        unawaited(_finishSpan(child, endTimestamp: phase.endTimestamp));
+      for (final interval in timing.intervals) {
+        trace._recordInterval(interval);
       }
 
       trace._scheduleFinalTimeout();
@@ -197,17 +192,15 @@ final class StaticAppStartTrace implements AppStartTrace {
     _root.scheduleFinish();
 
     for (final interval in result.intervals) {
-      final child = _startIntervalSpan(interval);
-      interval.data.forEach(child.setData);
-      unawaited(_finishSpan(child, endTimestamp: interval.endTimestamp));
+      _recordInterval(interval);
     }
     if (_initCompleted) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }
 
-  /// Creates a measured child directly under the startup root.
-  ISentrySpan _startIntervalSpan(AppStartRecordedInterval interval) {
+  /// Emits a completed interval directly under the startup root.
+  void _recordInterval(AppStartRecordedInterval interval) {
     final span = _root.startChild(
       interval.operation,
       description: interval.description,
@@ -219,7 +212,8 @@ final class StaticAppStartTrace implements AppStartTrace {
       span.removeData(SemanticAttributesConstants.threadName);
       span.removeData(SemanticAttributesConstants.threadId);
     }
-    return span;
+    interval.data.forEach(span.setData);
+    unawaited(_finishSpan(span, endTimestamp: interval.endTimestamp));
   }
 
   @override

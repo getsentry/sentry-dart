@@ -107,14 +107,8 @@ final class StreamingAppStartTrace implements AppStartTrace {
       hub.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
         trace._processSpan,
       );
-      for (final phase in timing.phases) {
-        final child = hub.startInactiveSpan(
-          phase.description,
-          parentSpan: root,
-          startTimestamp: phase.startTimestamp,
-          attributes: _childAttributes(timing, phase.kind.operation),
-        );
-        child.end(endTimestamp: phase.endTimestamp);
+      for (final interval in timing.intervals) {
+        trace._recordInterval(interval);
       }
       return trace;
     } catch (error, stackTrace) {
@@ -210,32 +204,31 @@ final class StreamingAppStartTrace implements AppStartTrace {
     );
 
     for (final interval in result.intervals) {
-      final child = _startIntervalSpan(interval);
-      interval.data.forEach(
-        (key, value) => child?.setAttribute(key, SentryAttribute.bool(value)),
-      );
-      child?.end(endTimestamp: interval.endTimestamp);
+      _recordInterval(interval);
     }
     if (_initCompleted) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }
 
-  /// Creates a measured child directly under the startup root.
-  RecordingSentrySpanV2? _startIntervalSpan(AppStartRecordedInterval interval) {
+  /// Emits a completed interval directly under the startup root.
+  void _recordInterval(AppStartRecordedInterval interval) {
     final span = _hub.startInactiveSpan(
       interval.description,
       parentSpan: _root,
       startTimestamp: interval.startTimestamp,
       attributes: _childAttributes(_timing, interval.operation),
     );
-    if (span is! RecordingSentrySpanV2) return null;
+    if (span is! RecordingSentrySpanV2) return;
     // The callback isolate does not identify the engine's raster thread.
     if (interval.operation == SentrySpanOperations.appStartFrameRaster) {
       span.removeAttribute(SemanticAttributesConstants.threadName);
       span.removeAttribute(SemanticAttributesConstants.threadId);
     }
-    return span;
+    interval.data.forEach(
+      (key, value) => span.setAttribute(key, SentryAttribute.bool(value)),
+    );
+    span.end(endTimestamp: interval.endTimestamp);
   }
 
   void _processSpan(OnProcessSpan event) {

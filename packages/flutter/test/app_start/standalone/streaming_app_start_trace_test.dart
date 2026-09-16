@@ -871,9 +871,9 @@ class Fixture {
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     sentrySetupTimestamp: sentrySetup,
-    phases: [
-      AppStartPhase(
-        kind: AppStartPhaseKind.preInit,
+    intervals: [
+      AppStartRecordedInterval(
+        operation: SentrySpanOperations.appStartPreInit,
         description: 'Pre-Init Startup',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,
@@ -953,9 +953,9 @@ class ThrowingPhaseCreationFixture {
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     sentrySetupTimestamp: sentrySetup,
-    phases: [
-      AppStartPhase(
-        kind: AppStartPhaseKind.preInit,
+    intervals: [
+      AppStartRecordedInterval(
+        operation: SentrySpanOperations.appStartPreInit,
         description: 'Pre-Init Startup',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,

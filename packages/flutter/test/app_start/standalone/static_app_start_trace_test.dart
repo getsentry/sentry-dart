@@ -1170,9 +1170,9 @@ class Fixture {
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     sentrySetupTimestamp: sentrySetup,
-    phases: [
-      AppStartPhase(
-        kind: AppStartPhaseKind.preInit,
+    intervals: [
+      AppStartRecordedInterval(
+        operation: SentrySpanOperations.appStartPreInit,
         description: 'Pre-Init Startup',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,
@@ -1199,7 +1199,7 @@ class Fixture {
       type: timing.type,
       processStartTimestamp: processStart,
       sentrySetupTimestamp: processStart.subtract(Duration(milliseconds: 1)),
-      phases: timing.phases,
+      intervals: timing.intervals,
     );
   }
 
@@ -1256,9 +1256,9 @@ class MockCreationFixture {
     type: AppStartType.cold,
     processStartTimestamp: processStart,
     sentrySetupTimestamp: sentrySetup,
-    phases: [
-      AppStartPhase(
-        kind: AppStartPhaseKind.preInit,
+    intervals: [
+      AppStartRecordedInterval(
+        operation: SentrySpanOperations.appStartPreInit,
         description: 'Pre-Init Startup',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,

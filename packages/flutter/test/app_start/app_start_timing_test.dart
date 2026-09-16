@@ -1,4 +1,6 @@
+// ignore_for_file: invalid_use_of_internal_member
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 
@@ -10,22 +12,24 @@ void main() {
       fixture = Fixture();
     });
 
-    test('parses intrinsic timing and sorts valid phases', () {
+    test('parses intrinsic timing and sorts valid native intervals', () {
       final data = fixture.parse();
 
       expect(data, isNotNull);
       expect(data!.type, AppStartType.cold);
-      expect(data.nativePhases.map((phase) => phase.description), [
+      expect(data.intervals.map((interval) => interval.description), [
         'early',
         'late',
+        'Pre-Init Startup',
       ]);
     });
 
-    test('builds one pre-init phase spanning process start to setup', () {
+    test('builds one pre-init interval spanning process start to setup', () {
       final timing = fixture.parse()!;
 
-      final preInit = timing.phases.singleWhere(
-        (phase) => phase.kind == AppStartPhaseKind.preInit,
+      final preInit = timing.intervals.singleWhere(
+        (interval) =>
+            interval.operation == SentrySpanOperations.appStartPreInit,
       );
       expect(preInit.description, 'Pre-Init Startup');
       expect(preInit.startTimestamp, fixture.processStart);
@@ -52,7 +56,7 @@ void main() {
       expect(data, isNull);
     });
 
-    test('discards one malformed optional phase', () {
+    test('discards one malformed optional interval', () {
       fixture.nativeSpanTimes['invalid'] = {
         'startTimestampMsSinceEpoch': fixture.firstFrame.millisecondsSinceEpoch,
         'stopTimestampMsSinceEpoch':
@@ -61,13 +65,14 @@ void main() {
 
       final data = fixture.parse();
 
-      expect(data!.nativePhases.map((phase) => phase.description), [
+      expect(data!.intervals.map((interval) => interval.description), [
         'early',
         'late',
+        'Pre-Init Startup',
       ]);
     });
 
-    test('discards optional phases starting before process start', () {
+    test('discards optional intervals starting before process start', () {
       fixture.nativeSpanTimes['before-process-start'] = {
         'startTimestampMsSinceEpoch': fixture.processStart
             .subtract(Duration(milliseconds: 2))
@@ -79,9 +84,10 @@ void main() {
 
       final data = fixture.parse();
 
-      expect(data!.nativePhases.map((phase) => phase.description), [
+      expect(data!.intervals.map((interval) => interval.description), [
         'early',
         'late',
+        'Pre-Init Startup',
       ]);
     });
   });

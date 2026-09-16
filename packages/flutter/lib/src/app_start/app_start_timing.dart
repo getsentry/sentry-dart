@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../utils/internal_logger.dart';
+import 'app_start_result.dart';
 
 /// Rejects app starts older / longer than 60s (late init, backgrounded
 /// process, OS forking, or unreproducible outliers).
@@ -22,26 +23,6 @@ const appStartPreInitDescription = 'Pre-Init Startup';
 @internal
 enum AppStartType { cold, warm }
 
-/// Which part of the startup timeline a phase covers.
-@internal
-enum AppStartPhaseKind { native, preInit }
-
-/// A span-ready app-start phase (native, plugin registration, or setup).
-@internal
-final class AppStartPhase {
-  AppStartPhase({
-    required this.kind,
-    required this.description,
-    required this.startTimestamp,
-    required this.endTimestamp,
-  });
-
-  final AppStartPhaseKind kind;
-  final String description;
-  final DateTime startTimestamp;
-  final DateTime endTimestamp;
-}
-
 /// Validated app-start timing snapshot before the first Flutter frame.
 ///
 /// The middle stage of how app-start data flows through the SDK:
@@ -49,15 +30,12 @@ final class AppStartPhase {
 /// 1. [NativeAppStart] — the raw platform-channel payload: epoch
 ///    milliseconds, untyped span times, shape checks only.
 /// 2. [AppStartTiming] — this type. Validated [DateTime]s and typed
-///    [AppStartPhase]s, with self-contradicting timelines rejected outright by
+///    [AppStartRecordedInterval]s, with self-contradicting timelines rejected outright by
 ///    [tryParse].
 /// 3. `AppStartVitals` — what a standalone root actually reports: type,
 ///    screen, and a duration that may be absent.
 /// 4. The span payload — measurements on the static path, attributes on the
 ///    streaming one.
-///
-/// [AppStartType], [AppStartPhaseKind] and [AppStartPhase] are parts of this
-/// stage rather than stages of their own.
 ///
 /// Stages 1 and 2 stay separate because a coherent timeline is not yet a
 /// reportable one. Plausibility depends on when the launch is measured to, so
@@ -69,18 +47,15 @@ final class AppStartTiming {
     required this.type,
     required this.processStartTimestamp,
     required this.sentrySetupTimestamp,
-    required this.phases,
+    required this.intervals,
   });
 
   final AppStartType type;
   final DateTime processStartTimestamp;
   final DateTime sentrySetupTimestamp;
 
-  /// Native detail phases plus the pre-init roll-up, ready to become spans.
-  final List<AppStartPhase> phases;
-
-  Iterable<AppStartPhase> get nativePhases =>
-      phases.where((phase) => phase.kind == AppStartPhaseKind.native);
+  /// Native detail intervals plus the pre-init roll-up, ready to become spans.
+  final List<AppStartRecordedInterval> intervals;
 
   /// The duration safe to report, or `null` when the window is not a
   /// plausible launch — longer than the 60s ceiling, or running backwards
@@ -109,7 +84,7 @@ final class AppStartTiming {
   /// start, or setup before plugin registration.
   ///
   /// [sentrySetupTimestamp] is when `SentryFlutter.init` started (Dart-side).
-  /// It ends the [AppStartPhaseKind.preInit] phase.
+  /// It ends the pre-init interval.
   ///
   /// Coherent is not the same as reportable: this only rejects a timeline that
   /// contradicts itself, which needs nothing beyond the payload. Whether the
@@ -136,7 +111,7 @@ final class AppStartTiming {
       type: nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
       processStartTimestamp: processStart,
       sentrySetupTimestamp: setup,
-      phases: _buildPhases(
+      intervals: _buildIntervals(
         nativeAppStart: nativeAppStart,
         processStart: processStart,
         setup: setup,
@@ -144,25 +119,25 @@ final class AppStartTiming {
     );
   }
 
-  static List<AppStartPhase> _buildPhases({
+  static List<AppStartRecordedInterval> _buildIntervals({
     required NativeAppStart nativeAppStart,
     required DateTime processStart,
     required DateTime setup,
   }) => [
-    ..._parseNativePhases(nativeAppStart, earliestTimestamp: processStart),
-    AppStartPhase(
-      kind: AppStartPhaseKind.preInit,
+    ..._parseNativeIntervals(nativeAppStart, earliestTimestamp: processStart),
+    AppStartRecordedInterval(
+      operation: SentrySpanOperations.appStartPreInit,
       description: appStartPreInitDescription,
       startTimestamp: processStart,
       endTimestamp: setup,
     ),
   ];
 
-  static List<AppStartPhase> _parseNativePhases(
+  static List<AppStartRecordedInterval> _parseNativeIntervals(
     NativeAppStart nativeAppStart, {
     required DateTime earliestTimestamp,
   }) {
-    final phases = <AppStartPhase>[];
+    final intervals = <AppStartRecordedInterval>[];
     for (final entry in nativeAppStart.nativeSpanTimes.entries) {
       try {
         final value = entry.value;
@@ -177,9 +152,9 @@ final class AppStartTiming {
         if (end.isBefore(start) || start.isBefore(earliestTimestamp)) {
           continue;
         }
-        phases.add(
-          AppStartPhase(
-            kind: AppStartPhaseKind.native,
+        intervals.add(
+          AppStartRecordedInterval(
+            operation: SentrySpanOperations.appStartNative,
             description: entry.key as String,
             startTimestamp: start,
             endTimestamp: end,
@@ -187,23 +162,13 @@ final class AppStartTiming {
         );
       } catch (error, stackTrace) {
         internalLogger.warning(
-          'Failed to parse native app-start phase',
+          'Failed to parse native app-start interval',
           error: error,
           stackTrace: stackTrace,
         );
       }
     }
-    phases.sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
-    return phases;
+    intervals.sort((a, b) => a.startTimestamp.compareTo(b.startTimestamp));
+    return intervals;
   }
-}
-
-/// Per-phase span op for standalone app-start, where every phase carries its
-/// own op. Cold/warm is reported on the `app.start` root as attributes.
-@internal
-extension StandaloneAppStartPhaseSpans on AppStartPhaseKind {
-  String get operation => switch (this) {
-    AppStartPhaseKind.native => SentrySpanOperations.appStartNative,
-    AppStartPhaseKind.preInit => SentrySpanOperations.appStartPreInit,
-  };
 }
