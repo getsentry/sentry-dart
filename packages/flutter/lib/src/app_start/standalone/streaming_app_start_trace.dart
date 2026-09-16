@@ -317,13 +317,8 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 }
 
-/// Owns the single extension span for the streaming lifecycle.
-///
-/// Mirrors `_StaticAppStartExtensionLifecycle` member for member; see the note
-/// there for why the two are not shared. It diverges in two places, both
-/// because the idle root here force-ends its descendants synchronously: there
-/// is no `waitForPendingFinish`, since no finish can be in flight when the
-/// deadline lands, and [_finishSpan] never has to stamp a deadline status.
+/// Owns the streaming extension. The idle root ends it synchronously at the
+/// deadline, so no pending-finish wait is needed as in the static lifecycle.
 final class _StreamingAppStartExtensionLifecycle {
   final Hub _hub;
   final IdleRecordingSentrySpanV2 _root;

@@ -53,12 +53,9 @@ final class AppStartRecorder {
     if (_state != _RecorderState.observing) return;
     final start = _frameBuildStart;
     _frameBuildStart = null;
-    if (!succeeded || start == null) return;
+    if (!succeeded || start == null || _frameBuilds.length == 10) return;
     final end = _now();
     if (end == null || end.isBefore(start)) return;
-    if (_frameBuilds.length == 10) {
-      return;
-    }
     _frameBuilds.add(
       AppStartRecordedInterval(
         description: 'Frame Build',

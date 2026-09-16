@@ -95,10 +95,7 @@ class StandaloneAppStartHandler {
           nativeAppStart,
           sentrySetupTimestamp: setupTimestamp,
         );
-        // The root opens here and only learns its end at the first frame, so a
-        // launch that is already implausible has to be rejected now — opening
-        // a root that can never report a duration is worse than reporting
-        // nothing.
+        // Reject launches already too old before opening the root.
         if (parsed?.reportableDurationUntil(options.clock()) != null) {
           timing = parsed;
         }
@@ -166,9 +163,7 @@ class StandaloneAppStartHandler {
     };
   }
 
-  /// Stops exposing the trace once it can no longer be extended, so a reported
-  /// app start does not stay reachable — and retained — for the process
-  /// lifetime.
+  /// Releases the completed trace and stops observing startup.
   void _unpublishTrace() {
     _options?.standaloneAppStartTrace = null;
     _stopObservation();

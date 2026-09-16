@@ -12,36 +12,17 @@ import '../utils/internal_logger.dart';
 /// process, OS forking, or unreproducible outliers).
 const _maxAppStartAge = Duration(seconds: 60);
 
-/// Description for everything before `SentryFlutter.init` began.
-///
-/// Deliberately not split at `pluginRegistrationTime`. That timestamp records
-/// when Sentry's *native* plugin happened to be attached, which moves with
-/// plugin ordering and marks no milestone in the app's own startup — so it
-/// bounds no span, and is only used to reject an incoherent payload.
+/// Startup work before `SentryFlutter.init` began.
+/// Native plugin registration depends on plugin ordering, so it validates
+/// timestamp ordering but does not define a separate span.
 @internal
 const appStartPreInitDescription = 'Pre-Init Startup';
 
 @internal
 enum AppStartType { cold, warm }
 
-/// Validated app-start timing snapshot before the first Flutter frame.
-///
-/// The middle stage of how app-start data flows through the SDK:
-///
-/// 1. [NativeAppStart] — the raw platform-channel payload: epoch
-///    milliseconds, untyped span times, shape checks only.
-/// 2. [AppStartTiming] — this type. Validated [DateTime]s and typed
-///    [AppStartRecordedInterval]s, with self-contradicting timelines rejected outright by
-///    [tryParse].
-/// 3. `AppStartVitals` — what a standalone root actually reports: type,
-///    screen, and a duration that may be absent.
-/// 4. The span payload — measurements on the static path, attributes on the
-///    streaming one.
-///
-/// Stages 1 and 2 stay separate because a coherent timeline is not yet a
-/// reportable one. Plausibility depends on when the launch is measured to, so
-/// it is asked separately through [reportableDurationUntil] — the same
-/// [NativeAppStart] can be reportable for one caller and not another.
+/// Validated native timing and startup intervals.
+/// [reportableDurationUntil] checks launch duration once the endpoint is known.
 @internal
 final class AppStartTiming {
   AppStartTiming({
@@ -58,18 +39,8 @@ final class AppStartTiming {
   /// Native detail intervals plus the pre-init roll-up, ready to become spans.
   final List<AppStartRecordedInterval> intervals;
 
-  /// The duration safe to report, or `null` when the window is not a
-  /// plausible launch — longer than the 60s ceiling, or running backwards
-  /// because the wall clock was adjusted mid-startup.
-  ///
-  /// This is the only plausibility gate, so every caller that reports an app
-  /// start goes through it. Native hands over an OS process start with no hint
-  /// of how long ago it was: a pre-warmed or backgrounded launch can begin
-  /// minutes before the user ever saw the app, and nothing but the duration to
-  /// a caller-chosen end reveals that.
-  ///
-  /// Dropped rather than clamped, because a clamped 60s is indistinguishable
-  /// from a genuine one.
+  /// Returns `null` for negative durations or launches longer than 60 seconds.
+  /// Rejects rather than clamps outliers to avoid reporting misleading durations.
   Duration? reportableDurationUntil(DateTime endTimestamp) {
     final duration = endTimestamp.difference(processStartTimestamp);
     return duration.isNegative || duration > _maxAppStartAge ? null : duration;
@@ -80,27 +51,21 @@ final class AppStartTiming {
       ? SentryMeasurement.coldAppStart(duration)
       : SentryMeasurement.warmAppStart(duration);
 
-  /// Parses native app-start timing into span-ready data, or `null` when the
-  /// payload is not a coherent timeline — plugin registration before process
-  /// start, or setup before plugin registration.
-  ///
-  /// [sentrySetupTimestamp] is when `SentryFlutter.init` started (Dart-side).
-  /// It ends the pre-init interval.
-  ///
-  /// Coherent is not the same as reportable: this only rejects a timeline that
-  /// contradicts itself, which needs nothing beyond the payload. Whether the
-  /// launch is plausible enough to report is [reportableDurationUntil], asked
-  /// once the caller knows which end it measures to.
+  /// Parses native intervals, rejecting inconsistent startup timestamp ordering.
+  /// [sentrySetupTimestamp] marks the start of `SentryFlutter.init` and ends
+  /// pre-init. Duration validation is separate: see [reportableDurationUntil].
   static AppStartTiming? tryParse(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
   }) {
     final processStart = DateTime.fromMillisecondsSinceEpoch(
       nativeAppStart.appStartTime,
-    ).toUtc();
+      isUtc: true,
+    );
     final pluginRegistration = DateTime.fromMillisecondsSinceEpoch(
       nativeAppStart.pluginRegistrationTime,
-    ).toUtc();
+      isUtc: true,
+    );
     final setup = sentrySetupTimestamp.toUtc();
 
     if (pluginRegistration.isBefore(processStart) ||
@@ -112,27 +77,20 @@ final class AppStartTiming {
       type: nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
       processStartTimestamp: processStart,
       sentrySetupTimestamp: setup,
-      intervals: _buildIntervals(
-        nativeAppStart: nativeAppStart,
-        processStart: processStart,
-        setup: setup,
-      ),
+      intervals: [
+        ..._parseNativeIntervals(
+          nativeAppStart,
+          earliestTimestamp: processStart,
+        ),
+        AppStartRecordedInterval(
+          operation: SentrySpanOperations.appStartPreInit,
+          description: appStartPreInitDescription,
+          startTimestamp: processStart,
+          endTimestamp: setup,
+        ),
+      ],
     );
   }
-
-  static List<AppStartRecordedInterval> _buildIntervals({
-    required NativeAppStart nativeAppStart,
-    required DateTime processStart,
-    required DateTime setup,
-  }) => [
-    ..._parseNativeIntervals(nativeAppStart, earliestTimestamp: processStart),
-    AppStartRecordedInterval(
-      operation: SentrySpanOperations.appStartPreInit,
-      description: appStartPreInitDescription,
-      startTimestamp: processStart,
-      endTimestamp: setup,
-    ),
-  ];
 
   static List<AppStartRecordedInterval> _parseNativeIntervals(
     NativeAppStart nativeAppStart, {
@@ -146,10 +104,12 @@ final class AppStartTiming {
         final endMilliseconds = value['stopTimestampMsSinceEpoch'] as int;
         final start = DateTime.fromMillisecondsSinceEpoch(
           startMilliseconds,
-        ).toUtc();
+          isUtc: true,
+        );
         final end = DateTime.fromMillisecondsSinceEpoch(
           endMilliseconds,
-        ).toUtc();
+          isUtc: true,
+        );
         if (end.isBefore(start) || start.isBefore(earliestTimestamp)) {
           continue;
         }
@@ -207,10 +167,7 @@ AppStartRecordedInterval? tryResolveAppStartRasterInterval(FrameTiming timing) {
     FramePhase.rasterFinish,
   );
   final rasterDurationMicros = rasterFinishMicros - rasterStartMicros;
-  if (rasterFinishWallMicros <= 0 ||
-      rasterStartMicros < 0 ||
-      rasterDurationMicros < 0 ||
-      rasterDurationMicros > rasterFinishWallMicros) {
+  if (rasterFinishWallMicros <= 0 || rasterDurationMicros < 0) {
     return null;
   }
 

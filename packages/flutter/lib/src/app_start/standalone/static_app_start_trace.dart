@@ -29,11 +29,8 @@ final class StaticAppStartTrace implements AppStartTrace {
   bool _initCompleted = false;
   AppStartTraceState _state = AppStartTraceState.open;
 
-  // One way flag — never cleared — once the final deadline starts draining
-  // descendants asynchronously. It blocks extension mutations across that
-  // sweep, after which the terminal state normally takes over; when the drain
-  // fails before reaching it, this stays the only thing refusing to extend a
-  // root that is already past its deadline.
+  // Blocks extensions while the deadline drains children asynchronously,
+  // including if draining fails before the trace reaches a terminal state.
   bool _finalizing = false;
 
   bool get _isFinalizingOrTerminal => _finalizing || _state.isTerminal;
@@ -285,15 +282,9 @@ final class StaticAppStartTrace implements AppStartTrace {
     });
   }
 
-  /// Force-ends the trace once the hard deadline passes.
-  ///
-  /// Runs at most once — the final-timeout [Timer] is one-shot — so the
-  /// terminal check is enough to keep it out; [_finalizing] is what keeps
-  /// extensions out while the drain below awaits. The state stays
-  /// [AppStartTraceState.open] throughout, which lets a first frame arriving
-  /// between the awaits below still run [recordFirstFrame] — and it should:
-  /// that frame is the endpoint the app start reports, since a root past its
-  /// deadline still measures to the first frame.
+  /// Drains the trace at its hard deadline, blocking further extensions.
+  /// Keep the state open during awaits so a first-frame callback can still
+  /// supply the measurement endpoint before the root finishes.
   Future<void> _finishAtDeadline() async {
     if (_isFinalizingOrTerminal) return;
     _finalizing = true;
@@ -357,14 +348,8 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 }
 
-/// Owns the single extension span for the static lifecycle.
-///
-/// Deliberately not shared with its streaming counterpart, which mirrors this
-/// class step for step: the two operate on different span protocols, one ends
-/// spans asynchronously and the other synchronously, and each expresses status
-/// its own way. Unifying them would mean a type parameter plus an adapter per
-/// protocol to bridge those three differences, for one implementation each —
-/// the same reason the two trace classes above them stay separate.
+/// Owns the static extension and waits for asynchronous span completion.
+/// Kept separate from streaming, which ends spans synchronously.
 final class _StaticAppStartExtensionLifecycle {
   final Hub _hub;
   final SentryTracer _root;
