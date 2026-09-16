@@ -85,6 +85,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
     if (identical(_appStartRecorder, recorder)) _appStartRecorder = null;
   }
 
+  /// Attaches the root widget and records its initial attachment during startup.
   @override
   void attachToBuildOwner(RootWidget widget) {
     final recorder = _appStartRecorder;
@@ -158,6 +159,8 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
     final recorder = _appStartRecorder;
+    // The interval spans handleBeginFrame -> handleDrawFrame -> drawFrame,
+    // including work before the widget build/layout/paint pipeline.
     recorder?.beginFrameBuild(warmUp: rawTimeStamp == null);
     if (_isTrackingActive) {
       try {

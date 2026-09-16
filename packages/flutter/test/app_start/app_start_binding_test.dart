@@ -36,7 +36,7 @@ void main() {
       }
       binding.scheduleFrame();
       await tester.pump();
-      final intervals = fixture.getSut().resolve(
+      final intervals = fixture.getSut().takeIntervals(
         processStart: fixture.start,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );

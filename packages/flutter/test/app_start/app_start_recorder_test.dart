@@ -19,7 +19,7 @@ void main() {
       sut.beginFrameBuild(warmUp: true);
       fixture.advance(20);
       sut.endFrameBuild(deferred: true);
-      final intervals = sut.resolve(
+      final intervals = sut.takeIntervals(
         processStart: fixture.start,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
@@ -51,7 +51,7 @@ void main() {
         fixture.advance(1);
         sut.endFrameBuild(deferred: true);
       }
-      final intervals = sut.resolve(
+      final intervals = sut.takeIntervals(
         processStart: fixture.start,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
@@ -74,7 +74,7 @@ void main() {
       sut.beginFrameBuild(warmUp: false);
       fixture.advance(5);
       sut.endFrameBuild(deferred: false);
-      final intervals = sut.resolve(
+      final intervals = sut.takeIntervals(
         processStart: fixture.start,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
@@ -93,7 +93,7 @@ void main() {
       sut.cancel();
       expect(
         sut
-            .resolve(
+            .takeIntervals(
               processStart: fixture.start,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
@@ -111,7 +111,7 @@ void main() {
       sut.endFrameBuild(deferred: false);
       expect(
         sut
-            .resolve(
+            .takeIntervals(
               processStart: fixture.start,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
@@ -127,7 +127,7 @@ void main() {
       sut.endFrameBuild(deferred: false);
       expect(
         sut
-            .resolve(
+            .takeIntervals(
               processStart: fixture.start,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
@@ -145,7 +145,7 @@ void main() {
       sut.endFrameBuild(deferred: false);
       expect(
         sut
-            .resolve(
+            .takeIntervals(
               processStart: fixture.start,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
@@ -163,7 +163,7 @@ void main() {
       }, returnsNormally);
       expect(
         sut
-            .resolve(
+            .takeIntervals(
               processStart: fixture.start,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )

@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, invalid_use_of_internal_member, experimental_member_use
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:flutter/foundation.dart';
@@ -13,6 +12,7 @@ import 'package:sentry_logging/sentry_logging.dart';
 
 import 'app_config.dart' as config;
 import 'home_screen.dart';
+import 'screens/app_start_workloads.dart';
 import 'theme_provider.dart';
 
 Future<void> main() async {
@@ -163,19 +163,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     if (config.prolongRootWidgetAttachment) {
-      // Root initState runs inside attachToBuildOwner, before frame layout.
-      final catalog =
-          '[${List.filled(60000, '{"id":42,"name":"Sample product","price":12.34,"stock":17}').join(',')}]';
-      var productsInStock = 0;
-      for (var pass = 0; pass < 3; pass++) {
-        final products = jsonDecode(catalog) as List<dynamic>;
-        productsInStock += products
-            .where((product) => product['stock'] > 0)
-            .length;
-      }
-      debugPrint(
-        'Startup attachment workload: $productsInStock products in stock',
-      );
+      runRootAttachmentWorkload();
     }
     doWork();
   }

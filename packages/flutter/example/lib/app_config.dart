@@ -9,9 +9,9 @@ const String exampleDsn =
 const String exampleUrl = 'https://jsonplaceholder.typicode.com/todos/';
 
 // Deliberately expensive startup workloads. Rebuild and cold-launch after changes.
-const bool prolongRootWidgetAttachment = true;
-const bool prolongFrameBuild = true;
-const bool prolongFrameRasterization = true;
+const bool prolongRootWidgetAttachment = false;
+const bool prolongFrameBuild = false;
+const bool prolongFrameRasterization = false;
 
 const _methodChannel = MethodChannel('example.flutter.sentry.io');
 

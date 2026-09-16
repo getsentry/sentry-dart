@@ -64,13 +64,18 @@ final class IdleRecordingSentrySpanV2 extends RecordingSentrySpanV2 {
   /// Suspends idle completion without changing the absolute final deadline.
   @internal
   void pauseIdleTimeout() {
+    if (_isEnding) return;
     _idleTimeoutPaused = true;
     _cancelIdleTimer();
   }
 
-  /// Restarts idle completion once the owner finishes observing startup.
+  /// Restarts idle completion without changing the absolute final deadline.
+  ///
+  /// Keeps the latest [minimumEndTimestamp] supplied across calls. Omitting it
+  /// preserves the existing minimum. Calls after completion have no effect.
   @internal
   void resumeIdleTimeout({DateTime? minimumEndTimestamp}) {
+    if (_isEnding) return;
     if (minimumEndTimestamp != null) {
       _trackLatestChildEnd(minimumEndTimestamp.toUtc());
     }

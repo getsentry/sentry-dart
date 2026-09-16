@@ -440,17 +440,27 @@ class SentryTracer extends ISentrySpan {
     }
   }
 
-  /// Suspends automatic idle completion while the owner observes startup.
+  /// Suspends automatic idle completion and clears a pending finish request.
   void pauseIdleTimeout() {
+    if (finished) return;
     _idleTimeoutPaused = true;
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.notFinishing();
   }
 
-  /// Restarts idle completion after startup observation has finished.
+  /// Restarts automatic idle completion.
+  ///
+  /// Keeps the latest [minimumEndTimestamp] supplied across calls. Omitting it
+  /// preserves the existing minimum. Calls after completion have no effect.
   void resumeIdleTimeout({DateTime? minimumEndTimestamp}) {
-    _minimumEndTimestamp = minimumEndTimestamp?.toUtc();
     if (finished) return;
+    final minimumEnd = minimumEndTimestamp?.toUtc();
+    final previousMinimumEnd = _minimumEndTimestamp;
+    if (minimumEnd != null &&
+        (previousMinimumEnd == null ||
+            minimumEnd.isAfter(previousMinimumEnd))) {
+      _minimumEndTimestamp = minimumEnd;
+    }
     _idleTimeoutPaused = false;
     _scheduleTimer();
   }

@@ -135,8 +135,7 @@ class StandaloneAppStartHandler {
     _nativeTimingResolved = true;
     if (options.standaloneAppStartTrace == null) {
       _detachFrameworkObserver();
-      _recorder?.cancel();
-      _recorder = null;
+      _disposeRecorder();
     }
     unawaited(_recordStartupWhenReady(options));
   }
@@ -212,21 +211,19 @@ class StandaloneAppStartHandler {
     final rasterInterval = _pendingRasterInterval;
     _pendingRasterInterval = null;
     if (rasterInterval == null) {
-      _recorder?.cancel();
-      _recorder = null;
+      _disposeRecorder();
       return;
     }
     try {
       final processStart = _processStartTimestamp;
       final recorder = _recorder;
       final frameworkIntervals = processStart != null && recorder != null
-          ? recorder.resolve(
+          ? recorder.takeIntervals(
               processStart: processStart,
               rasterFinish: rasterInterval.endTimestamp,
             )
           : const <AppStartRecordedInterval>[];
-      _recorder?.cancel();
-      _recorder = null;
+      _disposeRecorder();
       options.standaloneAppStartTrace?.recordFirstFrame(
         rasterInterval,
         frameworkIntervals: frameworkIntervals,
@@ -248,11 +245,15 @@ class StandaloneAppStartHandler {
     _recordingBinding = null;
   }
 
+  void _disposeRecorder() {
+    _recorder?.cancel();
+    _recorder = null;
+  }
+
   void _stopObservation() {
     _removeTimingsCallback();
     _detachFrameworkObserver();
-    _recorder?.cancel();
-    _recorder = null;
+    _disposeRecorder();
     _pendingRasterInterval = null;
   }
 

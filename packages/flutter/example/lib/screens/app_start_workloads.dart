@@ -1,6 +1,20 @@
+import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+
+/// Runs synchronous catalog work during the root widget's initState.
+void runRootAttachmentWorkload() {
+  // Root initState runs inside attachToBuildOwner, before frame layout.
+  final catalog =
+      '[${List.filled(60000, '{"id":42,"name":"Sample product","price":12.34,"stock":17}').join(',')}]';
+  var productsInStock = 0;
+  for (var pass = 0; pass < 3; pass++) {
+    final products = jsonDecode(catalog) as List<dynamic>;
+    productsInStock += products.where((product) => product['stock'] > 0).length;
+  }
+  debugPrint('Startup attachment workload: $productsInStock products in stock');
+}
 
 /// Keeps raster work in the home page's first frame.
 class AppStartRasterOverlay extends StatelessWidget {
@@ -28,9 +42,9 @@ class AppStartRasterOverlay extends StatelessWidget {
 class AppStartWorkloadSection extends StatelessWidget {
   const AppStartWorkloadSection({
     super.key,
-    this.prolongRootWidgetAttachment = true,
-    this.prolongFrameBuild = true,
-    this.prolongFrameRasterization = true,
+    this.prolongRootWidgetAttachment = false,
+    this.prolongFrameBuild = false,
+    this.prolongFrameRasterization = false,
   });
 
   final bool prolongRootWidgetAttachment;

@@ -13,6 +13,8 @@ enum _RecorderState { observing, frozen, closed }
 final class AppStartRecorder {
   AppStartRecorder({required this.clock});
 
+  static const _maxRecordedFrameBuilds = 10;
+
   final DateTime Function() clock;
   final _frameBuilds = <AppStartRecordedInterval>[];
   _RecorderState _state = _RecorderState.observing;
@@ -44,6 +46,8 @@ final class AppStartRecorder {
   }
 
   void beginFrameBuild({required bool warmUp}) {
+    // Only attribute builds to startup after successfully observing initial
+    // root attachment; an existing root or failed timestamp is insufficient.
     if (_state != _RecorderState.observing || _rootAttachment == null) return;
     _frameBuildStart = _now();
     _isWarmUpFrame = warmUp;
@@ -53,7 +57,11 @@ final class AppStartRecorder {
     if (_state != _RecorderState.observing) return;
     final start = _frameBuildStart;
     _frameBuildStart = null;
-    if (!succeeded || start == null || _frameBuilds.length == 10) return;
+    if (!succeeded ||
+        start == null ||
+        _frameBuilds.length >= _maxRecordedFrameBuilds) {
+      return;
+    }
     final end = _now();
     if (end == null || end.isBefore(start)) return;
     _frameBuilds.add(
@@ -78,12 +86,13 @@ final class AppStartRecorder {
     _frameBuildStart = null;
   }
 
-  List<AppStartRecordedInterval> resolve({
+  /// Consumes the intervals within the startup window and closes the recorder.
+  List<AppStartRecordedInterval> takeIntervals({
     required DateTime processStart,
     required DateTime rasterFinish,
   }) {
-    freeze();
     if (_state == _RecorderState.closed) return const [];
+    freeze();
     final intervals =
         <AppStartRecordedInterval>[?_rootAttachment, ..._frameBuilds].where(
           (interval) =>

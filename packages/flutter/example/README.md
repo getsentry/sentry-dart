@@ -42,7 +42,8 @@ and the
 ## App-start workloads
 
 Configure the three booleans in `lib/app_config.dart`, then rebuild and
-cold-launch with `flutter run --release`. All three default to **true**:
+cold-launch with `flutter run --release`. All three default to **false**; enable
+the phases you want to inspect:
 
 - `prolongRootWidgetAttachment`: synchronously parses and filters sample catalog
   JSON in the root widget's `initState`, during root attachment.
