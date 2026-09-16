@@ -680,11 +680,13 @@ void main() {
       );
       expect(
         fixture.children.map((span) => span.name),
-        isNot(contains('First Frame Render')),
-      );
-      expect(
-        fixture.children.map((span) => span.name),
-        isNot(contains('Post-Init Startup')),
+        unorderedEquals([
+          'Pre-Init Startup',
+          'Sentry Initialization',
+          'Root Widget Attachment',
+          'Frame Build',
+          'Frame Rasterization',
+        ]),
       );
     });
 

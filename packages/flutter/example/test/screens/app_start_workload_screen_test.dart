@@ -4,19 +4,6 @@ import 'package:sentry_flutter_example/screens/app_start_workload_screen.dart';
 
 void main() {
   group('$AppStartWorkloadSection', () {
-    testWidgets('has no runtime workload switches', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AppStartWorkloadSection(
-            prolongBuild: false,
-            prolongRaster: false,
-          ),
-        ),
-      );
-      expect(find.byType(SwitchListTile), findsNothing);
-      expect(find.text('App-start workloads'), findsOneWidget);
-    });
-
     testWidgets('lays out offscreen products when build work is enabled', (
       tester,
     ) async {

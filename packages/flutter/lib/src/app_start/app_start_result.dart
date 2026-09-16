@@ -51,23 +51,32 @@ final class AppStartResult {
   );
 
   static AppStartResult? tryResolve(FrameTiming timing) {
-    final anchor = timing.timestampInMicroseconds(
+    final rasterFinishWallMicros = timing.timestampInMicroseconds(
       FramePhase.rasterFinishWallTime,
     );
-    final start = timing.timestampInMicroseconds(FramePhase.rasterStart);
-    final finish = timing.timestampInMicroseconds(FramePhase.rasterFinish);
-    final duration = finish - start;
-    if (anchor <= 0 || start < 0 || duration < 0 || duration > anchor) {
+    final rasterStartMicros = timing.timestampInMicroseconds(
+      FramePhase.rasterStart,
+    );
+    final rasterFinishMicros = timing.timestampInMicroseconds(
+      FramePhase.rasterFinish,
+    );
+    final rasterDurationMicros = rasterFinishMicros - rasterStartMicros;
+    if (rasterFinishWallMicros <= 0 ||
+        rasterStartMicros < 0 ||
+        rasterDurationMicros < 0 ||
+        rasterDurationMicros > rasterFinishWallMicros) {
       return null;
     }
 
     // The engine timestamps use a different epoch. Project the duration back
     // from its wall-clock endpoint rather than interpreting them as dates.
     final rasterFinish = DateTime.fromMicrosecondsSinceEpoch(
-      anchor,
+      rasterFinishWallMicros,
       isUtc: true,
     );
-    final rasterStart = rasterFinish.subtract(Duration(microseconds: duration));
+    final rasterStart = rasterFinish.subtract(
+      Duration(microseconds: rasterDurationMicros),
+    );
     return AppStartResult._(
       rasterFinish: rasterFinish,
       intervals: [

@@ -14,29 +14,29 @@ final class AppStartRecorder {
   AppStartRecorder({required this.clock});
 
   final DateTime Function() clock;
-  final _builds = <AppStartRecordedInterval>[];
+  final _frameBuilds = <AppStartRecordedInterval>[];
   _RecorderState _state = _RecorderState.observing;
-  bool _attachmentAttempted = false;
-  DateTime? _attachmentStart;
-  AppStartRecordedInterval? _attachment;
-  DateTime? _frameStart;
-  bool _warmUp = false;
+  bool _rootAttachmentAttempted = false;
+  DateTime? _rootAttachmentStart;
+  AppStartRecordedInterval? _rootAttachment;
+  DateTime? _frameBuildStart;
+  bool _isWarmUpFrame = false;
   int _omittedBuilds = 0;
 
   void beginAttachment({required bool hasRoot}) {
-    if (_state != _RecorderState.observing || _attachmentAttempted) return;
-    _attachmentAttempted = true;
-    if (!hasRoot) _attachmentStart = _now();
+    if (_state != _RecorderState.observing || _rootAttachmentAttempted) return;
+    _rootAttachmentAttempted = true;
+    if (!hasRoot) _rootAttachmentStart = _now();
   }
 
   void endAttachment({bool succeeded = true}) {
     if (_state != _RecorderState.observing) return;
-    final start = _attachmentStart;
-    _attachmentStart = null;
+    final start = _rootAttachmentStart;
+    _rootAttachmentStart = null;
     if (!succeeded || start == null) return;
     final end = _now();
     if (end == null || end.isBefore(start)) return;
-    _attachment = AppStartRecordedInterval(
+    _rootAttachment = AppStartRecordedInterval(
       description: 'Root Widget Attachment',
       operation: SentrySpanOperations.appStartRootWidgetAttachment,
       threadName: 'ui',
@@ -46,23 +46,23 @@ final class AppStartRecorder {
   }
 
   void beginFrame({required bool warmUp}) {
-    if (_state != _RecorderState.observing || _attachment == null) return;
-    _frameStart = _now();
-    _warmUp = warmUp;
+    if (_state != _RecorderState.observing || _rootAttachment == null) return;
+    _frameBuildStart = _now();
+    _isWarmUpFrame = warmUp;
   }
 
   void endFrame({required bool deferred, bool succeeded = true}) {
     if (_state != _RecorderState.observing) return;
-    final start = _frameStart;
-    _frameStart = null;
+    final start = _frameBuildStart;
+    _frameBuildStart = null;
     if (!succeeded || start == null) return;
     final end = _now();
     if (end == null || end.isBefore(start)) return;
-    if (_builds.length == 10) {
+    if (_frameBuilds.length == 10) {
       _omittedBuilds++;
       return;
     }
-    _builds.add(
+    _frameBuilds.add(
       AppStartRecordedInterval(
         description: 'Frame Build',
         operation: SentrySpanOperations.appStartFrameBuild,
@@ -70,7 +70,7 @@ final class AppStartRecorder {
         startTimestamp: start,
         endTimestamp: end,
         data: {
-          ProposedSemanticAttributes.flutterFrameWarmUp: _warmUp,
+          ProposedSemanticAttributes.flutterFrameWarmUp: _isWarmUpFrame,
           ProposedSemanticAttributes.flutterFrameDeferred: deferred,
         },
       ),
@@ -81,20 +81,20 @@ final class AppStartRecorder {
   void freeze() {
     if (_state != _RecorderState.observing) return;
     _state = _RecorderState.frozen;
-    _attachmentStart = null;
-    _frameStart = null;
+    _rootAttachmentStart = null;
+    _frameBuildStart = null;
   }
 
-  AppStartResult resolve(DateTime startupStart, AppStartResult raster) {
+  AppStartResult resolve(DateTime startupStart, AppStartResult rasterResult) {
     freeze();
-    if (_state == _RecorderState.closed) return raster;
-    final intervals = <AppStartRecordedInterval>[?_attachment, ..._builds]
-        .where(
-          (span) =>
-              !span.startTimestamp.isBefore(startupStart) &&
-              !span.endTimestamp.isAfter(raster.rasterFinish),
+    if (_state == _RecorderState.closed) return rasterResult;
+    final intervals =
+        <AppStartRecordedInterval>[?_rootAttachment, ..._frameBuilds].where(
+          (interval) =>
+              !interval.startTimestamp.isBefore(startupStart) &&
+              !interval.endTimestamp.isAfter(rasterResult.rasterFinish),
         );
-    final result = raster.withFrameworkIntervals(
+    final result = rasterResult.withFrameworkIntervals(
       intervals,
       omittedBuilds: _omittedBuilds,
     );
@@ -105,8 +105,8 @@ final class AppStartRecorder {
   void cancel() {
     freeze();
     _state = _RecorderState.closed;
-    _attachment = null;
-    _builds.clear();
+    _rootAttachment = null;
+    _frameBuilds.clear();
   }
 
   DateTime? _now() {

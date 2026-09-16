@@ -523,11 +523,13 @@ void main() {
       expect(fixture.root!.tracer.data['flutter.frame.builds.omitted'], 2);
       expect(
         fixture.root!.tracer.children.map((span) => span.context.description),
-        isNot(contains('First Frame Render')),
-      );
-      expect(
-        fixture.root!.tracer.children.map((span) => span.context.description),
-        isNot(contains('Post-Init Startup')),
+        unorderedEquals([
+          'Pre-Init Startup',
+          'Sentry Initialization',
+          'Root Widget Attachment',
+          'Frame Build',
+          'Frame Rasterization',
+        ]),
       );
     });
 

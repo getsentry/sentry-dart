@@ -10,12 +10,6 @@ void main() {
     setUp(() {
       fixture = Fixture();
     });
-    test('does not infer framework work from engine build timestamps', () {
-      final timings = AppStartResult.tryResolve(fixture.timing())!;
-      expect(timings.intervals.map((span) => span.operation), [
-        SentrySpanOperations.appStartFrameRaster,
-      ]);
-    });
     test('anchors raster duration on the wall clock endpoint', () {
       final timings = AppStartResult.tryResolve(fixture.timing())!;
       expect(
@@ -25,11 +19,14 @@ void main() {
       expect(timings.rasterFinish, fixture.rasterFinishWall);
     });
     test(
-      'retains raster timing when engine build timestamps are inconsistent',
+      'emits only raster timing when engine build timestamps are inconsistent',
       () {
         final timings = AppStartResult.tryResolve(
           fixture.timing(buildStart: 0, buildFinish: 999999),
         )!;
+        expect(timings.intervals.map((interval) => interval.operation), [
+          SentrySpanOperations.appStartFrameRaster,
+        ]);
         expect(timings.intervals.single.endTimestamp, fixture.rasterFinishWall);
       },
     );

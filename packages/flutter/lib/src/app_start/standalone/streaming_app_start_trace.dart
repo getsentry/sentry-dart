@@ -241,7 +241,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       interval.description,
       parentSpan: _root,
       startTimestamp: interval.startTimestamp,
-      attributes: {..._childAttributes(_timing, interval.operation)},
+      attributes: _childAttributes(_timing, interval.operation),
     );
     if (span is! RecordingSentrySpanV2) return null;
     if (threadName != null) {
