@@ -58,6 +58,15 @@ void main() {
             }
             await tester.pump(const Duration(seconds: 4));
             expect(fixture.options.standaloneAppStartTrace, isNull);
+            expect(
+              lifecycle == SentryTraceLifecycle.static
+                  ? fixture.options.timeToDisplayTracker.isAppStartRoutePending
+                  : fixture
+                        .options
+                        .timeToDisplayTrackerV2
+                        .isAppStartRoutePending,
+              isFalse,
+            );
             if (lifecycle == SentryTraceLifecycle.static) {
               final root = fixture.appStartRoots.single.tracer;
               expect(root.finished, isTrue);
@@ -94,6 +103,15 @@ void main() {
             ]);
             await tester.pump(const Duration(seconds: 4));
             expect(fixture.options.standaloneAppStartTrace, isNull);
+            expect(
+              lifecycle == SentryTraceLifecycle.static
+                  ? fixture.options.timeToDisplayTracker.isAppStartRoutePending
+                  : fixture
+                        .options
+                        .timeToDisplayTrackerV2
+                        .isAppStartRoutePending,
+              isFalse,
+            );
             if (lifecycle == SentryTraceLifecycle.static) {
               final root = fixture.appStartRoots.single.tracer;
               expect(root.measurements, isEmpty);
@@ -116,6 +134,95 @@ void main() {
           },
         );
       }
+    }
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      testWidgets(
+        'records display timing despite an early raster start with $lifecycle',
+        (tester) async {
+          fixture.options.traceLifecycle = lifecycle;
+          when(fixture.native.fetchNativeAppStart()).thenAnswer(
+            (_) async => fixture.nativeAppStart(appStartMilliseconds: 50),
+          );
+          await fixture.startLifecycle();
+          fixture.frameHandler.timingsCallback!([
+            FrameTiming(
+              vsyncStart: 1,
+              buildStart: 2,
+              buildFinish: 3,
+              rasterStart: 25000,
+              rasterFinish: 75000,
+              rasterFinishWallTime: 75000,
+            ),
+          ]);
+          await tester.pump();
+          final endpoint = DateTime.fromMillisecondsSinceEpoch(75, isUtc: true);
+          if (lifecycle == SentryTraceLifecycle.static) {
+            final display = fixture.rootSpans
+                .singleWhere((span) => span.context.operation == 'ui.load')
+                .tracer;
+            expect(
+              display.measurements['time_to_initial_display']?.value,
+              25.0,
+            );
+            expect(
+              display.children
+                  .singleWhere(
+                    (span) =>
+                        span.context.operation == 'ui.load.initial_display',
+                  )
+                  .endTimestamp,
+              endpoint,
+            );
+          } else {
+            final display = fixture.streamChildSpans.singleWhere(
+              (span) =>
+                  span.attributes['sentry.op']?.value ==
+                  'ui.load.initial_display',
+            );
+            expect(display.attributes['app.vitals.ttid.value']?.value, 25.0);
+            expect(display.endTimestamp, endpoint);
+          }
+          await tester.pump(const Duration(seconds: 4));
+        },
+      );
+    }
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      testWidgets(
+        'preserves later navigation after invalid startup timing with $lifecycle',
+        (tester) async {
+          fixture.options.traceLifecycle = lifecycle;
+          await fixture.startLifecycle();
+          fixture.pushInitialRoute('/first', enableNewTraceOnNavigation: true);
+          fixture.pushInitialRoute('/second', enableNewTraceOnNavigation: true);
+          final transactionId =
+              fixture.options.timeToDisplayTracker.transactionId;
+          final activeSpan = fixture.hub.getActiveSpan();
+          fixture.frameHandler.timingsCallback!([
+            FrameTiming(
+              vsyncStart: 1,
+              buildStart: 2,
+              buildFinish: 3,
+              rasterStart: 4,
+              rasterFinish: 5,
+              rasterFinishWallTime: 0,
+            ),
+          ]);
+          if (lifecycle == SentryTraceLifecycle.static) {
+            expect(transactionId, isNotNull);
+            expect(
+              fixture.options.timeToDisplayTracker.transactionId,
+              transactionId,
+            );
+          } else {
+            expect(activeSpan, isNotNull);
+            expect(activeSpan!.isEnded, isFalse);
+            activeSpan.end();
+          }
+          await tester.pump(const Duration(seconds: 4));
+        },
+      );
     }
 
     test(

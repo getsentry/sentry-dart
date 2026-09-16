@@ -31,6 +31,7 @@ class StandaloneAppStartHandler {
 
   /// Set by [_prepareTimeToDisplay]; `null` until then.
   AppStartDisplayTracking? _displayTracking;
+  DateTime? _displayStartTimestamp;
 
   AppStartRecorder? _recorder;
   SentryWidgetsBindingMixin? _recordingBinding;
@@ -179,6 +180,7 @@ class StandaloneAppStartHandler {
 
     final displayTracking = AppStartDisplayTracking.forOptions(options);
     _displayTracking = displayTracking;
+    _displayStartTimestamp = resolvedStartTimestamp;
     displayTracking.prepare(resolvedStartTimestamp);
   }
 
@@ -210,28 +212,39 @@ class StandaloneAppStartHandler {
     // Consume before awaiting display tracking so this result is handled once.
     final rasterInterval = _pendingRasterInterval;
     _pendingRasterInterval = null;
-    final processStart = _processStartTimestamp;
-    if (rasterInterval == null ||
-        (processStart != null &&
-            rasterInterval.startTimestamp.isBefore(processStart))) {
-      _disposeRecorder();
-      options.standaloneAppStartTrace?.recordFirstFrame(null);
-      return;
-    }
     try {
+      final processStart = _processStartTimestamp;
+      final validRasterInterval =
+          rasterInterval != null &&
+              (processStart == null ||
+                  !rasterInterval.startTimestamp.isBefore(processStart))
+          ? rasterInterval
+          : null;
       final recorder = _recorder;
-      final frameworkIntervals = processStart != null && recorder != null
+      final frameworkIntervals =
+          validRasterInterval != null &&
+              processStart != null &&
+              recorder != null
           ? recorder.takeIntervals(
               processStart: processStart,
-              rasterFinish: rasterInterval.endTimestamp,
+              rasterFinish: validRasterInterval.endTimestamp,
             )
           : const <AppStartRecordedInterval>[];
       _disposeRecorder();
       options.standaloneAppStartTrace?.recordFirstFrame(
-        rasterInterval,
+        validRasterInterval,
         frameworkIntervals: frameworkIntervals,
       );
-      await _displayTracking?.record(rasterInterval.endTimestamp);
+      // Display timing needs a valid endpoint, even if the raster interval
+      // itself crosses the native startup boundary and cannot be emitted.
+      final displayStart = _displayStartTimestamp;
+      if (rasterInterval != null &&
+          displayStart != null &&
+          !rasterInterval.endTimestamp.isBefore(displayStart)) {
+        await _displayTracking?.record(rasterInterval.endTimestamp);
+      } else {
+        _displayTracking?.cancel();
+      }
     } catch (error, stackTrace) {
       internalLogger.error(
         'Failed to record standalone app-start first frame',
@@ -270,6 +283,7 @@ class StandaloneAppStartHandler {
     _unpublishTrace();
     _displayTracking?.cancel();
     _displayTracking = null;
+    _displayStartTimestamp = null;
     _startScreenName = null;
   }
 

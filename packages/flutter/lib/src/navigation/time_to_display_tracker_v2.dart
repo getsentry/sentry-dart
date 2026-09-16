@@ -235,6 +235,22 @@ class TimeToDisplayTrackerV2 {
     _ttfdSpan = null;
   }
 
+  /// Cancels the prepared app start without ending a later navigation.
+  void cancelAppStartPreparation() {
+    final prepared = _preparedRootNavigationSpan;
+    if (prepared == null) return;
+    _preparedRootNavigationSpan = null;
+    _isAppStartRouteNamePending = false;
+    _ttfdSpan = null;
+    prepared
+      ..status = SentrySpanStatusV2.ok
+      ..setAttribute(
+        SemanticAttributesConstants.sentryIdleSpanFinishReason,
+        SentryAttribute.string(SentryIdleSpanFinishReasons.cancelled),
+      )
+      ..end();
+  }
+
   /// Cancels all spans for the current route and resets tracker state.
   void cancelCurrentRoute() {
     _ttfdSpan = null;

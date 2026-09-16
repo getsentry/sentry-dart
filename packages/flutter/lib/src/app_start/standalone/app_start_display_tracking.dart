@@ -49,7 +49,7 @@ final class _StaticAppStartDisplayTracking implements AppStartDisplayTracking {
       _tracker.recordInitialDisplay(endTimestamp);
 
   @override
-  void cancel() => _tracker.clear();
+  void cancel() => _tracker.cancelAppStartPreparation();
 }
 
 final class _StreamingAppStartDisplayTracking
@@ -67,5 +67,5 @@ final class _StreamingAppStartDisplayTracking
       _tracker.trackAppStart(ttidEndTimestamp: endTimestamp);
 
   @override
-  void cancel() => _tracker.cancelCurrentRoute();
+  void cancel() => _tracker.cancelAppStartPreparation();
 }
