@@ -11,35 +11,39 @@ void main() {
       fixture = Fixture();
     });
     test('anchors raster duration on the wall clock endpoint', () {
-      final timings = AppStartResult.tryResolve(fixture.timing())!;
+      final result = AppStartResult.tryResolveRasterTiming(
+        fixture.frameTiming(),
+      )!;
       expect(
-        timings.intervals.single.startTimestamp,
+        result.intervals.single.startTimestamp,
         DateTime.utc(2024, 1, 1, 12, 0, 0, 812),
       );
-      expect(timings.rasterFinish, fixture.rasterFinishWall);
+      expect(result.rasterFinish, fixture.rasterFinishWall);
     });
     test(
       'emits only raster timing when engine build timestamps are inconsistent',
       () {
-        final timings = AppStartResult.tryResolve(
-          fixture.timing(buildStart: 0, buildFinish: 999999),
+        final result = AppStartResult.tryResolveRasterTiming(
+          fixture.frameTiming(buildStart: 0, buildFinish: 999999),
         )!;
-        expect(timings.intervals.map((interval) => interval.operation), [
+        expect(result.intervals.map((interval) => interval.operation), [
           SentrySpanOperations.appStartFrameRaster,
         ]);
-        expect(timings.intervals.single.endTimestamp, fixture.rasterFinishWall);
+        expect(result.intervals.single.endTimestamp, fixture.rasterFinishWall);
       },
     );
     test('rejects reversed raster timing', () {
       expect(
-        AppStartResult.tryResolve(fixture.timing(rasterStart: 900000)),
+        AppStartResult.tryResolveRasterTiming(
+          fixture.frameTiming(rasterStart: 900000),
+        ),
         isNull,
       );
     });
     test('rejects missing wall clock timing', () {
       expect(
-        AppStartResult.tryResolve(
-          fixture.timing(rasterFinishWallTime: DateTime.utc(1970)),
+        AppStartResult.tryResolveRasterTiming(
+          fixture.frameTiming(rasterFinishWallTime: DateTime.utc(1970)),
         ),
         isNull,
       );
@@ -55,7 +59,7 @@ class Fixture {
 
   final rasterFinishWall = DateTime.utc(2024, 1, 1, 12, 0, 0, 869);
 
-  FrameTiming timing({
+  FrameTiming frameTiming({
     int vsyncStart = 745000,
     int buildStart = 752000,
     int buildFinish = 803000,

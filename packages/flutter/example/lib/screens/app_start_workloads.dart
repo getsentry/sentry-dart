@@ -3,8 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 /// Keeps raster work in the home page's first frame.
-class AppStartWorkloadBackground extends StatelessWidget {
-  const AppStartWorkloadBackground({
+class AppStartRasterOverlay extends StatelessWidget {
+  const AppStartRasterOverlay({
     super.key,
     required this.enabled,
     required this.child,
@@ -28,14 +28,14 @@ class AppStartWorkloadBackground extends StatelessWidget {
 class AppStartWorkloadSection extends StatelessWidget {
   const AppStartWorkloadSection({
     super.key,
-    this.prolongAttachment = true,
-    this.prolongBuild = true,
-    this.prolongRaster = true,
+    this.prolongRootWidgetAttachment = true,
+    this.prolongFrameBuild = true,
+    this.prolongFrameRasterization = true,
   });
 
-  final bool prolongAttachment;
-  final bool prolongBuild;
-  final bool prolongRaster;
+  final bool prolongRootWidgetAttachment;
+  final bool prolongFrameBuild;
+  final bool prolongFrameRasterization;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -50,14 +50,18 @@ class AppStartWorkloadSection extends StatelessWidget {
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          Text('Root Widget Attachment: ${prolongAttachment ? "on" : "off"}'),
-          Text('Frame Build: ${prolongBuild ? "on" : "off"}'),
-          Text('Frame Rasterization: ${prolongRaster ? "on" : "off"}'),
+          Text(
+            'Root Widget Attachment: ${prolongRootWidgetAttachment ? "on" : "off"}',
+          ),
+          Text('Frame Build: ${prolongFrameBuild ? "on" : "off"}'),
+          Text(
+            'Frame Rasterization: ${prolongFrameRasterization ? "on" : "off"}',
+          ),
           const SizedBox(height: 8),
           const Text(
             'Configure in app_config.dart, then rebuild and cold-launch. These workloads run during startup.',
           ),
-          if (prolongBuild) ...[
+          if (prolongFrameBuild) ...[
             const SizedBox(height: 12),
             // The outer home scroll view eagerly lays out this section, even
             // below the viewport. The inner column lays out all 1,800 rows.
@@ -65,7 +69,7 @@ class AppStartWorkloadSection extends StatelessWidget {
               height: 96,
               child: SingleChildScrollView(
                 primary: false,
-                child: Column(children: List.generate(1800, _product)),
+                child: Column(children: List.generate(1800, _buildProductRow)),
               ),
             ),
           ],
@@ -74,7 +78,7 @@ class AppStartWorkloadSection extends StatelessWidget {
     ),
   );
 
-  Widget _product(int index) => Padding(
+  Widget _buildProductRow(int index) => Padding(
     padding: const EdgeInsets.all(4),
     child: Row(
       children: [

@@ -6,7 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app_config.dart';
 import 'screens/errors_screen.dart';
-import 'screens/app_start_workload_screen.dart';
+import 'screens/app_start_workloads.dart';
 import 'screens/events_screen.dart';
 import 'screens/logs_screen.dart';
 import 'screens/metrics_screen.dart';
@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: AppStartWorkloadBackground(
+      body: AppStartRasterOverlay(
         enabled: prolongFrameRasterization,
         child: SingleChildScrollView(
           child: Column(
@@ -134,9 +134,9 @@ class HomeScreen extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: AppStartWorkloadSection(
-                  prolongAttachment: prolongRootWidgetAttachment,
-                  prolongBuild: prolongFrameBuild,
-                  prolongRaster: prolongFrameRasterization,
+                  prolongRootWidgetAttachment: prolongRootWidgetAttachment,
+                  prolongFrameBuild: prolongFrameBuild,
+                  prolongFrameRasterization: prolongFrameRasterization,
                 ),
               ),
             ],

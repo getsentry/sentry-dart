@@ -201,7 +201,7 @@ final class StaticAppStartTrace implements AppStartTrace {
 
     if (appStartResult != null) {
       for (final interval in appStartResult.intervals) {
-        final child = _startMeasuredChild(interval);
+        final child = _startIntervalSpan(interval);
         interval.data.forEach(child.setData);
         unawaited(_finishSpan(child, endTimestamp: interval.endTimestamp));
       }
@@ -212,16 +212,17 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   /// Creates a measured child directly under the startup root.
-  ISentrySpan _startMeasuredChild(AppStartRecordedInterval interval) {
+  ISentrySpan _startIntervalSpan(AppStartRecordedInterval interval) {
     final span = _root.startChild(
       interval.operation,
       description: interval.description,
       startTimestamp: interval.startTimestamp,
     )..origin = SentryTraceOrigins.autoAppStart;
 
-    final threadName = interval.threadName;
-    if (threadName != null) {
-      span.setData(SemanticAttributesConstants.threadName, threadName);
+    // The callback isolate does not identify the engine's raster thread.
+    if (interval.operation == SentrySpanOperations.appStartFrameRaster) {
+      span.removeData(SemanticAttributesConstants.threadName);
+      span.removeData(SemanticAttributesConstants.threadId);
     }
     return span;
   }

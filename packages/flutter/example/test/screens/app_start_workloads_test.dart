@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter_example/screens/app_start_workload_screen.dart';
+import 'package:sentry_flutter_example/screens/app_start_workloads.dart';
 
 void main() {
   group('$AppStartWorkloadSection', () {
@@ -10,8 +10,8 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: AppStartWorkloadSection(
-            prolongBuild: true,
-            prolongRaster: false,
+            prolongFrameBuild: true,
+            prolongFrameRasterization: false,
           ),
         ),
       );
@@ -28,8 +28,8 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: AppStartWorkloadSection(
-            prolongBuild: false,
-            prolongRaster: true,
+            prolongFrameBuild: false,
+            prolongFrameRasterization: true,
           ),
         ),
       );

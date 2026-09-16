@@ -13,27 +13,22 @@ void main() {
     });
     test('records attachment and a deferred build before rasterization', () {
       final sut = fixture.getSut();
-      sut.beginAttachment(hasRoot: false);
+      sut.beginRootAttachment(hasRoot: false);
       fixture.advance(10);
-      sut.endAttachment();
-      sut.beginFrame(warmUp: true);
+      sut.endRootAttachment();
+      sut.beginFrameBuild(warmUp: true);
       fixture.advance(20);
-      sut.endFrame(deferred: true);
-      final result = sut.resolve(fixture.start, fixture.raster);
-      expect(result.intervals.map((span) => span.operation), [
+      sut.endFrameBuild(deferred: true);
+      final result = sut.resolve(fixture.start, fixture.rasterResult);
+      expect(result.intervals.map((interval) => interval.operation), [
         SentrySpanOperations.appStartRootWidgetAttachment,
         SentrySpanOperations.appStartFrameBuild,
         SentrySpanOperations.appStartFrameRaster,
       ]);
-      expect(result.intervals.map((span) => span.description), [
+      expect(result.intervals.map((interval) => interval.description), [
         'Root Widget Attachment',
         'Frame Build',
         'Frame Rasterization',
-      ]);
-      expect(result.intervals.map((span) => span.threadName), [
-        'ui',
-        'ui',
-        'raster',
       ]);
       final build = result.intervals[1];
       expect(
@@ -48,17 +43,18 @@ void main() {
 
     test('retains at most ten complete builds', () {
       final sut = fixture.getSut();
-      sut.beginAttachment(hasRoot: false);
-      sut.endAttachment();
+      sut.beginRootAttachment(hasRoot: false);
+      sut.endRootAttachment();
       for (var i = 0; i < 12; i++) {
-        sut.beginFrame(warmUp: false);
+        sut.beginFrameBuild(warmUp: false);
         fixture.advance(1);
-        sut.endFrame(deferred: true);
+        sut.endFrameBuild(deferred: true);
       }
-      final result = sut.resolve(fixture.start, fixture.raster);
+      final result = sut.resolve(fixture.start, fixture.rasterResult);
       expect(
         result.intervals.where(
-          (span) => span.operation == SentrySpanOperations.appStartFrameBuild,
+          (interval) =>
+              interval.operation == SentrySpanOperations.appStartFrameBuild,
         ),
         hasLength(10),
       );
@@ -67,17 +63,17 @@ void main() {
       'omits later and crossing builds without changing raster completion',
       () {
         final sut = fixture.getSut();
-        sut.beginAttachment(hasRoot: false);
-        sut.endAttachment();
+        sut.beginRootAttachment(hasRoot: false);
+        sut.endRootAttachment();
         fixture.advance(90);
-        sut.beginFrame(warmUp: false);
+        sut.beginFrameBuild(warmUp: false);
         fixture.advance(20);
-        sut.endFrame(deferred: false);
-        sut.beginFrame(warmUp: false);
+        sut.endFrameBuild(deferred: false);
+        sut.beginFrameBuild(warmUp: false);
         fixture.advance(5);
-        sut.endFrame(deferred: false);
-        final result = sut.resolve(fixture.start, fixture.raster);
-        expect(result.intervals.map((span) => span.operation), [
+        sut.endFrameBuild(deferred: false);
+        final result = sut.resolve(fixture.start, fixture.rasterResult);
+        expect(result.intervals.map((interval) => interval.operation), [
           SentrySpanOperations.appStartRootWidgetAttachment,
           SentrySpanOperations.appStartFrameRaster,
         ]);
@@ -89,34 +85,34 @@ void main() {
     );
     test('ignores work after cancellation and discards pending intervals', () {
       final sut = fixture.getSut();
-      sut.beginAttachment(hasRoot: false);
-      sut.endAttachment();
-      sut.beginFrame(warmUp: true);
+      sut.beginRootAttachment(hasRoot: false);
+      sut.endRootAttachment();
+      sut.beginFrameBuild(warmUp: true);
       sut.cancel();
       fixture.advance(5);
-      sut.endFrame(deferred: false);
+      sut.endFrameBuild(deferred: false);
       sut.cancel();
       expect(
         sut
-            .resolve(fixture.start, fixture.raster)
+            .resolve(fixture.start, fixture.rasterResult)
             .intervals
-            .map((span) => span.operation),
+            .map((interval) => interval.operation),
         [SentrySpanOperations.appStartFrameRaster],
       );
     });
     test('freezes observations while native timing is pending', () {
       final sut = fixture.getSut();
-      sut.beginAttachment(hasRoot: false);
-      sut.endAttachment();
+      sut.beginRootAttachment(hasRoot: false);
+      sut.endRootAttachment();
       sut.freeze();
-      sut.beginFrame(warmUp: false);
+      sut.beginFrameBuild(warmUp: false);
       fixture.advance(1);
-      sut.endFrame(deferred: false);
+      sut.endFrameBuild(deferred: false);
       expect(
         sut
-            .resolve(fixture.start, fixture.raster)
+            .resolve(fixture.start, fixture.rasterResult)
             .intervals
-            .map((span) => span.operation),
+            .map((interval) => interval.operation),
         [
           SentrySpanOperations.appStartRootWidgetAttachment,
           SentrySpanOperations.appStartFrameRaster,
@@ -125,31 +121,31 @@ void main() {
     });
     test('does not claim initial attachment for an existing root', () {
       final sut = fixture.getSut();
-      sut.beginAttachment(hasRoot: true);
-      sut.endAttachment();
-      sut.beginFrame(warmUp: false);
-      sut.endFrame(deferred: false);
+      sut.beginRootAttachment(hasRoot: true);
+      sut.endRootAttachment();
+      sut.beginFrameBuild(warmUp: false);
+      sut.endFrameBuild(deferred: false);
       expect(
         sut
-            .resolve(fixture.start, fixture.raster)
+            .resolve(fixture.start, fixture.rasterResult)
             .intervals
-            .map((span) => span.operation),
+            .map((interval) => interval.operation),
         [SentrySpanOperations.appStartFrameRaster],
       );
     });
     test('does not record a failed build or unmatched completion', () {
       final sut = fixture.getSut();
-      sut.beginAttachment(hasRoot: false);
-      sut.endAttachment();
-      sut.beginFrame(warmUp: true);
+      sut.beginRootAttachment(hasRoot: false);
+      sut.endRootAttachment();
+      sut.beginFrameBuild(warmUp: true);
       fixture.advance(1);
-      sut.endFrame(deferred: false, succeeded: false);
-      sut.endFrame(deferred: false);
+      sut.endFrameBuild(deferred: false, succeeded: false);
+      sut.endFrameBuild(deferred: false);
       expect(
         sut
-            .resolve(fixture.start, fixture.raster)
+            .resolve(fixture.start, fixture.rasterResult)
             .intervals
-            .map((span) => span.operation),
+            .map((interval) => interval.operation),
         [
           SentrySpanOperations.appStartRootWidgetAttachment,
           SentrySpanOperations.appStartFrameRaster,
@@ -159,16 +155,16 @@ void main() {
     test('does not let clock failures escape into framework execution', () {
       final sut = AppStartRecorder(clock: () => throw StateError('clock'));
       expect(() {
-        sut.beginAttachment(hasRoot: false);
-        sut.endAttachment();
-        sut.beginFrame(warmUp: true);
-        sut.endFrame(deferred: false);
+        sut.beginRootAttachment(hasRoot: false);
+        sut.endRootAttachment();
+        sut.beginFrameBuild(warmUp: true);
+        sut.endFrameBuild(deferred: false);
       }, returnsNormally);
       expect(
         sut
-            .resolve(fixture.start, fixture.raster)
+            .resolve(fixture.start, fixture.rasterResult)
             .intervals
-            .map((span) => span.operation),
+            .map((interval) => interval.operation),
         [SentrySpanOperations.appStartFrameRaster],
       );
     });
@@ -180,7 +176,7 @@ class Fixture {
   late DateTime now = start;
   void advance(int milliseconds) =>
       now = now.add(Duration(milliseconds: milliseconds));
-  late final raster = AppStartResult.tryResolve(
+  late final rasterResult = AppStartResult.tryResolveRasterTiming(
     fakeFirstFrameTiming(
       vsyncStart: start.add(const Duration(milliseconds: 90)),
       buildStart: start.add(const Duration(milliseconds: 90)),

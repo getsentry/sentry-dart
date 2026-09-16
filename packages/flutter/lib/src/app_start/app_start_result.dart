@@ -10,7 +10,6 @@ final class AppStartRecordedInterval {
   AppStartRecordedInterval({
     required this.description,
     required this.operation,
-    this.threadName,
     required this.startTimestamp,
     required this.endTimestamp,
     Map<String, bool> data = const {},
@@ -18,7 +17,6 @@ final class AppStartRecordedInterval {
 
   final String description;
   final String operation;
-  final String? threadName;
   final DateTime startTimestamp;
   final DateTime endTimestamp;
   final Map<String, bool> data;
@@ -46,7 +44,7 @@ final class AppStartResult {
     intervals: [...frameworkIntervals, ...intervals],
   );
 
-  static AppStartResult? tryResolve(FrameTiming timing) {
+  static AppStartResult? tryResolveRasterTiming(FrameTiming timing) {
     final rasterFinishWallMicros = timing.timestampInMicroseconds(
       FramePhase.rasterFinishWallTime,
     );
@@ -79,7 +77,6 @@ final class AppStartResult {
         AppStartRecordedInterval(
           description: 'Frame Rasterization',
           operation: SentrySpanOperations.appStartFrameRaster,
-          threadName: 'raster',
           startTimestamp: rasterStart,
           endTimestamp: rasterFinish,
         ),

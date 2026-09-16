@@ -37,8 +37,9 @@ class StandaloneAppStartHandler {
   SentryWidgetsBindingMixin? _recordingBinding;
   AppStartResult? _pendingRasterResult;
   DateTime? _processStartTimestamp;
+  // Resolution can complete without usable timing data.
   bool _nativeTimingResolved = false;
-  bool _receivedRasterTiming = false;
+  bool _rasterTimingResolved = false;
 
   bool _started = false;
   bool _closed = false;
@@ -192,12 +193,14 @@ class StandaloneAppStartHandler {
     void callback(List<FrameTiming> timings) {
       if (_closed ||
           _timingsCallback == null ||
-          _receivedRasterTiming ||
+          _rasterTimingResolved ||
           timings.isEmpty) {
         return;
       }
-      _receivedRasterTiming = true;
-      _pendingRasterResult = AppStartResult.tryResolve(timings.first);
+      _rasterTimingResolved = true;
+      _pendingRasterResult = AppStartResult.tryResolveRasterTiming(
+        timings.first,
+      );
       _recorder?.freeze();
       _detachFrameworkObserver();
       _removeTimingsCallback();
@@ -210,7 +213,7 @@ class StandaloneAppStartHandler {
   }
 
   Future<void> _recordStartupWhenReady(SentryFlutterOptions options) async {
-    if (_closed || !_nativeTimingResolved || !_receivedRasterTiming) {
+    if (_closed || !_nativeTimingResolved || !_rasterTimingResolved) {
       return;
     }
     // Consume before awaiting display tracking so this result is handled once.

@@ -36,20 +36,26 @@ void main() {
       }
       binding.scheduleFrame();
       await tester.pump();
-      final result = fixture.getSut().resolve(fixture.start, fixture.raster);
+      final result = fixture.getSut().resolve(
+        fixture.start,
+        fixture.rasterResult,
+      );
       expect(
         result.intervals.where(
-          (span) =>
-              span.operation ==
+          (interval) =>
+              interval.operation ==
               SentrySpanOperations.appStartRootWidgetAttachment,
         ),
         hasLength(1),
       );
       final builds = result.intervals.where(
-        (span) => span.operation == SentrySpanOperations.appStartFrameBuild,
+        (interval) =>
+            interval.operation == SentrySpanOperations.appStartFrameBuild,
       );
       expect(
-        builds.where((span) => span.data['flutter.frame.deferred'] == true),
+        builds.where(
+          (interval) => interval.data['flutter.frame.deferred'] == true,
+        ),
         hasLength(2),
       );
       expect(builds.last.data['flutter.frame.deferred'], isFalse);
@@ -68,7 +74,7 @@ class Fixture {
     },
   );
   AppStartRecorder getSut() => recorder;
-  late final raster = AppStartResult.tryResolve(
+  late final rasterResult = AppStartResult.tryResolveRasterTiming(
     fakeFirstFrameTiming(
       vsyncStart: start.add(const Duration(milliseconds: 90)),
       buildStart: start.add(const Duration(milliseconds: 90)),

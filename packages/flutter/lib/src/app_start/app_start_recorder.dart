@@ -22,13 +22,13 @@ final class AppStartRecorder {
   DateTime? _frameBuildStart;
   bool _isWarmUpFrame = false;
 
-  void beginAttachment({required bool hasRoot}) {
+  void beginRootAttachment({required bool hasRoot}) {
     if (_state != _RecorderState.observing || _rootAttachmentAttempted) return;
     _rootAttachmentAttempted = true;
     if (!hasRoot) _rootAttachmentStart = _now();
   }
 
-  void endAttachment({bool succeeded = true}) {
+  void endRootAttachment({bool succeeded = true}) {
     if (_state != _RecorderState.observing) return;
     final start = _rootAttachmentStart;
     _rootAttachmentStart = null;
@@ -38,19 +38,18 @@ final class AppStartRecorder {
     _rootAttachment = AppStartRecordedInterval(
       description: 'Root Widget Attachment',
       operation: SentrySpanOperations.appStartRootWidgetAttachment,
-      threadName: 'ui',
       startTimestamp: start,
       endTimestamp: end,
     );
   }
 
-  void beginFrame({required bool warmUp}) {
+  void beginFrameBuild({required bool warmUp}) {
     if (_state != _RecorderState.observing || _rootAttachment == null) return;
     _frameBuildStart = _now();
     _isWarmUpFrame = warmUp;
   }
 
-  void endFrame({required bool deferred, bool succeeded = true}) {
+  void endFrameBuild({required bool deferred, bool succeeded = true}) {
     if (_state != _RecorderState.observing) return;
     final start = _frameBuildStart;
     _frameBuildStart = null;
@@ -64,7 +63,6 @@ final class AppStartRecorder {
       AppStartRecordedInterval(
         description: 'Frame Build',
         operation: SentrySpanOperations.appStartFrameBuild,
-        threadName: 'ui',
         startTimestamp: start,
         endTimestamp: end,
         data: {
@@ -83,13 +81,13 @@ final class AppStartRecorder {
     _frameBuildStart = null;
   }
 
-  AppStartResult resolve(DateTime startupStart, AppStartResult rasterResult) {
+  AppStartResult resolve(DateTime processStart, AppStartResult rasterResult) {
     freeze();
     if (_state == _RecorderState.closed) return rasterResult;
     final intervals =
         <AppStartRecordedInterval>[?_rootAttachment, ..._frameBuilds].where(
           (interval) =>
-              !interval.startTimestamp.isBefore(startupStart) &&
+              !interval.startTimestamp.isBefore(processStart) &&
               !interval.endTimestamp.isAfter(rasterResult.rasterFinish),
         );
     final result = rasterResult.withFrameworkIntervals(intervals);

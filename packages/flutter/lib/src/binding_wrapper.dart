@@ -88,13 +88,13 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   @override
   void attachToBuildOwner(RootWidget widget) {
     final recorder = _appStartRecorder;
-    recorder?.beginAttachment(hasRoot: rootElement != null);
+    recorder?.beginRootAttachment(hasRoot: rootElement != null);
     var succeeded = false;
     try {
       super.attachToBuildOwner(widget);
       succeeded = true;
     } finally {
-      recorder?.endAttachment(succeeded: succeeded);
+      recorder?.endRootAttachment(succeeded: succeeded);
     }
   }
 
@@ -110,7 +110,10 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
       super.drawFrame();
       succeeded = true;
     } finally {
-      recorder.endFrame(deferred: !sendFramesToEngine, succeeded: succeeded);
+      recorder.endFrameBuild(
+        deferred: !sendFramesToEngine,
+        succeeded: succeeded,
+      );
     }
   }
 
@@ -155,7 +158,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
     final recorder = _appStartRecorder;
-    recorder?.beginFrame(warmUp: rawTimeStamp == null);
+    recorder?.beginFrameBuild(warmUp: rawTimeStamp == null);
     if (_isTrackingActive) {
       try {
         _stopwatch.start();
@@ -169,7 +172,7 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
     try {
       super.handleBeginFrame(rawTimeStamp);
     } catch (_) {
-      recorder?.endFrame(deferred: !sendFramesToEngine, succeeded: false);
+      recorder?.endFrameBuild(deferred: !sendFramesToEngine, succeeded: false);
       rethrow;
     }
   }

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/thread_info_integration.dart';
 import 'package:sentry_flutter/src/app_start/app_start_result.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/app_start/standalone/static_app_start_trace.dart';
@@ -481,56 +482,63 @@ void main() {
       expect(sentryInit.finished, isFalse);
     });
 
-    test('emits measured framework and raster phases as siblings', () async {
-      final sut = fixture.getSut()!;
-      final measured = fixture.appStartResult.withFrameworkIntervals([
-        AppStartRecordedInterval(
-          description: 'Root Widget Attachment',
-          operation: SentrySpanOperations.appStartRootWidgetAttachment,
-          threadName: 'ui',
-          startTimestamp: fixture.sentrySetup,
-          endTimestamp: fixture.initEnd,
-        ),
-        AppStartRecordedInterval(
-          description: 'Frame Build',
-          operation: SentrySpanOperations.appStartFrameBuild,
-          threadName: 'ui',
-          startTimestamp: fixture.initEnd,
-          endTimestamp: fixture.appStartResult.intervals.single.startTimestamp,
-          data: {'flutter.frame.deferred': true},
-        ),
-      ]);
-      sut.recordInitEnd(fixture.initEnd);
-      sut.recordFirstFrame(fixture.naturalEnd, appStartResult: measured);
-      await pumpEventQueue(times: 10);
-      final build = fixture.child('Frame Build');
-      expect(build.context.parentSpanId, fixture.root!.context.spanId);
-      expect(build.data['flutter.frame.deferred'], isTrue);
-      expect(fixture.child('Root Widget Attachment').data['thread.name'], 'ui');
-      expect(build.data['thread.name'], 'ui');
-      expect(
-        fixture.child('Frame Rasterization').data['thread.name'],
-        'raster',
-      );
-      expect(
-        fixture.child('Frame Rasterization').startTimestamp,
-        fixture.appStartResult.intervals.single.startTimestamp,
-      );
-      expect(
-        fixture.child('Frame Rasterization').endTimestamp,
-        fixture.naturalEnd,
-      );
-      expect(
-        fixture.root!.tracer.children.map((span) => span.context.description),
-        unorderedEquals([
-          'Pre-Init Startup',
-          'Sentry Initialization',
-          'Root Widget Attachment',
-          'Frame Build',
-          'Frame Rasterization',
-        ]),
-      );
-    });
+    test(
+      'emits recorded framework and raster intervals as sibling spans',
+      () async {
+        final threadInfo = ThreadInfoIntegration();
+        threadInfo.call(fixture.hub, fixture.options);
+        addTearDown(threadInfo.close);
+        final sut = fixture.getSut()!;
+        final result = fixture.appStartResult.withFrameworkIntervals([
+          AppStartRecordedInterval(
+            description: 'Root Widget Attachment',
+            operation: SentrySpanOperations.appStartRootWidgetAttachment,
+            startTimestamp: fixture.sentrySetup,
+            endTimestamp: fixture.initEnd,
+          ),
+          AppStartRecordedInterval(
+            description: 'Frame Build',
+            operation: SentrySpanOperations.appStartFrameBuild,
+            startTimestamp: fixture.initEnd,
+            endTimestamp:
+                fixture.appStartResult.intervals.single.startTimestamp,
+            data: {'flutter.frame.deferred': true},
+          ),
+        ]);
+        sut.recordInitEnd(fixture.initEnd);
+        sut.recordFirstFrame(fixture.naturalEnd, appStartResult: result);
+        await pumpEventQueue(times: 10);
+        final build = fixture.child('Frame Build');
+        expect(build.context.parentSpanId, fixture.root!.context.spanId);
+        expect(build.data['flutter.frame.deferred'], isTrue);
+        for (final name in ['Root Widget Attachment', 'Frame Build']) {
+          final span = fixture.child(name);
+          expect(span.data['thread.name'], 'main');
+          expect(span.data['thread.id'], 'main'.hashCode.toString());
+        }
+        final raster = fixture.child('Frame Rasterization');
+        expect(raster.data.containsKey('thread.name'), isFalse);
+        expect(raster.data.containsKey('thread.id'), isFalse);
+        expect(
+          fixture.child('Frame Rasterization').startTimestamp,
+          fixture.appStartResult.intervals.single.startTimestamp,
+        );
+        expect(
+          fixture.child('Frame Rasterization').endTimestamp,
+          fixture.naturalEnd,
+        );
+        expect(
+          fixture.root!.tracer.children.map((span) => span.context.description),
+          unorderedEquals([
+            'Pre-Init Startup',
+            'Sentry Initialization',
+            'Root Widget Attachment',
+            'Frame Build',
+            'Frame Rasterization',
+          ]),
+        );
+      },
+    );
 
     test('does not fabricate build spans from engine timing', () async {
       final sut = fixture.getSut()!;
@@ -1197,9 +1205,9 @@ class Fixture {
 
   late final initEnd = processStart.add(Duration(milliseconds: 220));
 
-  /// The first frame's phases, laid out so it starts well after [initEnd] and
+  /// Engine frame timing that starts after [initEnd] and
   /// rasterizes at [naturalEnd].
-  late final appStartResult = AppStartResult.tryResolve(
+  late final appStartResult = AppStartResult.tryResolveRasterTiming(
     fakeFirstFrameTiming(
       vsyncStart: processStart.add(Duration(milliseconds: 250)),
       buildStart: processStart.add(Duration(milliseconds: 260)),

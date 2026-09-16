@@ -214,7 +214,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
     if (appStartResult != null) {
       for (final interval in appStartResult.intervals) {
-        final child = _startMeasuredChild(interval);
+        final child = _startIntervalSpan(interval);
         interval.data.forEach(
           (key, value) => child?.setAttribute(key, SentryAttribute.bool(value)),
         );
@@ -227,10 +227,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   }
 
   /// Creates a measured child directly under the startup root.
-  RecordingSentrySpanV2? _startMeasuredChild(
-    AppStartRecordedInterval interval,
-  ) {
-    final threadName = interval.threadName;
+  RecordingSentrySpanV2? _startIntervalSpan(AppStartRecordedInterval interval) {
     final span = _hub.startInactiveSpan(
       interval.description,
       parentSpan: _root,
@@ -238,11 +235,10 @@ final class StreamingAppStartTrace implements AppStartTrace {
       attributes: _childAttributes(_timing, interval.operation),
     );
     if (span is! RecordingSentrySpanV2) return null;
-    if (threadName != null) {
-      span.setAttribute(
-        SemanticAttributesConstants.threadName,
-        SentryAttribute.string(threadName),
-      );
+    // The callback isolate does not identify the engine's raster thread.
+    if (interval.operation == SentrySpanOperations.appStartFrameRaster) {
+      span.removeAttribute(SemanticAttributesConstants.threadName);
+      span.removeAttribute(SemanticAttributesConstants.threadId);
     }
     return span;
   }
