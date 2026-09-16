@@ -14,7 +14,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final AppStartTiming _timing;
   final IdleRecordingSentrySpanV2 _root;
 
-  final RecordingSentrySpanV2 _sentryInitSpan;
+  final SentrySpanV2 _sentryInitSpan;
 
   final String Function() _startScreenNameProvider;
   final void Function()? _onCompleted;
@@ -22,6 +22,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final _StreamingAppStartExtensionLifecycle _extensionLifecycle;
   DateTime? _endTimestamp;
   bool _initCompleted = false;
+  bool _firstFrameObserved = false;
   AppStartTraceState _state = AppStartTraceState.open;
 
   StreamingAppStartTrace._({
@@ -42,10 +43,9 @@ final class StreamingAppStartTrace implements AppStartTrace {
 
   /// Opens the standalone root and its breakdown children.
   ///
-  /// Returns `null` when the app start must not be reported: a root or
-  /// initialization span the SDK did not record, or a failure while building the
-  /// children. Anything already created is flushed, so no span outlives a
-  /// failed creation.
+  /// Returns `null` when the root is not recorded or creating a child throws.
+  /// Filtered children do not suppress the root measurement. Anything already
+  /// created is flushed on failure, so no span outlives a failed creation.
   ///
   /// [onCompleted] fires once the root has reported and the trace can no
   /// longer be extended, so the owner can stop holding on to it.
@@ -91,9 +91,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
           SentrySpanOperations.appStartSentryInit,
         ),
       );
-      if (sentryInitSpan is! RecordingSentrySpanV2) {
-        return _abort(root, reason: 'sentry-init span is not recording');
-      }
 
       final trace = StreamingAppStartTrace._(
         hub: hub,
@@ -139,13 +136,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
   /// trace leaves nothing open. The root learns about a child through the
   /// `OnSpanStartV2` dispatch, which reaches it synchronously only while no
   /// earlier-registered listener returns a future — see the abort tests.
-  static StreamingAppStartTrace? _abort(
-    IdleRecordingSentrySpanV2 root, {
-    String? reason,
-  }) {
-    if (reason != null) {
-      internalLogger.info('Skipping streaming standalone app start: $reason');
-    }
+  static StreamingAppStartTrace? _abort(IdleRecordingSentrySpanV2 root) {
     root.end();
     return null;
   }
@@ -159,7 +150,7 @@ final class StreamingAppStartTrace implements AppStartTrace {
       logAppStartExtensionRefusal('the app start already ended');
       return false;
     }
-    if (_endTimestamp != null) {
+    if (_firstFrameObserved) {
       logAppStartExtensionRefusal('the first frame already rendered');
       return false;
     }
@@ -188,27 +179,30 @@ final class StreamingAppStartTrace implements AppStartTrace {
     if (_state.isTerminal || _initCompleted) return;
     _initCompleted = true;
     _sentryInitSpan.end(endTimestamp: endTimestamp.toUtc());
-    if (_endTimestamp != null) {
+    if (_firstFrameObserved) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }
 
   @override
   void recordFirstFrame(
-    AppStartRecordedInterval rasterInterval, {
+    AppStartRecordedInterval? rasterInterval, {
     List<AppStartRecordedInterval> frameworkIntervals = const [],
   }) {
-    if (_state.isTerminal || _endTimestamp != null) return;
-    _endTimestamp = rasterInterval.endTimestamp;
+    if (_state.isTerminal || _firstFrameObserved) return;
+    _firstFrameObserved = true;
+    _endTimestamp = rasterInterval?.endTimestamp;
     _root.setAttribute(
       SemanticAttributesConstants.appVitalsStartScreen,
       SentryAttribute.string(_startScreenNameProvider()),
     );
 
-    for (final interval in frameworkIntervals) {
-      _recordInterval(interval);
+    if (rasterInterval != null) {
+      for (final interval in frameworkIntervals) {
+        _recordInterval(interval);
+      }
+      _recordInterval(rasterInterval);
     }
-    _recordInterval(rasterInterval);
     if (_initCompleted) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }

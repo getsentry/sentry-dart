@@ -106,9 +106,11 @@ abstract interface class AppStartTrace {
   void recordInitEnd(DateTime endTimestamp);
 
   /// Emits resolved framework/raster intervals and records the automatic
-  /// startup endpoint. The root retains its existing idle/extension lifecycle.
+  /// startup endpoint. Pass `null` when observation finished without usable
+  /// timing; this releases the idle hold once initialization has also finished,
+  /// without inventing a startup measurement. Existing extensions still apply.
   void recordFirstFrame(
-    AppStartRecordedInterval rasterInterval, {
+    AppStartRecordedInterval? rasterInterval, {
     List<AppStartRecordedInterval> frameworkIntervals = const [],
   });
 

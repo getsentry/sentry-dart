@@ -32,6 +32,92 @@ void main() {
       fixture.setCurrentRouteName(null);
     });
 
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      for (final initFirst in [true, false]) {
+        testWidgets(
+          'releases idle hold after invalid raster timing with $lifecycle and initFirst=$initFirst',
+          (tester) async {
+            fixture.options.traceLifecycle = lifecycle;
+            await fixture.getSut().start(fixture.options);
+            final trace = fixture.options.standaloneAppStartTrace!;
+            if (initFirst) trace.recordInitEnd(fixture.snapshot);
+            fixture.frameHandler.timingsCallback!([
+              FrameTiming(
+                vsyncStart: 1,
+                buildStart: 2,
+                buildFinish: 3,
+                rasterStart: 4,
+                rasterFinish: 5,
+                rasterFinishWallTime: 0,
+              ),
+            ]);
+            if (!initFirst) {
+              await tester.pump(const Duration(seconds: 4));
+              expect(fixture.options.standaloneAppStartTrace, same(trace));
+              trace.recordInitEnd(fixture.snapshot);
+            }
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.options.standaloneAppStartTrace, isNull);
+            if (lifecycle == SentryTraceLifecycle.static) {
+              final root = fixture.appStartRoots.single.tracer;
+              expect(root.finished, isTrue);
+              expect(root.measurements, isEmpty);
+            } else {
+              final root = fixture.streamAppStartRoots.single;
+              expect(root.isEnded, isTrue);
+              expect(root.attributes['app.vitals.start.value'], isNull);
+            }
+          },
+        );
+      }
+    }
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      for (final rasterEnd in [40, 75]) {
+        testWidgets(
+          'rejects raster timing before process start with $lifecycle and end=$rasterEnd',
+          (tester) async {
+            fixture.options.traceLifecycle = lifecycle;
+            when(fixture.native.fetchNativeAppStart()).thenAnswer(
+              (_) async => fixture.nativeAppStart(appStartMilliseconds: 50),
+            );
+            await fixture.startLifecycle();
+            fixture.frameHandler.timingsCallback!([
+              FrameTiming(
+                vsyncStart: 1,
+                buildStart: 2,
+                buildFinish: 3,
+                rasterStart: 25000,
+                rasterFinish: rasterEnd * 1000,
+                rasterFinishWallTime: rasterEnd * 1000,
+              ),
+            ]);
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.options.standaloneAppStartTrace, isNull);
+            if (lifecycle == SentryTraceLifecycle.static) {
+              final root = fixture.appStartRoots.single.tracer;
+              expect(root.measurements, isEmpty);
+              expect(
+                root.children.where(
+                  (span) => span.context.operation == 'app.start.frame_raster',
+                ),
+                isEmpty,
+              );
+            } else {
+              final root = fixture.streamAppStartRoots.single;
+              expect(root.attributes['app.vitals.start.value'], isNull);
+              expect(
+                fixture.streamChildSpans.where(
+                  (span) => span.name == 'Frame Rasterization',
+                ),
+                isEmpty,
+              );
+            }
+          },
+        );
+      }
+    }
+
     test(
       'registers timing observation before awaiting native startup data',
       () async {

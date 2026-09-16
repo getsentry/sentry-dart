@@ -737,20 +737,50 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
-    test(
-      'returns null and ends the root when the sentry init span is ignored',
-      () {
-        fixture.options.ignoreSpans = [
-          IgnoreSpanRule.nameEquals('Sentry Initialization'),
-        ];
-
-        final trace = fixture.getSut();
-
-        expect(trace, isNull);
-        expect(fixture.root?.isEnded, isTrue);
-        expect(fixture.processor.addedSpans, isEmpty);
-      },
-    );
+    for (final initFirst in [true, false]) {
+      for (final ignoreAllPhases in [false, true]) {
+        testWidgets(
+          'preserves startup when initialization is ignored with initFirst=$initFirst and ignoreAllPhases=$ignoreAllPhases',
+          (tester) async {
+            fixture.options.ignoreSpans = [
+              IgnoreSpanRule.nameEquals('Sentry Initialization'),
+              if (ignoreAllPhases) ...[
+                IgnoreSpanRule.nameEquals('Pre-Init Startup'),
+                IgnoreSpanRule.nameEquals('Frame Rasterization'),
+              ],
+            ];
+            final trace = fixture.getSut();
+            expect(trace, isNotNull);
+            if (initFirst) {
+              trace!.recordInitEnd(fixture.initEnd);
+            } else {
+              trace!.recordFirstFrame(fixture.rasterInterval);
+            }
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.root!.isEnded, isFalse);
+            if (initFirst) {
+              trace.recordFirstFrame(fixture.rasterInterval);
+            } else {
+              trace.recordInitEnd(fixture.initEnd);
+            }
+            fixture.clock = fixture.rootFinish;
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.root!.isEnded, isTrue);
+            expect(fixture.root!.endTimestamp, fixture.naturalEnd);
+            expect(
+              fixture.root!.attributes['app.vitals.start.value']?.value,
+              350.0,
+            );
+            expect(
+              fixture.children.where(
+                (span) => span.name == 'Sentry Initialization',
+              ),
+              isEmpty,
+            );
+          },
+        );
+      }
+    }
 
     test(
       'returns null and ends created spans when phase creation throws',

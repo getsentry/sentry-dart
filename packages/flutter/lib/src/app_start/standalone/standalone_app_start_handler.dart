@@ -210,12 +210,15 @@ class StandaloneAppStartHandler {
     // Consume before awaiting display tracking so this result is handled once.
     final rasterInterval = _pendingRasterInterval;
     _pendingRasterInterval = null;
-    if (rasterInterval == null) {
+    final processStart = _processStartTimestamp;
+    if (rasterInterval == null ||
+        (processStart != null &&
+            rasterInterval.startTimestamp.isBefore(processStart))) {
       _disposeRecorder();
+      options.standaloneAppStartTrace?.recordFirstFrame(null);
       return;
     }
     try {
-      final processStart = _processStartTimestamp;
       final recorder = _recorder;
       final frameworkIntervals = processStart != null && recorder != null
           ? recorder.takeIntervals(

@@ -44,7 +44,7 @@ final class TestAppStartTrace implements AppStartTrace {
 
   @override
   void recordFirstFrame(
-    AppStartRecordedInterval rasterInterval, {
+    AppStartRecordedInterval? rasterInterval, {
     List<AppStartRecordedInterval> frameworkIntervals = const [],
   }) {}
 

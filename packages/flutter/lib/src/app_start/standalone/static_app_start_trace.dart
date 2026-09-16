@@ -27,6 +27,7 @@ final class StaticAppStartTrace implements AppStartTrace {
   Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
   bool _initCompleted = false;
+  bool _firstFrameObserved = false;
   AppStartTraceState _state = AppStartTraceState.open;
 
   // Blocks extensions while the deadline drains children asynchronously,
@@ -145,7 +146,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       logAppStartExtensionRefusal('the app start already ended');
       return false;
     }
-    if (_endTimestamp != null) {
+    if (_firstFrameObserved) {
       logAppStartExtensionRefusal('the first frame already rendered');
       return false;
     }
@@ -174,26 +175,29 @@ final class StaticAppStartTrace implements AppStartTrace {
     if (_isFinalizingOrTerminal || _initCompleted) return;
     _initCompleted = true;
     unawaited(_finishSpan(_sentryInitSpan, endTimestamp: endTimestamp.toUtc()));
-    if (_endTimestamp != null) {
+    if (_firstFrameObserved) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
   }
 
   @override
   void recordFirstFrame(
-    AppStartRecordedInterval rasterInterval, {
+    AppStartRecordedInterval? rasterInterval, {
     List<AppStartRecordedInterval> frameworkIntervals = const [],
   }) {
-    if (_state.isTerminal || _endTimestamp != null) return;
+    if (_state.isTerminal || _firstFrameObserved) return;
+    _firstFrameObserved = true;
     // Set before finishing the child: finishing the last outstanding child can
     // complete the tracer, which enriches from _endTimestamp.
-    _endTimestamp = rasterInterval.endTimestamp;
+    _endTimestamp = rasterInterval?.endTimestamp;
     _root.scheduleFinish();
 
-    for (final interval in frameworkIntervals) {
-      _recordInterval(interval);
+    if (rasterInterval != null) {
+      for (final interval in frameworkIntervals) {
+        _recordInterval(interval);
+      }
+      _recordInterval(rasterInterval);
     }
-    _recordInterval(rasterInterval);
     if (_initCompleted) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }
