@@ -226,6 +226,7 @@ class Scope {
           return null;
         }
       } catch (exception, stackTrace) {
+        processedBreadcrumb = null;
         _options.log(
           SentryLevel.error,
           'The BeforeBreadcrumb callback threw an exception',

@@ -183,6 +183,22 @@ void main() {
         expect(captured.name, 'modified-name');
         expect(captured.attributes['added-key']?.value, 'added');
       });
+
+      test('exception in callback drops the metric', () async {
+        fixture.options.automatedTestMode = false;
+        fixture.options.beforeSendMetric = (metric) {
+          throw Exception('test');
+        };
+
+        await fixture.pipeline.captureMetric(
+          fixture.createMetric(),
+          scope: fixture.scope,
+        );
+
+        expect(fixture.processor.addedMetrics, isEmpty);
+        final lostMetric = fixture.recorder.lostMetrics.single;
+        expect(lostMetric.reason, DiscardReason.beforeSend);
+      });
     });
 
     group('when capturing fails unexpectedly', () {

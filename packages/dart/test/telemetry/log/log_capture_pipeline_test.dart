@@ -214,8 +214,7 @@ void main() {
         expect(captured.body, 'async-modified');
       });
 
-      test('exception in callback is caught and log is still captured',
-          () async {
+      test('exception in callback drops the log', () async {
         fixture.options.automatedTestMode = false;
         fixture.options.beforeSendLog = (log) {
           throw Exception('test');
@@ -225,9 +224,9 @@ void main() {
 
         await fixture.pipeline.captureLog(log, scope: fixture.scope);
 
-        expect(fixture.processor.addedLogs.length, 1);
-        final captured = fixture.processor.addedLogs.first;
-        expect(captured.body, 'test');
+        expect(fixture.processor.addedLogs, isEmpty);
+        final lostLog = fixture.recorder.lostLogs.single;
+        expect(lostLog.reason, DiscardReason.beforeSend);
       });
     });
 

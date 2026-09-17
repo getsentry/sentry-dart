@@ -29,6 +29,7 @@ class MetricCapturePipeline {
         try {
           processedMetric = await beforeSendMetric(metric);
         } catch (exception, stackTrace) {
+          processedMetric = null;
           internalLogger.error(
             'The beforeSendMetric callback threw an exception',
             error: exception,

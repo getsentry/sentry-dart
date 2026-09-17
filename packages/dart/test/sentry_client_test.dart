@@ -1392,6 +1392,7 @@ void main() {
 
       expect(fixture.loggedException, exception);
       expect(fixture.loggedLevel, SentryLevel.error);
+      expect(fixture.transport.called(0), true);
     });
   });
 
@@ -1463,6 +1464,7 @@ void main() {
 
       expect(fixture.loggedException, exception);
       expect(fixture.loggedLevel, SentryLevel.error);
+      expect(fixture.transport.called(0), true);
     });
   });
 
@@ -1529,6 +1531,7 @@ void main() {
 
       expect(fixture.loggedException, exception);
       expect(fixture.loggedLevel, SentryLevel.error);
+      expect(fixture.transport.called(0), true);
     });
   });
 
@@ -1670,6 +1673,19 @@ void main() {
 
       final fakeFeedback = fixture.fakeFeedback();
       await client.captureFeedback(fakeFeedback);
+
+      expect(fixture.transport.called(0), true);
+    });
+
+    test('event processor exception drops the event', () async {
+      fixture.options.automatedTestMode = false;
+      final client = fixture.getSut(
+        eventProcessor: FunctionEventProcessor((event, hint) {
+          throw Exception('processor failed');
+        }),
+      );
+
+      await client.captureEvent(fakeEvent);
 
       expect(fixture.transport.called(0), true);
     });

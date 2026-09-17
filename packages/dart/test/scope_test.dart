@@ -940,6 +940,7 @@ void main() {
 
       expect(fixture.loggedException, exception);
       expect(fixture.loggedLevel, SentryLevel.error);
+      expect(sut.breadcrumbs, isEmpty);
     });
 
     test("clone with beforeBreadcrumb error handled ", () async {
