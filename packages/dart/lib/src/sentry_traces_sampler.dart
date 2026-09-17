@@ -35,6 +35,7 @@ class SentryTracesSampler {
     }
 
     final tracesSampler = _options.tracesSampler;
+    var tracesSamplerFailed = false;
     if (tracesSampler != null) {
       try {
         final sampleRate = tracesSampler(samplingContext);
@@ -42,6 +43,7 @@ class SentryTracesSampler {
           return _makeSampleDecision(sampleRate, sampleRand);
         }
       } catch (exception, stackTrace) {
+        tracesSamplerFailed = true;
         internalLogger.error(
           'The tracesSampler callback threw an exception',
           error: exception,
@@ -53,7 +55,7 @@ class SentryTracesSampler {
       }
     }
 
-    if (isStaticLifecycle) {
+    if (isStaticLifecycle && !tracesSamplerFailed) {
       final parentSamplingDecision =
           samplingContext.transactionContext.parentSamplingDecision;
       if (parentSamplingDecision != null) {

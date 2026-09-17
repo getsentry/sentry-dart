@@ -26,6 +26,7 @@ Future<SentryEvent?> runEventProcessors(
       final e = processor.apply(processedEvent!, hint);
       processedEvent = e is Future<SentryEvent?> ? await e : e;
     } catch (exception, stackTrace) {
+      processedEvent = null;
       internalLogger.error(
         'An exception occurred while processing event by a processor',
         error: exception,

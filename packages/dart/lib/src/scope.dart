@@ -260,6 +260,7 @@ class Scope {
           return null;
         }
       } catch (exception, stackTrace) {
+        processedBreadcrumb = null;
         internalLogger.error(
           'The BeforeBreadcrumb callback threw an exception',
           error: exception,

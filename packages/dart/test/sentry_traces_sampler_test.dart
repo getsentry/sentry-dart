@@ -155,21 +155,25 @@ void main() {
         expect(samplingDecision.sampled, false);
       });
 
-      test('handles tracesSampler exception gracefully', () {
+      test('tracesSampler exception falls back to tracesSampleRate', () {
         fixture.options.automatedTestMode = false;
-        final sut = fixture.getSut(debug: true);
-
         final exception = Exception("tracesSampler exception");
-        double? sampler(SentrySamplingContext samplingContext) {
-          throw exception;
-        }
+        final sut = fixture.getSut(
+          debug: true,
+          tracesSampleRate: 0.0,
+          tracesSampler: (_) => throw exception,
+        );
 
-        fixture.options.tracesSampler = sampler;
-
-        final trContext = SentryTransactionContext('name', 'op');
+        final trContext = SentryTransactionContext(
+          'name',
+          'op',
+          parentSamplingDecision: SentryTracesSamplingDecision(true),
+        );
         final context = SentrySamplingContext.forTransaction(trContext);
-        sut.sample(context, _sampleRand);
+        final decision = sut.sample(context, _sampleRand);
 
+        expect(decision.sampled, false);
+        expect(decision.sampleRate, 0.0);
         expect(fixture.loggedException, exception);
         expect(fixture.loggedLevel, SentryLevel.error);
       });

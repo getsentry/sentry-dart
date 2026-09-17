@@ -39,6 +39,7 @@ class LogCapturePipeline {
             processedLog = callbackResult;
           }
         } catch (exception, stackTrace) {
+          processedLog = null;
           internalLogger.error(
             'The beforeSendLog callback threw an exception',
             error: exception,
