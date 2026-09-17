@@ -1,5 +1,32 @@
 # Changelog
 
+## 10.0.0-alpha.6
+
+### Features
+
+#### Flutter
+
+- Add manual Session Replay controls on Android and iOS through `SentryFlutter.replay`: `start`, `startBuffering`, `pause`, `resume`, `stop`, and `flush`. Explicitly started replays work even when both automatic sample rates are `0`. by @buenaflor in [#4010](https://github.com/getsentry/sentry-dart/pull/4010)
+
+### Fixes
+
+#### Flutter
+
+- Close background JNI workers when their owning isolate exits, while preserving native reporting across cached-engine view detachment and reattachment. by @lucas-zimerman in [#3987](https://github.com/getsentry/sentry-dart/pull/3987)
+- Await in-flight replay captures during scheduler shutdown and skip new captures while the app is not resumed. by @lucas-zimerman in [#3935](https://github.com/getsentry/sentry-dart/pull/3935)
+- Clear the replay ID when manually stopping Replay on iOS, and associate telemetry with manually started replays even when automatic sampling is disabled. by @buenaflor in [#4010](https://github.com/getsentry/sentry-dart/pull/4010)
+
+### Dependencies
+
+#### Flutter
+
+- Update Sentry Android from 8.55.0 to 8.56.0 by @buenaflor in [#4015](https://github.com/getsentry/sentry-dart/pull/4015)
+- Update Sentry Native from 0.16.4 to 0.16.6 by @github-actions in [#3998](https://github.com/getsentry/sentry-dart/pull/3998) and [#4013](https://github.com/getsentry/sentry-dart/pull/4013)
+
+### Internal Changes
+
+- Collect Apple framework symbols by @sentry-junior in [#4003](https://github.com/getsentry/sentry-dart/pull/4003)
+
 ## 10.0.0-alpha.5
 
 ### Features
