@@ -2929,8 +2929,10 @@ class Fixture {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    loggedLevel = level;
-    loggedException = error;
+    if (error != null) {
+      loggedLevel = level;
+      loggedException = error;
+    }
   }
 }
 
