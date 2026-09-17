@@ -14,7 +14,6 @@
 
 - Close background JNI workers when their owning isolate exits, while preserving native reporting across cached-engine view detachment and reattachment. by @lucas-zimerman in [#3987](https://github.com/getsentry/sentry-dart/pull/3987)
 - Await in-flight replay captures during scheduler shutdown and skip new captures while the app is not resumed. by @lucas-zimerman in [#3935](https://github.com/getsentry/sentry-dart/pull/3935)
-- Clear the replay ID when manually stopping Replay on iOS, and associate telemetry with manually started replays even when automatic sampling is disabled. by @buenaflor in [#4010](https://github.com/getsentry/sentry-dart/pull/4010)
 
 ### Dependencies
 
