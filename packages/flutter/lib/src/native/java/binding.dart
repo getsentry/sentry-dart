@@ -2759,6 +2759,38 @@ extension SentryAndroidOptions$$Methods on SentryAndroidOptions {
       z ? 1 : 0,
     ).check();
   }
+
+  static final _id_get$monotonicTicker = SentryAndroidOptions._class
+      .instanceMethodId(
+        r'getMonotonicTicker',
+        r'()Lio/sentry/time/MonotonicTicker;',
+      );
+
+  static final _get$monotonicTicker =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.time.MonotonicTicker getMonotonicTicker()`
+  /// The returned object must be released after use, by calling the [release] method.
+  MonotonicTicker get monotonicTicker {
+    final _$$selfRef = reference;
+    return _get$monotonicTicker(
+      _$$selfRef.pointer,
+      _id_get$monotonicTicker.pointer,
+    ).object<MonotonicTicker>();
+  }
 }
 
 final class $SentryAndroidOptions$Type$
@@ -21350,6 +21382,68 @@ extension SentryOptions$$Methods on SentryOptions {
       _id_set$dateProvider.pointer,
       _$sentryDateProvider.pointer,
     ).check();
+  }
+
+  static final _id_get$epochClock = SentryOptions._class.instanceMethodId(
+    r'getEpochClock',
+    r'()Lio/sentry/time/EpochClock;',
+  );
+
+  static final _get$epochClock =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.time.EpochClock getEpochClock()`
+  /// The returned object must be released after use, by calling the [release] method.
+  EpochClock get epochClock {
+    final _$$selfRef = reference;
+    return _get$epochClock(
+      _$$selfRef.pointer,
+      _id_get$epochClock.pointer,
+    ).object<EpochClock>();
+  }
+
+  static final _id_get$monotonicTicker = SentryOptions._class.instanceMethodId(
+    r'getMonotonicTicker',
+    r'()Lio/sentry/time/MonotonicTicker;',
+  );
+
+  static final _get$monotonicTicker =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.time.MonotonicTicker getMonotonicTicker()`
+  /// The returned object must be released after use, by calling the [release] method.
+  MonotonicTicker get monotonicTicker {
+    final _$$selfRef = reference;
+    return _get$monotonicTicker(
+      _$$selfRef.pointer,
+      _id_get$monotonicTicker.pointer,
+    ).object<MonotonicTicker>();
   }
 
   static final _id_addPerformanceCollector = SentryOptions._class
@@ -53492,6 +53586,43 @@ final class $SentryDateProvider$Type$ extends jni$_.JType<SentryDateProvider> {
   @jni$_.internal
   @core$_.override
   String get signature => r'Lio/sentry/SentryDateProvider;';
+}
+
+/// from: `io.sentry.time.EpochClock`
+///
+/// WARNING: EpochClock is a stub. To generate bindings for this class, include
+/// io.sentry.time.EpochClock in your config's classes list.
+///
+extension type EpochClock._(jni$_.JObject _$this) implements jni$_.JObject {
+  static const jni$_.JType<EpochClock> type = $EpochClock$Type$();
+}
+
+final class $EpochClock$Type$ extends jni$_.JType<EpochClock> {
+  @jni$_.internal
+  const $EpochClock$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/time/EpochClock;';
+}
+
+/// from: `io.sentry.time.MonotonicTicker`
+///
+/// WARNING: MonotonicTicker is a stub. To generate bindings for this class, include
+/// io.sentry.time.MonotonicTicker in your config's classes list.
+///
+extension type MonotonicTicker._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static const jni$_.JType<MonotonicTicker> type = $MonotonicTicker$Type$();
+}
+
+final class $MonotonicTicker$Type$ extends jni$_.JType<MonotonicTicker> {
+  @jni$_.internal
+  const $MonotonicTicker$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/time/MonotonicTicker;';
 }
 
 /// from: `io.sentry.IPerformanceCollector`

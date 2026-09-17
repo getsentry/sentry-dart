@@ -72,6 +72,20 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     return _scheduler?.stop() ?? Future.value();
   }
 
+  /// The engine's surface can be torn down as soon as the app leaves
+  /// [AppLifecycleState.resumed]. A capture started after that point can
+  /// outlive the surface backing its GPU texture, and releasing the texture
+  /// against a dead Vulkan context aborts in the driver (#3923).
+  ///
+  /// Captures already in flight when the transition happens are handled by
+  /// [Scheduler.stop]; this only prevents new ones from starting.
+  bool get _canStartCapture {
+    final state = options.bindingUtils.instance?.lifecycleState;
+    // null until the first lifecycle message arrives, i.e. during startup,
+    // where the app is foreground by definition.
+    return state == null || state == AppLifecycleState.resumed;
+  }
+
   Future<void> _restartScheduler() async {
     await _stopScheduler();
 
@@ -83,11 +97,15 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     var frameDuration = Duration(milliseconds: 1000 ~/ config.frameRate);
     assert(frameDuration.inMicroseconds > 0);
 
-    _scheduler = Scheduler(
-      frameDuration,
-      (_) => capture(_onImageCaptured),
-      _addPostFrameCallback,
-    );
+    _scheduler = Scheduler(frameDuration, (_) async {
+      if (!_canStartCapture) {
+        internalLogger.debug(
+          () => '$logName: skipping capture, app is not resumed.',
+        );
+        return;
+      }
+      await capture(_onImageCaptured);
+    }, _addPostFrameCallback);
 
     if (_status == _Status.running) {
       _scheduler!.start();

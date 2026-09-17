@@ -18,6 +18,7 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 
   SentryFlutterOptions? _options;
   final SentryNativeBinding _native;
+  Future<void>? _closeFuture;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -43,19 +44,20 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
   }
 
   @override
-  Future<void> close() async {
-    if (_options?.autoInitializeNativeSdk == true) {
-      try {
-        await _native.close();
-      } catch (exception, stackTrace) {
-        internalLogger.fatal(
-          'nativeSdkIntegration failed to be closed',
-          error: exception,
-          stackTrace: stackTrace,
-        );
-        if (_options?.automatedTestMode ?? false) {
-          rethrow;
-        }
+  Future<void> close() => _closeFuture ??= _closeNative();
+
+  Future<void> _closeNative() async {
+    // Android starts its worker even when native SDK initialization is disabled.
+    try {
+      await _native.close();
+    } catch (exception, stackTrace) {
+      internalLogger.fatal(
+        'nativeSdkIntegration failed to be closed',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_options?.automatedTestMode ?? false) {
+        rethrow;
       }
     }
   }
