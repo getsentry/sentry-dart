@@ -295,59 +295,58 @@ class SentryNativeJava extends SentryNativeChannel {
     _applyReplayConfig(config);
   }
 
-  void _applyReplayConfig(
-    ReplayConfig config,
-  ) => tryCatchSync('setReplayConfig', () {
-    // Since codec block size is 16, so we have to adjust the width and height to it,
-    // otherwise the codec might fail to configure on some devices, see
-    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
-    final invalidConfig =
-        config.width == 0.0 ||
-        config.height == 0.0 ||
-        config.windowWidth == 0.0 ||
-        config.windowHeight == 0.0;
-    if (invalidConfig) {
-      internalLogger.error(
-        'Replay config is not valid: '
-        'width: ${config.width}, '
-        'height: ${config.height}, '
-        'windowWidth: ${config.windowWidth}, '
-        'windowHeight: ${config.windowHeight}',
-      );
-      return;
-    }
+  void _applyReplayConfig(ReplayConfig config) =>
+      tryCatchSync('setReplayConfig', () {
+        // Since codec block size is 16, so we have to adjust the width and height to it,
+        // otherwise the codec might fail to configure on some devices, see
+        // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+        final invalidConfig =
+            config.width == 0.0 ||
+            config.height == 0.0 ||
+            config.windowWidth == 0.0 ||
+            config.windowHeight == 0.0;
+        if (invalidConfig) {
+          internalLogger.error(
+            'Replay config is not valid: '
+            'width: ${config.width}, '
+            'height: ${config.height}, '
+            'windowWidth: ${config.windowWidth}, '
+            'windowHeight: ${config.windowHeight}',
+          );
+          return;
+        }
 
-    var adjWidth = config.width;
-    var adjHeight = config.height;
+        var adjWidth = config.width;
+        var adjHeight = config.height;
 
-    // First update the smaller dimension, as changing that will affect the screen ratio more.
-    if (adjWidth < adjHeight) {
-      final newWidth = adjWidth.adjustReplaySizeToBlockSize();
-      final scale = newWidth / adjWidth;
-      final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
-      adjWidth = newWidth;
-      adjHeight = newHeight;
-    } else {
-      final newHeight = adjHeight.adjustReplaySizeToBlockSize();
-      final scale = newHeight / adjHeight;
-      final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
-      adjHeight = newHeight;
-      adjWidth = newWidth;
-    }
+        // First update the smaller dimension, as changing that will affect the screen ratio more.
+        if (adjWidth < adjHeight) {
+          final newWidth = adjWidth.adjustReplaySizeToBlockSize();
+          final scale = newWidth / adjWidth;
+          final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
+          adjWidth = newWidth;
+          adjHeight = newHeight;
+        } else {
+          final newHeight = adjHeight.adjustReplaySizeToBlockSize();
+          final scale = newHeight / adjHeight;
+          final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
+          adjHeight = newHeight;
+          adjWidth = newWidth;
+        }
 
-    using((arena) {
-      final replayConfig = native.ScreenshotRecorderConfig(
-        adjWidth.round(),
-        adjHeight.round(),
-        adjWidth / config.windowWidth,
-        adjHeight / config.windowHeight,
-        config.frameRate,
-        0, // bitRate is currently not used
-      )..releasedBy(arena);
+        using((arena) {
+          final replayConfig = native.ScreenshotRecorderConfig(
+            adjWidth.round(),
+            adjHeight.round(),
+            adjWidth / config.windowWidth,
+            adjHeight / config.windowHeight,
+            config.frameRate,
+            0, // bitRate is currently not used
+          )..releasedBy(arena);
 
-      _replay?.onConfigurationChanged(replayConfig);
-    });
-  });
+          _replay?.onConfigurationChanged(replayConfig);
+        });
+      });
 
   @override
   bool get supportsTraceSync => true;
