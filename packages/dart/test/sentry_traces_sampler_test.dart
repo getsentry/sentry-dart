@@ -155,23 +155,43 @@ void main() {
         expect(samplingDecision.sampled, false);
       });
 
-      test('handles tracesSampler exception gracefully', () {
+      test('tracesSampler exception falls back to parent decision', () {
         fixture.options.automatedTestMode = false;
-        final sut = fixture.getSut(debug: true);
-
         final exception = Exception("tracesSampler exception");
-        double? sampler(SentrySamplingContext samplingContext) {
-          throw exception;
-        }
+        final sut = fixture.getSut(
+          debug: true,
+          tracesSampleRate: 0.0,
+          tracesSampler: (_) => throw exception,
+        );
 
-        fixture.options.tracesSampler = sampler;
-
-        final trContext = SentryTransactionContext('name', 'op');
+        final parentDecision = SentryTracesSamplingDecision(true);
+        final trContext = SentryTransactionContext(
+          'name',
+          'op',
+          parentSamplingDecision: parentDecision,
+        );
         final context = SentrySamplingContext.forTransaction(trContext);
-        sut.sample(context, _sampleRand);
+        final decision = sut.sample(context, _sampleRand);
 
+        expect(decision, same(parentDecision));
         expect(fixture.loggedException, exception);
         expect(fixture.loggedLevel, SentryLevel.error);
+      });
+
+      test('tracesSampler exception falls back to tracesSampleRate', () {
+        fixture.options.automatedTestMode = false;
+        final sut = fixture.getSut(
+          tracesSampleRate: 0.0,
+          tracesSampler: (_) => throw Exception('sampler failed'),
+        );
+
+        final context = SentrySamplingContext.forTransaction(
+          SentryTransactionContext('name', 'op'),
+        );
+        final decision = sut.sample(context, _sampleRand);
+
+        expect(decision.sampled, false);
+        expect(decision.sampleRate, 0.0);
       });
     });
   });
