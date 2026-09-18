@@ -26,6 +26,7 @@ void main() {
       TestWidgetsFlutterBinding.ensureInitialized();
       fixture = IntegrationTestFixture(NativeSdkIntegration.new);
       fixture.options.bindingUtils = TestBindingWrapper();
+      when(fixture.binding.attach(any)).thenReturn(null);
       when(fixture.binding.init(any)).thenReturn(null);
       when(fixture.binding.close()).thenReturn(null);
     });
@@ -40,6 +41,7 @@ void main() {
         fixture.options.sdk.integrations,
         contains('nativeSdkIntegration'),
       );
+      verifyNever(fixture.binding.attach(any));
       verify(fixture.binding.init(any)).called(1);
     });
 
@@ -69,9 +71,12 @@ void main() {
       verify(fixture.binding.close()).called(1);
     });
 
-    test('does not call native sdk when auto init disabled', () async {
+    test('attaches native bridge when auto init is disabled', () async {
       fixture.options.autoInitializeNativeSdk = false;
+
       await fixture.registerIntegration();
+
+      verify(fixture.binding.attach(any)).called(1);
       verifyNever(fixture.binding.init(any));
     });
 

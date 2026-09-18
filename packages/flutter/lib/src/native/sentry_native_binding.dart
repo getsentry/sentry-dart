@@ -10,6 +10,9 @@ import 'native_app_start.dart';
 /// Provide typed methods to access native layer.
 @internal
 abstract class SentryNativeBinding {
+  /// Attaches Flutter-owned bridges to an already initialized native SDK.
+  FutureOr<void> attach(Hub hub);
+
   FutureOr<void> init(Hub hub);
 
   FutureOr<void> close();

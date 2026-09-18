@@ -20,8 +20,25 @@ import 'binding.dart' as native;
 
 part 'sentry_native_java_init.dart';
 
+typedef ReplayRecorderCallbacksFactory =
+    native.ReplayRecorderCallbacks? Function({
+      required SentryFlutterOptions options,
+      required Hub hub,
+      required SentryNativeJava owner,
+    });
+typedef AttachReplayCallback =
+    void Function(native.ReplayRecorderCallbacks? callbacks);
+
 @internal
 class SentryNativeJava extends SentryNativeChannel {
+  @visibleForTesting
+  static ReplayRecorderCallbacksFactory replayRecorderCallbacksFactory =
+      createReplayRecorderCallbacks;
+
+  @visibleForTesting
+  static AttachReplayCallback attachReplayCallback =
+      native.SentryFlutterPlugin.attachReplay;
+
   AndroidReplayRecorder? _replayRecorder;
   AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
@@ -53,6 +70,16 @@ class SentryNativeJava extends SentryNativeChannel {
   /// [_setNativeReplay] may drop it, which releases the previous reference.
   native.ReplayIntegration? get _replay => _nativeReplay ??=
       native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+
+  @override
+  void attach(Hub hub) {
+    final replayCallbacks = replayRecorderCallbacksFactory(
+      options: options,
+      hub: hub,
+      owner: this,
+    );
+    replayCallbacks.use(attachReplayCallback);
+  }
 
   @override
   void init(Hub hub) {
@@ -146,6 +173,9 @@ class SentryNativeJava extends SentryNativeChannel {
     await _replayRecorder?.stop();
     await coreWorkerClosed;
     _setNativeReplay(null);
+    if (!nativeSdkAutoInitialized) {
+      attachReplayCallback(null);
+    }
     return super.close();
   }
 
