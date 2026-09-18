@@ -73,6 +73,7 @@ void main() {
         ..platform = MockPlatform.iOS()
         ..methodChannel = native.channel
         ..clock = () => timestamp;
+      DateTime? initEndWhenRunnerStarted;
       await SentryFlutter.init(
         (o) {
           o.dsn = fakeDsn;
@@ -80,9 +81,10 @@ void main() {
         },
         options: options,
         appRunner: () {
-          expect(trace.initEnd, timestamp);
+          initEndWhenRunnerStarted = trace.initEnd;
         },
       );
+      expect(initEndWhenRunnerStarted, timestamp);
       await Sentry.close();
     }, testOn: 'vm');
 

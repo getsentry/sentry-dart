@@ -46,9 +46,9 @@ final class AppStartRecorder {
   }
 
   void beginFrameBuild({required bool warmUp}) {
-    // Only attribute builds to startup after successfully observing initial
-    // root attachment; an existing root or failed timestamp is insufficient.
-    if (_state != _RecorderState.observing || _rootAttachment == null) return;
+    // The handler establishes startup eligibility before installing the recorder.
+    // Root attachment may already have completed while rendering was deferred.
+    if (_state != _RecorderState.observing) return;
     _frameBuildStart = _now();
     _isWarmUpFrame = warmUp;
   }

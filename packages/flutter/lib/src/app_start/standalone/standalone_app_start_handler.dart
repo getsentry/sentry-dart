@@ -60,13 +60,14 @@ class StandaloneAppStartHandler {
     _options = options;
 
     final binding = options.bindingUtils.instance;
-    // A pending raster callback is not proof that rendering has not started.
-    // Requiring an unattached root rejects the submission-to-callback window.
+    // An attached root is safe only while the first frame is deferred.
+    // Otherwise it may already have been submitted before its raster callback.
     if (binding == null ||
-        binding.rootElement != null ||
+        (binding.rootElement != null && binding.sendFramesToEngine) ||
         binding.firstFrameRasterized) {
       internalLogger.info(
-        'Skipping app start: first-frame observation began too late',
+        'Skipping app-start trace and initial-display tracking: '
+        'cannot reliably observe the first frame',
       );
       return;
     }

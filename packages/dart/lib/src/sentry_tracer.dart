@@ -448,7 +448,7 @@ class SentryTracer extends ISentrySpan {
     _finishStatus = SentryTracerFinishStatus.notFinishing();
   }
 
-  /// Restarts automatic idle completion.
+  /// Resumes automatic idle completion with a fresh idle timeout.
   ///
   /// Keeps the latest [minimumEndTimestamp] supplied across calls. Omitting it
   /// preserves the existing minimum. Calls after completion have no effect.

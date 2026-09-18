@@ -11,6 +11,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_handler.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
 import '../../fake_frame_callback_handler.dart';
@@ -31,6 +32,106 @@ void main() {
       await fixture.getSut().close();
       fixture.setCurrentRouteName(null);
     });
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      for (final reason in ['attached', 'rasterized', 'unavailable']) {
+        for (final routeAlreadyStarted in [true, false]) {
+          testWidgets(
+            'preserves navigation display tracking when startup is skipped '
+            'with $lifecycle, binding=$reason, routeAlreadyStarted=$routeAlreadyStarted',
+            (tester) async {
+              fixture.options
+                ..traceLifecycle = lifecycle
+                ..enableTimeToFullDisplayTracing = true;
+              fixture.options.timeToDisplayTracker = TimeToDisplayTracker(
+                hub: fixture.hub,
+                options: fixture.options,
+                ttidTracker: TimeToInitialDisplayTracker(
+                  frameCallbackHandler: fixture.frameHandler,
+                ),
+              );
+              switch (reason) {
+                case 'attached':
+                  fixture.binding.rootElement = RootElement(
+                    const RootWidget(child: SizedBox()),
+                  );
+                case 'rasterized':
+                  fixture.binding.firstFrameRasterized = true;
+                case 'unavailable':
+                  when(fixture.bindingWrapper.instance).thenReturn(null);
+              }
+
+              if (routeAlreadyStarted) {
+                fixture.pushInitialRoute('/details');
+                await tester.pump();
+              }
+              await fixture.startLifecycle();
+              expect(fixture.options.standaloneAppStartTrace, isNull);
+              expect(fixture.appStartRoots, isEmpty);
+              expect(fixture.streamAppStartRoots, isEmpty);
+              expect(fixture.frameHandler.timingsCallback, isNull);
+              expect(
+                fixture.options.timeToDisplayTracker.isAppStartRoutePending,
+                isFalse,
+              );
+              expect(
+                fixture.options.timeToDisplayTrackerV2.isAppStartRoutePending,
+                isFalse,
+              );
+
+              if (!routeAlreadyStarted) fixture.pushInitialRoute('/details');
+              await tester.pump();
+              fixture.frameHandler.postFrameCallback?.call(Duration.zero);
+              await tester.pump();
+
+              if (lifecycle == SentryTraceLifecycle.static) {
+                final root = fixture.rootSpans.single.tracer;
+                expect(root.name, '/details');
+                expect(root.finished, isFalse);
+                final ttid = root.children.singleWhere(
+                  (span) => span.context.operation == 'ui.load.initial_display',
+                );
+                final ttfd = root.children.singleWhere(
+                  (span) => span.context.operation == 'ui.load.full_display',
+                );
+                expect(ttid.finished, isTrue);
+                expect(ttid.status, SpanStatus.ok());
+                expect(ttfd.finished, isFalse);
+                await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+                  spanId: root.context.spanId,
+                );
+                expect(ttfd.finished, isTrue);
+                expect(ttfd.status, SpanStatus.ok());
+                await root.finish();
+              } else {
+                final root = fixture.streamRootSpans.single;
+                expect(root.name, '/details');
+                expect(root.isEnded, isFalse);
+                final ttid = fixture.streamChildSpans.singleWhere(
+                  (span) =>
+                      span.attributes['sentry.op']?.value ==
+                      'ui.load.initial_display',
+                );
+                final ttfd = fixture.streamChildSpans.singleWhere(
+                  (span) =>
+                      span.attributes['sentry.op']?.value ==
+                      'ui.load.full_display',
+                );
+                expect(ttid.isEnded, isTrue);
+                expect(ttfd.isEnded, isFalse);
+                fixture.options.timeToDisplayTrackerV2.reportFullyDisplayed(
+                  ttfd.spanId,
+                );
+                expect(ttfd.isEnded, isTrue);
+                expect(ttfd.status, SentrySpanStatusV2.ok);
+                root.end();
+              }
+              await tester.pump(const Duration(seconds: 5));
+            },
+          );
+        }
+      }
+    }
 
     for (final lifecycle in SentryTraceLifecycle.values) {
       for (final initFirst in [true, false]) {
@@ -284,6 +385,49 @@ void main() {
         expect(raster.endTimestamp, fixture.firstFrameEnd);
       },
     );
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      test(
+        'captures startup after attachment while deferred with $lifecycle',
+        () async {
+          fixture.options.traceLifecycle = lifecycle;
+          fixture.binding
+            ..rootElement = RootElement(const RootWidget(child: SizedBox()))
+            ..sendFramesToEngine = false;
+          await fixture.startLifecycle();
+          expect(fixture.frameHandler.timingsCallback, isNotNull);
+          fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+          await pumpEventQueue();
+          if (lifecycle == SentryTraceLifecycle.static) {
+            final root = fixture.appStartRoots.single.tracer;
+            final raster = root.children.singleWhere(
+              (span) => span.context.operation == 'app.start.frame_raster',
+            );
+            expect(raster.endTimestamp, fixture.firstFrameEnd);
+            expect(
+              root.children.where(
+                (span) => span.context.description == 'Root Widget Attachment',
+              ),
+              isEmpty,
+            );
+          } else {
+            expect(fixture.streamAppStartRoots, hasLength(1));
+            final raster = fixture.streamChildSpans.singleWhere(
+              (span) =>
+                  span.attributes['sentry.op']?.value ==
+                  'app.start.frame_raster',
+            );
+            expect(raster.endTimestamp, fixture.firstFrameEnd);
+            expect(
+              fixture.streamChildSpans.where(
+                (span) => span.name == 'Root Widget Attachment',
+              ),
+              isEmpty,
+            );
+          }
+        },
+      );
+    }
 
     test(
       'rejects initialization after attachment even before raster reporting',
@@ -1121,6 +1265,8 @@ class _BindingState implements WidgetsBinding {
   RootElement? rootElement;
   @override
   bool firstFrameRasterized = false;
+  @override
+  bool sendFramesToEngine = true;
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

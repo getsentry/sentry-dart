@@ -119,20 +119,40 @@ void main() {
         [SentrySpanOperations.appStartRootWidgetAttachment],
       );
     });
+    test('records complete builds without observing root attachment', () {
+      final sut = fixture.getSut();
+      // Completion of a build that began before observation must be ignored.
+      sut.endFrameBuild(deferred: true);
+      fixture.advance(5);
+      sut.beginFrameBuild(warmUp: false);
+      fixture.advance(10);
+      sut.endFrameBuild(deferred: false);
+      final intervals = sut.takeIntervals(
+        processStart: fixture.start,
+        rasterFinish: fixture.rasterInterval.endTimestamp,
+      );
+      expect(intervals, hasLength(1));
+      expect(intervals.single.description, 'Frame Build');
+      expect(
+        intervals.single.startTimestamp,
+        fixture.start.add(const Duration(milliseconds: 5)),
+      );
+      expect(
+        intervals.single.endTimestamp,
+        fixture.start.add(const Duration(milliseconds: 15)),
+      );
+    });
+
     test('does not claim initial attachment for an existing root', () {
       final sut = fixture.getSut();
       sut.beginRootAttachment(hasRoot: true);
       sut.endRootAttachment();
-      sut.beginFrameBuild(warmUp: false);
-      sut.endFrameBuild(deferred: false);
       expect(
-        sut
-            .takeIntervals(
-              processStart: fixture.start,
-              rasterFinish: fixture.rasterInterval.endTimestamp,
-            )
-            .map((interval) => interval.operation),
-        <String>[],
+        sut.takeIntervals(
+          processStart: fixture.start,
+          rasterFinish: fixture.rasterInterval.endTimestamp,
+        ),
+        isEmpty,
       );
     });
     test('does not record a failed build or unmatched completion', () {
