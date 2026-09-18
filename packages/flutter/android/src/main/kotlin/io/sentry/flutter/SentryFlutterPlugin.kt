@@ -77,7 +77,7 @@ class SentryFlutterPlugin :
       return
     }
 
-    tearDownReplayIntegration()
+    attachReplay(null)
     channel.setMethodCallHandler(null)
     applicationContext = null
   }
@@ -112,7 +112,11 @@ class SentryFlutterPlugin :
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
 
-    private var replayCallbacks: SafeReplayRecorderCallbacks? = null
+    private var replayCallbacks: ReplayRecorderCallbacks? = null
+
+    private var replayCallbackBridge: ReplayRecorderCallbackBridge? = null
+
+    private var replayInstalledByHost = false
 
     @SuppressLint("StaticFieldLeak")
     private var applicationContext: Context? = null
@@ -149,6 +153,61 @@ class SentryFlutterPlugin :
       } finally {
         replay = null
         replayCallbacks = null
+        replayCallbackBridge = null
+        replayInstalledByHost = false
+      }
+    }
+
+    /**
+     * Installs Flutter's replay recorder while a host app configures SentryAndroid.
+     *
+     * Call this from the SentryAndroid options callback before native integrations
+     * are registered. SentryFlutter.init attaches the Dart callbacks later.
+     */
+    @JvmStatic
+    fun installReplay(
+      context: Context,
+      options: SentryAndroidOptions,
+    ) {
+      tearDownReplayIntegration()
+      applicationContext = context.applicationContext
+      val bridge = ReplayRecorderCallbackBridge()
+      replayCallbackBridge = bridge
+      replayInstalledByHost = true
+      setupReplayIntegration(options, bridge)
+    }
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun attachReplay(replayCallbacks: ReplayRecorderCallbacks?) {
+      if (replayCallbacks == null) {
+        if (!replayInstalledByHost) {
+          tearDownReplayIntegration()
+          return
+        }
+        SafeReplayRecorderCallbacks.bumpGeneration()
+        replayCallbackBridge?.detach()
+        this.replayCallbacks = null
+        return
+      }
+
+      val bridge = replayCallbackBridge
+      if (bridge == null) {
+        Log.w("Sentry", "attachReplay called before installReplay")
+        return
+      }
+      val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
+      bridge.attach(safeCallbacks)
+      this.replayCallbacks = safeCallbacks
+
+      val integration = replay
+      if (integration?.isRecording() == true) {
+        val replayId = integration.getReplayId()
+        var isBuffering = true
+        Sentry.configureScope { scope ->
+          isBuffering = scope.replayId != replayId
+        }
+        safeCallbacks.replayStarted(replayId.toString(), isBuffering)
       }
     }
 
@@ -265,18 +324,29 @@ class SentryFlutterPlugin :
       replayCallbacks: ReplayRecorderCallbacks?,
     ) {
       tearDownReplayIntegration()
+      setupReplayIntegration(options, replayCallbacks)
+    }
 
+    private fun setupReplayIntegration(
+      options: SentryAndroidOptions,
+      callbacks: ReplayRecorderCallbacks?,
+    ) {
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
-      if (replayCallbacks != null) {
+      if (callbacks != null) {
         val ctx = applicationContext
         if (ctx == null) {
           Log.w("Sentry", "setupReplay called before applicationContext initialized")
           return
         }
 
-        val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
-        this.replayCallbacks = safeCallbacks
+        val safeCallbacks =
+          if (callbacks is ReplayRecorderCallbackBridge) {
+            callbacks
+          } else {
+            SafeReplayRecorderCallbacks(callbacks)
+          }
+        replayCallbacks = safeCallbacks
 
         replay =
           ReplayIntegration(

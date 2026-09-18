@@ -5998,6 +5998,41 @@ extension type SentryFlutterPlugin._(jni$_.JObject _$this)
     ).check();
   }
 
+  static final _id_attachReplay = _class.staticMethodId(
+    r'attachReplay',
+    r'(Lio/sentry/flutter/ReplayRecorderCallbacks;)V',
+  );
+
+  static final _attachReplay =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallStaticVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `static public final void attachReplay(io.sentry.flutter.ReplayRecorderCallbacks replayRecorderCallbacks)`
+  static void attachReplay(ReplayRecorderCallbacks? replayRecorderCallbacks) {
+    final _$$classRef = _class.reference;
+    final _$replayRecorderCallbacks =
+        replayRecorderCallbacks?.reference ?? jni$_.jNullReference;
+    _attachReplay(
+      _$$classRef.pointer,
+      _id_attachReplay.pointer,
+      _$replayRecorderCallbacks.pointer,
+    ).check();
+  }
+
   static final _id_setupReplay = _class.staticMethodId(
     r'setupReplay',
     r'(Lio/sentry/android/core/SentryAndroidOptions;Lio/sentry/flutter/ReplayRecorderCallbacks;)V',

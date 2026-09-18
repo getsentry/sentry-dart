@@ -77,6 +77,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "initNativeSdk":
             initNativeSdk(call, result: result)
 
+        case "attachReplay":
+            attachReplay(call, result: result)
+
         case "closeNativeSdk":
             closeNativeSdk(call, result: result)
 
@@ -371,6 +374,19 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
         result("")
     }
+
+  private func attachReplay(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+      guard SentrySDK.isEnabled else {
+          result(FlutterError(
+              code: "sentry_not_initialized",
+              message: "Initialize Sentry Cocoa before attaching Flutter replay.",
+              details: nil
+          ))
+          return
+      }
+      configureReplay(call.arguments as? [String: Any] ?? [:])
+      result(nil)
+  }
 
   private func configureReplay(_ arguments: [String: Any]) {
 #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))

@@ -55,6 +55,16 @@ class SentryNativeJava extends SentryNativeChannel {
       native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
 
   @override
+  void attach(Hub hub) {
+    final replayCallbacks = createReplayRecorderCallbacks(
+      options: options,
+      hub: hub,
+      owner: this,
+    );
+    replayCallbacks.use(native.SentryFlutterPlugin.attachReplay);
+  }
+
+  @override
   void init(Hub hub) {
     // Only record the native SDK as initialized if init actually attempted
     // to run - initSentryAndroid can bail out early (e.g. a null
@@ -146,6 +156,9 @@ class SentryNativeJava extends SentryNativeChannel {
     await _replayRecorder?.stop();
     await coreWorkerClosed;
     _setNativeReplay(null);
+    if (!nativeSdkAutoInitialized) {
+      native.SentryFlutterPlugin.attachReplay(null);
+    }
     return super.close();
   }
 

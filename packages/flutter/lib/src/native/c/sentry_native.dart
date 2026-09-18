@@ -54,6 +54,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       internalLogger.debug('SentryNative: $operation is not supported');
 
   @override
+  FutureOr<void> attach(Hub hub) {
+    _logNotSupported('attaching to an existing native SDK');
+  }
+
+  @override
   FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
       internalLogger.info('SentryNative crash handling is disabled');
