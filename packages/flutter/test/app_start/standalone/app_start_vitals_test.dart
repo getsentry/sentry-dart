@@ -209,13 +209,10 @@ class Fixture {
       AppStartTiming(
         type: type,
         processStartTimestamp: processStart,
-        pluginRegistrationTimestamp: processStart.add(
-          const Duration(milliseconds: 100),
-        ),
         sentrySetupTimestamp: processStart.add(
           const Duration(milliseconds: 200),
         ),
-        phases: [],
+        intervals: [],
       );
 
   AppStartVitals resolve({

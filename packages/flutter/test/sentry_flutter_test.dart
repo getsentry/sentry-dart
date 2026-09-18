@@ -66,6 +66,48 @@ void main() {
       SentryFlutter.native = null;
     });
 
+    test('records initialization end before invoking the app runner', () async {
+      final trace = TestAppStartTrace();
+      final timestamp = DateTime.utc(2024, 1, 1);
+      final options = defaultTestOptions(checker: MockRuntimeChecker())
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = native.channel
+        ..clock = () => timestamp;
+      DateTime? initEndWhenRunnerStarted;
+      await SentryFlutter.init(
+        (o) {
+          o.dsn = fakeDsn;
+          o.standaloneAppStartTrace = trace;
+        },
+        options: options,
+        appRunner: () {
+          initEndWhenRunnerStarted = trace.initEnd;
+        },
+      );
+      expect(initEndWhenRunnerStarted, timestamp);
+      await Sentry.close();
+    }, testOn: 'vm');
+
+    test(
+      'records initialization end on return without an app runner',
+      () async {
+        final trace = TestAppStartTrace();
+        final timestamp = DateTime.utc(2024, 1, 1);
+        final options = defaultTestOptions(checker: MockRuntimeChecker())
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = native.channel
+          ..clock = () => timestamp;
+        await SentryFlutter.init((o) {
+          o.dsn = fakeDsn;
+          o.standaloneAppStartTrace = trace;
+        }, options: options);
+        expect(trace.initEnd, timestamp);
+
+        await Sentry.close();
+      },
+      testOn: 'vm',
+    );
+
     test('iOS', () async {
       late final SentryFlutterOptions options;
       late final Transport transport;
