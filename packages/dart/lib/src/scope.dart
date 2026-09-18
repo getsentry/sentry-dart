@@ -392,11 +392,15 @@ class Scope {
     });
 
     final newSpan = span;
+    final newActiveSpan = _activeSpan;
     if (event.contexts.trace == null) {
       if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
           sampled: newSpan.samplingDecision?.sampled,
         );
+      } else if (newActiveSpan != null) {
+        event.contexts.trace = newActiveSpan.toTraceContext();
+        event.transaction ??= newActiveSpan.segmentSpan.name;
       } else {
         event.contexts.trace =
             SentryTraceContext.fromPropagationContext(propagationContext);
