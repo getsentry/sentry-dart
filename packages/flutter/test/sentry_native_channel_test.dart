@@ -36,27 +36,32 @@ void main() {
         sut = createBinding(options);
       });
 
-      test('attach configures replay for manually initialized iOS SDK', () async {
-        if (!mockPlatform.isIOS) {
-          return;
-        }
-        when(channel.invokeMethod('attachReplay', any)).thenAnswer((_) async {});
+      test(
+        'attach configures replay for manually initialized iOS SDK',
+        () async {
+          if (!mockPlatform.isIOS) {
+            return;
+          }
+          when(
+            channel.invokeMethod('attachReplay', any),
+          ).thenAnswer((_) async {});
 
-        await sut.attach(MockHub());
+          await sut.attach(MockHub());
 
-        verify(
-          channel.invokeMethod(
-            'attachReplay',
-            argThat(
-              isA<Map<String, dynamic>>().having(
-                (arguments) => arguments['tags'],
-                'tags',
-                isA<Map<String, dynamic>>(),
+          verify(
+            channel.invokeMethod(
+              'attachReplay',
+              argThat(
+                isA<Map<String, dynamic>>().having(
+                  (arguments) => arguments['tags'],
+                  'tags',
+                  isA<Map<String, dynamic>>(),
+                ),
               ),
             ),
-          ),
-        ).called(1);
-      });
+          ).called(1);
+        },
+      );
 
       test('fetchNativeAppStart', () async {
         if (mockPlatform.isAndroid) {
