@@ -1,6 +1,7 @@
 @TestOn('browser')
 library;
 
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
@@ -88,6 +89,47 @@ void main() {
           contains('name: Dedupe'),
         );
       });
+
+      for (final sendDefaultPii in <bool?>[null, false, true]) {
+        test(
+          'gates native JS error IP collection with sendDefaultPii=$sendDefaultPii',
+          () async {
+            if (sendDefaultPii != null) {
+              options.sendDefaultPii = sendDefaultPii;
+            }
+            await sut.init(hub);
+
+            final sentry = _globalThis['Sentry'] as JSObject;
+            final client = sentry.callMethod<JSObject>('getClient'.toJS);
+            final event = Completer<Map<dynamic, dynamic>>();
+            client.callMethod<JSAny?>(
+              'on'.toJS,
+              'beforeEnvelope'.toJS,
+              ((JSArray captured) {
+                final envelope = captured.dartify() as List;
+                event.complete(
+                  ((envelope[1] as List).first as List)[1]
+                      as Map<dynamic, dynamic>,
+                );
+              }).toJS,
+            );
+            final error = _globalThis.callMethod<JSObject>(
+              'Error'.toJS,
+              'PII regression'.toJS,
+            );
+            sentry.callMethod<JSAny?>('captureException'.toJS, error);
+
+            final captured = await event.future.timeout(
+              const Duration(seconds: 5),
+            );
+            final sdk = captured['sdk'] as Map<dynamic, dynamic>;
+            expect(
+              (sdk['settings'] as Map)['infer_ip'],
+              sendDefaultPii == true ? 'auto' : 'never',
+            );
+          },
+        );
+      }
 
       test('options getter returns the original options', () {
         expect(sut.options, same(options));

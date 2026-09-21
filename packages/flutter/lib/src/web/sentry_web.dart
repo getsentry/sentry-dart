@@ -42,6 +42,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'tracesSampleRate': 0,
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
+        'dataCollection': {'userInfo': _options.sendDefaultPii},
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': <String>{
           SentryJsIntegrationName.globalHandlers,
