@@ -1322,6 +1322,11 @@ class MockSentryNativeBinding extends _i1.Mock
           as bool);
 
   @override
+  _i12.FutureOr<void> attach(_i2.Hub? hub) =>
+      (super.noSuchMethod(Invocation.method(#attach, [hub]))
+          as _i12.FutureOr<void>);
+
+  @override
   _i12.FutureOr<void> init(_i2.Hub? hub) =>
       (super.noSuchMethod(Invocation.method(#init, [hub]))
           as _i12.FutureOr<void>);

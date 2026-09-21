@@ -30,6 +30,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       _log('$operation is not supported');
 
   @override
+  FutureOr<void> attach(Hub hub) {
+    _logNotSupported('attaching to an existing native SDK');
+  }
+
+  @override
   FutureOr<void> init(Hub hub) {
     tryCatchSync('init', () {
       final Map<String, dynamic> jsOptions = {

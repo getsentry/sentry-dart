@@ -24,13 +24,13 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
 
-    if (!options.autoInitializeNativeSdk) {
-      return;
-    }
-
     try {
-      await _native.init(hub);
-      options.sdk.addIntegration('nativeSdkIntegration');
+      if (options.autoInitializeNativeSdk) {
+        await _native.init(hub);
+        options.sdk.addIntegration('nativeSdkIntegration');
+      } else {
+        await _native.attach(hub);
+      }
     } catch (exception, stackTrace) {
       internalLogger.fatal(
         'nativeSdkIntegration failed to be installed',

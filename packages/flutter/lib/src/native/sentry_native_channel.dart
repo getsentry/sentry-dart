@@ -36,8 +36,24 @@ class SentryNativeChannel
   @protected
   bool nativeSdkAutoInitialized = false;
 
+  @protected
+  Map<String, dynamic> get replayTags => <String, dynamic>{
+    'maskAllText': options.privacy.maskAllText,
+    'maskAllImages': options.privacy.maskAllImages,
+    'maskAssetImages': options.privacy.maskAssetImages,
+    if (options.privacy.userMaskingRules.isNotEmpty)
+      'maskingRules': options.privacy.userMaskingRules
+          .map((rule) => '${rule.name}: ${rule.description}')
+          .toList(growable: false),
+  };
+
   void _logNotSupported(String operation) =>
       internalLogger.debug('SentryNativeChannel: $operation is not supported');
+
+  @override
+  FutureOr<void> attach(Hub hub) {
+    _logNotSupported('attaching to the native SDK');
+  }
 
   @override
   FutureOr<void> init(Hub hub) {
@@ -89,15 +105,7 @@ class SentryNativeChannel
         'quality': options.replay.quality.name,
         'sessionSampleRate': options.replay.sessionSampleRate,
         'onErrorSampleRate': options.replay.onErrorSampleRate,
-        'tags': <String, dynamic>{
-          'maskAllText': options.privacy.maskAllText,
-          'maskAllImages': options.privacy.maskAllImages,
-          'maskAssetImages': options.privacy.maskAssetImages,
-          if (options.privacy.userMaskingRules.isNotEmpty)
-            'maskingRules': options.privacy.userMaskingRules
-                .map((rule) => '${rule.name}: ${rule.description}')
-                .toList(growable: false),
-        },
+        'tags': replayTags,
       },
       'enableSpotlight': options.spotlight.enabled,
       'spotlightUrl': options.spotlight.url,

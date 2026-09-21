@@ -61,15 +61,26 @@ void main() {
   group('$SentryNativeJava', () {
     late Fixture fixture;
     late AndroidCoreWorker Function(SentryFlutterOptions) originalFactory;
+    late ReplayRecorderCallbacksFactory originalReplayRecorderCallbacksFactory;
+    late AttachReplayCallback originalAttachReplayCallback;
 
     setUp(() {
       originalFactory = AndroidCoreWorker.factory;
+      originalReplayRecorderCallbacksFactory =
+          SentryNativeJava.replayRecorderCallbacksFactory;
+      originalAttachReplayCallback = SentryNativeJava.attachReplayCallback;
       fixture = Fixture();
       AndroidCoreWorker.factory = (_) => fixture.worker;
+      SentryNativeJava.replayRecorderCallbacksFactory =
+          ({required options, required hub, required owner}) => null;
+      SentryNativeJava.attachReplayCallback = (_) {};
     });
 
     tearDown(() {
       AndroidCoreWorker.factory = originalFactory;
+      SentryNativeJava.replayRecorderCallbacksFactory =
+          originalReplayRecorderCallbacksFactory;
+      SentryNativeJava.attachReplayCallback = originalAttachReplayCallback;
     });
 
     test('closes the worker explicitly after detach and reattach', () async {

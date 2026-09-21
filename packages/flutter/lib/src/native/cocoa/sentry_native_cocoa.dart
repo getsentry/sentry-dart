@@ -22,39 +22,63 @@ class SentryNativeCocoa extends SentryNativeChannel {
   SentryId? get replayId => _replayId;
 
   @override
-  Future<void> init(Hub hub) async {
-    _hub = hub;
-    if (supportsReplay) {
-      channel.setMethodCallHandler((call) async {
-        switch (call.method) {
-          case 'captureReplayScreenshot':
-            _replayRecorder ??= CocoaReplayRecorder(options);
-
-            final replayIdArg = call.arguments['replayId'];
-            final replayIsBuffering =
-                call.arguments['replayIsBuffering'] as bool? ?? false;
-
-            final replayId = replayIdArg == null
-                ? null
-                : SentryId.fromId(replayIdArg as String);
-
-            if (_replayId != replayId) {
-              _replayId = replayId;
-              hub.configureScope((s) {
-                // Only set replay ID on scope if not buffering (active session mode)
-                // ignore: invalid_use_of_internal_member
-                s.replayId = !replayIsBuffering ? replayId : null;
-              });
-            }
-
-            return _replayRecorder!.captureScreenshot();
-          default:
-            throw UnimplementedError('Method ${call.method} not implemented');
-        }
-      });
+  Future<void> attach(Hub hub) async {
+    if (!supportsReplay) {
+      return;
     }
+    _attachReplayScreenshotHandler(hub);
+    await channel.invokeMethod('attachReplay', <String, dynamic>{
+      'tags': replayTags,
+    });
+  }
 
+  @override
+  Future<void> init(Hub hub) async {
+    _attachReplayScreenshotHandler(hub);
     return super.init(hub);
+  }
+
+  void _attachReplayScreenshotHandler(Hub hub) {
+    _hub = hub;
+    if (!supportsReplay) {
+      return;
+    }
+    channel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'captureReplayScreenshot':
+          _replayRecorder ??= CocoaReplayRecorder(options);
+
+          final replayIdArg = call.arguments['replayId'];
+          final replayIsBuffering =
+              call.arguments['replayIsBuffering'] as bool? ?? false;
+
+          final replayId = replayIdArg == null
+              ? null
+              : SentryId.fromId(replayIdArg as String);
+
+          if (_replayId != replayId) {
+            _replayId = replayId;
+            hub.configureScope((s) {
+              // Only set replay ID on scope if not buffering (active session mode)
+              // ignore: invalid_use_of_internal_member
+              s.replayId = !replayIsBuffering ? replayId : null;
+            });
+          }
+
+          return _replayRecorder!.captureScreenshot();
+        default:
+          throw UnimplementedError('Method ${call.method} not implemented');
+      }
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    channel.setMethodCallHandler(null);
+    _replayRecorder = null;
+    _replayId = null;
+    _hub = null;
+    await super.close();
   }
 
   @override
