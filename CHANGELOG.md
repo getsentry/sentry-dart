@@ -1,5 +1,15 @@
 # Changelog
 
+## 10.0.0-alpha.7
+
+### Features
+
+- (flutter) Revamp app-start frame spans by @buenaflor in [#4018](https://github.com/getsentry/sentry-dart/pull/4018)
+
+### Fixes
+
+- Isolate user callback failures by @sentry-junior in [#4026](https://github.com/getsentry/sentry-dart/pull/4026)
+
 ## 10.0.0-alpha.6
 
 ### Features
