@@ -4,10 +4,12 @@ import 'package:meta/meta.dart';
 class SentrySpanOperations {
   static const String appStart = 'app.start';
   static const String appStartExtended = 'app.start.extended';
-  static const String appStartPluginRegistration =
-      'app.start.plugin_registration';
-  static const String appStartSentrySetup = 'app.start.sentry_setup';
-  static const String appStartFirstFrameRender = 'app.start.first_frame_render';
+  static const String appStartPreInit = 'app.start.pre_init';
+  static const String appStartSentryInit = 'app.start.sentry_init';
+  static const String appStartRootWidgetAttachment =
+      'app.start.root_widget_attachment';
+  static const String appStartFrameBuild = 'app.start.frame_build';
+  static const String appStartFrameRaster = 'app.start.frame_raster';
   static const String appStartNative = 'app.start.native';
   static const String uiLoad = 'ui.load';
   static const String uiTimeToInitialDisplay = 'ui.load.initial_display';
@@ -457,6 +459,18 @@ abstract class SemanticAttributesConstants {
 @internal
 abstract class ProposedSemanticAttributes {
   ProposedSemanticAttributes._();
+
+  /// Whether this Flutter framework frame ran as a warm-up frame.
+  ///
+  /// Distinguishes framework passes that engine build timings may not cover.
+  /// No canonical Sentry attribute currently describes this state.
+  static const flutterFrameWarmUp = 'flutter.frame.warm_up';
+
+  /// Whether sending frames to the engine was disabled at draw completion.
+  ///
+  /// False does not prove that this frame was submitted or rasterized.
+  /// No canonical Sentry attribute currently describes Flutter deferral.
+  static const flutterFrameDeferred = 'flutter.frame.deferred';
 
   /// The Flutter SDK version used to compile the app (e.g. `3.24.0`).
   ///

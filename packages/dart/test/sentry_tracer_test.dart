@@ -283,6 +283,61 @@ void main() {
       expect(NoOpSentrySpan(), span);
     });
 
+    test(
+      'preserves the latest minimum end when resuming idle completion',
+      () async {
+        fixture.hub.options.clock = () => DateTime.utc(2026, 9, 16);
+        final sut = fixture.getSut();
+        final latestEnd = DateTime.utc(2026, 9, 16, 12);
+        final earlierEnd = latestEnd.subtract(const Duration(seconds: 1));
+
+        sut.pauseIdleTimeout();
+        sut.resumeIdleTimeout(minimumEndTimestamp: earlierEnd);
+        sut.resumeIdleTimeout(minimumEndTimestamp: latestEnd);
+        sut.resumeIdleTimeout(minimumEndTimestamp: earlierEnd);
+        await sut.finish(endTimestamp: earlierEnd);
+
+        expect(sut.endTimestamp, latestEnd);
+      },
+    );
+
+    test(
+      'preserves the minimum end when resuming without a timestamp',
+      () async {
+        fixture.hub.options.clock = () => DateTime.utc(2026, 9, 16);
+        final sut = fixture.getSut();
+        final minimumEnd = DateTime.utc(2026, 9, 16, 12);
+
+        sut.resumeIdleTimeout(minimumEndTimestamp: minimumEnd);
+        sut.pauseIdleTimeout();
+        sut.resumeIdleTimeout();
+        await sut.finish(
+          endTimestamp: minimumEnd.subtract(const Duration(seconds: 1)),
+        );
+
+        expect(sut.endTimestamp, minimumEnd);
+      },
+    );
+
+    test('ignores idle timeout changes after completion', () async {
+      fixture.hub.options.clock = () => DateTime.utc(2026, 9, 16);
+      final sut = fixture.getSut(autoFinishAfter: const Duration(seconds: 1));
+      final end = DateTime.utc(2026, 9, 16, 12);
+      await sut.startChild('work').finish(endTimestamp: end);
+      await sut.finish(endTimestamp: end);
+      final timer = sut.autoFinishAfterTimer;
+
+      sut.pauseIdleTimeout();
+      sut.resumeIdleTimeout(
+        minimumEndTimestamp: end.add(const Duration(seconds: 1)),
+      );
+
+      expect(sut.endTimestamp, end);
+      expect(sut.autoFinishAfterTimer, same(timer));
+      expect(sut.autoFinishAfterTimer?.isActive, isFalse);
+      expect(fixture.hub.captureTransactionCalls, hasLength(1));
+    });
+
     test('tracer finishes after auto finish duration', () async {
       final sut = fixture.getSut(autoFinishAfter: Duration(milliseconds: 200));
 

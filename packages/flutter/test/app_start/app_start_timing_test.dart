@@ -1,4 +1,8 @@
+// ignore_for_file: invalid_use_of_internal_member
+import 'dart:ui';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/native/native_app_start.dart';
 
@@ -10,15 +14,28 @@ void main() {
       fixture = Fixture();
     });
 
-    test('parses intrinsic timing and sorts valid phases', () {
+    test('parses intrinsic timing and sorts valid native intervals', () {
       final data = fixture.parse();
 
       expect(data, isNotNull);
       expect(data!.type, AppStartType.cold);
-      expect(data.nativePhases.map((phase) => phase.description), [
+      expect(data.intervals.map((interval) => interval.description), [
         'early',
         'late',
+        'Pre-Init Startup',
       ]);
+    });
+
+    test('builds one pre-init interval spanning process start to setup', () {
+      final timing = fixture.parse()!;
+
+      final preInit = timing.intervals.singleWhere(
+        (interval) =>
+            interval.operation == SentrySpanOperations.appStartPreInit,
+      );
+      expect(preInit.description, 'Pre-Init Startup');
+      expect(preInit.startTimestamp, fixture.processStart);
+      expect(preInit.endTimestamp, fixture.sentrySetup);
     });
 
     test('returns null when plugin registration precedes process start', () {
@@ -41,7 +58,7 @@ void main() {
       expect(data, isNull);
     });
 
-    test('discards one malformed optional phase', () {
+    test('discards one malformed optional interval', () {
       fixture.nativeSpanTimes['invalid'] = {
         'startTimestampMsSinceEpoch': fixture.firstFrame.millisecondsSinceEpoch,
         'stopTimestampMsSinceEpoch':
@@ -50,13 +67,14 @@ void main() {
 
       final data = fixture.parse();
 
-      expect(data!.nativePhases.map((phase) => phase.description), [
+      expect(data!.intervals.map((interval) => interval.description), [
         'early',
         'late',
+        'Pre-Init Startup',
       ]);
     });
 
-    test('discards optional phases starting before process start', () {
+    test('discards optional intervals starting before process start', () {
       fixture.nativeSpanTimes['before-process-start'] = {
         'startTimestampMsSinceEpoch': fixture.processStart
             .subtract(Duration(milliseconds: 2))
@@ -68,9 +86,10 @@ void main() {
 
       final data = fixture.parse();
 
-      expect(data!.nativePhases.map((phase) => phase.description), [
+      expect(data!.intervals.map((interval) => interval.description), [
         'early',
         'late',
+        'Pre-Init Startup',
       ]);
     });
   });
@@ -109,6 +128,43 @@ void main() {
       );
 
       expect(duration, isNull);
+    });
+  });
+  group('tryResolveAppStartRasterInterval', () {
+    late RasterFixture fixture;
+    setUp(() {
+      fixture = RasterFixture();
+    });
+    test('anchors raster duration on the wall clock endpoint', () {
+      final result = tryResolveAppStartRasterInterval(fixture.frameTiming())!;
+      expect(result.startTimestamp, DateTime.utc(2024, 1, 1, 12, 0, 0, 812));
+      expect(result.endTimestamp, fixture.rasterFinishWall);
+    });
+    test(
+      'emits only raster timing when engine build timestamps are inconsistent',
+      () {
+        final result = tryResolveAppStartRasterInterval(
+          fixture.frameTiming(buildStart: 0, buildFinish: 999999),
+        )!;
+        expect(result.operation, SentrySpanOperations.appStartFrameRaster);
+        expect(result.endTimestamp, fixture.rasterFinishWall);
+      },
+    );
+    test('rejects reversed raster timing', () {
+      expect(
+        tryResolveAppStartRasterInterval(
+          fixture.frameTiming(rasterStart: 900000),
+        ),
+        isNull,
+      );
+    });
+    test('rejects missing wall clock timing', () {
+      expect(
+        tryResolveAppStartRasterInterval(
+          fixture.frameTiming(rasterFinishWallTime: DateTime.utc(1970)),
+        ),
+        isNull,
+      );
     });
   });
 }
@@ -153,5 +209,31 @@ class Fixture {
       nativeSpanTimes: nativeSpanTimes,
     ),
     sentrySetupTimestamp: sentrySetup ?? this.sentrySetup,
+  );
+}
+
+class RasterFixture {
+  /// Arbitrary offset standing in for the engine's monotonic epoch, which does
+  /// not match `DateTime`'s. Every phase below is derived relative to it, so a
+  /// resolver that reads the timings as epoch microseconds lands in 1970.
+  static const _monotonicEpochOffset = 5000000;
+
+  final rasterFinishWall = DateTime.utc(2024, 1, 1, 12, 0, 0, 869);
+
+  FrameTiming frameTiming({
+    int vsyncStart = 745000,
+    int buildStart = 752000,
+    int buildFinish = 803000,
+    int rasterStart = 812000,
+    int rasterFinish = 869000,
+    DateTime? rasterFinishWallTime,
+  }) => FrameTiming(
+    vsyncStart: _monotonicEpochOffset + vsyncStart,
+    buildStart: _monotonicEpochOffset + buildStart,
+    buildFinish: _monotonicEpochOffset + buildFinish,
+    rasterStart: _monotonicEpochOffset + rasterStart,
+    rasterFinish: _monotonicEpochOffset + rasterFinish,
+    rasterFinishWallTime:
+        (rasterFinishWallTime ?? rasterFinishWall).microsecondsSinceEpoch,
   );
 }
