@@ -5,6 +5,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ffi/ffi.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
@@ -21,6 +22,9 @@ import 'utils.dart';
 
 @internal
 class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
+  @override
+  PackageInfo? loadPackageInfo() => null;
+
   @override
   final SentryFlutterOptions options;
 

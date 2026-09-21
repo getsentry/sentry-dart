@@ -1035,6 +1035,7 @@ void main() {
 
 MockSentryNativeBinding mockNativeBinding() {
   final result = MockSentryNativeBinding();
+  when(result.loadPackageInfo()).thenReturn(null);
   when(result.supportsLoadContexts).thenReturn(true);
   when(result.supportsCaptureEnvelope).thenReturn(true);
   when(result.supportsReplay).thenReturn(false);

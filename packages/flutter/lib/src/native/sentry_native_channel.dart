@@ -3,6 +3,7 @@ import 'dart:async';
 // ignore: unnecessary_import
 import 'dart:typed_data';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
@@ -20,6 +21,9 @@ import '../utils/internal_logger.dart';
 class SentryNativeChannel
     with SentryNativeSafeInvoker
     implements SentryNativeBinding {
+  @override
+  PackageInfo? loadPackageInfo() => null;
+
   @override
   final SentryFlutterOptions options;
 

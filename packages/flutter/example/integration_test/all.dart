@@ -4,6 +4,7 @@ import 'replay_test.dart' as b;
 import 'platform_integrations_test.dart' as c;
 import 'native_jni_utils_test.dart' as d;
 import 'native_sdk_lifecycle_test.dart' as e;
+import 'load_release_integration_test.dart' as f;
 
 void main() {
   a.main();
@@ -11,4 +12,5 @@ void main() {
   c.main();
   d.main();
   e.main();
+  f.main();
 }

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:package_info_plus/package_info_plus.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 // ignore: implementation_imports
@@ -28,6 +29,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   void _logNotSupported(String operation) =>
       _log('$operation is not supported');
+
+  @override
+  PackageInfo? loadPackageInfo() => null;
 
   @override
   FutureOr<void> init(Hub hub) {

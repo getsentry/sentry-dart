@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
@@ -10,6 +11,11 @@ import 'native_app_start.dart';
 /// Provide typed methods to access native layer.
 @internal
 abstract class SentryNativeBinding {
+  /// Returns release metadata without a platform channel, or null to use the
+  /// platform fallback. Only packageName, version and buildNumber are populated.
+  /// Available before native SDK initialization.
+  PackageInfo? loadPackageInfo();
+
   FutureOr<void> init(Hub hub);
 
   FutureOr<void> close();

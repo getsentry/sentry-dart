@@ -207,7 +207,7 @@ mixin SentryFlutter {
       // LoadReleaseIntegration needs to be executed after all the error handlers are in place.
       // Calling a MethodChannel might result in errors.
       // We also need to call this before the native sdk integrations so release is properly propagated.
-      integrations.add(LoadReleaseIntegration());
+      integrations.add(LoadReleaseIntegration(native: native));
       integrations.add(createSdkIntegration(native));
       if (platform.isAndroid || platform.isIOS || platform.isMacOS) {
         integrations.add(NativeSessionIntegration(native));

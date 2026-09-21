@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
@@ -19,6 +20,7 @@ import 'android_replay_recorder.dart';
 import 'binding.dart' as native;
 
 part 'sentry_native_java_init.dart';
+part 'sentry_native_java_package_info.dart';
 
 @internal
 class SentryNativeJava extends SentryNativeChannel {
@@ -33,6 +35,10 @@ class SentryNativeJava extends SentryNativeChannel {
     _coreWorker = AndroidCoreWorker.factory(options);
     _coreWorker?.start();
   }
+
+  @override
+  PackageInfo? loadPackageInfo() =>
+      tryCatchSync('loadPackageInfo', _loadPackageInfo);
 
   @override
   bool get supportsReplay => true;

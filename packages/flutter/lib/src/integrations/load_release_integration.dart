@@ -1,19 +1,27 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+
+import '../native/sentry_native_binding.dart';
 import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';
 
 /// An [Integration] that loads the release version from native apps
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
-  LoadReleaseIntegration();
+  LoadReleaseIntegration({@internal SentryNativeBinding? native})
+    // ignore: prefer_initializing_formals
+    : _native = native;
+
+  final SentryNativeBinding? _native;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
       if (options.release == null || options.dist == null) {
-        final packageInfo = await PackageInfo.fromPlatform();
+        final packageInfo =
+            _native?.loadPackageInfo() ?? await PackageInfo.fromPlatform();
         var name = _cleanString(packageInfo.packageName);
         if (name.isEmpty) {
           // Not all platforms have a packageName.

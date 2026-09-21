@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../mocks.dart';
@@ -8,11 +9,60 @@ import '../mocks.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group(LoadReleaseIntegration, () {
+  group('$LoadReleaseIntegration', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
+    });
+
+    test('uses native package info before the platform channel', () async {
+      final native = FakeNative(fixture.options);
+      await fixture
+          .getIntegration(native: native)
+          .call(MockHub(), fixture.options);
+      expect(fixture.options.release, 'native.app@2.3.4+987');
+      expect(fixture.options.dist, '987');
+      expect(native.loadCalls, 1);
+    });
+
+    test('falls back when native package info is unavailable', () async {
+      final native = FakeNative(fixture.options)..packageInfo = null;
+      await fixture
+          .getIntegration(native: native)
+          .call(MockHub(), fixture.options);
+      expect(fixture.options.release, 'foo.bar@1.2.3+789');
+      expect(fixture.options.dist, '789');
+    });
+
+    test('skips native lookup when release and dist are provided', () async {
+      final native = FakeNative(fixture.options);
+      fixture.options.release = 'custom';
+      fixture.options.dist = '42';
+      await fixture
+          .getIntegration(native: native)
+          .call(MockHub(), fixture.options);
+      expect(native.loadCalls, 0);
+      expect(fixture.options.release, 'custom');
+      expect(fixture.options.dist, '42');
+    });
+
+    test('preserves custom release while loading native dist', () async {
+      fixture.options.release = 'custom';
+      await fixture
+          .getIntegration(native: FakeNative(fixture.options))
+          .call(MockHub(), fixture.options);
+      expect(fixture.options.release, 'custom');
+      expect(fixture.options.dist, '987');
+    });
+
+    test('preserves custom dist while loading native release', () async {
+      fixture.options.dist = '42';
+      await fixture
+          .getIntegration(native: FakeNative(fixture.options))
+          .call(MockHub(), fixture.options);
+      expect(fixture.options.release, 'native.app@2.3.4+987');
+      expect(fixture.options.dist, '42');
     });
 
     test('does not overwrite options', () async {
@@ -150,13 +200,16 @@ void main() {
 class Fixture {
   final options = defaultTestOptions();
 
-  LoadReleaseIntegration getIntegration({Function? loader}) {
+  LoadReleaseIntegration getIntegration({
+    Function? loader,
+    FakeNative? native,
+  }) {
     if (loader != null) {
       loader();
     } else {
       loadRelease();
     }
-    return LoadReleaseIntegration();
+    return LoadReleaseIntegration(native: native);
   }
 
   void loadRelease() {
@@ -168,5 +221,21 @@ class Fixture {
       buildSignature: '',
       installerStore: null,
     );
+  }
+}
+
+class FakeNative extends SentryNativeChannel {
+  FakeNative(super.options);
+  int loadCalls = 0;
+  PackageInfo? packageInfo = PackageInfo(
+    appName: 'Native',
+    packageName: 'native.app',
+    version: '2.3.4',
+    buildNumber: '987',
+  );
+  @override
+  PackageInfo? loadPackageInfo() {
+    loadCalls++;
+    return packageInfo;
   }
 }
