@@ -21,6 +21,7 @@ void main() {
       sut.endFrameBuild(deferred: true);
       final intervals = sut.takeIntervals(
         processStart: fixture.start,
+        rasterStart: fixture.rasterInterval.startTimestamp,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
       expect(intervals.map((interval) => interval.operation), [
@@ -42,6 +43,51 @@ void main() {
       });
     });
 
+    for (final startOffset in [95, 96]) {
+      test(
+        'omits a build starting at ${startOffset}ms during rasterization',
+        () {
+          final sut = fixture.getSut();
+          fixture.advance(startOffset);
+          sut.beginFrameBuild(warmUp: false);
+          fixture.advance(1);
+          sut.endFrameBuild(deferred: false);
+
+          final intervals = sut.takeIntervals(
+            processStart: fixture.start,
+            rasterStart: fixture.rasterInterval.startTimestamp,
+            rasterFinish: fixture.rasterInterval.endTimestamp,
+          );
+
+          expect(intervals, isEmpty);
+        },
+      );
+    }
+
+    test('preserves a complete build overlapping raster start', () {
+      final sut = fixture.getSut();
+      fixture.advance(94);
+      sut.beginFrameBuild(warmUp: false);
+      fixture.advance(3);
+      sut.endFrameBuild(deferred: false);
+
+      final intervals = sut.takeIntervals(
+        processStart: fixture.start,
+        rasterStart: fixture.rasterInterval.startTimestamp,
+        rasterFinish: fixture.rasterInterval.endTimestamp,
+      );
+
+      expect(intervals, hasLength(1));
+      expect(
+        intervals.single.startTimestamp,
+        fixture.start.add(const Duration(milliseconds: 94)),
+      );
+      expect(
+        intervals.single.endTimestamp,
+        fixture.start.add(const Duration(milliseconds: 97)),
+      );
+    });
+
     test('retains at most ten complete builds', () {
       final sut = fixture.getSut();
       sut.beginRootAttachment(hasRoot: false);
@@ -53,6 +99,7 @@ void main() {
       }
       final intervals = sut.takeIntervals(
         processStart: fixture.start,
+        rasterStart: fixture.rasterInterval.startTimestamp,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
       expect(
@@ -76,6 +123,7 @@ void main() {
       sut.endFrameBuild(deferred: false);
       final intervals = sut.takeIntervals(
         processStart: fixture.start,
+        rasterStart: fixture.rasterInterval.startTimestamp,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
       expect(intervals.map((interval) => interval.operation), [
@@ -95,6 +143,7 @@ void main() {
         sut
             .takeIntervals(
               processStart: fixture.start,
+              rasterStart: fixture.rasterInterval.startTimestamp,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
             .map((interval) => interval.operation),
@@ -113,6 +162,7 @@ void main() {
         sut
             .takeIntervals(
               processStart: fixture.start,
+              rasterStart: fixture.rasterInterval.startTimestamp,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
             .map((interval) => interval.operation),
@@ -129,6 +179,7 @@ void main() {
       sut.endFrameBuild(deferred: false);
       final intervals = sut.takeIntervals(
         processStart: fixture.start,
+        rasterStart: fixture.rasterInterval.startTimestamp,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
       expect(intervals, hasLength(1));
@@ -150,6 +201,7 @@ void main() {
       expect(
         sut.takeIntervals(
           processStart: fixture.start,
+          rasterStart: fixture.rasterInterval.startTimestamp,
           rasterFinish: fixture.rasterInterval.endTimestamp,
         ),
         isEmpty,
@@ -167,6 +219,7 @@ void main() {
         sut
             .takeIntervals(
               processStart: fixture.start,
+              rasterStart: fixture.rasterInterval.startTimestamp,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
             .map((interval) => interval.operation),
@@ -185,6 +238,7 @@ void main() {
         sut
             .takeIntervals(
               processStart: fixture.start,
+              rasterStart: fixture.rasterInterval.startTimestamp,
               rasterFinish: fixture.rasterInterval.endTimestamp,
             )
             .map((interval) => interval.operation),

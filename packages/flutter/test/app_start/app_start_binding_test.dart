@@ -38,6 +38,7 @@ void main() {
       await tester.pump();
       final intervals = fixture.getSut().takeIntervals(
         processStart: fixture.start,
+        rasterStart: fixture.rasterInterval.startTimestamp,
         rasterFinish: fixture.rasterInterval.endTimestamp,
       );
       expect(

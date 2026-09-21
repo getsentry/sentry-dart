@@ -89,14 +89,18 @@ final class AppStartRecorder {
   /// Consumes the intervals within the startup window and closes the recorder.
   List<AppStartRecordedInterval> takeIntervals({
     required DateTime processStart,
+    required DateTime rasterStart,
     required DateTime rasterFinish,
   }) {
     if (_state == _RecorderState.closed) return const [];
     freeze();
+    // Later builds can run while the first frame is rasterizing.
+    // Keep earlier builds intact even if they overlap raster start.
     final intervals =
         <AppStartRecordedInterval>[?_rootAttachment, ..._frameBuilds].where(
           (interval) =>
               !interval.startTimestamp.isBefore(processStart) &&
+              interval.startTimestamp.isBefore(rasterStart) &&
               !interval.endTimestamp.isAfter(rasterFinish),
         );
     final result = List<AppStartRecordedInterval>.unmodifiable(intervals);

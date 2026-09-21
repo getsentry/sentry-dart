@@ -35,6 +35,7 @@ void main() {
       await tester.pump();
       final intervals = recorder.takeIntervals(
         processStart: start,
+        rasterStart: start.add(const Duration(milliseconds: 990)),
         rasterFinish: start.add(const Duration(seconds: 1)),
       );
       expect(intervals.map((interval) => interval.description), [

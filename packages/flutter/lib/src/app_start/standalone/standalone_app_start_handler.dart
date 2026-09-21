@@ -228,6 +228,7 @@ class StandaloneAppStartHandler {
               recorder != null
           ? recorder.takeIntervals(
               processStart: processStart,
+              rasterStart: validRasterInterval.startTimestamp,
               rasterFinish: validRasterInterval.endTimestamp,
             )
           : const <AppStartRecordedInterval>[];
