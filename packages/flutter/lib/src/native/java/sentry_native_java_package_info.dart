@@ -7,38 +7,15 @@ PackageInfo? _loadPackageInfo() => using((arena) {
 
   final name = context.packageName!..releasedBy(arena);
   final manager = context.packageManager!..releasedBy(arena);
-  final managerClass = JClass.forName('android/content/pm/PackageManager')
-    ..releasedBy(arena);
-  final infoClass = JClass.forName('android/content/pm/PackageInfo')
-    ..releasedBy(arena);
-  final info =
-      managerClass
-          .instanceMethodId(
-            'getPackageInfo',
-            '(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;',
-          )
-          .call(manager, JObject.type, [name, JValueInt(0)])
-        ..releasedBy(arena);
-  final version =
-      infoClass
-          .instanceFieldId('versionName', 'Ljava/lang/String;')
-          .getNullable(info, JString.type)
-        ?..releasedBy(arena);
-  final buildVersion = JClass.forName(r'android/os/Build$VERSION')
-    ..releasedBy(arena);
-  final sdkVersion = buildVersion
-      .staticFieldId('SDK_INT', 'I')
-      .get(buildVersion, jint.type);
+  final info = manager.getPackageInfo$3(name, 0)!..releasedBy(arena);
+  final version = info.versionName?..releasedBy(arena);
   // versionCode omits versionCodeMajor on Android 9 and later.
-  final versionCode = sdkVersion >= 28
-      ? infoClass
-            .instanceMethodId('getLongVersionCode', '()J')
-            .call(info, jlong.type, [])
-      : infoClass.instanceFieldId('versionCode', 'I').get(info, jint.type);
-  final packageName = name.toDartString();
+  final versionCode = native.Build$VERSION.SDK_INT >= 28
+      ? info.longVersionCode
+      : info.versionCode;
   return PackageInfo(
     appName: '',
-    packageName: packageName,
+    packageName: name.toDartString(),
     version: version?.toDartString() ?? '',
     buildNumber: versionCode.toString(),
   );

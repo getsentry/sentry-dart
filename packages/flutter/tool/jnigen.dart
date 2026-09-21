@@ -24,19 +24,46 @@ const _excludedMethods = <String, Set<String>>{
   'io.sentry.SentryEvent': {'setTimestamp'},
 };
 
-class _ExcludeMismatchedSetters extends j_ast.Visitor {
+// Limit framework bindings to the members used for release metadata.
+const _includedAndroidMembers = <String, Set<String>>{
+  'android.content.pm.PackageManager': {'getPackageInfo'},
+  'android.content.pm.PackageInfo': {
+    'versionName',
+    'versionCode',
+    'getLongVersionCode',
+  },
+  'android.os.Build': {},
+  r'android.os.Build$VERSION': {'SDK_INT'},
+};
+
+class _FilterMembers extends j_ast.Visitor {
   String _currentClass = '';
 
   @override
   void visitClass(j_ast.ClassDecl c) {
     _currentClass = c.binaryName;
+    if ((c.binaryName.startsWith(r'android.os.Build$') &&
+            c.binaryName != r'android.os.Build$VERSION') ||
+        c.binaryName.startsWith(r'android.content.pm.PackageManager$')) {
+      c.isExcluded = true;
+    }
   }
 
   @override
   void visitMethod(j_ast.Method method) {
-    if (_excludedMethods[_currentClass]?.contains(method.originalName) ??
-        false) {
+    final included = _includedAndroidMembers[_currentClass];
+    if ((included != null && !included.contains(method.originalName)) ||
+        (_excludedMethods[_currentClass]?.contains(method.originalName) ??
+            false)) {
       method.isExcluded = true;
+    }
+  }
+
+  @override
+  void visitField(j_ast.Field field) {
+    final included = _includedAndroidMembers[_currentClass];
+    if (included != null && !included.contains(field.originalName)) {
+      field.isExcluded = true;
     }
   }
 }
@@ -87,8 +114,11 @@ void main() {
         'java.net.Proxy',
         'android.graphics.Bitmap',
         'android.content.Context',
+        'android.content.pm.PackageManager',
+        'android.content.pm.PackageInfo',
+        'android.os.Build',
       ],
-      visitors: [_ExcludeMismatchedSetters()],
+      visitors: [_FilterMembers()],
     ),
   );
 }

@@ -52992,6 +52992,333 @@ final class $Context$Type$ extends jni$_.JType<Context> {
   String get signature => r'Landroid/content/Context;';
 }
 
+/// from: `android.content.pm.PackageManager$PackageInfoFlags`
+///
+/// WARNING: PackageManager$PackageInfoFlags is a stub. To generate bindings for this class, include
+/// android.content.pm.PackageManager$PackageInfoFlags in your config's classes list.
+///
+extension type PackageManager$PackageInfoFlags._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static const jni$_.JType<PackageManager$PackageInfoFlags> type =
+      $PackageManager$PackageInfoFlags$Type$();
+}
+
+final class $PackageManager$PackageInfoFlags$Type$
+    extends jni$_.JType<PackageManager$PackageInfoFlags> {
+  @jni$_.internal
+  const $PackageManager$PackageInfoFlags$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Landroid/content/pm/PackageManager$PackageInfoFlags;';
+}
+
+/// from: `android.content.pm.PackageManager`
+extension type PackageManager._(jni$_.JObject _$this) implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(
+    r'android/content/pm/PackageManager',
+  );
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<PackageManager> type = $PackageManager$Type$();
+}
+
+extension PackageManager$$Methods on PackageManager {
+  static final _id_getPackageInfo = PackageManager._class.instanceMethodId(
+    r'getPackageInfo',
+    r'(Landroid/content/pm/VersionedPackage;Landroid/content/pm/PackageManager$PackageInfoFlags;)Landroid/content/pm/PackageInfo;',
+  );
+
+  static final _getPackageInfo =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public android.content.pm.PackageInfo getPackageInfo(android.content.pm.VersionedPackage versionedPackage, android.content.pm.PackageManager$PackageInfoFlags packageInfoFlags)`
+  /// The returned object must be released after use, by calling the [release] method.
+  PackageInfo? getPackageInfo(
+    VersionedPackage? versionedPackage,
+    PackageManager$PackageInfoFlags? packageInfoFlags,
+  ) {
+    final _$$selfRef = reference;
+    final _$versionedPackage =
+        versionedPackage?.reference ?? jni$_.jNullReference;
+    final _$packageInfoFlags =
+        packageInfoFlags?.reference ?? jni$_.jNullReference;
+    return _getPackageInfo(
+      _$$selfRef.pointer,
+      _id_getPackageInfo.pointer,
+      _$versionedPackage.pointer,
+      _$packageInfoFlags.pointer,
+    ).object<PackageInfo?>();
+  }
+
+  static final _id_getPackageInfo$1 = PackageManager._class.instanceMethodId(
+    r'getPackageInfo',
+    r'(Landroid/content/pm/VersionedPackage;I)Landroid/content/pm/PackageInfo;',
+  );
+
+  static final _getPackageInfo$1 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public abstract android.content.pm.PackageInfo getPackageInfo(android.content.pm.VersionedPackage versionedPackage, int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  PackageInfo? getPackageInfo$1(
+    VersionedPackage? versionedPackage,
+    core$_.int i,
+  ) {
+    final _$$selfRef = reference;
+    final _$versionedPackage =
+        versionedPackage?.reference ?? jni$_.jNullReference;
+    return _getPackageInfo$1(
+      _$$selfRef.pointer,
+      _id_getPackageInfo$1.pointer,
+      _$versionedPackage.pointer,
+      i,
+    ).object<PackageInfo?>();
+  }
+
+  static final _id_getPackageInfo$2 = PackageManager._class.instanceMethodId(
+    r'getPackageInfo',
+    r'(Ljava/lang/String;Landroid/content/pm/PackageManager$PackageInfoFlags;)Landroid/content/pm/PackageInfo;',
+  );
+
+  static final _getPackageInfo$2 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public android.content.pm.PackageInfo getPackageInfo(java.lang.String string, android.content.pm.PackageManager$PackageInfoFlags packageInfoFlags)`
+  /// The returned object must be released after use, by calling the [release] method.
+  PackageInfo? getPackageInfo$2(
+    jni$_.JString? string,
+    PackageManager$PackageInfoFlags? packageInfoFlags,
+  ) {
+    final _$$selfRef = reference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    final _$packageInfoFlags =
+        packageInfoFlags?.reference ?? jni$_.jNullReference;
+    return _getPackageInfo$2(
+      _$$selfRef.pointer,
+      _id_getPackageInfo$2.pointer,
+      _$string.pointer,
+      _$packageInfoFlags.pointer,
+    ).object<PackageInfo?>();
+  }
+
+  static final _id_getPackageInfo$3 = PackageManager._class.instanceMethodId(
+    r'getPackageInfo',
+    r'(Ljava/lang/String;I)Landroid/content/pm/PackageInfo;',
+  );
+
+  static final _getPackageInfo$3 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>, jni$_.Int32)>,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public abstract android.content.pm.PackageInfo getPackageInfo(java.lang.String string, int i)`
+  /// The returned object must be released after use, by calling the [release] method.
+  PackageInfo? getPackageInfo$3(jni$_.JString? string, core$_.int i) {
+    final _$$selfRef = reference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    return _getPackageInfo$3(
+      _$$selfRef.pointer,
+      _id_getPackageInfo$3.pointer,
+      _$string.pointer,
+      i,
+    ).object<PackageInfo?>();
+  }
+}
+
+final class $PackageManager$Type$ extends jni$_.JType<PackageManager> {
+  @jni$_.internal
+  const $PackageManager$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/content/pm/PackageManager;';
+}
+
+/// from: `android.content.pm.PackageInfo`
+extension type PackageInfo._(jni$_.JObject _$this)
+    implements jni$_.JObject, Parcelable {
+  static final _class = jni$_.JClass.forName(r'android/content/pm/PackageInfo');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<PackageInfo> type = $PackageInfo$Type$();
+}
+
+extension PackageInfo$$Methods on PackageInfo {
+  static final _id_versionCode = PackageInfo._class.instanceFieldId(
+    r'versionCode',
+    r'I',
+  );
+
+  /// from: `public int versionCode`
+  core$_.int get versionCode =>
+      _id_versionCode.getNullable(this, jni$_.jint.type) as core$_.int;
+
+  /// from: `public int versionCode`
+  set versionCode(core$_.int value) =>
+      _id_versionCode.set(this, jni$_.jint.type, value);
+
+  static final _id_versionName = PackageInfo._class.instanceFieldId(
+    r'versionName',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `public java.lang.String versionName`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? get versionName =>
+      _id_versionName.getNullable(this, jni$_.JString.type) as jni$_.JString?;
+
+  /// from: `public java.lang.String versionName`
+  /// The returned object must be released after use, by calling the [release] method.
+  set versionName(jni$_.JString? value) =>
+      _id_versionName.set(this, jni$_.JString.type, value);
+
+  static final _id_get$longVersionCode = PackageInfo._class.instanceMethodId(
+    r'getLongVersionCode',
+    r'()J',
+  );
+
+  static final _get$longVersionCode =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public long getLongVersionCode()`
+  core$_.int get longVersionCode {
+    final _$$selfRef = reference;
+    return _get$longVersionCode(
+      _$$selfRef.pointer,
+      _id_get$longVersionCode.pointer,
+    ).long;
+  }
+}
+
+final class $PackageInfo$Type$ extends jni$_.JType<PackageInfo> {
+  @jni$_.internal
+  const $PackageInfo$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/content/pm/PackageInfo;';
+}
+
+/// from: `android.os.Build$VERSION`
+extension type Build$VERSION._(jni$_.JObject _$this) implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(r'android/os/Build$VERSION');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<Build$VERSION> type = $Build$VERSION$Type$();
+  static final _id_SDK_INT = _class.staticFieldId(r'SDK_INT', r'I');
+
+  /// from: `static public final int SDK_INT`
+  static core$_.int get SDK_INT =>
+      _id_SDK_INT.getNullable(_class, jni$_.jint.type) as core$_.int;
+}
+
+final class $Build$VERSION$Type$ extends jni$_.JType<Build$VERSION> {
+  @jni$_.internal
+  const $Build$VERSION$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/os/Build$VERSION;';
+}
+
+/// from: `android.os.Build`
+extension type Build._(jni$_.JObject _$this) implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(r'android/os/Build');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<Build> type = $Build$Type$();
+}
+
+final class $Build$Type$ extends jni$_.JType<Build> {
+  @jni$_.internal
+  const $Build$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/os/Build;';
+}
+
 /// from: `io.sentry.ILogger`
 ///
 /// WARNING: ILogger is a stub. To generate bindings for this class, include
@@ -56251,24 +56578,6 @@ final class $Looper$Type$ extends jni$_.JType<Looper> {
   String get signature => r'Landroid/os/Looper;';
 }
 
-/// from: `android.content.pm.PackageManager`
-///
-/// WARNING: PackageManager is a stub. To generate bindings for this class, include
-/// android.content.pm.PackageManager in your config's classes list.
-///
-extension type PackageManager._(jni$_.JObject _$this) implements jni$_.JObject {
-  static const jni$_.JType<PackageManager> type = $PackageManager$Type$();
-}
-
-final class $PackageManager$Type$ extends jni$_.JType<PackageManager> {
-  @jni$_.internal
-  const $PackageManager$Type$();
-
-  @jni$_.internal
-  @core$_.override
-  String get signature => r'Landroid/content/pm/PackageManager;';
-}
-
 /// from: `android.content.res.Resources`
 ///
 /// WARNING: Resources is a stub. To generate bindings for this class, include
@@ -56623,4 +56932,23 @@ final class $IntentSender$Type$ extends jni$_.JType<IntentSender> {
   @jni$_.internal
   @core$_.override
   String get signature => r'Landroid/content/IntentSender;';
+}
+
+/// from: `android.content.pm.VersionedPackage`
+///
+/// WARNING: VersionedPackage is a stub. To generate bindings for this class, include
+/// android.content.pm.VersionedPackage in your config's classes list.
+///
+extension type VersionedPackage._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static const jni$_.JType<VersionedPackage> type = $VersionedPackage$Type$();
+}
+
+final class $VersionedPackage$Type$ extends jni$_.JType<VersionedPackage> {
+  @jni$_.internal
+  const $VersionedPackage$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Landroid/content/pm/VersionedPackage;';
 }
