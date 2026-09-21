@@ -90,6 +90,68 @@ void main() {
         );
       });
 
+      test(
+        'uses restrictive JS collection defaults when PII is disabled',
+        () async {
+          await sut.init(hub);
+          final sentry = _globalThis['Sentry'] as JSObject;
+          final client = sentry.callMethod<JSObject>('getClient'.toJS);
+          final collection = client
+              .callMethod<JSObject>('getDataCollectionOptions'.toJS)
+              .dartify();
+          expect(collection, {
+            'userInfo': false,
+            'cookies': false,
+            'httpHeaders': {
+              'request': {
+                'deny': ['forwarded', '-ip', 'remote-', 'via', '-user'],
+              },
+              'response': {
+                'deny': ['forwarded', '-ip', 'remote-', 'via', '-user'],
+              },
+            },
+            'httpBodies': <String>[],
+            'urlQueryParams': {
+              'deny': ['forwarded', '-ip', 'remote-', 'via', '-user'],
+            },
+            'graphQL': {'document': false, 'variables': false},
+            'genAI': {'inputs': false, 'outputs': false},
+            'databaseQueryData': false,
+            'queues': false,
+            'stackFrameVariables': true,
+            'frameContextLines': 5,
+          });
+        },
+      );
+
+      test('allows JS collection when PII is enabled', () async {
+        options.sendDefaultPii = true;
+        await sut.init(hub);
+        final sentry = _globalThis['Sentry'] as JSObject;
+        final client = sentry.callMethod<JSObject>('getClient'.toJS);
+        final collection = client
+            .callMethod<JSObject>('getDataCollectionOptions'.toJS)
+            .dartify();
+        expect(collection, {
+          'userInfo': true,
+          'cookies': true,
+          'httpHeaders': {'request': true, 'response': true},
+          'httpBodies': [
+            'incomingRequest',
+            'outgoingRequest',
+            'incomingResponse',
+            'outgoingResponse',
+          ],
+          'urlQueryParams': true,
+          'graphQL': {'document': true, 'variables': true},
+          'genAI': {'inputs': true, 'outputs': true},
+          'databaseQueryData': true,
+          'queues': true,
+          'stackFrameVariables': true,
+          'frameContextLines': 5,
+        });
+      });
+
       for (final sendDefaultPii in <bool?>[null, false, true]) {
         test(
           'gates native JS error IP collection with sendDefaultPii=$sendDefaultPii',

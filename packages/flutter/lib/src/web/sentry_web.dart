@@ -22,6 +22,14 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
 
+  static const _piiKeyPatterns = [
+    'forwarded',
+    '-ip',
+    'remote-',
+    'via',
+    '-user',
+  ];
+
   void _log(String message) {
     internalLogger.info('$SentryWeb: $message');
   }
@@ -42,7 +50,24 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'tracesSampleRate': 0,
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
-        'dataCollection': {'userInfo': _options.sendDefaultPii},
+        // Preserve the JS v10 PII baseline until Flutter exposes dataCollection.
+        // https://github.com/getsentry/sentry-javascript/blob/11.0.0-rc.0/MIGRATION.md#senddefaultpii-is-replaced-by-datacollection
+        'dataCollection': {
+          'userInfo': _options.sendDefaultPii,
+          if (!_options.sendDefaultPii) ...{
+            'cookies': false,
+            'httpHeaders': {
+              'request': {'deny': _piiKeyPatterns},
+              'response': {'deny': _piiKeyPatterns},
+            },
+            'httpBodies': <String>[],
+            'urlQueryParams': {'deny': _piiKeyPatterns},
+            'graphQL': {'document': false, 'variables': false},
+            'genAI': {'inputs': false, 'outputs': false},
+            'databaseQueryData': false,
+            'queues': false,
+          },
+        },
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': <String>{
           SentryJsIntegrationName.globalHandlers,
