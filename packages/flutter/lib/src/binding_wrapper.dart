@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
+import 'app_start/app_start_recorder.dart';
 import 'utils/internal_logger.dart';
 
 /// The methods and properties are modelled after the the real binding class.
@@ -72,6 +73,51 @@ typedef FrameTimingCallback =
     void Function(DateTime startTimestamp, DateTime endTimestamp);
 
 mixin SentryWidgetsBindingMixin on WidgetsBinding {
+  AppStartRecorder? _appStartRecorder;
+
+  @internal
+  void startAppStartRecording(AppStartRecorder recorder) {
+    _appStartRecorder = recorder;
+  }
+
+  @internal
+  void stopAppStartRecording(AppStartRecorder recorder) {
+    if (identical(_appStartRecorder, recorder)) _appStartRecorder = null;
+  }
+
+  /// Attaches the root widget and records its initial attachment during startup.
+  @override
+  void attachToBuildOwner(RootWidget widget) {
+    final recorder = _appStartRecorder;
+    recorder?.beginRootAttachment(hasRoot: rootElement != null);
+    var succeeded = false;
+    try {
+      super.attachToBuildOwner(widget);
+      succeeded = true;
+    } finally {
+      recorder?.endRootAttachment(succeeded: succeeded);
+    }
+  }
+
+  @override
+  void drawFrame() {
+    final recorder = _appStartRecorder;
+    if (recorder == null) {
+      super.drawFrame();
+      return;
+    }
+    var succeeded = false;
+    try {
+      super.drawFrame();
+      succeeded = true;
+    } finally {
+      recorder.endFrameBuild(
+        deferred: !sendFramesToEngine,
+        succeeded: succeeded,
+      );
+    }
+  }
+
   FrameTimingCallback? _onDelayedFrame;
   FrameTimingCallback? get onDelayedFrame => _onDelayedFrame;
   Duration? _expectedFrameDuration;
@@ -112,6 +158,10 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
 
   @override
   void handleBeginFrame(Duration? rawTimeStamp) {
+    final recorder = _appStartRecorder;
+    // The interval spans handleBeginFrame -> handleDrawFrame -> drawFrame,
+    // including work before the widget build/layout/paint pipeline.
+    recorder?.beginFrameBuild(warmUp: rawTimeStamp == null);
     if (_isTrackingActive) {
       try {
         _stopwatch.start();
@@ -122,7 +172,12 @@ mixin SentryWidgetsBindingMixin on WidgetsBinding {
       }
     }
 
-    super.handleBeginFrame(rawTimeStamp);
+    try {
+      super.handleBeginFrame(rawTimeStamp);
+    } catch (_) {
+      recorder?.endFrameBuild(deferred: !sendFramesToEngine, succeeded: false);
+      rethrow;
+    }
   }
 
   @override

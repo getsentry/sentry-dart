@@ -12,6 +12,7 @@ import 'package:sentry_logging/sentry_logging.dart';
 
 import 'app_config.dart' as config;
 import 'home_screen.dart';
+import 'screens/app_start_workloads.dart';
 import 'theme_provider.dart';
 
 Future<void> main() async {
@@ -161,6 +162,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    if (config.prolongRootWidgetAttachment) {
+      runRootAttachmentWorkload();
+    }
     doWork();
   }
 

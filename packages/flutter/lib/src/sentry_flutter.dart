@@ -109,16 +109,32 @@ mixin SentryFlutter {
 
     await _initDefaultValues(options);
 
+    // End SDK initialization before invoking application work in the runner,
+    // or when initialization completes if the caller runs the app separately.
+    final initializedOptions = options;
+    final runner = appRunner;
+    void recordAppStartInitEnd() => initializedOptions.standaloneAppStartTrace
+        ?.recordInitEnd(initializedOptions.clock());
+
     await Sentry.init(
       (o) {
         assert(options == o);
         return optionsConfiguration(o as SentryFlutterOptions);
       },
-      appRunner: appRunner,
+      appRunner: runner == null
+          ? null
+          : () async {
+              recordAppStartInitEnd();
+              await runner();
+            },
       options: options,
       callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
+
+    if (runner == null) {
+      recordAppStartInitEnd();
+    }
 
     // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
     // so we can identify Flutter exceptions first.

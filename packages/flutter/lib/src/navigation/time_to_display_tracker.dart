@@ -168,6 +168,11 @@ class TimeToDisplayTracker {
     }
   }
 
+  /// Cancels initial display only while app-start preparation is pending.
+  void cancelAppStartPreparation() {
+    if (_prepared != null) clear();
+  }
+
   void clear() {
     // Only an identity was reserved, so there is no root to tear down.
     _prepared = null;

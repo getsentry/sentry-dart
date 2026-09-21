@@ -24,6 +24,8 @@ class SentryTracer extends ISentrySpan {
 
   Timer? _autoFinishAfterTimer;
   Duration? _autoFinishAfter;
+  bool _idleTimeoutPaused = false;
+  DateTime? _minimumEndTimestamp;
 
   @visibleForTesting
   Timer? get autoFinishAfterTimer => _autoFinishAfterTimer;
@@ -122,6 +124,11 @@ class SentryTracer extends ISentrySpan {
       if (latestEndTime != null) {
         _rootEndTimestamp = latestEndTime;
       }
+    }
+
+    final minimumEnd = _minimumEndTimestamp;
+    if (minimumEnd != null && _rootEndTimestamp.isBefore(minimumEnd)) {
+      _rootEndTimestamp = minimumEnd;
     }
 
     // the callback should run before because if the span is finished,
@@ -433,7 +440,33 @@ class SentryTracer extends ISentrySpan {
     }
   }
 
+  /// Suspends automatic idle completion and clears a pending finish request.
+  void pauseIdleTimeout() {
+    if (finished) return;
+    _idleTimeoutPaused = true;
+    _autoFinishAfterTimer?.cancel();
+    _finishStatus = SentryTracerFinishStatus.notFinishing();
+  }
+
+  /// Resumes automatic idle completion with a fresh idle timeout.
+  ///
+  /// Keeps the latest [minimumEndTimestamp] supplied across calls. Omitting it
+  /// preserves the existing minimum. Calls after completion have no effect.
+  void resumeIdleTimeout({DateTime? minimumEndTimestamp}) {
+    if (finished) return;
+    final minimumEnd = minimumEndTimestamp?.toUtc();
+    final previousMinimumEnd = _minimumEndTimestamp;
+    if (minimumEnd != null &&
+        (previousMinimumEnd == null ||
+            minimumEnd.isAfter(previousMinimumEnd))) {
+      _minimumEndTimestamp = minimumEnd;
+    }
+    _idleTimeoutPaused = false;
+    _scheduleTimer();
+  }
+
   void _scheduleTimer() {
+    if (_idleTimeoutPaused) return;
     final autoFinishAfter = _autoFinishAfter;
     if (autoFinishAfter != null) {
       _autoFinishAfterTimer?.cancel();

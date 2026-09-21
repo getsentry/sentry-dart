@@ -6,6 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app_config.dart';
 import 'screens/errors_screen.dart';
+import 'screens/app_start_workloads.dart';
 import 'screens/events_screen.dart';
 import 'screens/logs_screen.dart';
 import 'screens/metrics_screen.dart';
@@ -44,88 +45,103 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          if (isIntegrationTest) const IntegrationTestWidget(),
-          RichText(
-            text: const TextSpan(
-              text: '(I am) Rich Text',
-              style: TextStyle(color: Colors.black, fontSize: 16),
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.extent(
-                maxCrossAxisExtent: 200,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                children: [
-                  _CategoryCard(
-                    icon: Icons.bug_report,
-                    label: 'Errors',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ErrorsScreen()),
-                    ),
-                  ),
-                  _CategoryCard(
-                    icon: Icons.send,
-                    label: 'Events',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const EventsScreen()),
-                    ),
-                  ),
-                  _CategoryCard(
-                    icon: Icons.speed,
-                    label: 'Performance',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const PerformanceScreen(),
-                      ),
-                    ),
-                  ),
-                  _CategoryCard(
-                    icon: Icons.list_alt,
-                    label: 'Logs',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LogsScreen()),
-                    ),
-                  ),
-                  _CategoryCard(
-                    icon: Icons.bar_chart,
-                    label: 'Metrics',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MetricsScreen()),
-                    ),
-                  ),
-                  _CategoryCard(
-                    icon: Icons.more_horiz,
-                    label: 'Other',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const OtherScreen()),
-                    ),
-                  ),
-                  _CategoryCard(
-                    icon: Icons.video_camera_back,
-                    label: 'Manual Replay',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const ManualReplayScreen(),
-                      ),
-                    ),
-                  ),
-                ],
+      body: AppStartRasterOverlay(
+        enabled: prolongFrameRasterization,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              if (isIntegrationTest) const IntegrationTestWidget(),
+              RichText(
+                text: const TextSpan(
+                  text: '(I am) Rich Text',
+                  style: TextStyle(color: Colors.black, fontSize: 16),
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: GridView.extent(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  maxCrossAxisExtent: 200,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  children: [
+                    _CategoryCard(
+                      icon: Icons.bug_report,
+                      label: 'Errors',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ErrorsScreen()),
+                      ),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.send,
+                      label: 'Events',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const EventsScreen()),
+                      ),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.speed,
+                      label: 'Performance',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PerformanceScreen(),
+                        ),
+                      ),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.list_alt,
+                      label: 'Logs',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LogsScreen()),
+                      ),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.bar_chart,
+                      label: 'Metrics',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MetricsScreen(),
+                        ),
+                      ),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.more_horiz,
+                      label: 'Other',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const OtherScreen()),
+                      ),
+                    ),
+                    _CategoryCard(
+                      icon: Icons.video_camera_back,
+                      label: 'Manual Replay',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ManualReplayScreen(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: AppStartWorkloadSection(
+                  prolongRootWidgetAttachment: prolongRootWidgetAttachment,
+                  prolongFrameBuild: prolongFrameBuild,
+                  prolongFrameRasterization: prolongFrameRasterization,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
