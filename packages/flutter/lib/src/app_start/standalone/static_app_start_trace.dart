@@ -17,8 +17,6 @@ final class StaticAppStartTrace implements AppStartTrace {
   final AppStartTiming _timing;
   final SentryTracer _root;
 
-  final ISentrySpan _sentryInitSpan;
-
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
   final void Function()? _onCompleted;
@@ -40,7 +38,6 @@ final class StaticAppStartTrace implements AppStartTrace {
     required Hub hub,
     required this._timing,
     required SentryTracer root,
-    required this._sentryInitSpan,
     required this._finalDeadlineTimestamp,
     required this._startScreenNameProvider,
     required this._onCompleted,
@@ -52,10 +49,8 @@ final class StaticAppStartTrace implements AppStartTrace {
 
   /// Opens the standalone root and its breakdown children.
   ///
-  /// Returns `null` when the app start must not be reported: an unsampled
-  /// root, an unsampled initialization span, or a failure while building the
-  /// children. Anything already created is flushed, so no span outlives a
-  /// failed creation.
+  /// Returns `null` for an unsampled root or a failure while building children.
+  /// Anything already created is flushed, so no span outlives a failed creation.
   ///
   /// [onCompleted] fires once the root has reported and the trace can no
   /// longer be extended, so the owner can stop holding on to it.
@@ -94,20 +89,10 @@ final class StaticAppStartTrace implements AppStartTrace {
         return _abort(root, 'root span is not sampled');
       }
 
-      final sentryInitSpan = root.startChild(
-        SentrySpanOperations.appStartSentryInit,
-        description: 'Sentry Initialization',
-        startTimestamp: timing.sentrySetupTimestamp,
-      )..origin = SentryTraceOrigins.autoAppStart;
-      if (sentryInitSpan.samplingDecision?.sampled != true) {
-        return _abort(root, 'sentry-init span is not sampled');
-      }
-
       trace = StaticAppStartTrace._(
         hub: hub,
         timing: timing,
         root: root,
-        sentryInitSpan: sentryInitSpan,
         finalDeadlineTimestamp: createdAt
             .add(standaloneAppStartFinalTimeout)
             .toUtc(),
@@ -174,7 +159,6 @@ final class StaticAppStartTrace implements AppStartTrace {
   void recordInitEnd(DateTime endTimestamp) {
     if (_isFinalizingOrTerminal || _initCompleted) return;
     _initCompleted = true;
-    unawaited(_finishSpan(_sentryInitSpan, endTimestamp: endTimestamp.toUtc()));
     if (_firstFrameObserved) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }

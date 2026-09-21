@@ -31,10 +31,6 @@ void main() {
       sut.recordInitEnd(fixture.initEnd);
       await tester.pump(const Duration(seconds: 4));
       expect(fixture.root!.isEnded, isFalse);
-      expect(
-        fixture.child('Sentry Initialization').endTimestamp,
-        fixture.initEnd,
-      );
       sut.recordFirstFrame(fixture.rasterInterval);
       fixture.root!.end(endTimestamp: fixture.rootFinish);
       await tester.pump();
@@ -125,7 +121,7 @@ void main() {
         );
         expect(
           fixture
-              .child('Pre-Init Startup')
+              .child('Process Initialization')
               .attributes['app.vitals.start.screen']
               ?.value,
           'root /',
@@ -306,7 +302,7 @@ void main() {
     test('creates direct standalone breakdown children', () {
       fixture.getSut();
 
-      expect(fixture.children, hasLength(2));
+      expect(fixture.children, hasLength(1));
       expect(
         fixture.children.map((span) => span.parentSpan),
         everyElement(same(fixture.root)),
@@ -594,16 +590,14 @@ void main() {
       },
     );
 
-    test('opens Sentry Initialization when init starts', () {
-      fixture.getSut();
-      final sentryInit = fixture.child('Sentry Initialization');
-
+    test('does not emit a Sentry initialization span', () async {
+      final sut = fixture.getSut()!;
+      fixture.completeStartup(sut);
+      await pumpEventQueue(times: 10);
       expect(
-        sentryInit.attributes['sentry.op']?.value,
-        'app.start.sentry_init',
+        fixture.children.map((span) => span.attributes['sentry.op']?.value),
+        isNot(contains('app.start.sentry_init')),
       );
-      expect(sentryInit.startTimestamp, fixture.sentrySetup);
-      expect(sentryInit.isEnded, isFalse);
     });
 
     test(
@@ -659,8 +653,7 @@ void main() {
         expect(
           fixture.children.map((span) => span.name),
           unorderedEquals([
-            'Pre-Init Startup',
-            'Sentry Initialization',
+            'Process Initialization',
             'Root Widget Attachment',
             'Frame Build',
             'Frame Rasterization',
@@ -692,23 +685,8 @@ void main() {
         sut.recordInitEnd(lateInit);
         fixture.root!.end(endTimestamp: fixture.rootFinish);
         await pumpEventQueue(times: 10);
-        expect(fixture.child('Sentry Initialization').endTimestamp, lateInit);
-        expect(fixture.root!.endTimestamp, lateInit);
+        expect(fixture.root!.endTimestamp, fixture.naturalEnd);
         expect(fixture.root!.attributes['app.vitals.start.value']?.value, 350);
-      },
-    );
-
-    test(
-      'ends initialization independently of first-frame reporting',
-      () async {
-        final sut = fixture.getSut()!;
-        sut.recordFirstFrame(fixture.rasterInterval);
-        sut.recordInitEnd(fixture.initEnd);
-        await pumpEventQueue(times: 10);
-        expect(
-          fixture.child('Sentry Initialization').endTimestamp,
-          fixture.initEnd,
-        );
       },
     );
 
@@ -740,12 +718,11 @@ void main() {
     for (final initFirst in [true, false]) {
       for (final ignoreAllPhases in [false, true]) {
         testWidgets(
-          'preserves startup when initialization is ignored with initFirst=$initFirst and ignoreAllPhases=$ignoreAllPhases',
+          'waits for init and frame observation with initFirst=$initFirst and ignoreAllPhases=$ignoreAllPhases',
           (tester) async {
             fixture.options.ignoreSpans = [
-              IgnoreSpanRule.nameEquals('Sentry Initialization'),
               if (ignoreAllPhases) ...[
-                IgnoreSpanRule.nameEquals('Pre-Init Startup'),
+                IgnoreSpanRule.nameEquals('Process Initialization'),
                 IgnoreSpanRule.nameEquals('Frame Rasterization'),
               ],
             ];
@@ -792,7 +769,6 @@ void main() {
 
         expect(trace, isNull);
         expect(throwingFixture.hub.root?.isEnded, isTrue);
-        expect(throwingFixture.hub.sentryInitSpan?.isEnded, isTrue);
       },
     );
 
@@ -812,7 +788,6 @@ void main() {
 
         expect(trace, isNull);
         expect(throwingFixture.hub.root?.isEnded, isTrue);
-        expect(throwingFixture.hub.sentryInitSpan?.isEnded, isTrue);
       },
     );
 
@@ -905,8 +880,8 @@ class Fixture {
     sentrySetupTimestamp: sentrySetup,
     intervals: [
       AppStartRecordedInterval(
-        operation: SentrySpanOperations.appStartPreInit,
-        description: 'Pre-Init Startup',
+        operation: SentrySpanOperations.appStartNative,
+        description: 'Process Initialization',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,
       ),
@@ -928,7 +903,7 @@ class Fixture {
   )!;
 
   /// Drives the whole startup in production order: init ends, then the first
-  /// frame renders. `Sentry Initialization` stays open until init ends, so a
+  /// frame renders. Idle completion stays paused until init ends, so a
   /// test that only records the frame never lets the root report.
   void completeStartup(StreamingAppStartTrace sut) {
     sut.recordInitEnd(initEnd);
@@ -987,8 +962,8 @@ class ThrowingPhaseCreationFixture {
     sentrySetupTimestamp: sentrySetup,
     intervals: [
       AppStartRecordedInterval(
-        operation: SentrySpanOperations.appStartPreInit,
-        description: 'Pre-Init Startup',
+        operation: SentrySpanOperations.appStartNative,
+        description: 'Process Initialization',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,
       ),
@@ -1013,7 +988,6 @@ class _ThrowingOnPhaseStartHub extends NoOpHub {
 
   final Hub _delegate;
   IdleRecordingSentrySpanV2? root;
-  RecordingSentrySpanV2? sentryInitSpan;
 
   @override
   SentryOptions get options => _delegate.options;
@@ -1050,7 +1024,7 @@ class _ThrowingOnPhaseStartHub extends NoOpHub {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
   }) {
-    if (name == 'Pre-Init Startup') {
+    if (name == 'Process Initialization') {
       throw StateError('failed to start $name');
     }
 
@@ -1060,9 +1034,6 @@ class _ThrowingOnPhaseStartHub extends NoOpHub {
       parentSpan: parentSpan,
       startTimestamp: startTimestamp,
     );
-    if (span is RecordingSentrySpanV2 && name == 'Sentry Initialization') {
-      sentryInitSpan = span;
-    }
     return span;
   }
 }

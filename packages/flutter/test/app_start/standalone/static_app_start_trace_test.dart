@@ -25,7 +25,7 @@ void main() {
 
     test('retains app start when the span budget is exhausted', () {
       fakeAsync((async) {
-        fixture.options.maxSpans = 2;
+        fixture.options.maxSpans = 1;
         final sut = fixture.getSut()!;
         sut.recordInitEnd(fixture.initEnd);
         async.flushMicrotasks();
@@ -36,10 +36,6 @@ void main() {
         async.elapse(const Duration(seconds: 4));
         expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
         expect(fixture.root!.tracer.endTimestamp, fixture.naturalEnd);
-        expect(
-          fixture.child('Sentry Initialization').endTimestamp,
-          fixture.initEnd,
-        );
       });
     });
 
@@ -98,7 +94,7 @@ void main() {
       fixture.getSut();
       final root = fixture.root!.tracer;
 
-      expect(root.children, hasLength(2));
+      expect(root.children, hasLength(1));
       expect(
         root.children.map((span) => span.context.parentSpanId),
         everyElement(root.context.spanId),
@@ -469,14 +465,14 @@ void main() {
       expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 600);
     });
 
-    test('opens Sentry Initialization when init starts', () {
-      fixture.getSut();
-      final sentryInit = fixture.child('Sentry Initialization');
-
-      expect(sentryInit.context.operation, 'app.start.sentry_init');
-      expect(sentryInit.origin, 'auto.app.start');
-      expect(sentryInit.startTimestamp, fixture.sentrySetup);
-      expect(sentryInit.finished, isFalse);
+    test('does not emit a Sentry initialization span', () async {
+      final sut = fixture.getSut()!;
+      fixture.completeStartup(sut);
+      await pumpEventQueue(times: 10);
+      expect(
+        fixture.root!.tracer.children.map((span) => span.context.operation),
+        isNot(contains('app.start.sentry_init')),
+      );
     });
 
     test(
@@ -529,8 +525,7 @@ void main() {
         expect(
           fixture.root!.tracer.children.map((span) => span.context.description),
           unorderedEquals([
-            'Pre-Init Startup',
-            'Sentry Initialization',
+            'Process Initialization',
             'Root Widget Attachment',
             'Frame Build',
             'Frame Rasterization',
@@ -562,23 +557,8 @@ void main() {
         sut.recordInitEnd(lateInit);
         await fixture.root!.tracer.finish(endTimestamp: fixture.rootFinish);
         await pumpEventQueue(times: 10);
-        expect(fixture.child('Sentry Initialization').endTimestamp, lateInit);
-        expect(fixture.root!.tracer.endTimestamp, lateInit);
+        expect(fixture.root!.tracer.endTimestamp, fixture.naturalEnd);
         expect(fixture.root!.tracer.measurements['app_start_cold']?.value, 350);
-      },
-    );
-
-    test(
-      'ends initialization independently of first-frame reporting',
-      () async {
-        final sut = fixture.getSut()!;
-        sut.recordFirstFrame(fixture.rasterInterval);
-        sut.recordInitEnd(fixture.initEnd);
-        await pumpEventQueue(times: 10);
-        expect(
-          fixture.child('Sentry Initialization').endTimestamp,
-          fixture.initEnd,
-        );
       },
     );
 
@@ -616,19 +596,6 @@ void main() {
       expect(trace, isNull);
       expect(fixture.root?.tracer.finished, isTrue);
     });
-
-    test(
-      'returns null and finishes the root when sentry init span creation fails',
-      () async {
-        final trace = fixture.getSut(
-          timing: fixture.withFirstFrameBeforeProcessStart(),
-        );
-        await pumpEventQueue(times: 10);
-
-        expect(trace, isNull);
-        expect(fixture.root?.tracer.finished, isTrue);
-      },
-    );
 
     test('returns null when trace creation fails', () {
       fixture.options
@@ -779,7 +746,7 @@ void main() {
     ) async {
       fixture.getSut();
       final root = fixture.root!.tracer;
-      final sentryInit = fixture.child('Sentry Initialization');
+      final pendingChild = root.startChild('pending work');
       final deadline = fixture.createdAt.add(Duration(seconds: 30));
 
       await tester.pump(Duration(seconds: 30));
@@ -788,9 +755,9 @@ void main() {
       expect(root.finished, isTrue);
       expect(root.status, SpanStatus.deadlineExceeded());
       expect(root.endTimestamp, deadline);
-      expect(sentryInit.finished, isTrue);
-      expect(sentryInit.status, SpanStatus.deadlineExceeded());
-      expect(sentryInit.endTimestamp, deadline);
+      expect(pendingChild.finished, isTrue);
+      expect(pendingChild.status, SpanStatus.deadlineExceeded());
+      expect(pendingChild.endTimestamp, deadline);
       expect(root.measurements['app_start_cold'], isNull);
     });
 
@@ -1083,14 +1050,12 @@ void main() {
       )!;
 
       await trace.close();
-
-      verify(mockFixture.sentryInitChild.finish()).called(1);
       // The phase child was finished while the trace was built, so the flush
       // must leave it alone.
       verify(
-        mockFixture.preInitChild.finish(endTimestamp: mockFixture.sentrySetup),
+        mockFixture.nativeChild.finish(endTimestamp: mockFixture.sentrySetup),
       ).called(1);
-      verifyNever(mockFixture.preInitChild.finish());
+      verifyNever(mockFixture.nativeChild.finish());
       verify(mockFixture.root.finish()).called(1);
     });
 
@@ -1142,7 +1107,6 @@ void main() {
         await pumpEventQueue(times: 10);
 
         expect(trace, isNull);
-        verify(mockFixture.sentryInitChild.finish()).called(1);
         verify(mockFixture.root.finish()).called(1);
       },
     );
@@ -1174,8 +1138,8 @@ class Fixture {
     sentrySetupTimestamp: sentrySetup,
     intervals: [
       AppStartRecordedInterval(
-        operation: SentrySpanOperations.appStartPreInit,
-        description: 'Pre-Init Startup',
+        operation: SentrySpanOperations.appStartNative,
+        description: 'Process Initialization',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,
       ),
@@ -1206,7 +1170,7 @@ class Fixture {
   }
 
   /// Drives the whole startup in production order: init ends, then the first
-  /// frame renders. `Sentry Initialization` stays open until init ends, so a
+  /// frame renders. Idle completion stays paused until init ends, so a
   /// test that only records the frame never lets the root report.
   void completeStartup(StaticAppStartTrace sut) {
     sut.recordInitEnd(initEnd);
@@ -1251,8 +1215,7 @@ class MockCreationFixture {
 
   late final hub = MockHub();
   late final root = MockSentryTracer();
-  late final sentryInitChild = MockSentrySpan();
-  late final preInitChild = MockSentrySpan();
+  late final nativeChild = MockSentrySpan();
 
   late final timing = AppStartTiming(
     type: AppStartType.cold,
@@ -1260,8 +1223,8 @@ class MockCreationFixture {
     sentrySetupTimestamp: sentrySetup,
     intervals: [
       AppStartRecordedInterval(
-        operation: SentrySpanOperations.appStartPreInit,
-        description: 'Pre-Init Startup',
+        operation: SentrySpanOperations.appStartNative,
+        description: 'Process Initialization',
         startTimestamp: processStart,
         endTimestamp: sentrySetup,
       ),
@@ -1292,13 +1255,9 @@ class MockCreationFixture {
       ),
     ).thenAnswer((_) async {});
 
-    when(
-      sentryInitChild.samplingDecision,
-    ).thenReturn(SentryTracesSamplingDecision(true));
-
     // `finished` has to follow `finish()` the way a real span does, otherwise
     // the `!finished` guards in the trace are never exercised.
-    for (final child in [sentryInitChild, preInitChild]) {
+    for (final child in [nativeChild]) {
       var finished = false;
       when(child.finished).thenAnswer((_) => finished);
       when(
@@ -1311,7 +1270,7 @@ class MockCreationFixture {
         finished = true;
       });
     }
-    when(root.children).thenReturn([sentryInitChild, preInitChild]);
+    when(root.children).thenReturn([nativeChild]);
 
     when(
       root.startChild(
@@ -1322,8 +1281,7 @@ class MockCreationFixture {
     ).thenAnswer((invocation) {
       final operation = invocation.positionalArguments.first as String;
       return switch (operation) {
-        SentrySpanOperations.appStartSentryInit => sentryInitChild,
-        SentrySpanOperations.appStartPreInit => preInitChild,
+        SentrySpanOperations.appStartNative => nativeChild,
         _ => throw StateError('Unexpected child operation: $operation'),
       };
     });
@@ -1352,8 +1310,7 @@ class MockPhaseCreationFailureFixture extends MockCreationFixture {
     ).thenAnswer((invocation) {
       final operation = invocation.positionalArguments.first as String;
       return switch (operation) {
-        SentrySpanOperations.appStartSentryInit => sentryInitChild,
-        SentrySpanOperations.appStartPreInit => throw StateError(
+        SentrySpanOperations.appStartNative => throw StateError(
           'failed to start $operation',
         ),
         _ => throw StateError('Unexpected child operation: $operation'),

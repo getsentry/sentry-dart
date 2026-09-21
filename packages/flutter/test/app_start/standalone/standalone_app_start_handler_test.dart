@@ -1026,7 +1026,7 @@ class Fixture {
   /// Installs the handler, then records the init-end anchor the way
   /// `SentryFlutter.init` does once its integrations have run.
   ///
-  /// Without it `Sentry Initialization` never closes, so the root would keep
+  /// Without it idle completion stays paused, so the root would keep
   /// waiting for it instead of reporting at the first frame.
   Future<void> startLifecycle() async {
     await getSut().start(options);

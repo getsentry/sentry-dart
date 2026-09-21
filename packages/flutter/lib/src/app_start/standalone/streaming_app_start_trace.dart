@@ -14,8 +14,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
   final AppStartTiming _timing;
   final IdleRecordingSentrySpanV2 _root;
 
-  final SentrySpanV2 _sentryInitSpan;
-
   final String Function() _startScreenNameProvider;
   final void Function()? _onCompleted;
 
@@ -29,7 +27,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
     required Hub hub,
     required AppStartTiming timing,
     required IdleRecordingSentrySpanV2 root,
-    required this._sentryInitSpan,
     required this._startScreenNameProvider,
     required this._onCompleted,
   }) : _hub = hub,
@@ -82,21 +79,10 @@ final class StreamingAppStartTrace implements AppStartTrace {
       root = createdRoot;
       root.pauseIdleTimeout();
 
-      final sentryInitSpan = hub.startInactiveSpan(
-        'Sentry Initialization',
-        parentSpan: root,
-        startTimestamp: timing.sentrySetupTimestamp,
-        attributes: _childAttributes(
-          timing,
-          SentrySpanOperations.appStartSentryInit,
-        ),
-      );
-
       final trace = StreamingAppStartTrace._(
         hub: hub,
         timing: timing,
         root: root,
-        sentryInitSpan: sentryInitSpan,
         startScreenNameProvider: startScreenNameProvider,
         onCompleted: onCompleted,
       );
@@ -178,7 +164,6 @@ final class StreamingAppStartTrace implements AppStartTrace {
   void recordInitEnd(DateTime endTimestamp) {
     if (_state.isTerminal || _initCompleted) return;
     _initCompleted = true;
-    _sentryInitSpan.end(endTimestamp: endTimestamp.toUtc());
     if (_firstFrameObserved) {
       _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
     }

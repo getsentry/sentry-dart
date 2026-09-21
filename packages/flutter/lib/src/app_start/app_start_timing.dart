@@ -12,12 +12,6 @@ import '../utils/internal_logger.dart';
 /// process, OS forking, or unreproducible outliers).
 const _maxAppStartAge = Duration(seconds: 60);
 
-/// Startup work before `SentryFlutter.init` began.
-/// Native plugin registration depends on plugin ordering, so it validates
-/// timestamp ordering but does not define a separate span.
-@internal
-const appStartPreInitDescription = 'Pre-Init Startup';
-
 @internal
 enum AppStartType { cold, warm }
 
@@ -36,7 +30,7 @@ final class AppStartTiming {
   final DateTime processStartTimestamp;
   final DateTime sentrySetupTimestamp;
 
-  /// Native detail intervals plus the pre-init roll-up, ready to become spans.
+  /// Native detail intervals, ready to become spans.
   final List<AppStartRecordedInterval> intervals;
 
   /// Returns `null` for negative durations or launches longer than 60 seconds.
@@ -52,8 +46,8 @@ final class AppStartTiming {
       : SentryMeasurement.warmAppStart(duration);
 
   /// Parses native intervals, rejecting inconsistent startup timestamp ordering.
-  /// [sentrySetupTimestamp] marks the start of `SentryFlutter.init` and ends
-  /// pre-init. Duration validation is separate: see [reportableDurationUntil].
+  /// [sentrySetupTimestamp] marks the start of `SentryFlutter.init`.
+  /// Duration validation is separate: see [reportableDurationUntil].
   static AppStartTiming? tryParse(
     NativeAppStart nativeAppStart, {
     required DateTime sentrySetupTimestamp,
@@ -77,18 +71,10 @@ final class AppStartTiming {
       type: nativeAppStart.isColdStart ? AppStartType.cold : AppStartType.warm,
       processStartTimestamp: processStart,
       sentrySetupTimestamp: setup,
-      intervals: [
-        ..._parseNativeIntervals(
-          nativeAppStart,
-          earliestTimestamp: processStart,
-        ),
-        AppStartRecordedInterval(
-          operation: SentrySpanOperations.appStartPreInit,
-          description: appStartPreInitDescription,
-          startTimestamp: processStart,
-          endTimestamp: setup,
-        ),
-      ],
+      intervals: _parseNativeIntervals(
+        nativeAppStart,
+        earliestTimestamp: processStart,
+      ),
     );
   }
 

@@ -22,20 +22,7 @@ void main() {
       expect(data.intervals.map((interval) => interval.description), [
         'early',
         'late',
-        'Pre-Init Startup',
       ]);
-    });
-
-    test('builds one pre-init interval spanning process start to setup', () {
-      final timing = fixture.parse()!;
-
-      final preInit = timing.intervals.singleWhere(
-        (interval) =>
-            interval.operation == SentrySpanOperations.appStartPreInit,
-      );
-      expect(preInit.description, 'Pre-Init Startup');
-      expect(preInit.startTimestamp, fixture.processStart);
-      expect(preInit.endTimestamp, fixture.sentrySetup);
     });
 
     test('returns null when plugin registration precedes process start', () {
@@ -70,7 +57,6 @@ void main() {
       expect(data!.intervals.map((interval) => interval.description), [
         'early',
         'late',
-        'Pre-Init Startup',
       ]);
     });
 
@@ -89,7 +75,6 @@ void main() {
       expect(data!.intervals.map((interval) => interval.description), [
         'early',
         'late',
-        'Pre-Init Startup',
       ]);
     });
   });
