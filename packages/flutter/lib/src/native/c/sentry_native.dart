@@ -43,6 +43,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   SentryNative(this.options);
 
+  // Tracks whether this binding auto-initialized the native SDK, so close() -
+  // which may now be called even when crash handling was never enabled, see
+  // #3960 - doesn't touch the `native` binding (and so trigger its lazy
+  // DynamicLibrary.open) for the first time on a binding that was never
+  // initialized.
+  bool _nativeSdkAutoInitialized = false;
+
   void _logNotSupported(String operation) =>
       internalLogger.debug('SentryNative: $operation is not supported');
 
@@ -59,6 +66,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
             "Failed to initialize native SDK - init() exit code: $code",
           );
         }
+        _nativeSdkAutoInitialized = true;
       });
     }
   }
@@ -110,6 +118,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> close() {
+    if (!_nativeSdkAutoInitialized) {
+      return null;
+    }
     tryCatchSync('close', native.close);
   }
 

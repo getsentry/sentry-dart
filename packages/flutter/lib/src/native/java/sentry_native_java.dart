@@ -56,7 +56,15 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void init(Hub hub) {
-    initSentryAndroid(hub: hub, options: options, owner: this);
+    // Only record the native SDK as initialized if init actually attempted
+    // to run - initSentryAndroid can bail out early (e.g. a null
+    // application context), and a later close() shouldn't try to tear down
+    // a native SDK that was never started.
+    nativeSdkAutoInitialized = initSentryAndroid(
+      hub: hub,
+      options: options,
+      owner: this,
+    );
   }
 
   @override
@@ -133,8 +141,10 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   Future<void> close() async {
     _replayConfig = null;
+    // Start worker shutdown before awaiting replay cleanup.
+    final coreWorkerClosed = _coreWorker?.close();
     await _replayRecorder?.stop();
-    await _coreWorker?.close();
+    await coreWorkerClosed;
     _setNativeReplay(null);
     return super.close();
   }
@@ -195,7 +205,8 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId captureReplay() {
     final id = tryCatchSync<SentryId>('captureReplay', () {
       return using((arena) {
-        // The passed parameter is `isTerminating`
+        // The passed parameter is `isTerminating`. The returned id is empty when
+        // nothing was captured, e.g. when onErrorSampleRate didn't sample.
         final nativeReplayId = _replay?.captureReplay(
           false.toJBoolean()..releasedBy(arena),
         );
