@@ -561,6 +561,7 @@ class SentryClient {
           processedEvent = callbackResult;
         }
       } else if (event.type == 'feedback' && beforeSendFeedback != null) {
+        beforeSendName = 'beforeSendFeedback';
         final callbackResult = beforeSendFeedback(event, hint);
         if (callbackResult is Future<SentryEvent?>) {
           processedEvent = await callbackResult;
@@ -576,6 +577,7 @@ class SentryClient {
         }
       }
     } catch (exception, stackTrace) {
+      processedEvent = null;
       internalLogger.error(
         () => 'The $beforeSendName callback threw an exception',
         error: exception,
