@@ -31,10 +31,10 @@ class WebSessionHandler {
       return;
     }
 
-    bool crashed = event.level == SentryLevel.fatal;
+    bool unhandled = event.level == SentryLevel.fatal;
     for (final exception in exceptions) {
       if (exception.mechanism?.handled == false) {
-        crashed = true;
+        unhandled = true;
         break;
       }
     }
@@ -45,18 +45,20 @@ class WebSessionHandler {
     }
 
     // Implementation based on Sentry Javascript SDK:
-    // https://github.com/getsentry/sentry-javascript/blob/2b5526565c9008c9f350f02e2b9458d266099199/packages/core/src/client.ts#L803C1-L835C1
+    // https://github.com/getsentry/sentry-javascript/blob/11.0.0-rc.0/packages/core/src/client.ts
     // A session is updated and that session update is sent in only one of the two following scenarios:
     // 1. Session with non terminal status and 0 errors + an error occurred -> Will set error count to 1 and send update
-    // 2. Session with non terminal status and n errors + a crash occurred -> Will set status crashed and send update
+    // 2. Session with non terminal status and n errors + an unhandled error occurred -> Will set status unhandled and send update
     final status = session['status'].toString();
     final errors = int.tryParse(session['errors'].toString()) ?? 0;
+    // JS 11 browser sessions use unhandled as a terminal status, not crashed.
     final sessionNonTerminal = status == 'ok';
     final shouldUpdateAndSend =
-        (sessionNonTerminal && errors == 0) || (sessionNonTerminal && crashed);
+        (sessionNonTerminal && errors == 0) ||
+        (sessionNonTerminal && unhandled);
 
     if (shouldUpdateAndSend) {
-      final newStatus = crashed ? 'crashed' : status;
+      final newStatus = unhandled ? 'unhandled' : status;
       await _native.updateSession(
         status: newStatus,
         errors: errors == 0 ? 1 : errors,

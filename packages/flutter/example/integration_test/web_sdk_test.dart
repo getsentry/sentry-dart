@@ -198,7 +198,7 @@ void main() {
           const Duration(seconds: 5),
         );
 
-        expect(session['status'], 'crashed');
+        expect(session['status'], 'unhandled');
         expect(session['errors'], 1);
       });
 
