@@ -134,6 +134,12 @@ class NoOpHub implements Hub {
   void generateNewTrace() {}
 
   @override
+  T startNewTrace<T>(T Function() callback) => callback();
+
+  @override
+  Scope get traceScope => scope;
+
+  @override
   ISentrySpan? getSpan() => null;
 
   @override

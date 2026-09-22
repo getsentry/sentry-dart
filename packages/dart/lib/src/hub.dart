@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
 import 'profiling.dart';
+import 'propagation_context.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 import 'telemetry/span/sentry_span_sampling_context.dart';
@@ -358,6 +359,15 @@ class Hub {
 
   FutureOr<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
+    // Inside a `startNewTrace` callback the zone-forked scope carries a
+    // different propagation context than the hub's scope. Use it so that
+    // events captured within the callback belong to the new trace, without
+    // mutating the hub's scope.
+    final zoneScope = _zoneScope;
+    if (zoneScope != null &&
+        !identical(zoneScope.propagationContext, scope.propagationContext)) {
+      scope = scope.clone()..propagationContext = zoneScope.propagationContext;
+    }
     if (withScope != null) {
       try {
         scope = scope.clone();
@@ -571,7 +581,7 @@ class Hub {
 
       // if transactionContext has no sampling decision yet, run the traces sampler
       var samplingDecision = transactionContext.samplingDecision;
-      final propagationContext = scope.propagationContext;
+      final propagationContext = traceScope.propagationContext;
       // Store the generated/used sampleRand on the propagation context so
       // that subsequent transactions in the same trace reuse it.
       propagationContext.sampleRand ??= Random().nextDouble();
@@ -635,6 +645,37 @@ class Hub {
   /// forked scope stored under [_scopeKey]. Walking up the zone chain via
   /// `Zone.current[_scopeKey]` therefore gives the most recently pushed scope.
   Scope? get _zoneScope => Zone.current[_scopeKey] as Scope?;
+
+  /// The [Scope] whose [PropagationContext] governs the current trace.
+  ///
+  /// Inside a [startNewTrace] callback this is the zone-forked scope carrying
+  /// the new trace; otherwise it is the hub's current [scope].
+  @internal
+  Scope get traceScope => _zoneScope ?? scope;
+
+  /// Starts a new trace and runs [callback] inside it.
+  ///
+  /// Everything started within [callback] — transactions, spans and captured
+  /// events — belongs to a brand-new trace with a fresh trace id, independent
+  /// of the trace currently held by the hub's scope. Unlike
+  /// [generateNewTrace], the hub's scope is left untouched, so code running
+  /// outside the callback keeps its existing trace.
+  ///
+  /// The new trace is bound to the callback via a [Zone], so it survives
+  /// `await`s for asynchronous callbacks.
+  T startNewTrace<T>(T Function() callback) {
+    if (!_isEnabled) {
+      _options.log(
+        SentryLevel.warning,
+        "Instance is disabled and this 'startNewTrace' call is a no-op.",
+      );
+      return callback();
+    }
+    final forkedScope = (_zoneScope ?? scope).clone()
+      ..propagationContext = PropagationContext()
+      ..span = null;
+    return runZoned(callback, zoneValues: {_scopeKey: forkedScope});
+  }
 
   /// Returns the currently active span, or `null` if no span is in progress.
   ///
@@ -792,7 +833,7 @@ class Hub {
     String name,
     Map<String, SentryAttribute>? attributes,
   ) {
-    final propagationContext = scope.propagationContext;
+    final propagationContext = traceScope.propagationContext;
     final sampleRand = propagationContext.sampleRand ??= Random().nextDouble();
 
     final samplingContext = SentrySamplingContext.forSpanV2(
@@ -870,7 +911,7 @@ class Hub {
       if (samplingDecision == null) return NoOpSentrySpanV2.instance;
 
       span = RecordingSentrySpanV2.root(
-        traceId: scope.propagationContext.traceId,
+        traceId: traceScope.propagationContext.traceId,
         name: name,
         onSpanEnd: captureSpan,
         clock: options.clock,
@@ -931,7 +972,7 @@ class Hub {
     if (samplingDecision == null) return NoOpSentrySpanV2.instance;
 
     final span = IdleRecordingSentrySpanV2(
-      traceId: scope.propagationContext.traceId,
+      traceId: traceScope.propagationContext.traceId,
       name: name,
       onSpanEnd: captureSpan,
       clock: options.clock,

@@ -56,6 +56,22 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
+    test('startNewTrace starts a trace distinct from the current scope',
+        () async {
+      final outerTraceId = Sentry.currentHub.scope.propagationContext.traceId;
+
+      final transaction = await Sentry.startNewTrace(() async {
+        await Future<void>.delayed(Duration.zero);
+        return Sentry.startTransaction('name', 'op');
+      });
+
+      expect(transaction.context.traceId, isNot(outerTraceId));
+      expect(
+        Sentry.currentHub.scope.propagationContext.traceId,
+        outerTraceId,
+      );
+    });
+
     test('should capture the feedback event', () async {
       final fakeFeedback = SentryFeedback(message: 'message');
       await Sentry.captureFeedback(fakeFeedback);
