@@ -27,6 +27,7 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
   AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
+  ReplayConfig? _replayConfig;
 
   SentryNativeJava(super.options) {
     // Initialize core worker here in the ctor instead of init().
@@ -119,6 +120,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> close() async {
+    _replayConfig = null;
     // Start worker shutdown before awaiting replay cleanup.
     final coreWorkerClosed = _coreWorker?.close();
     await _replayRecorder?.stop();
@@ -230,6 +232,10 @@ class SentryNativeJava extends SentryNativeChannel {
           );
           return;
         }
+
+        // Native startup is asynchronous and can discard an early config.
+        // Retain it for every recorder created by replayStarted.
+        _replayConfig = config;
 
         var adjWidth = config.width;
         var adjHeight = config.height;

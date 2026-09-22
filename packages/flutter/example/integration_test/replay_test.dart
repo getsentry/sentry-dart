@@ -11,7 +11,6 @@ import 'package:sentry_flutter_example/main.dart';
 import 'package:sentry_flutter/src/native/java/binding.dart' as native;
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
-import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 /// Since sentry-java 8.54.0 the replay lifecycle transitions are posted to the
 /// Android main looper, so the state settles a turn after the call returns.
@@ -162,13 +161,6 @@ void main() {
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
 
-      await recorder
-          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
-        width: 800,
-        height: 600,
-        frameRate: 1,
-      ));
-
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
 
@@ -195,13 +187,6 @@ void main() {
         frameCount++;
         if (!firstFrame.isCompleted) firstFrame.complete();
       };
-
-      await recorder
-          .onConfigurationChanged(const ScheduledScreenshotRecorderConfig(
-        width: 800,
-        height: 600,
-        frameRate: 1,
-      ));
 
       await tester.pump();
       await firstFrame.future.timeout(const Duration(seconds: 5));
