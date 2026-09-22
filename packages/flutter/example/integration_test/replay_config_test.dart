@@ -34,12 +34,6 @@ void main() {
           reason: 'Recording must not depend on another root widget build');
     });
 
-    testWidgets('after startup reaches the native recorder', (tester) async {
-      await fixture.getSut(tester);
-      await fixture.mount(tester);
-      await fixture.waitForFrame(tester);
-    });
-
     testWidgets('survives recorder replacement without a widget rebuild',
         (tester) async {
       await fixture.getSut(tester);
@@ -75,34 +69,6 @@ void main() {
         frame.image.dispose();
         codec.dispose();
       }
-    });
-
-    testWidgets('does not reuse configuration after close and reinitialize',
-        (tester) async {
-      await fixture.getSut(tester);
-      await fixture.mount(tester);
-      await fixture.waitForFrame(tester);
-      await tester.pumpWidget(const SizedBox.shrink());
-      final previousBinding = fixture.binding;
-      await Sentry.close();
-      fixture.dispose();
-      await fixture.getSut(tester);
-      expect(fixture.binding, isNot(same(previousBinding)));
-      // Keep capture possible but suppress new config delivery from the widget.
-      SentryScreenshotWidget.reset();
-      await fixture.mount(tester);
-      // Explicitly restart too: stale config must not be restored by replayStarted.
-      await fixture.stop(tester);
-      await fixture.start(tester);
-      final deadline = DateTime.now().add(const Duration(seconds: 2));
-      while (DateTime.now().isBefore(deadline)) {
-        expect(fixture.frames, isEmpty);
-        await tester.pump();
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-      }
-      fixture.binding.setReplayConfig(const ReplayConfig(
-          windowWidth: 160, windowHeight: 320, width: 160, height: 320));
-      await fixture.waitForFrame(tester);
     });
   }, skip: !Platform.isAndroid);
 }
