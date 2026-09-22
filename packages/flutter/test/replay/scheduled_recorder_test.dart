@@ -32,6 +32,44 @@ void main() async {
     });
   });
 
+  testWidgets('overlapping configuration changes keep one capture scheduler',
+      (tester) async {
+    await tester.runAsync(() async {
+      final fixture = await _Fixture.create(tester);
+      await Future.wait([
+        fixture.sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
+            width: 800, height: 800, frameRate: 1000)),
+        fixture.sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
+            width: 600, height: 600, frameRate: 1000)),
+      ]);
+      await fixture.nextFrame(true);
+      expect(fixture.capturedImages, ['600x450']);
+      final stopFuture = fixture.sut.stop();
+      await fixture.nextFrame(false);
+      await stopFuture;
+      expect(fixture.capturedImages, ['600x450']);
+    });
+  });
+
+  testWidgets('overlapping start and configuration keep one capture scheduler',
+      (tester) async {
+    await tester.runAsync(() async {
+      final fixture = await _Fixture.create(tester);
+      await fixture.sut.stop();
+      await Future.wait([
+        fixture.sut.start(),
+        fixture.sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
+            width: 600, height: 600, frameRate: 1000)),
+      ]);
+      await fixture.nextFrame(true);
+      expect(fixture.capturedImages, ['600x450']);
+      final stopFuture = fixture.sut.stop();
+      await fixture.nextFrame(false);
+      await stopFuture;
+      expect(fixture.capturedImages, ['600x450']);
+    });
+  });
+
   testWidgets('skips capture while app is not resumed', (tester) async {
     await tester.runAsync(() async {
       final fixture = await _Fixture.create(tester);
@@ -68,20 +106,19 @@ class _Fixture {
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
       (image, isNewlyCaptured) async {
         capturedImages.add('${image.width}x${image.height}');
-        _completer.complete();
+        if (!_completer.isCompleted) _completer.complete();
       },
     );
-
-    _sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
-      width: 1000,
-      height: 1000,
-      frameRate: 1000,
-    ));
   }
 
   static Future<_Fixture> create(WidgetTester tester) async {
     final fixture = _Fixture._(tester);
     await pumpTestElement(tester);
+    await fixture.sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
+      width: 1000,
+      height: 1000,
+      frameRate: 1000,
+    ));
     await fixture.sut.start();
     return fixture;
   }

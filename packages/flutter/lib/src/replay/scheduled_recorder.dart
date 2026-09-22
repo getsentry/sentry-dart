@@ -19,6 +19,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   late final ScheduledScreenshotRecorderCallback _callback;
   var _status = _Status.stopped;
   Scheduler? _scheduler;
+  int _schedulerRestartGeneration = 0;
   // late final _idleFrameFiller = _IdleFrameFiller(_frameDuration, _onScreenshot);
 
   @override
@@ -84,7 +85,11 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> _restartScheduler() async {
+    final generation = ++_schedulerRestartGeneration;
     await _stopScheduler();
+    // Only the latest restart may create a scheduler.
+    // stop() and pause() also invalidate pending restarts.
+    if (generation != _schedulerRestartGeneration) return;
 
     if (super.config == null) {
       return;
@@ -119,6 +124,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   }
 
   Future<void> stop() async {
+    _schedulerRestartGeneration++;
     options.log(SentryLevel.debug, "$logName: stopping capture.");
     _status = _Status.stopped;
     await _stopScheduler();
@@ -128,6 +134,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
 
   Future<void> pause() async {
     if (_status == _Status.running) {
+      _schedulerRestartGeneration++;
       _status = _Status.paused;
       // _idleFrameFiller.pause();
       await _stopScheduler();
