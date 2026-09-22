@@ -233,8 +233,10 @@ class SentryNativeJava extends SentryNativeChannel {
           return;
         }
 
-        // Native startup is asynchronous and can discard an early config.
-        // Retain it for every recorder created by replayStarted.
+        // Work around native Replay discarding config before async startup (#4034).
+        // Retain it for every recorder created by replayStarted. Remove this cache
+        // and resend once our minimum native SDK retains config across starts
+        // and the JNI regression tests pass without this workaround.
         _replayConfig = config;
 
         var adjWidth = config.width;
