@@ -1,5 +1,11 @@
 # Changelog
 
+## 9.30.1
+
+### Fixes
+
+- (flutter) Restore Android replay config by @buenaflor in [#4037](https://github.com/getsentry/sentry-dart/pull/4037)
+
 ## 9.30.0
 
 ### Fixes
