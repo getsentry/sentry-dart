@@ -396,6 +396,7 @@ class Scope {
       if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
           sampled: newSpan.samplingDecision?.sampled,
+          status: newSpan.status ?? SpanStatus.ok(),
         );
       } else {
         event.contexts.trace =

@@ -122,6 +122,7 @@ class SentryTraceContext {
       spanId: SpanId.newId(),
       operation: 'default',
       sampled: propagationContext.sampled,
+      status: SpanStatus.ok(),
       replayId: propagationContext.baggage?.getReplayId(),
     );
   }

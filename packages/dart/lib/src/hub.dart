@@ -1101,6 +1101,7 @@ class Hub {
         final spanContext = span.context;
         event.contexts.trace = spanContext.toTraceContext(
           sampled: span.samplingDecision?.sampled,
+          status: span.status ?? SpanStatus.ok(),
         );
 
         // set transaction name to event.transaction

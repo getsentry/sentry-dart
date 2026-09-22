@@ -167,6 +167,44 @@ void main() {
       expect(capturedEvent.event.contexts.trace!.sampled, isTrue);
     });
 
+    test('capture exception trace context status defaults to ok', () async {
+      final hub = fixture.getSut();
+
+      final span = SentrySpan(
+        fixture.tracer,
+        fixture._context,
+        hub,
+        samplingDecision: fixture._context.samplingDecision,
+      );
+      hub.setSpanContext(fakeException, span, 'test');
+
+      await hub.captureException(fakeException);
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(capturedEvent.event.contexts.trace!.status, SpanStatus.ok());
+    });
+
+    test('capture exception trace context keeps span status when set',
+        () async {
+      final hub = fixture.getSut();
+
+      final span = SentrySpan(
+        fixture.tracer,
+        fixture._context,
+        hub,
+        samplingDecision: fixture._context.samplingDecision,
+      )..status = SpanStatus.internalError();
+      hub.setSpanContext(fakeException, span, 'test');
+
+      await hub.captureException(fakeException);
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(
+        capturedEvent.event.contexts.trace!.status,
+        SpanStatus.internalError(),
+      );
+    });
+
     test('Expando does not throw when exception type is not supported',
         () async {
       final hub = fixture.getSut();

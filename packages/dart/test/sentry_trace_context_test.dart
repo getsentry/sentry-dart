@@ -63,6 +63,13 @@ void main() {
     // the span id is always generated new when creating a trace context from scope
     expect(traceContext1.spanId, isNot(traceContext2.spanId));
   });
+
+  test('fromPropagationContext defaults status to ok', () {
+    final traceContext =
+        SentryTraceContext.fromPropagationContext(PropagationContext());
+
+    expect(traceContext.status, SpanStatus.ok());
+  });
 }
 
 class Fixture {
