@@ -8,7 +8,7 @@ environment:
 
 dependencies:
   sentry:
-    path: ../dart
+    path: ../sentry
   meta: ^1.11.0
 
 dev_dependencies:

@@ -20,11 +20,11 @@ jobs:
           sudo apt install graphviz
 
       - name: dart
-        working-directory: ./packages/dart
+        working-directory: ./packages/sentry
         run: lakos . -i "{test/**,example/**,example_web/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: flutter
-        working-directory: ./packages/flutter
+        working-directory: ./packages/sentry_flutter
         run: lakos . -i "{test/**,example/**}" | dot -Tsvg -o class-diagram.svg
 
       - name: dio

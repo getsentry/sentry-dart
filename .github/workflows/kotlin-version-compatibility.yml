@@ -8,8 +8,8 @@ on:
   pull_request:
     paths:
       - ".github/workflows/kotlin-version-compatibility.yml"
-      - "packages/flutter/android/**"
-      - "packages/flutter/example/android/**"
+      - "packages/sentry_flutter/android/**"
+      - "packages/sentry_flutter/example/android/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: packages/flutter/example
+        working-directory: packages/sentry_flutter/example
     strategy:
       fail-fast: false
       matrix:

@@ -1,0 +1,1272 @@
+// ignore_for_file: invalid_use_of_internal_member
+
+import 'dart:async';
+import 'dart:ui';
+
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_handler.dart';
+import 'package:sentry_flutter/src/native/native_app_start.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
+
+import '../../bindings/fake_frame_callback_handler.dart';
+import '../../mocks.dart';
+import '../../mocks.mocks.dart';
+import '../first_frame_timing.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  group('$StandaloneAppStartHandler', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    tearDown(() async {
+      await fixture.getSut().close();
+      fixture.setCurrentRouteName(null);
+    });
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      for (final reason in ['attached', 'rasterized', 'unavailable']) {
+        for (final routeAlreadyStarted in [true, false]) {
+          testWidgets(
+            'preserves navigation display tracking when startup is skipped '
+            'with $lifecycle, binding=$reason, routeAlreadyStarted=$routeAlreadyStarted',
+            (tester) async {
+              fixture.options
+                ..traceLifecycle = lifecycle
+                ..enableTimeToFullDisplayTracing = true;
+              fixture.options.timeToDisplayTracker = TimeToDisplayTracker(
+                hub: fixture.hub,
+                options: fixture.options,
+                ttidTracker: TimeToInitialDisplayTracker(
+                  frameCallbackHandler: fixture.frameHandler,
+                ),
+              );
+              switch (reason) {
+                case 'attached':
+                  fixture.binding.rootElement = RootElement(
+                    const RootWidget(child: SizedBox()),
+                  );
+                case 'rasterized':
+                  fixture.binding.firstFrameRasterized = true;
+                case 'unavailable':
+                  when(fixture.bindingWrapper.instance).thenReturn(null);
+              }
+
+              if (routeAlreadyStarted) {
+                fixture.pushInitialRoute('/details');
+                await tester.pump();
+              }
+              await fixture.startLifecycle();
+              expect(fixture.options.standaloneAppStartTrace, isNull);
+              expect(fixture.appStartRoots, isEmpty);
+              expect(fixture.streamAppStartRoots, isEmpty);
+              expect(fixture.frameHandler.timingsCallback, isNull);
+              expect(
+                fixture.options.timeToDisplayTracker.isAppStartRoutePending,
+                isFalse,
+              );
+              expect(
+                fixture.options.timeToDisplayTrackerV2.isAppStartRoutePending,
+                isFalse,
+              );
+
+              if (!routeAlreadyStarted) fixture.pushInitialRoute('/details');
+              await tester.pump();
+              fixture.frameHandler.postFrameCallback?.call(Duration.zero);
+              await tester.pump();
+
+              if (lifecycle == SentryTraceLifecycle.static) {
+                final root = fixture.rootSpans.single.tracer;
+                expect(root.name, '/details');
+                expect(root.finished, isFalse);
+                final ttid = root.children.singleWhere(
+                  (span) => span.context.operation == 'ui.load.initial_display',
+                );
+                final ttfd = root.children.singleWhere(
+                  (span) => span.context.operation == 'ui.load.full_display',
+                );
+                expect(ttid.finished, isTrue);
+                expect(ttid.status, SpanStatus.ok());
+                expect(ttfd.finished, isFalse);
+                await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+                  spanId: root.context.spanId,
+                );
+                expect(ttfd.finished, isTrue);
+                expect(ttfd.status, SpanStatus.ok());
+                await root.finish();
+              } else {
+                final root = fixture.streamRootSpans.single;
+                expect(root.name, '/details');
+                expect(root.isEnded, isFalse);
+                final ttid = fixture.streamChildSpans.singleWhere(
+                  (span) =>
+                      span.attributes['sentry.op']?.value ==
+                      'ui.load.initial_display',
+                );
+                final ttfd = fixture.streamChildSpans.singleWhere(
+                  (span) =>
+                      span.attributes['sentry.op']?.value ==
+                      'ui.load.full_display',
+                );
+                expect(ttid.isEnded, isTrue);
+                expect(ttfd.isEnded, isFalse);
+                fixture.options.timeToDisplayTrackerV2.reportFullyDisplayed(
+                  ttfd.spanId,
+                );
+                expect(ttfd.isEnded, isTrue);
+                expect(ttfd.status, SentrySpanStatusV2.ok);
+                root.end();
+              }
+              await tester.pump(const Duration(seconds: 5));
+            },
+          );
+        }
+      }
+    }
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      for (final initFirst in [true, false]) {
+        testWidgets(
+          'releases idle hold after invalid raster timing with $lifecycle and initFirst=$initFirst',
+          (tester) async {
+            fixture.options.traceLifecycle = lifecycle;
+            await fixture.getSut().start(fixture.options);
+            final trace = fixture.options.standaloneAppStartTrace!;
+            if (initFirst) trace.recordInitEnd(fixture.snapshot);
+            fixture.frameHandler.timingsCallback!([
+              FrameTiming(
+                vsyncStart: 1,
+                buildStart: 2,
+                buildFinish: 3,
+                rasterStart: 4,
+                rasterFinish: 5,
+                rasterFinishWallTime: 0,
+              ),
+            ]);
+            if (!initFirst) {
+              await tester.pump(const Duration(seconds: 4));
+              expect(fixture.options.standaloneAppStartTrace, same(trace));
+              trace.recordInitEnd(fixture.snapshot);
+            }
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.options.standaloneAppStartTrace, isNull);
+            expect(
+              lifecycle == SentryTraceLifecycle.static
+                  ? fixture.options.timeToDisplayTracker.isAppStartRoutePending
+                  : fixture
+                        .options
+                        .timeToDisplayTrackerV2
+                        .isAppStartRoutePending,
+              isFalse,
+            );
+            if (lifecycle == SentryTraceLifecycle.static) {
+              final root = fixture.appStartRoots.single.tracer;
+              expect(root.finished, isTrue);
+              expect(root.measurements, isEmpty);
+            } else {
+              final root = fixture.streamAppStartRoots.single;
+              expect(root.isEnded, isTrue);
+              expect(root.attributes['app.vitals.start.value'], isNull);
+            }
+          },
+        );
+      }
+    }
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      for (final rasterEnd in [40, 75]) {
+        testWidgets(
+          'rejects raster timing before process start with $lifecycle and end=$rasterEnd',
+          (tester) async {
+            fixture.options.traceLifecycle = lifecycle;
+            when(fixture.native.fetchNativeAppStart()).thenAnswer(
+              (_) async => fixture.nativeAppStart(appStartMilliseconds: 50),
+            );
+            await fixture.startLifecycle();
+            fixture.frameHandler.timingsCallback!([
+              FrameTiming(
+                vsyncStart: 1,
+                buildStart: 2,
+                buildFinish: 3,
+                rasterStart: 25000,
+                rasterFinish: rasterEnd * 1000,
+                rasterFinishWallTime: rasterEnd * 1000,
+              ),
+            ]);
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.options.standaloneAppStartTrace, isNull);
+            expect(
+              lifecycle == SentryTraceLifecycle.static
+                  ? fixture.options.timeToDisplayTracker.isAppStartRoutePending
+                  : fixture
+                        .options
+                        .timeToDisplayTrackerV2
+                        .isAppStartRoutePending,
+              isFalse,
+            );
+            if (lifecycle == SentryTraceLifecycle.static) {
+              final root = fixture.appStartRoots.single.tracer;
+              expect(root.measurements, isEmpty);
+              expect(
+                root.children.where(
+                  (span) => span.context.operation == 'app.start.frame_raster',
+                ),
+                isEmpty,
+              );
+            } else {
+              final root = fixture.streamAppStartRoots.single;
+              expect(root.attributes['app.vitals.start.value'], isNull);
+              expect(
+                fixture.streamChildSpans.where(
+                  (span) => span.name == 'Frame Rasterization',
+                ),
+                isEmpty,
+              );
+            }
+          },
+        );
+      }
+    }
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      testWidgets(
+        'records display timing despite an early raster start with $lifecycle',
+        (tester) async {
+          fixture.options.traceLifecycle = lifecycle;
+          when(fixture.native.fetchNativeAppStart()).thenAnswer(
+            (_) async => fixture.nativeAppStart(appStartMilliseconds: 50),
+          );
+          await fixture.startLifecycle();
+          fixture.frameHandler.timingsCallback!([
+            FrameTiming(
+              vsyncStart: 1,
+              buildStart: 2,
+              buildFinish: 3,
+              rasterStart: 25000,
+              rasterFinish: 75000,
+              rasterFinishWallTime: 75000,
+            ),
+          ]);
+          await tester.pump();
+          final endpoint = DateTime.fromMillisecondsSinceEpoch(75, isUtc: true);
+          if (lifecycle == SentryTraceLifecycle.static) {
+            final display = fixture.rootSpans
+                .singleWhere((span) => span.context.operation == 'ui.load')
+                .tracer;
+            expect(
+              display.measurements['time_to_initial_display']?.value,
+              25.0,
+            );
+            expect(
+              display.children
+                  .singleWhere(
+                    (span) =>
+                        span.context.operation == 'ui.load.initial_display',
+                  )
+                  .endTimestamp,
+              endpoint,
+            );
+          } else {
+            final display = fixture.streamChildSpans.singleWhere(
+              (span) =>
+                  span.attributes['sentry.op']?.value ==
+                  'ui.load.initial_display',
+            );
+            expect(display.attributes['app.vitals.ttid.value']?.value, 25.0);
+            expect(display.endTimestamp, endpoint);
+          }
+          await tester.pump(const Duration(seconds: 4));
+        },
+      );
+    }
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      testWidgets(
+        'preserves later navigation after invalid startup timing with $lifecycle',
+        (tester) async {
+          fixture.options.traceLifecycle = lifecycle;
+          await fixture.startLifecycle();
+          fixture.pushInitialRoute('/first', enableNewTraceOnNavigation: true);
+          fixture.pushInitialRoute('/second', enableNewTraceOnNavigation: true);
+          final transactionId =
+              fixture.options.timeToDisplayTracker.transactionId;
+          final activeSpan = fixture.hub.getActiveSpan();
+          fixture.frameHandler.timingsCallback!([
+            FrameTiming(
+              vsyncStart: 1,
+              buildStart: 2,
+              buildFinish: 3,
+              rasterStart: 4,
+              rasterFinish: 5,
+              rasterFinishWallTime: 0,
+            ),
+          ]);
+          if (lifecycle == SentryTraceLifecycle.static) {
+            expect(transactionId, isNotNull);
+            expect(
+              fixture.options.timeToDisplayTracker.transactionId,
+              transactionId,
+            );
+          } else {
+            expect(activeSpan, isNotNull);
+            expect(activeSpan!.isEnded, isFalse);
+            activeSpan.end();
+          }
+          await tester.pump(const Duration(seconds: 4));
+        },
+      );
+    }
+
+    test(
+      'registers timing observation before awaiting native startup data',
+      () async {
+        final pending = Completer<NativeAppStart?>();
+        when(
+          fixture.native.fetchNativeAppStart(),
+        ).thenAnswer((_) => pending.future);
+        final started = fixture.startLifecycle();
+        final registered = fixture.frameHandler.timingsCallback != null;
+        pending.complete(fixture.nativeAppStart());
+        await started;
+        expect(registered, isTrue);
+      },
+    );
+
+    test(
+      'does not wait for full display when replaying an early frame',
+      () async {
+        fixture.options.enableTimeToFullDisplayTracing = true;
+        final pending = Completer<NativeAppStart?>();
+        when(
+          fixture.native.fetchNativeAppStart(),
+        ).thenAnswer((_) => pending.future);
+        var initialized = false;
+        final started = fixture.startLifecycle().then(
+          (_) => initialized = true,
+        );
+        fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+        pending.complete(fixture.nativeAppStart());
+        await pumpEventQueue(times: 10);
+        try {
+          expect(initialized, isTrue);
+        } finally {
+          await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+            spanId: fixture.options.timeToDisplayTracker.transactionId,
+          );
+          await started;
+        }
+      },
+    );
+
+    test(
+      'retains the first timing received while native data is pending',
+      () async {
+        final pending = Completer<NativeAppStart?>();
+        when(
+          fixture.native.fetchNativeAppStart(),
+        ).thenAnswer((_) => pending.future);
+        final started = fixture.startLifecycle();
+        fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+        pending.complete(fixture.nativeAppStart());
+        await started;
+        await pumpEventQueue();
+        final raster = fixture.appStartRoots.single.tracer.children.singleWhere(
+          (span) => span.context.description == 'Frame Rasterization',
+        );
+        expect(raster.endTimestamp, fixture.firstFrameEnd);
+      },
+    );
+
+    for (final lifecycle in SentryTraceLifecycle.values) {
+      test(
+        'captures startup after attachment while deferred with $lifecycle',
+        () async {
+          fixture.options.traceLifecycle = lifecycle;
+          fixture.binding
+            ..rootElement = RootElement(const RootWidget(child: SizedBox()))
+            ..sendFramesToEngine = false;
+          await fixture.startLifecycle();
+          expect(fixture.frameHandler.timingsCallback, isNotNull);
+          fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+          await pumpEventQueue();
+          if (lifecycle == SentryTraceLifecycle.static) {
+            final root = fixture.appStartRoots.single.tracer;
+            final raster = root.children.singleWhere(
+              (span) => span.context.operation == 'app.start.frame_raster',
+            );
+            expect(raster.endTimestamp, fixture.firstFrameEnd);
+            expect(
+              root.children.where(
+                (span) => span.context.description == 'Root Widget Attachment',
+              ),
+              isEmpty,
+            );
+          } else {
+            expect(fixture.streamAppStartRoots, hasLength(1));
+            final raster = fixture.streamChildSpans.singleWhere(
+              (span) =>
+                  span.attributes['sentry.op']?.value ==
+                  'app.start.frame_raster',
+            );
+            expect(raster.endTimestamp, fixture.firstFrameEnd);
+            expect(
+              fixture.streamChildSpans.where(
+                (span) => span.name == 'Root Widget Attachment',
+              ),
+              isEmpty,
+            );
+          }
+        },
+      );
+    }
+
+    test(
+      'rejects initialization after attachment even before raster reporting',
+      () async {
+        fixture.binding.rootElement = RootElement(
+          const RootWidget(child: SizedBox()),
+        );
+        expect(fixture.binding.firstFrameRasterized, isFalse);
+        await fixture.startLifecycle();
+        expect(fixture.appStartRoots, isEmpty);
+        expect(fixture.frameHandler.timingsCallback, isNull);
+        verifyNever(fixture.native.fetchNativeAppStart());
+      },
+    );
+
+    test('rejects initialization after first rasterization', () async {
+      fixture.binding.firstFrameRasterized = true;
+      await fixture.startLifecycle();
+      expect(fixture.appStartRoots, isEmpty);
+      expect(fixture.frameHandler.timingsCallback, isNull);
+    });
+
+    test('ignores a queued timing callback after trace completion', () async {
+      await fixture.startLifecycle();
+      final callback = fixture.frameHandler.timingsCallback!;
+      final root = fixture.appStartRoots.single.tracer;
+      await root.finish();
+      callback([fixture.frameTiming]);
+      await pumpEventQueue();
+      expect(
+        root.children.map((span) => span.context.description),
+        isNot(contains('Frame Rasterization')),
+      );
+    });
+
+    test(
+      'records first timing only once even when its callback is retained',
+      () async {
+        await fixture.startLifecycle();
+        final callback = fixture.frameHandler.timingsCallback!;
+        callback([fixture.frameTiming, fixture.frameTiming]);
+        callback([fixture.frameTiming]);
+        await pumpEventQueue();
+        expect(
+          fixture.appStartRoots.single.tracer.children.where(
+            (span) => span.context.description == 'Frame Rasterization',
+          ),
+          hasLength(1),
+        );
+      },
+    );
+
+    test(
+      'does not replace invalid first raster timing with a later frame',
+      () async {
+        await fixture.startLifecycle();
+        final callback = fixture.frameHandler.timingsCallback!;
+        callback([
+          FrameTiming(
+            vsyncStart: 1,
+            buildStart: 2,
+            buildFinish: 3,
+            rasterStart: 4,
+            rasterFinish: 5,
+            rasterFinishWallTime: 0,
+          ),
+        ]);
+        expect(fixture.frameHandler.timingsCallback, isNull);
+        callback([fixture.frameTiming]);
+        await pumpEventQueue();
+        expect(
+          fixture.appStartRoots.single.tracer.children.map(
+            (span) => span.context.operation,
+          ),
+          isNot(contains(SentrySpanOperations.appStartFrameRaster)),
+        );
+      },
+    );
+
+    test('installs standalone trace before the first frame', () async {
+      await fixture.startLifecycle();
+      await pumpEventQueue();
+
+      expect(fixture.appStartRoots, hasLength(1));
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+    });
+
+    test('retains native phases completed after SDK setup starts', () async {
+      when(fixture.native.fetchNativeAppStart()).thenAnswer(
+        (_) async => NativeAppStart(
+          appStartTime: fixture.processStart.millisecondsSinceEpoch,
+          pluginRegistrationTime: 100,
+          isColdStart: true,
+          nativeSpanTimes: {
+            'Activity.onCreate': {
+              'startTimestampMsSinceEpoch': 150,
+              'stopTimestampMsSinceEpoch': 250,
+            },
+          },
+        ),
+      );
+
+      await fixture.startLifecycle();
+
+      expect(
+        fixture.appStartRoots.single.tracer.children.map(
+          (span) => span.context.description,
+        ),
+        contains('Activity.onCreate'),
+      );
+    });
+
+    test('samples sibling roots independently with one trace ID', () async {
+      var samplerCalls = 0;
+      fixture.options
+        ..tracesSampleRate = null
+        ..tracesSampler = (_) {
+          samplerCalls++;
+          return 1.0;
+        };
+
+      await fixture.startLifecycle();
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      expect(samplerCalls, 2);
+      expect(fixture.rootSpans, hasLength(2));
+      expect(
+        fixture.rootSpans.map((span) => span.context.traceId).toSet(),
+        hasLength(1),
+      );
+    });
+
+    test(
+      'produces equivalent static and streaming outputs for nested extension completion',
+      () async {
+        final staticFixture = Fixture();
+        final streamingFixture = Fixture()..useStreamingLifecycle();
+        addTearDown(() async {
+          await staticFixture.getSut().close();
+          await streamingFixture.getSut().close();
+        });
+
+        final staticSnapshot = await staticFixture.runExtendedScenario();
+        final streamingSnapshot = await streamingFixture.runExtendedScenario();
+
+        expect(staticSnapshot.rootCount, 1);
+        expect(streamingSnapshot.rootCount, 1);
+        expect(staticSnapshot.extensionChildCount, 1);
+        expect(streamingSnapshot.extensionChildCount, 1);
+        expect(staticSnapshot.extensionStart, streamingSnapshot.extensionStart);
+        expect(staticSnapshot.extensionEnd, streamingSnapshot.extensionEnd);
+        expect(staticSnapshot.childEnd, streamingSnapshot.childEnd);
+        expect(staticSnapshot.grandchildEnd, streamingSnapshot.grandchildEnd);
+        expect(staticSnapshot.extensionSuccessful, isTrue);
+        expect(streamingSnapshot.extensionSuccessful, isTrue);
+        expect(staticSnapshot.childOpenAfterExtension, isTrue);
+        expect(staticSnapshot.grandchildOpenAfterExtension, isTrue);
+        expect(streamingSnapshot.childOpenAfterExtension, isTrue);
+        expect(streamingSnapshot.grandchildOpenAfterExtension, isTrue);
+        expect(staticSnapshot.childSuccessful, isTrue);
+        expect(staticSnapshot.grandchildSuccessful, isTrue);
+        expect(streamingSnapshot.childSuccessful, isTrue);
+        expect(streamingSnapshot.grandchildSuccessful, isTrue);
+        expect(staticSnapshot.measurementMilliseconds, 600.0);
+        expect(
+          streamingSnapshot.measurementMilliseconds,
+          staticSnapshot.measurementMilliseconds,
+        );
+      },
+    );
+
+    test('concurrent start calls initialize the lifecycle once', () async {
+      final nativeAppStartCompleter = Completer<NativeAppStart?>();
+      when(
+        fixture.native.fetchNativeAppStart(),
+      ).thenAnswer((_) => nativeAppStartCompleter.future);
+
+      final firstStart = fixture.startLifecycle();
+      final secondStart = fixture.startLifecycle();
+      nativeAppStartCompleter.complete(fixture.nativeAppStart());
+
+      await Future.wait([firstStart, secondStart]);
+      await pumpEventQueue();
+      expect(fixture.frameHandler.registeredTimingsCallbacks, hasLength(1));
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final uiLoadRoots = fixture.rootSpans.where(
+        (span) => span.context.operation == SentrySpanOperations.uiLoad,
+      );
+      verify(fixture.native.fetchNativeAppStart()).called(1);
+      expect(fixture.appStartRoots, hasLength(1));
+      expect(uiLoadRoots, hasLength(1));
+    });
+
+    test('when app.start is unsampled still reports sampled ui.load', () async {
+      fixture.options
+        ..tracesSampleRate = null
+        ..tracesSampler = (samplingContext) {
+          return samplingContext.transactionContext.operation ==
+                  SentrySpanOperations.uiLoad
+              ? 1.0
+              : 0.0;
+        };
+
+      await fixture.startLifecycle();
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final uiLoadRoots = fixture.rootSpans
+          .where(
+            (span) => span.context.operation == SentrySpanOperations.uiLoad,
+          )
+          .toList();
+
+      expect(uiLoadRoots, hasLength(1));
+    });
+
+    test(
+      'when app.start is unsampled in stream lifecycle still prepares ui.load',
+      () async {
+        fixture.useStreamingLifecycle();
+        fixture.options
+          ..enableTimeToFullDisplayTracing = true
+          ..tracesSampleRate = null
+          ..tracesSampler = (samplingContext) {
+            return samplingContext
+                        .spanContext
+                        .attributes[SemanticAttributesConstants.sentryOp]
+                        ?.value ==
+                    SentrySpanOperations.uiLoad
+                ? 1.0
+                : 0.0;
+          };
+
+        await fixture.startLifecycle();
+
+        final activeSpan = fixture.hub.getActiveSpan();
+
+        expect(activeSpan, isNotNull);
+        expect(activeSpan!.name, 'root /');
+        expect(fixture.options.timeToDisplayTrackerV2.ttfdSpanId, isNotNull);
+        expect(fixture.frameHandler.timingsCallback, isNotNull);
+      },
+    );
+
+    test('keeps the first-frame callback after empty timings', () async {
+      await fixture.startLifecycle();
+      final callback = fixture.frameHandler.timingsCallback!;
+
+      callback([]);
+      await pumpEventQueue();
+
+      expect(fixture.frameHandler.timingsCallback, same(callback));
+
+      callback([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      expect(fixture.frameHandler.timingsCallback, isNull);
+    });
+
+    test('when native timing is invalid still reports ui.load', () async {
+      when(fixture.native.fetchNativeAppStart()).thenAnswer(
+        (_) async => fixture.nativeAppStart(appStartMilliseconds: 1000),
+      );
+
+      await fixture.startLifecycle();
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final uiLoadRoot = fixture.rootSpans.single;
+
+      expect(uiLoadRoot.context.operation, SentrySpanOperations.uiLoad);
+      expect(uiLoadRoot.startTimestamp, fixture.setup);
+      expect(fixture.appStartRoots, isEmpty);
+    });
+
+    test(
+      'when native timing is unavailable in stream lifecycle prepares ui.load and ttfd',
+      () async {
+        fixture.useStreamingLifecycle();
+        fixture.options.enableTimeToFullDisplayTracing = true;
+        when(
+          fixture.native.fetchNativeAppStart(),
+        ).thenAnswer((_) async => null);
+
+        await fixture.startLifecycle();
+
+        final activeSpan = fixture.hub.getActiveSpan();
+
+        expect(activeSpan, isNotNull);
+        expect(activeSpan!.name, 'root /');
+        expect(activeSpan.startTimestamp, fixture.setup);
+        expect(fixture.options.timeToDisplayTrackerV2.ttfdSpanId, isNotNull);
+        expect(fixture.frameHandler.timingsCallback, isNotNull);
+      },
+    );
+
+    test(
+      'close without start does not clear legacy static display tracking',
+      () async {
+        final transactionId = fixture.seedLegacyStaticDisplayTracking();
+
+        await fixture.getSut().close();
+
+        expect(
+          fixture.options.timeToDisplayTracker.transactionId,
+          transactionId,
+        );
+      },
+    );
+
+    test(
+      'close without start does not clear legacy stream display tracking',
+      () async {
+        fixture.useStreamingLifecycle();
+        fixture.options.enableTimeToFullDisplayTracing = true;
+        final ttfdSpanId = fixture.seedLegacyStreamDisplayTracking();
+
+        expect(ttfdSpanId, isNotNull);
+
+        await fixture.getSut().close();
+
+        expect(fixture.options.timeToDisplayTrackerV2.ttfdSpanId, ttfdSpanId);
+      },
+    );
+
+    test('close flushes the standalone trace', () async {
+      await fixture.startLifecycle();
+      await pumpEventQueue();
+      final root = fixture.appStartRoots.single;
+
+      await fixture.getSut().close();
+      await pumpEventQueue(times: 10);
+
+      expect(root.tracer.finished, isTrue);
+    });
+
+    test('publishes the active standalone trace after start', () async {
+      await fixture.startLifecycle();
+
+      expect(fixture.options.standaloneAppStartTrace, isNotNull);
+    });
+
+    test('close clears the published standalone trace', () async {
+      await fixture.startLifecycle();
+      final publishedTrace = fixture.options.standaloneAppStartTrace;
+
+      expect(publishedTrace, isNotNull);
+
+      await fixture.getSut().close();
+
+      expect(fixture.options.standaloneAppStartTrace, isNull);
+    });
+
+    test(
+      'clears the published standalone trace once the static lifecycle completes',
+      () async {
+        await fixture.startLifecycle();
+        final root = fixture.appStartRoots.single.tracer;
+
+        expect(fixture.options.standaloneAppStartTrace, isNotNull);
+
+        fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+        await pumpEventQueue(times: 10);
+        await root.finish(endTimestamp: fixture.snapshot);
+
+        expect(fixture.options.standaloneAppStartTrace, isNull);
+      },
+    );
+
+    test(
+      'clears the published standalone trace once the stream lifecycle completes',
+      () async {
+        fixture.useStreamingLifecycle();
+        await fixture.startLifecycle();
+        final root = fixture.streamAppStartRoots.single;
+
+        expect(fixture.options.standaloneAppStartTrace, isNotNull);
+
+        fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+        await pumpEventQueue(times: 10);
+        root.end(endTimestamp: fixture.snapshot);
+        await pumpEventQueue(times: 10);
+
+        expect(fixture.options.standaloneAppStartTrace, isNull);
+      },
+    );
+
+    test('close removes the first-frame callback', () async {
+      await fixture.startLifecycle();
+
+      expect(fixture.frameHandler.timingsCallback, isNotNull);
+
+      await fixture.getSut().close();
+
+      expect(fixture.frameHandler.timingsCallback, isNull);
+    });
+
+    test('finishes app start without waiting for full display', () async {
+      fixture.options.enableTimeToFullDisplayTracing = true;
+      await fixture.startLifecycle();
+      final root = fixture.appStartRoots.single.tracer;
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final firstFrameSpan = root.children.singleWhere(
+        (span) =>
+            span.context.operation == SentrySpanOperations.appStartFrameRaster,
+      );
+
+      try {
+        expect(firstFrameSpan.finished, isTrue);
+      } finally {
+        await fixture.options.timeToDisplayTracker.reportFullyDisplayed(
+          spanId: fixture.options.timeToDisplayTracker.transactionId,
+        );
+        await pumpEventQueue(times: 10);
+      }
+    });
+
+    test('close while native fetch is pending prevents later work', () async {
+      final nativeAppStartCompleter = Completer<NativeAppStart?>();
+      when(
+        fixture.native.fetchNativeAppStart(),
+      ).thenAnswer((_) => nativeAppStartCompleter.future);
+
+      final startFuture = fixture.startLifecycle();
+      await fixture.getSut().close();
+
+      nativeAppStartCompleter.complete(fixture.nativeAppStart());
+      await startFuture;
+      await pumpEventQueue(times: 10);
+
+      expect(fixture.rootSpans, isEmpty);
+      expect(fixture.frameHandler.timingsCallback, isNull);
+    });
+
+    test('captures the app-start screen at the first valid frame', () async {
+      fixture.setCurrentRouteName('launch');
+      await fixture.startLifecycle();
+      final root = fixture.appStartRoots.single.tracer;
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+      fixture.setCurrentRouteName('next');
+      await root.finish(endTimestamp: fixture.snapshot);
+
+      expect(root.data['app.vitals.start.screen'], 'launch');
+    });
+
+    test('maps the navigator root route to root /', () async {
+      fixture.setCurrentRouteName('/');
+      await fixture.startLifecycle();
+      final root = fixture.appStartRoots.single.tracer;
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+      await root.finish(endTimestamp: fixture.snapshot);
+
+      expect(root.data['app.vitals.start.screen'], 'root /');
+    });
+
+    test('names the reserved ui.load after a non-root initial route', () async {
+      await fixture.startLifecycle();
+      fixture.pushInitialRoute('/login');
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final uiLoadRoot = fixture.rootSpans.singleWhere(
+        (span) => span.context.operation == SentrySpanOperations.uiLoad,
+      );
+
+      expect(uiLoadRoot.tracer.name, '/login');
+      expect(uiLoadRoot.startTimestamp, fixture.processStart);
+    });
+
+    test('keeps the app-start trace when a non-root initial route would start '
+        'a new one', () async {
+      await fixture.startLifecycle();
+      fixture.pushInitialRoute('/login', enableNewTraceOnNavigation: true);
+
+      fixture.frameHandler.timingsCallback!([fixture.frameTiming]);
+      await pumpEventQueue(times: 10);
+
+      final uiLoadRoot = fixture.rootSpans.singleWhere(
+        (span) => span.context.operation == SentrySpanOperations.uiLoad,
+      );
+
+      expect(
+        uiLoadRoot.context.traceId,
+        fixture.appStartRoots.single.context.traceId,
+      );
+    });
+  });
+}
+
+class Fixture {
+  final frameHandler = _RecordingFrameCallbackHandler();
+  final native = MockSentryNativeBinding();
+  final binding = _BindingState();
+  final bindingWrapper = MockBindingWrapper();
+  final transport = _FakeTransport();
+  final rootSpans = <SentrySpan>[];
+  final streamRootSpans = <IdleRecordingSentrySpanV2>[];
+  final streamChildSpans = <RecordingSentrySpanV2>[];
+  List<SentrySpan> get appStartRoots =>
+      rootSpans.where((span) => span.context.operation == 'app.start').toList();
+  List<IdleRecordingSentrySpanV2> get streamAppStartRoots => streamRootSpans
+      .where(
+        (span) =>
+            span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
+            SentrySpanOperations.appStart,
+      )
+      .toList();
+  final processStart = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
+  final setup = DateTime.fromMillisecondsSinceEpoch(200, isUtc: true);
+  final snapshot = DateTime.fromMillisecondsSinceEpoch(300, isUtc: true);
+  late final firstVsync = DateTime.fromMillisecondsSinceEpoch(350, isUtc: true);
+  late final firstFrameEnd = DateTime.fromMillisecondsSinceEpoch(
+    400,
+    isUtc: true,
+  );
+  late final frameTiming = fakeFirstFrameTiming(
+    vsyncStart: firstVsync,
+    buildStart: DateTime.fromMillisecondsSinceEpoch(360, isUtc: true),
+    buildFinish: DateTime.fromMillisecondsSinceEpoch(380, isUtc: true),
+    rasterStart: DateTime.fromMillisecondsSinceEpoch(390, isUtc: true),
+    rasterFinish: firstFrameEnd,
+  );
+
+  late final options = defaultTestOptions(platform: MockPlatform.android())
+    ..transport = transport
+    ..tracesSampleRate = 1.0
+    ..traceLifecycle = SentryTraceLifecycle.static
+    ..clock = () => snapshot;
+  late final hub = Hub(options);
+  late final navigatorObserver = SentryNavigatorObserver(
+    hub: hub,
+    enableAutoTransactions: false,
+  );
+  late final _sut = StandaloneAppStartHandler(
+    hub: hub,
+    frameCallbackHandler: frameHandler,
+    native: native,
+  );
+
+  Fixture() {
+    options.bindingUtils = bindingWrapper;
+    when(bindingWrapper.instance).thenReturn(binding);
+    SentryFlutter.sentrySetupStartTime = setup;
+    options.lifecycleRegistry.registerCallback<OnSpanStart>((event) {
+      if (event.span is SentrySpan && (event.span as SentrySpan).isRootSpan) {
+        rootSpans.add(event.span as SentrySpan);
+      }
+    });
+    options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
+      final span = event.span;
+      if (span is IdleRecordingSentrySpanV2) {
+        streamRootSpans.add(span);
+      } else if (span is RecordingSentrySpanV2 && span.parentSpan != null) {
+        streamChildSpans.add(span);
+      }
+    });
+    options.timeToDisplayTracker = TimeToDisplayTracker(
+      hub: hub,
+      options: options,
+    );
+    options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(
+      hub: hub,
+      frameCallbackHandler: frameHandler,
+    );
+    when(
+      native.fetchNativeAppStart(),
+    ).thenAnswer((_) async => nativeAppStart());
+  }
+
+  StandaloneAppStartHandler getSut() => _sut;
+
+  NativeAppStart nativeAppStart({int appStartMilliseconds = 0}) =>
+      NativeAppStart(
+        appStartTime: appStartMilliseconds,
+        pluginRegistrationTime: 100,
+        isColdStart: true,
+        nativeSpanTimes: {},
+      );
+
+  /// Installs the handler, then records the init-end anchor the way
+  /// `SentryFlutter.init` does once its integrations have run.
+  ///
+  /// Without it idle completion stays paused, so the root would keep
+  /// waiting for it instead of reporting at the first frame.
+  Future<void> startLifecycle() async {
+    await getSut().start(options);
+    options.standaloneAppStartTrace?.recordInitEnd(snapshot);
+  }
+
+  Future<_ExtendedScenarioSnapshot> runExtendedScenario() async {
+    final extensionStart = processStart.add(const Duration(milliseconds: 250));
+    final childStart = extensionStart.add(const Duration(milliseconds: 25));
+    final grandchildStart = extensionStart.add(
+      const Duration(milliseconds: 50),
+    );
+    final extensionEnd = processStart.add(const Duration(milliseconds: 600));
+    final grandchildEnd = processStart.add(const Duration(milliseconds: 700));
+    final childEnd = processStart.add(const Duration(milliseconds: 800));
+    final rootEnd = processStart.add(const Duration(milliseconds: 900));
+
+    await startLifecycle();
+    await pumpEventQueue(times: 10);
+
+    final trace = options.standaloneAppStartTrace!;
+    expect(trace.tryExtend(extensionStart), isTrue);
+
+    switch (options.traceLifecycle) {
+      case SentryTraceLifecycle.static:
+        final extension = trace.extendedSpan as SentrySpan;
+        final child =
+            extension.startChild('extended child', startTimestamp: childStart)
+                as SentrySpan;
+        final grandchild =
+            child.startChild(
+                  'extended grandchild',
+                  startTimestamp: grandchildStart,
+                )
+                as SentrySpan;
+
+        frameHandler.timingsCallback!([frameTiming]);
+        await pumpEventQueue(times: 10);
+        await trace.finishExtended(extensionEnd);
+        final childOpenAfterExtension = !child.finished;
+        final grandchildOpenAfterExtension = !grandchild.finished;
+        await grandchild.finish(
+          status: SpanStatus.ok(),
+          endTimestamp: grandchildEnd,
+        );
+        await child.finish(status: SpanStatus.ok(), endTimestamp: childEnd);
+        await pumpEventQueue(times: 10);
+        await appStartRoots.single.tracer.finish(endTimestamp: rootEnd);
+        await pumpEventQueue(times: 10);
+
+        return _ExtendedScenarioSnapshot(
+          rootCount: appStartRoots.length,
+          extensionChildCount: appStartRoots.single.tracer.children
+              .where(
+                (span) =>
+                    span.context.operation ==
+                    SentrySpanOperations.appStartExtended,
+              )
+              .length,
+          extensionStart: extension.startTimestamp,
+          extensionEnd: extension.endTimestamp!,
+          childEnd: child.endTimestamp!,
+          grandchildEnd: grandchild.endTimestamp!,
+          extensionSuccessful: extension.status == SpanStatus.ok(),
+          childOpenAfterExtension: childOpenAfterExtension,
+          grandchildOpenAfterExtension: grandchildOpenAfterExtension,
+          childSuccessful: child.status == SpanStatus.ok(),
+          grandchildSuccessful: grandchild.status == SpanStatus.ok(),
+          measurementMilliseconds: appStartRoots
+              .single
+              .tracer
+              .measurements['app_start_cold']!
+              .value
+              .toDouble(),
+        );
+      case SentryTraceLifecycle.stream:
+        final extension = trace.extendedSpanV2 as RecordingSentrySpanV2;
+        final child =
+            hub.startInactiveSpan(
+                  'extended child',
+                  parentSpan: extension,
+                  startTimestamp: childStart,
+                )
+                as RecordingSentrySpanV2;
+        final grandchild =
+            hub.startInactiveSpan(
+                  'extended grandchild',
+                  parentSpan: child,
+                  startTimestamp: grandchildStart,
+                )
+                as RecordingSentrySpanV2;
+
+        frameHandler.timingsCallback!([frameTiming]);
+        await pumpEventQueue(times: 10);
+        await trace.finishExtended(extensionEnd);
+        final childOpenAfterExtension = !child.isEnded;
+        final grandchildOpenAfterExtension = !grandchild.isEnded;
+        grandchild.end(endTimestamp: grandchildEnd);
+        child.end(endTimestamp: childEnd);
+        await pumpEventQueue(times: 10);
+        streamAppStartRoots.single.end(endTimestamp: rootEnd);
+        await pumpEventQueue(times: 10);
+
+        return _ExtendedScenarioSnapshot(
+          rootCount: streamAppStartRoots.length,
+          extensionChildCount: streamChildSpans
+              .where(
+                (span) =>
+                    identical(span.parentSpan, streamAppStartRoots.single) &&
+                    span
+                            .attributes[SemanticAttributesConstants.sentryOp]
+                            ?.value ==
+                        SentrySpanOperations.appStartExtended,
+              )
+              .length,
+          extensionStart: extension.startTimestamp,
+          extensionEnd: extension.endTimestamp!,
+          childEnd: child.endTimestamp!,
+          grandchildEnd: grandchild.endTimestamp!,
+          extensionSuccessful: extension.status == SentrySpanStatusV2.ok,
+          childOpenAfterExtension: childOpenAfterExtension,
+          grandchildOpenAfterExtension: grandchildOpenAfterExtension,
+          childSuccessful: child.status == SentrySpanStatusV2.ok,
+          grandchildSuccessful: grandchild.status == SentrySpanStatusV2.ok,
+          measurementMilliseconds:
+              streamAppStartRoots
+                      .single
+                      .attributes[ProposedSemanticAttributes
+                          .appVitalsStartValue]!
+                      .value
+                  as double,
+        );
+    }
+  }
+
+  SpanId seedLegacyStaticDisplayTracking() {
+    final transactionId = SentryTransactionContext(
+      'root /',
+      SentrySpanOperations.uiLoad,
+      origin: SentryTraceOrigins.autoUiTimeToDisplay,
+    ).spanId;
+    options.timeToDisplayTracker.transactionId = transactionId;
+    return transactionId;
+  }
+
+  SpanId? seedLegacyStreamDisplayTracking() {
+    options.timeToDisplayTrackerV2.prepareAppStart(startTimestamp: setup);
+    return options.timeToDisplayTrackerV2.ttfdSpanId;
+  }
+
+  void useStreamingLifecycle() {
+    options.traceLifecycle = SentryTraceLifecycle.stream;
+  }
+
+  void setCurrentRouteName(String? name) =>
+      _didPushInitialRoute(navigatorObserver, name);
+
+  /// Pushes the initial route through an observer left at its defaults, the way
+  /// a real app's first `didPush` arrives.
+  void pushInitialRoute(
+    String? name, {
+    bool enableNewTraceOnNavigation = false,
+  }) => _didPushInitialRoute(
+    SentryNavigatorObserver(
+      hub: hub,
+      enableNewTraceOnNavigation: enableNewTraceOnNavigation,
+    ),
+    name,
+  );
+
+  void _didPushInitialRoute(SentryNavigatorObserver observer, String? name) {
+    observer.didPush(
+      PageRouteBuilder<void>(
+        pageBuilder: (_, _, _) => const SizedBox.shrink(),
+        settings: RouteSettings(name: name),
+      ),
+      null,
+    );
+  }
+}
+
+final class _ExtendedScenarioSnapshot {
+  final int rootCount;
+  final int extensionChildCount;
+  final DateTime extensionStart;
+  final DateTime extensionEnd;
+  final DateTime childEnd;
+  final DateTime grandchildEnd;
+  final bool extensionSuccessful;
+  final bool childOpenAfterExtension;
+  final bool grandchildOpenAfterExtension;
+  final bool childSuccessful;
+  final bool grandchildSuccessful;
+  final double measurementMilliseconds;
+
+  const _ExtendedScenarioSnapshot({
+    required this.rootCount,
+    required this.extensionChildCount,
+    required this.extensionStart,
+    required this.extensionEnd,
+    required this.childEnd,
+    required this.grandchildEnd,
+    required this.extensionSuccessful,
+    required this.childOpenAfterExtension,
+    required this.grandchildOpenAfterExtension,
+    required this.childSuccessful,
+    required this.grandchildSuccessful,
+    required this.measurementMilliseconds,
+  });
+}
+
+class _FakeTransport implements Transport {
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) async => SentryId.empty();
+}
+
+class _RecordingFrameCallbackHandler extends FakeFrameCallbackHandler {
+  final registeredTimingsCallbacks = <TimingsCallback>{};
+
+  @override
+  void addTimingsCallback(TimingsCallback callback) {
+    registeredTimingsCallbacks.add(callback);
+    super.addTimingsCallback(callback);
+  }
+
+  @override
+  void removeTimingsCallback(TimingsCallback callback) {
+    registeredTimingsCallbacks.remove(callback);
+    super.removeTimingsCallback(callback);
+  }
+}
+
+// Only the observation eligibility getters are exercised at this seam.
+class _BindingState implements WidgetsBinding {
+  @override
+  RootElement? rootElement;
+  @override
+  bool firstFrameRasterized = false;
+  @override
+  bool sendFramesToEngine = true;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}

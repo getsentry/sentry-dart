@@ -31,6 +31,6 @@ Classify what a module depends on — it decides how the module is tested across
 
 - **In-process** — pure computation, in-memory state. No adapter; test through the interface directly.
 - **Injected Dart dependency** — transport, HTTP client, clock, a third-party Dart client (e.g. a DB driver in an integration package). Inject it as an interface; tests pass a fake (test-guidelines' `Fixture`).
-- **Native (JNI/FFI)** — cannot be faked. Put the seam at the Dart boundary above native so the logic is unit-testable; cover the native path with an integration test (see `packages/flutter/AGENTS.md`).
+- **Native (JNI/FFI)** — cannot be faked. Put the seam at the Dart boundary above native so the logic is unit-testable; cover the native path with an integration test (see `packages/sentry_flutter/AGENTS.md`).
 
 One adapter means a hypothetical seam; two means a real one (typically production + test). Don't introduce a seam unless something actually varies across it — a single-adapter seam is just indirection.

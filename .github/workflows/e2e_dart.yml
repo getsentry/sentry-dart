@@ -9,7 +9,7 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/e2e_dart.yml'
-      - 'packages/dart/**'
+      - 'packages/sentry/**'
       - 'e2e_test/**'
 
 concurrency:

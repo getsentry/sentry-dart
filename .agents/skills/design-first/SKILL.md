@@ -37,7 +37,7 @@ Two checks settle most design questions:
 
 ### 1. Frame the change
 
-State the behavior the change introduces, in the domain's own words. Name the package(s) it lands in. Read the relevant `AGENTS.md` (root, `packages/dart/`, `packages/flutter/`) for the area you're touching.
+State the behavior the change introduces, in the domain's own words. Name the package(s) it lands in. Read the relevant `AGENTS.md` (root, `packages/sentry/`, `packages/sentry_flutter/`) for the area you're touching.
 
 **Find the nearest well-shaped precedent and align to it.** The codebase has almost certainly solved something adjacent; locate its *best* current example and match it — or improve on it deliberately, noting why. The repo's own best-organized case is a stronger guide than any rule (e.g. follow `telemetry/span/` v2, not the v1 span scatter). This auto-updates as the codebase evolves.
 
@@ -61,15 +61,15 @@ A seam exists so a test can cross it. For each module, name the seam its tests w
 - **Return results, don't bury side effects.** A function that returns a value is testable; one that only mutates shared state is not.
 - **Keep the surface small.** Fewer methods and params mean less test setup.
 
-Native interop is special: **JNI/FFI cannot be faked or mocked** (see `packages/flutter/AGENTS.md`). Put the seam at the Dart boundary *above* native so the logic is unit-testable, and plan an integration test for the native path itself.
+Native interop is special: **JNI/FFI cannot be faked or mocked** (see `packages/sentry_flutter/AGENTS.md`). Put the seam at the Dart boundary *above* native so the logic is unit-testable, and plan an integration test for the native path itself.
 
 ### 4. Check the SDK constraints
 
 Resolve these before sketching — each has a canonical home; consult it rather than guessing:
 
-- **Public API surface.** Does this add or change exports in a barrel file? Keep new types in `src/` unless they're meant for SDK users. See `packages/dart/AGENTS.md`.
+- **Public API surface.** Does this add or change exports in a barrel file? Keep new types in `src/` unless they're meant for SDK users. See `packages/sentry/AGENTS.md`.
 - **Integration shape.** If the feature is an `Integration`, it implements `call()`/`close()`, gates on its prerequisites early, and stays order-independent. See code-guidelines.
-- **Package boundary.** Core behavior belongs in `packages/dart/`; integration-specific behavior in its own package. A new dependency in core cascades everywhere.
+- **Package boundary.** Core behavior belongs in `packages/sentry/`; integration-specific behavior in its own package. A new dependency in core cascades everywhere.
 
 ### 5. Write the design sketch and get approval
 

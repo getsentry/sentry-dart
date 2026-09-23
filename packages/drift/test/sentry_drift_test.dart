@@ -6,7 +6,7 @@ import 'package:drift/native.dart';
 import 'package:test/test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_drift/src/constants.dart' as drift_constants;
 import 'package:sentry_drift/src/sentry_query_interceptor.dart';
 import 'package:sentry_drift/src/sentry_span_helper.dart';

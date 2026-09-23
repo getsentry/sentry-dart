@@ -5,7 +5,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_dio/src/dio_error_extractor.dart';
 import 'package:test/test.dart';
-import 'package:sentry/src/sentry_exception_factory.dart';
+import 'package:sentry/src/exception/sentry_exception_factory.dart';
 
 import 'mocks.dart';
 

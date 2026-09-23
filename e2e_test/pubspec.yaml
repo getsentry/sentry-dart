@@ -10,7 +10,7 @@ environment:
 dependencies:
   sentry:
     path:
-      ./../packages/dart
+      ./../packages/sentry
   http: ^0.13.0
 
 dev_dependencies:

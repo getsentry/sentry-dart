@@ -6,8 +6,8 @@ import 'package:grpc/grpc_or_grpcweb.dart';
 import 'package:grpc/service_api.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/constants.dart';
-import 'package:sentry/src/tracing/instrumentation/instrumentation.dart';
-import 'package:sentry/src/utils/tracing_utils.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/instrumentation.dart';
+import 'package:sentry/src/telemetry/span/propagation/tracing_utils.dart';
 
 import 'internal_logger.dart';
 import 'version.dart';

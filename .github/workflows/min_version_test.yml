@@ -9,8 +9,8 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - '.github/workflows/min_version_test.yml'
-      - 'packages/dart/**'
-      - 'packages/flutter/**'
+      - 'packages/sentry/**'
+      - 'packages/sentry_flutter/**'
       - 'min_version_test/**'
 
 concurrency:

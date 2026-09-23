@@ -9,7 +9,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_hive/src/sentry_box.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:test/test.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'person.dart';

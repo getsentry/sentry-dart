@@ -85,11 +85,21 @@ jobs:
           git merge "$TAG" --no-edit \
             -m "Merge release $TAG into $BRANCH"
 
+      - name: Resolve Flutter package directory
+        id: flutter-package
+        if: steps.merge.outcome == 'success'
+        run: |
+          if [[ -d packages/sentry_flutter ]]; then
+            echo "directory=packages/sentry_flutter" >> "$GITHUB_OUTPUT"
+          else
+            echo "directory=packages/flutter" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Regenerate JNI bindings
         id: regenerate
         if: steps.merge.outcome == 'success'
         continue-on-error: true
-        working-directory: packages/flutter
+        working-directory: ${{ steps.flutter-package.outputs.directory }}
         run: |
           scripts/safe-regenerate-jni.sh 2>&1 | tee /tmp/jni-regen.log
 
@@ -97,8 +107,9 @@ jobs:
         if: steps.merge.outcome == 'success' && steps.regenerate.outcome == 'success'
         env:
           TAG: ${{ steps.release.outputs.tag }}
+          FLUTTER_PACKAGE: ${{ steps.flutter-package.outputs.directory }}
         run: |
-          git add packages/flutter/lib/src/native/java/binding.dart
+          git add "$FLUTTER_PACKAGE/lib/src/native/java/binding.dart"
           if ! git diff --cached --quiet; then
             git commit -m "chore: regenerate JNI bindings for $TAG"
           fi

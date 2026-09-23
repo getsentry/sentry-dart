@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_transport.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 

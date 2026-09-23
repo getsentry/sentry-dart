@@ -13,8 +13,8 @@ on:
       - '.github/actions/test-results/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
-      - 'packages/dart/**'
-      - 'packages/flutter/**'
+      - 'packages/sentry/**'
+      - 'packages/sentry_flutter/**'
       - 'metrics/flutter.properties'
 
 concurrency:
@@ -57,22 +57,15 @@ jobs:
         if: matrix.os == 'macos'
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
-      # Flutter derives the local SwiftPM package identity from the plugin path basename on macOS.
-      # Our package lives in packages/flutter, which makes Xcode resolve it as "flutter" and fail with:
-      # "unable to override package 'sentry_flutter' because its identity 'flutter' doesn't match override's identity (directory name) 'sentry_flutter'"
-      - name: Rename sentry_flutter package for macOS SwiftPM
-        if: matrix.target == 'macos'
-        run: mv packages/flutter packages/sentry_flutter
-
       - uses: ./.github/actions/flutter-test
         with:
-          directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter' || 'packages/flutter' }}
+          directory: packages/sentry_flutter
 
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: packages/flutter
+          directory: packages/sentry_flutter
           coverage: sentry_flutter
           min-coverage: 85
 
@@ -85,7 +78,7 @@ jobs:
       - name: Prepare example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
         if: matrix.target != 'wasm'
-        working-directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter/example' || 'packages/flutter/example' }}
+        working-directory: packages/sentry_flutter/example
         shell: bash
         run: |
           flutter config --enable-windows-desktop
@@ -97,7 +90,7 @@ jobs:
       - name: Build example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
         if: matrix.target != 'wasm'
-        working-directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter/example' || 'packages/flutter/example' }}
+        working-directory: packages/sentry_flutter/example
         shell: bash
         run: |
           TARGET=${{ matrix.target }}
@@ -134,7 +127,7 @@ jobs:
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml
     with:
-      package: packages/flutter
+      package: packages/sentry_flutter
       sdk: flutter
 
   swift-lint:
@@ -142,7 +135,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: packages/flutter
+        working-directory: packages/sentry_flutter
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
@@ -154,7 +147,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: packages/flutter
+        working-directory: packages/sentry_flutter
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -171,7 +164,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: packages/flutter
+        working-directory: packages/sentry_flutter
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -183,7 +176,7 @@ jobs:
           diff_output=$(git diff -- android/proguard-rules.pro)
           if [[ -n "$diff_output" ]]; then
             echo "$diff_output"
-            echo "::error::android/proguard-rules.pro is out of sync with tool/jnigen.dart. Run packages/flutter/scripts/generate-sentry-java-proguard.sh and commit the result."
+            echo "::error::android/proguard-rules.pro is out of sync with tool/jnigen.dart. Run packages/sentry_flutter/scripts/generate-sentry-java-proguard.sh and commit the result."
             exit 1
           fi
 
@@ -204,7 +197,7 @@ jobs:
 #    timeout-minutes: 20
 #    steps:
 #      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-#      # To recreate baseline run: detekt -i packages/flutter/android,packages/flutter/example/android -b packages/flutter/config/detekt-bl.xml -cb
+#      # To recreate baseline run: detekt -i packages/sentry_flutter/android,packages/sentry_flutter/example/android -b packages/sentry_flutter/config/detekt-bl.xml -cb
 #      - uses: natiginfo/action-detekt-all@45229fbbe47eaff1160b6c956d7ffe14dc23c206 # pin@1.23.8
 #        with:
-#          args: -i packages/flutter/android,packages/flutter/example/android --baseline packages/flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
+#          args: -i packages/sentry_flutter/android,packages/sentry_flutter/example/android --baseline packages/sentry_flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

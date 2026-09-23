@@ -278,6 +278,6 @@ expect(event.timestamp!.difference(now).inSeconds, lessThan(1));
 
 ## Integration / E2E Tests
 
-- Integration tests live in `packages/flutter/example/integration_test`.
+- Integration tests live in `packages/sentry_flutter/example/integration_test`.
 - JNI and FFI bindings cannot be mocked or faked — integration tests are required when working with native interop.
 - Prefer integration tests for any behavior that depends on native platform APIs.

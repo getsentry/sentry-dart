@@ -2,7 +2,7 @@
 library;
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sentry_sqflite/src/sentry_database_executor.dart';
 import 'package:sentry_sqflite/src/version.dart';

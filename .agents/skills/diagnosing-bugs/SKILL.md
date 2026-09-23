@@ -18,7 +18,7 @@ A **tight** loop is fast, deterministic, and goes **red** on *this* bug. Build o
 1. **Failing test at the seam** — `dart test path/to/test.dart` or `flutter test`, unit or widget, at whatever seam reaches the bug. Tightest loop there is.
 2. **`fakeAsync` harness** — for timer, microtask, and timing-dependent bugs (most flakes). Pin the clock via `options.clock`, elapse time deterministically.
 3. **`testWidgets` harness** — for Flutter UI bugs: pump the widget tree, drive the gesture, assert on the tree (e.g. a hit-test or navigation regression).
-4. **Integration test** — `flutter test integration_test/...` when the bug crosses the native (JNI/FFI) boundary, which cannot be faked (see `packages/flutter/AGENTS.md`).
+4. **Integration test** — `flutter test integration_test/...` when the bug crosses the native (JNI/FFI) boundary, which cannot be faked (see `packages/sentry_flutter/AGENTS.md`).
 5. **Replay a captured payload** — save a real envelope / event / span / network payload to disk and replay it through the code path in isolation.
 6. **Throwaway harness** — a minimal `void main()` that exercises the bug path with one call and mocked deps.
 7. **Stress/repetition loop** — for non-deterministic bugs: run the trigger 100×, parallelise, narrow timing windows, inject delays. The goal is a higher reproduction rate, not a clean repro.

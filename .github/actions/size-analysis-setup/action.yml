@@ -8,7 +8,7 @@ runs:
     - name: Read configured Flutter SDK version
       id: conf
       shell: bash
-      working-directory: packages/flutter/example
+      working-directory: packages/sentry_flutter/example
       run: |
         flutter_version=$(grep "version" ../../../metrics/flutter.properties | cut -d'=' -f2 | xargs)
         echo "flutter=$flutter_version" >> "$GITHUB_OUTPUT"
@@ -24,7 +24,7 @@ runs:
 
     - name: Determine build version
       shell: bash
-      working-directory: packages/flutter/example
+      working-directory: packages/sentry_flutter/example
       run: |
         version_line=$(grep '^version:' pubspec.yaml | awk '{print $2}')
         # Remove any + suffix first (for pubspec.yaml versions like 1.2.3+4)

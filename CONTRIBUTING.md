@@ -42,9 +42,9 @@ This resolves all package dependencies and configures git hooks for pre-commit c
 
 ### Core SDKs
 
-* **[packages/dart](https://github.com/getsentry/sentry-dart/tree/main/packages/dart)** - Core Dart
+* **[packages/sentry](https://github.com/getsentry/sentry-dart/tree/main/packages/sentry)** - Core Dart
   SDK (`sentry` package)
-* **[packages/flutter](https://github.com/getsentry/sentry-dart/tree/main/packages/flutter)** -
+* **[packages/sentry_flutter](https://github.com/getsentry/sentry-dart/tree/main/packages/sentry_flutter)** -
   Flutter SDK (`sentry_flutter` package)
 
 ### Integration Packages
@@ -78,25 +78,14 @@ against Flutter `stable` and `beta` channels.
 
 ### Building the macOS example
 
-On macOS, Flutter derives the local SwiftPM package identity from the plugin's directory basename
-(`flutter`) rather than its pub name (`sentry_flutter`), so `flutter build macos` from
-`packages/flutter/example` fails with:
-
-```
-unable to override package 'sentry_flutter' because its identity 'flutter'
-doesn't match override's identity (directory name) 'sentry_flutter'
-```
-
-Use the helper script (or its melos alias), which temporarily renames the package directory to
-`sentry_flutter`, builds, then restores it:
+The package directory `packages/sentry_flutter` matches the SwiftPM package identity.
+Build the example with the helper script or its Melos alias:
 
 ```bash
 melos run build:macos-example
 # or, forwarding extra flags to `flutter build macos`:
 ./scripts/build-macos-example.sh --debug
 ```
-
-This only affects the macOS example build; iOS is unaffected.
 
 ## Native SDK Dependencies
 
@@ -106,7 +95,7 @@ The Flutter SDK embeds platform-specific native SDKs:
   Gradle) + [sentry-native](https://github.com/getsentry/sentry-native) for NDK
 * **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via SwiftPM)
 * **Linux/Windows**: [sentry-native](https://github.com/getsentry/sentry-native) (bundled in
-  `packages/flutter/sentry-native/`)
+  `packages/sentry_flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)
 
 ## Pre-commit Hooks
