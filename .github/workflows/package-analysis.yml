@@ -38,9 +38,9 @@ jobs:
       # ignores `dependency_overrides`. Pin the in-repo `sentry` package via an
       # absolute path so the not-yet-published version resolves.
       - name: Apply dependency override
-        if: ${{ inputs.package != 'packages/sentry' }}
+        if: ${{ inputs.package != 'packages/dart' }}
         run: |
-          sed -i.bak 's|sentry:.*|sentry:\n    path: ${{ github.workspace }}/packages/sentry|g' pubspec.yaml
+          sed -i.bak 's|sentry:.*|sentry:\n    path: ${{ github.workspace }}/packages/dart|g' pubspec.yaml
       # Each package's CHANGELOG.md is a symlink to the root one. pana copies the
       # package into a temporary directory without following symlinks, so it
       # reports a missing changelog and deducts points. Materialise the content.

@@ -1,7 +1,7 @@
 # melos_managed_dependency_overrides: sentry,sentry_dio,sentry_drift,sentry_file,sentry_flutter,sentry_hive,sentry_isar,sentry_logging,sentry_sqflite,isar_flutter_libs
 dependency_overrides:
   sentry:
-    path: ../../sentry
+    path: ../../dart
   sentry_dio:
     path: ../../dio
   sentry_drift:

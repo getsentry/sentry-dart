@@ -4,8 +4,8 @@ on:
   push:
     paths:
       - .github/workflows/metrics.yml
-      - packages/sentry/**
-      - packages/sentry_flutter/**
+      - packages/dart/**
+      - packages/flutter/**
       - metrics/**
       - '!**/*.md'
     branches-ignore:

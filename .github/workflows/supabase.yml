@@ -13,8 +13,8 @@ on:
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
-      - 'packages/sentry/**'
-      - 'packages/sentry_flutter/**'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
       - 'packages/supabase/**'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value

@@ -16,7 +16,7 @@ This page serves as a checklist of what to do when releasing a new package for t
   - [ ] The package contains a pubspec.yaml file
   - [ ] The package contains a analysis_options.yaml file
 
-- [ ] Update the [Flutter example](https://github.com/getsentry/sentry-dart/tree/main/packages/sentry_flutter/example) to use your new package if applicable
+- [ ] Update the [Flutter example](https://github.com/getsentry/sentry-dart/tree/main/packages/flutter/example) to use your new package if applicable
 
 - [ ] Make sure your new package has a `version.dart` in the `lib/src` folder.
 

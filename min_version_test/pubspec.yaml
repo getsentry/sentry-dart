@@ -45,9 +45,9 @@ dependency_overrides:
   flutter:
     sdk: flutter
   sentry:
-    path: ../packages/sentry
+    path: ../packages/dart
   sentry_flutter:
-    path: ../packages/sentry_flutter
+    path: ../packages/flutter
   sentry_dio:
     path: ../packages/dio
   sentry_logging:

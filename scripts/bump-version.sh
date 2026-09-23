@@ -10,7 +10,7 @@ NEW_VERSION="${2}"
 echo "Current version: ${OLD_VERSION}"
 echo "Bumping version: ${NEW_VERSION}"
 
-for pkg in {sentry,sentry_flutter,grpc,logging,dio,file,sqflite,drift,hive,isar,link,firebase_remote_config,supabase}; do
+for pkg in {dart,flutter,grpc,logging,dio,file,sqflite,drift,hive,isar,link,firebase_remote_config,supabase}; do
   # Bump version in pubspec.yaml
   perl -pi -e "s/^version: .*/version: $NEW_VERSION/" packages/$pkg/pubspec.yaml
   # Bump sentry dependency version in pubspec.yaml
@@ -20,7 +20,7 @@ done
 # Bump version in version.dart
 perl -pi -e "s/sdkVersion = '.*'/sdkVersion = '$NEW_VERSION'/" packages/*/lib/src/version.dart
 # Bump version in flutter example
-perl -pi -e "s/^version: .*/version: $NEW_VERSION/" packages/sentry_flutter/example/pubspec.yaml
+perl -pi -e "s/^version: .*/version: $NEW_VERSION/" packages/flutter/example/pubspec.yaml
 
 # Update SDK versions table mapping for this Flutter release
 "${SCRIPT_DIR}/update-sdk-versions-table.sh" "$NEW_VERSION"

@@ -20,6 +20,6 @@ updates:
   - package-ecosystem: bundler
     directories:
       - /metrics
-      - /packages/sentry_flutter/example/ios
+      - /packages/flutter/example/ios
     schedule:
       interval: weekly

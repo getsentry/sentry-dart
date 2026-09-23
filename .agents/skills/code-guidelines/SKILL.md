@@ -18,7 +18,7 @@ Encapsulate SDK features as `Integration` classes that implement `call()` and `c
 - Check feature flags and prerequisites early, log and return if disabled
 - Mark the integration as active for usage tracking — see **Usage Tracking** below
 - Clean up resources in `close()` if needed
-- See `packages/sentry_flutter/lib/src/replay/` and `view_hierarchy/` for examples
+- See `packages/flutter/lib/src/replay/` and `view_hierarchy/` for examples
 - Integrations should be order-independent; if yours requires running before/after another, reconsider the design
 
 ### Usage Tracking
@@ -27,9 +27,9 @@ Record which integrations and features an app actually uses, so usage can be tra
 
 - **`options.sdk.addIntegration('IntegrationName')`** — mark an integration as active. Call it from the integration's `call()`. Do not confuse it with `options.addIntegration(integration)`, which *registers an integration to run* — `options.sdk.addIntegration` only attaches the name as metadata.
 - **`options.sdk.addFeature(SentryFeatures.x)`** — mark a feature as used, gated on whether it is actually configured (e.g. a `beforeSend*` callback is set, a privacy option is enabled).
-- Use named constants from `SentryFeatures` (`packages/sentry/lib/src/constants.dart`, `@internal`) — never inline string literals — so the analytics vocabulary stays consistent. Add a constant there when introducing a new feature.
+- Use named constants from `SentryFeatures` (`packages/dart/lib/src/constants.dart`, `@internal`) — never inline string literals — so the analytics vocabulary stays consistent. Add a constant there when introducing a new feature.
 - Both calls dedupe, so calling them more than once is safe.
-- Canonical example: `TrackBeforeSendUsageIntegration` (`packages/sentry/lib/src/track_before_send_usage_integration.dart`).
+- Canonical example: `TrackBeforeSendUsageIntegration` (`packages/dart/lib/src/track_before_send_usage_integration.dart`).
 
 ### Logging
 
@@ -98,7 +98,7 @@ Prefer modern Dart (3.5+) where it improves clarity — sealed classes for exhau
 
 Shape the public surface deliberately — see **design-first** for module shape. These habits matter more in an SDK than in app code, and several are easy to get wrong:
 
-- **Private by default.** Keep declarations private; widen to public only when a type is genuinely part of the SDK's API. Every public symbol is a maintenance burden and a breaking-change liability — see `packages/sentry/AGENTS.md` on the barrel-file cascade.
+- **Private by default.** Keep declarations private; widen to public only when a type is genuinely part of the SDK's API. Every public symbol is a maintenance burden and a breaking-change liability — see `packages/dart/AGENTS.md` on the barrel-file cascade.
 - **Control extension with class modifiers.** Use `final` / `base` / `interface` / `sealed` to declare whether a public class may be extended or implemented — without them every public class is implicitly both, and you can't evolve it without breaking consumers.
 - **No public `late final` field without an initializer.** It silently defines a public *setter*, leaking API surface — use a normal field or an explicit getter instead.
 - **Prefer a function to a one-member abstract class**, and avoid classes of only static members.

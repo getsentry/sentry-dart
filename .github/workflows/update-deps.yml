@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: getsentry/github-workflows/updater@607fed74f812e69201531a5185b6c3c57caa4e89 # v3
         with:
-          path: packages/sentry_flutter/scripts/update-android.sh
+          path: packages/flutter/scripts/update-android.sh
           name: Android SDK
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: getsentry/github-workflows/updater@607fed74f812e69201531a5185b6c3c57caa4e89 # v3
         with:
-          path: packages/sentry_flutter/scripts/update-cocoa.sh
+          path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
           pattern: '^9\.'
           changelog-entry: false
@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: getsentry/github-workflows/updater@607fed74f812e69201531a5185b6c3c57caa4e89 # v3
         with:
-          path: packages/sentry_flutter/scripts/update-js.sh
+          path: packages/flutter/scripts/update-js.sh
           name: JavaScript SDK
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: getsentry/github-workflows/updater@607fed74f812e69201531a5185b6c3c57caa4e89 # v3
         with:
-          path: packages/sentry_flutter/scripts/update-native.sh
+          path: packages/flutter/scripts/update-native.sh
           name: Native SDK
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}

@@ -36,7 +36,7 @@ This repo uses the following ways to release SDK updates:
 
 ## Usage
 
-For detailed usage, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/packages/sentry), [flutter](https://github.com/getsentry/sentry-dart/tree/main/packages/sentry_flutter), [logging](https://github.com/getsentry/sentry-dart/tree/main/packages/logging), [dio](https://github.com/getsentry/sentry-dart/tree/main/packages/dio), [file](https://github.com/getsentry/sentry-dart/tree/main/packages/file), [sqflite](https://github.com/getsentry/sentry-dart/tree/main/packages/sqflite), [drift](https://github.com/getsentry/sentry-dart/tree/main/packages/drift), [hive](https://github.com/getsentry/sentry-dart/tree/main/packages/hive) and [isar](https://github.com/getsentry/sentry-dart/tree/main/packages/isar) `README's` or our `Resources` section below.
+For detailed usage, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/packages/dart), [flutter](https://github.com/getsentry/sentry-dart/tree/main/packages/flutter), [logging](https://github.com/getsentry/sentry-dart/tree/main/packages/logging), [dio](https://github.com/getsentry/sentry-dart/tree/main/packages/dio), [file](https://github.com/getsentry/sentry-dart/tree/main/packages/file), [sqflite](https://github.com/getsentry/sentry-dart/tree/main/packages/sqflite), [drift](https://github.com/getsentry/sentry-dart/tree/main/packages/drift), [hive](https://github.com/getsentry/sentry-dart/tree/main/packages/hive) and [isar](https://github.com/getsentry/sentry-dart/tree/main/packages/isar) `README's` or our `Resources` section below.
 
 ## Blog posts
 

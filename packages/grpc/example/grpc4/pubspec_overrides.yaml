@@ -1,5 +1,5 @@
 dependency_overrides:
   sentry:
-    path: ../../../sentry
+    path: ../../../dart
   sentry_grpc:
     path: ../..

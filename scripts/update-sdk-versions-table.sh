@@ -49,10 +49,10 @@ if [[ -z "${FLUTTER_VERSION}" ]]; then
   exit 2
 fi
 
-ANDROID_VERSION="$(${REPO_ROOT}/packages/sentry_flutter/scripts/update-android.sh get-version)"
-COCOA_VERSION="$(${REPO_ROOT}/packages/sentry_flutter/scripts/update-cocoa.sh get-version)"
-JS_VERSION="$(${REPO_ROOT}/packages/sentry_flutter/scripts/update-js.sh get-version)"
-NATIVE_VERSION="$(${REPO_ROOT}/packages/sentry_flutter/scripts/update-native.sh get-version)"
+ANDROID_VERSION="$(${REPO_ROOT}/packages/flutter/scripts/update-android.sh get-version)"
+COCOA_VERSION="$(${REPO_ROOT}/packages/flutter/scripts/update-cocoa.sh get-version)"
+JS_VERSION="$(${REPO_ROOT}/packages/flutter/scripts/update-js.sh get-version)"
+NATIVE_VERSION="$(${REPO_ROOT}/packages/flutter/scripts/update-native.sh get-version)"
 
 ROW="| ${FLUTTER_VERSION} | ${ANDROID_VERSION} | ${COCOA_VERSION} | ${JS_VERSION} | ${NATIVE_VERSION} |"
 

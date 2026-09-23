@@ -3,4 +3,4 @@ dependency_overrides:
   _sentry_testing:
     path: ../_sentry_testing
   sentry:
-    path: ../sentry
+    path: ../dart

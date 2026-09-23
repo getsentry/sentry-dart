@@ -13,7 +13,7 @@ on:
       - '.github/actions/dart-test/**'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
-      - 'packages/sentry/**'
+      - 'packages/dart/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -42,13 +42,13 @@ jobs:
 
       - uses: ./.github/actions/dart-test
         with:
-          directory: packages/sentry
+          directory: packages/dart
 
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          directory: packages/sentry
+          directory: packages/dart
           coverage: sentry
           min-coverage: 85
 
@@ -59,7 +59,7 @@ jobs:
           flags: sentry-${{ runner.os }}-${{ matrix.sdk }}
 
       - name: Build example
-        working-directory: packages/sentry/example
+        working-directory: packages/dart/example
         run: |
           dart pub get
           dart compile aot-snapshot bin/example.dart
@@ -67,4 +67,4 @@ jobs:
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml
     with:
-      package: packages/sentry
+      package: packages/dart

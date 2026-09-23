@@ -6,8 +6,8 @@ Melos monorepo. Each package lives in `packages/<name>/` with its own `pubspec.y
 
 | Directory | Description                                      |
 |-----------|--------------------------------------------------|
-| `packages/sentry/` | Core Sentry Dart SDK                             |
-| `packages/sentry_flutter/` | Sentry Flutter SDK (includes native integrations) |
+| `packages/dart/` | Core Sentry Dart SDK                             |
+| `packages/flutter/` | Sentry Flutter SDK (includes native integrations) |
 | `packages/dio/` | Dio HTTP client integration                      |
 | `packages/drift/` | Drift database integration                       |
 | `packages/file/` | File I/O integration                             |
@@ -35,7 +35,7 @@ Check `pubspec.yaml` `environment:` section:
 
 ## File-Scoped Commands
 
-Run from within the package directory (e.g., `cd packages/sentry/`):
+Run from within the package directory (e.g., `cd packages/dart/`):
 
 | Task | Dart-only | Flutter |
 |------|-----------|---------|
@@ -45,7 +45,7 @@ Run from within the package directory (e.g., `cd packages/sentry/`):
 | Fix | `dart fix --apply` | `dart fix --apply` |
 | Web test | — | `flutter test -d chrome path/to/test.dart` |
 
-> **Format version footgun:** CI's `analyze` gate (`.github/workflows/analyze.yml`) runs `dart format --set-exit-if-changed ./` using the dart set up for that job's `sdk` input — `setup-dart` for **dart** packages, `flutter-action`'s **Flutter-bundled dart** (stable channel) for **flutter** packages — *not* the package's `environment:` constraint. `dart_style` differs between Dart minor versions, so formatting with a local dart of a different version can leave the gate red. Neither source is pinned, so a new stable Dart release can turn the gate red without any code change — the two styles are mutually exclusive, so whichever version CI resolves is the one the repo must be formatted with. This has bitten `packages/sentry_flutter` (Flutter-bundled Dart 3.12 joined a line that system Dart 3.10 didn't) and `packages/sentry` (Dart 3.13 collapses trailing named args after a function literal, e.g. `test('...', () {...}, onPlatform: {...})`, which 3.12 splits). Before pushing format changes, format with the dart CI uses for that package — the Flutter SDK's bundled `bin/cache/dart-sdk/bin/dart` for flutter packages, latest stable dart for dart packages (an fvm Flutter whose bundled dart matches works: `ls ~/fvm/versions`) — and verify with `--output=none --set-exit-if-changed`. A newer analyzer can also add `fatal-warnings` failures (e.g. `unused_catch_stack` on `catch (e, _)`), so run `dart analyze` with that same SDK. Note that `.githooks/pre-commit` reformats staged `.dart` files and re-stages them using whatever bare `dart` is on `PATH`, so it will silently undo formatting done with a different SDK — prepend the right `dart-sdk/bin` to `PATH` for the commit rather than skipping the hook.
+> **Format version footgun:** CI's `analyze` gate (`.github/workflows/analyze.yml`) runs `dart format --set-exit-if-changed ./` using the dart set up for that job's `sdk` input — `setup-dart` for **dart** packages, `flutter-action`'s **Flutter-bundled dart** (stable channel) for **flutter** packages — *not* the package's `environment:` constraint. `dart_style` differs between Dart minor versions, so formatting with a local dart of a different version can leave the gate red. Neither source is pinned, so a new stable Dart release can turn the gate red without any code change — the two styles are mutually exclusive, so whichever version CI resolves is the one the repo must be formatted with. This has bitten `packages/flutter` (Flutter-bundled Dart 3.12 joined a line that system Dart 3.10 didn't) and `packages/dart` (Dart 3.13 collapses trailing named args after a function literal, e.g. `test('...', () {...}, onPlatform: {...})`, which 3.12 splits). Before pushing format changes, format with the dart CI uses for that package — the Flutter SDK's bundled `bin/cache/dart-sdk/bin/dart` for flutter packages, latest stable dart for dart packages (an fvm Flutter whose bundled dart matches works: `ls ~/fvm/versions`) — and verify with `--output=none --set-exit-if-changed`. A newer analyzer can also add `fatal-warnings` failures (e.g. `unused_catch_stack` on `catch (e, _)`), so run `dart analyze` with that same SDK. Note that `.githooks/pre-commit` reformats staged `.dart` files and re-stages them using whatever bare `dart` is on `PATH`, so it will silently undo formatting done with a different SDK — prepend the right `dart-sdk/bin` to `PATH` for the commit rather than skipping the hook.
 
 ## Conventions
 
@@ -84,8 +84,8 @@ Run from within the package directory (e.g., `cd packages/sentry/`):
 
 Use the right AGENTS.md for the area you're working in:
 
-- **Core SDK** (`packages/sentry/`) → `packages/sentry/AGENTS.md`
-- **Flutter SDK** (`packages/sentry_flutter/`) → `packages/sentry_flutter/AGENTS.md`
+- **Core SDK** (`packages/dart/`) → `packages/dart/AGENTS.md`
+- **Flutter SDK** (`packages/flutter/`) → `packages/flutter/AGENTS.md`
 - **General** → This file for monorepo-wide commands and conventions
 
 ## Skills
