@@ -4,9 +4,22 @@ message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${
 set(SENTRY_SDK_NAME "sentry.native.flutter" CACHE STRING "The SDK name to report when sending events." FORCE)
 set(SENTRY_BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries (.dll/.so) instead of static ones (.lib/.a)" FORCE)
 
+set(SENTRY_BACKEND "breakpad" CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
+
 if(NOT "$ENV{SENTRY_NATIVE_BACKEND}" STREQUAL "")
     # If environment variable is set, it takes highest precedence
     set(SENTRY_BACKEND $ENV{SENTRY_NATIVE_BACKEND} CACHE STRING "The sentry backend responsible for reporting crashes" FORCE)
+endif()
+
+# Avoid fetching Crashpad's nested Chromium dependencies for Breakpad builds.
+# These can exceed Windows path limits even when Crashpad is not compiled.
+# https://github.com/getsentry/sentry-dart/issues/3969
+set(sentry_native_fetch_options)
+if(SENTRY_BACKEND STREQUAL "breakpad")
+    set(sentry_native_fetch_options GIT_SUBMODULES external/breakpad)
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        list(APPEND sentry_native_fetch_options external/third_party/lss)
+    endif()
 endif()
 
 include(FetchContent)
@@ -14,6 +27,7 @@ FetchContent_Declare(
     sentry-native
     GIT_REPOSITORY ${SENTRY_NATIVE_repo}
     GIT_TAG ${SENTRY_NATIVE_version}
+    ${sentry_native_fetch_options}
     EXCLUDE_FROM_ALL
 )
 
