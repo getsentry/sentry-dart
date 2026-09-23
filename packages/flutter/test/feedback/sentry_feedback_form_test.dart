@@ -1090,6 +1090,35 @@ void main() {
         );
         expect(button.onPressed, isNotNull);
       });
+
+      testWidgets('calls onSubmitError with a synthetic exception',
+          (tester) async {
+        Object? receivedException;
+        fixture.options.feedback.onSubmitError = (_, exception, __) {
+          receivedException = exception;
+        };
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(receivedException, isA<StateError>());
+        expect(
+            (receivedException as StateError).message, 'Feedback was not sent');
+      });
     });
 
     group('when captureFeedback throws', () {
@@ -1228,7 +1257,7 @@ void main() {
     });
 
     testWidgets(
-        're-enables the submit button after a successful submission whose pop is intercepted',
+        'keeps the submit button disabled after a successful submission whose pop is intercepted',
         (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -1264,10 +1293,64 @@ void main() {
       // PopScope intercepted the pop, so the form is still on screen.
       expect(find.byType(SentryFeedbackForm), findsOneWidget);
 
-      final button = tester.widget<FilledButton>(
+      // The feedback was already accepted, so Send must not allow
+      // resubmitting it.
+      final submitButton = tester.widget<FilledButton>(
         find.byKey(const ValueKey('sentry_feedback_submit_button')),
       );
-      expect(button.onPressed, isNotNull);
+      expect(submitButton.onPressed, isNull);
+
+      // Cancel remains the only way left to close the form.
+      final cancelButton = tester.widget<TextButton>(
+        find.byKey(const ValueKey('sentry_feedback_close_button')),
+      );
+      expect(cancelButton.onPressed, isNotNull);
+    });
+
+    testWidgets(
+        'does not call captureFeedback again when tapping submit after a successful submission whose pop is intercepted',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => PopScope(
+                      canPop: false,
+                      child: SentryFeedbackForm(hub: fixture.hub),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Show Feedback'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      // Attempting to tap Send again must not fire a second capture, since
+      // the button is disabled and _submit() also guards against it directly.
+      await tester.tap(find.text('Send Bug Report'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      verify(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).called(1);
     });
   });
 

@@ -100,6 +100,12 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   Future<Uint8List>? _screenshotFuture;
 
   bool _isSubmitting = false;
+  // Once a submission succeeds, submission-related controls stay disabled
+  // for the rest of this instance's lifetime — even if _dismiss() didn't
+  // actually close the form (e.g. an app-level PopScope blocking the pop) —
+  // so the same, already-accepted feedback can't be sent again. Cancel stays
+  // available regardless, as the only way left to close the form.
+  bool _isSubmitted = false;
   String? _submitError;
 
   late final int _generation;
@@ -312,7 +318,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                           if (_screenshot != null)
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: _isSubmitting
+                                onPressed: (_isSubmitting || _isSubmitted)
                                     ? null
                                     : () async {
                                         setState(() {
@@ -336,7 +342,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         child: ElevatedButton(
                           key: const ValueKey(
                               'sentry_feedback_capture_screenshot_button'),
-                          onPressed: _isSubmitting
+                          onPressed: (_isSubmitting || _isSubmitted)
                               ? null
                               : () async {
                                   _dismiss(preserveFormData: true);
@@ -373,7 +379,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                 width: double.infinity,
                 child: FilledButton(
                   key: const ValueKey('sentry_feedback_submit_button'),
-                  onPressed: _isSubmitting ? null : _submit,
+                  onPressed: (_isSubmitting || _isSubmitted) ? null : _submit,
                   child: Text(widget.options.submitButtonLabel),
                 ),
               ),
@@ -403,7 +409,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   }
 
   Future<void> _submit() async {
-    if (_isSubmitting) {
+    if (_isSubmitting || _isSubmitted) {
       return;
     }
 
@@ -483,6 +489,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
 
       setState(() {
         _isSubmitting = false;
+        _isSubmitted = true;
       });
     }
 
