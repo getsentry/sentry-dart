@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
+import 'span_attribute_utils.dart';
 
 /// Factory for creating [InstrumentationSpan] instances.
 /// Configure via [SentryOptions.spanFactory].
@@ -12,6 +13,8 @@ abstract class InstrumentationSpanFactory {
     required String operation,
     String? description,
     String? origin,
+    Map<String, dynamic>? data,
+    bool isSynchronous = false,
   });
 
   /// Returns `null` if no active span or tracing disabled.
@@ -27,6 +30,8 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
     required String operation,
     String? description,
     String? origin,
+    Map<String, dynamic>? data,
+    bool isSynchronous = false,
   }) {
     if (parentSpan is LegacyInstrumentationSpan) {
       final parentSpanRef = parentSpan.spanReference;
@@ -39,6 +44,10 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
 
       if (child is NoOpSentrySpan) return null;
       child.origin = origin;
+      data?.forEach(child.setData);
+      if (isSynchronous) {
+        child.setData(synchronousAttributeKey, true);
+      }
       return LegacyInstrumentationSpan(child);
     }
 
@@ -66,21 +75,31 @@ class StreamingInstrumentationSpanFactory
     required String operation,
     String? description,
     String? origin,
+    Map<String, dynamic>? data,
+    bool isSynchronous = false,
   }) {
     if (parentSpan is StreamingInstrumentationSpan) {
       final parentSpanRef = parentSpan.spanReference;
       if (parentSpanRef is NoOpSentrySpanV2) return null;
 
+      final attributes = <String, SentryAttribute>{
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(operation),
+        if (origin != null)
+          SemanticAttributesConstants.sentryOrigin:
+              SentryAttribute.string(origin),
+        if (isSynchronous) synchronousAttributeKey: SentryAttribute.bool(true),
+      };
+      data?.forEach((key, value) {
+        final attribute = sentryAttributeFromValue(value);
+        if (attribute != null) {
+          attributes[key] = attribute;
+        }
+      });
+
       final childSpan = _hub.startInactiveSpan(
         description ?? operation,
         parentSpan: parentSpanRef,
-        attributes: {
-          SemanticAttributesConstants.sentryOp:
-              SentryAttribute.string(operation),
-          if (origin != null)
-            SemanticAttributesConstants.sentryOrigin:
-                SentryAttribute.string(origin),
-        },
+        attributes: attributes,
       );
 
       if (childSpan is NoOpSentrySpanV2) return null;

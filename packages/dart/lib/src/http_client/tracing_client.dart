@@ -46,6 +46,10 @@ class TracingClient extends BaseClient {
             operation: 'http.client',
             description: description,
             origin: SentryTraceOrigins.autoHttpHttp,
+            data: {
+              'http.request.method': request.method,
+              ...?urlDetails?.spanData,
+            },
           )
         : null;
 
@@ -59,9 +63,6 @@ class TracingClient extends BaseClient {
         span: instrumentationSpan,
       );
     }
-
-    instrumentationSpan?.setData('http.request.method', request.method);
-    urlDetails?.applyToSpan(instrumentationSpan);
 
     StreamedResponse? response;
     try {

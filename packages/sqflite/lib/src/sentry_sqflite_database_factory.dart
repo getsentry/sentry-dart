@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as p;
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 // ignore: implementation_imports
@@ -7,6 +8,7 @@ import 'package:sqflite_common/src/factory_mixin.dart';
 import 'package:sqflite/src/sqflite_impl.dart' as impl;
 
 import 'sentry_database.dart';
+import 'utils/sentry_database_span_attributes.dart';
 
 /// Using this factory, all [Database] instances will be wrapped with Sentry.
 ///
@@ -71,12 +73,11 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
               parentSpan: parent,
               operation: SentryDatabase.dbOp,
               description: description,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseFactory,
+              data: databaseSpanData(p.basenameWithoutExtension(path)),
             )
           : null;
-
-      span?.origin =
-          // ignore: invalid_use_of_internal_member
-          SentryTraceOrigins.autoDbSqfliteDatabaseFactory;
 
       final breadcrumb = Breadcrumb(
         message: description,

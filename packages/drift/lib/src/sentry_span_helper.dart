@@ -52,21 +52,15 @@ class SentrySpanHelper {
       parentSpan: parentSpan,
       operation: operation ?? SentrySpanOperations.dbSqlQuery,
       description: description,
+      origin: _origin,
+      data: {
+        SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
+        if (dbName != null) SentrySpanData.dbNameKey: dbName,
+      },
     );
 
     if (span == null) {
       return execute();
-    }
-
-    span.origin = _origin;
-
-    span.setData(
-      SentrySpanData.dbSystemKey,
-      SentrySpanData.dbSystemSqlite,
-    );
-
-    if (dbName != null) {
-      span.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
@@ -100,21 +94,15 @@ class SentrySpanHelper {
       parentSpan: parentSpan,
       operation: SentrySpanOperations.dbSqlTransaction,
       description: SentrySpanDescriptions.dbTransaction,
+      origin: _origin,
+      data: {
+        SentrySpanData.dbSystemKey: SentrySpanData.dbSystemSqlite,
+        if (dbName != null) SentrySpanData.dbNameKey: dbName,
+      },
     );
 
     if (newParent == null) {
       return execute();
-    }
-
-    newParent.origin = _origin;
-
-    newParent.setData(
-      SentrySpanData.dbSystemKey,
-      SentrySpanData.dbSystemSqlite,
-    );
-
-    if (dbName != null) {
-      newParent.setData(SentrySpanData.dbNameKey, dbName);
     }
 
     try {
