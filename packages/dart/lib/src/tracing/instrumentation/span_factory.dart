@@ -11,6 +11,7 @@ abstract class InstrumentationSpanFactory {
     required InstrumentationSpan parentSpan,
     required String operation,
     String? description,
+    String? origin,
   });
 
   /// Returns `null` if no active span or tracing disabled.
@@ -25,6 +26,7 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
     required InstrumentationSpan parentSpan,
     required String operation,
     String? description,
+    String? origin,
   }) {
     if (parentSpan is LegacyInstrumentationSpan) {
       final parentSpanRef = parentSpan.spanReference;
@@ -36,6 +38,7 @@ class LegacyInstrumentationSpanFactory implements InstrumentationSpanFactory {
       );
 
       if (child is NoOpSentrySpan) return null;
+      child.origin = origin;
       return LegacyInstrumentationSpan(child);
     }
 
@@ -62,20 +65,25 @@ class StreamingInstrumentationSpanFactory
     required InstrumentationSpan parentSpan,
     required String operation,
     String? description,
+    String? origin,
   }) {
     if (parentSpan is StreamingInstrumentationSpan) {
       final parentSpanRef = parentSpan.spanReference;
       if (parentSpanRef is NoOpSentrySpanV2) return null;
 
-      final childSpan = _hub.startInactiveSpan(description ?? operation,
-          parentSpan: parentSpanRef);
+      final childSpan = _hub.startInactiveSpan(
+        description ?? operation,
+        parentSpan: parentSpanRef,
+        attributes: {
+          SemanticAttributesConstants.sentryOp:
+              SentryAttribute.string(operation),
+          if (origin != null)
+            SemanticAttributesConstants.sentryOrigin:
+                SentryAttribute.string(origin),
+        },
+      );
 
       if (childSpan is NoOpSentrySpanV2) return null;
-
-      childSpan.setAttribute(
-        SemanticAttributesConstants.sentryOp,
-        SentryAttribute.string(operation),
-      );
 
       return StreamingInstrumentationSpan(childSpan);
     }
