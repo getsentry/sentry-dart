@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -13,11 +14,13 @@ import 'package:sentry_flutter/src/native/factory.dart';
 import '../../mocks.dart';
 import '../../mocks.mocks.dart';
 
-enum NativeBackend { default_, crashpad, breakpad, inproc, none }
+enum NativeBackend { default_, empty, crashpad, breakpad, inproc, none }
 
 extension on NativeBackend {
   NativeBackend get actualValue =>
-      this == NativeBackend.default_ ? NativeBackend.crashpad : this;
+      (this == NativeBackend.default_ || this == NativeBackend.empty)
+      ? NativeBackend.breakpad
+      : this;
 }
 
 // NOTE: Don't run/debug this main(), it likely won't work.
@@ -29,7 +32,6 @@ void main() {
       ? Directory.current.parent.path
       : Directory.current.path;
 
-  // assert(NativeBackend.values.length == 4);
   for (final backend in NativeBackend.values) {
     group(backend.name, () {
       late final NativeTestHelper helper;
@@ -54,6 +56,7 @@ void main() {
 
         Directory.current = await helper._buildSentryNative();
         SentryNative.dynamicLibraryDirectory = '${Directory.current.path}/';
+        SentryNative.crashpadPath = null;
         if (backend.actualValue == NativeBackend.crashpad) {
           SentryNative.crashpadPath =
               '${Directory.current.path}/${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
@@ -88,6 +91,57 @@ void main() {
           }
         }
       });
+
+      if (backend.actualValue == NativeBackend.breakpad) {
+        test('does not fetch Crashpad', () {
+          expect(
+            File(
+              '${helper.cmakeBuildDir}/_deps/sentry-native-src/'
+              'external/crashpad/CMakeLists.txt',
+            ).existsSync(),
+            isFalse,
+          );
+        });
+
+        test('does not bundle a crash handler', () {
+          expect(
+            Directory.current.listSync().map(
+              (file) => file.uri.pathSegments.last,
+            ),
+            isNot(anyElement(contains('crashpad'))),
+          );
+        });
+      }
+
+      if (backend == NativeBackend.default_) {
+        test('delivers the native minidump and scope after restart', () async {
+          final database = await Directory.systemTemp.createTemp(
+            'sentry-crash-',
+          );
+          addTearDown(() => database.delete(recursive: true));
+          final envelope = File('${database.path}/captured.envelope');
+          final executable =
+              '${helper.buildOutputDir}sentry-native-flutter-test'
+              '${Platform.isWindows ? '.exe' : ''}';
+          final crashed = await Process.run(executable, [
+            'crash',
+            database.path,
+            envelope.path,
+          ]);
+          expect(crashed.exitCode, isNot(0));
+          expect(envelope.existsSync(), isFalse);
+
+          final restarted = await Process.run(executable, [
+            'restart',
+            database.path,
+            envelope.path,
+          ]);
+          expect(restarted.exitCode, 0, reason: '${restarted.stderr}');
+          final contents = latin1.decode(await envelope.readAsBytes());
+          expect(contents, contains('"attachment_type":"event.minidump"'));
+          expect(contents, contains('"migration":"breakpad"'));
+        });
+      }
 
       test('options', () {
         options
@@ -323,7 +377,9 @@ class NativeTestHelper {
   Future<void> _exec(String executable, List<String> arguments) async {
     final env = Map.of(Platform.environment);
     if (nativeBackend != NativeBackend.default_) {
-      env['SENTRY_NATIVE_BACKEND'] = nativeBackend.name;
+      env['SENTRY_NATIVE_BACKEND'] = nativeBackend == NativeBackend.empty
+          ? ''
+          : nativeBackend.name;
     } else {
       env.remove('SENTRY_NATIVE_BACKEND');
     }
@@ -351,57 +407,47 @@ class NativeTestHelper {
   /// Returns the directory containing built libraries
   Future<String> _buildSentryNative() async {
     final currentPlatform = platform.Platform();
-    if (!_builtVersionIsExpected()) {
-      Directory(cmakeConfDir).createSync(recursive: true);
-      Directory(buildOutputDir).createSync(recursive: true);
-      File('$cmakeConfDir/main.c').writeAsStringSync('''
-int main(int argc, char *argv[]) { return 0; }
-''');
-      File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
+    Directory(cmakeConfDir).createSync(recursive: true);
+    Directory(buildOutputDir).createSync(recursive: true);
+    File(
+      '$repoRootDir/test/native/c/crash_test.c',
+    ).copySync('$cmakeConfDir/main.c');
+    File('$cmakeConfDir/CMakeLists.txt').writeAsStringSync('''
 cmake_minimum_required(VERSION 3.14)
 project(sentry-native-flutter-test)
 add_subdirectory(../../../${currentPlatform.operatingSystem.name} plugin)
 add_executable(\${CMAKE_PROJECT_NAME} main.c)
 target_link_libraries(\${CMAKE_PROJECT_NAME} PRIVATE sentry_flutter_plugin)
+if(UNIX)
+  set_target_properties(\${CMAKE_PROJECT_NAME} PROPERTIES INSTALL_RPATH "\$ORIGIN")
+endif()
 
 # Same as generated_plugins.cmake
 list(APPEND PLUGIN_BUNDLED_LIBRARIES \$<TARGET_FILE:sentry_flutter_plugin>)
 list(APPEND PLUGIN_BUNDLED_LIBRARIES \${sentry_flutter_bundled_libraries})
+install(TARGETS \${CMAKE_PROJECT_NAME} RUNTIME DESTINATION "${buildOutputDir.replaceAll('\\', '/')}" COMPONENT Runtime)
 install(FILES "\${PLUGIN_BUNDLED_LIBRARIES}" DESTINATION "${buildOutputDir.replaceAll('\\', '/')}" COMPONENT Runtime)
 set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
 ''');
-      await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
-      await _exec('cmake', [
-        '--build',
-        cmakeBuildDir,
-        '--config',
-        'Release',
-        '--parallel',
-      ]);
-      await _exec('cmake', ['--install', cmakeBuildDir, '--config', 'Release']);
-      if (currentPlatform.isLinux &&
-          nativeBackend.actualValue == NativeBackend.crashpad) {
-        await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
-      }
+    await _exec('cmake', ['-B', cmakeBuildDir, cmakeConfDir]);
+    await _exec('cmake', [
+      '--build',
+      cmakeBuildDir,
+      '--config',
+      'Release',
+      '--parallel',
+    ]);
+    // Installation does not remove handlers left by a previous backend.
+    final distribution = Directory(buildOutputDir);
+    if (distribution.existsSync()) {
+      distribution.deleteSync(recursive: true);
+    }
+    await _exec('cmake', ['--install', cmakeBuildDir, '--config', 'Release']);
+    if (currentPlatform.isLinux &&
+        nativeBackend.actualValue == NativeBackend.crashpad) {
+      await _exec('chmod', ['+x', '$buildOutputDir/crashpad_handler']);
     }
     return buildOutputDir;
-  }
-
-  bool _builtVersionIsExpected() {
-    final buildCmake = File(
-      '$cmakeBuildDir/_deps/sentry-native-build/sentry-config-version.cmake',
-    );
-    if (!buildCmake.existsSync()) return false;
-
-    if (!buildCmake.readAsStringSync().contains(
-      'set(PACKAGE_VERSION "$configuredSentryNativeVersion")',
-    )) {
-      return false;
-    }
-
-    return !expectedDistFiles.any(
-      (name) => !File('$buildOutputDir/$name').existsSync(),
-    );
   }
 
   late final configuredSentryNativeVersion =
