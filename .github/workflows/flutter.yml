@@ -124,12 +124,10 @@ jobs:
           flutter build web
           ;;
           linux)
-          flutter build linux --debug
-          flutter build linux --release
+          flutter build linux
           ;;
           windows)
-          flutter build windows --debug
-          flutter build windows --release
+          flutter build windows
           ;;
           esac
 
