@@ -1,6 +1,7 @@
 @TestOn('browser')
 library;
 
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
@@ -15,6 +16,7 @@ import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 import 'package:sentry_flutter/src/web/sentry_web.dart';
+import 'package:sentry_flutter/src/sessions/web_session_handler.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -88,6 +90,170 @@ void main() {
           contains('name: Dedupe'),
         );
       });
+
+      test(
+        'uses restrictive JS collection defaults when PII is disabled',
+        () async {
+          await sut.init(hub);
+          final sentry = _globalThis['Sentry'] as JSObject;
+          final client = sentry.callMethod<JSObject>('getClient'.toJS);
+          final collection = client
+              .callMethod<JSObject>('getDataCollectionOptions'.toJS)
+              .dartify();
+          expect(collection, {
+            'userInfo': false,
+            'cookies': false,
+            'httpHeaders': {
+              'request': {
+                'deny': ['forwarded', '-ip', 'remote-', 'via', '-user'],
+              },
+              'response': {
+                'deny': ['forwarded', '-ip', 'remote-', 'via', '-user'],
+              },
+            },
+            'httpBodies': <String>[],
+            'urlQueryParams': {
+              'deny': ['forwarded', '-ip', 'remote-', 'via', '-user'],
+            },
+            'graphQL': {'document': false, 'variables': false},
+            'genAI': {'inputs': false, 'outputs': false},
+            'databaseQueryData': false,
+            'queues': false,
+            'stackFrameVariables': true,
+            'frameContextLines': 5,
+          });
+        },
+      );
+
+      test('allows JS collection when PII is enabled', () async {
+        options.sendDefaultPii = true;
+        await sut.init(hub);
+        final sentry = _globalThis['Sentry'] as JSObject;
+        final client = sentry.callMethod<JSObject>('getClient'.toJS);
+        final collection = client
+            .callMethod<JSObject>('getDataCollectionOptions'.toJS)
+            .dartify();
+        expect(collection, {
+          'userInfo': true,
+          'cookies': true,
+          'httpHeaders': {'request': true, 'response': true},
+          'httpBodies': [
+            'incomingRequest',
+            'outgoingRequest',
+            'incomingResponse',
+            'outgoingResponse',
+          ],
+          'urlQueryParams': true,
+          'graphQL': {'document': true, 'variables': true},
+          'genAI': {'inputs': true, 'outputs': true},
+          'databaseQueryData': true,
+          'queues': true,
+          'stackFrameVariables': true,
+          'frameContextLines': 5,
+        });
+      });
+
+      for (final sendDefaultPii in <bool?>[null, false, true]) {
+        test(
+          'gates native JS error IP collection with sendDefaultPii=$sendDefaultPii',
+          () async {
+            if (sendDefaultPii != null) {
+              options.sendDefaultPii = sendDefaultPii;
+            }
+            await sut.init(hub);
+
+            final sentry = _globalThis['Sentry'] as JSObject;
+            final client = sentry.callMethod<JSObject>('getClient'.toJS);
+            final event = Completer<Map<dynamic, dynamic>>();
+            client.callMethod<JSAny?>(
+              'on'.toJS,
+              'beforeEnvelope'.toJS,
+              ((JSArray captured) {
+                final envelope = captured.dartify() as List;
+                event.complete(
+                  ((envelope[1] as List).first as List)[1]
+                      as Map<dynamic, dynamic>,
+                );
+              }).toJS,
+            );
+            final error = _globalThis.callMethod<JSObject>(
+              'Error'.toJS,
+              'PII regression'.toJS,
+            );
+            sentry.callMethod<JSAny?>('captureException'.toJS, error);
+
+            final captured = await event.future.timeout(
+              const Duration(seconds: 5),
+            );
+            final sdk = captured['sdk'] as Map<dynamic, dynamic>;
+            expect(
+              (sdk['settings'] as Map)['infer_ip'],
+              sendDefaultPii == true ? 'auto' : 'never',
+            );
+          },
+        );
+      }
+
+      for (final jsFirst in [true, false]) {
+        test(
+          'keeps mixed JS and Dart errors unhandled with jsFirst=$jsFirst',
+          () async {
+            options.release = 'session-test';
+            await sut.init(hub);
+            await sut.startSession();
+            final sentry = _globalThis['Sentry'] as JSObject;
+            final client = sentry.callMethod<JSObject>('getClient'.toJS);
+            final sessions = <Map<dynamic, dynamic>>[];
+            client.callMethod<JSAny?>(
+              'on'.toJS,
+              'beforeSendSession'.toJS,
+              ((JSObject session) {
+                sessions.add(session.dartify() as Map<dynamic, dynamic>);
+              }).toJS,
+            );
+            final sent = Completer<void>();
+            client.callMethod<JSAny?>(
+              'on'.toJS,
+              'beforeEnvelope'.toJS,
+              ((JSArray envelope) {
+                final items = (envelope.dartify() as List)[1] as List;
+                if (((items.first as List).first as Map)['type'] == 'event') {
+                  sent.complete();
+                }
+              }).toJS,
+            );
+            final event = SentryEvent(
+              exceptions: [
+                SentryException(
+                  type: 'test',
+                  value: 'test',
+                  mechanism: Mechanism(type: 'test', handled: false),
+                ),
+              ],
+            );
+            Future<void> captureJsError() async {
+              sentry.callMethod<JSAny?>(
+                'captureEvent'.toJS,
+                event.toJson().jsify(),
+              );
+              await sent.future.timeout(const Duration(seconds: 5));
+            }
+
+            final handler = WebSessionHandler(sut);
+            if (jsFirst) {
+              await captureJsError();
+              await handler.updateSessionFromEvent(event);
+            } else {
+              await handler.updateSessionFromEvent(event);
+              await captureJsError();
+            }
+            expect(sessions, hasLength(1));
+            expect(sessions.single['status'], 'unhandled');
+            expect(sessions.single['errors'], 1);
+            expect((await sut.getSession())?['status'], 'unhandled');
+          },
+        );
+      }
 
       test('options getter returns the original options', () {
         expect(sut.options, same(options));

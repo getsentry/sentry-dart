@@ -129,8 +129,34 @@ void main() {
         });
       });
 
+      for (final handled in [true, false]) {
+        test('ignores unhandled sessions with handled=$handled', () async {
+          when(
+            fixture.native.getSession(),
+          ).thenReturn({'status': 'unhandled', 'errors': 1});
+          await fixture.getSut().updateSessionFromEvent(
+            SentryEvent(
+              exceptions: [
+                SentryException(
+                  type: 'test',
+                  value: 'test',
+                  mechanism: Mechanism(type: 'test', handled: handled),
+                ),
+              ],
+            ),
+          );
+          verifyNever(
+            fixture.native.updateSession(
+              status: anyNamed('status'),
+              errors: anyNamed('errors'),
+            ),
+          );
+          verifyNever(fixture.native.captureSession());
+        });
+      }
+
       group('unhandled exceptions', () {
-        test('marks active sessions as crashed', () async {
+        test('marks active sessions as unhandled', () async {
           when(
             fixture.native.getSession(),
           ).thenReturn({'status': 'ok', 'errors': 5});
@@ -149,7 +175,7 @@ void main() {
           await sut.updateSessionFromEvent(event);
 
           verify(
-            fixture.native.updateSession(status: 'crashed', errors: 5),
+            fixture.native.updateSession(status: 'unhandled', errors: 5),
           ).called(1);
           verify(fixture.native.captureSession()).called(1);
         });
