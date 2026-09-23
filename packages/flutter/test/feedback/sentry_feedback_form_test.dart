@@ -1271,6 +1271,103 @@ void main() {
     });
   });
 
+  group('$SentryFeedbackForm late result handling', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets(
+        'clears preserved data for a successful submission even after the route was popped externally while pending',
+        (tester) async {
+      final associatedEventId =
+          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      SentryFeedbackForm.preservedMessage = 'stale-draft-from-earlier-session';
+      SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
+
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      // Restored from the preserved draft set above.
+      expect(SentryFeedbackForm.preservedMessage,
+          'stale-draft-from-earlier-session');
+
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Pop the route directly (e.g. system back), bypassing Cancel entirely.
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(SentryFeedbackForm), findsNothing);
+
+      completer.complete(associatedEventId);
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, isNull);
+      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
+    });
+
+    testWidgets(
+        'does not clobber a newer form draft with a stale submission that succeeds later',
+        (tester) async {
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      // Form A: type a message and submit (left pending).
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'form-a-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Pop Form A externally while its submission is still pending.
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+
+      // Form B: opened after Form A, writes its own preserved draft via the
+      // screenshot-capture flow.
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'form-b-message',
+      );
+      final screenshotButton = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      await tester.ensureVisible(screenshotButton);
+      await tester.tap(screenshotButton);
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
+
+      // Form A's stale submission finally succeeds.
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      // Form B's draft must survive Form A's late, stale dismiss.
+      expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
+    });
+  });
+
   group('SentryFeedbackWidget deprecated alias', () {
     tearDown(() {
       SentryFeedbackForm.pendingAssociatedEventId = null;

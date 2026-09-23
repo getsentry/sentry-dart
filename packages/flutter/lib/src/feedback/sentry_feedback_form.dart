@@ -82,6 +82,14 @@ class SentryFeedbackForm extends StatefulWidget {
 }
 
 class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
+  // Tracks which SentryFeedbackForm instance was created most recently, so a
+  // stale instance's write to the static preserved-data fields (e.g. a
+  // success arriving after the user navigated away to a newer form) can be
+  // told apart from this instance's own write. mounted alone can't do this:
+  // it only says whether *this* instance is still around, not whether a
+  // newer one has since taken over.
+  static int _latestGeneration = 0;
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
@@ -94,9 +102,13 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   bool _isSubmitting = false;
   String? _submitError;
 
+  late final int _generation;
+
   @override
   void initState() {
     super.initState();
+
+    _generation = ++_latestGeneration;
 
     if (widget.options.useSentryUser) {
       _setSentryUserData();
@@ -425,49 +437,54 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       captureStackTrace = stackTrace;
     }
 
-    if (!mounted) {
-      return;
-    }
-
     if (sentryId == null || sentryId == const SentryId.empty()) {
       captureException ??= StateError('Feedback was not sent');
       captureStackTrace ??= StackTrace.current;
 
+      // A failed submission leaves the form's data in place for the user to
+      // retry, so there's nothing to do if the widget is already gone.
+      if (mounted) {
+        try {
+          widget.options.onSubmitError
+              ?.call(feedback, captureException, captureStackTrace);
+        } catch (exception, stackTrace) {
+          internalLogger.warning(
+            'Failed to execute onSubmitError callback',
+            error: exception,
+            stackTrace: stackTrace,
+          );
+        }
+
+        setState(() {
+          _isSubmitting = false;
+          _submitError = widget.options.submitErrorMessageText;
+        });
+      }
+      return;
+    }
+
+    // A successful submission always needs to dismiss (its preserved-data
+    // clear guards itself against a stale instance via _generation), but the
+    // callback and snackbar touch context/UI, so those still require mounted.
+    if (mounted) {
       try {
-        widget.options.onSubmitError
-            ?.call(feedback, captureException, captureStackTrace);
+        widget.options.onSubmitSuccess?.call(feedback, sentryId);
       } catch (exception, stackTrace) {
         internalLogger.warning(
-          'Failed to execute onSubmitError callback',
+          'Failed to execute onSubmitSuccess callback',
           error: exception,
           stackTrace: stackTrace,
         );
       }
 
+      if (widget.options.showSuccessMessage) {
+        _showSuccessSnackBar();
+      }
+
       setState(() {
         _isSubmitting = false;
-        _submitError = widget.options.submitErrorMessageText;
       });
-      return;
     }
-
-    try {
-      widget.options.onSubmitSuccess?.call(feedback, sentryId);
-    } catch (exception, stackTrace) {
-      internalLogger.warning(
-        'Failed to execute onSubmitSuccess callback',
-        error: exception,
-        stackTrace: stackTrace,
-      );
-    }
-
-    if (widget.options.showSuccessMessage) {
-      _showSuccessSnackBar();
-    }
-
-    setState(() {
-      _isSubmitting = false;
-    });
 
     _dismiss(preserveFormData: false);
   }
@@ -509,10 +526,15 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   }
 
   void _dismiss({required bool preserveFormData}) {
-    SentryFeedbackForm.pendingAssociatedEventId =
-        preserveFormData ? widget.associatedEventId : null;
+    // Only the most-recently-created instance may touch the shared
+    // preserved-data statics, so a stale instance can't clobber a newer
+    // form's draft.
+    if (_generation == _latestGeneration) {
+      SentryFeedbackForm.pendingAssociatedEventId =
+          preserveFormData ? widget.associatedEventId : null;
 
-    _writePreservedData(preserveFormData: preserveFormData);
+      _writePreservedData(preserveFormData: preserveFormData);
+    }
 
     if (mounted) {
       Navigator.maybePop(context);
