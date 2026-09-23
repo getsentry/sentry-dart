@@ -45,7 +45,7 @@ class WebSessionHandler {
     }
 
     // Implementation based on Sentry Javascript SDK:
-    // https://github.com/getsentry/sentry-javascript/blob/11.0.0-rc.0/packages/core/src/client.ts
+    // https://github.com/getsentry/sentry-javascript/blob/11.0.0/packages/core/src/client.ts
     // A session is updated and that session update is sent in only one of the two following scenarios:
     // 1. Session with non terminal status and 0 errors + an error occurred -> Will set error count to 1 and send update
     // 2. Session with non terminal status and n errors + an unhandled error occurred -> Will set status unhandled and send update

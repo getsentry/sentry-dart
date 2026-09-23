@@ -51,7 +51,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
         // Preserve the JS v10 PII baseline until Flutter exposes dataCollection.
-        // https://github.com/getsentry/sentry-javascript/blob/11.0.0-rc.0/MIGRATION.md#senddefaultpii-is-replaced-by-datacollection
+        // https://github.com/getsentry/sentry-javascript/blob/11.0.0/MIGRATION.md#senddefaultpii-is-replaced-by-datacollection
         'dataCollection': {
           'userInfo': _options.sendDefaultPii,
           if (!_options.sendDefaultPii) ...{
