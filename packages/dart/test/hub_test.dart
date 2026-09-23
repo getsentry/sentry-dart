@@ -912,6 +912,53 @@ void main() {
         throwsStateError,
       );
     });
+
+    test(
+        'streaming spans inside callback do not inherit an outer idle span '
+        'as parent', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+      final idle = hub.startIdleSpan('outer-idle');
+      addTearDown(() async => idle.end());
+      final outerIdleTraceId = idle.traceId;
+
+      final innerTraceId = await hub.startNewTrace(
+        () => hub.startSpan('inner', (span) async => span.traceId),
+      );
+
+      expect(innerTraceId, isNot(outerIdleTraceId));
+    });
+
+    test(
+        'events captured inside callback ignore a transaction bound to the '
+        'hub scope', () async {
+      final hub = fixture.getSut();
+      hub.startTransaction('nav', 'navigation', bindToScope: true);
+      final boundTraceId = hub.scope.span!.context.traceId;
+
+      final innerPropagationTraceId = await hub.startNewTrace(() async {
+        await hub.captureEvent(SentryEvent());
+        // Return the propagation-context trace id from inside the zone so
+        // the assertion below has something concrete to compare against.
+        return hub.traceScope.propagationContext.traceId;
+      });
+
+      expect(innerPropagationTraceId, isNot(boundTraceId));
+      final capturedEvent = fixture.client.captureEventCalls.first;
+      final capturedTraceId = capturedEvent.scope?.propagationContext.traceId;
+      expect(capturedTraceId, innerPropagationTraceId);
+      expect(capturedTraceId, isNot(boundTraceId));
+    });
+
+    test('getSpan inside callback does not return the hub-bound transaction',
+        () {
+      final hub = fixture.getSut();
+      hub.startTransaction('nav', 'navigation', bindToScope: true);
+      final outsideSpan = hub.getSpan();
+      expect(outsideSpan, isNotNull);
+
+      final insideSpan = hub.startNewTrace(() => hub.getSpan());
+      expect(insideSpan, isNull);
+    });
   });
 
   group('Hub scope callback', () {
