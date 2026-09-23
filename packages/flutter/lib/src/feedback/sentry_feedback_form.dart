@@ -91,6 +91,9 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   SentryAttachment? _screenshot;
   Future<Uint8List>? _screenshotFuture;
 
+  bool _isSubmitting = false;
+  String? _submitError;
+
   @override
   void initState() {
     super.initState();
@@ -297,12 +300,14 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                           if (_screenshot != null)
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  setState(() {
-                                    _screenshot = null;
-                                    _screenshotFuture = null;
-                                  });
-                                },
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _screenshot = null;
+                                          _screenshotFuture = null;
+                                        });
+                                      },
                                 child: Text(
                                     key: const ValueKey(
                                         'sentry_feedback_remove_screenshot_button'),
@@ -319,10 +324,13 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         child: ElevatedButton(
                           key: const ValueKey(
                               'sentry_feedback_capture_screenshot_button'),
-                          onPressed: () async {
-                            _dismiss(preserveFormData: true);
-                            SentryScreenshotWidget.showTakeScreenshotButton();
-                          },
+                          onPressed: _isSubmitting
+                              ? null
+                              : () async {
+                                  _dismiss(preserveFormData: true);
+                                  SentryScreenshotWidget
+                                      .showTakeScreenshotButton();
+                                },
                           child: Text(
                             widget.options.captureScreenshotButtonLabel,
                           ),
@@ -336,11 +344,24 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
           const SizedBox(height: 8),
           Column(
             children: [
+              if (_submitError != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      _submitError!,
+                      key: const ValueKey('sentry_feedback_submit_error'),
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ),
+                ),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   key: const ValueKey('sentry_feedback_submit_button'),
-                  onPressed: _submit,
+                  onPressed: _isSubmitting ? null : _submit,
                   child: Text(widget.options.submitButtonLabel),
                 ),
               ),
@@ -385,22 +406,59 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       hint = Hint.withScreenshot(_screenshot!);
     }
 
-    final sentryId = await _captureFeedback(feedback, hint);
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
 
-    if (mounted) {
+    SentryId? sentryId;
+    Object? captureException;
+    StackTrace? captureStackTrace;
+    try {
+      sentryId = await _captureFeedback(feedback, hint);
+    } catch (exception, stackTrace) {
+      captureException = exception;
+      captureStackTrace = stackTrace;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    if (sentryId == null || sentryId == const SentryId.empty()) {
+      captureException ??= StateError('Feedback was not sent');
+      captureStackTrace ??= StackTrace.current;
+
       try {
-        widget.options.onSubmitSuccess?.call(feedback, sentryId);
+        widget.options.onSubmitError
+            ?.call(feedback, captureException, captureStackTrace);
       } catch (exception, stackTrace) {
         internalLogger.warning(
-          'Failed to execute onSubmitSuccess callback',
+          'Failed to execute onSubmitError callback',
           error: exception,
           stackTrace: stackTrace,
         );
       }
 
-      if (widget.options.showSuccessMessage) {
-        _showSuccessSnackBar();
-      }
+      setState(() {
+        _isSubmitting = false;
+        _submitError = widget.options.submitErrorMessageText;
+      });
+      return;
+    }
+
+    try {
+      widget.options.onSubmitSuccess?.call(feedback, sentryId);
+    } catch (exception, stackTrace) {
+      internalLogger.warning(
+        'Failed to execute onSubmitSuccess callback',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    if (widget.options.showSuccessMessage) {
+      _showSuccessSnackBar();
     }
 
     _dismiss(preserveFormData: false);

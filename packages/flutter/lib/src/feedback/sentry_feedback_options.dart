@@ -51,6 +51,9 @@ class SentryFeedbackOptions {
   /// Whether to show the default success message after a successful feedback submission.
   bool showSuccessMessage = true;
 
+  /// The message displayed when a feedback submission fails.
+  String submitErrorMessageText = 'Failed to send feedback. Please try again.';
+
   /// The label next to the name input field.
   String nameLabel = 'Name';
 
@@ -90,4 +93,10 @@ class SentryFeedbackOptions {
 
   /// Called when feedback is successfully submitted.
   void Function(SentryFeedback feedback, SentryId eventId)? onSubmitSuccess;
+
+  /// Called when feedback submission fails, either because sending failed
+  /// or because an exception was thrown while capturing the feedback.
+  void Function(
+          SentryFeedback feedback, Object exception, StackTrace stackTrace)?
+      onSubmitError;
 }

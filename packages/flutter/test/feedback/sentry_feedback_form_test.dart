@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -977,6 +979,216 @@ void main() {
         expect(find.text('Thank you for your report!'), findsOneWidget);
         expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
       });
+    });
+  });
+
+  group('$SentryFeedbackForm submission failure', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    group('when captureFeedback returns an empty id', () {
+      testWidgets('keeps the form open with the entered message',
+          (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackForm), findsOneWidget);
+        final messageField = tester.widget<TextFormField>(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        );
+        expect(messageField.controller?.text, 'not-sent-message');
+      });
+
+      testWidgets('does not call onSubmitSuccess', (tester) async {
+        var called = false;
+        fixture.options.feedback.onSubmitSuccess = (_, __) {
+          called = true;
+        };
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(called, isFalse);
+      });
+
+      testWidgets('shows the submit error message', (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Failed to send feedback. Please try again.'),
+            findsOneWidget);
+      });
+
+      testWidgets('re-enables the submit button', (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        final button = tester.widget<FilledButton>(
+          find.byKey(const ValueKey('sentry_feedback_submit_button')),
+        );
+        expect(button.onPressed, isNotNull);
+      });
+    });
+
+    group('when captureFeedback throws', () {
+      testWidgets('keeps the form open with the entered message',
+          (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenThrow(StateError('network error'));
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackForm), findsOneWidget);
+        final messageField = tester.widget<TextFormField>(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        );
+        expect(messageField.controller?.text, 'not-sent-message');
+      });
+
+      testWidgets('calls onSubmitError with the thrown exception',
+          (tester) async {
+        Object? receivedException;
+        fixture.options.feedback.onSubmitError = (_, exception, __) {
+          receivedException = exception;
+        };
+        final thrown = StateError('network error');
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenThrow(thrown);
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(receivedException, same(thrown));
+      });
+    });
+  });
+
+  group('$SentryFeedbackForm in-flight submission', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('does not call captureFeedback twice on rapid double tap',
+        (tester) async {
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      verify(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).called(1);
     });
   });
 
