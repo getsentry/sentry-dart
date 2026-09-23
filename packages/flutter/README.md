@@ -109,6 +109,26 @@ This includes all of Flutters internal access of `AssetBundle`s, like `Image.ass
 
 Please see the instructions [here](https://pub.dev/packages/sentry).
 
+##### Native crashes on Windows and Linux in v10
+
+Starting with v10, Windows and Linux use Breakpad by default. It captures native
+crashes without bundling or launching a separate handler executable. Native crash
+reports are uploaded on the next application start, rather than at crash time.
+Breakpad runs inside the application process and does not provide Crashpad's
+out-of-process isolation or Windows WER/fast-fail crash coverage.
+
+To opt back into Crashpad, set `SENTRY_NATIVE_BACKEND=crashpad` in the build
+environment before building your app. Explicit `breakpad`, `inproc`, and `none`
+values remain supported; an unset or empty value selects Breakpad. Backend
+selection happens at build time, not through Dart options. Run `flutter clean`
+when upgrading from v9 or switching backends to remove old bundled handlers,
+then rebuild with the chosen environment variable. Crashpad still requires its
+handler executable to be packaged correctly, including executable permissions
+on Linux. See the [backend tradeoffs](https://docs.sentry.io/platforms/native/advanced-usage/backend-tradeoffs/).
+
+This change does not affect Android, iOS, or macOS. Linux still requires the native
+SDK's libcurl transport dependencies.
+
 ##### Known limitations
 
 - If you enable the `split-debug-info` feature, you must upload the Debug Symbols manually.

@@ -106,8 +106,6 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
       if (crashpadPath != null) {
         native.options_set_handler_path(cOptions, c.str(crashpadPath));
-      } else {
-        internalLogger.warning('SentryNative: could not find crashpad path');
       }
 
       return cOptions;
