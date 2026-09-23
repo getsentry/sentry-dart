@@ -108,7 +108,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         native.options_set_handler_path(cOptions, c.str(crashpadPath));
       } else {
         internalLogger.debug(
-          'SentryNative: no explicit Crashpad handler path configured',
+          'SentryNative: no Crashpad handler path override. '
+          'Breakpad does not need a handler; if Crashpad is selected, '
+          'the native SDK will use its default handler location.',
         );
       }
 
