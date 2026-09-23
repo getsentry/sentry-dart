@@ -979,6 +979,49 @@ void main() {
         expect(find.text('Thank you for your report!'), findsOneWidget);
         expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
       });
+
+      testWidgets('does not throw when onSubmitSuccess pops the route itself',
+          (tester) async {
+        // State disposal only happens during frame processing
+        // (BuildOwner.finalizeTree()), so even a callback that pops the
+        // navigator synchronously cannot unmount this widget mid-_submit():
+        // that requires an actual frame/pump, which hasn't run yet at this
+        // point. This locks in that the code after invoking the callback
+        // (the snackbar's context lookup, setState) stays safe without
+        // rechecking mounted a second time.
+        final navigatorKey = GlobalKey<NavigatorState>();
+        fixture.options.feedback.onSubmitSuccess = (_, __) {
+          navigatorKey.currentState?.pop();
+        };
+
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: navigatorKey,
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () =>
+                      SentryFeedbackForm.show(context, hub: fixture.hub),
+                  child: const Text('Show Feedback'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+
+        // Throws (via FlutterError.onError / tester teardown) if _submit()
+        // ever uses a disposed State after the callback runs.
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+      });
     });
   });
 
