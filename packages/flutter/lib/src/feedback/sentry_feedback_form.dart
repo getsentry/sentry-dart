@@ -391,6 +391,10 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   }
 
   Future<void> _submit() async {
+    if (_isSubmitting) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }

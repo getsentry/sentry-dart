@@ -1192,6 +1192,42 @@ void main() {
     });
 
     testWidgets(
+        'does not call captureFeedback twice when tapped again before the disabling rebuild occurs',
+        (tester) async {
+      // No pump() between the two taps below: onPressed only becomes null
+      // after a rebuild, so this exercises the window where a second tap can
+      // still reach _submit() while the first call is already in flight.
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.tap(find.text('Send Bug Report'));
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      verify(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).called(1);
+    });
+
+    testWidgets(
         're-enables the submit button after a successful submission whose pop is intercepted',
         (tester) async {
       await tester.pumpWidget(
