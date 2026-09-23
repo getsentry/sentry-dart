@@ -1190,6 +1190,49 @@ void main() {
         withScope: anyNamed('withScope'),
       )).called(1);
     });
+
+    testWidgets(
+        're-enables the submit button after a successful submission whose pop is intercepted',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => PopScope(
+                      canPop: false,
+                      child: SentryFeedbackForm(hub: fixture.hub),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Show Feedback'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      // PopScope intercepted the pop, so the form is still on screen.
+      expect(find.byType(SentryFeedbackForm), findsOneWidget);
+
+      final button = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('sentry_feedback_submit_button')),
+      );
+      expect(button.onPressed, isNotNull);
+    });
   });
 
   group('SentryFeedbackWidget deprecated alias', () {

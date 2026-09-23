@@ -461,6 +461,10 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       _showSuccessSnackBar();
     }
 
+    setState(() {
+      _isSubmitting = false;
+    });
+
     _dismiss(preserveFormData: false);
   }
 
