@@ -4,6 +4,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
 import 'package:test/test.dart';
 
+import '../../mocks/mock_transport.dart';
 import '../../test_utils.dart';
 
 void main() {
@@ -34,6 +35,7 @@ void main() {
           data: const {
             'string': 'value',
             'integer': 42,
+            'double': 1.5,
             'boolean': true,
           },
           isSynchronous: true,
@@ -53,9 +55,37 @@ void main() {
     );
     expect(startAttributes?['string']?.value, equals('value'));
     expect(startAttributes?['integer']?.value, equals(42));
+    expect(startAttributes?['double']?.value, equals(1.5));
     expect(startAttributes?['boolean']?.value, isTrue);
     expect(startAttributes?['sync']?.value, isTrue);
 
+    await hub.close();
+  });
+
+  test('legacy factory applies data and the synchronous marker', () async {
+    final options = defaultTestOptions()
+      ..tracesSampleRate = 1.0
+      ..transport = MockTransport();
+    final hub = Hub(options);
+    final parent = hub.startTransaction('parent', 'parent');
+    final factory = LegacyInstrumentationSpanFactory();
+
+    final child = factory.createSpan(
+      parentSpan: LegacyInstrumentationSpan(parent),
+      operation: 'test.operation',
+      description: 'child',
+      origin: 'auto.test',
+      data: const {'known': 'value'},
+      isSynchronous: true,
+    ) as LegacyInstrumentationSpan;
+    final span = child.spanReference as SentrySpan;
+
+    expect(span.origin, equals('auto.test'));
+    expect(span.data['known'], equals('value'));
+    expect(span.data['sync'], isTrue);
+
+    await child.finish();
+    await parent.finish();
     await hub.close();
   });
 }
