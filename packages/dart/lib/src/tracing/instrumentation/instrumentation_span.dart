@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../sentry.dart';
-import '../../utils/internal_logger.dart';
+import 'span_attribute_utils.dart';
 
 /// Opaque span handle enabling swappable tracing backends.
 @internal
@@ -142,27 +142,9 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
 
   @override
   void setData(String key, dynamic value) {
-    if (value is String) {
-      _span.setAttribute(key, SentryAttribute.string(value));
-    } else if (value is int) {
-      _span.setAttribute(key, SentryAttribute.int(value));
-    } else if (value is double) {
-      _span.setAttribute(key, SentryAttribute.double(value));
-    } else if (value is bool) {
-      _span.setAttribute(key, SentryAttribute.bool(value));
-    } else if (value is List<String>) {
-      _span.setAttribute(key, SentryAttribute.stringArray(value));
-    } else if (value is List<int>) {
-      _span.setAttribute(key, SentryAttribute.intArray(value));
-    } else if (value is List<double>) {
-      _span.setAttribute(key, SentryAttribute.doubleArray(value));
-    } else if (value is List<bool>) {
-      _span.setAttribute(key, SentryAttribute.boolArray(value));
-    } else if (value is SentryAttribute) {
-      _span.setAttribute(key, value);
-    } else {
-      internalLogger.info(
-          '$StreamingInstrumentationSpan: Unsupported data type in setData: $value');
+    final attribute = sentryAttributeFromValue(value);
+    if (attribute != null) {
+      _span.setAttribute(key, attribute);
     }
   }
 

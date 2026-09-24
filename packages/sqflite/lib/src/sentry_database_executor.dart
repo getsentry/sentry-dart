@@ -72,11 +72,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlExecuteOp,
               description: builder.sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -118,11 +118,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlExecuteOp,
               description: sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -172,11 +172,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlExecuteOp,
               description: builder.sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -245,11 +245,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlQueryOp,
               description: builder.sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -325,11 +325,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlQueryOp,
               description: builder.sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
@@ -382,11 +382,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlExecuteOp,
               description: sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -427,11 +427,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlExecuteOp,
               description: sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -475,11 +475,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlQueryOp,
               description: sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -524,11 +524,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlQueryOp,
               description: sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -573,11 +573,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlExecuteOp,
               description: sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: sql,
@@ -631,11 +631,11 @@ class SentryDatabaseExecutor
               parentSpan: parent,
               operation: SentryDatabase.dbSqlExecuteOp,
               description: builder.sql,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: builder.sql,
