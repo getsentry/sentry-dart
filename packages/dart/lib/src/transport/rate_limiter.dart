@@ -1,8 +1,8 @@
 import '../../sentry.dart';
 import '../client_reports/discard_reason.dart';
-import '../transport/rate_limit_parser.dart';
+import 'rate_limit_parser.dart';
 import '../utils/internal_logger.dart';
-import '../utils/transport_utils.dart';
+import 'transport_utils.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
 

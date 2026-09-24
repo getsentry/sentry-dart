@@ -4,10 +4,10 @@ import '../hint.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
-import '../throwable_mechanism.dart';
+import '../exception/throwable_mechanism.dart';
 import '../type_check_hint.dart';
 import '../utils/http_sanitizer.dart';
-import '../utils/tracing_utils.dart';
+import '../telemetry/span/propagation/tracing_utils.dart';
 import 'sentry_http_client.dart';
 import 'sentry_http_client_error.dart';
 

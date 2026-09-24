@@ -4,10 +4,10 @@ import '../constants.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
-import '../sentry_trace_origins.dart';
-import '../tracing/instrumentation/instrumentation.dart';
+import '../telemetry/span/sentry_trace_origins.dart';
+import '../telemetry/span/instrumentation/instrumentation.dart';
 import '../utils/http_sanitizer.dart';
-import '../utils/tracing_utils.dart';
+import '../telemetry/span/propagation/tracing_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature. If tracing is disabled

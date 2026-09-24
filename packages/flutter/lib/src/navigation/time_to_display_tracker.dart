@@ -7,7 +7,7 @@ import 'root_route.dart';
 import 'time_to_full_display_tracker.dart';
 import 'time_to_initial_display_tracker.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 

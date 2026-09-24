@@ -6,9 +6,9 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
-import 'sentry_tracer.dart';
-import 'sentry_traces_sampler.dart';
-import 'telemetry/span/sentry_span_sampling_context.dart';
+import 'telemetry/span/transaction/sentry_tracer.dart';
+import 'telemetry/span/sampling/sentry_traces_sampler.dart';
+import 'telemetry/span/sampling/sentry_span_sampling_context.dart';
 import 'transport/data_category.dart';
 import 'utils/internal_logger.dart';
 

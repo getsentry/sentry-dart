@@ -5,7 +5,7 @@ library;
 import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_supabase/sentry_supabase.dart';
 import 'package:supabase/supabase.dart';
 import 'package:test/test.dart';

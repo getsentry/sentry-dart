@@ -9,9 +9,9 @@ import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart'
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 // Internal import is fine in tests.
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
-import '../fake_frame_callback_handler.dart';
+import '../bindings/fake_frame_callback_handler.dart';
 import '../mocks.dart';
 
 void main() {

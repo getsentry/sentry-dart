@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import '../../sentry.dart';
-import '../event_processor/enricher/flutter_runtime.dart';
-import '../event_processor/enricher/io_platform_memory.dart';
+import '../enrichment/flutter_runtime.dart';
+import '../enrichment/io_platform_memory.dart';
 import '../utils/os_utils.dart';
 import 'platform_context_provider.dart';
 

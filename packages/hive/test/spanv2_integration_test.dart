@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:hive/hive.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_hive/sentry_hive.dart';
 import 'package:test/test.dart';
 

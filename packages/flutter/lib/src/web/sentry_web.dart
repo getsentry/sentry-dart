@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_item_type.dart';
+import 'package:sentry/src/envelope/sentry_item_type.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 

@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_hive/src/sentry_box.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:sentry_hive/src/sentry_lazy_box.dart';

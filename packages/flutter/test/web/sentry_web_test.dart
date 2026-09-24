@@ -8,15 +8,15 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/sentry_envelope_header.dart';
-import 'package:sentry/src/sentry_envelope_item_header.dart';
+import 'package:sentry/src/envelope/sentry_envelope_header.dart';
+import 'package:sentry/src/envelope/sentry_envelope_item_header.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 import 'package:sentry_flutter/src/web/sentry_web.dart';
-import 'package:sentry_flutter/src/web/web_session_handler.dart';
+import 'package:sentry_flutter/src/sessions/web_session_handler.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';

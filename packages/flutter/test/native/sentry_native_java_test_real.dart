@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';
+import 'package:sentry_flutter/src/native/native_sdk_integration.dart';
 import 'package:sentry_flutter/src/native/java/android_core_worker.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 

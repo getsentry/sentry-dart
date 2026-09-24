@@ -13,6 +13,14 @@ analyzer:
     deprecated_member_use_from_same_package: warning
     # ignore sentry/path on pubspec as we change it on deployment
     invalid_dependency: ignore
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
 linter:
   rules:

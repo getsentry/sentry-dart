@@ -3,7 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
+import '../bindings/frame_callback_handler.dart';
 import '../utils/internal_logger.dart';
 import 'root_route.dart';
 

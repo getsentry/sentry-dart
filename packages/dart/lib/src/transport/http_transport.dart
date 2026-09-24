@@ -8,10 +8,10 @@ import '../http_client/client_provider.dart'
 import '../client_reports/discard_reason.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
-import '../sentry_envelope.dart';
+import '../envelope/sentry_envelope.dart';
 import '../sentry_options.dart';
 import '../utils/internal_logger.dart';
-import '../utils/transport_utils.dart';
+import 'transport_utils.dart';
 import 'http_transport_request_handler.dart';
 import 'rate_limiter.dart';
 import 'transport.dart';

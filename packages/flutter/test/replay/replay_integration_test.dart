@@ -9,12 +9,12 @@ import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/replay/integration.dart';
+import 'package:sentry_flutter/src/replay/replay_integration.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
-import '../screenshot/test_widget.dart';
+import '../screen_capture/test_widget.dart';
 
 void main() {
   late ReplayIntegration sut;

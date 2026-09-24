@@ -8,7 +8,7 @@ import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar/isar.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_isar/sentry_isar.dart';
 
 import 'person.dart';

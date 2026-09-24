@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
-import '../throwable_mechanism.dart';
+import '../exception/throwable_mechanism.dart';
 import '../utils.dart';
 import '../utils/iterable_utils.dart';
 import 'access_aware_map.dart';

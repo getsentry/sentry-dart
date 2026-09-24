@@ -8,7 +8,7 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
-import '../replay/integration.dart';
+import '../replay/replay_integration.dart';
 import '../utils/internal_logger.dart';
 
 /// A form for submitting user feedback to Sentry.

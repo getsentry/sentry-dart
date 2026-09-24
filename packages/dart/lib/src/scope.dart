@@ -5,16 +5,16 @@ import 'package:meta/meta.dart';
 
 import 'constants.dart';
 import 'event_processor.dart';
-import 'event_processor/run_event_processors.dart';
+import 'run_event_processors.dart';
 import 'hint.dart';
-import 'propagation_context.dart';
+import 'telemetry/span/propagation/propagation_context.dart';
 import 'protocol.dart';
 import 'scope_observer.dart';
-import 'sentry_attachment/sentry_attachment.dart';
+import 'attachments/sentry_attachment.dart';
 import 'sentry_options.dart';
-import 'sentry_span_interface.dart';
-import 'sentry_tracer.dart';
-import 'telemetry/span/sentry_span_v2.dart';
+import 'telemetry/span/transaction/sentry_span_interface.dart';
+import 'telemetry/span/transaction/sentry_tracer.dart';
+import 'telemetry/span/streaming/sentry_span_v2.dart';
 import 'utils/internal_logger.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);

@@ -1,5 +1,5 @@
 import 'protocol/sentry_response.dart';
-import 'sentry_attachment/sentry_attachment.dart';
+import 'attachments/sentry_attachment.dart';
 
 import 'package:meta/meta.dart';
 

@@ -1,4 +1,4 @@
-import '../screenshot/recorder_config.dart';
+import '../screen_capture/recorder_config.dart';
 
 class ScheduledScreenshotRecorderConfig extends ScreenshotRecorderConfig {
   final int frameRate;

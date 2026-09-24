@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
-import '../event_processor/enricher/flutter_runtime.dart';
+import '../enrichment/flutter_runtime.dart';
 
 /// The context interfaces provide additional context data.
 ///

@@ -207,10 +207,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
-import '../widget_utils.dart';
+import '../utils/widget_utils.dart';
 import '../utils/internal_logger.dart';
 import 'user_interaction_info.dart';
 

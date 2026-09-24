@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
-import '../event_processor/flutter_enricher_event_processor.dart';
-import '../integrations/web_session_integration.dart';
+import '../enrichment/flutter_enricher_event_processor.dart';
+import '../sessions/web_session_integration.dart';
 import '../utils/internal_logger.dart';
-import '../web/web_session_handler.dart';
+import '../sessions/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
 import 'time_to_display_tracker_v2.dart';
 

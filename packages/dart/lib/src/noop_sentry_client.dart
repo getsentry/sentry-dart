@@ -5,10 +5,10 @@ import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
-import 'sentry_envelope.dart';
-import 'sentry_trace_context_header.dart';
+import 'envelope/sentry_envelope.dart';
+import 'telemetry/span/propagation/sentry_trace_context_header.dart';
 import 'telemetry/metric/metric.dart';
-import 'telemetry/span/sentry_span_v2.dart';
+import 'telemetry/span/streaming/sentry_span_v2.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();

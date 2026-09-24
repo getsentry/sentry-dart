@@ -7,9 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:benchmarking/benchmarking.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 // Hidden from the public barrel file, so import the source directly.
-import 'package:sentry_flutter/src/screenshot/sentry_screenshot_widget.dart'
+import 'package:sentry_flutter/src/screen_capture/sentry_screenshot_widget.dart'
     show sentryScreenshotWidgetGlobalKey;
-import 'package:sentry_flutter/src/screenshot/widget_filter.dart';
+import 'package:sentry_flutter/src/screen_capture/widget_filter.dart';
 
 Future<void> execute() async {
   await benchmarkWidgets((WidgetTester tester) async {

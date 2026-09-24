@@ -1,12 +1,12 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/frame_callback_handler.dart';
+import 'package:sentry_flutter/src/bindings/frame_callback_handler.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
 
-import '../fake_frame_callback_handler.dart';
+import '../bindings/fake_frame_callback_handler.dart';
 import '../mocks.dart';
 
 void main() {

@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
-import '../sentry_envelope.dart';
+import '../envelope/sentry_envelope.dart';
 
 @internal
 class HttpTransportRequestHandler {

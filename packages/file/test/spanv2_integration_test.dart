@@ -7,7 +7,7 @@ import 'dart:io';
 
 import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_file/sentry_file.dart';
 import 'package:test/test.dart';
 

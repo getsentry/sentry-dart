@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../../isolate/isolate_worker.dart';
 import '../../replay/scheduled_recorder.dart';
-import '../../screenshot/screenshot.dart';
+import '../../screen_capture/screenshot.dart';
 import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 

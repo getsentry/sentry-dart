@@ -23,9 +23,16 @@ Flutter SDK with native integrations across all platforms.
 
 ## Key Directories
 
-- `lib/src/integrations/` — Integration implementations (reference for new integrations)
-- `lib/src/native/` — Native interop layer
-- `lib/src/replay/` — Session replay
-- `lib/src/navigation/` — Route observer and navigation tracing
-- `example` — Flutter Example App
-- `example/integration_test` — Integration test suite
+- `lib/src/native/` — Native SDK interop, generated bindings, and platform adapters
+- `lib/src/web/` — JavaScript SDK interop and script loading
+- `lib/src/replay/` — Replay lifecycle, scheduling, and configuration
+- `lib/src/screenshot/` — Event screenshot integration and processing
+- `lib/src/screen_capture/` — Shared screenshot/replay capture, masking, and capture-widget lifecycle
+- `lib/src/bindings/` — Shared Flutter bindings, frame callbacks, and lifecycle support
+- `lib/src/frames_tracking/` — Frame metrics collection
+- `lib/src/navigation/` — Route observation and display timing
+- `lib/src/exception/` — Flutter/platform exception handling, including JVM parsing
+- `lib/src/enrichment/` — Context, release, feature-flag, and thread enrichment
+- `example/integration_test/` — Native and end-to-end tests
+
+Feature integrations and processors live with their owning feature. Tests mirror feature directories.

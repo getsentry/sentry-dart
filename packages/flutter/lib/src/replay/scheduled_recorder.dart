@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/scheduler.dart';
 import 'package:meta/meta.dart';
 
-import '../screenshot/screenshot.dart';
+import '../screen_capture/screenshot.dart';
 import '../utils/internal_logger.dart';
 import 'replay_recorder.dart';
 import 'scheduled_recorder_config.dart';

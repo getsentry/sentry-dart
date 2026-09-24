@@ -4,10 +4,10 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
+import '../bindings/frame_callback_handler.dart';
 
 @internal
 class TimeToInitialDisplayTracker {

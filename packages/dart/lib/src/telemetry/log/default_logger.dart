@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import '../../../sentry.dart';
-import '../../sentry_template_string.dart';
+import 'sentry_template_string.dart';
 import '../../utils/internal_logger.dart';
 
 typedef CaptureLogCallback = Future<void> Function(SentryLog log);

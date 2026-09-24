@@ -11,7 +11,7 @@ import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 import '../mocks.dart';
-import '../screenshot/test_widget.dart';
+import '../screen_capture/test_widget.dart';
 import 'replay_test_util.dart';
 
 void main() async {

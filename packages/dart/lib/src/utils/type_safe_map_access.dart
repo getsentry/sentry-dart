@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import '../utils/internal_logger.dart';
+import 'internal_logger.dart';
 
 /// Extension providing type-safe value extraction from JSON maps
 @internal

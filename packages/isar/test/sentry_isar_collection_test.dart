@@ -10,7 +10,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_isar/sentry_isar.dart';
 import 'package:sentry_isar/src/sentry_isar.dart';
 
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'person.dart';

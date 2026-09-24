@@ -4,8 +4,8 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_recorder.dart';
-import '../../screenshot/recorder.dart';
-import '../../screenshot/recorder_config.dart';
+import '../../screen_capture/recorder.dart';
+import '../../screen_capture/recorder_config.dart';
 import '../native_memory.dart';
 import '../../utils/internal_logger.dart';
 

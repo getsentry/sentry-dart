@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 import '../../sentry.dart';
-import '../sentry_envelope_header.dart';
+import '../envelope/sentry_envelope_header.dart';
 import 'rate_limiter.dart';
 
 /// Decorator that handles attaching of client reports in tandem with rate

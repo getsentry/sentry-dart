@@ -2,7 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:test/test.dart';
 

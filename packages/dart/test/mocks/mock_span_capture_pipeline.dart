@@ -1,5 +1,5 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/telemetry/span/span_capture_pipeline.dart';
+import 'package:sentry/src/telemetry/span/streaming/span_capture_pipeline.dart';
 
 import '../test_utils.dart';
 

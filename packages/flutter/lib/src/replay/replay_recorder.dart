@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:meta/meta.dart';
 
-import '../screenshot/recorder.dart';
+import '../screen_capture/recorder.dart';
 
 var _instanceCounter = 0;
 

@@ -10,8 +10,8 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'telemetry/metric/metric.dart';
-import 'telemetry/span/sentry_span_v2.dart';
-import 'tracing.dart';
+import 'telemetry/span/streaming/sentry_span_v2.dart';
+import 'telemetry/span/tracing.dart';
 
 class NoOpHub implements Hub {
   NoOpHub._();

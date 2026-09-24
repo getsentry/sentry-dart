@@ -1,6 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';

@@ -6,14 +6,14 @@ import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 
 import 'app_start/standalone/app_start_trace.dart';
-import 'binding_wrapper.dart';
-import 'event_processor/screenshot_event_processor.dart';
+import 'bindings/binding_wrapper.dart';
+import 'screenshot/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'navigation/time_to_display_tracker_v2.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'sentry_privacy_options.dart';
-import 'sentry_replay_options.dart';
+import 'screen_capture/sentry_privacy_options.dart';
+import 'replay/sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 import 'feedback/sentry_feedback_options.dart';
 

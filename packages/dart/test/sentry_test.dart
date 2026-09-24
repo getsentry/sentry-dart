@@ -4,9 +4,9 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/dart_exception_type_identifier.dart';
-import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/exception/dart_exception_type_identifier.dart';
+import 'package:sentry/src/deduplication/deduplication_event_processor.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/telemetry/processing/processor_integration.dart';
 import 'package:test/test.dart';

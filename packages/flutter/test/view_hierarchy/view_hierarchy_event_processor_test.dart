@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/src/binding_wrapper.dart';
+import 'package:sentry_flutter/src/bindings/binding_wrapper.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_event_processor.dart';
 

@@ -6,8 +6,8 @@ import 'dart:ui';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../../frame_callback_handler.dart';
-import '../../binding_wrapper.dart';
+import '../../bindings/frame_callback_handler.dart';
+import '../../bindings/binding_wrapper.dart';
 import '../app_start_recorder.dart';
 import '../../native/sentry_native_binding.dart';
 import '../../navigation/root_route.dart';

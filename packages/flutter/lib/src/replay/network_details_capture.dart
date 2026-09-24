@@ -9,7 +9,7 @@ import 'package:sentry/src/constants.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/http_client/network_details_capture.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/utils/tracing_utils.dart';
+import 'package:sentry/src/telemetry/span/propagation/tracing_utils.dart';
 
 import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';

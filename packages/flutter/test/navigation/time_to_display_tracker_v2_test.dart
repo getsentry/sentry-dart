@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 
-import '../fake_frame_callback_handler.dart';
+import '../bindings/fake_frame_callback_handler.dart';
 import '../mocks.dart';
 
 void main() {

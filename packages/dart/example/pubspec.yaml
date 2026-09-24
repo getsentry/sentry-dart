@@ -9,7 +9,7 @@ environment:
 
 dependencies:
   sentry:
-    path: ../../dart
+    path: ..
 
 dev_dependencies:
   lints: ^2.0.0

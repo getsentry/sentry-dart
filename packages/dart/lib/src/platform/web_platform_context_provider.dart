@@ -3,7 +3,7 @@ import 'dart:js_interop';
 import 'package:web/web.dart' as web show window, Window, Navigator;
 
 import '../../sentry.dart';
-import '../event_processor/enricher/flutter_runtime.dart';
+import '../enrichment/flutter_runtime.dart';
 import 'platform_context_provider.dart';
 
 PlatformContextProvider platformContextProvider(SentryOptions options) =>
