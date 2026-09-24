@@ -959,6 +959,31 @@ void main() {
       final insideSpan = hub.startNewTrace(() => hub.getSpan());
       expect(insideSpan, isNull);
     });
+
+    test(
+        'startTransaction(bindToScope: true) inside callback is visible to '
+        'getSpan and captured events, and does not leak to the hub scope',
+        () async {
+      final hub = fixture.getSut();
+
+      final (boundTx, spanFromGetSpan) = await hub.startNewTrace(() async {
+        final tx = hub.startTransaction('inner', 'op', bindToScope: true);
+        final observed = hub.getSpan();
+        await hub.captureEvent(SentryEvent());
+        return (tx, observed);
+      });
+
+      expect(spanFromGetSpan, same(boundTx));
+
+      // The scope passed to the client carries the bound transaction, so
+      // `applyToEvent` will derive the event's trace context from it.
+      final capturedScope = fixture.client.captureEventCalls.first.scope;
+      expect(capturedScope?.span, same(boundTx));
+
+      // The transaction lived on the zone-forked scope, so the hub scope
+      // is untouched once the callback exits.
+      expect(hub.scope.span, isNull);
+    });
   });
 
   group('Hub scope callback', () {

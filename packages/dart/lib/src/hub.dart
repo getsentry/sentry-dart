@@ -636,7 +636,13 @@ class Hub {
         profiler: profiler,
       );
       if (bindToScope ?? false) {
-        item.scope.span = tracer;
+        // Inside a `startNewTrace` callback, bind to the zone-forked scope
+        // so the transaction is visible to `getSpan`, HTTP auto-
+        // instrumentation and captured events for the duration of the
+        // callback, without leaking into the hub's scope.
+        final bindTarget =
+            _isInNewTraceZone ? (_zoneScope ?? item.scope) : item.scope;
+        bindTarget.span = tracer;
       }
 
       return tracer;
