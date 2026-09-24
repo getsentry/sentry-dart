@@ -82,13 +82,15 @@ class SentryFeedbackForm extends StatefulWidget {
 }
 
 class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
-  // Tracks which SentryFeedbackForm instance was created most recently, so a
-  // stale instance's write to the static preserved-data fields (e.g. a
-  // success arriving after the user navigated away to a newer form) can be
-  // told apart from this instance's own write. mounted alone can't do this:
-  // it only says whether *this* instance is still around, not whether a
-  // newer one has since taken over.
+  // The static preserved-data fields are shared by every instance, so a stale
+  // instance (e.g. a success arriving after the user moved on to a newer
+  // form) must not overwrite what a newer one did. mounted alone can't tell
+  // these apart: it only says whether *this* instance is still around. Each
+  // instance gets an increasing generation, and may only write while no newer
+  // instance is alive and no newer instance has already written.
   static int _latestGeneration = 0;
+  static final Set<int> _liveGenerations = {};
+  static int _lastWriterGeneration = 0;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -115,6 +117,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
     super.initState();
 
     _generation = ++_latestGeneration;
+    _liveGenerations.add(_generation);
 
     if (widget.options.useSentryUser) {
       _setSentryUserData();
@@ -402,6 +405,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
 
   @override
   void dispose() {
+    _liveGenerations.remove(_generation);
     _nameController.dispose();
     _emailController.dispose();
     _messageController.dispose();
@@ -533,10 +537,11 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   }
 
   void _dismiss({required bool preserveFormData}) {
-    // Only the most-recently-created instance may touch the shared
-    // preserved-data statics, so a stale instance can't clobber a newer
-    // form's draft.
-    if (_generation == _latestGeneration) {
+    final mayWriteSharedState = _lastWriterGeneration <= _generation &&
+        !_liveGenerations.any((generation) => generation > _generation);
+    if (mayWriteSharedState) {
+      _lastWriterGeneration = _generation;
+
       SentryFeedbackForm.pendingAssociatedEventId =
           preserveFormData ? widget.associatedEventId : null;
 
@@ -544,7 +549,19 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
     }
 
     if (mounted) {
+      _closeOwnRoute();
+    }
+  }
+
+  // Navigator.maybePop() pops whatever is on top, which isn't necessarily this
+  // form's route: a callback may have already popped it (so the next one down
+  // would go), or another route may have been pushed over it since.
+  void _closeOwnRoute() {
+    final route = ModalRoute.of(context);
+    if (route == null || route.isCurrent) {
       Navigator.maybePop(context);
+    } else if (route.isActive) {
+      Navigator.of(context).removeRoute(route);
     }
   }
 

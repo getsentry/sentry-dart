@@ -1494,6 +1494,179 @@ void main() {
     });
   });
 
+  group('$SentryFeedbackForm shared draft ownership', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets(
+        'lets an older form clear the saved draft after a newer form above it is popped without saving',
+        (tester) async {
+      SentryFeedbackForm.preservedMessage = 'pre-existing-draft';
+
+      await fixture.pumpFeedbackHost(tester);
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      // A newer form is pushed over the first one, then popped (e.g. system
+      // back) without ever writing to the shared draft.
+      SentryFeedbackForm.show(
+        tester.element(find.byType(SentryFeedbackForm)),
+        hub: fixture.hub,
+      );
+      await tester.pumpAndSettle();
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, isNull);
+    });
+
+    testWidgets(
+        'does not let an older form clobber the draft a newer form saved before leaving',
+        (tester) async {
+      await fixture.pumpFeedbackHost(tester);
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      SentryFeedbackForm.show(
+        tester.element(find.byType(SentryFeedbackForm)),
+        hub: fixture.hub,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'newer-form-draft',
+      );
+      final screenshotButton = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      await tester.ensureVisible(screenshotButton);
+      await tester.tap(screenshotButton);
+      await tester.pumpAndSettle();
+      expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
+
+      // The older form underneath is now visible again; cancelling it must
+      // not wipe the draft the newer form deliberately saved.
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
+    });
+  });
+
+  group('$SentryFeedbackForm dismissal', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets(
+        'does not pop the route underneath when onSubmitSuccess already popped the form',
+        (tester) async {
+      final navigatorKey = GlobalKey<NavigatorState>();
+      fixture.options.feedback.onSubmitSuccess = (_, __) {
+        navigatorKey.currentState?.pop();
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (context) => Scaffold(
+                    body: Builder(
+                      builder: (context) => ElevatedButton(
+                        onPressed: () => SentryFeedbackForm.show(
+                          context,
+                          hub: fixture.hub,
+                        ),
+                        child: const Text('Show Feedback'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              child: const Text('Open Second Page'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open Second Page'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      // Only the form was popped; the second page beneath it must survive.
+      expect(find.text('Show Feedback'), findsOneWidget);
+    });
+
+    testWidgets(
+        'closes its own route instead of the one on top when another route covers it',
+        (tester) async {
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+      final navigatorKey = GlobalKey<NavigatorState>();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () =>
+                  SentryFeedbackForm.show(context, hub: fixture.hub),
+              child: const Text('Show Feedback'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Another route covers the form while its submission is still pending.
+      unawaited(navigatorKey.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (context) => const Scaffold(body: Text('Cover')),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cover'), findsOneWidget);
+      expect(
+          find.byType(SentryFeedbackForm, skipOffstage: false), findsNothing);
+    });
+  });
+
   group('SentryFeedbackWidget deprecated alias', () {
     tearDown(() {
       SentryFeedbackForm.pendingAssociatedEventId = null;
