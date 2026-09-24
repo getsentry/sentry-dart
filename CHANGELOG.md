@@ -4,7 +4,7 @@
 
 ### Breaking Changes
 
-- Require Dart 3.12.0 or newer and Flutter 3.44.0 or newer.
+- Require Dart 3.12.0 or newer and Flutter 3.44.0 or newer. ([#3784](https://github.com/getsentry/sentry-dart/pull/3784))
 - Remove CocoaPods support. Flutter apps targeting Apple platforms must use Swift Package Manager. ([#3879](https://github.com/getsentry/sentry-dart/pull/3879))
 - Remove `enableLogs` and `enableMetrics`. Logs and metrics are always enabled. The logging integration forwards Sentry logs by default; adjust `minSentryLogLevel` or set it to `Level.OFF` to disable forwarding. ([#3983](https://github.com/getsentry/sentry-dart/pull/3983))
 - Remove `enableStandaloneAppStartTracing`. When tracing is enabled, app start is always reported as a standalone `app.start` root on Android and iOS. ([#3981](https://github.com/getsentry/sentry-dart/pull/3981))
@@ -49,11 +49,11 @@
 
 ### Dependencies
 
-- Update Sentry Android to **8.56.0**.
-- Update Sentry Cocoa to **9.27.0**.
-- Update Sentry Native to **0.16.6**.
-- Update Sentry JavaScript to **11.0.0**, preserving the default web privacy settings and aligning unhandled session reporting.
-- Use `jni >=1.0.0 <1.1.0` and `jnigen 0.17.0`.
+- Update Sentry Android to **8.56.0**. ([#4015](https://github.com/getsentry/sentry-dart/pull/4015))
+- Update Sentry Cocoa to **9.27.0**. ([#4006](https://github.com/getsentry/sentry-dart/pull/4006))
+- Update Sentry Native to **0.16.6**. ([#4013](https://github.com/getsentry/sentry-dart/pull/4013))
+- Update Sentry JavaScript to **11.0.0**, preserving the default web privacy settings and aligning unhandled session reporting. ([#4032](https://github.com/getsentry/sentry-dart/pull/4032))
+- Use `jni >=1.0.0 <1.1.0` and `jnigen 0.17.0`. ([#3931](https://github.com/getsentry/sentry-dart/pull/3931))
 
 ## 10.0.0-beta.0
 
