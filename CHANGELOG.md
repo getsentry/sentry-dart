@@ -1,5 +1,15 @@
 # Changelog
 
+## 10.0.0-beta.0
+
+### Features
+
+- (flutter) Default desktop to Breakpad by @buenaflor in [#4045](https://github.com/getsentry/sentry-dart/pull/4045)
+
+### Dependencies
+
+- (flutter) Bump JS to 11.0.0 by @buenaflor in [#4032](https://github.com/getsentry/sentry-dart/pull/4032)
+
 ## 10.0.0-alpha.7
 
 ### Features
