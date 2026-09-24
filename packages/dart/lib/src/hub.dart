@@ -705,8 +705,9 @@ class Hub {
         // so the transaction is visible to `getSpan`, HTTP auto-
         // instrumentation and captured events for the duration of the
         // callback, without leaking into the hub's scope.
-        final bindTarget =
-            _isInNewTraceZone ? (_zoneScope ?? item.scope) : item.scope;
+        final bindTarget = _isInNewTraceZone
+            ? (_zoneScope ?? item.scope)
+            : item.scope;
         bindTarget.span = tracer;
       }
 
@@ -754,8 +755,7 @@ class Hub {
   /// `await`s for asynchronous callbacks.
   T startNewTrace<T>(T Function() callback) {
     if (!_isEnabled) {
-      _options.log(
-        SentryLevel.warning,
+      internalLogger.warning(
         "Instance is disabled and this 'startNewTrace' call is a no-op.",
       );
       return callback();

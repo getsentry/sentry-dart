@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/telemetry/log/logger_setup_integration.dart';
+import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/telemetry/span/propagation/propagation_context.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
@@ -1111,10 +1113,12 @@ void main() {
     test('transactions inside the same callback share one trace id', () {
       final hub = fixture.getSut();
 
-      final (first, second) = hub.startNewTrace(() => (
-            hub.startTransaction('first', 'op'),
-            hub.startTransaction('second', 'op'),
-          ));
+      final (first, second) = hub.startNewTrace(
+        () => (
+          hub.startTransaction('first', 'op'),
+          hub.startTransaction('second', 'op'),
+        ),
+      );
 
       expect(first.context.traceId, second.context.traceId);
     });
@@ -1137,7 +1141,7 @@ void main() {
     });
 
     test('each invocation starts a distinct trace', () {
-      final hub = fixture.getSut();
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
 
       final first = hub.startNewTrace(() => hub.startTransaction('a', 'op'));
       final second = hub.startNewTrace(() => hub.startTransaction('b', 'op'));
@@ -1203,8 +1207,7 @@ void main() {
       );
     });
 
-    test(
-        'streaming spans inside callback do not inherit an outer idle span '
+    test('streaming spans inside callback do not inherit an outer idle span '
         'as parent', () async {
       final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
       final idle = hub.startIdleSpan('outer-idle');
@@ -1218,10 +1221,9 @@ void main() {
       expect(innerTraceId, isNot(outerIdleTraceId));
     });
 
-    test(
-        'events captured inside callback ignore a transaction bound to the '
+    test('events captured inside callback ignore a transaction bound to the '
         'hub scope', () async {
-      final hub = fixture.getSut();
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
       hub.startTransaction('nav', 'navigation', bindToScope: true);
       final boundTraceId = hub.scope.span!.context.traceId;
 
@@ -1239,41 +1241,80 @@ void main() {
       expect(capturedTraceId, isNot(boundTraceId));
     });
 
-    test('getSpan inside callback does not return the hub-bound transaction',
-        () {
-      final hub = fixture.getSut();
-      hub.startTransaction('nav', 'navigation', bindToScope: true);
-      final outsideSpan = hub.getSpan();
-      expect(outsideSpan, isNotNull);
+    test(
+      'getSpan inside callback does not return the hub-bound transaction',
+      () {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+        hub.startTransaction('nav', 'navigation', bindToScope: true);
+        final outsideSpan = hub.getSpan();
+        expect(outsideSpan, isNotNull);
 
-      final insideSpan = hub.startNewTrace(() => hub.getSpan());
-      expect(insideSpan, isNull);
+        final insideSpan = hub.startNewTrace(() => hub.getSpan());
+        expect(insideSpan, isNull);
+      },
+    );
+
+    test('structured logs inside callback carry the new trace id', () async {
+      final hub = fixture.getSut();
+      LoggerSetupIntegration().call(hub, fixture.options);
+      final outerTraceId = hub.scope.propagationContext.traceId;
+
+      final zoneTraceId = hub.startNewTrace(() {
+        fixture.options.logger.info('inside');
+        return hub.traceScope.propagationContext.traceId;
+      });
+      // `info` fire-and-forgets through captureLog, so let microtasks flush.
+      await Future<void>.delayed(Duration.zero);
+
+      expect(zoneTraceId, isNot(outerTraceId));
+      final capturedLog = fixture.client.captureLogCalls.first.log;
+      expect(capturedLog.traceId, zoneTraceId);
+      expect(capturedLog.traceId, isNot(outerTraceId));
+    });
+
+    test('metrics inside callback carry the new trace id', () async {
+      final hub = fixture.getSut();
+      MetricsSetupIntegration().call(hub, fixture.options);
+      final outerTraceId = hub.scope.propagationContext.traceId;
+
+      final zoneTraceId = hub.startNewTrace(() {
+        fixture.options.metrics.count('inside', 1);
+        return hub.traceScope.propagationContext.traceId;
+      });
+      // `count` fire-and-forgets, so let the microtask flush.
+      await Future<void>.delayed(Duration.zero);
+
+      expect(zoneTraceId, isNot(outerTraceId));
+      final capturedMetric = fixture.client.captureMetricCalls.first.metric;
+      expect(capturedMetric.traceId, zoneTraceId);
+      expect(capturedMetric.traceId, isNot(outerTraceId));
     });
 
     test(
-        'startTransaction(bindToScope: true) inside callback is visible to '
-        'getSpan and captured events, and does not leak to the hub scope',
-        () async {
-      final hub = fixture.getSut();
+      'startTransaction(bindToScope: true) inside callback is visible to '
+      'getSpan and captured events, and does not leak to the hub scope',
+      () async {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
 
-      final (boundTx, spanFromGetSpan) = await hub.startNewTrace(() async {
-        final tx = hub.startTransaction('inner', 'op', bindToScope: true);
-        final observed = hub.getSpan();
-        await hub.captureEvent(SentryEvent());
-        return (tx, observed);
-      });
+        final (boundTx, spanFromGetSpan) = await hub.startNewTrace(() async {
+          final tx = hub.startTransaction('inner', 'op', bindToScope: true);
+          final observed = hub.getSpan();
+          await hub.captureEvent(SentryEvent());
+          return (tx, observed);
+        });
 
-      expect(spanFromGetSpan, same(boundTx));
+        expect(spanFromGetSpan, same(boundTx));
 
-      // The scope passed to the client carries the bound transaction, so
-      // `applyToEvent` will derive the event's trace context from it.
-      final capturedScope = fixture.client.captureEventCalls.first.scope;
-      expect(capturedScope?.span, same(boundTx));
+        // The scope passed to the client carries the bound transaction, so
+        // `applyToEvent` will derive the event's trace context from it.
+        final capturedScope = fixture.client.captureEventCalls.first.scope;
+        expect(capturedScope?.span, same(boundTx));
 
-      // The transaction lived on the zone-forked scope, so the hub scope
-      // is untouched once the callback exits.
-      expect(hub.scope.span, isNull);
-    });
+        // The transaction lived on the zone-forked scope, so the hub scope
+        // is untouched once the callback exits.
+        expect(hub.scope.span, isNull);
+      },
+    );
   });
 
   group('Hub scope callback', () {
