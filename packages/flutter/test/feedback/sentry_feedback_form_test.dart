@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -977,6 +979,691 @@ void main() {
         expect(find.text('Thank you for your report!'), findsOneWidget);
         expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
       });
+
+      testWidgets('does not throw when onSubmitSuccess pops the route itself',
+          (tester) async {
+        // State disposal only happens during frame processing
+        // (BuildOwner.finalizeTree()), so even a callback that pops the
+        // navigator synchronously cannot unmount this widget mid-_submit():
+        // that requires an actual frame/pump, which hasn't run yet at this
+        // point. This locks in that the code after invoking the callback
+        // (the snackbar's context lookup, setState) stays safe without
+        // rechecking mounted a second time.
+        final navigatorKey = GlobalKey<NavigatorState>();
+        fixture.options.feedback.onSubmitSuccess = (_, __) {
+          navigatorKey.currentState?.pop();
+        };
+
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: navigatorKey,
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () =>
+                      SentryFeedbackForm.show(context, hub: fixture.hub),
+                  child: const Text('Show Feedback'),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+
+        // Throws (via FlutterError.onError / tester teardown) if _submit()
+        // ever uses a disposed State after the callback runs.
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+      });
+    });
+  });
+
+  group('$SentryFeedbackForm submission failure', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    group('when captureFeedback returns an empty id', () {
+      testWidgets('keeps the form open with the entered message',
+          (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackForm), findsOneWidget);
+        final messageField = tester.widget<TextFormField>(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        );
+        expect(messageField.controller?.text, 'not-sent-message');
+      });
+
+      testWidgets('does not call onSubmitSuccess', (tester) async {
+        var called = false;
+        fixture.options.feedback.onSubmitSuccess = (_, __) {
+          called = true;
+        };
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(called, isFalse);
+      });
+
+      testWidgets('shows the submit error message', (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Failed to send feedback. Please try again.'),
+            findsOneWidget);
+      });
+
+      testWidgets('re-enables the submit button', (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        final button = tester.widget<FilledButton>(
+          find.byKey(const ValueKey('sentry_feedback_submit_button')),
+        );
+        expect(button.onPressed, isNotNull);
+      });
+
+      testWidgets('calls onSubmitError with a synthetic exception',
+          (tester) async {
+        Object? receivedException;
+        fixture.options.feedback.onSubmitError = (_, exception, __) {
+          receivedException = exception;
+        };
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenAnswer((_) async => const SentryId.empty());
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(receivedException, isA<StateError>());
+        expect(
+            (receivedException as StateError).message, 'Feedback was not sent');
+      });
+    });
+
+    group('when captureFeedback throws', () {
+      testWidgets('keeps the form open with the entered message',
+          (tester) async {
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenThrow(StateError('network error'));
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SentryFeedbackForm), findsOneWidget);
+        final messageField = tester.widget<TextFormField>(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        );
+        expect(messageField.controller?.text, 'not-sent-message');
+      });
+
+      testWidgets('calls onSubmitError with the thrown exception',
+          (tester) async {
+        Object? receivedException;
+        fixture.options.feedback.onSubmitError = (_, exception, __) {
+          receivedException = exception;
+        };
+        final thrown = StateError('network error');
+        when(fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        )).thenThrow(thrown);
+
+        await fixture.pumpFeedbackHost(tester);
+
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'not-sent-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        expect(receivedException, same(thrown));
+      });
+    });
+  });
+
+  group('$SentryFeedbackForm in-flight submission', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('does not call captureFeedback twice on rapid double tap',
+        (tester) async {
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      verify(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).called(1);
+    });
+
+    testWidgets(
+        'does not call captureFeedback twice when tapped again before the disabling rebuild occurs',
+        (tester) async {
+      // No pump() between the two taps below: onPressed only becomes null
+      // after a rebuild, so this exercises the window where a second tap can
+      // still reach _submit() while the first call is already in flight.
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.tap(find.text('Send Bug Report'));
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      verify(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).called(1);
+    });
+
+    testWidgets(
+        'keeps the submit button disabled after a successful submission whose pop is intercepted',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => PopScope(
+                      canPop: false,
+                      child: SentryFeedbackForm(hub: fixture.hub),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Show Feedback'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      // PopScope intercepted the pop, so the form is still on screen.
+      expect(find.byType(SentryFeedbackForm), findsOneWidget);
+
+      // The feedback was already accepted, so Send must not allow
+      // resubmitting it.
+      final submitButton = tester.widget<FilledButton>(
+        find.byKey(const ValueKey('sentry_feedback_submit_button')),
+      );
+      expect(submitButton.onPressed, isNull);
+
+      // Cancel remains the only way left to close the form.
+      final cancelButton = tester.widget<TextButton>(
+        find.byKey(const ValueKey('sentry_feedback_close_button')),
+      );
+      expect(cancelButton.onPressed, isNotNull);
+    });
+
+    testWidgets(
+        'does not call captureFeedback again when tapping submit after a successful submission whose pop is intercepted',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => PopScope(
+                      canPop: false,
+                      child: SentryFeedbackForm(hub: fixture.hub),
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Show Feedback'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      // Attempting to tap Send again must not fire a second capture, since
+      // the button is disabled and _submit() also guards against it directly.
+      await tester.tap(find.text('Send Bug Report'), warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      verify(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).called(1);
+    });
+  });
+
+  group('$SentryFeedbackForm late result handling', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets(
+        'clears preserved data for a successful submission even after the route was popped externally while pending',
+        (tester) async {
+      final associatedEventId =
+          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      SentryFeedbackForm.preservedMessage = 'stale-draft-from-earlier-session';
+      SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
+
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      // Restored from the preserved draft set above.
+      expect(SentryFeedbackForm.preservedMessage,
+          'stale-draft-from-earlier-session');
+
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Pop the route directly (e.g. system back), bypassing Cancel entirely.
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(SentryFeedbackForm), findsNothing);
+
+      completer.complete(associatedEventId);
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, isNull);
+      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
+    });
+
+    testWidgets(
+        'does not clobber a newer form draft with a stale submission that succeeds later',
+        (tester) async {
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+
+      // Form A: type a message and submit (left pending).
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'form-a-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Pop Form A externally while its submission is still pending.
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+
+      // Form B: opened after Form A, writes its own preserved draft via the
+      // screenshot-capture flow.
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'form-b-message',
+      );
+      final screenshotButton = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      await tester.ensureVisible(screenshotButton);
+      await tester.tap(screenshotButton);
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
+
+      // Form A's stale submission finally succeeds.
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      // Form B's draft must survive Form A's late, stale dismiss.
+      expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
+    });
+  });
+
+  group('$SentryFeedbackForm shared draft ownership', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets(
+        'lets an older form clear the saved draft after a newer form above it is popped without saving',
+        (tester) async {
+      SentryFeedbackForm.preservedMessage = 'pre-existing-draft';
+
+      await fixture.pumpFeedbackHost(tester);
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      // A newer form is pushed over the first one, then popped (e.g. system
+      // back) without ever writing to the shared draft.
+      SentryFeedbackForm.show(
+        tester.element(find.byType(SentryFeedbackForm)),
+        hub: fixture.hub,
+      );
+      await tester.pumpAndSettle();
+      tester.state<NavigatorState>(find.byType(Navigator)).pop();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, isNull);
+    });
+
+    testWidgets(
+        'does not let an older form clobber the draft a newer form saved before leaving',
+        (tester) async {
+      await fixture.pumpFeedbackHost(tester);
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      SentryFeedbackForm.show(
+        tester.element(find.byType(SentryFeedbackForm)),
+        hub: fixture.hub,
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'newer-form-draft',
+      );
+      final screenshotButton = find
+          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      await tester.ensureVisible(screenshotButton);
+      await tester.tap(screenshotButton);
+      await tester.pumpAndSettle();
+      expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
+
+      // The older form underneath is now visible again; cancelling it must
+      // not wipe the draft the newer form deliberately saved.
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
+    });
+  });
+
+  group('$SentryFeedbackForm dismissal', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets(
+        'does not pop the route underneath when onSubmitSuccess already popped the form',
+        (tester) async {
+      final navigatorKey = GlobalKey<NavigatorState>();
+      fixture.options.feedback.onSubmitSuccess = (_, __) {
+        navigatorKey.currentState?.pop();
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (context) => Scaffold(
+                    body: Builder(
+                      builder: (context) => ElevatedButton(
+                        onPressed: () => SentryFeedbackForm.show(
+                          context,
+                          hub: fixture.hub,
+                        ),
+                        child: const Text('Show Feedback'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              child: const Text('Open Second Page'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open Second Page'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pumpAndSettle();
+
+      // Only the form was popped; the second page beneath it must survive.
+      expect(find.text('Show Feedback'), findsOneWidget);
+    });
+
+    testWidgets(
+        'closes its own route instead of the one on top when another route covers it',
+        (tester) async {
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+      final navigatorKey = GlobalKey<NavigatorState>();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorKey: navigatorKey,
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () =>
+                  SentryFeedbackForm.show(context, hub: fixture.hub),
+              child: const Text('Show Feedback'),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      // Another route covers the form while its submission is still pending.
+      unawaited(navigatorKey.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (context) => const Scaffold(body: Text('Cover')),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cover'), findsOneWidget);
+      expect(
+          find.byType(SentryFeedbackForm, skipOffstage: false), findsNothing);
     });
   });
 

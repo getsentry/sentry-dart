@@ -82,6 +82,16 @@ class SentryFeedbackForm extends StatefulWidget {
 }
 
 class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
+  // The static preserved-data fields are shared by every instance, so a stale
+  // instance (e.g. a success arriving after the user moved on to a newer
+  // form) must not overwrite what a newer one did. mounted alone can't tell
+  // these apart: it only says whether *this* instance is still around. Each
+  // instance gets an increasing generation, and may only write while no newer
+  // instance is alive and no newer instance has already written.
+  static int _latestGeneration = 0;
+  static final Set<int> _liveGenerations = {};
+  static int _lastWriterGeneration = 0;
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
@@ -91,9 +101,23 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   SentryAttachment? _screenshot;
   Future<Uint8List>? _screenshotFuture;
 
+  bool _isSubmitting = false;
+  // Once a submission succeeds, submission-related controls stay disabled
+  // for the rest of this instance's lifetime — even if _dismiss() didn't
+  // actually close the form (e.g. an app-level PopScope blocking the pop) —
+  // so the same, already-accepted feedback can't be sent again. Cancel stays
+  // available regardless, as the only way left to close the form.
+  bool _isSubmitted = false;
+  String? _submitError;
+
+  late final int _generation;
+
   @override
   void initState() {
     super.initState();
+
+    _generation = ++_latestGeneration;
+    _liveGenerations.add(_generation);
 
     if (widget.options.useSentryUser) {
       _setSentryUserData();
@@ -297,12 +321,14 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                           if (_screenshot != null)
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () async {
-                                  setState(() {
-                                    _screenshot = null;
-                                    _screenshotFuture = null;
-                                  });
-                                },
+                                onPressed: (_isSubmitting || _isSubmitted)
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _screenshot = null;
+                                          _screenshotFuture = null;
+                                        });
+                                      },
                                 child: Text(
                                     key: const ValueKey(
                                         'sentry_feedback_remove_screenshot_button'),
@@ -319,10 +345,13 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         child: ElevatedButton(
                           key: const ValueKey(
                               'sentry_feedback_capture_screenshot_button'),
-                          onPressed: () async {
-                            _dismiss(preserveFormData: true);
-                            SentryScreenshotWidget.showTakeScreenshotButton();
-                          },
+                          onPressed: (_isSubmitting || _isSubmitted)
+                              ? null
+                              : () async {
+                                  _dismiss(preserveFormData: true);
+                                  SentryScreenshotWidget
+                                      .showTakeScreenshotButton();
+                                },
                           child: Text(
                             widget.options.captureScreenshotButtonLabel,
                           ),
@@ -336,11 +365,24 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
           const SizedBox(height: 8),
           Column(
             children: [
+              if (_submitError != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      _submitError!,
+                      key: const ValueKey('sentry_feedback_submit_error'),
+                      style:
+                          TextStyle(color: Theme.of(context).colorScheme.error),
+                    ),
+                  ),
+                ),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   key: const ValueKey('sentry_feedback_submit_button'),
-                  onPressed: _submit,
+                  onPressed: (_isSubmitting || _isSubmitted) ? null : _submit,
                   child: Text(widget.options.submitButtonLabel),
                 ),
               ),
@@ -363,6 +405,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
 
   @override
   void dispose() {
+    _liveGenerations.remove(_generation);
     _nameController.dispose();
     _emailController.dispose();
     _messageController.dispose();
@@ -370,6 +413,10 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   }
 
   Future<void> _submit() async {
+    if (_isSubmitting || _isSubmitted) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -385,8 +432,50 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       hint = Hint.withScreenshot(_screenshot!);
     }
 
-    final sentryId = await _captureFeedback(feedback, hint);
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
 
+    SentryId? sentryId;
+    Object? captureException;
+    StackTrace? captureStackTrace;
+    try {
+      sentryId = await _captureFeedback(feedback, hint);
+    } catch (exception, stackTrace) {
+      captureException = exception;
+      captureStackTrace = stackTrace;
+    }
+
+    if (sentryId == null || sentryId == const SentryId.empty()) {
+      captureException ??= StateError('Feedback was not sent');
+      captureStackTrace ??= StackTrace.current;
+
+      // A failed submission leaves the form's data in place for the user to
+      // retry, so there's nothing to do if the widget is already gone.
+      if (mounted) {
+        try {
+          widget.options.onSubmitError
+              ?.call(feedback, captureException, captureStackTrace);
+        } catch (exception, stackTrace) {
+          internalLogger.warning(
+            'Failed to execute onSubmitError callback',
+            error: exception,
+            stackTrace: stackTrace,
+          );
+        }
+
+        setState(() {
+          _isSubmitting = false;
+          _submitError = widget.options.submitErrorMessageText;
+        });
+      }
+      return;
+    }
+
+    // A successful submission always needs to dismiss (its preserved-data
+    // clear guards itself against a stale instance via _generation), but the
+    // callback and snackbar touch context/UI, so those still require mounted.
     if (mounted) {
       try {
         widget.options.onSubmitSuccess?.call(feedback, sentryId);
@@ -401,6 +490,11 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       if (widget.options.showSuccessMessage) {
         _showSuccessSnackBar();
       }
+
+      setState(() {
+        _isSubmitting = false;
+        _isSubmitted = true;
+      });
     }
 
     _dismiss(preserveFormData: false);
@@ -443,13 +537,31 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   }
 
   void _dismiss({required bool preserveFormData}) {
-    SentryFeedbackForm.pendingAssociatedEventId =
-        preserveFormData ? widget.associatedEventId : null;
+    final mayWriteSharedState = _lastWriterGeneration <= _generation &&
+        !_liveGenerations.any((generation) => generation > _generation);
+    if (mayWriteSharedState) {
+      _lastWriterGeneration = _generation;
 
-    _writePreservedData(preserveFormData: preserveFormData);
+      SentryFeedbackForm.pendingAssociatedEventId =
+          preserveFormData ? widget.associatedEventId : null;
+
+      _writePreservedData(preserveFormData: preserveFormData);
+    }
 
     if (mounted) {
+      _closeOwnRoute();
+    }
+  }
+
+  // Navigator.maybePop() pops whatever is on top, which isn't necessarily this
+  // form's route: a callback may have already popped it (so the next one down
+  // would go), or another route may have been pushed over it since.
+  void _closeOwnRoute() {
+    final route = ModalRoute.of(context);
+    if (route == null || route.isCurrent) {
       Navigator.maybePop(context);
+    } else if (route.isActive) {
+      Navigator.of(context).removeRoute(route);
     }
   }
 
