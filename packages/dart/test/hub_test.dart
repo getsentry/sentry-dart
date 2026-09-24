@@ -4,6 +4,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/propagation_context.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/log/logger_setup_integration.dart';
+import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
@@ -958,6 +960,40 @@ void main() {
 
       final insideSpan = hub.startNewTrace(() => hub.getSpan());
       expect(insideSpan, isNull);
+    });
+
+    test('structured logs inside callback carry the new trace id', () async {
+      final hub = fixture.getSut();
+      LoggerSetupIntegration().call(hub, fixture.options);
+      final outerTraceId = hub.scope.propagationContext.traceId;
+
+      final zoneTraceId = await hub.startNewTrace(() async {
+        await fixture.options.logger.info('inside');
+        return hub.traceScope.propagationContext.traceId;
+      });
+
+      expect(zoneTraceId, isNot(outerTraceId));
+      final capturedLog = fixture.client.captureLogCalls.first.log;
+      expect(capturedLog.traceId, zoneTraceId);
+      expect(capturedLog.traceId, isNot(outerTraceId));
+    });
+
+    test('metrics inside callback carry the new trace id', () async {
+      final hub = fixture.getSut();
+      MetricsSetupIntegration().call(hub, fixture.options);
+      final outerTraceId = hub.scope.propagationContext.traceId;
+
+      final zoneTraceId = hub.startNewTrace(() {
+        fixture.options.metrics.count('inside', 1);
+        return hub.traceScope.propagationContext.traceId;
+      });
+      // `count` fire-and-forgets, so let the microtask flush.
+      await Future<void>.delayed(Duration.zero);
+
+      expect(zoneTraceId, isNot(outerTraceId));
+      final capturedMetric = fixture.client.captureMetricCalls.first.metric;
+      expect(capturedMetric.traceId, zoneTraceId);
+      expect(capturedMetric.traceId, isNot(outerTraceId));
     });
 
     test(

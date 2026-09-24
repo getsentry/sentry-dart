@@ -18,7 +18,9 @@ class LoggerSetupIntegration extends Integration<SentryOptions> {
     options.logger = DefaultSentryLogger(
       captureLogCallback: hub.captureLog,
       clockProvider: options.clock,
-      scopeProvider: () => hub.scope,
+      // Use `traceScope` so that logs captured inside a `startNewTrace`
+      // callback are stamped with the new trace id, not the hub's.
+      scopeProvider: () => hub.traceScope,
     );
 
     options.sdk.addIntegration(integrationName);

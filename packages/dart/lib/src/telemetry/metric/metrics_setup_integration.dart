@@ -18,7 +18,9 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
     options.metrics = DefaultSentryMetrics(
         captureMetricCallback: hub.captureMetric,
         clockProvider: options.clock,
-        scopeProvider: () => hub.scope);
+        // Use `traceScope` so that metrics captured inside a
+        // `startNewTrace` callback are stamped with the new trace id.
+        scopeProvider: () => hub.traceScope);
 
     options.sdk.addIntegration(integrationName);
     internalLogger.debug('$integrationName: Metrics configured successfully');
