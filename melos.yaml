@@ -54,6 +54,13 @@ scripts:
       flutter: true
       dirExists: test
 
+  example:flutter:
+    run: cd packages/flutter/example && ./run.sh
+    description: |
+      Build & run the Flutter example in release mode with obfuscation and symbol upload.
+      Usage: melos run example:flutter -- <ios|android|web|macos|linux>
+      Not supported on Windows: melos runs scripts through cmd.exe there, which can't execute run.sh.
+
   # Lifecycle script, executed as part of `melos clean`.
   postclean: melos exec --flutter -- "flutter clean"
 
