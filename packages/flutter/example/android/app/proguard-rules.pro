@@ -1,1 +1,0 @@
--keep class io.sentry.flutter.sample.** { *; }
