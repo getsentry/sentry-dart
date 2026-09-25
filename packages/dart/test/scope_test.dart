@@ -609,6 +609,36 @@ void main() {
       expect(updatedEvent?.contexts['trace'] is SentryTraceContext, isTrue);
     });
 
+    test('trace context status defaults to ok when active span has no status',
+        () async {
+      final event = SentryEvent();
+      final scope = Scope(defaultTestOptions())..span = fixture.sentryTracer;
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      expect(updatedEvent?.contexts.trace?.status, SpanStatus.ok());
+    });
+
+    test('trace context keeps the active span status when set', () async {
+      final event = SentryEvent();
+      final tracer = fixture.sentryTracer..status = SpanStatus.aborted();
+      final scope = Scope(defaultTestOptions())..span = tracer;
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      expect(updatedEvent?.contexts.trace?.status, SpanStatus.aborted());
+    });
+
+    test('trace context status defaults to ok with propagation context',
+        () async {
+      final event = SentryEvent();
+      final scope = Scope(defaultTestOptions());
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      expect(updatedEvent?.contexts.trace?.status, SpanStatus.ok());
+    });
+
     test('apply trace context to event with propagation context', () async {
       final event = SentryEvent();
       final event2 = SentryEvent();
