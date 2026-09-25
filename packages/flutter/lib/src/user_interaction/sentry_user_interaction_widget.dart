@@ -233,12 +233,15 @@ Element? _clickTrackerElement;
 ///
 /// For breadcrumbs, disable it in the [SentryFlutterOptions.enableUserInteractionBreadcrumbs].
 ///
+/// To skip specific widget types entirely, pass their names in [ignoreTypes].
+///
 /// If you are using the [SentryScreenshotWidget] as well, make sure to add
 /// [SentryUserInteractionWidget] as a child of [SentryScreenshotWidget].
 class SentryUserInteractionWidget extends StatefulWidget {
   SentryUserInteractionWidget({
     super.key,
     required this.child,
+    this.ignoreTypes = const [],
     @internal Hub? hub,
   }) {
     _hub = hub ?? HubAdapter();
@@ -249,6 +252,24 @@ class SentryUserInteractionWidget extends StatefulWidget {
   }
 
   final Widget child;
+
+  /// Widget types that should not be tracked.
+  ///
+  /// Taps on widgets whose detected type is in this list, including anything
+  /// nested inside them, create neither a breadcrumb nor a transaction. The
+  /// names match the values reported as `view.class`, i.e. the supported
+  /// types: `ButtonStyleButton`,
+  /// `MaterialButton`, `CupertinoButton`, `InkWell`, `IconButton`,
+  /// `PopupMenuButton` and `PopupMenuItem`.
+  ///
+  /// Example:
+  /// ```dart
+  /// SentryUserInteractionWidget(
+  ///   ignoreTypes: ['InkWell'],
+  ///   child: App(),
+  /// )
+  /// ```
+  final List<String> ignoreTypes;
 
   late final Hub _hub;
 
@@ -617,6 +638,12 @@ class _SentryUserInteractionWidgetState
       }
 
       final type = _getElementType(element);
+      if (type != null && widget.ignoreTypes.contains(type)) {
+        // Ignored widgets are skipped together with their subtree, so the
+        // widgets they build internally (e.g. the InkWell inside a
+        // MaterialButton) do not get reported instead.
+        return;
+      }
       if (type != null) {
         tappedWidget = UserInteractionInfo(
           element: element,

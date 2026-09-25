@@ -138,6 +138,28 @@ void main() {
       });
     });
 
+    testWidgets('Does not add crumb for ignored type', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(ignoreTypes: ['MaterialButton']);
+
+        await tapMe(tester, sut, 'btn_1');
+
+        expect(fixture.getBreadcrumbs(), isEmpty);
+      });
+    });
+
+    testWidgets('Add crumb for type that is not ignored', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(ignoreTypes: ['MaterialButton']);
+
+        await tapMe(tester, sut, 'btn_2');
+
+        final data = fixture.getBreadcrumb().data;
+        expect(data?['view.id'], equals('btn_2'));
+        expect(data?['view.class'], equals('CupertinoButton'));
+      });
+    });
+
     testWidgets('Add crumb for MaterialButton with label', (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(sendDefaultPii: true);
@@ -464,6 +486,23 @@ void main() {
         expect(tracer?.transactionNameSource,
             SentryTransactionNameSource.component);
         expect(tracer?.autoFinishAfterTimer, isNotNull);
+      });
+    });
+
+    testWidgets('Does not start transaction for ignored type', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false,
+            ignoreTypes: ['MaterialButton']);
+
+        await tapMe(tester, sut, 'btn_1');
+
+        ISentrySpan? span;
+        fixture.hub.configureScope((scope) {
+          span = scope.span;
+        });
+        expect(span, isNull);
       });
     });
 
@@ -794,6 +833,7 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     bool sendDefaultPii = false,
     SentryTraceLifecycle? traceLifecycle,
+    List<String> ignoreTypes = const [],
     Widget? child,
   }) {
     // Missing mock exception
@@ -813,6 +853,7 @@ class Fixture {
 
     return SentryUserInteractionWidget(
       hub: hub,
+      ignoreTypes: ignoreTypes,
       child: child ?? MyApp(),
     );
   }
@@ -823,6 +864,14 @@ class Fixture {
       crumb = scope.breadcrumbs.last;
     });
     return crumb;
+  }
+
+  List<Breadcrumb> getBreadcrumbs() {
+    late final List<Breadcrumb> crumbs;
+    hub.configureScope((scope) {
+      crumbs = scope.breadcrumbs;
+    });
+    return crumbs;
   }
 }
 
