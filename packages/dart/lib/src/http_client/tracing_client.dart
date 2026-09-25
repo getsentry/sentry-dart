@@ -48,6 +48,10 @@ class TracingClient extends BaseClient {
           )
         : null;
 
+    if (instrumentationSpan != null) {
+      RequestSpanRegistry.register(request, instrumentationSpan);
+    }
+
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).
     if (containsTargetOrMatchesRegExp(

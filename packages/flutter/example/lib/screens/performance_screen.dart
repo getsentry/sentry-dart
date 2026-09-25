@@ -193,6 +193,23 @@ class PerformanceScreen extends StatelessWidget {
                           'Demonstrates the new SpanV2 API with streaming trace lifecycle. Creates spans and sets attributes.',
                       buttonTitle: 'Emit SpanV2',
                     ),
+                  if (Sentry.currentHub.options.traceLifecycle ==
+                      SentryTraceLifecycle.stream) ...[
+                    TooltipButton(
+                      onPressed: () => makeFailingWebRequest(context),
+                      key: const Key('http_failing_request'),
+                      text:
+                          'Requests a 404 inside a span. The captured error should be linked to the http.client span in Sentry.',
+                      buttonTitle: 'Dart: Failing web request',
+                    ),
+                    TooltipButton(
+                      onPressed: () => makeFailingWebRequestWithDio(context),
+                      key: const Key('dio_failing_request'),
+                      text:
+                          'Requests a 404 through Dio inside a span. The captured error should be linked to the http.client span in Sentry.',
+                      buttonTitle: 'Dio: Failing web request',
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -352,6 +369,72 @@ Future<void> makeWebRequest(BuildContext context) async {
     if (!context.mounted) return;
     await _showWebResponseDialog(context, response.statusCode, response.body);
   }
+}
+
+/// A URL that reliably answers 404, to demo linking an error to its
+/// `http.client` span.
+final _failingUrl = Uri.parse('${exampleUrl}0');
+
+final _failingStatusCodes = [SentryStatusCode(404)];
+
+Future<void> makeFailingWebRequest(BuildContext context) async {
+  final client = SentryHttpClient(
+    failedRequestStatusCodes: _failingStatusCodes,
+  );
+
+  late SentryId traceId;
+  int? statusCode;
+  await Sentry.startSpan('http-failing-request', (span) async {
+    traceId = span.traceId;
+    statusCode = (await client.get(_failingUrl)).statusCode;
+  });
+
+  if (!context.mounted) return;
+  await _showLinkedErrorDialog(context, traceId, statusCode);
+}
+
+Future<void> makeFailingWebRequestWithDio(BuildContext context) async {
+  final dio = Dio();
+  dio.addSentry(failedRequestStatusCodes: _failingStatusCodes);
+
+  late SentryId traceId;
+  int? statusCode;
+  await Sentry.startSpan('dio-failing-request', (span) async {
+    traceId = span.traceId;
+    try {
+      await dio.getUri<String>(_failingUrl);
+    } on DioException catch (exception) {
+      statusCode = exception.response?.statusCode;
+    }
+  });
+
+  if (!context.mounted) return;
+  await _showLinkedErrorDialog(context, traceId, statusCode);
+}
+
+Future<void> _showLinkedErrorDialog(
+  BuildContext context,
+  SentryId traceId,
+  int? statusCode,
+) async {
+  await showDialog<void>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Captured $statusCode'),
+        content: SelectableText(
+          'Search this trace in Sentry to see the error linked to the '
+          'http.client span:\n\n$traceId',
+        ),
+        actions: [
+          MaterialButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 Future<void> _showWebResponseDialog(

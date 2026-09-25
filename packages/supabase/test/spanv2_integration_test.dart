@@ -183,6 +183,49 @@ void main() {
       );
       expect(span.parentSpan, equals(transactionSpan));
     });
+
+    group('when a failed request is captured', () {
+      test('links the error to the db span', () async {
+        fixture.mockHttpClient.statusCode = 500;
+
+        late SentrySpanV2 transactionSpan;
+        await fixture.hub.startSpan(
+          'test-transaction',
+          (span) async {
+            transactionSpan = span;
+            try {
+              await fixture.client.from('users').select().eq('id', 1);
+            } catch (_) {}
+          },
+          parentSpan: null,
+        );
+
+        await fixture.processor.waitForProcessing();
+        await pumpEventQueue();
+        final dbSpan = fixture.processor.findSpanByOperation('db.select')!;
+
+        final traceContext = fixture.capturedEvents.first.contexts.trace;
+        expect(traceContext?.spanId, dbSpan.spanId);
+        expect(traceContext?.parentSpanId, transactionSpan.spanId);
+        expect(traceContext?.traceId, transactionSpan.traceId);
+        expect(traceContext?.operation, 'db.select');
+      });
+
+      test('does not link the error when no span is active', () async {
+        fixture.mockHttpClient.statusCode = 500;
+
+        try {
+          await fixture.client.from('users').select().eq('id', 1);
+        } catch (_) {}
+        await pumpEventQueue();
+
+        expect(fixture.processor.findSpanByOperation('db.select'), isNull);
+        expect(
+          fixture.capturedEvents.first.contexts.trace?.parentSpanId,
+          isNull,
+        );
+      });
+    });
   });
 }
 
@@ -192,6 +235,7 @@ class Fixture {
   late final FakeTelemetryProcessor processor;
   late final SupabaseClient client;
   late final MockHttpClient mockHttpClient;
+  final capturedEvents = <SentryEvent>[];
 
   Fixture() {
     processor = FakeTelemetryProcessor();
@@ -199,7 +243,13 @@ class Fixture {
       ..automatedTestMode = true
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      // Records the event after the scope was applied and drops it, so no
+      // transport is involved.
+      ..beforeSend = (event, hint) {
+        capturedEvents.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
@@ -218,16 +268,19 @@ class Fixture {
 
   Future<void> tearDown() async {
     processor.clear();
+    capturedEvents.clear();
     await hub.close();
   }
 }
 
 class MockHttpClient extends BaseClient {
+  int statusCode = 200;
+
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     return StreamedResponse(
       Stream.fromIterable([]),
-      200,
+      statusCode,
       headers: {'content-type': 'application/json'},
     );
   }

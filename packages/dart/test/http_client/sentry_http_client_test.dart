@@ -7,6 +7,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/failed_request_client.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_transport.dart';
@@ -148,6 +149,69 @@ void main() {
       expect(tr.children.length, 1);
       expect(tr.children.first.context.operation, 'http.client');
     });
+
+    group('when streaming spans and a failed request is captured', () {
+      setUp(() => fixture.enableSpanStreaming());
+
+      test('links the error to the http.client span', () async {
+        final sut = fixture.getSut(
+          hub: fixture.realHub,
+          client: fixture.getClient(statusCode: 500),
+          badStatusCodes: [SentryStatusCode.range(500, 599)],
+          captureFailedRequests: true,
+        );
+
+        late SentrySpanV2 rootSpan;
+        await fixture.realHub.startSpan('root-span', (span) async {
+          rootSpan = span;
+          await sut.get(requestUri);
+        });
+
+        await fixture.processor.waitForProcessing();
+        final httpSpan = fixture.processor.findSpanByOperation('http.client')!;
+
+        final traceContext = fixture.transport.events.first.contexts.trace;
+        expect(traceContext?.spanId, httpSpan.spanId);
+        expect(traceContext?.parentSpanId, rootSpan.spanId);
+        expect(traceContext?.traceId, rootSpan.traceId);
+        expect(traceContext?.operation, 'http.client');
+      });
+
+      test('links the error to the http.client span when the client throws',
+          () async {
+        final sut = fixture.getSut(
+          hub: fixture.realHub,
+          client: createThrowingClient(),
+          captureFailedRequests: true,
+        );
+
+        await fixture.realHub.startSpan('root-span', (_) async {
+          await expectLater(
+              () => sut.get(requestUri), throwsA(isA<Exception>()));
+        });
+
+        await fixture.processor.waitForProcessing();
+        final httpSpan = fixture.processor.findSpanByOperation('http.client')!;
+
+        expect(fixture.transport.events.first.contexts.trace?.spanId,
+            httpSpan.spanId);
+      });
+
+      test('does not link the error when no span is active', () async {
+        final sut = fixture.getSut(
+          hub: fixture.realHub,
+          client: fixture.getClient(statusCode: 500),
+          badStatusCodes: [SentryStatusCode.range(500, 599)],
+          captureFailedRequests: true,
+        );
+
+        await sut.get(requestUri);
+
+        expect(fixture.processor.findSpanByOperation('http.client'), isNull);
+        expect(fixture.transport.events.first.contexts.trace?.parentSpanId,
+            isNull);
+      });
+    });
   });
 }
 
@@ -166,6 +230,7 @@ class Fixture {
   late MockHub mockHub;
   late Hub realHub;
   late MockTransport transport;
+  final processor = FakeTelemetryProcessor();
   final options = defaultTestOptions();
 
   Fixture() {
@@ -174,6 +239,15 @@ class Fixture {
     options.transport = transport;
     realHub = Hub(options);
     mockHub = MockHub();
+  }
+
+  void enableSpanStreaming() {
+    options.tracesSampleRate = 1.0;
+    options.recordHttpBreadcrumbs = false;
+    options.traceLifecycle = SentryTraceLifecycle.stream;
+    options.telemetryProcessor = processor;
+    options.addIntegration(InstrumentationSpanFactorySetupIntegration());
+    options.integrations.last.call(realHub, options);
   }
 
   SentryHttpClient getSut({
