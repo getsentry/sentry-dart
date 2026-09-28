@@ -26,7 +26,7 @@ runs:
       shell: bash
       run: |
         sudo apt-get update -qq
-        sudo apt-get install -qq -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb libcurl4-openssl-dev network-manager upower
+        sudo apt-get install -qq -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb lcov libcurl4-openssl-dev network-manager upower
 
     - run: flutter pub get
       shell: bash
@@ -39,14 +39,21 @@ runs:
       env:
         INPUT_DIRECTORY: ${{ inputs.directory }}
       run: |
+        reportArgs="--file-reporter json:test-vm.jsonl"
         if [[ "$INPUT_DIRECTORY" == 'packages/isar' ]]; then
           testCmd="flutter test -j 1 --test-randomize-ordering-seed=random"
         else
           testCmd="flutter test --test-randomize-ordering-seed=random"
         fi
 
+        if [[ "$INPUT_DIRECTORY" == 'packages/flutter' &&
+              ( '${{ matrix.target }}' == 'linux' || '${{ matrix.target }}' == 'windows' ) ]]; then
+          testCmd="bash ../../.github/scripts/test-flutter-desktop.sh"
+          reportArgs=""
+        fi
+
         if ${{ (matrix.target == 'linux' && matrix.sdk == 'stable' && 'true') || 'false' }} ; then
-          $testCmd --coverage --file-reporter json:test-vm.jsonl
+          $testCmd --coverage $reportArgs
           if [[ "$INPUT_DIRECTORY" == 'packages/flutter' ]]; then
             # Remove native binding/bridge files from coverage.
             # These FFI/JNI bindings are currently not unit tested due to limitations of FFI/JNI mocking.
@@ -56,7 +63,7 @@ runs:
             dart run remove_from_coverage -f coverage/lcov.info -r '^lib/src/native/cocoa/.*\.dart$'
           fi
         else
-          $testCmd --file-reporter json:test-vm.jsonl
+          $testCmd $reportArgs
         fi
 
     # Tests that fail after they already completed (async errors) flip the
@@ -68,7 +75,8 @@ runs:
       working-directory: ${{ inputs.directory }}
       shell: bash
       run: |
-        if [[ -f test-vm.jsonl ]]; then
+        for report in test-vm.jsonl test-native-*.jsonl; do
+          [[ -f "$report" ]] || continue
           jq -rs '
             (map(select(.type == "testStart"))
               | map({(.test.id | tostring): .test.name}) | add // {}) as $names
@@ -78,8 +86,8 @@ runs:
                 ("::error title=Test failure::FAILED: \($name)\n\(.error)"
                   | gsub("%"; "%25") | gsub("\r"; "%0D") | gsub("\n"; "%0A")))
             | .[]
-          ' test-vm.jsonl || true
-        fi
+          ' "$report" || true
+        done
 
     - name: Install better_test_reporter
       if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
@@ -90,7 +98,12 @@ runs:
       if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
       working-directory: ${{ inputs.directory }}
       shell: bash
-      run: dart pub global run better_test_reporter:report_to_junit --input test-vm.jsonl --output TEST-vm-junit.xml
+      run: |
+        for report in test-vm.jsonl test-native-*.jsonl; do
+          [[ -f "$report" ]] || continue
+          dart pub global run better_test_reporter:report_to_junit \
+            --input "$report" --output "TEST-${report%.jsonl}-junit.xml"
+        done
 
     - name: Test web (${{ matrix.target }})
       if: matrix.target == 'js' || matrix.target == 'wasm'
