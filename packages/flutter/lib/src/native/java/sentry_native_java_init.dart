@@ -130,10 +130,7 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
           native.SentryFlutterPlugin.privateSentryGetReplayIntegration(),
         );
         owner._replayRecorder = AndroidReplayRecorder.factory(options);
-        final config = owner._replayConfig;
-        if (config != null) {
-          owner._applyReplayConfig(config);
-        }
+        owner._applyReplayConfig();
         await owner._replayRecorder!.start();
       },
       replayStateChanged: (JString replayIdString, bool replayIsBuffering) {

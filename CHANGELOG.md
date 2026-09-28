@@ -9,6 +9,7 @@
 ### Fixes
 
 - Default event trace context status to `ok` while preserving explicit span statuses. ([#4035](https://github.com/getsentry/sentry-dart/pull/4035))
+- Restore Android replay configuration across recorder restarts and prevent overlapping capture schedulers. ([#4037](https://github.com/getsentry/sentry-dart/pull/4037))
 
 ## 10.0.0-rc.0
 

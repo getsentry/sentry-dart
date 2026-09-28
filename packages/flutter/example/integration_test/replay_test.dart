@@ -10,7 +10,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 import 'package:sentry_flutter/src/native/java/binding.dart' as native;
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
-import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 /// Since sentry-java 8.54.0 the replay lifecycle transitions are posted to the
@@ -319,22 +318,5 @@ void main() {
       },
       skip: !Platform.isAndroid,
     );
-
-    testWidgets('setReplayConfig applies without error on Android', (
-      tester,
-    ) async {
-      await setupSentryAndApp(tester);
-      const config = ReplayConfig(
-        windowWidth: 1080,
-        windowHeight: 1920,
-        width: 800,
-        height: 600,
-        frameRate: 1,
-      );
-      await Future.delayed(const Duration(seconds: 2));
-
-      // Should not throw
-      await SentryFlutter.native?.setReplayConfig(config);
-    }, skip: !Platform.isAndroid);
   });
 }

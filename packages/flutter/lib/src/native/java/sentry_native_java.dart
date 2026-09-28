@@ -257,35 +257,37 @@ class SentryNativeJava extends SentryNativeChannel {
   );
 
   @override
-  void setReplayConfig(ReplayConfig config) {
-    // Native discards configuration while replay is inactive. Keep it for the
-    // next start, which need not coincide with a widget size change.
-    _replayConfig = config;
-    _applyReplayConfig(config);
-  }
+  void setReplayConfig(ReplayConfig config) =>
+      tryCatchSync('setReplayConfig', () {
+        final invalidConfig =
+            config.width == 0.0 ||
+            config.height == 0.0 ||
+            config.windowWidth == 0.0 ||
+            config.windowHeight == 0.0;
+        if (invalidConfig) {
+          internalLogger.error(
+            'Replay config is not valid: '
+            'width: ${config.width}, '
+            'height: ${config.height}, '
+            'windowWidth: ${config.windowWidth}, '
+            'windowHeight: ${config.windowHeight}',
+          );
+          return;
+        }
 
-  void _applyReplayConfig(
-    ReplayConfig config,
-  ) => tryCatchSync('setReplayConfig', () {
+        // A new recorder needs configuration even without a widget size change.
+        _replayConfig = config;
+        _applyReplayConfig();
+      });
+
+  void _applyReplayConfig() => tryCatchSync('applyReplayConfig', () {
+    final config = _replayConfig;
+    // Defer native delivery until replayStarted has created the Dart recorder.
+    if (config == null || _replayRecorder == null) return;
+
     // Since codec block size is 16, so we have to adjust the width and height to it,
     // otherwise the codec might fail to configure on some devices, see
     // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
-    final invalidConfig =
-        config.width == 0.0 ||
-        config.height == 0.0 ||
-        config.windowWidth == 0.0 ||
-        config.windowHeight == 0.0;
-    if (invalidConfig) {
-      internalLogger.error(
-        'Replay config is not valid: '
-        'width: ${config.width}, '
-        'height: ${config.height}, '
-        'windowWidth: ${config.windowWidth}, '
-        'windowHeight: ${config.windowHeight}',
-      );
-      return;
-    }
-
     var adjWidth = config.width;
     var adjHeight = config.height;
 
