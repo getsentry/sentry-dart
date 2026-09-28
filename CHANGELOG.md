@@ -6,6 +6,10 @@
 
 - Raise the minimum Android SDK version for Flutter from API 21 to API 26. Set your app's Android `minSdk` to 26 or higher. ([#4049](https://github.com/getsentry/sentry-dart/pull/4049))
 
+### Fixes
+
+- Default event trace context status to `ok` while preserving explicit span statuses. ([#4035](https://github.com/getsentry/sentry-dart/pull/4035))
+
 ## 10.0.0-rc.0
 
 ### Breaking Changes
