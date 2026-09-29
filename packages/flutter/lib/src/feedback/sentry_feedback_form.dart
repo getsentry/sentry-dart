@@ -452,8 +452,9 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       captureStackTrace ??= StackTrace.current;
 
       // A failed submission leaves the form's data in place for the user to
-      // retry, so there's nothing to do if the widget is already gone.
-      if (mounted) {
+      // retry, so there's nothing to do if the form is already gone or
+      // leaving.
+      if (_isStillOpen) {
         try {
           widget.options.onSubmitError
               ?.call(feedback, captureException, captureStackTrace);
@@ -475,8 +476,8 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
 
     // A successful submission always needs to dismiss (its preserved-data
     // clear guards itself against a stale instance via _generation), but the
-    // callback and snackbar touch context/UI, so those still require mounted.
-    if (mounted) {
+    // callback and snackbar are only for a form that's still in place.
+    if (_isStillOpen) {
       try {
         widget.options.onSubmitSuccess?.call(feedback, sentryId);
       } catch (exception, stackTrace) {
@@ -499,6 +500,10 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
 
     _dismiss(preserveFormData: false);
   }
+
+  // Not just mounted: a popped form stays mounted during its exit animation.
+  bool get _isStillOpen =>
+      mounted && (ModalRoute.of(context)?.isActive ?? true);
 
   void _showSuccessSnackBar() {
     final messenger = ScaffoldMessenger.maybeOf(context);
@@ -555,12 +560,14 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
 
   // Navigator.maybePop() pops whatever is on top, which isn't necessarily this
   // form's route: a callback may have already popped it (so the next one down
-  // would go), or another route may have been pushed over it since.
+  // would go), or another route may have been pushed over it since. A covered
+  // page-based route (e.g. a GoRoute) is left alone: only the app's router may
+  // remove its page, and removeRoute asserts on page-based routes.
   void _closeOwnRoute() {
     final route = ModalRoute.of(context);
     if (route == null || route.isCurrent) {
       Navigator.maybePop(context);
-    } else if (route.isActive) {
+    } else if (route.isActive && route.settings is! Page) {
       Navigator.of(context).removeRoute(route);
     }
   }

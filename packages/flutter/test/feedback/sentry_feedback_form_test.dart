@@ -1492,6 +1492,78 @@ void main() {
       // Form B's draft must survive Form A's late, stale dismiss.
       expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
     });
+
+    testWidgets(
+        'does not call onSubmitSuccess or show a snackbar when the result arrives during the cancel exit animation',
+        (tester) async {
+      var onSubmitSuccessCalled = false;
+      fixture.options.feedback.onSubmitSuccess = (_, __) {
+        onSubmitSuccessCalled = true;
+      };
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      // Still mounted: the route is mid exit animation.
+      expect(find.byType(SentryFeedbackForm), findsOneWidget);
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      expect(onSubmitSuccessCalled, isFalse);
+      expect(find.text('Thank you for your report!'), findsNothing);
+    });
+
+    testWidgets(
+        'does not call onSubmitError when the failure arrives during the cancel exit animation',
+        (tester) async {
+      var onSubmitErrorCalled = false;
+      fixture.options.feedback.onSubmitError = (_, __, ___) {
+        onSubmitErrorCalled = true;
+      };
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+
+      await fixture.pumpFeedbackHost(tester);
+      await tester.tap(find.text('Show Feedback'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(find.byType(SentryFeedbackForm), findsOneWidget);
+
+      completer.complete(const SentryId.empty());
+      await tester.pumpAndSettle();
+
+      expect(onSubmitErrorCalled, isFalse);
+    });
   });
 
   group('$SentryFeedbackForm shared draft ownership', () {
@@ -1664,6 +1736,57 @@ void main() {
       expect(find.text('Cover'), findsOneWidget);
       expect(
           find.byType(SentryFeedbackForm, skipOffstage: false), findsNothing);
+    });
+
+    testWidgets(
+        'leaves a covered page-based form in place with submit disabled after success',
+        (tester) async {
+      final completer = Completer<SentryId>();
+      when(fixture.hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      )).thenAnswer((_) => completer.future);
+      final navigatorKey = GlobalKey<NavigatorState>();
+
+      // The form is a Page owned by the app (e.g. a GoRoute), so only the
+      // app's router may remove it.
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Navigator(
+            key: navigatorKey,
+            pages: [
+              MaterialPage<void>(child: SentryFeedbackForm(hub: fixture.hub)),
+            ],
+            onDidRemovePage: (_) {},
+          ),
+        ),
+      );
+
+      await tester.enterText(
+        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+        'fixture-message',
+      );
+      await tester.tap(find.text('Send Bug Report'));
+      await tester.pump();
+
+      unawaited(navigatorKey.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (context) => const Scaffold(body: Text('Cover')),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      navigatorKey.currentState!.pop();
+      await tester.pumpAndSettle();
+
+      final submitButton = tester.widget<FilledButton>(
+          find.byKey(const ValueKey('sentry_feedback_submit_button')));
+      expect(submitButton.onPressed, isNull);
     });
   });
 
