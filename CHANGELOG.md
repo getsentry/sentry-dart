@@ -4,16 +4,6 @@
 
 Version 10.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
 
-The goal of this release is the following:
- - Bump the minimum Dart and Flutter versions to `3.12.0` and `3.44.0` respectively, and the minimum Android API version to 26
- - Use Swift Package Manager as the only supported integration on Apple platforms and Flutter's built-in Kotlin support on Android
- - Always enable logs and metrics
- - Report app start as a standalone `app.start` trace
- - Add manual Session Replay controls and mask `SensitiveContent` by default
- - Align span attributes with Sentry Conventions
- - Use Breakpad as the default native crash backend on Windows and Linux
- - Trim down deprecated and internal APIs
-
 ### How To Upgrade
 
 Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 9 to version 10
