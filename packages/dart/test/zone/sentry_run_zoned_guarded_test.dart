@@ -112,6 +112,47 @@ void main() {
       expect(parent.status, SentrySpanStatusV2.ok);
     });
 
+    test(
+      'does not mark the idle span when a zone-local span is marked',
+      () async {
+        final hub = Hub(fixture.options)..bindClient(MockSentryClient());
+        final idle = hub.startIdleSpan('idle');
+        addTearDown(idle.end);
+        final reported = Completer<void>();
+        final spanEnded = Completer<SentrySpanV2>();
+
+        unawaited(
+          SentryRunZonedGuarded.sentryRunZonedGuarded(
+            hub,
+            () => hub.startSpan('span', (span) async {
+              scheduleMicrotask(() => throw StateError('error'));
+              await reported.future;
+              spanEnded.complete(span);
+            }),
+            (error, stackTrace) => reported.complete(),
+          ),
+        );
+
+        final span = await spanEnded.future;
+        expect(span.status, SentrySpanStatusV2.error);
+        expect(idle.status, SentrySpanStatusV2.ok);
+      },
+    );
+
+    test('marks the idle span when the body throws synchronously', () async {
+      final hub = Hub(fixture.options)..bindClient(MockSentryClient());
+      final idle = hub.startIdleSpan('idle');
+      addTearDown(idle.end);
+
+      SentryRunZonedGuarded.sentryRunZonedGuarded(
+        hub,
+        () => throw StateError('error'),
+        null,
+      );
+
+      expect(idle.status, SentrySpanStatusV2.error);
+    });
+
     test('still delivers awaited span errors to the caller', () async {
       final hub = Hub(fixture.options)..bindClient(MockSentryClient());
       final error = StateError('error');

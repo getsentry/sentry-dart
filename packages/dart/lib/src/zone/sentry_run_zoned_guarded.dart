@@ -86,10 +86,14 @@ class SentryRunZonedGuarded {
       },
     );
     return runZonedGuarded(
-      () => runZoned(
-        body,
-        zoneSpecification: _originZoneSpanStatusSpecification(hub),
-      ),
+      () => runZoned(() {
+        try {
+          return body();
+        } catch (_) {
+          _markActiveSpanAsErrored(hub, Zone.current);
+          rethrow;
+        }
+      }, zoneSpecification: _originZoneSpanStatusSpecification(hub)),
       sentryOnError,
       zoneValues: zoneValues,
       zoneSpecification: sentryZoneSpecification,
@@ -104,18 +108,22 @@ class SentryRunZonedGuarded {
   static ZoneSpecification _originZoneSpanStatusSpecification(Hub hub) {
     return ZoneSpecification(
       handleUncaughtError: (self, parent, zone, error, stackTrace) {
-        try {
-          zone.run(hub.markActiveSpanAsErrored);
-        } catch (e, st) {
-          internalLogger.error(
-            'Failed to mark the active span as errored',
-            error: e,
-            stackTrace: st,
-          );
-        }
+        _markActiveSpanAsErrored(hub, zone);
         parent.handleUncaughtError(zone, error, stackTrace);
       },
     );
+  }
+
+  static void _markActiveSpanAsErrored(Hub hub, Zone zone) {
+    try {
+      zone.run(hub.markActiveSpanAsErrored);
+    } catch (e, st) {
+      internalLogger.error(
+        'Failed to mark the active span as errored',
+        error: e,
+        stackTrace: st,
+      );
+    }
   }
 
   static Future<void> _captureError(
@@ -141,8 +149,6 @@ class SentryRunZonedGuarded {
           : SentryLevel.error,
       timestamp: hub.options.clock(),
     );
-
-    hub.markActiveSpanAsErrored();
 
     await hub.captureEvent(event, stackTrace: stackTrace);
   }
