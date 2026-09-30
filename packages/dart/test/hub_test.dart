@@ -229,6 +229,7 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
     });
 
     test(
@@ -673,6 +674,7 @@ void main() {
       'generateNewTrace dispatches OnTraceReset with spanId from active span',
       () {
         SpanId? receivedSpanId;
+        hub.options.traceLifecycle = SentryTraceLifecycle.static;
         hub.options.tracesSampleRate = 1.0;
         hub.options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>((
           event,

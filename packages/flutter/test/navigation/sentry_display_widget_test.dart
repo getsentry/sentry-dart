@@ -64,6 +64,7 @@ void main() {
 
 class Fixture {
   final options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static
     ..tracesSampleRate = 1.0
     ..enableTimeToFullDisplayTracing = true;
 

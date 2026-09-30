@@ -681,7 +681,8 @@ void main() {
 
 class Fixture {
   final client = MockSentryClient();
-  final options = defaultTestOptions();
+  final options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static;
   late Hub hub;
 
   SentryFile getSut(

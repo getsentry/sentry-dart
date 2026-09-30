@@ -554,6 +554,7 @@ void main() {
 class Fixture {
   final startTimestamp = getUtcDateTime();
   final options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
   late final hub = Hub(options);

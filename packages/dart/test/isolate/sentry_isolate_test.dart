@@ -5,6 +5,7 @@ import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:sentry/src/hub.dart';
 import 'package:sentry/src/protocol/sentry_level.dart';
 import 'package:sentry/src/telemetry/span/transaction/span_status.dart';
+import 'package:sentry/src/telemetry/span/sentry_trace_lifecycle.dart';
 import 'package:sentry/src/isolate/sentry_isolate.dart';
 import 'package:test/test.dart';
 
@@ -31,6 +32,7 @@ void main() {
     });
 
     test('marks transaction as internal error if no status', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
       final exception = StateError('error');
       final stackTrace = StackTrace.current.toString();
 

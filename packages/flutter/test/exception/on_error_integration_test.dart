@@ -218,6 +218,7 @@ void main() {
     });
 
     test('marks transaction as internal error if no status', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
       final exception = StateError('error');
 
       final hub = Hub(fixture.options);

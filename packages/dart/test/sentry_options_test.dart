@@ -9,7 +9,7 @@ import 'test_utils.dart';
 void main() {
   group('$SentryOptions traceLifecycle', () {
     test('defaults to stream', () {
-      final options = SentryOptions();
+      final options = defaultTestOptions();
 
       expect(options.traceLifecycle, SentryTraceLifecycle.stream);
     });

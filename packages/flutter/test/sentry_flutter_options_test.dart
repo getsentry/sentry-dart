@@ -4,9 +4,9 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'mocks.dart';
 
 void main() {
-  group('SentryFlutterOptions', () {
+  group('$SentryFlutterOptions', () {
     test('defaults traceLifecycle to stream', () {
-      final options = SentryFlutterOptions();
+      final options = defaultTestOptions();
 
       expect(options.traceLifecycle, SentryTraceLifecycle.stream);
     });

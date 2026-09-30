@@ -489,7 +489,8 @@ void main() {
 }
 
 class Fixture {
-  final _options = defaultTestOptions();
+  final _options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static;
   late Hub _hub;
   final transport = MockTransport();
   final assetBundle = TestAssetBundle();

@@ -437,6 +437,7 @@ void main() {
     late Fixture fixture;
     setUp(() async {
       fixture = Fixture();
+      fixture._options.traceLifecycle = SentryTraceLifecycle.static;
       TestWidgetsFlutterBinding.ensureInitialized();
     });
 

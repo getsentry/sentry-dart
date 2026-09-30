@@ -120,6 +120,7 @@ void main() {
         test(
           'didPush should call generateNewTrace beforeTraceId starting the transaction',
           () {
+            fixture.options.traceLifecycle = SentryTraceLifecycle.static;
             final from = _route(RouteSettings(name: 'From Route'));
             final to = _route(RouteSettings(name: 'To Route'));
 

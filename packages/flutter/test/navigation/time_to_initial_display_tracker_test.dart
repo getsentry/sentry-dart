@@ -142,7 +142,11 @@ void main() {
 
 class Fixture {
   final startTimestamp = getUtcDateTime();
-  final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
+  final hub = Hub(
+    defaultTestOptions()
+      ..traceLifecycle = SentryTraceLifecycle.static
+      ..tracesSampleRate = 1.0,
+  );
   final fakeFrameCallbackHandler = FakeFrameCallbackHandler();
 
   SentryTracer getTransaction({String? name = "Regular route"}) {
