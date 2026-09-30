@@ -439,7 +439,10 @@ class Scope {
           traceId: activeSpan.traceId,
           spanId: activeSpan.spanId,
           parentSpanId: activeSpan.parentSpan?.spanId,
-          operation: 'default',
+          operation:
+              activeSpan.attributes[SemanticAttributesConstants.sentryOp]?.value
+                  as String? ??
+              'default',
           sampled: activeSpan.samplingDecision.sampled,
         );
       } else if (newSpan != null) {

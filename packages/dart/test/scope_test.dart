@@ -741,6 +741,31 @@ void main() {
     });
 
     test(
+      'apply trace context operation from active streaming span sentry.op',
+      () async {
+        final span = fixture.createSpan()
+          ..setAttribute('sentry.op', SentryAttribute.string('http.client'));
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.operation, 'http.client');
+      },
+    );
+
+    test(
+      'apply default trace context operation when active streaming span has no sentry.op',
+      () async {
+        final scope = Scope(defaultTestOptions())
+          ..setActiveSpan(fixture.createSpan());
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.operation, 'default');
+      },
+    );
+
+    test(
       'trace context status defaults to ok when active span has no status',
       () async {
         final event = SentryEvent();
