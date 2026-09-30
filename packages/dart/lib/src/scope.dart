@@ -431,9 +431,18 @@ class Scope {
       }
     });
 
+    final activeSpan = _activeSpan;
     final newSpan = span;
     if (event.contexts.trace == null) {
-      if (newSpan != null) {
+      if (activeSpan != null) {
+        event.contexts.trace = SentryTraceContext(
+          traceId: activeSpan.traceId,
+          spanId: activeSpan.spanId,
+          parentSpanId: activeSpan.parentSpan?.spanId,
+          operation: 'default',
+          sampled: activeSpan.samplingDecision.sampled,
+        );
+      } else if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
           sampled: newSpan.samplingDecision?.sampled,
           status: newSpan.status ?? SpanStatus.ok(),

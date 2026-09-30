@@ -746,6 +746,34 @@ void main() {
       },
     );
 
+    test(
+      'uses the dynamic sampling context of the active streaming span for trace header',
+      () async {
+        final client = fixture.getSut();
+        final dsc = SentryTraceContextHeader(
+          SentryId.newId(),
+          'publicKey',
+          sampled: 'true',
+        );
+        final span = RecordingSentrySpanV2.root(
+          name: 'span',
+          traceId: dsc.traceId,
+          onSpanEnd: (_) async {},
+          clock: fixture.options.clock,
+          dscCreator: (_) => dsc,
+          samplingDecision: SentryTracesSamplingDecision(true),
+        );
+        final scope = Scope(fixture.options)..setActiveSpan(span);
+
+        await client.captureEvent(SentryEvent(), scope: scope);
+
+        final capturedTraceContext =
+            fixture.transport.envelopes.single.header.traceContext;
+        expect(capturedTraceContext?.traceId, dsc.traceId);
+        expect(capturedTraceContext?.sampled, 'true');
+      },
+    );
+
     test('should contain a transaction in the envelope', () async {
       try {
         throw StateError('Error');

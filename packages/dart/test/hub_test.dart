@@ -50,6 +50,70 @@ void main() {
       expect(scopeEquals(scope, Scope(fixture.options)), true);
     });
 
+    group('with an active streaming span', () {
+      test('captureEvent passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureEvent(fakeEvent);
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
+      test('captureException passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureException(fakeException);
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
+      test('captureMessage passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureMessage('message');
+
+          expect(
+            fixture.client.captureMessageCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
+      test('captureException passes the active idle span', () async {
+        final hub = fixture.getSut();
+        final span = hub.startIdleSpan('idle');
+        addTearDown(span.end);
+
+        await hub.captureException(fakeException);
+
+        expect(
+          fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+          span,
+        );
+      });
+
+      test('does not set the span on the hub scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (_) async {
+          await hub.captureException(fakeException);
+        });
+
+        expect(hub.scope.getActiveSpan(), isNull);
+      });
+    });
+
     test('should capture feedback with the default scope', () async {
       final hub = fixture.getSut();
       final feedback = SentryFeedback(message: 'message');

@@ -100,6 +100,7 @@ class Hub {
       } else {
         scope = s;
       }
+      scope = _withActiveSpan(scope);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -153,6 +154,7 @@ class Hub {
       } else {
         scope = s;
       }
+      scope = _withActiveSpan(scope);
 
       try {
         var event = SentryEvent(
@@ -214,6 +216,7 @@ class Hub {
       } else {
         scope = s;
       }
+      scope = _withActiveSpan(scope);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -356,6 +359,16 @@ class Hub {
       }
     }
     return scope;
+  }
+
+  /// The active streaming span lives on the zone-forked scope or the hub's
+  /// idle span, neither of which the captured [scope] sees.
+  Scope _withActiveSpan(Scope scope) {
+    final activeSpan = getActiveSpan();
+    if (activeSpan == null) {
+      return scope;
+    }
+    return scope.clone()..setActiveSpan(activeSpan);
   }
 
   void setAttributes(Map<String, SentryAttribute> attributes) {

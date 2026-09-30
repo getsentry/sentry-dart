@@ -718,6 +718,28 @@ void main() {
       expect(updatedEvent?.contexts['trace'] is SentryTraceContext, isTrue);
     });
 
+    test('apply trace context to event with active streaming span', () async {
+      final event = SentryEvent();
+      final parent = fixture.createSpan(name: 'parent');
+      final span = RecordingSentrySpanV2.child(
+        parent: parent,
+        name: 'child',
+        onSpanEnd: (_) async {},
+        clock: fixture.options.clock,
+        dscCreator: (_) =>
+            SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      );
+      final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      final traceContext = updatedEvent?.contexts.trace;
+      expect(traceContext?.traceId, span.traceId);
+      expect(traceContext?.spanId, span.spanId);
+      expect(traceContext?.parentSpanId, parent.spanId);
+      expect(traceContext?.sampled, isTrue);
+    });
+
     test(
       'trace context status defaults to ok when active span has no status',
       () async {
