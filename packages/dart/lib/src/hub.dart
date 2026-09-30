@@ -264,6 +264,7 @@ class Hub {
       } else {
         scope = s;
       }
+      scope = _withActiveSpan(scope);
 
       try {
         sentryId = await item.client.captureFeedback(

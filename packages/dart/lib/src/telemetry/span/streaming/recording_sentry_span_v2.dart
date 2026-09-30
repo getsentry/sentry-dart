@@ -162,6 +162,17 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// All spans in the same segment share this DSC.
   SentryTraceContextHeader resolveDsc() => segmentSpan._getOrCreateDsc();
 
+  /// The segment's DSC for an event envelope sent now.
+  ///
+  /// A buffered replay only gets its ID when an error is sent, so the replay
+  /// ID is refreshed on the frozen DSC.
+  @internal
+  SentryTraceContextHeader resolveDscForEvent() {
+    final segment = segmentSpan;
+    return segment._getOrCreateDsc()
+      ..replayId = segment._dscCreator(segment).replayId;
+  }
+
   @override
   bool get isEnded => _endTimestamp != null;
 

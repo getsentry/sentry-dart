@@ -774,6 +774,37 @@ void main() {
       },
     );
 
+    test(
+      'uses the current replay ID when the active streaming span DSC is already frozen',
+      () async {
+        final client = fixture.getSut();
+        SentryId? currentReplayId;
+        final span = RecordingSentrySpanV2.root(
+          name: 'span',
+          traceId: SentryId.newId(),
+          onSpanEnd: (_) async {},
+          clock: fixture.options.clock,
+          dscCreator: (span) => SentryTraceContextHeader(
+            span.traceId,
+            'publicKey',
+            replayId: currentReplayId,
+          ),
+          samplingDecision: SentryTracesSamplingDecision(true),
+        );
+        span.resolveDsc();
+        final replayId = SentryId.newId();
+        currentReplayId = replayId;
+        final scope = Scope(fixture.options)..setActiveSpan(span);
+
+        await client.captureEvent(SentryEvent(), scope: scope);
+
+        expect(
+          fixture.transport.envelopes.single.header.traceContext?.replayId,
+          replayId,
+        );
+      },
+    );
+
     test('should contain a transaction in the envelope', () async {
       try {
         throw StateError('Error');

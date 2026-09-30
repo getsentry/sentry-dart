@@ -90,6 +90,19 @@ void main() {
         });
       });
 
+      test('captureFeedback passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureFeedback(SentryFeedback(message: 'message'));
+
+          expect(
+            fixture.client.captureFeedbackCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
       test('captureException passes the active idle span', () async {
         final hub = fixture.getSut();
         final span = hub.startIdleSpan('idle');
