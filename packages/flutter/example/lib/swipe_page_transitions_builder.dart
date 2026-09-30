@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-/// A Tinder-style card swipe: a pushed page is thrown in from the right
-/// ("like"), a popped page is thrown out to the left ("nope"), both tilting
-/// around their bottom edge. The page underneath shrinks back slightly.
+/// A card-swipe transition: a pushed page is thrown in from the right and a
+/// popped page is thrown out to the left, both tilting around their bottom
+/// edge. The page underneath shrinks back slightly.
 ///
 /// Built only from [Transform] widgets, which report their transform to the
 /// render tree, so Session Replay masks should follow the moving page --
