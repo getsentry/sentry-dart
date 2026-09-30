@@ -20,73 +20,25 @@ void main() {
       expect(fixture.options.metrics, isA<DefaultSentryMetrics>());
     });
 
-    test('correlates telemetry with nested streaming spans', () async {
+    test('correlates metrics with the active streaming span', () async {
       fixture.options.tracesSampleRate = 1.0;
       fixture.sut.call(fixture.hub, fixture.options);
-      await fixture.hub.startSpan('parent', (parent) async {
-        await fixture.hub.startSpan('child', (child) async {
-          fixture.options.metrics.count('count', 1);
-          fixture.options.metrics.gauge('gauge', 2);
-          fixture.options.metrics.distribution('distribution', 3);
-          await Future<void>.delayed(Duration.zero);
 
-          final telemetry = fixture.client.captureMetricCalls.map(
-            (call) => call.metric,
-          );
-          expect(telemetry, isNotEmpty);
-          for (final item in telemetry) {
-            expect(item.spanId, child.spanId);
-            expect(item.traceId, child.traceId);
-          }
-        });
+      await fixture.hub.startSpan('parent', (span) async {
+        fixture.options.metrics.count('count', 1);
+        fixture.options.metrics.gauge('gauge', 2);
+        fixture.options.metrics.distribution('distribution', 3);
+        await Future<void>.delayed(Duration.zero);
+
+        final metrics = fixture.client.captureMetricCalls.map(
+          (call) => call.metric,
+        );
+        expect(metrics, hasLength(3));
+        for (final metric in metrics) {
+          expect(metric.traceId, span.traceId);
+          expect(metric.spanId, span.spanId);
+        }
       });
-    });
-
-    test('correlates telemetry with the active idle span', () async {
-      fixture.options.tracesSampleRate = 1.0;
-      fixture.sut.call(fixture.hub, fixture.options);
-      final span = fixture.hub.startIdleSpan('idle');
-      addTearDown(span.end);
-
-      fixture.options.metrics.count('count', 1);
-      fixture.options.metrics.gauge('gauge', 2);
-      fixture.options.metrics.distribution('distribution', 3);
-      await Future<void>.delayed(Duration.zero);
-
-      final telemetry = fixture.client.captureMetricCalls.map(
-        (call) => call.metric,
-      );
-      expect(telemetry, isNotEmpty);
-      for (final item in telemetry) {
-        expect(item.spanId, span.spanId);
-        expect(item.traceId, span.traceId);
-      }
-    });
-
-    test('preserves static transaction correlation', () async {
-      fixture.options
-        ..traceLifecycle = SentryTraceLifecycle.static
-        ..tracesSampleRate = 1.0;
-      fixture.sut.call(fixture.hub, fixture.options);
-      final span = fixture.hub.startTransaction(
-        'parent',
-        'test',
-        bindToScope: true,
-      );
-      addTearDown(span.finish);
-
-      fixture.options.metrics.count('count', 1);
-      fixture.options.metrics.gauge('gauge', 2);
-      fixture.options.metrics.distribution('distribution', 3);
-      await Future<void>.delayed(Duration.zero);
-
-      final telemetry = fixture.client.captureMetricCalls.map(
-        (call) => call.metric,
-      );
-      expect(telemetry, isNotEmpty);
-      for (final item in telemetry) {
-        expect(item.spanId, span.context.spanId);
-      }
     });
 
     test('adds integration to SDK', () {

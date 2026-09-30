@@ -1,17 +1,16 @@
 import 'dart:async';
 
 import '../../../sentry.dart';
+import '../telemetry_trace_context.dart';
 import 'sentry_template_string.dart';
 import '../../utils/internal_logger.dart';
 
 typedef CaptureLogCallback = Future<void> Function(SentryLog log);
-typedef ScopeProvider = Scope Function();
 
 final class DefaultSentryLogger implements SentryLogger {
   final CaptureLogCallback _captureLogCallback;
   final ClockProvider _clockProvider;
-  final ScopeProvider _scopeProvider;
-  final SentrySpanV2? Function()? _activeSpanProvider;
+  final TelemetryTraceContextProvider _traceContextProvider;
 
   late final SentryLoggerFormatter _formatter = _DefaultSentryLoggerFormatter(
     this,
@@ -20,8 +19,7 @@ final class DefaultSentryLogger implements SentryLogger {
   DefaultSentryLogger({
     required this._captureLogCallback,
     required this._clockProvider,
-    required this._scopeProvider,
-    this._activeSpanProvider,
+    required this._traceContextProvider,
   });
 
   @override
@@ -69,14 +67,13 @@ final class DefaultSentryLogger implements SentryLogger {
           'Sentry.logger.${level.value}("$body") called with attributes ${_formatAttributes(attributes)}',
     );
 
-    final activeSpan = _activeSpanProvider?.call();
-    final scope = _scopeProvider();
+    final (:traceId, :spanId) = _traceContextProvider();
     final log = SentryLog(
       timestamp: _clockProvider(),
       level: level,
       body: body,
-      traceId: activeSpan?.traceId ?? scope.propagationContext.traceId,
-      spanId: activeSpan?.spanId ?? scope.span?.context.spanId,
+      traceId: traceId,
+      spanId: spanId,
       attributes: attributes ?? {},
     );
 

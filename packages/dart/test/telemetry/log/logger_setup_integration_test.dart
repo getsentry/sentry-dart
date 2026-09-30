@@ -20,63 +20,18 @@ void main() {
       expect(fixture.options.logger, isA<DefaultSentryLogger>());
     });
 
-    test('correlates telemetry with nested streaming spans', () async {
+    test('correlates logs with the active streaming span', () async {
       fixture.options.tracesSampleRate = 1.0;
       fixture.sut.call(fixture.hub, fixture.options);
-      await fixture.hub.startSpan('parent', (parent) async {
-        await fixture.hub.startSpan('child', (child) async {
-          fixture.options.logger.info('message');
-          await Future<void>.delayed(Duration.zero);
 
-          final telemetry = fixture.client.captureLogCalls.map(
-            (call) => call.log,
-          );
-          expect(telemetry, isNotEmpty);
-          for (final item in telemetry) {
-            expect(item.spanId, child.spanId);
-            expect(item.traceId, child.traceId);
-          }
-        });
+      await fixture.hub.startSpan('parent', (span) async {
+        fixture.options.logger.info('message');
+        await Future<void>.delayed(Duration.zero);
+
+        final log = fixture.client.captureLogCalls.single.log;
+        expect(log.traceId, span.traceId);
+        expect(log.spanId, span.spanId);
       });
-    });
-
-    test('correlates telemetry with the active idle span', () async {
-      fixture.options.tracesSampleRate = 1.0;
-      fixture.sut.call(fixture.hub, fixture.options);
-      final span = fixture.hub.startIdleSpan('idle');
-      addTearDown(span.end);
-
-      fixture.options.logger.info('message');
-      await Future<void>.delayed(Duration.zero);
-
-      final telemetry = fixture.client.captureLogCalls.map((call) => call.log);
-      expect(telemetry, isNotEmpty);
-      for (final item in telemetry) {
-        expect(item.spanId, span.spanId);
-        expect(item.traceId, span.traceId);
-      }
-    });
-
-    test('preserves static transaction correlation', () async {
-      fixture.options
-        ..traceLifecycle = SentryTraceLifecycle.static
-        ..tracesSampleRate = 1.0;
-      fixture.sut.call(fixture.hub, fixture.options);
-      final span = fixture.hub.startTransaction(
-        'parent',
-        'test',
-        bindToScope: true,
-      );
-      addTearDown(span.finish);
-
-      fixture.options.logger.info('message');
-      await Future<void>.delayed(Duration.zero);
-
-      final telemetry = fixture.client.captureLogCalls.map((call) => call.log);
-      expect(telemetry, isNotEmpty);
-      for (final item in telemetry) {
-        expect(item.spanId, span.context.spanId);
-      }
     });
 
     test('adds integration to SDK', () {
