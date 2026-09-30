@@ -19,7 +19,7 @@ class SwipePageTransitionsBuilder extends PageTransitionsBuilder {
   static const _overshoot = 1.2;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 3000);
+  Duration get transitionDuration => const Duration(seconds: 6);
 
   @override
   Widget buildTransitions<T>(
