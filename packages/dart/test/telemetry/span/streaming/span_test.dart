@@ -296,25 +296,42 @@ void main() {
         expect(identical(rootDsc, grandchildDsc), isTrue);
       });
 
-      test('freezes DSC after first access', () {
-        var callCount = 0;
+      test('freezes DSC values after first access', () {
+        var transaction = 'first';
         final span = fixture.createSpan(
           name: 'root-span',
-          dscCreator: (s) {
-            callCount++;
-            return SentryTraceContextHeader(SentryId.newId(), 'publicKey');
-          },
+          dscCreator: (s) => SentryTraceContextHeader(
+            SentryId.newId(),
+            'publicKey',
+            transaction: transaction,
+          ),
+        );
+
+        final first = span.resolveDsc();
+        final firstTraceId = first.traceId;
+        transaction = 'second';
+        final second = span.resolveDsc();
+
+        expect(second.traceId, firstTraceId);
+        expect(second.transaction, 'first');
+      });
+
+      test('refreshes the replay ID after first access', () {
+        SentryId? replayId;
+        final span = fixture.createSpan(
+          name: 'root-span',
+          dscCreator: (s) => SentryTraceContextHeader(
+            SentryId.newId(),
+            'publicKey',
+            replayId: replayId,
+          ),
         );
 
         span.resolveDsc();
-        span.resolveDsc();
-        span.resolveDsc();
+        final newReplayId = SentryId.newId();
+        replayId = newReplayId;
 
-        expect(
-          callCount,
-          equals(1),
-          reason: 'DSC creator should only be called once',
-        );
+        expect(span.resolveDsc().replayId, newReplayId);
       });
     });
 

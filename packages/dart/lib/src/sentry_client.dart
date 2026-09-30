@@ -213,7 +213,7 @@ class SentryClient {
     var traceContext = scope?.span?.traceContext();
     final activeSpan = scope?.getActiveSpan();
     if (activeSpan != null) {
-      traceContext = activeSpan.resolveDscForEvent();
+      traceContext = activeSpan.resolveDsc();
     } else if (traceContext == null) {
       if (scope != null) {
         scope.propagationContext.baggage ??= SentryBaggage({})
