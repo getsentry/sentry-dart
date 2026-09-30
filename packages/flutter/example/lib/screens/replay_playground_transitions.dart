@@ -10,16 +10,16 @@ import 'package:flutter/material.dart';
 /// render tree, so Session Replay masks should follow the moving page --
 /// unlike [ZoomPageTransitionsBuilder], which scales inside a painter.
 class SwipePageTransitionsBuilder extends PageTransitionsBuilder {
-  const SwipePageTransitionsBuilder({this.maxTiltRadians = math.pi});
+  const SwipePageTransitionsBuilder({required this.duration});
 
-  /// Tilt when the card is fully off-screen, e.g. `math.pi` for 180°.
-  final double maxTiltRadians;
-
-  // How far past the screen edge the card starts/ends.
-  static const _overshoot = 1.2;
+  /// How long the swipe takes, both ways.
+  final Duration duration;
 
   @override
-  Duration get transitionDuration => const Duration(seconds: 6);
+  Duration get transitionDuration => duration;
+
+  @override
+  Duration get reverseTransitionDuration => duration;
 
   @override
   Widget buildTransitions<T>(
@@ -28,28 +28,92 @@ class SwipePageTransitionsBuilder extends PageTransitionsBuilder {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     Widget child,
-  ) {
+  ) =>
+      _SwipeTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        child: child,
+      );
+}
+
+class _SwipeTransition extends StatefulWidget {
+  const _SwipeTransition({
+    required this.animation,
+    required this.secondaryAnimation,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final Animation<double> secondaryAnimation;
+  final Widget child;
+
+  @override
+  State<_SwipeTransition> createState() => _SwipeTransitionState();
+}
+
+class _SwipeTransitionState extends State<_SwipeTransition> {
+  // How far past the screen edge the card starts/ends, and its tilt there.
+  static const _overshoot = 1.2;
+  static const _maxTiltRadians = math.pi;
+
+  /// 1 flies in/out on the right, -1 on the left.
+  ///
+  /// Only flips when the page is fully in or fully out, so a push that's
+  /// interrupted by a pop retraces its path instead of jumping to the other
+  /// side mid-flight.
+  double _direction = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.animation.addStatusListener(_onStatus);
+  }
+
+  @override
+  void didUpdateWidget(_SwipeTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animation != widget.animation) {
+      oldWidget.animation.removeStatusListener(_onStatus);
+      widget.animation.addStatusListener(_onStatus);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.animation.removeStatusListener(_onStatus);
+    super.dispose();
+  }
+
+  void _onStatus(AnimationStatus status) {
+    final value = widget.animation.value;
+    if (status == AnimationStatus.reverse && value == 1.0) {
+      _direction = -1; // Popping a page that had landed: out to the left.
+    } else if (status == AnimationStatus.forward && value == 0.0) {
+      _direction = 1; // Pushing: in from the right.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
 
     return AnimatedBuilder(
-      animation: Listenable.merge([animation, secondaryAnimation]),
-      child: child,
+      animation:
+          Listenable.merge([widget.animation, widget.secondaryAnimation]),
+      child: widget.child,
       builder: (context, child) {
-        // Pushing: fly in from the right. Popping: fly out to the left.
-        final direction =
-            animation.status == AnimationStatus.reverse ? -1.0 : 1.0;
-        final away = 1 - Curves.easeOut.transform(animation.value);
+        final away = 1 - Curves.easeOut.transform(widget.animation.value);
         // While another page is swiped on top, sink back like the next card.
-        final sink =
-            1 - 0.06 * Curves.easeOut.transform(secondaryAnimation.value);
+        final sink = 1 -
+            0.06 * Curves.easeOut.transform(widget.secondaryAnimation.value);
 
         return Transform.scale(
           scale: sink,
           child: Transform.translate(
-            offset: Offset(direction * away * width * _overshoot, 0),
+            offset: Offset(_direction * away * width * _overshoot, 0),
             child: Transform.rotate(
               alignment: Alignment.bottomCenter,
-              angle: direction * away * maxTiltRadians,
+              angle: _direction * away * _maxTiltRadians,
               child: child,
             ),
           ),
@@ -104,6 +168,10 @@ class SlowPageTransitionsBuilder extends PageTransitionsBuilder {
 
   @override
   Duration get reverseTransitionDuration => duration;
+
+  @override
+  DelegatedTransitionBuilder? get delegatedTransition =>
+      transitions.delegatedTransition;
 
   @override
   Widget buildTransitions<T>(
