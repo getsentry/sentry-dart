@@ -25,6 +25,7 @@ SentryOptions defaultTestOptions({
   RuntimeChecker? checker,
 }) {
   return SentryOptions(dsn: testDsn, platform: platform, checker: checker)
+    ..traceLifecycle = SentryTraceLifecycle.static
     ..automatedTestMode = true;
 }
 

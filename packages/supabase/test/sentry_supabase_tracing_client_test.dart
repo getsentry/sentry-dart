@@ -332,7 +332,8 @@ class Fixture {
   final supabaseUrl = 'https://example.com';
   final supabaseKey = 'YOUR_ANON_KEY';
 
-  final options = SentryOptions(dsn: 'https://example.com/123');
+  final options = SentryOptions(dsn: 'https://example.com/123')
+    ..traceLifecycle = SentryTraceLifecycle.static;
   final mockClient = MockClient();
   late final mockHub = MockHub(options);
 

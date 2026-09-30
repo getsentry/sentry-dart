@@ -27,6 +27,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   ISentrySpan? legacySpan;
 
   final _options = SentryOptions(dsn: _testDsn)
+    ..traceLifecycle = SentryTraceLifecycle.static
     // ignore: invalid_use_of_internal_member
     ..automatedTestMode = true;
 

@@ -39,10 +39,12 @@ SentryFlutterOptions defaultTestOptions({
   RuntimeChecker? checker,
 }) {
   return SentryFlutterOptions(
-    dsn: fakeDsn,
-    platform: platform,
-    checker: checker,
-  )..automatedTestMode = true;
+      dsn: fakeDsn,
+      platform: platform,
+      checker: checker,
+    )
+    ..traceLifecycle = SentryTraceLifecycle.static
+    ..automatedTestMode = true;
 }
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators

@@ -554,7 +554,7 @@ class _Fixture {
 
   _Fixture() {
     mockHelper = _MockIsolateHelper();
-    options = SentryFlutterOptions();
+    options = defaultTestOptions();
     options.tracesSampleRate = 1.0; // Enable tracing by default
     // Set default return values to avoid null errors
     mockHelper.setIsRootIsolate(false);
