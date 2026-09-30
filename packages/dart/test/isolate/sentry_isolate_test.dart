@@ -2,10 +2,7 @@
 library;
 
 import 'package:_sentry_testing/_sentry_testing.dart';
-import 'package:sentry/src/hub.dart';
-import 'package:sentry/src/protocol/sentry_level.dart';
-import 'package:sentry/src/telemetry/span/transaction/span_status.dart';
-import 'package:sentry/src/telemetry/span/sentry_trace_lifecycle.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry/src/isolate/sentry_isolate.dart';
 import 'package:test/test.dart';
 
@@ -30,6 +27,28 @@ void main() {
 
       expect(fixture.hub.captureEventCalls.first, isNotNull);
     });
+
+    test(
+      'marks streaming span as error when callback returns normally',
+      () async {
+        final client = MockSentryClient();
+        final hub = Hub(fixture.options)..bindClient(client);
+
+        await hub.startSpan('parent', (span) async {
+          await SentryIsolate.handleIsolateError(hub, [
+            StateError('error').toString(),
+            StackTrace.current.toString(),
+          ]);
+
+          expect(span.status, SentrySpanStatusV2.error);
+        });
+
+        expect(
+          client.captureSpanCalls.single.span.status,
+          SentrySpanStatusV2.error,
+        );
+      },
+    );
 
     test('marks transaction as internal error if no status', () async {
       fixture.options.traceLifecycle = SentryTraceLifecycle.static;

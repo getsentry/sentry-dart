@@ -20,6 +20,7 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
       captureMetricCallback: hub.captureMetric,
       clockProvider: options.clock,
       scopeProvider: () => hub.scope,
+      activeSpanProvider: hub.getActiveSpan,
     );
 
     options.sdk.addIntegration(integrationName);

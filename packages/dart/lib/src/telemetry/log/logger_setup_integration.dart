@@ -20,6 +20,7 @@ class LoggerSetupIntegration extends Integration<SentryOptions> {
       captureLogCallback: hub.captureLog,
       clockProvider: options.clock,
       scopeProvider: () => hub.scope,
+      activeSpanProvider: hub.getActiveSpan,
     );
 
     options.sdk.addIntegration(integrationName);

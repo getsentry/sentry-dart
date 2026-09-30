@@ -11,6 +11,7 @@ final class DefaultSentryLogger implements SentryLogger {
   final CaptureLogCallback _captureLogCallback;
   final ClockProvider _clockProvider;
   final ScopeProvider _scopeProvider;
+  final SentrySpanV2? Function()? _activeSpanProvider;
 
   late final SentryLoggerFormatter _formatter = _DefaultSentryLoggerFormatter(
     this,
@@ -20,6 +21,7 @@ final class DefaultSentryLogger implements SentryLogger {
     required this._captureLogCallback,
     required this._clockProvider,
     required this._scopeProvider,
+    this._activeSpanProvider,
   });
 
   @override
@@ -67,12 +69,14 @@ final class DefaultSentryLogger implements SentryLogger {
           'Sentry.logger.${level.value}("$body") called with attributes ${_formatAttributes(attributes)}',
     );
 
+    final activeSpan = _activeSpanProvider?.call();
+    final scope = _scopeProvider();
     final log = SentryLog(
       timestamp: _clockProvider(),
       level: level,
       body: body,
-      traceId: _scopeProvider().propagationContext.traceId,
-      spanId: _scopeProvider().span?.context.spanId,
+      traceId: activeSpan?.traceId ?? scope.propagationContext.traceId,
+      spanId: activeSpan?.spanId ?? scope.span?.context.spanId,
       attributes: attributes ?? {},
     );
 

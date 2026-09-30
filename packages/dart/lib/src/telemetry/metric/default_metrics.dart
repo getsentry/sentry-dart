@@ -10,11 +10,13 @@ final class DefaultSentryMetrics implements SentryMetrics {
   final CaptureMetricCallback _captureMetricCallback;
   final ClockProvider _clockProvider;
   final ScopeProvider _scopeProvider;
+  final SentrySpanV2? Function()? _activeSpanProvider;
 
   DefaultSentryMetrics({
     required this._captureMetricCallback,
     required this._clockProvider,
     required this._scopeProvider,
+    this._activeSpanProvider,
   });
 
   @override
@@ -28,12 +30,14 @@ final class DefaultSentryMetrics implements SentryMetrics {
           'Sentry.metrics.count("$name", $value) called with attributes ${_formatAttributes(attributes)}',
     );
 
+    final activeSpan = _activeSpanProvider?.call();
+    final scope = _scopeProvider();
     final metric = SentryCounterMetric(
       timestamp: _clockProvider(),
       name: name,
       value: value,
-      spanId: _scopeProvider().span?.context.spanId,
-      traceId: _scopeProvider().propagationContext.traceId,
+      spanId: activeSpan?.spanId ?? scope.span?.context.spanId,
+      traceId: activeSpan?.traceId ?? scope.propagationContext.traceId,
       attributes: attributes ?? {},
     );
 
@@ -52,13 +56,15 @@ final class DefaultSentryMetrics implements SentryMetrics {
           'Sentry.metrics.gauge("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}',
     );
 
+    final activeSpan = _activeSpanProvider?.call();
+    final scope = _scopeProvider();
     final metric = SentryGaugeMetric(
       timestamp: _clockProvider(),
       name: name,
       value: value,
       unit: unit,
-      spanId: _scopeProvider().span?.context.spanId,
-      traceId: _scopeProvider().propagationContext.traceId,
+      spanId: activeSpan?.spanId ?? scope.span?.context.spanId,
+      traceId: activeSpan?.traceId ?? scope.propagationContext.traceId,
       attributes: attributes ?? {},
     );
 
@@ -77,13 +83,15 @@ final class DefaultSentryMetrics implements SentryMetrics {
           'Sentry.metrics.distribution("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}',
     );
 
+    final activeSpan = _activeSpanProvider?.call();
+    final scope = _scopeProvider();
     final metric = SentryDistributionMetric(
       timestamp: _clockProvider(),
       name: name,
       value: value,
       unit: unit,
-      spanId: _scopeProvider().span?.context.spanId,
-      traceId: _scopeProvider().propagationContext.traceId,
+      spanId: activeSpan?.spanId ?? scope.span?.context.spanId,
+      traceId: activeSpan?.traceId ?? scope.propagationContext.traceId,
       attributes: attributes ?? {},
     );
 

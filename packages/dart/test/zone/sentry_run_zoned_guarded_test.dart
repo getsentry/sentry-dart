@@ -64,6 +64,31 @@ void main() {
       expect(printCalled, true);
     });
 
+    test(
+      'marks streaming span as error when callback returns normally',
+      () async {
+        final client = MockSentryClient();
+        final hub = Hub(fixture.options)..bindClient(client);
+
+        await hub.startSpan('parent', (span) async {
+          final reported = Completer<void>();
+          SentryRunZonedGuarded.sentryRunZonedGuarded(
+            hub,
+            () => scheduleMicrotask(() => throw StateError('error')),
+            (error, stackTrace) => reported.complete(),
+          );
+          await reported.future;
+
+          expect(span.status, SentrySpanStatusV2.error);
+        });
+
+        expect(
+          client.captureSpanCalls.single.span.status,
+          SentrySpanStatusV2.error,
+        );
+      },
+    );
+
     test('marks transaction as internal error if no status', () async {
       fixture.options.traceLifecycle = SentryTraceLifecycle.static;
       final exception = StateError('error');
