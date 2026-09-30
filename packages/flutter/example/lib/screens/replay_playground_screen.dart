@@ -2,6 +2,10 @@
 
 import 'dart:math' as math;
 
+// Newer Flutter moved CupertinoPageTransitionsBuilder out of material.dart;
+// older versions still provide it there, which makes this import redundant.
+// ignore: unnecessary_import
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
