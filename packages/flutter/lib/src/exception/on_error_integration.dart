@@ -73,11 +73,14 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
         timestamp: options.clock(),
       );
 
-      // marks the span status if none to `internal_error` in case there's an
-      // unhandled error
-      hub.configureScope(
-        (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-      );
+      if (options.traceLifecycle == SentryTraceLifecycle.stream) {
+        // ignore: invalid_use_of_internal_member
+        hub.getActiveSpan()?.status = SentrySpanStatusV2.error;
+      } else {
+        hub.configureScope(
+          (scope) => scope.span?.status ??= const SpanStatus.internalError(),
+        );
+      }
 
       Hint? hint;
       if (stackTrace == StackTrace.empty) {

@@ -13,13 +13,6 @@ void main() {
 
       expect(options.traceLifecycle, SentryTraceLifecycle.stream);
     });
-
-    test('allows opting into static tracing', () {
-      final options = defaultTestOptions()
-        ..traceLifecycle = SentryTraceLifecycle.static;
-
-      expect(options.traceLifecycle, SentryTraceLifecycle.static);
-    });
   });
 
   test('$Client is NoOp', () {

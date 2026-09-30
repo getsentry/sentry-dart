@@ -16,6 +16,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      // ignore: invalid_use_of_internal_member
+      when(fixture.hub.getActiveSpan()).thenReturn(null);
     });
 
     void _reportError({
@@ -216,6 +218,46 @@ void main() {
         true,
       );
     });
+
+    test(
+      'marks streaming span as error when callback returns normally',
+      () async {
+        final exception = StateError('error');
+        final hub = Hub(fixture.options);
+        final client = MockSentryClient();
+        when(
+          client.captureEvent(
+            any,
+            scope: anyNamed('scope'),
+            stackTrace: anyNamed('stackTrace'),
+            hint: anyNamed('hint'),
+          ),
+        ).thenAnswer((_) async => SentryId.newId());
+        when(
+          client.captureSpan(any, scope: anyNamed('scope')),
+        ).thenAnswer((_) async {});
+        hub.bindClient(client);
+        final sut = fixture.getSut();
+        sut(hub, fixture.options);
+        addTearDown(sut.close);
+
+        await hub.startSpan('parent', (span) async {
+          fixture.platformDispatcherWrapper.onError?.call(
+            exception,
+            StackTrace.current,
+          );
+
+          expect(span.status, SentrySpanStatusV2.error);
+        });
+
+        final capturedSpan =
+            verify(
+                  client.captureSpan(captureAny, scope: anyNamed('scope')),
+                ).captured.single
+                as SentrySpanV2;
+        expect(capturedSpan.status, SentrySpanStatusV2.error);
+      },
+    );
 
     test('marks transaction as internal error if no status', () async {
       fixture.options.traceLifecycle = SentryTraceLifecycle.static;
