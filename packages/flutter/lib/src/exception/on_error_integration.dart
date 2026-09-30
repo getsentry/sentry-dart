@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
+import 'package:sentry/src/exception/unhandled_error_span_status.dart';
+// ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
 
 import '../sentry_flutter_options.dart';
@@ -73,14 +75,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
         timestamp: options.clock(),
       );
 
-      if (options.traceLifecycle == SentryTraceLifecycle.stream) {
-        // ignore: invalid_use_of_internal_member
-        hub.getActiveSpan()?.status = SentrySpanStatusV2.error;
-      } else {
-        hub.configureScope(
-          (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-        );
-      }
+      hub.markActiveSpanAsErrored();
 
       Hint? hint;
       if (stackTrace == StackTrace.empty) {

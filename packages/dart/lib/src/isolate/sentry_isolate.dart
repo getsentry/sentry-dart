@@ -2,11 +2,10 @@ import 'dart:isolate';
 import 'package:meta/meta.dart';
 
 import '../exception/throwable_mechanism.dart';
+import '../exception/unhandled_error_span_status.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
-import '../telemetry/span/sentry_trace_lifecycle.dart';
-import '../telemetry/span/streaming/sentry_span_status_v2.dart';
 import '../utils/internal_logger.dart';
 
 /// Conveniently spawn an isolate with an attached sentry error listener.
@@ -79,13 +78,7 @@ class SentryIsolate {
         timestamp: hub.options.clock(),
       );
 
-      if (hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
-        hub.getActiveSpan()?.status = SentrySpanStatusV2.error;
-      } else {
-        hub.configureScope(
-          (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-        );
-      }
+      hub.markActiveSpanAsErrored();
 
       await hub.captureEvent(event, stackTrace: stackTrace);
     }

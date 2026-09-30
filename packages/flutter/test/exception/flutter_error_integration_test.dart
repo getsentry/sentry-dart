@@ -321,43 +321,35 @@ void main() {
       );
     });
 
-    test(
-      'marks streaming span as error when callback returns normally',
-      () async {
-        final exception = StateError('error');
-        final hub = Hub(fixture.options);
-        final client = MockSentryClient();
-        when(
-          client.captureEvent(
-            any,
-            scope: anyNamed('scope'),
-            stackTrace: anyNamed('stackTrace'),
-            hint: anyNamed('hint'),
-          ),
-        ).thenAnswer((_) async => SentryId.newId());
-        when(
-          client.captureSpan(any, scope: anyNamed('scope')),
-        ).thenAnswer((_) async {});
-        hub.bindClient(client);
-        final sut = fixture.getSut();
-        FlutterError.onError = (_) {};
-        sut(hub, fixture.options);
-        addTearDown(sut.close);
+    test('marks the active idle span as error', () async {
+      final exception = StateError('error');
+      final hub = Hub(fixture.options);
+      final client = MockSentryClient();
+      when(
+        client.captureEvent(
+          any,
+          scope: anyNamed('scope'),
+          stackTrace: anyNamed('stackTrace'),
+          hint: anyNamed('hint'),
+        ),
+      ).thenAnswer((_) async => SentryId.newId());
+      when(
+        client.captureSpan(any, scope: anyNamed('scope')),
+      ).thenAnswer((_) async {});
+      hub.bindClient(client);
+      final sut = fixture.getSut();
+      FlutterError.onError = (_) {};
+      sut(hub, fixture.options);
+      addTearDown(sut.close);
 
-        await hub.startSpan('parent', (span) async {
-          FlutterError.reportError(FlutterErrorDetails(exception: exception));
+      // ignore: invalid_use_of_internal_member
+      final span = hub.startIdleSpan('idle');
+      addTearDown(span.end);
 
-          expect(span.status, SentrySpanStatusV2.error);
-        });
+      FlutterError.reportError(FlutterErrorDetails(exception: exception));
 
-        final capturedSpan =
-            verify(
-                  client.captureSpan(captureAny, scope: anyNamed('scope')),
-                ).captured.single
-                as SentrySpanV2;
-        expect(capturedSpan.status, SentrySpanStatusV2.error);
-      },
-    );
+      expect(span.status, SentrySpanStatusV2.error);
+    });
 
     test('marks transaction as internal error if no status', () async {
       fixture.options.traceLifecycle = SentryTraceLifecycle.static;

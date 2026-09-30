@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
+import '../exception/unhandled_error_span_status.dart';
 import '../utils/internal_logger.dart';
 
 @internal
@@ -85,10 +86,35 @@ class SentryRunZonedGuarded {
       },
     );
     return runZonedGuarded(
-      body,
+      () => runZoned(
+        body,
+        zoneSpecification: _originZoneSpanStatusSpecification(hub),
+      ),
       sentryOnError,
       zoneValues: zoneValues,
       zoneSpecification: sentryZoneSpecification,
+    );
+  }
+
+  /// `runZonedGuarded` invokes `onError` in its parent zone, where spans
+  /// started inside `body` are not visible, and it replaces any
+  /// `handleUncaughtError` passed alongside it. A zone nested inside it still
+  /// receives the zone an async error originated in, so the span is marked
+  /// from there before the error continues to `onError`.
+  static ZoneSpecification _originZoneSpanStatusSpecification(Hub hub) {
+    return ZoneSpecification(
+      handleUncaughtError: (self, parent, zone, error, stackTrace) {
+        try {
+          zone.run(hub.markActiveSpanAsErrored);
+        } catch (e, st) {
+          internalLogger.error(
+            'Failed to mark the active span as errored',
+            error: e,
+            stackTrace: st,
+          );
+        }
+        parent.handleUncaughtError(zone, error, stackTrace);
+      },
     );
   }
 
@@ -116,13 +142,7 @@ class SentryRunZonedGuarded {
       timestamp: hub.options.clock(),
     );
 
-    if (options.traceLifecycle == SentryTraceLifecycle.stream) {
-      hub.getActiveSpan()?.status = SentrySpanStatusV2.error;
-    } else {
-      hub.configureScope(
-        (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-      );
-    }
+    hub.markActiveSpanAsErrored();
 
     await hub.captureEvent(event, stackTrace: stackTrace);
   }

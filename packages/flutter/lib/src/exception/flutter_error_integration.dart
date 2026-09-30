@@ -6,6 +6,8 @@ import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';
 
 // ignore: implementation_imports
+import 'package:sentry/src/exception/unhandled_error_span_status.dart';
+// ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
 
 /// Integration that capture errors on the [FlutterError.onError] handler.
@@ -71,14 +73,7 @@ class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
           timestamp: options.clock(),
         );
 
-        if (options.traceLifecycle == SentryTraceLifecycle.stream) {
-          // ignore: invalid_use_of_internal_member
-          hub.getActiveSpan()?.status = SentrySpanStatusV2.error;
-        } else {
-          hub.configureScope(
-            (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-          );
-        }
+        hub.markActiveSpanAsErrored();
 
         final hint = Hint();
         hint.addAll({TypeCheckHint.syntheticException: errorDetails});

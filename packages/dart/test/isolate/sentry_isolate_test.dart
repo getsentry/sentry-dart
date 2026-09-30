@@ -28,27 +28,18 @@ void main() {
       expect(fixture.hub.captureEventCalls.first, isNotNull);
     });
 
-    test(
-      'marks streaming span as error when callback returns normally',
-      () async {
-        final client = MockSentryClient();
-        final hub = Hub(fixture.options)..bindClient(client);
+    test('marks the active idle span as error', () async {
+      final hub = Hub(fixture.options)..bindClient(MockSentryClient());
+      final span = hub.startIdleSpan('idle');
+      addTearDown(span.end);
 
-        await hub.startSpan('parent', (span) async {
-          await SentryIsolate.handleIsolateError(hub, [
-            StateError('error').toString(),
-            StackTrace.current.toString(),
-          ]);
+      await SentryIsolate.handleIsolateError(hub, [
+        StateError('error').toString(),
+        StackTrace.current.toString(),
+      ]);
 
-          expect(span.status, SentrySpanStatusV2.error);
-        });
-
-        expect(
-          client.captureSpanCalls.single.span.status,
-          SentrySpanStatusV2.error,
-        );
-      },
-    );
+      expect(span.status, SentrySpanStatusV2.error);
+    });
 
     test('marks transaction as internal error if no status', () async {
       fixture.options.traceLifecycle = SentryTraceLifecycle.static;
