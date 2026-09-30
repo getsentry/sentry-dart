@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
@@ -40,10 +42,8 @@ class SentryAssetBundle implements AssetBundle {
     this._enableStructuredDataTracing = true,
   }) : _hub = hub ?? HubAdapter(),
        _bundle = bundle ?? rootBundle {
-    // ignore: invalid_use_of_internal_member
     _hub.options.sdk.addIntegration('AssetBundleTracing');
     if (_enableStructuredDataTracing) {
-      // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('StructuredDataTracing');
     }
   }
@@ -52,15 +52,17 @@ class SentryAssetBundle implements AssetBundle {
   final AssetBundle _bundle;
   final bool _enableStructuredDataTracing;
 
+  InstrumentationSpanFactory get _spanFactory => _hub.options.spanFactory;
+
   @override
   Future<ByteData> load(String key) {
-    final outerSpan = _hub.getSpan();
+    final outerSpan = _spanFactory.getSpan(_hub);
     return _wrapLoad(outerSpan, 'load', key, () => _bundle.load(key));
   }
 
   @override
   Future<String> loadString(String key, {bool cache = true}) {
-    final outerSpan = _hub.getSpan();
+    final outerSpan = _spanFactory.getSpan(_hub);
     return _wrapLoad(
       outerSpan,
       'loadString',
@@ -74,14 +76,13 @@ class SentryAssetBundle implements AssetBundle {
   // This is an override on Flutter greater than 3.1
   // ignore: override_on_non_overriding_member
   Future<ImmutableBuffer> loadBuffer(String key) {
-    final outerSpan = _hub.getSpan();
+    final outerSpan = _spanFactory.getSpan(_hub);
     return _wrapLoad(
       outerSpan,
       'loadBuffer',
       key,
       () => _bundle.loadBuffer(key),
       updateInnerSpan: (innerSpan) =>
-          // ignore: invalid_use_of_internal_member
           innerSpan?.setData(ProposedSemanticAttributes.filePath, key),
     );
   }
@@ -94,7 +95,7 @@ class SentryAssetBundle implements AssetBundle {
     if (!_enableStructuredDataTracing) {
       return _bundle.loadStructuredData(key, parser);
     }
-    final outerSpan = _hub.getSpan();
+    final outerSpan = _spanFactory.getSpan(_hub);
     return _wrapLoad(
       outerSpan,
       'loadStructuredData',
@@ -115,7 +116,7 @@ class SentryAssetBundle implements AssetBundle {
     if (!_enableStructuredDataTracing) {
       return _bundle.loadStructuredBinaryData<T>(key, parser);
     }
-    final outerSpan = _hub.getSpan();
+    final outerSpan = _spanFactory.getSpan(_hub);
     return _wrapLoad(
       outerSpan,
       'loadStructuredBinaryData',
@@ -123,7 +124,7 @@ class SentryAssetBundle implements AssetBundle {
       () => _bundle.loadStructuredBinaryData<T>(
         key,
         (value) =>
-            _wrapParser(outerSpan, key, () => Future.value(parser(value))),
+            _wrapParser(outerSpan, key, () => Future.sync(() => parser(value))),
       ),
     );
   }
@@ -137,11 +138,11 @@ class SentryAssetBundle implements AssetBundle {
   // Wrappers
 
   Future<T> _wrapLoad<T>(
-    ISentrySpan? outerSpan,
+    InstrumentationSpan? outerSpan,
     String traceName,
     String key,
     Future<T> Function() loadFunction, {
-    void Function(ISentrySpan?)? updateInnerSpan,
+    void Function(InstrumentationSpan?)? updateInnerSpan,
   }) {
     final String description;
     if (traceName == 'loadStructuredData' ||
@@ -151,10 +152,14 @@ class SentryAssetBundle implements AssetBundle {
       description = 'AssetBundle.$traceName: ${_fileName(key)}';
     }
 
-    final span = outerSpan?.startChild('file.read', description: description);
-    // ignore: invalid_use_of_internal_member
+    final span = outerSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: outerSpan,
+            operation: 'file.read',
+            description: description,
+          )
+        : null;
     span?.setData(ProposedSemanticAttributes.filePath, key);
-    // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
     if (updateInnerSpan != null) {
@@ -177,15 +182,17 @@ class SentryAssetBundle implements AssetBundle {
   }
 
   Future<T> _wrapParser<T>(
-    ISentrySpan? outerSpan,
+    InstrumentationSpan? outerSpan,
     String key,
     Future<T> Function() parserFunction,
   ) {
-    final span = outerSpan?.startChild(
-      'serialize.file.read',
-      description: 'parsing "$key" to "$T"',
-    );
-    // ignore: invalid_use_of_internal_member
+    final span = outerSpan != null
+        ? _spanFactory.createSpan(
+            parentSpan: outerSpan,
+            operation: 'serialize.file.read',
+            description: 'parsing "$key" to "$T"',
+          )
+        : null;
     span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
     return _wrapWithCompleter(
@@ -235,7 +242,7 @@ class SentryAssetBundle implements AssetBundle {
     return completer.future;
   }
 
-  void _setDataLength(dynamic data, ISentrySpan? span) {
+  void _setDataLength(dynamic data, InstrumentationSpan? span) {
     int? byteLength;
     if (data is List<int>) {
       byteLength = data.length;
@@ -245,7 +252,6 @@ class SentryAssetBundle implements AssetBundle {
       byteLength = data.length;
     }
     if (byteLength != null) {
-      // ignore: invalid_use_of_internal_member
       span?.setData(ProposedSemanticAttributes.fileSize, byteLength);
     }
   }

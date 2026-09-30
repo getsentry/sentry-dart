@@ -10,6 +10,7 @@ import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
@@ -26,7 +27,197 @@ void main() {
     fixture = Fixture();
   });
 
-  group(SentryAssetBundle, () {
+  group('$SentryAssetBundle', () {
+    group('with streaming lifecycle', () {
+      late StreamingFixture fixture;
+
+      setUp(() {
+        fixture = StreamingFixture();
+      });
+
+      tearDown(() async {
+        await fixture.hub.close();
+      });
+
+      test('records asset load as a child of the active span', () async {
+        final sut = fixture.getSut();
+        late SentrySpanV2 parent;
+
+        await fixture.hub.startSpan('parent', (span) async {
+          parent = span;
+          final data = await sut.load(_testFileName);
+          expect(data.lengthInBytes, 12);
+        });
+
+        final child = fixture.findSpanByOperation('file.read');
+        expect(child, isNotNull);
+        expect(fixture.processor.addedSpans, contains(same(child)));
+        expect(child!.parentSpan, same(parent));
+        expect(child.name, 'AssetBundle.load: test.txt');
+        expect(child.isEnded, isTrue);
+        expect(child.status, SentrySpanStatusV2.ok);
+        expect(child.attributes['file.path']?.value, 'resources/test.txt');
+        expect(child.attributes['file.size']?.value, 12);
+        expect(
+          child.attributes['sentry.origin']?.value,
+          'auto.file.asset_bundle',
+        );
+      });
+      test('records string loads and preserves the cache attribute', () async {
+        final sut = fixture.getSut();
+
+        await fixture.hub.startSpan('parent', (_) async {
+          expect(
+            await sut.loadString(_testFileName, cache: false),
+            'Hello World!',
+          );
+        });
+
+        final child = fixture.findSpanByOperation('file.read');
+        expect(child, isNotNull);
+        expect(child!.name, 'AssetBundle.loadString: test.txt');
+        expect(child.attributes['from-cache']?.value, isFalse);
+        expect(child.isEnded, isTrue);
+      });
+
+      test('records buffer loads with their size', () async {
+        final sut = fixture.getSut();
+
+        await fixture.hub.startSpan('parent', (_) async {
+          final buffer = await sut.loadBuffer(_testFileName);
+          expect(buffer.length, 12);
+          buffer.dispose();
+        });
+
+        final child = fixture.findSpanByOperation('file.read');
+        expect(child, isNotNull);
+        expect(child!.name, 'AssetBundle.loadBuffer: test.txt');
+        expect(child.attributes['file.size']?.value, 12);
+        expect(child.isEnded, isTrue);
+      });
+
+      for (final binary in [false, true]) {
+        final method = binary
+            ? 'loadStructuredBinaryData'
+            : 'loadStructuredData';
+
+        Future<int> loadStructured(SentryAssetBundle bundle, {Object? error}) {
+          if (binary) {
+            return bundle.loadStructuredBinaryData<int>(_testFileName, (data) {
+              if (error != null) throw error;
+              return data.lengthInBytes;
+            });
+          }
+          return bundle.loadStructuredData<int>(_testFileName, (data) async {
+            if (error != null) throw error;
+            return data.length;
+          });
+        }
+
+        test('records $method and parsing under the active span', () async {
+          final sut = fixture.getSut();
+          late SentrySpanV2 parent;
+
+          await fixture.hub.startSpan('parent', (span) async {
+            parent = span;
+            expect(await loadStructured(sut), 12);
+          });
+
+          final load = fixture.findSpanByOperation('file.read');
+          final parser = fixture.findSpanByOperation('serialize.file.read');
+          expect(load, isNotNull);
+          expect(parser, isNotNull);
+          expect(load!.name, 'AssetBundle.$method<int>: test.txt');
+          expect(parser!.name, 'parsing "resources/test.txt" to "int"');
+          for (final span in [load, parser]) {
+            expect(span.parentSpan, same(parent));
+            expect(span.isEnded, isTrue);
+            expect(span.status, SentrySpanStatusV2.ok);
+            expect(
+              span.attributes['sentry.origin']?.value,
+              'auto.file.asset_bundle',
+            );
+          }
+        });
+
+        test(
+          'marks $method load and parser spans as errors when parsing fails',
+          () async {
+            final sut = fixture.getSut();
+            final error = StateError('parsing failed');
+
+            await fixture.hub.startSpan('parent', (_) async {
+              await expectLater(
+                loadStructured(sut, error: error),
+                throwsA(same(error)),
+              );
+            });
+
+            final load = fixture.findSpanByOperation('file.read');
+            final parser = fixture.findSpanByOperation('serialize.file.read');
+            expect(load, isNotNull);
+            expect(parser, isNotNull);
+            for (final span in [load!, parser!]) {
+              expect(span.isEnded, isTrue);
+              expect(span.status, SentrySpanStatusV2.error);
+            }
+          },
+        );
+
+        test(
+          'skips $method spans when structured data tracing is disabled',
+          () async {
+            final sut = fixture.getSut(structuredDataTracing: false);
+
+            await fixture.hub.startSpan('parent', (_) async {
+              expect(await loadStructured(sut), 12);
+            });
+
+            expect(fixture.findSpanByOperation('file.read'), isNull);
+            expect(fixture.findSpanByOperation('serialize.file.read'), isNull);
+          },
+        );
+      }
+
+      test('ends the load span with error status when loading fails', () async {
+        final sut = fixture.getSut();
+        fixture.assetBundle.throwException = true;
+
+        await fixture.hub.startSpan('parent', (_) async {
+          await expectLater(sut.load(_testFileName), throwsA(isA<Exception>()));
+        });
+
+        final child = fixture.findSpanByOperation('file.read');
+        expect(child, isNotNull);
+        expect(child!.isEnded, isTrue);
+        expect(child.status, SentrySpanStatusV2.error);
+      });
+
+      test(
+        'loads assets without creating a span when no parent is active',
+        () async {
+          final data = await fixture.getSut().load(_testFileName);
+
+          expect(data.lengthInBytes, 12);
+          expect(fixture.spans, isEmpty);
+        },
+      );
+
+      test(
+        'loads assets without creating a span when the parent is unsampled',
+        () async {
+          fixture.options.tracesSampleRate = 0.0;
+          final sut = fixture.getSut();
+
+          await fixture.hub.startSpan('parent', (_) async {
+            expect((await sut.load(_testFileName)).lengthInBytes, 12);
+          });
+
+          expect(fixture.spans, isEmpty);
+        },
+      );
+    });
+
     test('empty key does not throw', () async {
       final sut = fixture.getSut();
       final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
@@ -478,6 +669,27 @@ void main() {
       expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
+    test('ends both spans when a binary parser throws synchronously', () async {
+      final sut = fixture.getSut();
+      final transaction =
+          fixture._hub.startTransaction('parent', 'test', bindToScope: true)
+              as SentryTracer;
+      final error = StateError('parsing failed');
+
+      await expectLater(
+        sut.loadStructuredBinaryData<int>(_testFileName, (_) => throw error),
+        throwsA(same(error)),
+      );
+      await transaction.finish();
+
+      expect(transaction.children, hasLength(2));
+      for (final span in transaction.children) {
+        expect(span.finished, isTrue);
+        expect(span.status, const SpanStatus.internalError());
+        expect(span.throwable, same(error));
+      }
+    });
+
     test('evict call gets forwarded', () {
       final sut = fixture.getSut();
 
@@ -566,5 +778,37 @@ class TestAssetBundle extends CachingAssetBundle {
       );
     }
     return ImmutableBuffer.fromUint8List(Uint8List.fromList([]));
+  }
+}
+
+class StreamingFixture {
+  final options = defaultTestOptions()..tracesSampleRate = 1.0;
+  final processor = MockTelemetryProcessor();
+  final spans = <RecordingSentrySpanV2>[];
+  final assetBundle = TestAssetBundle();
+  late final hub = Hub(options);
+
+  StreamingFixture() {
+    options.telemetryProcessor = processor;
+    options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
+      if (event.span case final RecordingSentrySpanV2 span) {
+        spans.add(span);
+      }
+    });
+    InstrumentationSpanFactorySetupIntegration().call(hub, options);
+  }
+
+  RecordingSentrySpanV2? findSpanByOperation(String operation) {
+    return spans
+        .where((span) => span.attributes['sentry.op']?.value == operation)
+        .firstOrNull;
+  }
+
+  SentryAssetBundle getSut({bool structuredDataTracing = true}) {
+    return SentryAssetBundle(
+      hub: hub,
+      bundle: assetBundle,
+      enableStructuredDataTracing: structuredDataTracing,
+    );
   }
 }
