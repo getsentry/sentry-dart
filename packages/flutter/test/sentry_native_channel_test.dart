@@ -452,8 +452,8 @@ void main() {
             frameRate: 3);
 
         if (mockPlatform.isAndroid) {
-          final matcher = _nativeUnavailableMatcher();
-          expect(() => sut.setReplayConfig(config), matcher);
+          // Native delivery is deferred until a replay recorder exists.
+          await sut.setReplayConfig(config);
           verifyZeroInteractions(channel);
         } else {
           when(channel.invokeMethod('setReplayConfig', any))
