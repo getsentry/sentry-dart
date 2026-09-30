@@ -50,9 +50,9 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
   static const _transitions = <String, PageTransitionsBuilder>{
     'Swipe (custom)': SwipePageTransitionsBuilder(),
     'Zoom': ZoomPageTransitionsBuilder(),
-    'Zoom (3s)': SlowPageTransitionsBuilder(
+    'Zoom (6s)': SlowPageTransitionsBuilder(
       ZoomPageTransitionsBuilder(),
-      duration: Duration(seconds: 3),
+      duration: Duration(seconds: 6),
     ),
     'Fade forwards': FadeForwardsPageTransitionsBuilder(),
     'Predictive back': PredictiveBackPageTransitionsBuilder(),
