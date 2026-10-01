@@ -41,6 +41,9 @@ dependency_overrides:
     git:
       url: https://github.com/Deepjyoti120/isar_flutter_libs.git
       ref: e61ce33af7118153d31689189077facbcfef8490
+  # TODO: Remove once https://github.com/dart-lang/native/issues/3722 is fixed.
+  # jni_flutter 1.0.4 requires jni ^1.1.0 but declares ^1.0.0.
+  jni_flutter: 1.0.3
 
 dev_dependencies:
   flutter_lints: ^2.0.0
