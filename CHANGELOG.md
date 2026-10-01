@@ -1,5 +1,59 @@
 # Changelog
 
+## Unreleased
+
+Version 10.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.
+
+### How To Upgrade
+
+Please carefully read through the migration guide in the Sentry docs on how to upgrade from version 9 to version 10
+ - [Flutter migration guide](https://docs.sentry.io/platforms/dart/guides/flutter/migration/v9-to-v10/)
+
+### Breaking Changes
+
+- Default to streaming traces (`SentryTraceLifecycle.stream`), sending spans as they finish. Use `Sentry.startSpan` instead of `Sentry.startTransaction` and `ISentrySpan.startChild`, which are no-ops in streaming mode. Set `options.traceLifecycle = SentryTraceLifecycle.static` to keep using the transaction APIs. ([#4057](https://github.com/getsentry/sentry-dart/pull/4057))
+- Require Dart 3.12.0 or newer and Flutter 3.44.0 or newer. ([#3784](https://github.com/getsentry/sentry-dart/pull/3784), [98581ac](https://github.com/getsentry/sentry-dart/commit/98581ac53))
+- Raise the minimum Android SDK version for Flutter from API 21 to API 26. Set your app's Android `minSdk` to 26 or higher. ([#4049](https://github.com/getsentry/sentry-dart/pull/4049))
+- Remove CocoaPods support. Flutter apps targeting Apple platforms must use Swift Package Manager. ([#3879](https://github.com/getsentry/sentry-dart/pull/3879))
+- Remove `enableLogs` and `enableMetrics`. Logs and metrics are always enabled. The logging integration forwards Sentry logs by default; adjust `minSentryLogLevel` or set it to `Level.OFF` to disable forwarding. ([#3983](https://github.com/getsentry/sentry-dart/pull/3983))
+- Remove `enableStandaloneAppStartTracing`. When tracing is enabled, app start is always reported as a standalone `app.start` root on Android and iOS. ([#3981](https://github.com/getsentry/sentry-dart/pull/3981))
+- Make native failed-request capture opt-in. ([#3885](https://github.com/getsentry/sentry-dart/pull/3885))
+- Run error sampling after event processors and `beforeSend`. These callbacks now also run for events that are subsequently sampled out. ([#3955](https://github.com/getsentry/sentry-dart/pull/3955))
+- Require `traceId` on `SentryLog`, make logger methods return `void`, and remove `SentryLogAttribute`. ([#3842](https://github.com/getsentry/sentry-dart/pull/3842), [#3852](https://github.com/getsentry/sentry-dart/pull/3852), [#3843](https://github.com/getsentry/sentry-dart/pull/3843))
+- Add a `Hint` parameter to the before-send callbacks for logs, metrics, and spans. ([#3847](https://github.com/getsentry/sentry-dart/pull/3847))
+- Make feature flags hub/scope-based. ([#3848](https://github.com/getsentry/sentry-dart/pull/3848))
+- Remove SDK profiling and deprecated performance collectors. ([#3891](https://github.com/getsentry/sentry-dart/pull/3891), [#3850](https://github.com/getsentry/sentry-dart/pull/3850))
+- Remove deprecated `copyWith` APIs and protocol clones, and make `clone()` internal. ([#3877](https://github.com/getsentry/sentry-dart/pull/3877), [#3845](https://github.com/getsentry/sentry-dart/pull/3845))
+- Remove the deprecated `SentryFeedbackWidget`. ([#3844](https://github.com/getsentry/sentry-dart/pull/3844))
+- Replace `options.log` with internal logging and make `BindingWrapper` and `bindingUtils` internal. ([#3932](https://github.com/getsentry/sentry-dart/pull/3932), [#3940](https://github.com/getsentry/sentry-dart/pull/3940))
+- Align span attributes with Sentry Conventions and remove `file.async` from file instrumentation. ([#3805](https://github.com/getsentry/sentry-dart/pull/3805), [#3841](https://github.com/getsentry/sentry-dart/pull/3841))
+- Use Breakpad as the default native crash backend on Windows and Linux. ([#4045](https://github.com/getsentry/sentry-dart/pull/4045))
+
+### Features
+
+- Add manual Session Replay controls on Android and iOS through `SentryFlutter.replay`: `start`, `startBuffering`, `pause`, `resume`, `stop`, and `flush`. Explicitly started replays work even when both automatic sample rates are `0`. ([#4010](https://github.com/getsentry/sentry-dart/pull/4010))
+- Improve startup frame spans, and remove the pre-init and Sentry initialization spans from startup traces. ([#4018](https://github.com/getsentry/sentry-dart/pull/4018), [6aad048](https://github.com/getsentry/sentry-dart/commit/6aad0486c))
+- Include sampled-out errors in release health, and report unhandled Flutter errors as unhandled sessions rather than crashes. ([#4008](https://github.com/getsentry/sentry-dart/pull/4008), [#4007](https://github.com/getsentry/sentry-dart/pull/4007))
+- Mask `SensitiveContent` by default in Session Replay. ([#3973](https://github.com/getsentry/sentry-dart/pull/3973))
+- Graduate mature v10 APIs from experimental status. ([#3940](https://github.com/getsentry/sentry-dart/pull/3940))
+
+### Enhancements
+
+- Migrate the Android plugin to Flutter’s built-in Kotlin support. ([#3961](https://github.com/getsentry/sentry-dart/pull/3961))
+
+### Fixes
+
+- Isolate failures in user-provided callbacks. ([#4026](https://github.com/getsentry/sentry-dart/pull/4026))
+- Default event trace context status to `ok` while preserving explicit span statuses. ([#4035](https://github.com/getsentry/sentry-dart/pull/4035))
+- Exclude later frame builds from startup timing. ([8ee2d41](https://github.com/getsentry/sentry-dart/commit/8ee2d41ed))
+- Align HTTP client error type and value. ([#3934](https://github.com/getsentry/sentry-dart/pull/3934))
+
+### Dependencies
+
+- Update Sentry Cocoa to **9.27.0**. ([#4006](https://github.com/getsentry/sentry-dart/pull/4006))
+- Update Sentry JavaScript to **11.0.0**, preserving the default web privacy settings and aligning unhandled session reporting. ([#4032](https://github.com/getsentry/sentry-dart/pull/4032))
+- Use `jni >=1.0.0 <1.1.0` and `jnigen 0.17.0`. ([#3931](https://github.com/getsentry/sentry-dart/pull/3931))
+
 ## 10.0.0-rc.1
 
 ### Breaking Changes
