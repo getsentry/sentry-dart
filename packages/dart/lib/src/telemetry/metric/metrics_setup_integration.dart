@@ -1,5 +1,6 @@
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
+import '../telemetry_trace_context.dart';
 import 'default_metrics.dart';
 import 'noop_metrics.dart';
 
@@ -19,7 +20,7 @@ class MetricsSetupIntegration extends Integration<SentryOptions> {
     options.metrics = DefaultSentryMetrics(
       captureMetricCallback: hub.captureMetric,
       clockProvider: options.clock,
-      scopeProvider: () => hub.scope,
+      traceContextProvider: () => resolveTelemetryTraceContext(hub),
     );
 
     options.sdk.addIntegration(integrationName);

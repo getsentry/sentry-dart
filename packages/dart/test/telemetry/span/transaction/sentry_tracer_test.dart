@@ -867,7 +867,7 @@ class Fixture {
 
   final user = SentryUser(id: 'id');
 
-  final hub = MockHub();
+  final hub = MockHub()..options.traceLifecycle = SentryTraceLifecycle.static;
 
   SentryTracer getSut({
     bool? sampled = true,

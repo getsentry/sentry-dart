@@ -92,7 +92,8 @@ void main() {
 }
 
 class Fixture {
-  final SentryOptions options = defaultTestOptions();
+  final SentryOptions options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static;
   late final Hub hub = Hub(options);
 
   SentryTransaction getSut(SentryTracer tracer) {

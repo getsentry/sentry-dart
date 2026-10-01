@@ -56,6 +56,7 @@ void main() {
     });
 
     test('no captured span if tracing disabled', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
       fixture.realHub.options.captureFailedRequests = false;
       fixture.realHub.options.recordHttpBreadcrumbs = false;
       final tr = fixture.realHub.startTransaction(
@@ -77,6 +78,7 @@ void main() {
     });
 
     test('captured span if tracing enabled', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
       fixture.realHub.options.tracesSampleRate = 1.0;
       fixture.realHub.options.recordHttpBreadcrumbs = false;
       final tr =

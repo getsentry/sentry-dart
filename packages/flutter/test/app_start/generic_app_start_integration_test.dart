@@ -20,6 +20,7 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
     });
 
     group('when tracing is enabled', () {

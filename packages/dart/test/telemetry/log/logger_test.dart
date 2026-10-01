@@ -2,8 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/log/default_logger.dart';
 import 'package:test/test.dart';
 
-import '../../test_utils.dart';
-
 void main() {
   group('$DefaultSentryLogger', () {
     late Fixture fixture;
@@ -88,27 +86,14 @@ void main() {
       expect(attrs['sentry.message.parameter.0']?.value, 'Earth');
     });
 
-    test('sets trace id from default scope propagation context', () {
+    test('sets trace and span id from trace context provider', () {
       final logger = fixture.getSut();
 
       logger.info('test');
 
-      expect(fixture.capturedLogs.length, 1);
-      final capturedLog = fixture.capturedLogs[0];
-      expect(capturedLog.traceId, fixture.scope.propagationContext.traceId);
-    });
-
-    test('sets span id when span is active on default scope', () {
-      final span = _MockSpan();
-      fixture.scope.span = span;
-
-      final logger = fixture.getSut();
-
-      logger.info('test');
-
-      expect(fixture.capturedLogs.length, 1);
-      final capturedLog = fixture.capturedLogs[0];
-      expect(capturedLog.spanId, span.context.spanId);
+      final capturedLog = fixture.capturedLogs.single;
+      expect(capturedLog.traceId, fixture.traceId);
+      expect(capturedLog.spanId, fixture.spanId);
     });
 
     test('sets timestamp from clock provider', () {
@@ -134,10 +119,10 @@ void main() {
 }
 
 class Fixture {
-  final options = defaultTestOptions();
   final timestamp = DateTime.fromMicrosecondsSinceEpoch(0);
   final capturedLogs = <SentryLog>[];
-  late final Scope scope;
+  final traceId = SentryId.newId();
+  final spanId = SpanId.newId();
 
   final attributes = <String, SentryAttribute>{
     'string': SentryAttribute.string('string'),
@@ -150,27 +135,13 @@ class Fixture {
     'negative_infinity': SentryAttribute.double(double.negativeInfinity),
   };
 
-  Fixture() {
-    scope = Scope(options);
-  }
-
   SentryLogger getSut() {
     return DefaultSentryLogger(
       captureLogCallback: (log) async {
         capturedLogs.add(log);
       },
       clockProvider: () => timestamp,
-      scopeProvider: () => scope,
+      traceContextProvider: () => (traceId: traceId, spanId: spanId),
     );
   }
-}
-
-class _MockSpan implements ISentrySpan {
-  final SentrySpanContext _context = SentrySpanContext(operation: 'test');
-
-  @override
-  SentrySpanContext get context => _context;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

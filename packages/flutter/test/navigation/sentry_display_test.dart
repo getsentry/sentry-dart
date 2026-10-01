@@ -19,6 +19,7 @@ void main() {
       test(
         'calls TimeToDisplayTracker with the span id in non-streaming mode',
         () async {
+          fixture.options.traceLifecycle = SentryTraceLifecycle.static;
           final nonStreamingTracker = MockTimeToDisplayTracker();
           when(
             nonStreamingTracker.reportFullyDisplayed(

@@ -765,7 +765,9 @@ class _NullSpanFactory implements InstrumentationSpanFactory {
 
 class Fixture {
   static final dbName = 'test_db_name';
-  final options = defaultTestOptions()..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static
+    ..tracesSampleRate = 1.0;
 
   Future<void> sentryInit() {
     return Sentry.init((options) {}, options: options);
