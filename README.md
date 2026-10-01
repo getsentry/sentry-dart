@@ -38,16 +38,6 @@ This repo uses the following ways to release SDK updates:
 
 For detailed usage, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/packages/dart), [flutter](https://github.com/getsentry/sentry-dart/tree/main/packages/flutter), [logging](https://github.com/getsentry/sentry-dart/tree/main/packages/logging), [dio](https://github.com/getsentry/sentry-dart/tree/main/packages/dio), [file](https://github.com/getsentry/sentry-dart/tree/main/packages/file), [sqflite](https://github.com/getsentry/sentry-dart/tree/main/packages/sqflite), [drift](https://github.com/getsentry/sentry-dart/tree/main/packages/drift), [hive](https://github.com/getsentry/sentry-dart/tree/main/packages/hive) and [isar](https://github.com/getsentry/sentry-dart/tree/main/packages/isar) `README's` or our `Resources` section below.
 
-## Blog posts
-
-[Introducing Mobile Screenshots](https://blog.sentry.io/introducing-mobile-screenshots-and-suspect-commits/).
-
-[With Flutter and Sentry, You Can Put All Your Eggs in One Repo](https://blog.sentry.io/2021/03/03/with-flutter-and-sentry-you-can-put-all-your-eggs-in-one-repo).
-
-[A Sanity Listicle for Mobile Developers](https://blog.sentry.io/2021/03/30/a-sanity-listicle-for-mobile-developers/).
-
-[Supporting Native Android Libraries Loaded From APKs](https://blog.sentry.io/2021/05/13/supporting-native-android-libraries-loaded-from-apks).
-
 ## Resources
 
 - [![Flutter docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=flutter%20docs)](https://docs.sentry.io/platforms/flutter/)
@@ -56,6 +46,7 @@ For detailed usage, check out the inner [dart](https://github.com/getsentry/sent
 - [![Discord Chat](https://img.shields.io/discord/621778831602221064?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.gg/gB6ja9uZuN)
 - [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
 - [![X Follow](https://img.shields.io/twitter/follow/sentry?label=sentry&style=social)](https://x.com/intent/follow?screen_name=sentry)
+- Check out product updates, deep dives, and tips on [the Sentry blog](https://blog.sentry.io/) and [our changelog](https://sentry.io/changelog/)
 
 ## Apple Privacy Manifest
 
