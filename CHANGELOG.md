@@ -11,6 +11,7 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 
 ### Breaking Changes
 
+- Default to streaming traces (`SentryTraceLifecycle.stream`), sending spans as they finish. Use `Sentry.startSpan` instead of `Sentry.startTransaction` and `ISentrySpan.startChild`, which are no-ops in streaming mode. Set `options.traceLifecycle = SentryTraceLifecycle.static` to keep using the transaction APIs. ([#4057](https://github.com/getsentry/sentry-dart/pull/4057))
 - Require Dart 3.12.0 or newer and Flutter 3.44.0 or newer. ([#3784](https://github.com/getsentry/sentry-dart/pull/3784), [98581ac](https://github.com/getsentry/sentry-dart/commit/98581ac53))
 - Raise the minimum Android SDK version for Flutter from API 21 to API 26. Set your app's Android `minSdk` to 26 or higher. ([#4049](https://github.com/getsentry/sentry-dart/pull/4049))
 - Remove CocoaPods support. Flutter apps targeting Apple platforms must use Swift Package Manager. ([#3879](https://github.com/getsentry/sentry-dart/pull/3879))
