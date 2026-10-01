@@ -72,4 +72,7 @@ class NoOpSentryJsBinding implements SentryJsBinding {
   String? getReplayId({bool onlyIfSampled = false}) {
     return null;
   }
+
+  @override
+  Object? createManualReplayCanvasIntegration() => null;
 }

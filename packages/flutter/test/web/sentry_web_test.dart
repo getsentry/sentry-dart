@@ -79,11 +79,14 @@ void main() {
         expect(jsOptions['attachStacktrace'], expectedAttachStacktrace);
         expect(jsOptions['maxBreadcrumbs'], expectedMaxBreadcrumbs);
         expect(jsOptions['debug'], expectedDebug);
-        expect(jsOptions['defaultIntegrations'].length, 2);
+        expect(jsOptions['defaultIntegrations'].length, 3);
         expect(jsOptions['defaultIntegrations'][0].toString(),
             contains('name: GlobalHandlers'));
         expect(jsOptions['defaultIntegrations'][1].toString(),
             contains('name: Dedupe'));
+        // Adds the User-Agent, from which Sentry derives browser and OS.
+        expect(jsOptions['defaultIntegrations'][2].toString(),
+            contains('name: HttpContext'));
       });
 
       test('options getter returns the original options', () {
@@ -93,6 +96,12 @@ void main() {
       test('native features are not supported', () {
         expect(sut.supportsLoadContexts, isFalse);
         expect(sut.supportsReplay, isFalse);
+      });
+
+      test('replay is supported when a replay sample rate is set', () {
+        options.replay.onErrorSampleRate = 1.0;
+
+        expect(sut.supportsReplay, isTrue);
       });
 
       test('capturing envelope is supported', () {
@@ -187,7 +196,6 @@ void main() {
       test('init maps replay options to JS SDK', () async {
         const expectedSessionSampleRate = 0.1;
         const expectedOnErrorSampleRate = 1.0;
-        options.replay.enableWebCanvasRecording = true;
         options.replay.sessionSampleRate = expectedSessionSampleRate;
         options.replay.onErrorSampleRate = expectedOnErrorSampleRate;
 
@@ -270,6 +278,60 @@ void main() {
           expect(sut.loadContexts(), isNull);
           expect(sut.collectProfile(SentryId.empty(), 0, 0), isNull);
           expect(sut.startProfiler(SentryId.empty()), isNull);
+        });
+      });
+
+      group('replay click breadcrumb message', () {
+        Map<String, dynamic> replayBreadcrumbFor(Breadcrumb breadcrumb) {
+          sut.addBreadcrumb(breadcrumb);
+          return verify(mockBinding.addReplayBreadcrumb(captureAny))
+              .captured
+              .single as Map<String, dynamic>;
+        }
+
+        test('uses the view class', () {
+          final replayBreadcrumb = replayBreadcrumbFor(
+            Breadcrumb.userInteraction(
+                subCategory: 'click', viewClass: 'InkWell'),
+          );
+
+          expect(replayBreadcrumb['message'], 'InkWell');
+        });
+
+        test('prefers the view id over the view class', () {
+          final replayBreadcrumb = replayBreadcrumbFor(
+            Breadcrumb.userInteraction(
+              subCategory: 'click',
+              viewId: 'login_button',
+              viewClass: 'ElevatedButton',
+            ),
+          );
+
+          expect(replayBreadcrumb['message'], 'login_button');
+        });
+
+        // The label is text that the replay video masks.
+        test('does not use the label', () {
+          final replayBreadcrumb = replayBreadcrumbFor(
+            Breadcrumb.userInteraction(
+              subCategory: 'click',
+              data: {'label': 'secret label'},
+            ),
+          );
+
+          expect(replayBreadcrumb.containsKey('message'), isFalse);
+        });
+
+        test('keeps an existing message', () {
+          final replayBreadcrumb = replayBreadcrumbFor(
+            Breadcrumb.userInteraction(
+              subCategory: 'click',
+              message: 'custom',
+              viewClass: 'InkWell',
+            ),
+          );
+
+          expect(replayBreadcrumb['message'], 'custom');
         });
       });
 

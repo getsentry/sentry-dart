@@ -59,6 +59,9 @@ class FakeSentryJsBinding implements SentryJsBinding {
   String? getReplayId({bool onlyIfSampled = false}) => replayId;
 
   @override
+  Object? createManualReplayCanvasIntegration() => null;
+
+  @override
   void init(Map<String, dynamic> options) {}
 
   @override

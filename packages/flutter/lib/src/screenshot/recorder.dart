@@ -93,8 +93,8 @@ class ScreenshotRecorder {
       Timeline.finishSync(); // Sentry::captureScreenshot:Masking
 
       // Then we draw the image and obscure masks later, asynchronously.
-      final task =
-          capture.createTask(futureImage, callback, obscureItems, flow);
+      final task = capture.createTask(
+          futureImage, callback, obscureItems, flow, yieldToEventLoop);
       executeTask(task, flow).onError((e, stackTrace) {
         _logError(e, stackTrace);
         if (e != null && options.automatedTestMode) {
@@ -126,6 +126,20 @@ class ScreenshotRecorder {
   Future<Image> renderImage(
           RenderRepaintBoundary renderObject, double pixelRatio) =>
       renderObject.toImage(pixelRatio: pixelRatio);
+
+  /// Called between capture phases (after the image is rendered, after
+  /// masking, and before the final image is produced).
+  ///
+  /// The default is a no-op: awaiting an already-resolved [Future] doesn't
+  /// yield to the platform's event loop, so this preserves every existing
+  /// recorder's current behavior exactly. Flutter Web's recorder overrides
+  /// this to force a real yield between phases -- without it, the whole
+  /// capture pipeline runs as a single unbroken task that can block the
+  /// browser's main thread for the duration of a full capture (see #2897).
+  /// Not needed on other platforms, which don't run this pipeline on a
+  /// thread anything else shares.
+  @protected
+  Future<void> yieldToEventLoop() => Future.value();
 
   List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
@@ -194,6 +208,7 @@ class _Capture<R> {
     Future<R> Function(Screenshot) callback,
     List<WidgetFilterItem>? obscureItems,
     Flow flow,
+    Future<void> Function() yieldToEventLoop,
   ) {
     final timestamp = DateTime.now();
 
@@ -210,6 +225,7 @@ class _Capture<R> {
         Error.throwWithStackTrace(imageResult.error, imageResult.stackTrace);
       }
       final image = imageResult as Image;
+      await yieldToEventLoop();
 
       Timeline.startSync('Sentry::renderScreenshot', flow: flow);
       final recorder = PictureRecorder();
@@ -238,6 +254,7 @@ class _Capture<R> {
 
       final picture = recorder.endRecording();
       Timeline.finishSync(); // Sentry::renderScreenshot
+      await yieldToEventLoop();
 
       late Image finalImage;
       try {
@@ -247,6 +264,7 @@ class _Capture<R> {
       } finally {
         picture.dispose();
       }
+      await yieldToEventLoop();
 
       final screenshot = Screenshot(finalImage, timestamp, flow);
       try {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
 
@@ -24,6 +25,8 @@ void main() {
       final replayId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
       when(mockBinding.captureReplay()).thenAnswer((_) async => replayId);
 
+      // The native replay path; web has its own (JS SDK) error replay.
+      fixture.options.platform = MockPlatform(isWeb: false);
       final replayIntegration = ReplayIntegration(mockBinding);
       fixture.options.addIntegration(replayIntegration);
       fixture.options.replay.onErrorSampleRate = 1.0;

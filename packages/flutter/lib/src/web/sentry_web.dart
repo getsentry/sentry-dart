@@ -15,6 +15,11 @@ import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
 import '../native/utils/data_normalizer.dart';
 import '../replay/replay_config.dart';
+import '../replay/scheduled_recorder_config.dart';
+import '../screenshot/screenshot_support.dart';
+import 'replay/real_web_replay_canvas_bridge.dart';
+import 'replay/sentry_web_replay_recorder.dart';
+import 'replay/web_replay_capture_scale.dart';
 import 'sentry_js_binding.dart';
 
 class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
@@ -22,6 +27,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
+  SentryWebReplayRecorder? _replayRecorder;
 
   void _log(String message) {
     _options.log(SentryLevel.info, logger: '$SentryWeb', message);
@@ -46,22 +52,36 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': <String>{
           SentryJsIntegrationName.globalHandlers,
-          SentryJsIntegrationName.dedupe
+          SentryJsIntegrationName.dedupe,
+          // Adds the User-Agent (and page URL) to JS-side events, incl. the
+          // replay event, so Sentry can show the browser and OS.
+          SentryJsIntegrationName.httpContext,
         },
       };
-      if (_options.replay.enableWebCanvasRecording) {
+      Object? canvasIntegration;
+      if (supportsReplay) {
+        // Constructed (not just named) so we keep a reference to drive it
+        // ourselves -- enableManualSnapshot means auto-sampling is off, so
+        // nothing captures a frame unless SentryWebReplayRecorder tells this
+        // specific integration instance to snapshot one.
+        canvasIntegration = _binding.createManualReplayCanvasIntegration();
         jsOptions.addAll({
           'replaysSessionSampleRate': _options.replay.sessionSampleRate ?? 0,
           'replaysOnErrorSampleRate': _options.replay.onErrorSampleRate ?? 0,
-          'integrations': <String>[
+          'integrations': <Object?>[
             SentryJsIntegrationName.replay,
-            SentryJsIntegrationName.replayCanvas,
+            canvasIntegration,
           ],
         });
       }
       _binding.init(jsOptions);
-      if (_options.replay.enableWebCanvasRecording) {
+      if (supportsReplay && canvasIntegration != null) {
         _options.addEventProcessor(WebReplayEventProcessor(_binding));
+        _replayRecorder = SentryWebReplayRecorder(
+          _options,
+          bridge: RealWebReplayCanvasBridge(
+              canvasIntegration as WebReplayCanvasIntegration),
+        );
       }
     });
   }
@@ -69,6 +89,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> close() {
     tryCatchSync('close', () {
+      unawaited(_replayRecorder?.stop());
       _binding.close();
     });
   }
@@ -275,9 +296,29 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     _binding.setExtra(key, normalize(value));
   }
 
+  bool _replayRecorderStarted = false;
+
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
-    _logNotSupported('setting replay config');
+    final recorder = _replayRecorder;
+    if (recorder == null) return null;
+
+    return tryCatchAsync('setReplayConfig', () async {
+      // Independent of config.width/height, which already have
+      // SentryReplayQuality.resolutionScalingFactor baked in by the shared
+      // ReplayIntegration that calls this -- web maps the quality to its own
+      // factor on the real window size instead (see webReplayCaptureScale).
+      final scale = webReplayCaptureScale(_options.replay.quality);
+      await recorder.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
+        width: scale * config.windowWidth,
+        height: scale * config.windowHeight,
+        frameRate: config.frameRate,
+      ));
+      if (!_replayRecorderStarted) {
+        _replayRecorderStarted = true;
+        await recorder.start();
+      }
+    });
   }
 
   @override
@@ -318,7 +359,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get supportsLoadContexts => false;
 
   @override
-  bool get supportsReplay => false;
+  bool get supportsReplay =>
+      _options.replay.isEnabled && _options.isScreenshotSupported;
 
   @override
   SentryId? get replayId {
@@ -344,12 +386,22 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     if (category == 'fetch' ||
         category == 'xhr' ||
         category.startsWith('ui.')) {
+      final message = breadcrumb['message'] ?? _viewName(breadcrumb['data']);
       return {
         ...breadcrumb,
+        if (message != null) 'message': message,
         'category': 'flutter.$category',
       };
     }
 
     return null;
+  }
+
+  // Names where the user interacted, for replay breadcrumbs that have no
+  // message. Deliberately not the `label`: it's text the replay video masks.
+  String? _viewName(Object? data) {
+    if (data is! Map) return null;
+    final name = data['view.id'] ?? data['view.class'];
+    return name is String && name.isNotEmpty ? name : null;
   }
 }

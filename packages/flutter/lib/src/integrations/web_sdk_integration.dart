@@ -51,7 +51,7 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
   }
 
   List<Map<String, String>> _scriptsForOptions(SentryFlutterOptions options) {
-    if (options.replay.enableWebCanvasRecording) {
+    if (options.replay.isEnabled) {
       return options.runtimeChecker.isDebugMode()
           ? debugReplayScripts
           : productionReplayScripts;

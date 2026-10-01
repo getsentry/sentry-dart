@@ -7,6 +7,8 @@ import 'dart:js_interop_unsafe';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
+import 'package:sentry_flutter/src/web/replay/web_replay_canvas_bridge.dart';
+import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 import 'package:sentry_flutter/src/web/web_sentry_js_binding.dart';
 
@@ -55,6 +57,24 @@ void main() {
       expect(firstValue?['value'], contains(expectedMessage));
     });
 
+    test('httpContext integration adds the User-Agent to JS events', () async {
+      final sut = await fixture.getSut();
+      sut.init({
+        'dsn': fakeDsn,
+        'defaultIntegrations': [
+          SentryJsIntegrationName.globalHandlers,
+          SentryJsIntegrationName.httpContext,
+        ],
+      });
+      addTearDown(sut.close);
+
+      final processedEvent = await _captureNativeJsError('http context error');
+
+      final request = processedEvent['request'] as Map<dynamic, dynamic>?;
+      final headers = request?['headers'] as Map<dynamic, dynamic>?;
+      expect(headers?['User-Agent'], isNotEmpty);
+    });
+
     test('syncs scope data to captured JS events', () async {
       final sut = await fixture.getSut();
       sut.init({'dsn': fakeDsn});
@@ -86,6 +106,71 @@ void main() {
       expect(fixtureContext?['value'], 'context-value');
       expect(extra?['fixture_extra'], 'extra-value');
       expect(tags?['fixture_tag'], 'tag-value');
+    });
+
+    test('createManualReplayCanvasIntegration exposes manual snapshot',
+        () async {
+      final sut = await fixture.getSut(withReplay: true);
+
+      final integration =
+          sut.createManualReplayCanvasIntegration() as JSObject?;
+
+      expect(integration, isNotNull);
+      expect(integration!['name'], 'ReplayCanvas'.toJS);
+      expect(integration['snapshot'].typeofEquals('function'), isTrue);
+    });
+
+    // `blockAllMedia` doesn't cover <canvas>, so the replay integration must
+    // block Flutter's real canvas explicitly (#2897).
+    test('replay integration blocks canvases except the shadow canvas',
+        () async {
+      final sut = await fixture.getSut(withReplay: true);
+      sut.init({
+        'dsn': fakeDsn,
+        'replaysSessionSampleRate': 1.0,
+        'integrations': [SentryJsIntegrationName.replay],
+      });
+      addTearDown(sut.close);
+
+      final replay = _getReplayIntegration();
+      final recordingOptions = replay!['_recordingOptions'] as JSObject;
+      final blockSelector =
+          (recordingOptions['blockSelector'] as JSString).toDart;
+
+      expect(blockSelector, contains(webReplayBlockSelector));
+    });
+
+    test('replay integration drops the flutter-view DOM click breadcrumb',
+        () async {
+      final sut = await fixture.getSut(withReplay: true);
+      sut.init({
+        'dsn': fakeDsn,
+        'replaysSessionSampleRate': 1.0,
+        'integrations': [SentryJsIntegrationName.replay],
+      });
+      addTearDown(sut.close);
+
+      final container = _getReplayIntegration()!['_replay'] as JSObject;
+      final options = container.callMethod<JSObject>('getOptions'.toJS);
+      final callback = options['beforeAddRecordingEvent'] as JSFunction;
+      JSAny? apply(Map<String, Object?> event) =>
+          callback.callAsFunction(null, event.jsify());
+
+      Map<String, Object?> click(String tagName) => {
+            'type': 5,
+            'data': {
+              'tag': 'breadcrumb',
+              'payload': {
+                'category': 'ui.click',
+                'data': {
+                  'node': {'tagName': tagName},
+                },
+              },
+            },
+          };
+
+      expect(apply(click('flutter-view')), isNull);
+      expect(apply(click('button')), isNotNull);
     });
 
     test('emits replay breadcrumb hook', () async {
@@ -153,9 +238,9 @@ void main() {
 class Fixture {
   final options = defaultTestOptions();
 
-  Future<WebSentryJsBinding> getSut() async {
+  Future<WebSentryJsBinding> getSut({bool withReplay = false}) async {
     final loader = SentryScriptLoader(options: options);
-    await loader.loadWebSdk(debugScripts);
+    await loader.loadWebSdk(withReplay ? debugReplayScripts : debugScripts);
     return WebSentryJsBinding();
   }
 }
@@ -247,3 +332,6 @@ Future<Map<dynamic, dynamic>> _captureNativeJsError(String expectedMessage) {
 
   return interceptedEvent.future.timeout(const Duration(seconds: 5));
 }
+
+@JS('Sentry.getReplay')
+external JSObject? _getReplayIntegration();

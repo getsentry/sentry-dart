@@ -45,9 +45,8 @@ void main() {
         verify(fixture.web.init(fixture.hub)).called(1);
       });
 
-      test('loads replay scripts when web canvas recording is enabled',
-          () async {
-        fixture.options.replay.enableWebCanvasRecording = true;
+      test('loads replay scripts when replay is enabled', () async {
+        fixture.options.replay.sessionSampleRate = 1.0;
 
         await sut.call(fixture.hub, fixture.options);
 
