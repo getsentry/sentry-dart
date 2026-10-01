@@ -1333,7 +1333,8 @@ class Fixture {
 
 class _MockHub extends MockHub {
   @override
-  final options = defaultTestOptions();
+  final options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static;
 
   @override
   late final scope = Scope(options);

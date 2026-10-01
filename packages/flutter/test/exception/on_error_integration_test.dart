@@ -16,6 +16,8 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      // ignore: invalid_use_of_internal_member
+      when(fixture.hub.getActiveSpan()).thenReturn(null);
     });
 
     void _reportError({
@@ -217,7 +219,40 @@ void main() {
       );
     });
 
+    test('marks the active idle span as error', () async {
+      final exception = StateError('error');
+      final hub = Hub(fixture.options);
+      final client = MockSentryClient();
+      when(
+        client.captureEvent(
+          any,
+          scope: anyNamed('scope'),
+          stackTrace: anyNamed('stackTrace'),
+          hint: anyNamed('hint'),
+        ),
+      ).thenAnswer((_) async => SentryId.newId());
+      when(
+        client.captureSpan(any, scope: anyNamed('scope')),
+      ).thenAnswer((_) async {});
+      hub.bindClient(client);
+      final sut = fixture.getSut();
+      sut(hub, fixture.options);
+      addTearDown(sut.close);
+
+      // ignore: invalid_use_of_internal_member
+      final span = hub.startIdleSpan('idle');
+      addTearDown(span.end);
+
+      fixture.platformDispatcherWrapper.onError?.call(
+        exception,
+        StackTrace.current,
+      );
+
+      expect(span.status, SentrySpanStatusV2.error);
+    });
+
     test('marks transaction as internal error if no status', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
       final exception = StateError('error');
 
       final hub = Hub(fixture.options);

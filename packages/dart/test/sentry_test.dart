@@ -149,6 +149,7 @@ void main() {
     });
 
     test('should start transaction with given values', () async {
+      Sentry.currentHub.options.traceLifecycle = SentryTraceLifecycle.static;
       final tr = Sentry.startTransaction('name', 'op');
       await tr.finish();
 
@@ -156,6 +157,7 @@ void main() {
     });
 
     test('should start transaction with context', () async {
+      Sentry.currentHub.options.traceLifecycle = SentryTraceLifecycle.static;
       final tr = Sentry.startTransactionWithContext(
         SentryTransactionContext('name', 'operation'),
       );
@@ -165,6 +167,7 @@ void main() {
     });
 
     test('should start transaction with hint', () async {
+      Sentry.currentHub.options.traceLifecycle = SentryTraceLifecycle.static;
       final tr = Sentry.startTransactionWithContext(
         SentryTransactionContext('name', 'operation'),
       );
@@ -174,6 +177,7 @@ void main() {
     });
 
     test('should return span if bound to the scope', () async {
+      Sentry.currentHub.options.traceLifecycle = SentryTraceLifecycle.static;
       final tr = Sentry.startTransaction('name', 'op', bindToScope: true);
 
       expect(Sentry.getSpan(), tr);
@@ -389,7 +393,8 @@ void main() {
     });
 
     test('addFeatureFlag adds feature flag to active static span', () async {
-      final options = defaultTestOptions();
+      final options = defaultTestOptions()
+        ..traceLifecycle = SentryTraceLifecycle.static;
       await Sentry.init(options: options, (options) {
         options.dsn = fakeDsn;
         options.tracesSampleRate = 1.0;

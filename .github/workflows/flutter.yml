@@ -9,6 +9,7 @@ on:
       - '.github/workflows/flutter.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
+      - '.github/scripts/test-flutter-desktop.sh'
       - '.github/actions/coverage/**'
       - '.github/actions/test-results/**'
       - '!**/*.md'

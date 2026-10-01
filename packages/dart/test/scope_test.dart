@@ -718,6 +718,53 @@ void main() {
       expect(updatedEvent?.contexts['trace'] is SentryTraceContext, isTrue);
     });
 
+    test('apply trace context to event with active streaming span', () async {
+      final event = SentryEvent();
+      final parent = fixture.createSpan(name: 'parent');
+      final span = RecordingSentrySpanV2.child(
+        parent: parent,
+        name: 'child',
+        onSpanEnd: (_) async {},
+        clock: fixture.options.clock,
+        dscCreator: (_) =>
+            SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+      );
+      final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+      final updatedEvent = await scope.applyToEvent(event, Hint());
+
+      final traceContext = updatedEvent?.contexts.trace;
+      expect(traceContext?.traceId, span.traceId);
+      expect(traceContext?.spanId, span.spanId);
+      expect(traceContext?.parentSpanId, parent.spanId);
+      expect(traceContext?.sampled, isTrue);
+    });
+
+    test(
+      'apply trace context operation from active streaming span sentry.op',
+      () async {
+        final span = fixture.createSpan()
+          ..setAttribute('sentry.op', SentryAttribute.string('http.client'));
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.operation, 'http.client');
+      },
+    );
+
+    test(
+      'apply default trace context operation when active streaming span has no sentry.op',
+      () async {
+        final scope = Scope(defaultTestOptions())
+          ..setActiveSpan(fixture.createSpan());
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.operation, 'default');
+      },
+    );
+
     test(
       'trace context status defaults to ok when active span has no status',
       () async {

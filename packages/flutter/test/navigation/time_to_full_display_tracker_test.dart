@@ -159,7 +159,9 @@ void main() {
 }
 
 class Fixture {
-  final options = defaultTestOptions()..tracesSampleRate = 1.0;
+  final options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static
+    ..tracesSampleRate = 1.0;
   final mockSentryClient = MockSentryClient();
 
   final startTimestamp = getUtcDateTime();

@@ -2,8 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/log/default_logger.dart';
 import 'package:test/test.dart';
 
-import '../../test_utils.dart';
-
 void main() {
   group('$_DefaultSentryLoggerFormatter', () {
     late Fixture fixture;
@@ -280,18 +278,15 @@ class _DefaultSentryLoggerFormatter {}
 
 class Fixture {
   final capturedLogs = <SentryLog>[];
-  final options = defaultTestOptions();
   late final SentryLogger logger;
-  late final Scope scope;
 
   Fixture() {
-    scope = Scope(options);
     logger = DefaultSentryLogger(
       captureLogCallback: (log) async {
         capturedLogs.add(log);
       },
       clockProvider: () => DateTime.now(),
-      scopeProvider: () => scope,
+      traceContextProvider: () => (traceId: SentryId.newId(), spanId: null),
     );
   }
 }

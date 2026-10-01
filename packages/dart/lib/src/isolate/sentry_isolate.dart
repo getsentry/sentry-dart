@@ -2,6 +2,7 @@ import 'dart:isolate';
 import 'package:meta/meta.dart';
 
 import '../exception/throwable_mechanism.dart';
+import '../exception/unhandled_error_span_status.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
@@ -77,11 +78,7 @@ class SentryIsolate {
         timestamp: hub.options.clock(),
       );
 
-      // marks the span status if none to `internal_error` in case there's an
-      // unhandled error
-      hub.configureScope(
-        (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-      );
+      hub.markActiveSpanAsErrored();
 
       await hub.captureEvent(event, stackTrace: stackTrace);
     }

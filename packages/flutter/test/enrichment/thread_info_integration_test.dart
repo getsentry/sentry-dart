@@ -19,6 +19,10 @@ void main() {
   });
 
   group('ThreadInfoIntegration', () {
+    setUp(() {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+    });
+
     test('sets main thread name when in root isolate', () async {
       fixture.mockHelper.setIsRootIsolate(true);
       fixture.mockHelper.setIsolateName("main(debug)");
@@ -186,6 +190,10 @@ void main() {
   });
 
   group('OnSpanFinish sync processing', () {
+    setUp(() {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+    });
+
     test(
       'sets blocked_main_thread when sync span finishes on main isolate',
       () async {
@@ -554,7 +562,7 @@ class _Fixture {
 
   _Fixture() {
     mockHelper = _MockIsolateHelper();
-    options = SentryFlutterOptions();
+    options = defaultTestOptions();
     options.tracesSampleRate = 1.0; // Enable tracing by default
     // Set default return values to avoid null errors
     mockHelper.setIsRootIsolate(false);

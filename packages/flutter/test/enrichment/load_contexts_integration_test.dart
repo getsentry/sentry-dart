@@ -831,7 +831,10 @@ void main() {
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+          hasLength(1),
+        );
 
         final metric = SentryCounterMetric(
           timestamp: DateTime.now(),
@@ -987,7 +990,10 @@ void main() {
         mockLoadContexts();
         await fixture.registerIntegration();
 
-        expect(fixture.options.lifecycleRegistry.lifecycleCallbacks.length, 2);
+        expect(
+          fixture.options.lifecycleRegistry.lifecycleCallbacks[OnProcessMetric],
+          hasLength(1),
+        );
 
         fixture.sut.close();
 

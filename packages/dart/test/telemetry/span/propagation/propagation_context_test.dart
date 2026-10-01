@@ -15,7 +15,9 @@ void main() {
       });
 
       test('is reused for transactions within the same trace', () {
-        final options = defaultTestOptions()..tracesSampleRate = 1.0;
+        final options = defaultTestOptions()
+          ..traceLifecycle = SentryTraceLifecycle.static
+          ..tracesSampleRate = 1.0;
         final hub = Hub(options);
         final sut = hub.scope.propagationContext;
 
@@ -40,7 +42,9 @@ void main() {
       });
 
       test('is set by the first transaction and stays unchanged', () {
-        final options = defaultTestOptions()..tracesSampleRate = 1.0;
+        final options = defaultTestOptions()
+          ..traceLifecycle = SentryTraceLifecycle.static
+          ..tracesSampleRate = 1.0;
         final hub = Hub(options);
         final sut = hub.scope.propagationContext;
 
@@ -64,7 +68,11 @@ void main() {
       });
 
       test('is set by the first transaction and stays unchanged', () {
-        final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
+        final hub = Hub(
+          defaultTestOptions()
+            ..traceLifecycle = SentryTraceLifecycle.static
+            ..tracesSampleRate = 1.0,
+        );
         final sut = hub.scope.propagationContext;
         // 1. Start the first (root) transaction with an explicit sampled = true.
         final txContextTrue = SentryTransactionContext(
@@ -92,7 +100,11 @@ void main() {
       });
 
       test('is reset when a new trace is generated', () {
-        final hub = Hub(defaultTestOptions()..tracesSampleRate = 1.0);
+        final hub = Hub(
+          defaultTestOptions()
+            ..traceLifecycle = SentryTraceLifecycle.static
+            ..tracesSampleRate = 1.0,
+        );
         final sut = hub.scope.propagationContext;
         final txContext = SentryTransactionContext(
           'trx',
@@ -139,7 +151,9 @@ void main() {
 
     group('toSentryTrace', () {
       test('header reflects values', () {
-        final options = defaultTestOptions()..tracesSampleRate = 1.0;
+        final options = defaultTestOptions()
+          ..traceLifecycle = SentryTraceLifecycle.static
+          ..tracesSampleRate = 1.0;
         final hub = Hub(options);
         final sut = hub.scope.propagationContext;
 

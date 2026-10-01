@@ -4,6 +4,7 @@ import 'package:sentry/src/telemetry/log/logger_setup_integration.dart';
 import 'package:test/test.dart';
 
 import '../../test_utils.dart';
+import '../../mocks/mock_sentry_client.dart';
 
 void main() {
   group('$LoggerSetupIntegration', () {
@@ -17,6 +18,20 @@ void main() {
       fixture.sut.call(fixture.hub, fixture.options);
 
       expect(fixture.options.logger, isA<DefaultSentryLogger>());
+    });
+
+    test('correlates logs with the active streaming span', () async {
+      fixture.options.tracesSampleRate = 1.0;
+      fixture.sut.call(fixture.hub, fixture.options);
+
+      await fixture.hub.startSpan('parent', (span) async {
+        fixture.options.logger.info('message');
+        await Future<void>.delayed(Duration.zero);
+
+        final log = fixture.client.captureLogCalls.single.log;
+        expect(log.traceId, span.traceId);
+        expect(log.spanId, span.spanId);
+      });
     });
 
     test('adds integration to SDK', () {
@@ -41,12 +56,13 @@ void main() {
 
 class Fixture {
   final options = defaultTestOptions();
+  final client = MockSentryClient();
 
   late final Hub hub;
   late final LoggerSetupIntegration sut;
 
   Fixture() {
-    hub = Hub(options);
+    hub = Hub(options)..bindClient(client);
     sut = LoggerSetupIntegration();
   }
 }

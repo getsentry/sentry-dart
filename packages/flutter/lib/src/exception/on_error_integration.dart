@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
+import 'package:sentry/src/exception/unhandled_error_span_status.dart';
+// ignore: implementation_imports
 import 'package:sentry/src/utils/stacktrace_utils.dart';
 
 import '../sentry_flutter_options.dart';
@@ -73,11 +75,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
         timestamp: options.clock(),
       );
 
-      // marks the span status if none to `internal_error` in case there's an
-      // unhandled error
-      hub.configureScope(
-        (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-      );
+      hub.markActiveSpanAsErrored();
 
       Hint? hint;
       if (stackTrace == StackTrace.empty) {

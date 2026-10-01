@@ -1,9 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'mocks.dart';
 
 void main() {
-  group('SentryFlutterOptions', () {
+  group('$SentryFlutterOptions', () {
+    test('defaults traceLifecycle to stream', () {
+      final options = defaultTestOptions();
+
+      expect(options.traceLifecycle, SentryTraceLifecycle.stream);
+    });
+
     testWidgets('auto breadcrumb tracking: has native integration', (
       WidgetTester tester,
     ) async {

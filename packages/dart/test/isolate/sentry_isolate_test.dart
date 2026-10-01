@@ -2,9 +2,7 @@
 library;
 
 import 'package:_sentry_testing/_sentry_testing.dart';
-import 'package:sentry/src/hub.dart';
-import 'package:sentry/src/protocol/sentry_level.dart';
-import 'package:sentry/src/telemetry/span/transaction/span_status.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry/src/isolate/sentry_isolate.dart';
 import 'package:test/test.dart';
 
@@ -30,7 +28,21 @@ void main() {
       expect(fixture.hub.captureEventCalls.first, isNotNull);
     });
 
+    test('marks the active idle span as error', () async {
+      final hub = Hub(fixture.options)..bindClient(MockSentryClient());
+      final span = hub.startIdleSpan('idle');
+      addTearDown(span.end);
+
+      await SentryIsolate.handleIsolateError(hub, [
+        StateError('error').toString(),
+        StackTrace.current.toString(),
+      ]);
+
+      expect(span.status, SentrySpanStatusV2.error);
+    });
+
     test('marks transaction as internal error if no status', () async {
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
       final exception = StateError('error');
       final stackTrace = StackTrace.current.toString();
 

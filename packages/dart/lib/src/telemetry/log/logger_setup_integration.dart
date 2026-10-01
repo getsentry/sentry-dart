@@ -1,5 +1,6 @@
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
+import '../telemetry_trace_context.dart';
 import 'default_logger.dart';
 import 'noop_logger.dart';
 
@@ -19,7 +20,7 @@ class LoggerSetupIntegration extends Integration<SentryOptions> {
     options.logger = DefaultSentryLogger(
       captureLogCallback: hub.captureLog,
       clockProvider: options.clock,
-      scopeProvider: () => hub.scope,
+      traceContextProvider: () => resolveTelemetryTraceContext(hub),
     );
 
     options.sdk.addIntegration(integrationName);

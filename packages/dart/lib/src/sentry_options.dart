@@ -235,8 +235,8 @@ class SentryOptions {
   ///
   /// Integrations automatically switch to the correct API based on this setting.
   ///
-  /// Defaults to [SentryTraceLifecycle.static].
-  SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.static;
+  /// Defaults to [SentryTraceLifecycle.stream].
+  SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.stream;
 
   /// The ignoreErrors tells the SDK which errors should be not sent to the sentry server.
   /// If an null or an empty list is used, the SDK will send all transactions.

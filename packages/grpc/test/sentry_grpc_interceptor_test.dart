@@ -821,7 +821,8 @@ class Fixture {
   late _TestService service;
   late MockHub mockHub;
 
-  final _options = defaultTestOptions();
+  final _options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static;
   late Hub hub;
 
   late Hub spanFirstHub;
