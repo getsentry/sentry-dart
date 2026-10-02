@@ -74,6 +74,13 @@ class Scope {
     }
   }
 
+  /// Unconditionally clears the active span. Used when isolating a scope
+  /// from its parent, e.g. inside a `startNewTrace` callback.
+  @internal
+  void clearActiveSpan() {
+    _activeSpan = null;
+  }
+
   /// The propagation context for connecting errors and spans to traces.
   /// There should always be a propagation context available at all times.
   ///

@@ -176,6 +176,9 @@ class MockHub with NoSuchMethodProvider implements Hub {
 
   @override
   Scope get scope => _scope;
+
+  @override
+  Scope get traceScope => scope;
 }
 
 class CaptureEventCall {

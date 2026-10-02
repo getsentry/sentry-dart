@@ -24,11 +24,12 @@ void addTracingHeadersToHttpHeader(
       headers,
     );
   } else {
+    final scope = hub.traceScope;
     if (hub.options.propagateTraceparent) {
-      addW3CHeaderFromScope(hub.scope, headers);
+      addW3CHeaderFromScope(scope, headers);
     }
-    addSentryTraceHeaderFromScope(hub.scope, headers);
-    addBaggageHeaderFromScope(hub.scope, headers);
+    addSentryTraceHeaderFromScope(scope, headers);
+    addBaggageHeaderFromScope(scope, headers);
   }
 }
 

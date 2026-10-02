@@ -181,6 +181,13 @@ class HubAdapter implements Hub {
   void generateNewTrace() => Sentry.currentHub.generateNewTrace();
 
   @override
+  T startNewTrace<T>(T Function() callback) =>
+      Sentry.currentHub.startNewTrace(callback);
+
+  @override
+  Scope get traceScope => Sentry.currentHub.traceScope;
+
+  @override
   void setSpanContext(
     dynamic throwable,
     ISentrySpan span,

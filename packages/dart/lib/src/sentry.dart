@@ -444,6 +444,32 @@ class Sentry {
           parentSpan: parentSpan,
           startTimestamp: startTimestamp);
 
+  /// Starts a new trace and runs [callback] inside it.
+  ///
+  /// Use this when work is not tied to navigation — polling loops, timers,
+  /// retries — and should not be glued onto whatever trace the scope
+  /// currently holds. Transactions, spans and events created within
+  /// [callback] get a fresh trace id; the scope outside the callback keeps
+  /// its existing trace.
+  ///
+  /// The new trace is bound via a [Zone], so asynchronous callbacks are fully
+  /// covered:
+  ///
+  /// ```dart
+  /// Timer.periodic(const Duration(seconds: 30), (_) {
+  ///   unawaited(Sentry.startNewTrace(() async {
+  ///     final transaction = Sentry.startTransaction('background-poll', 'task');
+  ///     try {
+  ///       await fetch();
+  ///     } finally {
+  ///       await transaction.finish();
+  ///     }
+  ///   }));
+  /// });
+  /// ```
+  static T startNewTrace<T>(T Function() callback) =>
+      _hub.startNewTrace(callback);
+
   /// Starts a new span, executes a synchronous [callback], and ends the span
   /// before returning the callback result.
   ///
