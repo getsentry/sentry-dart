@@ -366,7 +366,7 @@ void main() {
 
       testScopeObserver(
         options: sentryFlutterOptions,
-        expectedHasNativeScopeObserver: false,
+        expectedHasNativeScopeObserver: true,
       );
 
       testConfiguration(
@@ -374,6 +374,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ReplayIntegration,
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
@@ -444,6 +445,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ReplayIntegration,
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [
@@ -488,6 +490,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ReplayIntegration,
           ...linuxWindowsAndWebIntegrations,
         ],
         shouldNotHaveIntegrations: [

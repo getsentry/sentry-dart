@@ -136,6 +136,19 @@ void main() async {
     });
   });
 
+  testWidgets('calls yieldToEventLoop between capture phases', (tester) async {
+    await tester.runAsync(() async {
+      await pumpTestElement(tester);
+      final sut = _YieldTrackingRecorder(
+          defaultTestOptions()..bindingUtils = TestBindingWrapper())
+        ..config = ScreenshotRecorderConfig();
+
+      await sut.capture<void>((_) async {});
+
+      expect(sut.yieldCount, 3);
+    });
+  });
+
   testWidgets('propagates errors in test-mode', (tester) async {
     final fixture = await _Fixture.create(tester);
     fixture.options
@@ -229,6 +242,21 @@ class _FailingRenderRecorder extends ReplayScreenshotRecorder {
   Future<Image> renderImage(
           RenderRepaintBoundary renderObject, double pixelRatio) async =>
       throw Exception('testing image render error');
+}
+
+/// Verifies [ScreenshotRecorder.yieldToEventLoop] is invoked at each capture
+/// phase boundary -- the hook web's recorder overrides to force real
+/// macrotask yields (see #2897); other platforms rely on its no-op default.
+class _YieldTrackingRecorder extends ScreenshotRecorder {
+  _YieldTrackingRecorder(super.options);
+
+  int yieldCount = 0;
+
+  @override
+  Future<void> yieldToEventLoop() {
+    yieldCount++;
+    return super.yieldToEventLoop();
+  }
 }
 
 class _Fixture {

@@ -7,6 +7,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/replay_event_processor.dart';
 import 'package:sentry_flutter/src/replay/integration.dart';
@@ -78,6 +79,27 @@ void main() {
       }
     });
   }
+
+  // The JS SDK converts buffered error replays to sessions itself, and
+  // SentryWeb.captureReplay() is unsupported.
+  test('does not add $ReplayEventProcessor on web', () async {
+    options.platform = MockPlatform(isWeb: true);
+    options.replay.onErrorSampleRate = 1.0;
+
+    await sut.call(hub, options);
+
+    expect(options.eventProcessors, isEmpty);
+  });
+
+  test('captureReplay() does not capture natively on web', () async {
+    options.platform = MockPlatform(isWeb: true);
+    options.replay.sessionSampleRate = 1.0;
+    await sut.call(hub, options);
+
+    await sut.captureReplay();
+
+    verifyNever(native.captureReplay());
+  });
 
   testWidgets('Configures replay when displayed', (tester) async {
     options.replay.sessionSampleRate = 1.0;

@@ -23,6 +23,10 @@ write_version_dart() {
   local version="$1"
   local integrity_prod="$2"
   local integrity_dbg="$3"
+  local integrity_replay_prod="$4"
+  local integrity_replay_dbg="$5"
+  local integrity_replay_canvas_prod="$6"
+  local integrity_replay_canvas_dbg="$7"
   cat >"$VERSION_DART_FILE" <<EOF
 import 'package:meta/meta.dart';
 
@@ -37,7 +41,28 @@ const productionIntegrity =
 @internal
 const debugIntegrity =
     'sha384-$integrity_dbg';
+
+@internal
+const productionReplayIntegrity =
+    'sha384-$integrity_replay_prod';
+
+@internal
+const debugReplayIntegrity =
+    'sha384-$integrity_replay_dbg';
+
+@internal
+const productionReplayCanvasIntegrity =
+    'sha384-$integrity_replay_canvas_prod';
+
+@internal
+const debugReplayCanvasIntegrity =
+    'sha384-$integrity_replay_canvas_dbg';
 EOF
+}
+
+compute_integrity() {
+  local url="$1"
+  curl -fsSL "$url" | openssl dgst -sha384 -binary | openssl base64 -A
 }
 
 case "${1:-}" in
@@ -55,13 +80,21 @@ case "${1:-}" in
     # Fetch SRI hashes for the given version.
     min_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.min.js"
     dbg_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.js"
+    min_replay_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.replay.min.js"
+    dbg_replay_js_url="https://browser.sentry-cdn.com/$new_version/bundle.tracing.replay.js"
+    min_replay_canvas_js_url="https://browser.sentry-cdn.com/$new_version/replay-canvas.min.js"
+    dbg_replay_canvas_js_url="https://browser.sentry-cdn.com/$new_version/replay-canvas.js"
 
     # Compute the SHA-384 SRI hashes (without the sha384- prefix)
-    integrity_prod=$(curl -sSL "$min_js_url" | openssl dgst -sha384 -binary | openssl base64 -A)
-    integrity_dbg=$(curl -sSL "$dbg_js_url" | openssl dgst -sha384 -binary | openssl base64 -A)
+    integrity_prod=$(compute_integrity "$min_js_url")
+    integrity_dbg=$(compute_integrity "$dbg_js_url")
+    integrity_replay_prod=$(compute_integrity "$min_replay_js_url")
+    integrity_replay_dbg=$(compute_integrity "$dbg_replay_js_url")
+    integrity_replay_canvas_prod=$(compute_integrity "$min_replay_canvas_js_url")
+    integrity_replay_canvas_dbg=$(compute_integrity "$dbg_replay_canvas_js_url")
 
     # Persist changes
-    write_version_dart "$new_version" "$integrity_prod" "$integrity_dbg"
+    write_version_dart "$new_version" "$integrity_prod" "$integrity_dbg" "$integrity_replay_prod" "$integrity_replay_dbg" "$integrity_replay_canvas_prod" "$integrity_replay_canvas_dbg"
     ;;
 
   *)

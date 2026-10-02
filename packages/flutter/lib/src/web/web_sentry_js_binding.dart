@@ -3,6 +3,9 @@ import 'dart:js_interop_unsafe';
 
 import 'package:meta/meta.dart';
 
+import 'replay/real_web_replay_canvas_bridge.dart';
+import 'replay/replay_click_filter.dart';
+import 'replay/web_replay_canvas_bridge.dart';
 import 'sentry_js_binding.dart';
 
 @visibleForTesting
@@ -25,10 +28,8 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void init(Map<String, dynamic> options) {
-    if (options['defaultIntegrations'] != null) {
-      options['defaultIntegrations'] = options['defaultIntegrations']
-          .map((String integration) => _createIntegration(integration));
-    }
+    _setIntegrations(options, 'defaultIntegrations');
+    _setIntegrations(options, 'integrations');
     final jsOptions = options.jsify() as JSObject;
     jsOptions['beforeSend'] = _beforeSend.toJS;
     _init(jsOptions);
@@ -60,12 +61,38 @@ class WebSentryJsBinding implements SentryJsBinding {
     isolationScope.setSession(currentSession);
   }
 
-  JSObject? _createIntegration(String integration) {
+  void _setIntegrations(Map<String, dynamic> options, String key) {
+    final integrations = options[key];
+    if (integrations is Iterable) {
+      options[key] = integrations.map(_createIntegration);
+    }
+  }
+
+  // Accepts either an integration name to construct (the common case) or an
+  // already-constructed integration object to pass through unchanged -- the
+  // latter lets callers keep a reference to an integration they need to
+  // drive afterwards (see createManualReplayCanvasIntegration), which a
+  // name-only list can't express.
+  JSObject? _createIntegration(Object? integration) {
+    if (integration is! String) {
+      // Already a constructed integration (e.g. from
+      // createManualReplayCanvasIntegration) -- pass it through unchanged.
+      return integration as JSObject?;
+    }
     switch (integration) {
       case SentryJsIntegrationName.globalHandlers:
         return _globalHandlersIntegration();
       case SentryJsIntegrationName.dedupe:
         return _dedupeIntegration();
+      case SentryJsIntegrationName.httpContext:
+        return _httpContextIntegration();
+      case SentryJsIntegrationName.replay:
+        return _replayIntegration(_ReplayOptions(
+          block: <JSString>[webReplayBlockSelector.toJS].toJS,
+          beforeAddRecordingEvent: _beforeAddRecordingEvent.toJS,
+        ));
+      case SentryJsIntegrationName.replayCanvas:
+        return _replayCanvasIntegration();
       default:
         return null;
     }
@@ -85,6 +112,56 @@ class WebSentryJsBinding implements SentryJsBinding {
     if (_client != null) {
       _client?.sendEnvelope(envelope.jsify());
     }
+  }
+
+  @override
+  void setUser(Map<String, dynamic>? user) {
+    _setUser(user.jsify());
+  }
+
+  @override
+  void addBreadcrumb(Map<String, dynamic> breadcrumb) {
+    _addBreadcrumb(breadcrumb.jsify());
+  }
+
+  @override
+  void addReplayBreadcrumb(Map<String, dynamic> breadcrumb) {
+    _client?.emit('beforeAddBreadcrumb'.toJS, breadcrumb.jsify());
+  }
+
+  @override
+  void clearBreadcrumbs() {
+    SentryJsIsolationScope().clearBreadcrumbs();
+  }
+
+  @override
+  void setContext(String key, Object? value) {
+    _setContext(key.toJS, value.jsify());
+  }
+
+  @override
+  void removeContext(String key) {
+    _setContext(key.toJS, null);
+  }
+
+  @override
+  void setExtra(String key, Object? value) {
+    _setExtra(key.toJS, value.jsify());
+  }
+
+  @override
+  void removeExtra(String key) {
+    _setExtra(key.toJS);
+  }
+
+  @override
+  void setTag(String key, String value) {
+    _setTag(key.toJS, value.toJS);
+  }
+
+  @override
+  void removeTag(String key) {
+    _setTag(key.toJS);
   }
 
   @visibleForTesting
@@ -137,6 +214,23 @@ class WebSentryJsBinding implements SentryJsBinding {
     return Map.unmodifiable(_filenameToDebugIds);
   }
 
+  @override
+  String? getReplayId({bool onlyIfSampled = false}) {
+    try {
+      final replay = _getReplay();
+      final replayId =
+          replay?.callMethod<JSString?>('getReplayId'.toJS, onlyIfSampled.toJS);
+      return replayId?.toDart;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  WebReplayCanvasIntegration createManualReplayCanvasIntegration() =>
+      _replayCanvasIntegrationManual(
+          _ReplayCanvasOptions(enableManualSnapshot: true));
+
   void _buildFilenameToDebugIdMap(
     Map<dynamic, dynamic> debugIdMap,
     JSObject options,
@@ -188,6 +282,21 @@ external void _init(JSAny? options);
 @JS('Sentry.close')
 external void _close();
 
+@JS('Sentry.setUser')
+external void _setUser(JSAny? user);
+
+@JS('Sentry.addBreadcrumb')
+external void _addBreadcrumb(JSAny? breadcrumb);
+
+@JS('Sentry.setContext')
+external void _setContext(JSString key, JSAny? value);
+
+@JS('Sentry.setExtra')
+external void _setExtra(JSString key, [JSAny? value]);
+
+@JS('Sentry.setTag')
+external void _setTag(JSString key, [JSAny? value]);
+
 @JS('Sentry.getIsolationScope')
 @staticInterop
 class SentryJsIsolationScope {
@@ -197,6 +306,7 @@ class SentryJsIsolationScope {
 extension _SentryJsIsolationScopeExtension on SentryJsIsolationScope {
   external JSObject? getSession();
   external void setSession(JSObject session);
+  external void clearBreadcrumbs();
 }
 
 @JS('Sentry.getClient')
@@ -208,6 +318,7 @@ class SentryJsClient {
 extension _SentryJsClientExtension on SentryJsClient {
   external void sendEnvelope(JSAny? envelope);
   external JSObject? getOptions();
+  external void emit(JSString event, JSAny? arg);
 }
 
 @JS('Sentry.startSession')
@@ -216,11 +327,48 @@ external void _startSession(JSAny? context);
 @JS('Sentry.captureSession')
 external void _captureSession();
 
+@JS('Sentry.getReplay')
+external JSObject? _getReplay();
+
 @JS('Sentry.globalHandlersIntegration')
 external JSObject _globalHandlersIntegration();
 
 @JS('Sentry.dedupeIntegration')
 external JSObject _dedupeIntegration();
+
+@JS('Sentry.httpContextIntegration')
+external JSObject _httpContextIntegration();
+
+// Returning null discards the event.
+JSAny? _beforeAddRecordingEvent(JSAny? event) {
+  final dartEvent = event.dartify();
+  return dartEvent is Map && isFlutterViewClickEvent(dartEvent) ? null : event;
+}
+
+@JS('Sentry.replayIntegration')
+external JSObject _replayIntegration(JSAny? options);
+
+@JS()
+@anonymous
+extension type _ReplayOptions._(JSObject _) implements JSObject {
+  external factory _ReplayOptions({
+    JSArray<JSString> block,
+    JSFunction beforeAddRecordingEvent,
+  });
+}
+
+@JS('Sentry.replayCanvasIntegration')
+external JSObject _replayCanvasIntegration();
+
+@JS('Sentry.replayCanvasIntegration')
+external WebReplayCanvasIntegration _replayCanvasIntegrationManual(
+    JSAny? options);
+
+@JS()
+@anonymous
+extension type _ReplayCanvasOptions._(JSObject _) implements JSObject {
+  external factory _ReplayCanvasOptions({bool enableManualSnapshot});
+}
 
 @JS('globalThis')
 @internal

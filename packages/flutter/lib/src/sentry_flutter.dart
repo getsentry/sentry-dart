@@ -142,9 +142,7 @@ mixin SentryFlutter {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (!options.platform.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!, options));
-      }
+      options.addScopeObserver(NativeScopeObserver(_native!, options));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -234,6 +232,9 @@ mixin SentryFlutter {
         // Important:
         // Complete initialization of the integration depends on the SentryNavigatorObserver
         integrations.add(WebSessionIntegration(native));
+        // Drives the web replay recorder via `setReplayConfig`. A no-op
+        // unless `native.supportsReplay`.
+        integrations.add(ReplayIntegration(native));
       }
       options.enableDartSymbolication = false;
     }

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
-import '../sentry_js_bundle.dart';
 import 'script_dom_api.dart';
 
 @internal
@@ -17,6 +16,7 @@ class SentryScriptLoader {
 
   final SentryOptions _options;
   bool _scriptLoaded = false;
+  List<Map<String, String>> _loadedScripts = const [];
 
   /// Loads the scripts into the web page with support for Trusted Types security policy.
   ///
@@ -38,6 +38,8 @@ class SentryScriptLoader {
         final integrity = script['integrity'];
 
         if (url != null) {
+          // Tracked before loading so a failed tag is removed with the rest.
+          _loadedScripts = [..._loadedScripts, script];
           await loadScript(url, _options,
               integrity: integrity,
               trustedTypePolicyName: trustedTypePolicyName);
@@ -49,6 +51,8 @@ class SentryScriptLoader {
           'JS SDK integration: all Sentry scripts loaded successfully.');
     } catch (e) {
       _options.log(SentryLevel.error, 'Failed to load Sentry scripts: $e');
+      // Don't leave a partially loaded SDK behind, so a retry starts clean.
+      _removeLoadedScripts();
       // ignore: invalid_use_of_internal_member
       if (_options.automatedTestMode) {
         rethrow;
@@ -57,18 +61,24 @@ class SentryScriptLoader {
   }
 
   Future<void> close() async {
-    final scriptsToRemove = _options.runtimeChecker.isReleaseMode()
-        ? productionScripts
-        : debugScripts;
+    _removeLoadedScripts();
+  }
 
-    // no risk of injection since the scripts are constants
-    final selectors = scriptsToRemove.map((script) {
-      return 'script[src="${script['url']}"][integrity="${script['integrity']}"]';
-    }).join(', ');
-    final sentryScripts = fetchScripts(selectors);
-    for (final script in sentryScripts) {
-      script.remove();
+  void _removeLoadedScripts() {
+    if (_loadedScripts.isNotEmpty) {
+      // no risk of injection since the scripts are constants
+      final selectors = _loadedScripts.map((script) {
+        final integrity = script['integrity'];
+        return integrity == null
+            ? 'script[src="${script['url']}"]'
+            : 'script[src="${script['url']}"][integrity="$integrity"]';
+      }).join(', ');
+      for (final script in fetchScripts(selectors)) {
+        script.remove();
+      }
     }
+    _loadedScripts = const [];
+    _scriptLoaded = false;
   }
 }
 

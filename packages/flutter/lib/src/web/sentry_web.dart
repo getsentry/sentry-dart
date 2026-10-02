@@ -3,23 +3,43 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
+
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
+import '../event_processor/web_replay_event_processor.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
+import '../native/utils/data_normalizer.dart';
 import '../replay/replay_config.dart';
+import '../replay/scheduled_recorder_config.dart';
+import '../screenshot/screenshot_support.dart';
+import 'replay/real_web_replay_canvas_bridge.dart';
+import 'replay/sentry_web_replay_recorder.dart';
+import 'replay/web_replay_canvas_bridge.dart';
+import 'replay/web_replay_capture_scale.dart';
 import 'sentry_js_binding.dart';
 
 class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
-  SentryWeb(this._binding, this._options);
+  SentryWeb(
+    this._binding,
+    this._options, {
+    @visibleForTesting
+    WebReplayCanvasBridge Function(WebReplayCanvasIntegration)?
+        createReplayCanvasBridge,
+  }) : _createReplayCanvasBridge =
+            createReplayCanvasBridge ?? RealWebReplayCanvasBridge.new;
 
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
+  final WebReplayCanvasBridge Function(WebReplayCanvasIntegration)
+      _createReplayCanvasBridge;
+  SentryWebReplayRecorder? _replayRecorder;
 
   void _log(String message) {
     _options.log(SentryLevel.info, logger: '$SentryWeb', message);
@@ -44,23 +64,67 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': <String>{
           SentryJsIntegrationName.globalHandlers,
-          SentryJsIntegrationName.dedupe
+          SentryJsIntegrationName.dedupe,
+          // Adds the User-Agent (and page URL) to JS-side events, incl. the
+          // replay event, so Sentry can show the browser and OS.
+          SentryJsIntegrationName.httpContext,
         },
       };
+      Object? canvasIntegration;
+      if (supportsReplay) {
+        // Constructed (not just named) so we keep a reference to drive it
+        // ourselves -- enableManualSnapshot means auto-sampling is off, so
+        // nothing captures a frame unless SentryWebReplayRecorder tells this
+        // specific integration instance to snapshot one.
+        canvasIntegration = _binding.createManualReplayCanvasIntegration();
+        jsOptions.addAll({
+          'replaysSessionSampleRate': _options.replay.sessionSampleRate ?? 0,
+          'replaysOnErrorSampleRate': _options.replay.onErrorSampleRate ?? 0,
+          'integrations': <Object?>[
+            SentryJsIntegrationName.replay,
+            canvasIntegration,
+          ],
+        });
+      }
       _binding.init(jsOptions);
+      if (supportsReplay && canvasIntegration != null) {
+        _options.addEventProcessor(WebReplayEventProcessor(_binding));
+        _replayRecorder = SentryWebReplayRecorder(
+          _options,
+          bridge: _createReplayCanvasBridge(
+              canvasIntegration as WebReplayCanvasIntegration),
+        );
+      }
     });
   }
 
   @override
   FutureOr<void> close() {
-    tryCatchSync('close', () {
+    return tryCatchAsync('close', () async {
+      // Stopping waits for an in-flight capture, which could otherwise
+      // snapshot into the JS SDK after it's closed.
+      await _replayRecorder?.stop();
       _binding.close();
     });
   }
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    _logNotSupported('add breadcrumb');
+    final jsBreadcrumb = {
+      'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
+      if (breadcrumb.message != null) 'message': breadcrumb.message,
+      if (breadcrumb.category != null) 'category': breadcrumb.category,
+      if (breadcrumb.data?.isNotEmpty ?? false)
+        'data': normalizeMap(breadcrumb.data),
+      if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
+      if (breadcrumb.type != null) 'type': breadcrumb.type,
+    };
+    _binding.addBreadcrumb(jsBreadcrumb);
+
+    final replayBreadcrumb = _replayBreadcrumb(jsBreadcrumb);
+    if (replayBreadcrumb != null) {
+      _binding.addReplayBreadcrumb(replayBreadcrumb);
+    }
   }
 
   @override
@@ -139,7 +203,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> clearBreadcrumbs() {
-    _logNotSupported('clear breadcrumbs');
+    _binding.clearBreadcrumbs();
   }
 
   @override
@@ -213,17 +277,17 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeContexts(String key) {
-    _logNotSupported('remove contexts');
+    _binding.removeContext(key);
   }
 
   @override
   FutureOr<void> removeExtra(String key) {
-    _logNotSupported('remove extra');
+    _binding.removeExtra(key);
   }
 
   @override
   FutureOr<void> removeTag(String key) {
-    _logNotSupported('remove tag');
+    _binding.removeTag(key);
   }
 
   @override
@@ -238,27 +302,49 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setContexts(String key, value) {
-    _logNotSupported('set contexts');
+    _binding.setContext(key, normalize(value));
   }
 
   @override
   FutureOr<void> setExtra(String key, value) {
-    _logNotSupported('set extra');
+    _binding.setExtra(key, normalize(value));
   }
+
+  bool _replayRecorderStarted = false;
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
-    _logNotSupported('setting replay config');
+    final recorder = _replayRecorder;
+    if (recorder == null) return null;
+
+    return tryCatchAsync('setReplayConfig', () async {
+      // Independent of config.width/height, which already have
+      // SentryReplayQuality.resolutionScalingFactor baked in by the shared
+      // ReplayIntegration that calls this -- web maps the quality to its own
+      // factor on the real window size instead (see webReplayCaptureScale).
+      final scale = webReplayCaptureScale(_options.replay.quality);
+      await recorder.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
+        width: scale * config.windowWidth,
+        height: scale * config.windowHeight,
+        frameRate: config.frameRate,
+      ));
+      if (!_replayRecorderStarted) {
+        await recorder.start();
+        // Only after start() succeeds, so a failed start is retried on the
+        // next config.
+        _replayRecorderStarted = true;
+      }
+    });
   }
 
   @override
   FutureOr<void> setTag(String key, String value) {
-    _logNotSupported('set tag');
+    _binding.setTag(key, value);
   }
 
   @override
   FutureOr<void> setUser(SentryUser? user) {
-    _logNotSupported('set user');
+    _binding.setUser(user == null ? null : normalizeMap(user.toJson()));
   }
 
   @override
@@ -289,14 +375,49 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get supportsLoadContexts => false;
 
   @override
-  bool get supportsReplay => false;
+  bool get supportsReplay =>
+      _options.replay.isEnabled && _options.isScreenshotSupported;
 
   @override
-  SentryId? get replayId => null;
+  SentryId? get replayId {
+    final replayId = _binding.getReplayId(onlyIfSampled: true);
+    return replayId == null ? null : SentryId.fromId(replayId);
+  }
 
   @override
   bool get supportsTraceSync => false;
 
   @override
   SentryFlutterOptions get options => _options;
+
+  Map<String, dynamic>? _replayBreadcrumb(Map<String, dynamic> breadcrumb) {
+    final category = breadcrumb['category'];
+    if (category is! String || category.isEmpty) {
+      return {
+        ...breadcrumb,
+        'category': 'default',
+      };
+    }
+
+    if (category == 'fetch' ||
+        category == 'xhr' ||
+        category.startsWith('ui.')) {
+      final message = breadcrumb['message'] ?? _viewName(breadcrumb['data']);
+      return {
+        ...breadcrumb,
+        if (message != null) 'message': message,
+        'category': 'flutter.$category',
+      };
+    }
+
+    return null;
+  }
+
+  // Names where the user interacted, for replay breadcrumbs that have no
+  // message. Deliberately not the `label`: it's text the replay video masks.
+  String? _viewName(Object? data) {
+    if (data is! Map) return null;
+    final name = data['view.id'] ?? data['view.class'];
+    return name is String && name.isNotEmpty ? name : null;
+  }
 }

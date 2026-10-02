@@ -46,6 +46,30 @@ void main() {
       expect(scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.js'));
     });
 
+    test('Loads production replay scripts correctly', () async {
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk(productionReplayScripts);
+
+      final scripts = fetchAllScripts();
+      expect(
+          scripts.any((script) => script.src
+              .endsWith('$jsSdkVersion/bundle.tracing.replay.min.js')),
+          isTrue);
+    });
+
+    test('Loads debug replay scripts correctly', () async {
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk(debugReplayScripts);
+
+      final scripts = fetchAllScripts();
+      expect(
+          scripts.any((script) =>
+              script.src.endsWith('$jsSdkVersion/bundle.tracing.replay.js')),
+          isTrue);
+    });
+
     test('Does not load scripts twice', () async {
       final sut = fixture.getSut();
 
@@ -98,6 +122,36 @@ void main() {
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
 
+    test('removes already injected scripts when a later script fails',
+        () async {
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk([
+        {'url': randomWorkingScriptUrl},
+        {'url': 'https://invalid'},
+      ]);
+
+      expect(fetchAllScripts(), isEmpty);
+    });
+
+    test('does not inject duplicates when retrying after a partial failure',
+        () async {
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk([
+        {'url': randomWorkingScriptUrl},
+        {'url': 'https://invalid'},
+      ]);
+      await sut.loadWebSdk([
+        {'url': randomWorkingScriptUrl},
+      ]);
+
+      expect(fetchAllScripts().map((script) => script.src),
+          [randomWorkingScriptUrl]);
+    });
+
     test('Loads sentry script as first element', () async {
       final sut = fixture.getSut();
 
@@ -147,6 +201,23 @@ void main() {
       final afterCloseScripts = fetchAllScripts();
       expect(afterCloseScripts.length,
           beforeCloseScripts.length - debugScripts.length);
+    });
+
+    test('Closes and cleans up replay resources', () async {
+      final sut = fixture.getSut();
+
+      await loadScript(randomWorkingScriptUrl, fixture.options);
+
+      await sut.loadWebSdk(debugReplayScripts);
+
+      final beforeCloseScripts = fetchAllScripts();
+      expect(beforeCloseScripts.length, 1 + debugReplayScripts.length);
+
+      await sut.close();
+
+      final afterCloseScripts = fetchAllScripts();
+      expect(afterCloseScripts.length,
+          beforeCloseScripts.length - debugReplayScripts.length);
     });
   });
 }

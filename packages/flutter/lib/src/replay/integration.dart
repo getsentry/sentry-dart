@@ -28,7 +28,10 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
       _options = options;
 
       // We only need the integration when error-replay capture is enabled.
-      if ((replayOptions.onErrorSampleRate ?? 0) > 0) {
+      // Not on web: the JS SDK converts buffered error replays to sessions
+      // itself, and there's no native `captureReplay()` to call.
+      if (!options.platform.isWeb &&
+          (replayOptions.onErrorSampleRate ?? 0) > 0) {
         options.addEventProcessor(ReplayEventProcessor(hub, _native));
       }
 
@@ -53,6 +56,7 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
   }
 
   Future<void> captureReplay() async {
+    if (_options?.platform.isWeb == true) return;
     if (_native.supportsReplay && _options?.replay.isEnabled == true) {
       final replayId = await _native.captureReplay();
       _hub?.configureScope((scope) {
