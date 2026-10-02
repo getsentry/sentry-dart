@@ -26,6 +26,9 @@ class SentrySupabaseTracingClient extends BaseClient {
     }
 
     final span = _createSpan(supabaseRequest);
+    if (span != null) {
+      RequestSpanRegistry.register(request, span);
+    }
 
     StreamedResponse? response;
 

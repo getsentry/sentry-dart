@@ -51,6 +51,10 @@ class TracingClientAdapter implements HttpClientAdapter {
           )
         : null;
 
+    if (instrumentationSpan != null) {
+      RequestSpanRegistry.register(options, instrumentationSpan);
+    }
+
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).
     if (containsTargetOrMatchesRegExp(

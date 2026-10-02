@@ -165,6 +165,24 @@ base class RecordingSentrySpanV2 implements SentrySpanV2 {
   /// All spans in the same segment share this DSC.
   SentryTraceContextHeader resolveDsc() => segmentSpan._getOrCreateDsc();
 
+  /// Converts this span into the `contexts.trace` of an event, which is what
+  /// links errors to this span.
+  @internal
+  SentryTraceContext toTraceContext() {
+    return SentryTraceContext(
+      traceId: _traceId,
+      spanId: _spanId,
+      parentSpanId: _parentSpan?.spanId,
+      operation:
+          _attributes[SemanticAttributesConstants.sentryOp]?.value as String? ??
+              'default',
+      description: _name,
+      origin: _attributes[SemanticAttributesConstants.sentryOrigin]?.value
+          as String?,
+      sampled: samplingDecision.sampled,
+    );
+  }
+
   @override
   bool get isEnded => _endTimestamp != null;
 

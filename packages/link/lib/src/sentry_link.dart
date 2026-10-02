@@ -75,7 +75,7 @@ class SentryLinkHandler {
         response: response,
       );
 
-      await hub.captureEvent(event);
+      await hub.captureEvent(event, withScope: _linkToSpan(request));
     }
 
     yield response;
@@ -109,9 +109,20 @@ class SentryLinkHandler {
         exception: exception,
       );
 
-      await hub.captureEvent(event);
+      await hub.captureEvent(event, withScope: _linkToSpan(request));
     }
     yield* Stream.error(exception);
+  }
+
+  /// Links the error to the span of this operation, which
+  /// [SentryTracingLink] registered further down the link chain.
+  ScopeCallback? _linkToSpan(Request request) {
+    // ignore: invalid_use_of_internal_member
+    final span = RequestSpanRegistry.lookup(request);
+    if (span == null) {
+      return null;
+    }
+    return (scope) => span.applyToScope(scope);
   }
 }
 
