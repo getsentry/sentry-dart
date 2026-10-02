@@ -3,6 +3,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
+
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 // ignore: implementation_imports
@@ -19,14 +21,24 @@ import '../replay/scheduled_recorder_config.dart';
 import '../screenshot/screenshot_support.dart';
 import 'replay/real_web_replay_canvas_bridge.dart';
 import 'replay/sentry_web_replay_recorder.dart';
+import 'replay/web_replay_canvas_bridge.dart';
 import 'replay/web_replay_capture_scale.dart';
 import 'sentry_js_binding.dart';
 
 class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
-  SentryWeb(this._binding, this._options);
+  SentryWeb(
+    this._binding,
+    this._options, {
+    @visibleForTesting
+    WebReplayCanvasBridge Function(WebReplayCanvasIntegration)?
+        createReplayCanvasBridge,
+  }) : _createReplayCanvasBridge =
+            createReplayCanvasBridge ?? RealWebReplayCanvasBridge.new;
 
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
+  final WebReplayCanvasBridge Function(WebReplayCanvasIntegration)
+      _createReplayCanvasBridge;
   SentryWebReplayRecorder? _replayRecorder;
 
   void _log(String message) {
@@ -79,7 +91,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         _options.addEventProcessor(WebReplayEventProcessor(_binding));
         _replayRecorder = SentryWebReplayRecorder(
           _options,
-          bridge: RealWebReplayCanvasBridge(
+          bridge: _createReplayCanvasBridge(
               canvasIntegration as WebReplayCanvasIntegration),
         );
       }
@@ -88,8 +100,10 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> close() {
-    tryCatchSync('close', () {
-      unawaited(_replayRecorder?.stop());
+    return tryCatchAsync('close', () async {
+      // Stopping waits for an in-flight capture, which could otherwise
+      // snapshot into the JS SDK after it's closed.
+      await _replayRecorder?.stop();
       _binding.close();
     });
   }
@@ -315,8 +329,10 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         frameRate: config.frameRate,
       ));
       if (!_replayRecorderStarted) {
-        _replayRecorderStarted = true;
         await recorder.start();
+        // Only after start() succeeds, so a failed start is retried on the
+        // next config.
+        _replayRecorderStarted = true;
       }
     });
   }

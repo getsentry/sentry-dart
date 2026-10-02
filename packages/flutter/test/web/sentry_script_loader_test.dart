@@ -122,6 +122,36 @@ void main() {
           scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
     });
 
+    test('removes already injected scripts when a later script fails',
+        () async {
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk([
+        {'url': randomWorkingScriptUrl},
+        {'url': 'https://invalid'},
+      ]);
+
+      expect(fetchAllScripts(), isEmpty);
+    });
+
+    test('does not inject duplicates when retrying after a partial failure',
+        () async {
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk([
+        {'url': randomWorkingScriptUrl},
+        {'url': 'https://invalid'},
+      ]);
+      await sut.loadWebSdk([
+        {'url': randomWorkingScriptUrl},
+      ]);
+
+      expect(fetchAllScripts().map((script) => script.src),
+          [randomWorkingScriptUrl]);
+    });
+
     test('Loads sentry script as first element', () async {
       final sut = fixture.getSut();
 

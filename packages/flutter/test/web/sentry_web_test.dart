@@ -4,6 +4,7 @@ library;
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
+import 'dart:ui' show Rect;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -15,6 +16,7 @@ import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
+import 'package:sentry_flutter/src/web/replay/web_replay_canvas_bridge.dart';
 import 'package:sentry_flutter/src/web/sentry_web.dart';
 
 import '../mocks.dart';
@@ -281,6 +283,48 @@ void main() {
         });
       });
 
+      group('with replay enabled', () {
+        late _FakeWebReplayCanvasBridge bridge;
+        late List<String> calls;
+
+        final config = ReplayConfig(
+            windowWidth: 100, windowHeight: 100, width: 100, height: 100);
+
+        setUp(() async {
+          calls = [];
+          bridge = _FakeWebReplayCanvasBridge(calls);
+          TestWidgetsFlutterBinding.ensureInitialized();
+          options.bindingUtils = TestBindingWrapper();
+          options.replay.onErrorSampleRate = 1.0;
+          when(mockBinding.init(any)).thenReturn(null);
+          when(mockBinding.close()).thenAnswer((_) => calls.add('jsClose'));
+          when(mockBinding.createManualReplayCanvasIntegration())
+              .thenReturn(JSObject());
+          sut = SentryWeb(mockBinding, options,
+              createReplayCanvasBridge: (_) => bridge);
+          await sut.init(hub);
+        });
+
+        test('close stops the replay bridge before closing the JS SDK',
+            () async {
+          await sut.setReplayConfig(config);
+
+          await sut.close();
+
+          expect(calls, ['bridgeStart', 'bridgeStop', 'jsClose']);
+        });
+
+        test('setReplayConfig retries starting after a failed start', () async {
+          options.automatedTestMode = false;
+          bridge.throwOnNextStart = true;
+
+          await sut.setReplayConfig(config);
+          await sut.setReplayConfig(config);
+
+          expect(bridge.startCalls, 2);
+        });
+      });
+
       group('replay click breadcrumb message', () {
         Map<String, dynamic> replayBreadcrumbFor(Breadcrumb breadcrumb) {
           sut.addBreadcrumb(breadcrumb);
@@ -501,3 +545,30 @@ void main() {
 
 @JS('globalThis')
 external JSObject get _globalThis;
+
+class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
+  _FakeWebReplayCanvasBridge(this.calls);
+
+  final List<String> calls;
+  int startCalls = 0;
+  bool throwOnNextStart = false;
+
+  @override
+  void start() {
+    startCalls++;
+    if (throwOnNextStart) {
+      throwOnNextStart = false;
+      throw StateError('bridge failed to start');
+    }
+    calls.add('bridgeStart');
+  }
+
+  @override
+  void updatePosition(Rect rect, double devicePixelRatio) {}
+
+  @override
+  void feedFrame(Uint8List rgba, int width, int height) {}
+
+  @override
+  void stop() => calls.add('bridgeStop');
+}
