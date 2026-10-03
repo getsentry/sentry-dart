@@ -81,15 +81,13 @@ class SentryGrpcInterceptor extends ClientInterceptor {
             parentSpan: parentSpan,
             operation: 'grpc.client',
             description: method.path,
+            origin: SentryTraceOrigins.autoGrpcClientInterceptor,
+            data: {
+              ..._rpcAttributes(method.path),
+              ..._requestData(options),
+            },
           )
         : null;
-
-    span?.origin = SentryTraceOrigins.autoGrpcClientInterceptor;
-
-    if (span != null) {
-      _attachRpcAttributes(span, method.path);
-      _attachRequestData(span, options);
-    }
 
     final modifiedOptions = _buildModifiedOptions(options, span, method.path);
     final stopwatch = _recordBreadcrumbs ? (Stopwatch()..start()) : null;
@@ -168,35 +166,29 @@ class SentryGrpcInterceptor extends ClientInterceptor {
 
   // Sets rpc.system, rpc.service, and rpc.method per OTel gRPC semconv.
   // methodPath format: /package.Service/Method
-  void _attachRpcAttributes(InstrumentationSpan span, String methodPath) {
-    span.setData(SemanticAttributesConstants.rpcSystem, 'grpc');
+  Map<String, dynamic> _rpcAttributes(String methodPath) {
+    final data = <String, dynamic>{
+      SemanticAttributesConstants.rpcSystem: 'grpc',
+    };
     final path =
         methodPath.startsWith('/') ? methodPath.substring(1) : methodPath;
     final slash = path.lastIndexOf('/');
     if (slash != -1) {
-      span.setData(
-        SemanticAttributesConstants.rpcService,
-        path.substring(0, slash),
-      );
-      span.setData(
-        SemanticAttributesConstants.rpcMethod,
-        path.substring(slash + 1),
-      );
+      data[SemanticAttributesConstants.rpcService] = path.substring(0, slash);
+      data[SemanticAttributesConstants.rpcMethod] = path.substring(slash + 1);
     }
+    return data;
   }
 
-  void _attachRequestData(
-    InstrumentationSpan span,
-    CallOptions options,
-  ) {
-    if (!_hub.options.sendDefaultPii) return;
+  Map<String, dynamic> _requestData(CallOptions options) {
+    if (!_hub.options.sendDefaultPii) return const {};
+    final data = <String, dynamic>{};
     options.metadata.forEach((key, value) {
       final normalizedKey = key.toLowerCase();
-      span.setData(
-        '${SemanticAttributesConstants.rpcRequestMetadataPrefix}$normalizedKey',
-        value,
-      );
+      data['${SemanticAttributesConstants.rpcRequestMetadataPrefix}$normalizedKey'] =
+          value;
     });
+    return data;
   }
 
   CallOptions _buildModifiedOptions(

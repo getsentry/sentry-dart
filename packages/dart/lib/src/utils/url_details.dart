@@ -15,18 +15,16 @@ class UrlDetails {
   late final urlOrFallback =
       Uri.tryParse(url ?? _unknown)?.toString() ?? _unknown;
 
+  Map<String, dynamic> get spanData => {
+        if (url != null) 'url': url,
+        if (query != null) 'http.query': query,
+        if (fragment != null) 'http.fragment': fragment,
+      };
+
   void applyToSpan(InstrumentationSpan? span) {
     if (span == null) {
       return;
     }
-    if (url != null) {
-      span.setData('url', url);
-    }
-    if (query != null) {
-      span.setData("http.query", query);
-    }
-    if (fragment != null) {
-      span.setData("http.fragment", fragment);
-    }
+    spanData.forEach(span.setData);
   }
 }

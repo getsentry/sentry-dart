@@ -165,6 +165,92 @@ void main() {
       expect(span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
           equals('auto.graphql.sentry_link'));
     });
+
+    test('root span attributes are available to tracesSampler', () async {
+      Map<String, SentryAttribute>? sampledAttributes;
+      fixture.options.tracesSampler = (context) {
+        sampledAttributes = context.spanContext.attributes;
+        return 1.0;
+      };
+
+      final link =
+          fixture.createSentryTracingLink(shouldStartTransaction: true);
+      final request = Request(
+        operation: Operation(
+          document: parseString('query GetUser { user(id: "1") { name } }'),
+          operationName: 'GetUser',
+        ),
+      );
+
+      await link.request(request).first;
+
+      expect(
+        sampledAttributes?[SemanticAttributesConstants.sentryOp]?.value,
+        equals('http.graphql.query'),
+      );
+      expect(
+        sampledAttributes?[SemanticAttributesConstants.sentryOrigin]?.value,
+        equals('auto.graphql.sentry_link'),
+      );
+    });
+
+    test('child span attributes are available on span start', () async {
+      Map<String, SentryAttribute>? startAttributes;
+
+      await fixture.hub.startSpan(
+        'test-transaction',
+        (span) async {
+          fixture.options.lifecycleRegistry
+              .registerCallback<OnSpanStartV2>((event) {
+            if (event.span.name.startsWith('GraphQL:')) {
+              startAttributes = event.span.attributes;
+            }
+          });
+
+          final link = fixture.createSentryTracingLink();
+          final request = Request(
+            operation: Operation(
+              document: parseString('query GetUser { user(id: "1") { name } }'),
+              operationName: 'GetUser',
+            ),
+          );
+
+          await link.request(request).first;
+        },
+        parentSpan: null,
+      );
+
+      expect(
+        startAttributes?[SemanticAttributesConstants.sentryOp]?.value,
+        equals('http.graphql.query'),
+      );
+      expect(
+        startAttributes?[SemanticAttributesConstants.sentryOrigin]?.value,
+        equals('auto.graphql.sentry_link'),
+      );
+    });
+
+    test('static root transaction receives the GraphQL origin', () async {
+      final staticFixture = Fixture(
+        traceLifecycle: SentryTraceLifecycle.static,
+      );
+      addTearDown(staticFixture.tearDown);
+      final link =
+          staticFixture.createSentryTracingLink(shouldStartTransaction: true);
+      final request = Request(
+        operation: Operation(
+          document: parseString('query GetUser { user(id: "1") { name } }'),
+          operationName: 'GetUser',
+        ),
+      );
+
+      await link.request(request).first;
+
+      expect(
+        staticFixture.hub.getSpan()?.origin,
+        equals('auto.graphql.sentry_link'),
+      );
+    });
   });
 }
 
@@ -173,12 +259,14 @@ class Fixture {
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
 
-  Fixture() {
+  Fixture({
+    SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.stream,
+  }) {
     processor = FakeTelemetryProcessor();
     options = SentryOptions(dsn: 'https://abc@def.ingest.sentry.io/1234567')
       ..automatedTestMode = true
       ..tracesSampleRate = 1.0
-      ..traceLifecycle = SentryTraceLifecycle.stream
+      ..traceLifecycle = traceLifecycle
       ..telemetryProcessor = processor;
     hub = Hub(options);
 

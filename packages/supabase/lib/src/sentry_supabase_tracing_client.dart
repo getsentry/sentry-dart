@@ -68,43 +68,27 @@ class SentrySupabaseTracingClient extends BaseClient {
       return null;
     }
 
-    final span = _spanFactory.createSpan(
+    final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
+        supabaseRequest.request.headers['Content-Profile'];
+    final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
+    return _spanFactory.createSpan(
       parentSpan: parentSpan,
       operation: 'db.${supabaseRequest.operation.value}',
       description: 'from(${supabaseRequest.table})',
+      origin: SentryTraceOrigins.autoDbSupabase,
+      data: {
+        if (dbSchema != null) SentrySpanData.dbSchemaKey: dbSchema,
+        SentrySpanData.dbTableKey: supabaseRequest.table,
+        SentrySpanData.dbUrlKey: supabaseRequest.request.url.origin,
+        if (dbSdk != null) SentrySpanData.dbSdkKey: dbSdk,
+        if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
+          SentrySpanData.dbQueryKey: supabaseRequest.query,
+        if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
+          SentrySpanData.dbBodyKey: supabaseRequest.body,
+        SentrySpanData.dbOperationKey: supabaseRequest.operation.value,
+        SentrySpanOperations.dbSqlQuery: supabaseRequest.generateSqlQuery(),
+        SentrySpanData.dbSystemKey: SentrySpanData.dbSystemPostgresql,
+      },
     );
-
-    if (span == null) {
-      return null;
-    }
-
-    final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
-        supabaseRequest.request.headers['Content-Profile'];
-    if (dbSchema != null) {
-      span.setData(SentrySpanData.dbSchemaKey, dbSchema);
-    }
-    span.setData(SentrySpanData.dbTableKey, supabaseRequest.table);
-    span.setData(SentrySpanData.dbUrlKey, supabaseRequest.request.url.origin);
-    final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
-    if (dbSdk != null) {
-      span.setData(SentrySpanData.dbSdkKey, dbSdk);
-    }
-    if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii) {
-      span.setData(SentrySpanData.dbQueryKey, supabaseRequest.query);
-    }
-    if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
-      span.setData(SentrySpanData.dbBodyKey, supabaseRequest.body);
-    }
-    span.setData(
-      SentrySpanData.dbOperationKey,
-      supabaseRequest.operation.value,
-    );
-    span.setData(
-      SentrySpanOperations.dbSqlQuery,
-      supabaseRequest.generateSqlQuery(),
-    );
-    span.setData(SentrySpanData.dbSystemKey, SentrySpanData.dbSystemPostgresql);
-    span.origin = SentryTraceOrigins.autoDbSupabase;
-    return span;
   }
 }

@@ -789,6 +789,9 @@ class _NullSpanFactory implements InstrumentationSpanFactory {
     required InstrumentationSpan parentSpan,
     required String operation,
     String? description,
+    String? origin,
+    Map<String, dynamic>? data,
+    bool isSynchronous = false,
   }) {
     // Always return null to simulate span creation failure
     return null;

@@ -1,8 +1,10 @@
 import 'package:meta/meta.dart';
+import 'package:path/path.dart' as p;
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'sentry_database.dart';
+import 'utils/sentry_database_span_attributes.dart';
 
 /// Opens a database with Sentry support.
 ///
@@ -48,10 +50,11 @@ Future<Database> openDatabaseWithSentry(
             parentSpan: parent,
             operation: SentryDatabase.dbOp,
             description: description,
+            // ignore: invalid_use_of_internal_member
+            origin: SentryTraceOrigins.autoDbSqfliteOpenDatabase,
+            data: databaseSpanData(p.basenameWithoutExtension(path)),
           )
         : null;
-    // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoDbSqfliteOpenDatabase;
 
     final breadcrumb = Breadcrumb(
       message: description,
