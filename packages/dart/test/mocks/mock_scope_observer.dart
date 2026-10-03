@@ -1,7 +1,9 @@
 import 'package:sentry/sentry.dart';
 
-class MockScopeObserver extends ScopeObserver {
+class MockScopeObserver extends ScopeObserver
+    implements HintAwareScopeObserver {
   List<Breadcrumb> addedBreadcrumbs = [];
+  List<Hint> addedBreadcrumbHints = [];
   bool calledAddBreadcrumb = false;
   bool calledClearBreadcrumbs = false;
   bool calledRemoveContexts = false;
@@ -27,6 +29,15 @@ class MockScopeObserver extends ScopeObserver {
     calledAddBreadcrumb = true;
     numberOfAddBreadcrumbCalls += 1;
     addedBreadcrumbs.add(breadcrumb);
+    addedBreadcrumbHints.add(Hint());
+  }
+
+  @override
+  Future<void> addBreadcrumbWithHint(Breadcrumb breadcrumb, Hint hint) async {
+    calledAddBreadcrumb = true;
+    numberOfAddBreadcrumbCalls += 1;
+    addedBreadcrumbs.add(breadcrumb);
+    addedBreadcrumbHints.add(hint);
   }
 
   @override
