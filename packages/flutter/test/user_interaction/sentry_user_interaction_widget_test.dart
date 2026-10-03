@@ -222,6 +222,28 @@ void main() {
       });
     });
 
+    testWidgets('Do not extract label if enableBreadcrumbTextExtraction is off',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+          sendDefaultPii: true,
+          enableBreadcrumbTextExtraction: false,
+        );
+
+        await tapMe(tester, sut, 'btn_1');
+
+        final data = fixture.getBreadcrumb().data;
+        expect(data?.containsKey('label'), isFalse);
+        expect(data?['view.id'], equals('btn_1'));
+        expect(data?['view.class'], equals('MaterialButton'));
+        final path = data?['path'] as List<dynamic>;
+        expect(
+          path.any((element) => (element as Map).containsKey('label')),
+          isFalse,
+        );
+      });
+    });
+
     testWidgets('Do not add crumb if disabled', (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut(enableUserInteractionBreadcrumbs: false);
@@ -793,6 +815,7 @@ class Fixture {
     bool enableUserInteractionBreadcrumbs = true,
     double? tracesSampleRate = 1.0,
     bool sendDefaultPii = false,
+    bool enableBreadcrumbTextExtraction = true,
     SentryTraceLifecycle? traceLifecycle,
     Widget? child,
   }) {
@@ -805,6 +828,7 @@ class Fixture {
     _options.enableUserInteractionBreadcrumbs =
         enableUserInteractionBreadcrumbs;
     _options.sendDefaultPii = sendDefaultPii;
+    _options.enableBreadcrumbTextExtraction = enableBreadcrumbTextExtraction;
     if (traceLifecycle != null) {
       _options.traceLifecycle = traceLifecycle;
     }

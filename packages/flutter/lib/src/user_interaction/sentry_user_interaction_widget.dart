@@ -538,10 +538,14 @@ class _SentryUserInteractionWidgetState
     });
   }
 
+  bool get _isTextExtractionEnabled =>
+      (_options?.sendDefaultPii ?? false) &&
+      (_options?.enableBreadcrumbTextExtraction ?? true);
+
   String? _getLabel(Element element, bool allowText) {
     String? label;
 
-    if (_options?.sendDefaultPii ?? false) {
+    if (_isTextExtractionEnabled) {
       final widget = element.widget;
       if (allowText && widget is Text) {
         label = widget.data;
@@ -564,7 +568,7 @@ class _SentryUserInteractionWidgetState
   String? _getLabelRecursively(Element element) {
     String? label;
 
-    if (_options?.sendDefaultPii ?? false) {
+    if (_isTextExtractionEnabled) {
       final widget = element.widget;
       final allowText = widget is ButtonStyleButton ||
           widget is MaterialButton ||

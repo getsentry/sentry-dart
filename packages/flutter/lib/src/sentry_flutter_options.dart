@@ -226,6 +226,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// runApp(SentryWidget(child: App()));
   bool enableUserInteractionBreadcrumbs = true;
 
+  /// Enable or disable extracting a human readable label from the text of the
+  /// tapped widget (e.g. [Text.data], [Semantics.label], [Icon.semanticLabel]
+  /// or [Tooltip.message]) for user interaction breadcrumbs.
+  ///
+  /// When disabled, only the widget key and the widget type are captured.
+  /// Text extraction additionally requires [SentryOptions.sendDefaultPii].
+  bool enableBreadcrumbTextExtraction = true;
+
   /// Enables the Auto instrumentation for user interaction tracing.
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
