@@ -400,7 +400,6 @@ mixin SentryFlutter {
   ///   },
   /// );
   /// ```
-  @experimental
   static void extendAppStart() {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {
@@ -436,7 +435,6 @@ mixin SentryFlutter {
   /// [SentryTraceLifecycle.static]. It returns `null` when standalone App Start
   /// is inactive, already finished, unavailable, or using the streaming
   /// lifecycle instead.
-  @experimental
   static ISentrySpan? getExtendedAppStartSpan() {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {
@@ -464,7 +462,6 @@ mixin SentryFlutter {
   /// [SentryTraceLifecycle.stream]. It returns `null` when standalone App Start
   /// is inactive, already finished, unavailable, or using the static lifecycle
   /// instead.
-  @experimental
   static SentrySpanV2? getExtendedAppStartSpanV2() {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {
@@ -497,7 +494,6 @@ mixin SentryFlutter {
   /// started, or the App Start has already been reported because it hit its
   /// deadline first. As with [extendAppStart], each of those is logged rather
   /// than reported back to the caller.
-  @experimental
   static Future<void> finishExtendedAppStart() async {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {

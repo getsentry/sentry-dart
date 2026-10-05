@@ -54,6 +54,12 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 - Update Sentry JavaScript to **11.0.0**, preserving the default web privacy settings and aligning unhandled session reporting. ([#4032](https://github.com/getsentry/sentry-dart/pull/4032))
 - Use `jni >=1.0.0 <1.1.0` and `jnigen 0.17.0`. ([#3931](https://github.com/getsentry/sentry-dart/pull/3931))
 
+## 10.0.0-rc.2
+
+### Breaking Changes
+
+- Default `traceLifecycle` to `SentryTraceLifecycle.stream`, sending spans as they finish instead of as transactions. Errors, messages, and feedback captured inside an active streaming span now link to it. Set `options.traceLifecycle = SentryTraceLifecycle.static` to keep the previous transaction-based behavior. ([#4057](https://github.com/getsentry/sentry-dart/pull/4057))
+
 ## 10.0.0-rc.1
 
 ### Breaking Changes
