@@ -169,6 +169,30 @@ void main() {
     });
 
     test(
+      'adds native connection type and technology to device context',
+      () async {
+        mockLoadContexts({
+          'contexts': {
+            'device': {
+              'connection_type': 'cellular',
+              'connection_effective_type': '5g',
+            },
+          },
+        });
+        await fixture.registerIntegration();
+
+        final event = await fixture.options.eventProcessors.first.apply(
+          SentryEvent(),
+          Hint(),
+        );
+
+        final device = event?.toJson()['contexts']['device'];
+        expect(device['connection_type'], 'cellular');
+        expect(device['connection_effective_type'], '5g');
+      },
+    );
+
+    test(
       'does not override event contexts with loadContextsIntegration infos',
       () async {
         mockLoadContexts();
