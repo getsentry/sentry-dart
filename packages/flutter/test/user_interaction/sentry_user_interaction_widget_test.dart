@@ -14,6 +14,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
+import 'third_party_widgets.dart' as third_party;
 
 // The Scaffold widget tree uses AnimatedBuilder on stable but Builder on beta.
 // Use anyOf to accept either name since this is a framework-internal detail.
@@ -769,6 +770,170 @@ void main() {
       },
     );
   });
+
+  group('$SentryUserInteractionWidget for third-party widgets', () {
+    testWidgets('does not add crumb when types are not added', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(child: ThirdPartyApp());
+
+        await tapMe(tester, sut, 'third_party_button');
+
+        expect(fixture.getBreadcrumbs(), isEmpty);
+      });
+    });
+
+    group('when types are added', () {
+      testWidgets('adds crumb with the added name', (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            child: ThirdPartyApp(),
+            optionsConfiguration: addThirdPartyWidgetTypes,
+          );
+
+          await tapMe(tester, sut, 'third_party_button');
+
+          final data = fixture.getBreadcrumb().data;
+          expect(data?['view.id'], 'third_party_button');
+          expect(data?['view.class'], 'ButtonStyleButton');
+          expect(
+            (data?['path'] as List?)?.first,
+            {'name': 'third_party_button', 'element': 'ButtonStyleButton'},
+          );
+        });
+      });
+
+      testWidgets('adds crumb with text label when labelFromText is true',
+          (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            sendDefaultPii: true,
+            child: ThirdPartyApp(),
+            optionsConfiguration: addThirdPartyWidgetTypes,
+          );
+
+          await tapMe(tester, sut, 'third_party_button');
+
+          expect(fixture.getBreadcrumb().data?['label'], 'Third-party button');
+        });
+      });
+
+      testWidgets('adds crumb without text label when labelFromText is false',
+          (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            sendDefaultPii: true,
+            child: ThirdPartyApp(),
+            optionsConfiguration: addThirdPartyWidgetTypes,
+          );
+
+          await tapMe(tester, sut, 'third_party_ink_well');
+
+          final data = fixture.getBreadcrumb().data;
+          expect(data?['view.class'], 'InkWell');
+          expect(data?.containsKey('label'), isFalse);
+        });
+      });
+
+      testWidgets('adds crumb with label from added label type',
+          (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            sendDefaultPii: true,
+            child: ThirdPartyApp(),
+            optionsConfiguration: addThirdPartyWidgetTypes,
+          );
+
+          await tapMe(tester, sut, 'third_party_tooltip_button');
+
+          expect(fixture.getBreadcrumb().data?['label'], 'Close');
+        });
+      });
+
+      testWidgets(
+          'adds crumb without label from added label type '
+          'when sendDefaultPii is false', (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            child: ThirdPartyApp(),
+            optionsConfiguration: addThirdPartyWidgetTypes,
+          );
+
+          await tapMe(tester, sut, 'third_party_tooltip_button');
+
+          expect(fixture.getBreadcrumb().data?.containsKey('label'), isFalse);
+        });
+      });
+
+      testWidgets('does not add crumb when isEnabled returns false',
+          (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            child: ThirdPartyApp(),
+            optionsConfiguration: addThirdPartyWidgetTypes,
+          );
+
+          await tapMe(tester, sut, 'disabled_third_party_button');
+
+          expect(fixture.getBreadcrumbs(), isEmpty);
+        });
+      });
+
+      testWidgets('adds crumb when isEnabled of an ancestor type throws',
+          (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            child: ThirdPartyApp(),
+            optionsConfiguration: (options) {
+              options.addUserInteractionWidget<Column>(
+                'Column',
+                isEnabled: (_) => throw StateError('isEnabled failed'),
+              );
+              addThirdPartyWidgetTypes(options);
+            },
+          );
+
+          await tapMe(tester, sut, 'third_party_button');
+
+          expect(
+              fixture.getBreadcrumb().data?['view.class'], 'ButtonStyleButton');
+        });
+      });
+
+      testWidgets('starts transaction', (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut(
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false,
+            child: ThirdPartyApp(),
+            optionsConfiguration: addThirdPartyWidgetTypes,
+          );
+
+          await tapMe(tester, sut, 'third_party_button');
+
+          SentryTracer? tracer;
+          fixture.hub.configureScope((scope) {
+            tracer = scope.span as SentryTracer?;
+          });
+          expect(tracer?.name, 'third_party_button');
+          expect(tracer?.context.operation, 'ui.action.click');
+        });
+      });
+    });
+  });
+}
+
+void addThirdPartyWidgetTypes(SentryFlutterOptions options) {
+  options
+    ..addUserInteractionWidget<third_party.ButtonStyleButton>(
+      'ButtonStyleButton',
+      isEnabled: (widget) => widget.enabled,
+      labelFromText: true,
+    )
+    ..addUserInteractionWidget<third_party.InkWell>(
+      'InkWell',
+      isEnabled: (widget) => widget.onTap != null,
+    )
+    ..addUserInteractionLabel<third_party.Tooltip>((widget) => widget.message);
 }
 
 Future<void> tapMe(
@@ -795,6 +960,7 @@ class Fixture {
     bool sendDefaultPii = false,
     SentryTraceLifecycle? traceLifecycle,
     Widget? child,
+    void Function(SentryFlutterOptions options)? optionsConfiguration,
   }) {
     // Missing mock exception
     when(_transport.send(any)).thenAnswer((_) async => SentryId.newId());
@@ -808,6 +974,7 @@ class Fixture {
     if (traceLifecycle != null) {
       _options.traceLifecycle = traceLifecycle;
     }
+    optionsConfiguration?.call(_options);
 
     hub = Hub(_options);
 
@@ -823,6 +990,14 @@ class Fixture {
       crumb = scope.breadcrumbs.last;
     });
     return crumb;
+  }
+
+  List<Breadcrumb> getBreadcrumbs() {
+    late final List<Breadcrumb> crumbs;
+    hub.configureScope((scope) {
+      crumbs = scope.breadcrumbs;
+    });
+    return crumbs;
   }
 }
 
@@ -928,6 +1103,43 @@ class Page2 extends StatelessWidget {
           key: Key('btn_page_2'),
           onPressed: () {},
           child: const Text('Button Page 2'),
+        ),
+      ),
+    );
+  }
+}
+
+class ThirdPartyApp extends StatelessWidget {
+  const ThirdPartyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Column(
+          children: [
+            third_party.ElevatedButton(
+              key: Key('third_party_button'),
+              onPressed: () {},
+              child: const Text('Third-party button'),
+            ),
+            third_party.ElevatedButton(
+              key: Key('disabled_third_party_button'),
+              onPressed: null,
+              child: const Text('Disabled button'),
+            ),
+            third_party.ElevatedButton(
+              key: Key('third_party_tooltip_button'),
+              tooltip: 'Close',
+              onPressed: () {},
+              child: const Icon(Icons.close),
+            ),
+            third_party.InkWell(
+              key: Key('third_party_ink_well'),
+              onTap: () {},
+              child: const Text('Ink well'),
+            ),
+          ],
         ),
       ),
     );

@@ -212,6 +212,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
 import '../widget_utils.dart';
 import 'user_interaction_info.dart';
+import 'user_interaction_widget_types.dart';
 
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
@@ -224,6 +225,9 @@ Element? _clickTrackerElement;
 /// [ButtonStyleButton], [MaterialButton], [CupertinoButton], [InkWell],
 /// [IconButton], [PopupMenuButton] and [PopupMenuItem].
 /// Mostly for onPressed, onTap, and onLongPress events
+///
+/// Other widgets, for example the ones from `package:material_ui`, can be
+/// added with [SentryFlutterOptions.addUserInteractionWidget].
 ///
 /// Example on how to set up:
 /// runApp(SentryWidget(child: App()));
@@ -359,7 +363,7 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    final label = _getLabelRecursively(info.element);
+    final label = _getLabelRecursively(info.element, info.labelFromText);
     final data = {
       'path': _getTouchPath(info.element),
       if (label != null) 'label': label
@@ -388,7 +392,7 @@ class _SentryUserInteractionWidgetState
       if (!widgetName.startsWith('_')) {
         final info = {
           'name': WidgetUtils.toStringValue(element.widget.key),
-          'element': _getElementType(element) ?? widgetName,
+          'element': _getElementType(element)?.name ?? widgetName,
           'label': _getLabel(element, true),
         }..removeWhere((key, value) => value == null);
         if (info.isNotEmpty) {
@@ -551,6 +555,8 @@ class _SentryUserInteractionWidgetState
         label = widget.semanticLabel;
       } else if (widget is Tooltip) {
         label = widget.message;
+      } else {
+        label = _options?.userInteractionWidgetTypes.labelOf(widget);
       }
 
       if (label?.isEmpty ?? true) {
@@ -561,15 +567,10 @@ class _SentryUserInteractionWidgetState
     return label;
   }
 
-  String? _getLabelRecursively(Element element) {
+  String? _getLabelRecursively(Element element, bool allowText) {
     String? label;
 
     if (_options?.sendDefaultPii ?? false) {
-      final widget = element.widget;
-      final allowText = widget is ButtonStyleButton ||
-          widget is MaterialButton ||
-          widget is CupertinoButton;
-
       // traverse tree to find a suiting element
       void descriptionFinder(Element element) {
         label ??= _getLabel(element, allowText);
@@ -620,7 +621,8 @@ class _SentryUserInteractionWidgetState
       if (type != null) {
         tappedWidget = UserInteractionInfo(
           element: element,
-          type: type,
+          type: type.name,
+          labelFromText: type.labelFromText,
         );
       }
 
@@ -640,37 +642,39 @@ class _SentryUserInteractionWidgetState
     return tappedWidget;
   }
 
-  String? _getElementType(Element element) {
+  UserInteractionWidgetType? _getElementType(Element element) {
     final widget = element.widget;
     // Used by ElevatedButton, TextButton, OutlinedButton.
     if (widget is ButtonStyleButton) {
       if (widget.enabled) {
-        return 'ButtonStyleButton';
+        return (name: 'ButtonStyleButton', labelFromText: true);
       }
     } else if (widget is MaterialButton) {
       if (widget.enabled) {
-        return 'MaterialButton';
+        return (name: 'MaterialButton', labelFromText: true);
       }
     } else if (widget is CupertinoButton) {
       if (widget.enabled) {
-        return 'CupertinoButton';
+        return (name: 'CupertinoButton', labelFromText: true);
       }
     } else if (widget is InkWell) {
       if (widget.onTap != null) {
-        return 'InkWell';
+        return (name: 'InkWell', labelFromText: false);
       }
     } else if (widget is IconButton) {
       if (widget.onPressed != null) {
-        return 'IconButton';
+        return (name: 'IconButton', labelFromText: false);
       }
     } else if (widget is PopupMenuButton) {
       if (widget.enabled) {
-        return 'PopupMenuButton';
+        return (name: 'PopupMenuButton', labelFromText: false);
       }
     } else if (widget is PopupMenuItem) {
       if (widget.enabled) {
-        return 'PopupMenuItem';
+        return (name: 'PopupMenuItem', labelFromText: false);
       }
+    } else {
+      return _options?.userInteractionWidgetTypes.typeOf(widget);
     }
 
     return null;
