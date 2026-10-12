@@ -2540,6 +2540,33 @@ void main() {
       },
     );
 
+    for (final cachedBaggage in [false, true]) {
+      test(
+        'captureEvent omits an empty replay ID with cached baggage=$cachedBaggage',
+        () async {
+          final client = fixture.getSut();
+          final scope = Scope(fixture.options);
+          if (cachedBaggage) {
+            scope.replayId = SentryId.fromId(
+              '12345678901234567890123456789012',
+            );
+            await client.captureEvent(SentryEvent(), scope: scope);
+          }
+          scope.replayId = const SentryId.empty();
+
+          await client.captureEvent(
+            SentryEvent(throwable: Exception('boom')),
+            scope: scope,
+          );
+
+          expect(
+            fixture.transport.envelopes.last.header.traceContext!.toJson(),
+            isNot(contains('replay_id')),
+          );
+        },
+      );
+    }
+
     for (final replayId in [null, 'abcdefabcdefabcdefabcdefabcdefab']) {
       test(
         'captureEvent updates cached replay metadata after replay ${replayId == null ? 'stops' : 'restarts'}',
