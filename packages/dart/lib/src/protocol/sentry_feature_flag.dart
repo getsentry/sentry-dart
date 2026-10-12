@@ -9,11 +9,7 @@ class SentryFeatureFlag {
   @internal
   final Map<String, dynamic>? unknown;
 
-  SentryFeatureFlag({
-    required this.flag,
-    required this.result,
-    this.unknown,
-  });
+  SentryFeatureFlag({required this.flag, required this.result, this.unknown});
 
   factory SentryFeatureFlag.fromJson(Map<String, dynamic> data) {
     final json = AccessAwareMap(data);
@@ -26,36 +22,15 @@ class SentryFeatureFlag {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      ...?unknown,
-      'flag': flag,
-      'result': result,
-    };
+    return {...?unknown, 'flag': flag, 'result': result};
   }
 
-  // Uses copy rather than clone because clone is currently a deprecated public API.
   @internal
-  SentryFeatureFlag copy() {
+  SentryFeatureFlag clone() {
     return SentryFeatureFlag(
       flag: flag,
       result: result,
       unknown: unknown == null ? null : Map<String, dynamic>.from(unknown!),
     );
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryFeatureFlag copyWith({
-    String? flag,
-    bool? result,
-    Map<String, dynamic>? unknown,
-  }) {
-    return SentryFeatureFlag(
-      flag: flag ?? this.flag,
-      result: result ?? this.result,
-      unknown: unknown ?? this.unknown,
-    );
-  }
-
-  @Deprecated('Will be removed in a future version.')
-  SentryFeatureFlag clone() => copyWith();
 }

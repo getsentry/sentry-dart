@@ -26,7 +26,7 @@ final event = SentryEvent(
       type: 'navigation',
       data: {'screen': 'MainActivity', 'state': 'created'},
       level: SentryLevel.info,
-    )
+    ),
   ],
   contexts: Contexts(
     operatingSystem: SentryOperatingSystem(

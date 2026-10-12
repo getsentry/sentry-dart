@@ -8,7 +8,7 @@ import 'package:sentry/src/utils/iterable_utils.dart';
 import 'sentry_feedback_options.dart';
 import 'package:flutter/services.dart';
 import 'sentry_logo.dart';
-import '../replay/integration.dart';
+import '../replay/replay_integration.dart';
 import '../utils/internal_logger.dart';
 
 /// A form for submitting user feedback to Sentry.
@@ -18,10 +18,12 @@ class SentryFeedbackForm extends StatefulWidget {
     this.associatedEventId,
     this.screenshot,
     @internal Hub? hub,
-  })  : assert(associatedEventId != const SentryId.empty()),
-        _hub = hub ?? HubAdapter() {
-    assert(_hub.options is SentryFlutterOptions,
-        'SentryFlutterOptions is required');
+  }) : assert(associatedEventId != const SentryId.empty()),
+       _hub = hub ?? HubAdapter() {
+    assert(
+      _hub.options is SentryFlutterOptions,
+      'SentryFlutterOptions is required',
+    );
     final options = _hub.options as SentryFlutterOptions;
     this.options = options.feedback;
   }
@@ -134,9 +136,9 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
 
   Future<void> _captureReplay() async {
     final integrations = widget._hub.options.integrations;
-    final replayIntegration = integrations.firstWhereOrNull(
-      (element) => element is ReplayIntegration,
-    ) as ReplayIntegration?;
+    final replayIntegration =
+        integrations.firstWhereOrNull((element) => element is ReplayIntegration)
+            as ReplayIntegration?;
     if (replayIntegration != null) {
       await replayIntegration.captureReplay();
     }
@@ -186,7 +188,8 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                           if (widget.options.isNameRequired)
                             Text(
                               key: const ValueKey(
-                                  'sentry_feedback_name_required_label'),
+                                'sentry_feedback_name_required_label',
+                              ),
                               widget.options.isRequiredLabel,
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
@@ -204,7 +207,9 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         keyboardType: TextInputType.text,
                         validator: (String? value) {
                           return _errorText(
-                              value, widget.options.isNameRequired);
+                            value,
+                            widget.options.isNameRequired,
+                          );
                         },
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                       ),
@@ -222,7 +227,8 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                           if (widget.options.isEmailRequired)
                             Text(
                               key: const ValueKey(
-                                  'sentry_feedback_email_required_label'),
+                                'sentry_feedback_email_required_label',
+                              ),
                               widget.options.isRequiredLabel,
                               style: Theme.of(context).textTheme.labelMedium,
                             ),
@@ -240,7 +246,9 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         keyboardType: TextInputType.emailAddress,
                         validator: (String? value) {
                           return _errorText(
-                              value, widget.options.isEmailRequired);
+                            value,
+                            widget.options.isEmailRequired,
+                          );
                         },
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                       ),
@@ -256,7 +264,8 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         const SizedBox(width: 4),
                         Text(
                           key: const ValueKey(
-                              'sentry_feedback_message_required_label'),
+                            'sentry_feedback_message_required_label',
+                          ),
                           widget.options.isRequiredLabel,
                           style: Theme.of(context).textTheme.labelMedium,
                         ),
@@ -278,9 +287,7 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         return _errorText(value, true);
                       },
                       autovalidateMode: AutovalidateMode.onUserInteraction,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(4096),
-                      ],
+                      inputFormatters: [LengthLimitingTextInputFormatter(4096)],
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
@@ -330,9 +337,11 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                                         });
                                       },
                                 child: Text(
-                                    key: const ValueKey(
-                                        'sentry_feedback_remove_screenshot_button'),
-                                    widget.options.removeScreenshotButtonLabel),
+                                  key: const ValueKey(
+                                    'sentry_feedback_remove_screenshot_button',
+                                  ),
+                                  widget.options.removeScreenshotButtonLabel,
+                                ),
                               ),
                             ),
                         ],
@@ -344,13 +353,13 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                         width: double.infinity,
                         child: ElevatedButton(
                           key: const ValueKey(
-                              'sentry_feedback_capture_screenshot_button'),
+                            'sentry_feedback_capture_screenshot_button',
+                          ),
                           onPressed: (_isSubmitting || _isSubmitted)
                               ? null
                               : () async {
                                   _dismiss(preserveFormData: true);
-                                  SentryScreenshotWidget
-                                      .showTakeScreenshotButton();
+                                  SentryScreenshotWidget.showTakeScreenshotButton();
                                 },
                           child: Text(
                             widget.options.captureScreenshotButtonLabel,
@@ -373,8 +382,9 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
                     child: Text(
                       _submitError!,
                       key: const ValueKey('sentry_feedback_submit_error'),
-                      style:
-                          TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   ),
                 ),
@@ -456,8 +466,11 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
       // leaving.
       if (_isStillOpen) {
         try {
-          widget.options.onSubmitError
-              ?.call(feedback, captureException, captureStackTrace);
+          widget.options.onSubmitError?.call(
+            feedback,
+            captureException,
+            captureStackTrace,
+          );
         } catch (exception, stackTrace) {
           internalLogger.warning(
             'Failed to execute onSubmitError callback',
@@ -514,8 +527,8 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
     final successColor = widget.options.successColor;
     final foregroundColor =
         ThemeData.estimateBrightnessForColor(successColor) == Brightness.dark
-            ? Colors.white
-            : Colors.black;
+        ? Colors.white
+        : Colors.black;
 
     messenger.showSnackBar(
       SnackBar(
@@ -542,13 +555,15 @@ class _SentryFeedbackFormState extends State<SentryFeedbackForm> {
   }
 
   void _dismiss({required bool preserveFormData}) {
-    final mayWriteSharedState = _lastWriterGeneration <= _generation &&
+    final mayWriteSharedState =
+        _lastWriterGeneration <= _generation &&
         !_liveGenerations.any((generation) => generation > _generation);
     if (mayWriteSharedState) {
       _lastWriterGeneration = _generation;
 
-      SentryFeedbackForm.pendingAssociatedEventId =
-          preserveFormData ? widget.associatedEventId : null;
+      SentryFeedbackForm.pendingAssociatedEventId = preserveFormData
+          ? widget.associatedEventId
+          : null;
 
       _writePreservedData(preserveFormData: preserveFormData);
     }

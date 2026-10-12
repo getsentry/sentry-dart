@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/replay/integration.dart';
+import 'package:sentry_flutter/src/replay/replay_integration.dart';
 
 import '../mocks.mocks.dart';
 
@@ -85,9 +85,7 @@ void main() {
 
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -101,9 +99,7 @@ void main() {
       fixture.options.feedback.isEmailRequired = true;
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -113,15 +109,14 @@ void main() {
       expect(find.text(' (Required)'), findsExactly(2));
     });
 
-    testWidgets('shows error on submit if name and email not valid',
-        (tester) async {
+    testWidgets('shows error on submit if name and email not valid', (
+      tester,
+    ) async {
       fixture.options.feedback.isNameRequired = true;
       fixture.options.feedback.isEmailRequired = true;
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -180,28 +175,30 @@ void main() {
     });
 
     testWidgets(
-        'shows capture screenshot button if showCaptureScreenshot is true',
-        (tester) async {
-      fixture.options.feedback.showCaptureScreenshot = true;
-      await fixture.pumpFeedbackForm(
-        tester,
-        (hub) => SentryFeedbackForm(hub: hub),
-      );
+      'shows capture screenshot button if showCaptureScreenshot is true',
+      (tester) async {
+        fixture.options.feedback.showCaptureScreenshot = true;
+        await fixture.pumpFeedbackForm(
+          tester,
+          (hub) => SentryFeedbackForm(hub: hub),
+        );
 
-      expect(find.text('Capture a screenshot'), findsOne);
-    });
+        expect(find.text('Capture a screenshot'), findsOne);
+      },
+    );
 
     testWidgets(
-        'hides capture screenshot button if showCaptureScreenshot is false',
-        (tester) async {
-      fixture.options.feedback.showCaptureScreenshot = false;
-      await fixture.pumpFeedbackForm(
-        tester,
-        (hub) => SentryFeedbackForm(hub: hub),
-      );
+      'hides capture screenshot button if showCaptureScreenshot is false',
+      (tester) async {
+        fixture.options.feedback.showCaptureScreenshot = false;
+        await fixture.pumpFeedbackForm(
+          tester,
+          (hub) => SentryFeedbackForm(hub: hub),
+        );
 
-      expect(find.text('Capture a screenshot'), findsNothing);
-    });
+        expect(find.text('Capture a screenshot'), findsNothing);
+      },
+    );
 
     testWidgets('shows sentry logo if showBranding is true', (tester) async {
       fixture.options.feedback.showBranding = true;
@@ -210,8 +207,10 @@ void main() {
         (hub) => SentryFeedbackForm(hub: hub),
       );
 
-      expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
-          findsOne);
+      expect(
+        find.byKey(const ValueKey('sentry_feedback_branding_logo')),
+        findsOne,
+      );
     });
 
     testWidgets('hides sentry logo if showBranding is false', (tester) async {
@@ -221,8 +220,10 @@ void main() {
         (hub) => SentryFeedbackForm(hub: hub),
       );
 
-      expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
-          findsNothing);
+      expect(
+        find.byKey(const ValueKey('sentry_feedback_branding_logo')),
+        findsNothing,
+      );
     });
   });
 
@@ -255,8 +256,9 @@ void main() {
       expect(emailField.controller?.text, "fixture@example.com");
     });
 
-    testWidgets('does not prefill form data if useSentryUser is false',
-        (tester) async {
+    testWidgets('does not prefill form data if useSentryUser is false', (
+      tester,
+    ) async {
       fixture.options.feedback.useSentryUser = false;
       fixture.hub.configureScope((scope) {
         scope.setUser(fixture.sentryUser);
@@ -403,7 +405,7 @@ void main() {
         0xAE,
         0x42,
         0x60,
-        0x82
+        0x82,
       ];
       final screenshot = SentryAttachment.fromIntList(
         data,
@@ -413,37 +415,44 @@ void main() {
 
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-          screenshot: screenshot,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub, screenshot: screenshot),
       );
 
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer(
-          (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      when(
+        fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        ),
+      ).thenAnswer(
+        (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+      );
 
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_name_textfield')),
-          "fixture-name");
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+        "fixture-name",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_email_textfield')),
-          "fixture-email");
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+        "fixture-email",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_message_textfield')),
-          "fixture-message");
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "fixture-message",
+      );
       await tester.tap(find.text('Send Bug Report'));
       await tester.pumpAndSettle();
 
-      verify(fixture.hub.captureFeedback(
-        any,
-        hint: argThat(predicate<Hint>((hint) => hint.screenshot == screenshot),
-            named: 'hint'),
-        withScope: anyNamed('withScope'),
-      )).called(1);
+      verify(
+        fixture.hub.captureFeedback(
+          any,
+          hint: argThat(
+            predicate<Hint>((hint) => hint.screenshot == screenshot),
+            named: 'hint',
+          ),
+          withScope: anyNamed('withScope'),
+        ),
+      ).called(1);
     });
 
     testWidgets('does call hub captureFeedback on submit', (tester) async {
@@ -451,43 +460,59 @@ void main() {
         tester,
         (hub) => SentryFeedbackForm(
           hub: hub,
-          associatedEventId:
-              SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+          associatedEventId: SentryId.fromId(
+            '1988bb1b6f0d4c509e232f0cb9aaeaea',
+          ),
         ),
       );
 
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer(
-          (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      when(
+        fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        ),
+      ).thenAnswer(
+        (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+      );
 
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_name_textfield')),
-          "fixture-name");
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+        "fixture-name",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_email_textfield')),
-          "fixture-email");
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+        "fixture-email",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_message_textfield')),
-          "fixture-message");
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "fixture-message",
+      );
       await tester.tap(find.text('Send Bug Report'));
       await tester.pumpAndSettle();
 
-      verify(fixture.hub.captureFeedback(
-        argThat(predicate<SentryFeedback>((feedback) =>
-            feedback.name == 'fixture-name' &&
-            feedback.contactEmail == 'fixture-email' &&
-            feedback.message == 'fixture-message' &&
-            feedback.associatedEventId ==
-                SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'))),
-        hint: argThat(predicate<Hint>(
-                // ignore: invalid_use_of_internal_member
-                (hint) => hint.get(TypeCheckHint.isWidgetFeedback) == true),
-            named: 'hint'),
-        withScope: anyNamed('withScope'),
-      )).called(1);
+      verify(
+        fixture.hub.captureFeedback(
+          argThat(
+            predicate<SentryFeedback>(
+              (feedback) =>
+                  feedback.name == 'fixture-name' &&
+                  feedback.contactEmail == 'fixture-email' &&
+                  feedback.message == 'fixture-message' &&
+                  feedback.associatedEventId ==
+                      SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+            ),
+          ),
+          hint: argThat(
+            predicate<Hint>(
+              // ignore: invalid_use_of_internal_member
+              (hint) => hint.get(TypeCheckHint.isWidgetFeedback) == true,
+            ),
+            named: 'hint',
+          ),
+          withScope: anyNamed('withScope'),
+        ),
+      ).called(1);
     });
   });
 
@@ -514,9 +539,7 @@ void main() {
 
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('fixture-title'), findsOne);
@@ -544,10 +567,12 @@ void main() {
       fixture = Fixture();
     });
 
-    testWidgets('sets pending accociatedEventId when taking screenshot',
-        (tester) async {
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+    testWidgets('sets pending accociatedEventId when taking screenshot', (
+      tester,
+    ) async {
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
 
       await fixture.pumpFeedbackForm(
         tester,
@@ -556,8 +581,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final button = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      final button = find.byKey(
+        const ValueKey('sentry_feedback_capture_screenshot_button'),
+      );
       expect(button, findsOneWidget);
       await tester.ensureVisible(button);
       await tester.pumpAndSettle();
@@ -567,10 +593,12 @@ void main() {
       expect(SentryFeedbackForm.pendingAssociatedEventId, associatedEventId);
     });
 
-    testWidgets('clears pending accociatedEventId when submitting feedback',
-        (tester) async {
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+    testWidgets('clears pending accociatedEventId when submitting feedback', (
+      tester,
+    ) async {
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
       SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
 
       await fixture.pumpFeedbackForm(
@@ -593,8 +621,9 @@ void main() {
     });
 
     testWidgets('clears pending accociatedEventId on cancel', (tester) async {
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
       SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
 
       await fixture.pumpFeedbackForm(
@@ -624,8 +653,9 @@ void main() {
       fixture.options.feedback.showName = true;
       fixture.options.feedback.showEmail = true;
 
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
       await fixture.pumpFeedbackForm(
         tester,
         (hub) =>
@@ -646,8 +676,9 @@ void main() {
         "test-message",
       );
 
-      final button = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      final button = find.byKey(
+        const ValueKey('sentry_feedback_capture_screenshot_button'),
+      );
       await tester.tap(button);
       await tester.pumpAndSettle();
 
@@ -663,39 +694,41 @@ void main() {
     });
 
     testWidgets(
-        'preserves form data when taking screenshot without associatedEventId',
-        (tester) async {
-      fixture.options.feedback.showName = true;
-      fixture.options.feedback.showEmail = true;
+      'preserves form data when taking screenshot without associatedEventId',
+      (tester) async {
+        fixture.options.feedback.showName = true;
+        fixture.options.feedback.showEmail = true;
 
-      await fixture.pumpFeedbackForm(
-        tester,
-        (hub) => SentryFeedbackForm(hub: hub),
-      );
+        await fixture.pumpFeedbackForm(
+          tester,
+          (hub) => SentryFeedbackForm(hub: hub),
+        );
 
-      await tester.enterText(
-        find.byKey(ValueKey('sentry_feedback_name_textfield')),
-        "test-name",
-      );
-      await tester.enterText(
-        find.byKey(ValueKey('sentry_feedback_email_textfield')),
-        "test@example.com",
-      );
-      await tester.enterText(
-        find.byKey(ValueKey('sentry_feedback_message_textfield')),
-        "test-message",
-      );
+        await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_name_textfield')),
+          "test-name",
+        );
+        await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_email_textfield')),
+          "test@example.com",
+        );
+        await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_message_textfield')),
+          "test-message",
+        );
 
-      final button = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
-      await tester.tap(button);
-      await tester.pumpAndSettle();
+        final button = find.byKey(
+          const ValueKey('sentry_feedback_capture_screenshot_button'),
+        );
+        await tester.tap(button);
+        await tester.pumpAndSettle();
 
-      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
-      expect(SentryFeedbackForm.preservedName, "test-name");
-      expect(SentryFeedbackForm.preservedEmail, "test@example.com");
-      expect(SentryFeedbackForm.preservedMessage, "test-message");
-    });
+        expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
+        expect(SentryFeedbackForm.preservedName, "test-name");
+        expect(SentryFeedbackForm.preservedEmail, "test@example.com");
+        expect(SentryFeedbackForm.preservedMessage, "test-message");
+      },
+    );
 
     testWidgets('restores form data when widget is reopened', (tester) async {
       fixture.options.feedback.showName = true;
@@ -725,8 +758,9 @@ void main() {
       expect(messageField.controller?.text, "preserved-message");
     });
 
-    testWidgets('clears preserved data when submitting feedback',
-        (tester) async {
+    testWidgets('clears preserved data when submitting feedback', (
+      tester,
+    ) async {
       SentryFeedbackForm.preservedName = "test-name";
       SentryFeedbackForm.preservedEmail = "test@example.com";
       SentryFeedbackForm.preservedMessage = "test-message";
@@ -780,18 +814,23 @@ void main() {
     });
 
     testWidgets('adds integration when options are accessed', (tester) async {
-      expect(fixture.options.sdk.integrations,
-          isNot(contains('MobileFeedbackWidget')));
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains('MobileFeedbackWidget')),
+      );
 
       // Access feedback options (this should trigger integration tracking)
       fixture.options.feedback;
 
       expect(
-          fixture.options.sdk.integrations, contains('MobileFeedbackWidget'));
+        fixture.options.sdk.integrations,
+        contains('MobileFeedbackWidget'),
+      );
     });
 
-    testWidgets('does not duplicate integration if already added',
-        (tester) async {
+    testWidgets('does not duplicate integration if already added', (
+      tester,
+    ) async {
       // Access feedback options to add integration
       fixture.options.feedback;
 
@@ -811,8 +850,10 @@ void main() {
     });
 
     testWidgets('adds integration when widget is shown', (tester) async {
-      expect(fixture.options.sdk.integrations,
-          isNot(contains('MobileFeedbackWidget')));
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains('MobileFeedbackWidget')),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -832,7 +873,9 @@ void main() {
 
       // Integration should be added when the widget renders and accesses feedback options
       expect(
-          fixture.options.sdk.integrations, contains('MobileFeedbackWidget'));
+        fixture.options.sdk.integrations,
+        contains('MobileFeedbackWidget'),
+      );
     });
   });
 
@@ -844,8 +887,9 @@ void main() {
     });
 
     group('when submission succeeds', () {
-      testWidgets('shows a snackbar and dismisses the feedback form',
-          (tester) async {
+      testWidgets('shows a snackbar and dismisses the feedback form', (
+        tester,
+      ) async {
         await fixture.pumpFeedbackHost(tester);
 
         await tester.tap(find.text('Show Feedback'));
@@ -956,9 +1000,10 @@ void main() {
         expect(receivedEventId, isNot(const SentryId.empty()));
       });
 
-      testWidgets('dismisses the feedback form when onSubmitSuccess throws',
-          (tester) async {
-        fixture.options.feedback.onSubmitSuccess = (_, __) {
+      testWidgets('dismisses the feedback form when onSubmitSuccess throws', (
+        tester,
+      ) async {
+        fixture.options.feedback.onSubmitSuccess = (_, _) {
           throw StateError('boom');
         };
 
@@ -980,8 +1025,9 @@ void main() {
         expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
       });
 
-      testWidgets('does not throw when onSubmitSuccess pops the route itself',
-          (tester) async {
+      testWidgets('does not throw when onSubmitSuccess pops the route itself', (
+        tester,
+      ) async {
         // State disposal only happens during frame processing
         // (BuildOwner.finalizeTree()), so even a callback that pops the
         // navigator synchronously cannot unmount this widget mid-_submit():
@@ -990,7 +1036,7 @@ void main() {
         // (the snackbar's context lookup, setState) stays safe without
         // rechecking mounted a second time.
         final navigatorKey = GlobalKey<NavigatorState>();
-        fixture.options.feedback.onSubmitSuccess = (_, __) {
+        fixture.options.feedback.onSubmitSuccess = (_, _) {
           navigatorKey.currentState?.pop();
         };
 
@@ -1033,13 +1079,16 @@ void main() {
     });
 
     group('when captureFeedback returns an empty id', () {
-      testWidgets('keeps the form open with the entered message',
-          (tester) async {
-        when(fixture.hub.captureFeedback(
-          any,
-          hint: anyNamed('hint'),
-          withScope: anyNamed('withScope'),
-        )).thenAnswer((_) async => const SentryId.empty());
+      testWidgets('keeps the form open with the entered message', (
+        tester,
+      ) async {
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) async => const SentryId.empty());
 
         await fixture.pumpFeedbackHost(tester);
 
@@ -1062,14 +1111,16 @@ void main() {
 
       testWidgets('does not call onSubmitSuccess', (tester) async {
         var called = false;
-        fixture.options.feedback.onSubmitSuccess = (_, __) {
+        fixture.options.feedback.onSubmitSuccess = (_, _) {
           called = true;
         };
-        when(fixture.hub.captureFeedback(
-          any,
-          hint: anyNamed('hint'),
-          withScope: anyNamed('withScope'),
-        )).thenAnswer((_) async => const SentryId.empty());
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) async => const SentryId.empty());
 
         await fixture.pumpFeedbackHost(tester);
 
@@ -1087,11 +1138,13 @@ void main() {
       });
 
       testWidgets('shows the submit error message', (tester) async {
-        when(fixture.hub.captureFeedback(
-          any,
-          hint: anyNamed('hint'),
-          withScope: anyNamed('withScope'),
-        )).thenAnswer((_) async => const SentryId.empty());
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) async => const SentryId.empty());
 
         await fixture.pumpFeedbackHost(tester);
 
@@ -1105,16 +1158,20 @@ void main() {
         await tester.tap(find.text('Send Bug Report'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Failed to send feedback. Please try again.'),
-            findsOneWidget);
+        expect(
+          find.text('Failed to send feedback. Please try again.'),
+          findsOneWidget,
+        );
       });
 
       testWidgets('re-enables the submit button', (tester) async {
-        when(fixture.hub.captureFeedback(
-          any,
-          hint: anyNamed('hint'),
-          withScope: anyNamed('withScope'),
-        )).thenAnswer((_) async => const SentryId.empty());
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) async => const SentryId.empty());
 
         await fixture.pumpFeedbackHost(tester);
 
@@ -1134,17 +1191,20 @@ void main() {
         expect(button.onPressed, isNotNull);
       });
 
-      testWidgets('calls onSubmitError with a synthetic exception',
-          (tester) async {
+      testWidgets('calls onSubmitError with a synthetic exception', (
+        tester,
+      ) async {
         Object? receivedException;
-        fixture.options.feedback.onSubmitError = (_, exception, __) {
+        fixture.options.feedback.onSubmitError = (_, exception, _) {
           receivedException = exception;
         };
-        when(fixture.hub.captureFeedback(
-          any,
-          hint: anyNamed('hint'),
-          withScope: anyNamed('withScope'),
-        )).thenAnswer((_) async => const SentryId.empty());
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) async => const SentryId.empty());
 
         await fixture.pumpFeedbackHost(tester);
 
@@ -1160,18 +1220,23 @@ void main() {
 
         expect(receivedException, isA<StateError>());
         expect(
-            (receivedException as StateError).message, 'Feedback was not sent');
+          (receivedException as StateError).message,
+          'Feedback was not sent',
+        );
       });
     });
 
     group('when captureFeedback throws', () {
-      testWidgets('keeps the form open with the entered message',
-          (tester) async {
-        when(fixture.hub.captureFeedback(
-          any,
-          hint: anyNamed('hint'),
-          withScope: anyNamed('withScope'),
-        )).thenThrow(StateError('network error'));
+      testWidgets('keeps the form open with the entered message', (
+        tester,
+      ) async {
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenThrow(StateError('network error'));
 
         await fixture.pumpFeedbackHost(tester);
 
@@ -1192,18 +1257,21 @@ void main() {
         expect(messageField.controller?.text, 'not-sent-message');
       });
 
-      testWidgets('calls onSubmitError with the thrown exception',
-          (tester) async {
+      testWidgets('calls onSubmitError with the thrown exception', (
+        tester,
+      ) async {
         Object? receivedException;
-        fixture.options.feedback.onSubmitError = (_, exception, __) {
+        fixture.options.feedback.onSubmitError = (_, exception, _) {
           receivedException = exception;
         };
         final thrown = StateError('network error');
-        when(fixture.hub.captureFeedback(
-          any,
-          hint: anyNamed('hint'),
-          withScope: anyNamed('withScope'),
-        )).thenThrow(thrown);
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenThrow(thrown);
 
         await fixture.pumpFeedbackHost(tester);
 
@@ -1229,14 +1297,17 @@ void main() {
       fixture = Fixture();
     });
 
-    testWidgets('does not call captureFeedback twice on rapid double tap',
-        (tester) async {
+    testWidgets('does not call captureFeedback twice on rapid double tap', (
+      tester,
+    ) async {
       final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
+      when(
+        fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        ),
+      ).thenAnswer((_) => completer.future);
 
       await fixture.pumpFeedbackHost(tester);
 
@@ -1256,145 +1327,156 @@ void main() {
       completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
       await tester.pumpAndSettle();
 
-      verify(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).called(1);
+      verify(
+        fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        ),
+      ).called(1);
     });
 
     testWidgets(
-        'does not call captureFeedback twice when tapped again before the disabling rebuild occurs',
-        (tester) async {
-      // No pump() between the two taps below: onPressed only becomes null
-      // after a rebuild, so this exercises the window where a second tap can
-      // still reach _submit() while the first call is already in flight.
-      final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
+      'does not call captureFeedback twice when tapped again before the disabling rebuild occurs',
+      (tester) async {
+        // No pump() between the two taps below: onPressed only becomes null
+        // after a rebuild, so this exercises the window where a second tap can
+        // still reach _submit() while the first call is already in flight.
+        final completer = Completer<SentryId>();
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) => completer.future);
 
-      await fixture.pumpFeedbackHost(tester);
+        await fixture.pumpFeedbackHost(tester);
 
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
 
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.tap(find.text('Send Bug Report'));
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.tap(find.text('Send Bug Report'));
 
-      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
-      await tester.pumpAndSettle();
+        completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+        await tester.pumpAndSettle();
 
-      verify(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).called(1);
-    });
+        verify(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).called(1);
+      },
+    );
 
     testWidgets(
-        'keeps the submit button disabled after a successful submission whose pop is intercepted',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (context) => PopScope(
-                      canPop: false,
-                      child: SentryFeedbackForm(hub: fixture.hub),
+      'keeps the submit button disabled after a successful submission whose pop is intercepted',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => PopScope(
+                        canPop: false,
+                        child: SentryFeedbackForm(hub: fixture.hub),
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: const Text('Show Feedback'),
+                  );
+                },
+                child: const Text('Show Feedback'),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
 
-      // PopScope intercepted the pop, so the form is still on screen.
-      expect(find.byType(SentryFeedbackForm), findsOneWidget);
+        // PopScope intercepted the pop, so the form is still on screen.
+        expect(find.byType(SentryFeedbackForm), findsOneWidget);
 
-      // The feedback was already accepted, so Send must not allow
-      // resubmitting it.
-      final submitButton = tester.widget<FilledButton>(
-        find.byKey(const ValueKey('sentry_feedback_submit_button')),
-      );
-      expect(submitButton.onPressed, isNull);
+        // The feedback was already accepted, so Send must not allow
+        // resubmitting it.
+        final submitButton = tester.widget<FilledButton>(
+          find.byKey(const ValueKey('sentry_feedback_submit_button')),
+        );
+        expect(submitButton.onPressed, isNull);
 
-      // Cancel remains the only way left to close the form.
-      final cancelButton = tester.widget<TextButton>(
-        find.byKey(const ValueKey('sentry_feedback_close_button')),
-      );
-      expect(cancelButton.onPressed, isNotNull);
-    });
+        // Cancel remains the only way left to close the form.
+        final cancelButton = tester.widget<TextButton>(
+          find.byKey(const ValueKey('sentry_feedback_close_button')),
+        );
+        expect(cancelButton.onPressed, isNotNull);
+      },
+    );
 
     testWidgets(
-        'does not call captureFeedback again when tapping submit after a successful submission whose pop is intercepted',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute<void>(
-                    builder: (context) => PopScope(
-                      canPop: false,
-                      child: SentryFeedbackForm(hub: fixture.hub),
+      'does not call captureFeedback again when tapping submit after a successful submission whose pop is intercepted',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (context) => PopScope(
+                        canPop: false,
+                        child: SentryFeedbackForm(hub: fixture.hub),
+                      ),
                     ),
-                  ),
-                );
-              },
-              child: const Text('Show Feedback'),
+                  );
+                },
+                child: const Text('Show Feedback'),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
 
-      // Attempting to tap Send again must not fire a second capture, since
-      // the button is disabled and _submit() also guards against it directly.
-      await tester.tap(find.text('Send Bug Report'), warnIfMissed: false);
-      await tester.pumpAndSettle();
+        // Attempting to tap Send again must not fire a second capture, since
+        // the button is disabled and _submit() also guards against it directly.
+        await tester.tap(find.text('Send Bug Report'), warnIfMissed: false);
+        await tester.pumpAndSettle();
 
-      verify(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).called(1);
-    });
+        verify(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).called(1);
+      },
+    );
   });
 
   group('$SentryFeedbackForm late result handling', () {
@@ -1405,165 +1487,182 @@ void main() {
     });
 
     testWidgets(
-        'clears preserved data for a successful submission even after the route was popped externally while pending',
-        (tester) async {
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
-      SentryFeedbackForm.preservedMessage = 'stale-draft-from-earlier-session';
-      SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
+      'clears preserved data for a successful submission even after the route was popped externally while pending',
+      (tester) async {
+        final associatedEventId = SentryId.fromId(
+          '1988bb1b6f0d4c509e232f0cb9aaeaea',
+        );
+        SentryFeedbackForm.preservedMessage =
+            'stale-draft-from-earlier-session';
+        SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
 
-      final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
+        final completer = Completer<SentryId>();
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) => completer.future);
 
-      await fixture.pumpFeedbackHost(tester);
+        await fixture.pumpFeedbackHost(tester);
 
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
 
-      // Restored from the preserved draft set above.
-      expect(SentryFeedbackForm.preservedMessage,
-          'stale-draft-from-earlier-session');
+        // Restored from the preserved draft set above.
+        expect(
+          SentryFeedbackForm.preservedMessage,
+          'stale-draft-from-earlier-session',
+        );
 
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pump();
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pump();
 
-      // Pop the route directly (e.g. system back), bypassing Cancel entirely.
-      tester.state<NavigatorState>(find.byType(Navigator)).pop();
-      await tester.pumpAndSettle();
-      expect(find.byType(SentryFeedbackForm), findsNothing);
+        // Pop the route directly (e.g. system back), bypassing Cancel entirely.
+        tester.state<NavigatorState>(find.byType(Navigator)).pop();
+        await tester.pumpAndSettle();
+        expect(find.byType(SentryFeedbackForm), findsNothing);
 
-      completer.complete(associatedEventId);
-      await tester.pumpAndSettle();
+        completer.complete(associatedEventId);
+        await tester.pumpAndSettle();
 
-      expect(SentryFeedbackForm.preservedMessage, isNull);
-      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
-    });
-
-    testWidgets(
-        'does not clobber a newer form draft with a stale submission that succeeds later',
-        (tester) async {
-      final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
-
-      await fixture.pumpFeedbackHost(tester);
-
-      // Form A: type a message and submit (left pending).
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'form-a-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pump();
-
-      // Pop Form A externally while its submission is still pending.
-      tester.state<NavigatorState>(find.byType(Navigator)).pop();
-      await tester.pumpAndSettle();
-
-      // Form B: opened after Form A, writes its own preserved draft via the
-      // screenshot-capture flow.
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'form-b-message',
-      );
-      final screenshotButton = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
-      await tester.ensureVisible(screenshotButton);
-      await tester.tap(screenshotButton);
-      await tester.pumpAndSettle();
-
-      expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
-
-      // Form A's stale submission finally succeeds.
-      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
-      await tester.pumpAndSettle();
-
-      // Form B's draft must survive Form A's late, stale dismiss.
-      expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
-    });
+        expect(SentryFeedbackForm.preservedMessage, isNull);
+        expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
+      },
+    );
 
     testWidgets(
-        'does not call onSubmitSuccess or show a snackbar when the result arrives during the cancel exit animation',
-        (tester) async {
-      var onSubmitSuccessCalled = false;
-      fixture.options.feedback.onSubmitSuccess = (_, __) {
-        onSubmitSuccessCalled = true;
-      };
-      final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
+      'does not clobber a newer form draft with a stale submission that succeeds later',
+      (tester) async {
+        final completer = Completer<SentryId>();
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) => completer.future);
 
-      await fixture.pumpFeedbackHost(tester);
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pump();
+        await fixture.pumpFeedbackHost(tester);
 
-      await tester.tap(find.text('Cancel'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
-      // Still mounted: the route is mid exit animation.
-      expect(find.byType(SentryFeedbackForm), findsOneWidget);
+        // Form A: type a message and submit (left pending).
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'form-a-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pump();
 
-      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
-      await tester.pumpAndSettle();
+        // Pop Form A externally while its submission is still pending.
+        tester.state<NavigatorState>(find.byType(Navigator)).pop();
+        await tester.pumpAndSettle();
 
-      expect(onSubmitSuccessCalled, isFalse);
-      expect(find.text('Thank you for your report!'), findsNothing);
-    });
+        // Form B: opened after Form A, writes its own preserved draft via the
+        // screenshot-capture flow.
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'form-b-message',
+        );
+        final screenshotButton = find.byKey(
+          const ValueKey('sentry_feedback_capture_screenshot_button'),
+        );
+        await tester.ensureVisible(screenshotButton);
+        await tester.tap(screenshotButton);
+        await tester.pumpAndSettle();
+
+        expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
+
+        // Form A's stale submission finally succeeds.
+        completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+        await tester.pumpAndSettle();
+
+        // Form B's draft must survive Form A's late, stale dismiss.
+        expect(SentryFeedbackForm.preservedMessage, 'form-b-message');
+      },
+    );
 
     testWidgets(
-        'does not call onSubmitError when the failure arrives during the cancel exit animation',
-        (tester) async {
-      var onSubmitErrorCalled = false;
-      fixture.options.feedback.onSubmitError = (_, __, ___) {
-        onSubmitErrorCalled = true;
-      };
-      final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
+      'does not call onSubmitSuccess or show a snackbar when the result arrives during the cancel exit animation',
+      (tester) async {
+        var onSubmitSuccessCalled = false;
+        fixture.options.feedback.onSubmitSuccess = (_, _) {
+          onSubmitSuccessCalled = true;
+        };
+        final completer = Completer<SentryId>();
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) => completer.future);
 
-      await fixture.pumpFeedbackHost(tester);
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pump();
+        await fixture.pumpFeedbackHost(tester);
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pump();
 
-      await tester.tap(find.text('Cancel'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
-      expect(find.byType(SentryFeedbackForm), findsOneWidget);
+        await tester.tap(find.text('Cancel'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+        // Still mounted: the route is mid exit animation.
+        expect(find.byType(SentryFeedbackForm), findsOneWidget);
 
-      completer.complete(const SentryId.empty());
-      await tester.pumpAndSettle();
+        completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+        await tester.pumpAndSettle();
 
-      expect(onSubmitErrorCalled, isFalse);
-    });
+        expect(onSubmitSuccessCalled, isFalse);
+        expect(find.text('Thank you for your report!'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'does not call onSubmitError when the failure arrives during the cancel exit animation',
+      (tester) async {
+        var onSubmitErrorCalled = false;
+        fixture.options.feedback.onSubmitError = (_, _, _) {
+          onSubmitErrorCalled = true;
+        };
+        final completer = Completer<SentryId>();
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) => completer.future);
+
+        await fixture.pumpFeedbackHost(tester);
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pump();
+
+        await tester.tap(find.text('Cancel'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(find.byType(SentryFeedbackForm), findsOneWidget);
+
+        completer.complete(const SentryId.empty());
+        await tester.pumpAndSettle();
+
+        expect(onSubmitErrorCalled, isFalse);
+      },
+    );
   });
 
   group('$SentryFeedbackForm shared draft ownership', () {
@@ -1574,61 +1673,64 @@ void main() {
     });
 
     testWidgets(
-        'lets an older form clear the saved draft after a newer form above it is popped without saving',
-        (tester) async {
-      SentryFeedbackForm.preservedMessage = 'pre-existing-draft';
+      'lets an older form clear the saved draft after a newer form above it is popped without saving',
+      (tester) async {
+        SentryFeedbackForm.preservedMessage = 'pre-existing-draft';
 
-      await fixture.pumpFeedbackHost(tester);
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
+        await fixture.pumpFeedbackHost(tester);
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
 
-      // A newer form is pushed over the first one, then popped (e.g. system
-      // back) without ever writing to the shared draft.
-      SentryFeedbackForm.show(
-        tester.element(find.byType(SentryFeedbackForm)),
-        hub: fixture.hub,
-      );
-      await tester.pumpAndSettle();
-      tester.state<NavigatorState>(find.byType(Navigator)).pop();
-      await tester.pumpAndSettle();
+        // A newer form is pushed over the first one, then popped (e.g. system
+        // back) without ever writing to the shared draft.
+        SentryFeedbackForm.show(
+          tester.element(find.byType(SentryFeedbackForm)),
+          hub: fixture.hub,
+        );
+        await tester.pumpAndSettle();
+        tester.state<NavigatorState>(find.byType(Navigator)).pop();
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
 
-      expect(SentryFeedbackForm.preservedMessage, isNull);
-    });
+        expect(SentryFeedbackForm.preservedMessage, isNull);
+      },
+    );
 
     testWidgets(
-        'does not let an older form clobber the draft a newer form saved before leaving',
-        (tester) async {
-      await fixture.pumpFeedbackHost(tester);
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
+      'does not let an older form clobber the draft a newer form saved before leaving',
+      (tester) async {
+        await fixture.pumpFeedbackHost(tester);
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
 
-      SentryFeedbackForm.show(
-        tester.element(find.byType(SentryFeedbackForm)),
-        hub: fixture.hub,
-      );
-      await tester.pumpAndSettle();
+        SentryFeedbackForm.show(
+          tester.element(find.byType(SentryFeedbackForm)),
+          hub: fixture.hub,
+        );
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'newer-form-draft',
-      );
-      final screenshotButton = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
-      await tester.ensureVisible(screenshotButton);
-      await tester.tap(screenshotButton);
-      await tester.pumpAndSettle();
-      expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'newer-form-draft',
+        );
+        final screenshotButton = find.byKey(
+          const ValueKey('sentry_feedback_capture_screenshot_button'),
+        );
+        await tester.ensureVisible(screenshotButton);
+        await tester.tap(screenshotButton);
+        await tester.pumpAndSettle();
+        expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
 
-      // The older form underneath is now visible again; cancelling it must
-      // not wipe the draft the newer form deliberately saved.
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
+        // The older form underneath is now visible again; cancelling it must
+        // not wipe the draft the newer form deliberately saved.
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
 
-      expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
-    });
+        expect(SentryFeedbackForm.preservedMessage, 'newer-form-draft');
+      },
+    );
   });
 
   group('$SentryFeedbackForm dismissal', () {
@@ -1639,182 +1741,169 @@ void main() {
     });
 
     testWidgets(
-        'does not pop the route underneath when onSubmitSuccess already popped the form',
-        (tester) async {
-      final navigatorKey = GlobalKey<NavigatorState>();
-      fixture.options.feedback.onSubmitSuccess = (_, __) {
-        navigatorKey.currentState?.pop();
-      };
+      'does not pop the route underneath when onSubmitSuccess already popped the form',
+      (tester) async {
+        final navigatorKey = GlobalKey<NavigatorState>();
+        fixture.options.feedback.onSubmitSuccess = (_, _) {
+          navigatorKey.currentState?.pop();
+        };
 
-      await tester.pumpWidget(
-        MaterialApp(
-          navigatorKey: navigatorKey,
-          home: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (context) => Scaffold(
-                    body: Builder(
-                      builder: (context) => ElevatedButton(
-                        onPressed: () => SentryFeedbackForm.show(
-                          context,
-                          hub: fixture.hub,
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: navigatorKey,
+            home: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (context) => Scaffold(
+                      body: Builder(
+                        builder: (context) => ElevatedButton(
+                          onPressed: () => SentryFeedbackForm.show(
+                            context,
+                            hub: fixture.hub,
+                          ),
+                          child: const Text('Show Feedback'),
                         ),
-                        child: const Text('Show Feedback'),
                       ),
                     ),
                   ),
                 ),
+                child: const Text('Open Second Page'),
               ),
-              child: const Text('Open Second Page'),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Open Second Page'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Open Second Page'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
 
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
 
-      // Only the form was popped; the second page beneath it must survive.
-      expect(find.text('Show Feedback'), findsOneWidget);
-    });
+        // Only the form was popped; the second page beneath it must survive.
+        expect(find.text('Show Feedback'), findsOneWidget);
+      },
+    );
 
     testWidgets(
-        'closes its own route instead of the one on top when another route covers it',
-        (tester) async {
-      final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
-      final navigatorKey = GlobalKey<NavigatorState>();
+      'closes its own route instead of the one on top when another route covers it',
+      (tester) async {
+        final completer = Completer<SentryId>();
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer((_) => completer.future);
+        final navigatorKey = GlobalKey<NavigatorState>();
 
-      await tester.pumpWidget(
-        MaterialApp(
-          navigatorKey: navigatorKey,
-          home: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () =>
-                  SentryFeedbackForm.show(context, hub: fixture.hub),
-              child: const Text('Show Feedback'),
+        await tester.pumpWidget(
+          MaterialApp(
+            navigatorKey: navigatorKey,
+            home: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () =>
+                    SentryFeedbackForm.show(context, hub: fixture.hub),
+                child: const Text('Show Feedback'),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('Show Feedback'));
-      await tester.pumpAndSettle();
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pump();
+        await tester.tap(find.text('Show Feedback'));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pump();
 
-      // Another route covers the form while its submission is still pending.
-      unawaited(navigatorKey.currentState!.push(
-        MaterialPageRoute<void>(
-          builder: (context) => const Scaffold(body: Text('Cover')),
-        ),
-      ));
-      await tester.pumpAndSettle();
+        // Another route covers the form while its submission is still pending.
+        unawaited(
+          navigatorKey.currentState!.push(
+            MaterialPageRoute<void>(
+              builder: (context) => const Scaffold(body: Text('Cover')),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
-      await tester.pumpAndSettle();
+        completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Cover'), findsOneWidget);
-      expect(
-          find.byType(SentryFeedbackForm, skipOffstage: false), findsNothing);
-    });
+        expect(find.text('Cover'), findsOneWidget);
+        expect(
+          find.byType(SentryFeedbackForm, skipOffstage: false),
+          findsNothing,
+        );
+      },
+    );
 
     testWidgets(
-        'leaves a covered page-based form in place with submit disabled after success',
-        (tester) async {
-      final completer = Completer<SentryId>();
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer((_) => completer.future);
-      final navigatorKey = GlobalKey<NavigatorState>();
-
-      // The form is a Page owned by the app (e.g. a GoRoute), so only the
-      // app's router may remove it.
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Navigator(
-            key: navigatorKey,
-            pages: [
-              MaterialPage<void>(child: SentryFeedbackForm(hub: fixture.hub)),
-            ],
-            onDidRemovePage: (_) {},
+      'leaves a covered page-based form in place with submit disabled after success',
+      (tester) async {
+        final completer = Completer<SentryId>();
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
           ),
-        ),
-      );
+        ).thenAnswer((_) => completer.future);
+        final navigatorKey = GlobalKey<NavigatorState>();
 
-      await tester.enterText(
-        find.byKey(const ValueKey('sentry_feedback_message_textfield')),
-        'fixture-message',
-      );
-      await tester.tap(find.text('Send Bug Report'));
-      await tester.pump();
+        // The form is a Page owned by the app (e.g. a GoRoute), so only the
+        // app's router may remove it.
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Navigator(
+              key: navigatorKey,
+              pages: [
+                MaterialPage<void>(child: SentryFeedbackForm(hub: fixture.hub)),
+              ],
+              onDidRemovePage: (_) {},
+            ),
+          ),
+        );
 
-      unawaited(navigatorKey.currentState!.push(
-        MaterialPageRoute<void>(
-          builder: (context) => const Scaffold(body: Text('Cover')),
-        ),
-      ));
-      await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const ValueKey('sentry_feedback_message_textfield')),
+          'fixture-message',
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pump();
 
-      completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
-      await tester.pumpAndSettle();
+        unawaited(
+          navigatorKey.currentState!.push(
+            MaterialPageRoute<void>(
+              builder: (context) => const Scaffold(body: Text('Cover')),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      navigatorKey.currentState!.pop();
-      await tester.pumpAndSettle();
+        completer.complete(SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+        await tester.pumpAndSettle();
 
-      final submitButton = tester.widget<FilledButton>(
-          find.byKey(const ValueKey('sentry_feedback_submit_button')));
-      expect(submitButton.onPressed, isNull);
-    });
-  });
+        expect(tester.takeException(), isNull);
+        navigatorKey.currentState!.pop();
+        await tester.pumpAndSettle();
 
-  group('SentryFeedbackWidget deprecated alias', () {
-    tearDown(() {
-      SentryFeedbackForm.pendingAssociatedEventId = null;
-      SentryFeedbackForm.clearPreservedData();
-    });
-
-    test('is a deprecated alias for SentryFeedbackForm', () {
-      expect(SentryFeedbackWidget, SentryFeedbackForm);
-    });
-
-    test('shares static form state with SentryFeedbackForm', () {
-      final associatedEventId = SentryId.fromId(
-        '1988bb1b6f0d4c509e232f0cb9aaeaea',
-      );
-
-      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
-      SentryFeedbackWidget.preservedName = 'fixture-name';
-      SentryFeedbackWidget.preservedEmail = 'fixture@example.com';
-      SentryFeedbackWidget.preservedMessage = 'fixture-message';
-
-      expect(SentryFeedbackForm.pendingAssociatedEventId, associatedEventId);
-      expect(SentryFeedbackForm.preservedName, 'fixture-name');
-      expect(SentryFeedbackForm.preservedEmail, 'fixture@example.com');
-      expect(SentryFeedbackForm.preservedMessage, 'fixture-message');
-    });
+        final submitButton = tester.widget<FilledButton>(
+          find.byKey(const ValueKey('sentry_feedback_submit_button')),
+        );
+        expect(submitButton.onPressed, isNull);
+      },
+    );
   });
 }
 
@@ -1827,12 +1916,15 @@ class Fixture {
   Fixture() {
     when(hub.options).thenReturn(options);
     when(hub.scope).thenReturn(scope);
-    when(hub.captureFeedback(
-      any,
-      hint: anyNamed('hint'),
-      withScope: anyNamed('withScope'),
-    )).thenAnswer(
-        (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+    when(
+      hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      ),
+    ).thenAnswer(
+      (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+    );
     when(hub.configureScope(any)).thenAnswer((invocation) {
       final callback = invocation.positionalArguments.first;
       callback(scope);
@@ -1850,12 +1942,10 @@ class Fixture {
   }
 
   Future<void> pumpFeedbackForm(
-      WidgetTester tester, Widget Function(Hub) builder) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: builder(hub),
-      ),
-    );
+    WidgetTester tester,
+    Widget Function(Hub) builder,
+  ) async {
+    await tester.pumpWidget(MaterialApp(home: builder(hub)));
   }
 
   Future<void> pumpFeedbackHost(WidgetTester tester) async {

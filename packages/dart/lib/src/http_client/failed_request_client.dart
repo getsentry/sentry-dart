@@ -4,9 +4,10 @@ import '../hint.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
-import '../throwable_mechanism.dart';
+import '../exception/throwable_mechanism.dart';
 import '../type_check_hint.dart';
-import '../utils/tracing_utils.dart';
+import '../utils/http_sanitizer.dart';
+import '../telemetry/span/propagation/tracing_utils.dart';
 import 'sentry_http_client.dart';
 import 'sentry_http_client_error.dart';
 
@@ -75,9 +76,9 @@ class FailedRequestClient extends BaseClient {
     Client? client,
     Hub? hub,
     bool? captureFailedRequests,
-  })  : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client(),
-        _captureFailedRequests = captureFailedRequests {
+  }) : _hub = hub ?? HubAdapter(),
+       _client = client ?? Client(),
+       _captureFailedRequests = captureFailedRequests {
     if (captureFailedRequests ?? _hub.options.captureFailedRequests) {
       _hub.options.sdk.addIntegration('HTTPClientError');
     }
@@ -127,13 +128,18 @@ class FailedRequestClient extends BaseClient {
   }
 
   Future<void> _captureEventIfNeeded(
-      BaseRequest request,
-      int? statusCode,
-      Object? exception,
-      StackTrace? stackTrace,
-      StreamedResponse? response,
-      Duration duration) async {
+    BaseRequest request,
+    int? statusCode,
+    Object? exception,
+    StackTrace? stackTrace,
+    StreamedResponse? response,
+    Duration duration,
+  ) async {
     if (!(_captureFailedRequests ?? _hub.options.captureFailedRequests)) {
+      return;
+    }
+
+    if (isSentryRequestUrl(request.url.toString(), _hub.options)) {
       return;
     }
 
@@ -143,13 +149,20 @@ class FailedRequestClient extends BaseClient {
         return;
       }
       if (!containsTargetOrMatchesRegExp(
-          failedRequestTargets, request.url.toString())) {
+        failedRequestTargets,
+        request.url.toString(),
+      )) {
         return;
       }
     }
 
-    final reason = 'HTTP Client Error with status code: $statusCode';
-    exception ??= SentryHttpClientError(reason);
+    String? reason;
+    if (exception == null) {
+      // Non-null here: a null status code matches no failedRequestStatusCodes
+      // entry, so the check above already returned.
+      reason = 'HTTP Client Error with status code: $statusCode';
+      exception = SentryHttpClientError(reason);
+    }
 
     await _captureEvent(
       exception: exception,
@@ -183,6 +196,7 @@ class FailedRequestClient extends BaseClient {
     final mechanism = Mechanism(
       type: 'SentryHttpClient',
       description: reason,
+      handled: true,
     );
 
     bool? snapshot;
@@ -205,19 +219,21 @@ class FailedRequestClient extends BaseClient {
     final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
     if (response != null) {
+      final sendPii = _hub.options.sendDefaultPii;
       event.contexts.response = SentryResponse(
-        headers: _hub.options.sendDefaultPii ? response.headers : null,
+        headers: sendPii
+            ? HttpSanitizer.sanitizedHeaders(response.headers)
+            : null,
+        // Read explicitly because sanitizing strips `set-cookie` before
+        // SentryResponse can pick it up. `package:http` lowercases header names.
+        cookies: sendPii ? response.headers['set-cookie'] : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
       );
       hint.set(TypeCheckHint.httpResponse, response);
     }
 
-    await _hub.captureEvent(
-      event,
-      stackTrace: stackTrace,
-      hint: hint,
-    );
+    await _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
   }
 
   // Types of Request can be found here:

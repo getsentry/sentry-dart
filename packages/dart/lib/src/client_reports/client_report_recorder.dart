@@ -13,8 +13,11 @@ class ClientReportRecorder {
   final ClockProvider _clock;
   final Map<_QuantityKey, int> _quantities = {};
 
-  void recordLostEvent(final DiscardReason reason, final DataCategory category,
-      {int count = 1}) {
+  void recordLostEvent(
+    final DiscardReason reason,
+    final DataCategory category, {
+    int count = 1,
+  }) {
     final key = _QuantityKey(reason, category);
     var current = _quantities[key] ?? 0;
     _quantities[key] = current + count;
@@ -39,8 +42,11 @@ class ClientReportRecorder {
   ///
   /// Pass null [bytes] when the size cannot be determined. The byte outcome
   /// is then omitted rather than reported as zero.
-  void recordLostMetric(final DiscardReason reason,
-      {int count = 1, int? bytes}) {
+  void recordLostMetric(
+    final DiscardReason reason, {
+    int count = 1,
+    int? bytes,
+  }) {
     recordLostEvent(reason, DataCategory.metric, count: count);
     if (bytes != null) {
       recordLostEvent(reason, DataCategory.metricByte, count: bytes);
@@ -52,10 +58,12 @@ class ClientReportRecorder {
       return null;
     }
 
-    final events = _quantities.keys.map((key) {
-      final quantity = _quantities[key] ?? 0;
-      return DiscardedEvent(key.reason, key.category, quantity);
-    }).toList(growable: false);
+    final events = _quantities.keys
+        .map((key) {
+          final quantity = _quantities[key] ?? 0;
+          return DiscardedEvent(key.reason, key.category, quantity);
+        })
+        .toList(growable: false);
 
     _quantities.clear();
 

@@ -1,13 +1,12 @@
 // ignore_for_file: library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:hive/hive.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:sentry_hive/src/sentry_lazy_box.dart';
 import 'package:test/test.dart';
@@ -23,8 +22,8 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveLazyBox);
-    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
-    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.system.name'], 'flutter_hive');
+    expect(span?.data['db.namespace'], Fixture.dbName);
   }
 
   void verifyErrorSpan(
@@ -37,8 +36,8 @@ void main() {
     expect(span?.status, SpanStatus.internalError());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveLazyBox);
-    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
-    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.system.name'], 'flutter_hive');
+    expect(span?.data['db.namespace'], Fixture.dbName);
 
     expect(span?.throwable, exception);
   }
@@ -49,13 +48,10 @@ void main() {
     bool checkName = false,
     String status = 'ok',
   }) {
-    expect(
-      crumb?.message,
-      message,
-    );
+    expect(crumb?.message, message);
     expect(crumb?.type, 'query');
     if (checkName) {
-      expect(crumb?.data?[SentryHiveImpl.dbNameKey], Fixture.dbName);
+      expect(crumb?.data?['db.namespace'], Fixture.dbName);
     }
     expect(crumb?.data?['status'], status);
   }

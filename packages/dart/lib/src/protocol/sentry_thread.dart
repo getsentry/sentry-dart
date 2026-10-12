@@ -23,8 +23,9 @@ class SentryThread {
       name: json['name'] as String?,
       crashed: json['crashed'] as bool?,
       current: json['current'] as bool?,
-      stacktrace:
-          json['stacktrace'] == null ? null : SentryStackTrace.fromJson(json),
+      stacktrace: json['stacktrace'] == null
+          ? null
+          : SentryStackTrace.fromJson(json),
       unknown: json.notAccessed(),
     );
   }
@@ -60,23 +61,5 @@ class SentryThread {
       if (current != null) 'current': current,
       if (stacktrace != null) 'stacktrace': stacktrace.toJson(),
     };
-  }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryThread copyWith({
-    int? id,
-    String? name,
-    bool? crashed,
-    bool? current,
-    SentryStackTrace? stacktrace,
-  }) {
-    return SentryThread(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      crashed: crashed ?? this.crashed,
-      current: current ?? this.current,
-      stacktrace: stacktrace ?? this.stacktrace,
-      unknown: unknown,
-    );
   }
 }

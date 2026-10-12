@@ -43,8 +43,8 @@ Future<void> execute() async {
     final newMax = newResults.reduce(max);
 
     // Calculate improvement
-    final improvement =
-        ((legacyAvg - newAvg) / legacyAvg * 100).toStringAsFixed(1);
+    final improvement = ((legacyAvg - newAvg) / legacyAvg * 100)
+        .toStringAsFixed(1);
     final speedup = (legacyAvg / newAvg).toStringAsFixed(2);
 
     print('Legacy approach (List<int> + addAll):');
@@ -98,7 +98,9 @@ List<List<int>> _generateMockEnvelopeData(int totalSize) {
 }
 
 Future<List<double>> _benchmarkLegacyApproach(
-    List<List<int>> chunks, int iterations) async {
+  List<List<int>> chunks,
+  int iterations,
+) async {
   final results = <double>[];
 
   // Reduced warmup for large data
@@ -121,7 +123,9 @@ Future<List<double>> _benchmarkLegacyApproach(
 }
 
 Future<List<double>> _benchmarkNewApproach(
-    List<List<int>> chunks, int iterations) async {
+  List<List<int>> chunks,
+  int iterations,
+) async {
   final results = <double>[];
 
   // Reduced warmup for large data

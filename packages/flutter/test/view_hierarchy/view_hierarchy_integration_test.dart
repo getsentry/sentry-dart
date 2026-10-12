@@ -20,24 +20,27 @@ void main() {
 
     integration(fixture.hub, fixture.options);
 
-    final processors = fixture.options.eventProcessors
-        .where((e) => e.runtimeType == SentryViewHierarchyEventProcessor);
+    final processors = fixture.options.eventProcessors.where(
+      (e) => e.runtimeType == SentryViewHierarchyEventProcessor,
+    );
 
     expect(processors.isNotEmpty, true);
   });
 
   test(
-      'viewHierarchyIntegration does not add view hierarchy processor if opt out in options',
-      () {
-    final integration = fixture.getSut(attachViewHierarchy: false);
+    'viewHierarchyIntegration does not add view hierarchy processor if opt out in options',
+    () {
+      final integration = fixture.getSut(attachViewHierarchy: false);
 
-    integration(fixture.hub, fixture.options);
+      integration(fixture.hub, fixture.options);
 
-    final processors = fixture.options.eventProcessors
-        .where((e) => e.runtimeType == SentryViewHierarchyEventProcessor);
+      final processors = fixture.options.eventProcessors.where(
+        (e) => e.runtimeType == SentryViewHierarchyEventProcessor,
+      );
 
-    expect(processors.isEmpty, true);
-  });
+      expect(processors.isEmpty, true);
+    },
+  );
 
   test('viewHierarchyIntegration close resets processor', () {
     final integration = fixture.getSut();
@@ -45,8 +48,9 @@ void main() {
     integration(fixture.hub, fixture.options);
     integration.close();
 
-    final processors = fixture.options.eventProcessors
-        .where((e) => e.runtimeType == SentryViewHierarchyEventProcessor);
+    final processors = fixture.options.eventProcessors.where(
+      (e) => e.runtimeType == SentryViewHierarchyEventProcessor,
+    );
 
     expect(processors.isEmpty, true);
   });
@@ -57,8 +61,9 @@ void main() {
     integration(fixture.hub, fixture.options);
 
     expect(
-        fixture.options.sdk.integrations.contains('viewHierarchyIntegration'),
-        true);
+      fixture.options.sdk.integrations.contains('viewHierarchyIntegration'),
+      true,
+    );
   });
 
   test('viewHierarchyIntegration does not add integration to the sdk list', () {
@@ -67,8 +72,9 @@ void main() {
     integration(fixture.hub, fixture.options);
 
     expect(
-        fixture.options.sdk.integrations.contains('viewHierarchyIntegration'),
-        false);
+      fixture.options.sdk.integrations.contains('viewHierarchyIntegration'),
+      false,
+    );
   });
 }
 

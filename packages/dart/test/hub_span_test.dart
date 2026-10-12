@@ -61,8 +61,10 @@ void main() {
             'attr2': SentryAttribute.int(42),
           };
 
-          final span =
-              hub.startInactiveSpan('test-span', attributes: attributes);
+          final span = hub.startInactiveSpan(
+            'test-span',
+            attributes: attributes,
+          );
 
           expect(span.attributes, equals(attributes));
         });
@@ -102,8 +104,9 @@ void main() {
           final hub = fixture.getSut();
           final past = DateTime(2024, 1, 1, 12, 0, 0);
 
-          final span = hub.startInactiveSpan('test-span', startTimestamp: past)
-              as RecordingSentrySpanV2;
+          final span =
+              hub.startInactiveSpan('test-span', startTimestamp: past)
+                  as RecordingSentrySpanV2;
 
           expect(span.startTimestamp, equals(past.toUtc()));
         });
@@ -115,8 +118,10 @@ void main() {
               hub.startInactiveSpan('test-span') as RecordingSentrySpanV2;
 
           expect(span.startTimestamp, isNotNull);
-          expect(span.startTimestamp.difference(DateTime.now()).abs(),
-              lessThan(Duration(seconds: 1)));
+          expect(
+            span.startTimestamp.difference(DateTime.now()).abs(),
+            lessThan(Duration(seconds: 1)),
+          );
         });
 
         test('child span uses startTimestamp when provided', () {
@@ -124,8 +129,13 @@ void main() {
           final past = DateTime(2024, 1, 1, 12, 0, 0);
 
           final root = hub.startInactiveSpan('root', parentSpan: null);
-          final child = hub.startInactiveSpan('child',
-              parentSpan: root, startTimestamp: past) as RecordingSentrySpanV2;
+          final child =
+              hub.startInactiveSpan(
+                    'child',
+                    parentSpan: root,
+                    startTimestamp: past,
+                  )
+                  as RecordingSentrySpanV2;
 
           expect(child.startTimestamp, equals(past.toUtc()));
           expect(child.startTimestamp.isUtc, isTrue);
@@ -165,10 +175,14 @@ void main() {
 
           final root = hub.startInactiveSpan('root', parentSpan: null);
           final ignored1 = hub.startInactiveSpan('ignored-1', parentSpan: root);
-          final ignored2 =
-              hub.startInactiveSpan('ignored-2', parentSpan: ignored1);
-          final ignored3 =
-              hub.startInactiveSpan('ignored-3', parentSpan: ignored2);
+          final ignored2 = hub.startInactiveSpan(
+            'ignored-2',
+            parentSpan: ignored1,
+          );
+          final ignored3 = hub.startInactiveSpan(
+            'ignored-3',
+            parentSpan: ignored2,
+          );
           final child = hub.startInactiveSpan('child', parentSpan: ignored3);
 
           expect(child, isA<RecordingSentrySpanV2>());
@@ -183,11 +197,15 @@ void main() {
 
           // root -> ignored -> child1 -> ignored -> child2
           final root = hub.startInactiveSpan('root', parentSpan: null);
-          final ignored1 =
-              hub.startInactiveSpan('ignored-span', parentSpan: root);
+          final ignored1 = hub.startInactiveSpan(
+            'ignored-span',
+            parentSpan: root,
+          );
           final child1 = hub.startInactiveSpan('child1', parentSpan: ignored1);
-          final ignored2 =
-              hub.startInactiveSpan('ignored-span', parentSpan: child1);
+          final ignored2 = hub.startInactiveSpan(
+            'ignored-span',
+            parentSpan: child1,
+          );
           final child2 = hub.startInactiveSpan('child2', parentSpan: ignored2);
 
           expect(child1, isA<RecordingSentrySpanV2>());
@@ -202,11 +220,15 @@ void main() {
           ];
           final hub = fixture.getSut();
 
-          final ignored =
-              hub.startInactiveSpan('ignored-root', parentSpan: null);
+          final ignored = hub.startInactiveSpan(
+            'ignored-root',
+            parentSpan: null,
+          );
           final child = hub.startInactiveSpan('child', parentSpan: ignored);
-          final grandchild =
-              hub.startInactiveSpan('grandchild', parentSpan: child);
+          final grandchild = hub.startInactiveSpan(
+            'grandchild',
+            parentSpan: child,
+          );
 
           expect(ignored, isA<NoOpSentrySpanV2>());
           expect(child, same(NoOpSentrySpanV2.instance));
@@ -219,8 +241,10 @@ void main() {
           final unsampledRoot = hub.startInactiveSpan('root', parentSpan: null);
           expect(unsampledRoot, isA<NoOpSentrySpanV2>());
 
-          final child =
-              hub.startInactiveSpan('child', parentSpan: unsampledRoot);
+          final child = hub.startInactiveSpan(
+            'child',
+            parentSpan: unsampledRoot,
+          );
 
           expect(child, isA<NoOpSentrySpanV2>());
           expect((child as NoOpSentrySpanV2).isIgnored, isFalse);
@@ -279,8 +303,10 @@ void main() {
           final hub = fixture.getSut();
 
           final grandparent = hub.startInactiveSpan('grandparent');
-          final parent =
-              hub.startInactiveSpan('parent', parentSpan: grandparent);
+          final parent = hub.startInactiveSpan(
+            'parent',
+            parentSpan: grandparent,
+          );
           final child = hub.startInactiveSpan('child', parentSpan: parent);
 
           expect(grandparent.parentSpan, isNull);
@@ -333,8 +359,9 @@ void main() {
 
           final rootSpan =
               hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
-          final childSpan = hub.startInactiveSpan('child-span',
-              parentSpan: rootSpan) as RecordingSentrySpanV2;
+          final childSpan =
+              hub.startInactiveSpan('child-span', parentSpan: rootSpan)
+                  as RecordingSentrySpanV2;
 
           // Both should have the same sampling decision
           expect(
@@ -356,12 +383,15 @@ void main() {
 
           final rootSpan =
               hub.startInactiveSpan('root-span') as RecordingSentrySpanV2;
-          final child1 = hub.startInactiveSpan('child-1', parentSpan: rootSpan)
-              as RecordingSentrySpanV2;
-          final child2 = hub.startInactiveSpan('child-2', parentSpan: child1)
-              as RecordingSentrySpanV2;
-          final child3 = hub.startInactiveSpan('child-3', parentSpan: child2)
-              as RecordingSentrySpanV2;
+          final child1 =
+              hub.startInactiveSpan('child-1', parentSpan: rootSpan)
+                  as RecordingSentrySpanV2;
+          final child2 =
+              hub.startInactiveSpan('child-2', parentSpan: child1)
+                  as RecordingSentrySpanV2;
+          final child3 =
+              hub.startInactiveSpan('child-3', parentSpan: child2)
+                  as RecordingSentrySpanV2;
 
           final rootDecision = rootSpan.samplingDecision;
 
@@ -423,8 +453,10 @@ void main() {
           expect(rootSpan, isA<NoOpSentrySpanV2>());
 
           // Children should also be NoOp (can't have recording children of NoOp)
-          final childSpan =
-              hub.startInactiveSpan('child-span', parentSpan: rootSpan);
+          final childSpan = hub.startInactiveSpan(
+            'child-span',
+            parentSpan: rootSpan,
+          );
           expect(childSpan, isA<NoOpSentrySpanV2>());
         });
 
@@ -436,10 +468,12 @@ void main() {
           final sampleRand = rootSpan.samplingDecision.sampleRand;
 
           // Create multiple child spans
-          final child1 = hub.startInactiveSpan('child-1', parentSpan: rootSpan)
-              as RecordingSentrySpanV2;
-          final child2 = hub.startInactiveSpan('child-2', parentSpan: rootSpan)
-              as RecordingSentrySpanV2;
+          final child1 =
+              hub.startInactiveSpan('child-1', parentSpan: rootSpan)
+                  as RecordingSentrySpanV2;
+          final child2 =
+              hub.startInactiveSpan('child-2', parentSpan: rootSpan)
+                  as RecordingSentrySpanV2;
 
           // All spans should use the same sampleRand
           expect(child1.samplingDecision.sampleRand, equals(sampleRand));
@@ -450,16 +484,18 @@ void main() {
           final hub = fixture.getSut(tracesSampleRate: 1.0);
 
           // First trace
-          final rootSpan1 = hub.startInactiveSpan('root-1', parentSpan: null)
-              as RecordingSentrySpanV2;
+          final rootSpan1 =
+              hub.startInactiveSpan('root-1', parentSpan: null)
+                  as RecordingSentrySpanV2;
           final decision1 = rootSpan1.samplingDecision;
 
           // Generate new trace
           hub.generateNewTrace();
 
           // Second trace
-          final rootSpan2 = hub.startInactiveSpan('root-2', parentSpan: null)
-              as RecordingSentrySpanV2;
+          final rootSpan2 =
+              hub.startInactiveSpan('root-2', parentSpan: null)
+                  as RecordingSentrySpanV2;
           final decision2 = rootSpan2.samplingDecision;
 
           // New trace should have a different sampleRand
@@ -755,14 +791,16 @@ void main() {
           expect(capturedSpan.isEnded, isTrue);
         });
 
-        test('provides RecordingSentrySpanV2 when tracing is enabled',
-            () async {
-          final hub = fixture.getSut();
+        test(
+          'provides RecordingSentrySpanV2 when tracing is enabled',
+          () async {
+            final hub = fixture.getSut();
 
-          await hub.startSpan('test-span', (span) async {
-            expect(span, isA<RecordingSentrySpanV2>());
-          });
-        });
+            await hub.startSpan('test-span', (span) async {
+              expect(span, isA<RecordingSentrySpanV2>());
+            });
+          },
+        );
 
         test('provides NoOpSentrySpanV2 when tracing is disabled', () async {
           final hub = fixture.getSut(tracesSampleRate: null);
@@ -866,24 +904,26 @@ void main() {
           expect(child2.parentSpan, equals(parent));
         });
 
-        test('does not leak active span to outer scope after callback',
-            () async {
-          final hub = fixture.getSut();
+        test(
+          'does not leak active span to outer scope after callback',
+          () async {
+            final hub = fixture.getSut();
 
-          await hub.startSpan('outer', (span) async {
-            final outerActiveSpan = hub.getActiveSpan();
-            expect(outerActiveSpan, equals(span));
+            await hub.startSpan('outer', (span) async {
+              final outerActiveSpan = hub.getActiveSpan();
+              expect(outerActiveSpan, equals(span));
 
-            await hub.startSpan('inner', (innerSpan) async {
-              final innerActiveSpan = hub.getActiveSpan();
-              expect(innerActiveSpan, equals(innerSpan));
-              await Future<void>.delayed(Duration.zero);
+              await hub.startSpan('inner', (innerSpan) async {
+                final innerActiveSpan = hub.getActiveSpan();
+                expect(innerActiveSpan, equals(innerSpan));
+                await Future<void>.delayed(Duration.zero);
+              });
+
+              final afterInner = hub.getActiveSpan();
+              expect(afterInner, equals(span));
             });
-
-            final afterInner = hub.getActiveSpan();
-            expect(afterInner, equals(span));
-          });
-        });
+          },
+        );
 
         test('parallel async spans share same parent', () async {
           final hub = fixture.getSut();
@@ -1017,8 +1057,10 @@ void main() {
           ];
           final hub = fixture.getSut();
 
-          final result =
-              await hub.startSpan('ignored-span', (span) async => 42);
+          final result = await hub.startSpan(
+            'ignored-span',
+            (span) async => 42,
+          );
 
           expect(result, equals(42));
         });
@@ -1058,32 +1100,34 @@ void main() {
         expect(asyncChild.parentSpan, equals(syncParent));
       });
 
-      test('builds correct chain with deeply nested alternating calls',
-          () async {
-        final hub = fixture.getSut();
-        late SentrySpanV2 span1;
-        late SentrySpanV2 span2;
-        late SentrySpanV2 span3;
-        late SentrySpanV2 span4;
+      test(
+        'builds correct chain with deeply nested alternating calls',
+        () async {
+          final hub = fixture.getSut();
+          late SentrySpanV2 span1;
+          late SentrySpanV2 span2;
+          late SentrySpanV2 span3;
+          late SentrySpanV2 span4;
 
-        await hub.startSpan('async-1', (s1) async {
-          span1 = s1;
-          hub.startSpanSync('sync-2', (s2) {
-            span2 = s2;
-            hub.startSpanSync('sync-3', (s3) {
-              span3 = s3;
+          await hub.startSpan('async-1', (s1) async {
+            span1 = s1;
+            hub.startSpanSync('sync-2', (s2) {
+              span2 = s2;
+              hub.startSpanSync('sync-3', (s3) {
+                span3 = s3;
+              });
+            });
+            await hub.startSpan('async-4', (s4) async {
+              span4 = s4;
             });
           });
-          await hub.startSpan('async-4', (s4) async {
-            span4 = s4;
-          });
-        });
 
-        expect(span1.parentSpan, isNull);
-        expect(span2.parentSpan, equals(span1));
-        expect(span3.parentSpan, equals(span2));
-        expect(span4.parentSpan, equals(span1));
-      });
+          expect(span1.parentSpan, isNull);
+          expect(span2.parentSpan, equals(span1));
+          expect(span3.parentSpan, equals(span2));
+          expect(span4.parentSpan, equals(span1));
+        },
+      );
 
       test('resolves active span to sync child inside async parent', () async {
         final hub = fixture.getSut();
@@ -1153,19 +1197,21 @@ void main() {
 
     group('when using idle spans', () {
       group('with bindToHub false', () {
-        test('creates recording idle span while a bound idle span is active',
-            () {
-          final hub = fixture.getSut();
-          final boundIdleSpan = hub.startIdleSpan('bound-root');
-          expect(boundIdleSpan, isA<IdleRecordingSentrySpanV2>());
+        test(
+          'creates recording idle span while a bound idle span is active',
+          () {
+            final hub = fixture.getSut();
+            final boundIdleSpan = hub.startIdleSpan('bound-root');
+            expect(boundIdleSpan, isA<IdleRecordingSentrySpanV2>());
 
-          final detachedIdleSpan = hub.startIdleSpan(
-            'detached-root',
-            bindToHub: false,
-          );
+            final detachedIdleSpan = hub.startIdleSpan(
+              'detached-root',
+              bindToHub: false,
+            );
 
-          expect(detachedIdleSpan, isA<IdleRecordingSentrySpanV2>());
-        });
+            expect(detachedIdleSpan, isA<IdleRecordingSentrySpanV2>());
+          },
+        );
 
         test('does not become the hub-level active span', () {
           final hub = fixture.getSut();
@@ -1199,12 +1245,14 @@ void main() {
         final hub = fixture.getSut();
         final past = DateTime(2024, 1, 1, 12, 0, 0);
 
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          startTimestamp: past,
-          idleTimeout: Duration(seconds: 1),
-          finalTimeout: Duration(seconds: 2),
-        ) as RecordingSentrySpanV2;
+        final idleSpan =
+            hub.startIdleSpan(
+                  'idle-root',
+                  startTimestamp: past,
+                  idleTimeout: Duration(seconds: 1),
+                  finalTimeout: Duration(seconds: 2),
+                )
+                as RecordingSentrySpanV2;
 
         expect(idleSpan.startTimestamp, equals(past.toUtc()));
         expect(idleSpan.startTimestamp.isUtc, isTrue);
@@ -1212,11 +1260,13 @@ void main() {
 
       test('clears active idle span when ended directly', () async {
         final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          idleTimeout: Duration(seconds: 1),
-          finalTimeout: Duration(seconds: 2),
-        ) as RecordingSentrySpanV2;
+        final idleSpan =
+            hub.startIdleSpan(
+                  'idle-root',
+                  idleTimeout: Duration(seconds: 1),
+                  finalTimeout: Duration(seconds: 2),
+                )
+                as RecordingSentrySpanV2;
         expect(hub.getActiveSpan(), isA<IdleRecordingSentrySpanV2>());
 
         final activeIdleSpan = hub.getActiveSpan() as IdleRecordingSentrySpanV2;
@@ -1230,36 +1280,41 @@ void main() {
         expect(hub.getActiveSpan(), isNull);
       });
 
-      test('clears active idle span when idle span instance is ended directly',
-          () async {
-        final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          idleTimeout: Duration(seconds: 1),
-          finalTimeout: Duration(seconds: 2),
-        ) as RecordingSentrySpanV2;
-        expect(hub.getActiveSpan(), isA<IdleRecordingSentrySpanV2>());
+      test(
+        'clears active idle span when idle span instance is ended directly',
+        () async {
+          final hub = fixture.getSut();
+          final idleSpan =
+              hub.startIdleSpan(
+                    'idle-root',
+                    idleTimeout: Duration(seconds: 1),
+                    finalTimeout: Duration(seconds: 2),
+                  )
+                  as RecordingSentrySpanV2;
+          expect(hub.getActiveSpan(), isA<IdleRecordingSentrySpanV2>());
 
-        idleSpan.end();
-        await Future<void>.delayed(Duration.zero);
+          idleSpan.end();
+          await Future<void>.delayed(Duration.zero);
 
-        expect(idleSpan.isEnded, isTrue);
-        expect(hub.getActiveSpan(), isNull);
-      });
+          expect(idleSpan.isEnded, isTrue);
+          expect(hub.getActiveSpan(), isNull);
+        },
+      );
 
       test('does not extend idle timeout when unrelated spans end', () async {
         final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          idleTimeout: Duration(milliseconds: 120),
-          finalTimeout: Duration(seconds: 2),
-        ) as RecordingSentrySpanV2;
+        final idleSpan =
+            hub.startIdleSpan(
+                  'idle-root',
+                  idleTimeout: Duration(milliseconds: 120),
+                  finalTimeout: Duration(seconds: 2),
+                )
+                as RecordingSentrySpanV2;
 
         await Future<void>.delayed(Duration(milliseconds: 40));
-        final unrelatedSpan = hub.startInactiveSpan(
-          'unrelated-root',
-          parentSpan: null,
-        ) as RecordingSentrySpanV2;
+        final unrelatedSpan =
+            hub.startInactiveSpan('unrelated-root', parentSpan: null)
+                as RecordingSentrySpanV2;
         unrelatedSpan.end();
 
         await Future<void>.delayed(Duration(milliseconds: 90));
@@ -1268,11 +1323,13 @@ void main() {
 
       test('finishes active children when final timeout is reached', () async {
         final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          idleTimeout: Duration(seconds: 1),
-          finalTimeout: Duration(milliseconds: 180),
-        ) as RecordingSentrySpanV2;
+        final idleSpan =
+            hub.startIdleSpan(
+                  'idle-root',
+                  idleTimeout: Duration(seconds: 1),
+                  finalTimeout: Duration(milliseconds: 180),
+                )
+                as RecordingSentrySpanV2;
 
         final childSpan =
             hub.startInactiveSpan('child') as RecordingSentrySpanV2;
@@ -1281,21 +1338,24 @@ void main() {
         expect(idleSpan.isEnded, isTrue);
         expect(idleSpan.status, equals(SentrySpanStatusV2.error));
         expect(
-          idleSpan.attributes[SemanticAttributesConstants.sentryStatusMessage]
+          idleSpan
+              .attributes[SemanticAttributesConstants.sentryStatusMessage]
               ?.value,
           'deadline_exceeded',
         );
         expect(childSpan.isEnded, isTrue);
         expect(childSpan.status, equals(SentrySpanStatusV2.error));
         expect(
-          childSpan.attributes[SemanticAttributesConstants.sentryStatusMessage]
+          childSpan
+              .attributes[SemanticAttributesConstants.sentryStatusMessage]
               ?.value,
           'deadline_exceeded',
         );
         expect(childSpan.endTimestamp, isNotNull);
         expect(idleSpan.endTimestamp, isNotNull);
-        final endTimestampDelta =
-            idleSpan.endTimestamp!.difference(childSpan.endTimestamp!).abs();
+        final endTimestampDelta = idleSpan.endTimestamp!
+            .difference(childSpan.endTimestamp!)
+            .abs();
         expect(endTimestampDelta, lessThan(Duration(milliseconds: 10)));
       });
 
@@ -1319,7 +1379,8 @@ void main() {
           expect(child.isEnded, isTrue);
           expect(child.status, SentrySpanStatusV2.error);
           expect(
-            child.attributes[SemanticAttributesConstants.sentryStatusMessage]
+            child
+                .attributes[SemanticAttributesConstants.sentryStatusMessage]
                 ?.value,
             'deadline_exceeded',
           );
@@ -1332,12 +1393,14 @@ void main() {
           var now = startedAt;
           fixture.options.clock = () => now;
           final hub = fixture.getSut();
-          final idleSpan = hub.startIdleSpan(
-            'idle-root',
-            idleTimeout: Duration(seconds: 1),
-            finalTimeout: Duration(milliseconds: 20),
-            trimIdleSpanEndTimestamp: true,
-          ) as RecordingSentrySpanV2;
+          final idleSpan =
+              hub.startIdleSpan(
+                    'idle-root',
+                    idleTimeout: Duration(seconds: 1),
+                    finalTimeout: Duration(milliseconds: 20),
+                    trimIdleSpanEndTimestamp: true,
+                  )
+                  as RecordingSentrySpanV2;
           final child = hub.startInactiveSpan('child') as RecordingSentrySpanV2;
 
           now = now.add(Duration(milliseconds: 5));
@@ -1354,11 +1417,13 @@ void main() {
 
       test('finishes with ok status when idle timeout is reached', () async {
         final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          idleTimeout: Duration(milliseconds: 60),
-          finalTimeout: Duration(seconds: 2),
-        ) as RecordingSentrySpanV2;
+        final idleSpan =
+            hub.startIdleSpan(
+                  'idle-root',
+                  idleTimeout: Duration(milliseconds: 60),
+                  finalTimeout: Duration(seconds: 2),
+                )
+                as RecordingSentrySpanV2;
 
         await Future<void>.delayed(Duration(milliseconds: 120));
 
@@ -1372,12 +1437,14 @@ void main() {
 
       test('trims idle span end timestamp to latest finished child', () async {
         final hub = fixture.getSut();
-        final idleSpan = hub.startIdleSpan(
-          'idle-root',
-          idleTimeout: Duration(milliseconds: 100),
-          finalTimeout: Duration(seconds: 1),
-          trimIdleSpanEndTimestamp: true,
-        ) as RecordingSentrySpanV2;
+        final idleSpan =
+            hub.startIdleSpan(
+                  'idle-root',
+                  idleTimeout: Duration(milliseconds: 100),
+                  finalTimeout: Duration(seconds: 1),
+                  trimIdleSpanEndTimestamp: true,
+                )
+                as RecordingSentrySpanV2;
 
         final childSpan =
             hub.startInactiveSpan('child') as RecordingSentrySpanV2;
@@ -1437,10 +1504,9 @@ void main() {
 
           hub.startInactiveSpan('ignored-root', parentSpan: null);
 
-          expect(
-            fixture.recorder.discardedEvents,
-            [_discarded(DiscardReason.ignored, DataCategory.span)],
-          );
+          expect(fixture.recorder.discardedEvents, [
+            _discarded(DiscardReason.ignored, DataCategory.span),
+          ]);
         });
 
         test('records ignored span outcome for each attempted child', () {
@@ -1449,8 +1515,10 @@ void main() {
           ];
           final hub = fixture.getSut();
 
-          final ignored =
-              hub.startInactiveSpan('ignored-root', parentSpan: null);
+          final ignored = hub.startInactiveSpan(
+            'ignored-root',
+            parentSpan: null,
+          );
           hub.startInactiveSpan('child-1', parentSpan: ignored);
           hub.startInactiveSpan('child-2', parentSpan: ignored);
 
@@ -1474,14 +1542,12 @@ void main() {
           final root = hub.startInactiveSpan('root', parentSpan: null);
           hub.startInactiveSpan('ignored-child', parentSpan: root);
 
-          expect(
-            fixture.recorder.discardedEvents,
-            [_discarded(DiscardReason.ignored, DataCategory.span)],
-          );
+          expect(fixture.recorder.discardedEvents, [
+            _discarded(DiscardReason.ignored, DataCategory.span),
+          ]);
         });
 
-        test(
-            'does not record an outcome for re-parented grandchildren that do '
+        test('does not record an outcome for re-parented grandchildren that do '
             'not match a rule', () {
           fixture.options.ignoreSpans = [
             IgnoreSpanRule.nameEquals('ignored-child'),
@@ -1489,14 +1555,15 @@ void main() {
           final hub = fixture.getSut();
 
           final root = hub.startInactiveSpan('root', parentSpan: null);
-          final ignored =
-              hub.startInactiveSpan('ignored-child', parentSpan: root);
+          final ignored = hub.startInactiveSpan(
+            'ignored-child',
+            parentSpan: root,
+          );
           hub.startInactiveSpan('grandchild', parentSpan: ignored);
 
-          expect(
-            fixture.recorder.discardedEvents,
-            [_discarded(DiscardReason.ignored, DataCategory.span)],
-          );
+          expect(fixture.recorder.discardedEvents, [
+            _discarded(DiscardReason.ignored, DataCategory.span),
+          ]);
         });
       });
 
@@ -1506,10 +1573,9 @@ void main() {
 
           hub.startInactiveSpan('root', parentSpan: null);
 
-          expect(
-            fixture.recorder.discardedEvents,
-            [_discarded(DiscardReason.sampleRate, DataCategory.span)],
-          );
+          expect(fixture.recorder.discardedEvents, [
+            _discarded(DiscardReason.sampleRate, DataCategory.span),
+          ]);
         });
 
         test('records sample_rate span outcome for each attempted child', () {
@@ -1535,18 +1601,20 @@ void main() {
 
           hub.startIdleSpan('idle');
 
-          expect(
-            fixture.recorder.discardedEvents,
-            [_discarded(DiscardReason.sampleRate, DataCategory.span)],
-          );
+          expect(fixture.recorder.discardedEvents, [
+            _discarded(DiscardReason.sampleRate, DataCategory.span),
+          ]);
         });
       });
     });
   });
 }
 
-Matcher _discarded(DiscardReason reason, DataCategory category,
-    {int quantity = 1}) {
+Matcher _discarded(
+  DiscardReason reason,
+  DataCategory category, {
+  int quantity = 1,
+}) {
   return isA<DiscardedEvent>()
       .having((e) => e.reason, 'reason', reason)
       .having((e) => e.category, 'category', category)

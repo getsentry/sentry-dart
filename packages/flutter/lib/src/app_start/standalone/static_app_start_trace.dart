@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../utils/internal_logger.dart';
@@ -16,7 +16,7 @@ import 'app_start_vitals.dart';
 final class StaticAppStartTrace implements AppStartTrace {
   final AppStartTiming _timing;
   final SentryTracer _root;
-  final ISentrySpan _firstFrameRenderSpan;
+
   final DateTime _finalDeadlineTimestamp;
   final String Function() _startScreenNameProvider;
   final void Function()? _onCompleted;
@@ -24,42 +24,33 @@ final class StaticAppStartTrace implements AppStartTrace {
   final _StaticAppStartExtensionLifecycle _extensionLifecycle;
   Timer? _finalTimeoutTimer;
   DateTime? _endTimestamp;
+  bool _initCompleted = false;
+  bool _firstFrameObserved = false;
   AppStartTraceState _state = AppStartTraceState.open;
 
-  // One way flag — never cleared — once the final deadline starts draining
-  // descendants asynchronously. It blocks extension mutations across that
-  // sweep, after which the terminal state normally takes over; when the drain
-  // fails before reaching it, this stays the only thing refusing to extend a
-  // root that is already past its deadline.
+  // Blocks extensions while the deadline drains children asynchronously,
+  // including if draining fails before the trace reaches a terminal state.
   bool _finalizing = false;
 
   bool get _isFinalizingOrTerminal => _finalizing || _state.isTerminal;
 
   StaticAppStartTrace._({
     required Hub hub,
-    required AppStartTiming timing,
+    required this._timing,
     required SentryTracer root,
-    required ISentrySpan firstFrameRenderSpan,
-    required DateTime finalDeadlineTimestamp,
-    required String Function() startScreenNameProvider,
-    required void Function()? onCompleted,
-  })  : _timing = timing,
-        _root = root,
-        _firstFrameRenderSpan = firstFrameRenderSpan,
-        _finalDeadlineTimestamp = finalDeadlineTimestamp,
-        _startScreenNameProvider = startScreenNameProvider,
-        _onCompleted = onCompleted,
-        _extensionLifecycle = _StaticAppStartExtensionLifecycle(
-          hub: hub,
-          root: root,
-        );
+    required this._finalDeadlineTimestamp,
+    required this._startScreenNameProvider,
+    required this._onCompleted,
+  }) : _root = root,
+       _extensionLifecycle = _StaticAppStartExtensionLifecycle(
+         hub: hub,
+         root: root,
+       );
 
   /// Opens the standalone root and its breakdown children.
   ///
-  /// Returns `null` when the app start must not be reported: an unsampled
-  /// root, an unsampled first-frame span, or a failure while building the
-  /// children. Anything already created is flushed, so no span outlives a
-  /// failed creation.
+  /// Returns `null` for an unsampled root or a failure while building children.
+  /// Anything already created is flushed, so no span outlives a failed creation.
   ///
   /// [onCompleted] fires once the root has reported and the trace can no
   /// longer be extended, so the owner can stop holding on to it.
@@ -92,38 +83,25 @@ final class StaticAppStartTrace implements AppStartTrace {
       );
       if (createdRoot is! SentryTracer) return null;
       root = createdRoot;
+      root.pauseIdleTimeout();
 
       if (root.samplingDecision?.sampled != true) {
         return _abort(root, 'root span is not sampled');
-      }
-
-      final firstFrameRenderSpan = root.startChild(
-        SentrySpanOperations.appStartFirstFrameRender,
-        description: appStartFirstFrameRenderDescription,
-        startTimestamp: timing.sentrySetupTimestamp,
-      )..origin = SentryTraceOrigins.autoAppStart;
-      if (firstFrameRenderSpan.samplingDecision?.sampled != true) {
-        return _abort(root, 'first-frame span is not sampled');
       }
 
       trace = StaticAppStartTrace._(
         hub: hub,
         timing: timing,
         root: root,
-        firstFrameRenderSpan: firstFrameRenderSpan,
-        finalDeadlineTimestamp:
-            createdAt.add(standaloneAppStartFinalTimeout).toUtc(),
+        finalDeadlineTimestamp: createdAt
+            .add(standaloneAppStartFinalTimeout)
+            .toUtc(),
         startScreenNameProvider: startScreenNameProvider,
         onCompleted: onCompleted,
       );
 
-      for (final phase in timing.phases) {
-        final child = root.startChild(
-          phase.kind.operation,
-          description: phase.description,
-          startTimestamp: phase.startTimestamp,
-        )..origin = SentryTraceOrigins.autoAppStart;
-        unawaited(_finishSpan(child, endTimestamp: phase.endTimestamp));
+      for (final interval in timing.intervals) {
+        trace._recordInterval(interval);
       }
 
       trace._scheduleFinalTimeout();
@@ -153,7 +131,7 @@ final class StaticAppStartTrace implements AppStartTrace {
       logAppStartExtensionRefusal('the app start already ended');
       return false;
     }
-    if (_firstFrameRenderSpan.endTimestamp != null) {
+    if (_firstFrameObserved) {
       logAppStartExtensionRefusal('the first frame already rendered');
       return false;
     }
@@ -178,15 +156,52 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 
   @override
-  void recordFirstFrame(DateTime endTimestamp) {
-    if (_state.isTerminal || _endTimestamp != null) return;
+  void recordInitEnd(DateTime endTimestamp) {
+    if (_isFinalizingOrTerminal || _initCompleted) return;
+    _initCompleted = true;
+    if (_firstFrameObserved) {
+      _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
+    }
+  }
+
+  @override
+  void recordFirstFrame(
+    AppStartRecordedInterval? rasterInterval, {
+    List<AppStartRecordedInterval> frameworkIntervals = const [],
+  }) {
+    if (_state.isTerminal || _firstFrameObserved) return;
+    _firstFrameObserved = true;
     // Set before finishing the child: finishing the last outstanding child can
     // complete the tracer, which enriches from _endTimestamp.
-    _endTimestamp = endTimestamp.toUtc();
+    _endTimestamp = rasterInterval?.endTimestamp;
     _root.scheduleFinish();
-    unawaited(
-      _finishSpan(_firstFrameRenderSpan, endTimestamp: _endTimestamp),
-    );
+
+    if (rasterInterval != null) {
+      for (final interval in frameworkIntervals) {
+        _recordInterval(interval);
+      }
+      _recordInterval(rasterInterval);
+    }
+    if (_initCompleted) {
+      _root.resumeIdleTimeout(minimumEndTimestamp: _endTimestamp);
+    }
+  }
+
+  /// Emits a completed interval directly under the startup root.
+  void _recordInterval(AppStartRecordedInterval interval) {
+    final span = _root.startChild(
+      interval.operation,
+      description: interval.description,
+      startTimestamp: interval.startTimestamp,
+    )..origin = SentryTraceOrigins.autoAppStart;
+
+    // The callback isolate does not identify the engine's raster thread.
+    if (interval.operation == SentrySpanOperations.appStartFrameRaster) {
+      span.removeData(SemanticAttributesConstants.threadName);
+      span.removeData(SemanticAttributesConstants.threadId);
+    }
+    interval.data.forEach(span.setData);
+    unawaited(_finishSpan(span, endTimestamp: interval.endTimestamp));
   }
 
   @override
@@ -210,7 +225,6 @@ final class StaticAppStartTrace implements AppStartTrace {
       );
 
       final type = vitals.type.name;
-      _root.setData(SentrySpanData.appStartTypeKey, type);
       _root.setData(SemanticAttributesConstants.appVitalsStartType, type);
       _root.setData(
         SemanticAttributesConstants.appVitalsStartScreen,
@@ -256,15 +270,9 @@ final class StaticAppStartTrace implements AppStartTrace {
     });
   }
 
-  /// Force-ends the trace once the hard deadline passes.
-  ///
-  /// Runs at most once — the final-timeout [Timer] is one-shot — so the
-  /// terminal check is enough to keep it out; [_finalizing] is what keeps
-  /// extensions out while the drain below awaits. The state stays
-  /// [AppStartTraceState.open] throughout, which lets a first frame arriving
-  /// between the awaits below still run [recordFirstFrame] — and it should:
-  /// that frame is the endpoint the app start reports, since a root past its
-  /// deadline still measures to the first frame.
+  /// Drains the trace at its hard deadline, blocking further extensions.
+  /// Keep the state open during awaits so a first-frame callback can still
+  /// supply the measurement endpoint before the root finishes.
   Future<void> _finishAtDeadline() async {
     if (_isFinalizingOrTerminal) return;
     _finalizing = true;
@@ -328,14 +336,8 @@ final class StaticAppStartTrace implements AppStartTrace {
   }
 }
 
-/// Owns the single extension span for the static lifecycle.
-///
-/// Deliberately not shared with its streaming counterpart, which mirrors this
-/// class step for step: the two operate on different span protocols, one ends
-/// spans asynchronously and the other synchronously, and each expresses status
-/// its own way. Unifying them would mean a type parameter plus an adapter per
-/// protocol to bridge those three differences, for one implementation each —
-/// the same reason the two trace classes above them stay separate.
+/// Owns the static extension and waits for asynchronous span completion.
+/// Kept separate from streaming, which ends spans synchronously.
 final class _StaticAppStartExtensionLifecycle {
   final Hub _hub;
   final SentryTracer _root;
@@ -347,11 +349,7 @@ final class _StaticAppStartExtensionLifecycle {
   bool _forceEnded = false;
   bool _closed = false;
 
-  _StaticAppStartExtensionLifecycle({
-    required Hub hub,
-    required SentryTracer root,
-  })  : _hub = hub,
-        _root = root {
+  _StaticAppStartExtensionLifecycle({required this._hub, required this._root}) {
     _spanFinishCallback = _handleSpanFinish;
   }
 

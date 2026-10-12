@@ -7,6 +7,14 @@ import 'package:test/test.dart';
 import 'test_utils.dart';
 
 void main() {
+  group('$SentryOptions traceLifecycle', () {
+    test('defaults to stream', () {
+      final options = defaultTestOptions();
+
+      expect(options.traceLifecycle, SentryTraceLifecycle.stream);
+    });
+  });
+
   test('$Client is NoOp', () {
     final options = defaultTestOptions();
     expect(NoOpClient(), options.httpClient);
@@ -18,6 +26,12 @@ void main() {
     final client = Client();
     options.httpClient = client;
     expect(client, options.httpClient);
+  });
+
+  test('captureNativeFailedRequests is false by default', () {
+    final options = defaultTestOptions();
+
+    expect(options.captureNativeFailedRequests, false);
   });
 
   test('maxBreadcrumbs is 100 by default', () {
@@ -33,32 +47,19 @@ void main() {
     expect(200, options.maxBreadcrumbs);
   });
 
-  test('SdkLogger sets a diagnostic logger', () {
+  test('debug configures internal logger', () {
     final options = defaultTestOptions();
-    expect(options.log, noOpLog);
-    options.debug = true;
+    options.debug = false;
+    expect(SentryInternalLogger.isEnabled, isFalse);
 
-    expect(options.log, isNot(noOpLog));
+    options.debug = true;
+    expect(SentryInternalLogger.isEnabled, isTrue);
   });
 
-  test('setting debug correctly sets logger', () {
-    final options = defaultTestOptions();
-    expect(options.log, noOpLog);
-    expect(options.diagnosticLog, isNull);
-    options.debug = true;
-    expect(options.log, isNot(options.debugLog));
-    expect(options.diagnosticLog!.logger, options.debugLog);
-    expect(options.log, options.diagnosticLog!.log);
-
-    options.debug = false;
-    expect(options.log, isNot(noOpLog));
-    expect(options.diagnosticLog!.logger, noOpLog);
-    expect(options.log, options.diagnosticLog!.log);
-
-    options.debug = true;
-    expect(options.log, isNot(options.debugLog));
-    expect(options.diagnosticLog!.logger, options.debugLog);
-    expect(options.log, options.diagnosticLog!.log);
+  test('diagnosticLevel configures internal logger min level', () {
+    final options = defaultTestOptions()..debug = true;
+    options.diagnosticLevel = SentryLevel.error;
+    expect(SentryInternalLogger.minLevel, SentryLevel.error);
   });
 
   test('tracesSampler is null by default', () {
@@ -101,11 +102,13 @@ void main() {
     options.sdk.addPackage('test', '1.2.3');
 
     expect(
-        options.sdk.packages
-            .where((element) =>
-                element.name == 'test' && element.version == '1.2.3')
-            .isNotEmpty,
-        true);
+      options.sdk.packages
+          .where(
+            (element) => element.name == 'test' && element.version == '1.2.3',
+          )
+          .isNotEmpty,
+      true,
+    );
   });
 
   test('SentryOptions has all targets by default', () {
@@ -117,8 +120,10 @@ void main() {
   test('SentryOptions has sentryClientName set', () {
     final options = defaultTestOptions();
 
-    expect(options.sentryClientName,
-        '${sdkName(options.platform.isWeb)}/$sdkVersion');
+    expect(
+      options.sentryClientName,
+      '${sdkName(options.platform.isWeb)}/$sdkVersion',
+    );
   });
 
   test('SentryOptions has default idleTimeout', () {
@@ -182,17 +187,5 @@ void main() {
     final options = defaultTestOptions()..dsn = '';
 
     expect(() => options.parsedDsn, throwsA(isA<StateError>()));
-  });
-
-  test('enableMetrics is true by default', () {
-    final options = defaultTestOptions();
-
-    expect(options.enableMetrics, true);
-  });
-
-  test('enableLogs is false by default', () {
-    final options = defaultTestOptions();
-
-    expect(options.enableLogs, false);
   });
 }

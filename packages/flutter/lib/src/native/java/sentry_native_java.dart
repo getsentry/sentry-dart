@@ -5,8 +5,6 @@ import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
@@ -51,20 +49,32 @@ class SentryNativeJava extends SentryNativeChannel {
     _nativeReplay = nativeReplay;
   }
 
+  /// Cached JNI reference to the native replay integration. Only
+  /// [_setNativeReplay] may drop it, which releases the previous reference.
+  native.ReplayIntegration? get _replay => _nativeReplay ??=
+      native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
+
   @override
   void init(Hub hub) {
     // Only record the native SDK as initialized if init actually attempted
     // to run - initSentryAndroid can bail out early (e.g. a null
     // application context), and a later close() shouldn't try to tear down
     // a native SDK that was never started.
-    nativeSdkAutoInitialized =
-        initSentryAndroid(hub: hub, options: options, owner: this);
+    nativeSdkAutoInitialized = initSentryAndroid(
+      hub: hub,
+      options: options,
+      owner: this,
+    );
   }
 
   @override
-  FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
-    _coreWorker?.captureEnvelope(envelopeData, containsUnhandledException);
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
+    _coreWorker?.captureEnvelope(envelopeData);
+  }
+
+  @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    return _coreWorker?.updateSessionForDroppedEventNonTerminating(unhandled);
   }
 
   @override
@@ -76,31 +86,41 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
-        return native.SentryFlutterPlugin.getDisplayRefreshRate()
-            ?.intValue(releaseOriginal: true);
-      });
+    return native.SentryFlutterPlugin.displayRefreshRate?.toDartInt(
+      releaseOriginal: true,
+    );
+  });
 
   @override
   NativeAppStart? fetchNativeAppStart() {
     JByteArray? appStartUtf8JsonBytes;
 
-    return tryCatchSync('fetchNativeAppStart', () {
-      if (!options.enableAutoPerformanceTracing) {
-        return null;
-      }
-      appStartUtf8JsonBytes =
-          native.SentryFlutterPlugin.fetchNativeAppStartAsBytes();
-      if (appStartUtf8JsonBytes == null) return null;
+    return tryCatchSync(
+      'fetchNativeAppStart',
+      () {
+        if (!options.enableAutoPerformanceTracing) {
+          return null;
+        }
+        appStartUtf8JsonBytes =
+            native.SentryFlutterPlugin.fetchNativeAppStartAsBytes();
+        if (appStartUtf8JsonBytes == null) return null;
 
-      final byteRange =
-          appStartUtf8JsonBytes!.getRange(0, appStartUtf8JsonBytes!.length);
-      final bytes = Uint8List.view(
-          byteRange.buffer, byteRange.offsetInBytes, byteRange.length);
-      final appStartMap = decodeUtf8JsonMap(bytes);
-      return NativeAppStart.fromJson(appStartMap);
-    }, finallyFn: () {
-      appStartUtf8JsonBytes?.release();
-    });
+        final byteRange = appStartUtf8JsonBytes!.getRange(
+          0,
+          appStartUtf8JsonBytes!.length,
+        );
+        final bytes = Uint8List.view(
+          byteRange.buffer,
+          byteRange.offsetInBytes,
+          byteRange.length,
+        );
+        final appStartMap = decodeUtf8JsonMap(bytes);
+        return NativeAppStart.fromJson(appStartMap);
+      },
+      finallyFn: () {
+        appStartUtf8JsonBytes?.release();
+      },
+    );
   }
 
   @override
@@ -148,50 +168,48 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void setTag(String key, String value) => tryCatchSync('setTag', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          final jVal = value.toJString()..releasedBy(arena);
-          native.Sentry.setTag(jKey, jVal);
-        });
-      });
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      final jVal = value.toJString()..releasedBy(arena);
+      native.Sentry.setTag(jKey, jVal);
+    });
+  });
 
   @override
   void removeTag(String key) => tryCatchSync('removeTag', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          native.Sentry.removeTag(jKey);
-        });
-      });
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      native.Sentry.removeTag(jKey);
+    });
+  });
 
   @override
   void setExtra(String key, dynamic value) => tryCatchSync('setExtra', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          final jVal = normalize(value).toString().toJString()
-            ..releasedBy(arena);
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      final jVal = normalize(value).toString().toJString()..releasedBy(arena);
 
-          native.Sentry.setExtra(jKey, jVal);
-        });
-      });
+      native.Sentry.setExtra(jKey, jVal);
+    });
+  });
 
   @override
   void removeExtra(String key) => tryCatchSync('removeExtra', () {
-        using((arena) {
-          final jKey = key.toJString()..releasedBy(arena);
-          native.Sentry.removeExtra(jKey);
-        });
-      });
+    using((arena) {
+      final jKey = key.toJString()..releasedBy(arena);
+      native.Sentry.removeExtra(jKey);
+    });
+  });
 
   @override
   SentryId captureReplay() {
     final id = tryCatchSync<SentryId>('captureReplay', () {
       return using((arena) {
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
         // The passed parameter is `isTerminating`. The returned id is empty when
         // nothing was captured, e.g. when onErrorSampleRate didn't sample.
-        final nativeReplayId =
-            _nativeReplay?.captureReplay(false.toJBoolean()..releasedBy(arena));
+        final nativeReplayId = _replay?.captureReplay(
+          false.toJBoolean()..releasedBy(arena),
+        );
         nativeReplayId?.releasedBy(arena);
 
         JString? jString;
@@ -204,7 +222,11 @@ class SentryNativeJava extends SentryNativeChannel {
             ? SentryId.empty()
             : SentryId.fromId(jString.toDartString());
 
-        _replayId = result;
+        // A rejected error capture does not end the active buffered replay.
+        // Keep its lifecycle ID so a later manual flush can promote it.
+        if (result != SentryId.empty()) {
+          _replayId = result;
+        }
         return result;
       });
     });
@@ -213,9 +235,32 @@ class SentryNativeJava extends SentryNativeChannel {
   }
 
   @override
+  void startReplay() => tryCatchSync('startReplay', () => _replay?.start());
+
+  @override
+  void startReplayBuffering() =>
+      tryCatchSync('startReplayBuffering', () => _replay?.startBuffering());
+
+  @override
+  void pauseReplay() => tryCatchSync('pauseReplay', () => _replay?.pause());
+
+  @override
+  void resumeReplay() => tryCatchSync('resumeReplay', () => _replay?.resume());
+
+  @override
+  void stopReplay() => tryCatchSync('stopReplay', () => _replay?.stop());
+
+  @override
+  void flushReplay() => tryCatchSync(
+    'flushReplay',
+    native.SentryFlutterPlugin.privateSentryFlushReplay,
+  );
+
+  @override
   void setReplayConfig(ReplayConfig config) =>
       tryCatchSync('setReplayConfig', () {
-        final invalidConfig = config.width == 0.0 ||
+        final invalidConfig =
+            config.width == 0.0 ||
             config.height == 0.0 ||
             config.windowWidth == 0.0 ||
             config.windowHeight == 0.0;
@@ -236,46 +281,44 @@ class SentryNativeJava extends SentryNativeChannel {
       });
 
   void _applyReplayConfig() => tryCatchSync('applyReplayConfig', () {
-        final config = _replayConfig;
-        // Defer native delivery until replayStarted has created the Dart recorder.
-        if (config == null || _replayRecorder == null) return;
+    final config = _replayConfig;
+    // Defer native delivery until replayStarted has created the Dart recorder.
+    if (config == null || _replayRecorder == null) return;
 
-        // Since codec block size is 16, so we have to adjust the width and height to it,
-        // otherwise the codec might fail to configure on some devices, see
-        // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
-        var adjWidth = config.width;
-        var adjHeight = config.height;
+    // Since codec block size is 16, so we have to adjust the width and height to it,
+    // otherwise the codec might fail to configure on some devices, see
+    // https://cs.android.com/android/platform/superproject/+/master:frameworks/base/media/java/android/media/MediaCodecInfo.java;l=1999-2001
+    var adjWidth = config.width;
+    var adjHeight = config.height;
 
-        // First update the smaller dimension, as changing that will affect the screen ratio more.
-        if (adjWidth < adjHeight) {
-          final newWidth = adjWidth.adjustReplaySizeToBlockSize();
-          final scale = newWidth / adjWidth;
-          final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
-          adjWidth = newWidth;
-          adjHeight = newHeight;
-        } else {
-          final newHeight = adjHeight.adjustReplaySizeToBlockSize();
-          final scale = newHeight / adjHeight;
-          final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
-          adjHeight = newHeight;
-          adjWidth = newWidth;
-        }
+    // First update the smaller dimension, as changing that will affect the screen ratio more.
+    if (adjWidth < adjHeight) {
+      final newWidth = adjWidth.adjustReplaySizeToBlockSize();
+      final scale = newWidth / adjWidth;
+      final newHeight = (adjHeight * scale).adjustReplaySizeToBlockSize();
+      adjWidth = newWidth;
+      adjHeight = newHeight;
+    } else {
+      final newHeight = adjHeight.adjustReplaySizeToBlockSize();
+      final scale = newHeight / adjHeight;
+      final newWidth = (adjWidth * scale).adjustReplaySizeToBlockSize();
+      adjHeight = newHeight;
+      adjWidth = newWidth;
+    }
 
-        final replayConfig = native.ScreenshotRecorderConfig(
-          adjWidth.round(),
-          adjHeight.round(),
-          adjWidth / config.windowWidth,
-          adjHeight / config.windowHeight,
-          config.frameRate,
-          0, // bitRate is currently not used
-        );
+    using((arena) {
+      final replayConfig = native.ScreenshotRecorderConfig(
+        adjWidth.round(),
+        adjHeight.round(),
+        adjWidth / config.windowWidth,
+        adjHeight / config.windowHeight,
+        config.frameRate,
+        0, // bitRate is currently not used
+      )..releasedBy(arena);
 
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-        _nativeReplay?.onConfigurationChanged(replayConfig);
-
-        replayConfig.release();
-      });
+      _replay?.onConfigurationChanged(replayConfig);
+    });
+  });
 
   @override
   bool get supportsTraceSync => true;
@@ -307,9 +350,7 @@ class SentryNativeJava extends SentryNativeChannel {
       using((arena) {
         final jTraceId = traceId.toString().toJString()..releasedBy(arena);
         final sentryId = native.SentryId.new$2(jTraceId)..releasedBy(arena);
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-        _nativeReplay?.registerTraceId(sentryId);
+        _replay?.registerTraceId(sentryId);
       });
     });
   }
@@ -323,9 +364,7 @@ class SentryNativeJava extends SentryNativeChannel {
     tryCatchSync('registerSegmentName', () {
       using((arena) {
         final jSegmentName = segmentName.toJString()..releasedBy(arena);
-        _nativeReplay ??=
-            native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
-        _nativeReplay?.registerSegmentName(jSegmentName);
+        _replay?.registerSegmentName(jSegmentName);
       });
     });
   }
@@ -338,18 +377,18 @@ class SentryNativeJava extends SentryNativeChannel {
 // calls and local reference churn.
 @visibleForTesting
 JObject dartToJObject(Object? value) => switch (value) {
-      String s => s.toJString(),
-      bool b => b.toJBoolean(),
-      int i => i.toJLong(),
-      double d => d.toJDouble(),
-      List<dynamic> l => dartToJList(l),
-      Map<String, dynamic> m => dartToJMap(m),
-      _ => value.toString().toJString()
-    };
+  String s => s.toJString(),
+  bool b => b.toJBoolean(),
+  int i => i.toJLong(),
+  double d => d.toJDouble(),
+  List<dynamic> l => dartToJList(l),
+  Map<String, dynamic> m => dartToJMap(m),
+  _ => value.toString().toJString(),
+};
 
 @visibleForTesting
-JList<JObject> dartToJList(List<dynamic> values) {
-  final jList = JList.array(JObject.type);
+JList<JObject?> dartToJList(List<dynamic> values) {
+  final jList = JArrayList<JObject>();
   for (final v in values.nonNulls) {
     final j = dartToJObject(v);
     jList.add(j);
@@ -360,7 +399,7 @@ JList<JObject> dartToJList(List<dynamic> values) {
 
 @visibleForTesting
 JList<JString?> dartToJStringList(List<String> values) {
-  final jList = JList.array(JString.nullableType);
+  final jList = JArrayList<JString>();
   for (final v in values) {
     final j = v.toJString();
     jList.add(j);
@@ -370,12 +409,12 @@ JList<JString?> dartToJStringList(List<String> values) {
 }
 
 @visibleForTesting
-JMap<JString, JObject> dartToJMap(Map<String, dynamic> json) {
-  final jMap = JMap.hash(JString.type, JObject.type);
+JMap<JString?, JObject?> dartToJMap(Map<String, dynamic> json) {
+  final jMap = JHashMap<JString, JObject>();
   for (final entry in json.entries.where((e) => e.value != null)) {
     final jk = entry.key.toJString();
     final jv = dartToJObject(entry.value);
-    jMap[jk] = jv;
+    jMap.put(jk, jv);
     jk.release();
     jv.release();
   }

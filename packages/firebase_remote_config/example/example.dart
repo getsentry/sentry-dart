@@ -8,29 +8,27 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final remoteConfig = FirebaseRemoteConfig.instance;
-  await remoteConfig.setConfigSettings(RemoteConfigSettings(
-    fetchTimeout: const Duration(minutes: 1),
-    minimumFetchInterval: const Duration(hours: 1),
-  ));
-
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-
-      final sentryFirebaseRemoteConfigIntegration =
-          SentryFirebaseRemoteConfigIntegration(
-        firebaseRemoteConfig: remoteConfig,
-        // Don't call `await remoteConfig.activate();` when firebase config is updated. Per default this is true.
-        activateOnConfigUpdated: false,
-      );
-      options.addIntegration(sentryFirebaseRemoteConfigIntegration);
-    },
+  await remoteConfig.setConfigSettings(
+    RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 1),
+      minimumFetchInterval: const Duration(hours: 1),
+    ),
   );
+
+  await SentryFlutter.init((options) {
+    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+
+    final sentryFirebaseRemoteConfigIntegration =
+        SentryFirebaseRemoteConfigIntegration(
+          firebaseRemoteConfig: remoteConfig,
+          // Don't call `await remoteConfig.activate();` when firebase config is updated. Per default this is true.
+          activateOnConfigUpdated: false,
+        );
+    options.addIntegration(sentryFirebaseRemoteConfigIntegration);
+  });
 
   runApp(const RemoteConfigApp());
 }
@@ -43,10 +41,7 @@ class RemoteConfigApp extends StatelessWidget {
     return MaterialApp(
       title: 'Remote Config Example',
       home: const HomePage(),
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(useMaterial3: true, primarySwatch: Colors.blue),
     );
   }
 }

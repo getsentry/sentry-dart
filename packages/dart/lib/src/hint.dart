@@ -1,5 +1,5 @@
 import 'protocol/sentry_response.dart';
-import 'sentry_attachment/sentry_attachment.dart';
+import 'attachments/sentry_attachment.dart';
 
 import 'package:meta/meta.dart';
 
@@ -97,8 +97,9 @@ class Hint {
   // Key/Value Storage
 
   void addAll(Map<String, dynamic> keysAndValues) {
-    final withoutNullValues =
-        keysAndValues.map((key, value) => MapEntry(key, value ?? "null"));
+    final withoutNullValues = keysAndValues.map(
+      (key, value) => MapEntry(key, value ?? "null"),
+    );
     _internalStorage.addAll(withoutNullValues);
   }
 

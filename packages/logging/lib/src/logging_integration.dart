@@ -18,9 +18,9 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// [Breadcrumb].
   /// - All log events equal or higher than [minEventLevel] are recorded as a
   /// [SentryEvent].
-  /// - All log events equal or higher than [minSentryLogLevel] are sent to
-  /// Sentry as logs, if [SentryOptions.enableLogs] is enabled. Breadcrumbs and
-  /// events are not affected by that option.
+  /// - All log events equal or higher than [minSentryLogLevel] are forwarded as
+  /// structured Sentry logs. Raise it, or set it to [Level.OFF], to stop
+  /// forwarding without giving up breadcrumbs and events.
   ///
   /// Log levels are mapped to the following Sentry log levels methods:
   ///
@@ -39,12 +39,10 @@ class LoggingIntegration implements Integration<SentryOptions> {
   /// - >= 700 || 500 || 0 → debug
   /// - < 700 → trace
   LoggingIntegration({
-    Level minBreadcrumbLevel = Level.INFO,
-    Level minEventLevel = Level.SEVERE,
-    Level minSentryLogLevel = Level.INFO,
-  })  : _minBreadcrumbLevel = minBreadcrumbLevel,
-        _minEventLevel = minEventLevel,
-        _minSentryLogLevel = minSentryLogLevel;
+    this._minBreadcrumbLevel = Level.INFO,
+    this._minEventLevel = Level.SEVERE,
+    this._minSentryLogLevel = Level.INFO,
+  });
 
   final Level _minBreadcrumbLevel;
   final Level _minEventLevel;
@@ -101,7 +99,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
       );
     }
 
-    if (_options.enableLogs && _isLoggable(record.level, _minSentryLogLevel)) {
+    if (_isLoggable(record.level, _minSentryLogLevel)) {
       final attributes = {
         'loggerName': SentryAttribute.string(record.loggerName),
         'sequenceNumber': SentryAttribute.int(record.sequenceNumber),
@@ -113,21 +111,21 @@ class LoggingIntegration implements Integration<SentryOptions> {
       final levelValue = record.level.value;
       if (levelValue >= Level.SEVERE.value) {
         // >= 1000 → error
-        await _options.logger.error(record.message, attributes: attributes);
+        _options.logger.error(record.message, attributes: attributes);
       } else if (levelValue >= Level.WARNING.value) {
         // >= 900 → warn
-        await _options.logger.warn(record.message, attributes: attributes);
+        _options.logger.warn(record.message, attributes: attributes);
       } else if (levelValue >= Level.INFO.value) {
         // >= 800 → info
-        await _options.logger.info(record.message, attributes: attributes);
+        _options.logger.info(record.message, attributes: attributes);
       } else if (levelValue >= Level.CONFIG.value ||
           levelValue == Level.FINE.value ||
           levelValue == Level.ALL.value) {
         // >= 700 || 500 || 0 → debug
-        await _options.logger.debug(record.message, attributes: attributes);
+        _options.logger.debug(record.message, attributes: attributes);
       } else {
         // < 700 → trace
-        await _options.logger.trace(record.message, attributes: attributes);
+        _options.logger.trace(record.message, attributes: attributes);
       }
     }
   }

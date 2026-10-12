@@ -97,6 +97,9 @@ class SentryFeedbackOptions {
   /// Called when feedback submission fails, either because sending failed
   /// or because an exception was thrown while capturing the feedback.
   void Function(
-          SentryFeedback feedback, Object exception, StackTrace stackTrace)?
-      onSubmitError;
+    SentryFeedback feedback,
+    Object exception,
+    StackTrace stackTrace,
+  )?
+  onSubmitError;
 }
