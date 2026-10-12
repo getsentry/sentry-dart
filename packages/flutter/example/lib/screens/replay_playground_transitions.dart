@@ -28,12 +28,11 @@ class SwipePageTransitionsBuilder extends PageTransitionsBuilder {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     Widget child,
-  ) =>
-      _SwipeTransition(
-        animation: animation,
-        secondaryAnimation: secondaryAnimation,
-        child: child,
-      );
+  ) => _SwipeTransition(
+    animation: animation,
+    secondaryAnimation: secondaryAnimation,
+    child: child,
+  );
 }
 
 class _SwipeTransition extends StatefulWidget {
@@ -98,13 +97,16 @@ class _SwipeTransitionState extends State<_SwipeTransition> {
     final width = MediaQuery.sizeOf(context).width;
 
     return AnimatedBuilder(
-      animation:
-          Listenable.merge([widget.animation, widget.secondaryAnimation]),
+      animation: Listenable.merge([
+        widget.animation,
+        widget.secondaryAnimation,
+      ]),
       child: widget.child,
       builder: (context, child) {
         final away = 1 - Curves.easeOut.transform(widget.animation.value);
         // While another page is swiped on top, sink back like the next card.
-        final sink = 1 -
+        final sink =
+            1 -
             0.06 * Curves.easeOut.transform(widget.secondaryAnimation.value);
 
         return Transform.scale(
@@ -150,9 +152,13 @@ class TransitionPageRoute<T> extends MaterialPageRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     Widget child,
-  ) =>
-      transitions.buildTransitions(
-          this, context, animation, secondaryAnimation, child);
+  ) => transitions.buildTransitions(
+    this,
+    context,
+    animation,
+    secondaryAnimation,
+    child,
+  );
 }
 
 /// Runs another [PageTransitionsBuilder]'s transition over [duration], e.g.
@@ -180,7 +186,11 @@ class SlowPageTransitionsBuilder extends PageTransitionsBuilder {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
     Widget child,
-  ) =>
-      transitions.buildTransitions(
-          route, context, animation, secondaryAnimation, child);
+  ) => transitions.buildTransitions(
+    route,
+    context,
+    animation,
+    secondaryAnimation,
+    child,
+  );
 }

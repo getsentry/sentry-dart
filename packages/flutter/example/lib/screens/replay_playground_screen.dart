@@ -50,8 +50,9 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
   static const _ballSize = 28.0;
 
   late final AnimationController _controller;
-  late final _scrollController =
-      ScrollController(initialScrollOffset: widget.initialScrollOffset);
+  late final _scrollController = ScrollController(
+    initialScrollOffset: widget.initialScrollOffset,
+  );
   late bool _maskBall = widget.maskBall;
   late bool _maskRedFace = widget.maskRedFace;
 
@@ -62,8 +63,9 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
   // Transitions offered by the navigation test section: our custom swipe,
   // then Flutter's built-in ones.
   static final _transitions = <String, PageTransitionsBuilder>{
-    'Swipe (${_slowTransition.inSeconds}s)':
-        const SwipePageTransitionsBuilder(duration: _slowTransition),
+    'Swipe (${_slowTransition.inSeconds}s)': const SwipePageTransitionsBuilder(
+      duration: _slowTransition,
+    ),
     'Zoom': const ZoomPageTransitionsBuilder(),
     'Zoom (${_slowTransition.inSeconds}s)': const SlowPageTransitionsBuilder(
       ZoomPageTransitionsBuilder(),
@@ -105,14 +107,13 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
     // A `ui.*` category is what both the web replay (which drops
     // non-`ui.*`/fetch/xhr categories) and the Android replay (which drops
     // empty categories) put on the replay timeline.
-    await Sentry.addBreadcrumb(Breadcrumb(
-      category: 'ui.navigation_test',
-      message: 'Navigation will be using "$name"',
-      data: {
-        'transition': name,
-        'delay_ms': _navigationDelay.inMilliseconds,
-      },
-    ));
+    await Sentry.addBreadcrumb(
+      Breadcrumb(
+        category: 'ui.navigation_test',
+        message: 'Navigation will be using "$name"',
+        data: {'transition': name, 'delay_ms': _navigationDelay.inMilliseconds},
+      ),
+    );
     await Future<void>.delayed(_navigationDelay);
     if (!mounted) return;
     setState(() => _pendingTransition = null);
@@ -180,152 +181,148 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
   static const _padding = 16.0;
 
   Widget _buildContent(Widget ball, Size boxSize) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Keep this page open for 5+ seconds, then check the replay in '
-            'Sentry. Text is masked by default; the items below in RED color '
-            'will be masked when asked to be masked.',
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: boxSize.width,
-            height: boxSize.height,
-            color: Colors.red.shade50,
-            child: Stack(
-              children: [
-                const Positioned(
-                  left: 16,
-                  top: 16,
-                  child: Text(
-                    'REAL FLUTTER CONTENT',
-                    style: TextStyle(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        'Keep this page open for 5+ seconds, then check the replay in '
+        'Sentry. Text is masked by default; the items below in RED color '
+        'will be masked when asked to be masked.',
+      ),
+      const SizedBox(height: 12),
+      Container(
+        width: boxSize.width,
+        height: boxSize.height,
+        color: Colors.red.shade50,
+        child: Stack(
+          children: [
+            const Positioned(
+              left: 16,
+              top: 16,
+              child: Text(
+                'REAL FLUTTER CONTENT',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
                 ),
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) => Positioned(
-                    left: (boxSize.width - _ballSize) * _controller.value,
-                    top: boxSize.height * 0.65,
-                    child: child!,
-                  ),
-                  child: _maskBall ? SentryMask(ball) : ball,
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            title: const Text('Mask the ball (SentryMask)'),
-            value: _maskBall,
-            onChanged: (value) => setState(() => _maskBall = value),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            width: boxSize.width,
-            height: boxSize.height,
-            color: Colors.blue.shade50,
-            child: AnimatedBuilder(
+            AnimatedBuilder(
               animation: _controller,
-              builder: (context, _) => _BouncingCube(
-                progress: _controller.value,
-                area: boxSize,
-                maskRedFace: _maskRedFace,
+              builder: (context, child) => Positioned(
+                left: (boxSize.width - _ballSize) * _controller.value,
+                top: boxSize.height * 0.65,
+                child: child!,
               ),
+              child: _maskBall ? SentryMask(ball) : ball,
             ),
+          ],
+        ),
+      ),
+      const SizedBox(height: 8),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        dense: true,
+        title: const Text('Mask the ball (SentryMask)'),
+        value: _maskBall,
+        onChanged: (value) => setState(() => _maskBall = value),
+      ),
+      const SizedBox(height: 12),
+      Container(
+        width: boxSize.width,
+        height: boxSize.height,
+        color: Colors.blue.shade50,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => _BouncingCube(
+            progress: _controller.value,
+            area: boxSize,
+            maskRedFace: _maskRedFace,
           ),
-          const SizedBox(height: 8),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            dense: true,
-            title: const Text('Mask the red face square (SentryMask)'),
-            value: _maskRedFace,
-            onChanged: (value) => setState(() => _maskRedFace = value),
-          ),
-          const SizedBox(height: 12),
-          // Text is masked by default: none of these must ever be readable
-          // in the replay, whether still, scaling, spinning or clipped.
-          const _MaskedRedText(),
-          const SizedBox(height: 12),
-          // 0.5x..1.5x, one full zoom in/out per loop.
-          _animatedProbe(
+        ),
+      ),
+      const SizedBox(height: 8),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        dense: true,
+        title: const Text('Mask the red face square (SentryMask)'),
+        value: _maskRedFace,
+        onChanged: (value) => setState(() => _maskRedFace = value),
+      ),
+      const SizedBox(height: 12),
+      // Text is masked by default: none of these must ever be readable
+      // in the replay, whether still, scaling, spinning or clipped.
+      const _MaskedRedText(),
+      const SizedBox(height: 12),
+      // 0.5x..1.5x, one full zoom in/out per loop.
+      _animatedProbe(
+        width: boxSize.width,
+        height: 80,
+        transform: (t, child) => Transform.scale(
+          scale: 1 + 0.5 * math.sin(2 * math.pi * t),
+          child: child,
+        ),
+      ),
+      const SizedBox(height: 12),
+      // Spins in place; tall enough for the full rotation so it doesn't
+      // overlap the widgets around it.
+      _animatedProbe(
+        width: boxSize.width,
+        height: 320,
+        transform: (t, child) =>
+            Transform.rotate(angle: 2 * math.pi * t, child: child),
+      ),
+      const SizedBox(height: 12),
+      // Deliberately clipped: slides past both edges of a clipping box,
+      // so it's partly hidden for most of the loop. The replay must hide
+      // the visible part; a mask spilling past the box edges is only
+      // over-masking (safe, but worth noting).
+      const Text('Clipped: masked text sliding past the box edges'),
+      const SizedBox(height: 4),
+      ClipRect(
+        child: ColoredBox(
+          color: Colors.grey.shade200,
+          child: _animatedProbe(
             width: boxSize.width,
-            height: 80,
-            transform: (t, child) => Transform.scale(
-              scale: 1 + 0.5 * math.sin(2 * math.pi * t),
+            height: 60,
+            transform: (t, child) => Transform.translate(
+              offset: Offset(
+                0.75 * boxSize.width * math.sin(2 * math.pi * t),
+                0,
+              ),
               child: child,
             ),
           ),
-          const SizedBox(height: 12),
-          // Spins in place; tall enough for the full rotation so it doesn't
-          // overlap the widgets around it.
-          _animatedProbe(
-            width: boxSize.width,
-            height: 320,
-            transform: (t, child) => Transform.rotate(
-              angle: 2 * math.pi * t,
-              child: child,
+        ),
+      ),
+      const SizedBox(height: 12),
+      _buildNavigationTest(boxSize.width),
+      const SizedBox(height: 8),
+      const SentryUnmask(Text('This text is unmasked (SentryUnmask).')),
+      const SizedBox(height: 8),
+      const SizedBox(
+        width: 320,
+        child: TextField(
+          decoration: InputDecoration(
+            labelText: 'Masked (default)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ),
+      const SizedBox(height: 12),
+      const SentryUnmask(
+        SizedBox(
+          width: 320,
+          child: TextField(
+            decoration: InputDecoration(
+              labelText: 'Unmasked (SentryUnmask)',
+              border: OutlineInputBorder(),
             ),
           ),
-          const SizedBox(height: 12),
-          // Deliberately clipped: slides past both edges of a clipping box,
-          // so it's partly hidden for most of the loop. The replay must hide
-          // the visible part; a mask spilling past the box edges is only
-          // over-masking (safe, but worth noting).
-          const Text('Clipped: masked text sliding past the box edges'),
-          const SizedBox(height: 4),
-          ClipRect(
-            child: ColoredBox(
-              color: Colors.grey.shade200,
-              child: _animatedProbe(
-                width: boxSize.width,
-                height: 60,
-                transform: (t, child) => Transform.translate(
-                  offset: Offset(
-                    0.75 * boxSize.width * math.sin(2 * math.pi * t),
-                    0,
-                  ),
-                  child: child,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildNavigationTest(boxSize.width),
-          const SizedBox(height: 8),
-          const SentryUnmask(
-            Text('This text is unmasked (SentryUnmask).'),
-          ),
-          const SizedBox(height: 8),
-          const SizedBox(
-            width: 320,
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Masked (default)',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          const SentryUnmask(
-            SizedBox(
-              width: 320,
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Unmasked (SentryUnmask)',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
+        ),
+      ),
+    ],
+  );
 
   /// A [_MaskedRedText] centered in a [width] x [height] box, moved by
   /// [transform] as the scene animation runs (`t` goes 0..1 each loop).
@@ -333,18 +330,17 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
     required double width,
     required double height,
     required Widget Function(double t, Widget child) transform,
-  }) =>
-      SizedBox(
-        width: width,
-        height: height,
-        child: Center(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) => transform(_controller.value, child!),
-            child: const _MaskedRedText(),
-          ),
-        ),
-      );
+  }) => SizedBox(
+    width: width,
+    height: height,
+    child: Center(
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) => transform(_controller.value, child!),
+        child: const _MaskedRedText(),
+      ),
+    ),
+  );
 
   Widget _buildNavigationTest(double width) {
     final delay = '${_navigationDelay.inSeconds}s';
@@ -366,7 +362,7 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
           Text(
             _pendingTransition == null
                 ? 'Opens this page again at the same scroll position, '
-                    '$delay after the tap.'
+                      '$delay after the tap.'
                 : 'Opening with "$_pendingTransition" in $delay...',
           ),
           const SizedBox(height: 8),
@@ -415,32 +411,35 @@ class _BouncingCube extends StatelessWidget {
       ..rotateY(2 * turn);
     final perspective = Matrix4.identity()..setEntry(3, 2, 0.002);
 
-    final faces = <(Matrix4, Widget)>[
-      (Matrix4.translationValues(0, 0, -half), _face(Colors.red)),
-      (
-        Matrix4.translationValues(0, 0, half)..rotateY(math.pi),
-        _face(Colors.green.shade400),
-      ),
-      (
-        Matrix4.translationValues(half, 0, 0)..rotateY(math.pi / 2),
-        _face(Colors.green.shade500),
-      ),
-      (
-        Matrix4.translationValues(-half, 0, 0)..rotateY(-math.pi / 2),
-        _face(Colors.green.shade600),
-      ),
-      (
-        Matrix4.translationValues(0, -half, 0)..rotateX(math.pi / 2),
-        _face(Colors.green.shade700),
-      ),
-      (
-        Matrix4.translationValues(0, half, 0)..rotateX(-math.pi / 2),
-        _face(Colors.green.shade800),
-      ),
-    ].map((face) => (rotation * face.$1 as Matrix4, face.$2)).toList()
-      // Positive z is away from the viewer: paint far faces first.
-      ..sort(
-          (a, b) => b.$1.getTranslation().z.compareTo(a.$1.getTranslation().z));
+    final faces =
+        <(Matrix4, Widget)>[
+            (Matrix4.translationValues(0, 0, -half), _face(Colors.red)),
+            (
+              Matrix4.translationValues(0, 0, half)..rotateY(math.pi),
+              _face(Colors.green.shade400),
+            ),
+            (
+              Matrix4.translationValues(half, 0, 0)..rotateY(math.pi / 2),
+              _face(Colors.green.shade500),
+            ),
+            (
+              Matrix4.translationValues(-half, 0, 0)..rotateY(-math.pi / 2),
+              _face(Colors.green.shade600),
+            ),
+            (
+              Matrix4.translationValues(0, -half, 0)..rotateX(math.pi / 2),
+              _face(Colors.green.shade700),
+            ),
+            (
+              Matrix4.translationValues(0, half, 0)..rotateX(-math.pi / 2),
+              _face(Colors.green.shade800),
+            ),
+          ].map((face) => (rotation * face.$1 as Matrix4, face.$2)).toList()
+          // Positive z is away from the viewer: paint far faces first.
+          ..sort(
+            (a, b) =>
+                b.$1.getTranslation().z.compareTo(a.$1.getTranslation().z),
+          );
 
     // Ping-pong horizontally, bounce three times per loop vertically.
     final x = 1 - (2 * progress - 1).abs();
@@ -500,7 +499,7 @@ class _MaskedRedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const ColorFiltered(
-        colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
-        child: Text('This text should be masked', style: _maskedTextStyle),
-      );
+    colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcIn),
+    child: Text('This text should be masked', style: _maskedTextStyle),
+  );
 }
