@@ -57,8 +57,15 @@ void main() {
       final screenshotCount = fixture.channel.screenshotCount;
       await replay.startBuffering();
       await fixture.waitForScreenshot(after: screenshotCount);
+      await fixture.waitFor(
+        () =>
+            SentryFlutter.native?.replayId != null &&
+            SentryFlutter.native?.replayId != bufferedReplayId,
+        'Restarting the buffer did not provide a new replay ID',
+      );
 
       expect(Sentry.currentHub.scope.replayId, isNull);
+      expect(SentryFlutter.native?.replayId, isNotNull);
       expect(SentryFlutter.native?.replayId, isNot(bufferedReplayId));
       await fixture.expectLogReplay(isBuffering: true);
     }, skip: !Platform.isIOS);
