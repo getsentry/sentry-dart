@@ -52,7 +52,22 @@ void main() {
       expect(SentryFlutter.native?.replayId, replayId);
       expect(replayId, bufferedReplayId);
       await fixture.expectLogReplay(isBuffering: false);
+    }, skip: !Platform.isIOS);
 
+    testWidgets('keeps a restarted buffer off the scope after flushing', (
+      tester,
+    ) async {
+      final replay = await fixture.getSut(tester);
+      await replay.startBuffering();
+      await fixture.waitForScreenshot();
+      final bufferedReplayId = SentryFlutter.native?.replayId;
+      expect(bufferedReplayId, isNotNull);
+
+      await replay.flush();
+      await fixture.waitFor(
+        () => Sentry.currentHub.scope.replayId != null,
+        'Flushing the buffer did not set the scope replay ID',
+      );
       await replay.stop();
       final screenshotCount = fixture.channel.screenshotCount;
       await replay.startBuffering();
