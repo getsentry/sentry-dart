@@ -1,6 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_client_report_recorder.dart';
@@ -23,14 +23,11 @@ void main() {
           traceId: SentryId.newId(),
           level: SentryLogLevel.info,
           body: 'test',
-          attributes: {
-            'attribute': SentryAttribute.string('value'),
-          },
+          attributes: {'attribute': SentryAttribute.string('value')},
         );
       }
 
       test('captureLog triggers OnProcessLog', () async {
-        fixture.options.enableLogs = true;
         fixture.options.environment = 'test-environment';
         fixture.options.release = 'test-release';
 
@@ -44,8 +41,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnProcessLog>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnProcessLog>((
+          event,
+        ) {
           event.log.attributes['test'] = SentryAttribute.string('test-value');
         });
 
@@ -61,7 +59,6 @@ void main() {
 
     group('SentryEvent', () {
       test('captureEvent triggers OnBeforeSendEvent', () async {
-        fixture.options.enableLogs = true;
         fixture.options.environment = 'test-environment';
         fixture.options.release = 'test-release';
 
@@ -75,8 +72,9 @@ void main() {
         final mockProcessor = MockTelemetryProcessor();
         fixture.options.telemetryProcessor = mockProcessor;
 
-        fixture.options.lifecycleRegistry
-            .registerCallback<OnBeforeSendEvent>((event) {
+        fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>((
+          event,
+        ) {
           event.event.release = '999';
         });
 
@@ -87,6 +85,25 @@ void main() {
 
         expect(capturedEvent.release, '999');
       });
+
+      test(
+        'captureEvent does not trigger OnBeforeSendEvent for sampled out event',
+        () async {
+          var called = false;
+          final client = fixture.getSut(sampleRate: 0.0);
+
+          fixture.options.lifecycleRegistry.registerCallback<OnBeforeSendEvent>(
+            (_) => called = true,
+          );
+
+          await client.captureEvent(
+            SentryEvent(),
+            scope: Scope(fixture.options),
+          );
+
+          expect(called, false);
+        },
+      );
     });
   });
 }
@@ -127,7 +144,9 @@ class Fixture {
     options.beforeSendTransaction = beforeSendTransaction;
     options.beforeSendFeedback = beforeSendFeedback;
     options.debug = debug;
-    options.log = mockLogger;
+    if (debug) {
+      configureDiagnosticTestLogger(onLog: mockLogger);
+    }
 
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
@@ -135,10 +154,7 @@ class Fixture {
 
     // Internally also creates a SentryClient instance
     final hub = Hub(options);
-    _context = SentryTransactionContext(
-      'name',
-      'op',
-    );
+    _context = SentryTransactionContext('name', 'op');
     tracer = SentryTracer(_context, hub);
 
     // Reset transport
@@ -187,11 +203,10 @@ class Fixture {
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     loggedLevel = level;
-    loggedException = exception;
+    loggedException = error;
   }
 }

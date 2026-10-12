@@ -3,10 +3,5 @@ import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'dart:async';
 
-@GenerateMocks([
-  Hub,
-  FirebaseRemoteConfig,
-  Stream,
-  StreamSubscription,
-])
+@GenerateMocks([Hub, FirebaseRemoteConfig, Stream, StreamSubscription])
 void main() {}

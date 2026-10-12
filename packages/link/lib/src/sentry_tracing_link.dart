@@ -54,30 +54,32 @@ class SentryTracingLink extends Link {
       sentryOperation,
       shouldStartTransaction,
     );
-    return forward!(request).transform(StreamTransformer.fromHandlers(
-      handleData: (data, sink) {
-        final hasGraphQlError = data.errors?.isNotEmpty ?? false;
-        if (graphQlErrorsMarkTransactionAsFailed && hasGraphQlError) {
+    return forward!(request).transform(
+      StreamTransformer.fromHandlers(
+        handleData: (data, sink) {
+          final hasGraphQlError = data.errors?.isNotEmpty ?? false;
+          if (graphQlErrorsMarkTransactionAsFailed && hasGraphQlError) {
+            unawaited(span?.finish(status: const SpanStatus.unknownError()));
+          } else {
+            unawaited(span?.finish(status: const SpanStatus.ok()));
+          }
+
+          sink.add(data);
+        },
+        handleError: (error, stackTrace, sink) {
+          // Error handling can be significantly improved after
+          // https://github.com/gql-dart/gql/issues/361
+          // is done.
+          // The correct `SpanStatus` can be set on
+          // `HttpLinkResponseContext.statusCode` or
+          // `DioLinkResponseContext.statusCode`
+          span?.throwable = error;
           unawaited(span?.finish(status: const SpanStatus.unknownError()));
-        } else {
-          unawaited(span?.finish(status: const SpanStatus.ok()));
-        }
 
-        sink.add(data);
-      },
-      handleError: (error, stackTrace, sink) {
-        // Error handling can be significantly improved after
-        // https://github.com/gql-dart/gql/issues/361
-        // is done.
-        // The correct `SpanStatus` can be set on
-        // `HttpLinkResponseContext.statusCode` or
-        // `DioLinkResponseContext.statusCode`
-        span?.throwable = error;
-        unawaited(span?.finish(status: const SpanStatus.unknownError()));
-
-        sink.addError(error, stackTrace);
-      },
-    ));
+          sink.addError(error, stackTrace);
+        },
+      ),
+    );
   }
 
   InstrumentationSpan? _startInactiveSpan(
@@ -101,8 +103,11 @@ class SentryTracingLink extends Link {
           span.setData(SemanticAttributesConstants.sentryOp, op);
           break;
         case SentryTraceLifecycle.static:
-          final transaction =
-              _hub.startTransaction(description, op, bindToScope: true);
+          final transaction = _hub.startTransaction(
+            description,
+            op,
+            bindToScope: true,
+          );
 
           if (transaction is NoOpSentrySpan) {
             return null;
@@ -113,7 +118,10 @@ class SentryTracingLink extends Link {
       }
     } else if (parentSpan != null) {
       span = _spanFactory.createSpan(
-          parentSpan: parentSpan, operation: op, description: description);
+        parentSpan: parentSpan,
+        operation: op,
+        description: description,
+      );
     }
 
     span?.origin = SentryTraceOrigins.autoGraphQlSentryLink;

@@ -4,7 +4,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_item_type.dart';
+import 'package:sentry/src/envelope/sentry_item_type.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 
@@ -12,6 +12,7 @@ import '../../sentry_flutter.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
+import '../utils/internal_logger.dart';
 import '../replay/replay_config.dart';
 import 'sentry_js_binding.dart';
 
@@ -21,8 +22,16 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
 
+  static const _piiKeyPatterns = [
+    'forwarded',
+    '-ip',
+    'remote-',
+    'via',
+    '-user',
+  ];
+
   void _log(String message) {
-    _options.log(SentryLevel.info, logger: '$SentryWeb', message);
+    internalLogger.info('$SentryWeb: $message');
   }
 
   void _logNotSupported(String operation) =>
@@ -41,10 +50,28 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'tracesSampleRate': 0,
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
+        // Preserve the JS v10 PII baseline until Flutter exposes dataCollection.
+        // https://github.com/getsentry/sentry-javascript/blob/11.0.0/MIGRATION.md#senddefaultpii-is-replaced-by-datacollection
+        'dataCollection': {
+          'userInfo': _options.sendDefaultPii,
+          if (!_options.sendDefaultPii) ...{
+            'cookies': false,
+            'httpHeaders': {
+              'request': {'deny': _piiKeyPatterns},
+              'response': {'deny': _piiKeyPatterns},
+            },
+            'httpBodies': <String>[],
+            'urlQueryParams': {'deny': _piiKeyPatterns},
+            'graphQL': {'document': false, 'variables': false},
+            'genAI': {'inputs': false, 'outputs': false},
+            'databaseQueryData': false,
+            'queues': false,
+          },
+        },
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': <String>{
           SentryJsIntegrationName.globalHandlers,
-          SentryJsIntegrationName.dedupe
+          SentryJsIntegrationName.dedupe,
         },
       };
       _binding.init(jsOptions);
@@ -64,9 +91,13 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
     _logNotSupported('capture raw envelope data');
+  }
+
+  @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    _logNotSupported('update session for dropped non-terminating event');
   }
 
   @override
@@ -86,10 +117,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
               continue;
             }
 
-            envelopeItems.add([
-              await item.header.toJson(data.length),
-              data,
-            ]);
+            envelopeItems.add([await item.header.toJson(data.length), data]);
           } catch (_) {
             if (options.automatedTestMode) {
               rethrow;
@@ -134,24 +162,43 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<SentryId> captureReplay() {
     throw UnsupportedError(
-        "$SentryWeb.captureReplay() not supported on this platform");
+      "$SentryWeb.captureReplay() not supported on this platform",
+    );
+  }
+
+  @override
+  FutureOr<void> startReplay() {
+    _logNotSupported('starting replay');
+  }
+
+  @override
+  FutureOr<void> startReplayBuffering() {
+    _logNotSupported('starting replay buffering');
+  }
+
+  @override
+  FutureOr<void> pauseReplay() {
+    _logNotSupported('pausing replay');
+  }
+
+  @override
+  FutureOr<void> resumeReplay() {
+    _logNotSupported('resuming replay');
+  }
+
+  @override
+  FutureOr<void> stopReplay() {
+    _logNotSupported('stopping replay');
+  }
+
+  @override
+  FutureOr<void> flushReplay() {
+    _logNotSupported('flushing replay');
   }
 
   @override
   FutureOr<void> clearBreadcrumbs() {
     _logNotSupported('clear breadcrumbs');
-  }
-
-  @override
-  FutureOr<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs) {
-    _logNotSupported('collect profile');
-    return null;
-  }
-
-  @override
-  FutureOr<void> discardProfiler(SentryId traceId) {
-    _logNotSupported('discard profiler');
   }
 
   @override
@@ -194,11 +241,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     final debugId = debugIdMap[codeFile];
     if (debugId != null) {
       return [
-        DebugImage(
-          debugId: debugId,
-          type: 'sourcemap',
-          codeFile: codeFile,
-        ),
+        DebugImage(debugId: debugId, type: 'sourcemap', codeFile: codeFile),
       ];
     }
 
@@ -274,12 +317,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> registerSegmentName(String segmentName) {
     // No-op. Replay segment name registration is currently Android-only.
-  }
-
-  @override
-  int? startProfiler(SentryId traceId) {
-    _logNotSupported('start profiler');
-    return null;
   }
 
   @override

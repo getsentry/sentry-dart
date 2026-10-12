@@ -6,15 +6,14 @@ import 'access_aware_map.dart';
 /// Stacktrace holds information about the frames of the stack.
 class SentryStackTrace {
   SentryStackTrace({
-    required List<SentryStackFrame> frames,
+    required List<SentryStackFrame> this._frames,
     Map<String, String>? registers,
     this.lang,
     this.snapshot,
     this.unknown,
     @internal this.baseAddr,
     @internal this.buildId,
-  })  : _frames = frames,
-        _registers = Map.from(registers ?? {});
+  }) : _registers = Map.from(registers ?? {});
 
   List<SentryStackFrame>? _frames;
 
@@ -63,8 +62,8 @@ class SentryStackTrace {
     return SentryStackTrace(
       frames: framesJson != null
           ? framesJson
-              .map((frameJson) => SentryStackFrame.fromJson(frameJson))
-              .toList()
+                .map((frameJson) => SentryStackFrame.fromJson(frameJson))
+                .toList()
           : [],
       registers: json['registers'],
       lang: json['lang'],
@@ -78,28 +77,12 @@ class SentryStackTrace {
     return {
       ...?unknown,
       if (_frames?.isNotEmpty ?? false)
-        'frames':
-            _frames?.map((frame) => frame.toJson()).toList(growable: false),
+        'frames': _frames
+            ?.map((frame) => frame.toJson())
+            .toList(growable: false),
       if (_registers?.isNotEmpty ?? false) 'registers': _registers,
       if (lang != null) 'lang': lang,
       if (snapshot != null) 'snapshot': snapshot,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryStackTrace copyWith({
-    List<SentryStackFrame>? frames,
-    Map<String, String>? registers,
-    String? lang,
-    bool? snapshot,
-  }) =>
-      SentryStackTrace(
-        frames: frames ?? this.frames,
-        registers: registers ?? this.registers,
-        lang: lang ?? this.lang,
-        snapshot: snapshot ?? this.snapshot,
-        unknown: unknown,
-        baseAddr: baseAddr,
-        buildId: buildId,
-      );
 }

@@ -91,20 +91,14 @@ void main() {
     test('toJson', () {
       final json = sentryDevice.toJson();
 
-      expect(
-        MapEquality().equals(sentryDeviceJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryDeviceJson, json), true);
     });
 
     test('fromJson', () {
       final sentryDevice = SentryDevice.fromJson(sentryDeviceJson);
       final json = sentryDevice.toJson();
 
-      expect(
-        MapEquality().equals(sentryDeviceJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryDeviceJson, json), true);
     });
 
     test('fromJson double screen_height_pixels and screen_width_pixels', () {
@@ -114,10 +108,7 @@ void main() {
       final sentryDevice = SentryDevice.fromJson(sentryDeviceJson);
       final json = sentryDevice.toJson();
 
-      expect(
-        MapEquality().equals(sentryDeviceJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryDeviceJson, json), true);
     });
 
     test('batery level converts int to double', () {
@@ -125,10 +116,7 @@ void main() {
 
       final sentryDevice = SentryDevice.fromJson(map);
 
-      expect(
-        sentryDevice.batteryLevel,
-        1.0,
-      );
+      expect(sentryDevice.batteryLevel, 1.0);
     });
 
     test('batery level maps double', () {
@@ -136,10 +124,7 @@ void main() {
 
       final sentryDevice = SentryDevice.fromJson(map);
 
-      expect(
-        sentryDevice.batteryLevel,
-        1.0,
-      );
+      expect(sentryDevice.batteryLevel, 1.0);
     });
 
     test('batery level ignores if not a num', () {
@@ -147,10 +132,7 @@ void main() {
 
       final sentryDevice = SentryDevice.fromJson(map);
 
-      expect(
-        sentryDevice.batteryLevel,
-        null,
-      );
+      expect(sentryDevice.batteryLevel, null);
     });
 
     test('orientation handles portrait', () {
@@ -238,10 +220,7 @@ void main() {
     });
 
     test('bool fields return null for non-boolean values', () {
-      final map = {
-        'online': 'true',
-        'simulator': 'false',
-      };
+      final map = {'online': 'true', 'simulator': 'false'};
       final sentryDevice = SentryDevice.fromJson(map);
       expect(sentryDevice.online, isNull);
       expect(sentryDevice.simulator, isNull);
@@ -262,11 +241,7 @@ void main() {
     });
 
     test('bool fields return null for other numeric values', () {
-      final map = {
-        'charging': 2,
-        'low_memory': -1,
-        'online': 0.5,
-      };
+      final map = {'charging': 2, 'low_memory': -1, 'online': 0.5};
       final sentryDevice = SentryDevice.fromJson(map);
       expect(sentryDevice.charging, isNull);
       expect(sentryDevice.lowMemory, isNull);
@@ -302,172 +277,6 @@ void main() {
     });
   });
 
-  test('copyWith keeps unchanged', () {
-    final data = _generate();
-    // ignore: deprecated_member_use_from_same_package
-    final copy = data.copyWith();
-
-    expect(
-      MapEquality().equals(data.toJson(), copy.toJson()),
-      true,
-    );
-  });
-
-  test('copyWith takes new values', () {
-    final data = _generate();
-
-    final bootTime = DateTime.now();
-    // ignore: deprecated_member_use_from_same_package
-    final copy = data.copyWith(
-      name: 'name1',
-      family: 'family1',
-      model: 'model1',
-      modelId: 'modelId1',
-      arch: 'arch1',
-      batteryLevel: 2,
-      orientation: SentryOrientation.portrait,
-      manufacturer: 'manufacturer1',
-      brand: 'brand1',
-      screenHeightPixels: 900,
-      screenWidthPixels: 700,
-      screenDensity: 99.2,
-      screenDpi: 99,
-      online: true,
-      charging: false,
-      lowMemory: true,
-      simulator: false,
-      memorySize: 12345678,
-      freeMemory: 123456,
-      usableMemory: 98765,
-      storageSize: 12345678,
-      freeStorage: 12345678,
-      externalStorageSize: 987654,
-      externalFreeStorage: 987654,
-      bootTime: bootTime,
-    );
-
-    expect('name1', copy.name);
-    expect('family1', copy.family);
-    expect('model1', copy.model);
-    expect('modelId1', copy.modelId);
-    expect('arch1', copy.arch);
-    expect(2, copy.batteryLevel);
-    expect(SentryOrientation.portrait, copy.orientation);
-    expect('manufacturer1', copy.manufacturer);
-    expect('brand1', copy.brand);
-    expect(900, copy.screenHeightPixels);
-    expect(700, copy.screenWidthPixels);
-    expect(99.2, copy.screenDensity);
-    expect(99, copy.screenDpi);
-    expect(true, copy.online);
-    expect(false, copy.charging);
-    expect(true, copy.lowMemory);
-    expect(false, copy.simulator);
-    expect(12345678, copy.memorySize);
-    expect(123456, copy.freeMemory);
-    expect(98765, copy.usableMemory);
-    expect(12345678, copy.storageSize);
-    expect(12345678, copy.freeStorage);
-    expect(987654, copy.externalStorageSize);
-    expect(987654, copy.externalFreeStorage);
-    expect(bootTime, copy.bootTime);
-  });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = sentryDevice;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith();
-
-      expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
-        true,
-      );
-    });
-
-    test('copyWith takes new values', () {
-      final data = sentryDevice;
-
-      final bootTime = DateTime.now();
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith(
-        name: 'name1',
-        family: 'family1',
-        model: 'model1',
-        modelId: 'modelId1',
-        arch: 'arch1',
-        batteryLevel: 2,
-        orientation: SentryOrientation.portrait,
-        manufacturer: 'manufacturer1',
-        brand: 'brand1',
-        screenDensity: 99.2,
-        screenDpi: 99,
-        online: true,
-        charging: false,
-        lowMemory: true,
-        simulator: false,
-        memorySize: 12345678,
-        freeMemory: 123456,
-        usableMemory: 98765,
-        storageSize: 12345678,
-        freeStorage: 12345678,
-        externalStorageSize: 987654,
-        externalFreeStorage: 987654,
-        bootTime: bootTime,
-        batteryStatus: 'Charging',
-        cpuDescription: 'Intel i9',
-        deviceType: 'Tablet',
-        deviceUniqueIdentifier: 'foo_bar_baz',
-        processorCount: 8,
-        processorFrequency: 3.4,
-        supportsAccelerometer: false,
-        supportsGyroscope: false,
-        supportsAudio: false,
-        supportsLocationService: false,
-        supportsVibration: false,
-        screenHeightPixels: 2,
-        screenWidthPixels: 2,
-      );
-
-      expect('name1', copy.name);
-      expect('family1', copy.family);
-      expect('model1', copy.model);
-      expect('modelId1', copy.modelId);
-      expect('arch1', copy.arch);
-      expect(2, copy.batteryLevel);
-      expect(SentryOrientation.portrait, copy.orientation);
-      expect('manufacturer1', copy.manufacturer);
-      expect('brand1', copy.brand);
-      expect(99.2, copy.screenDensity);
-      expect(99, copy.screenDpi);
-      expect(true, copy.online);
-      expect(false, copy.charging);
-      expect(true, copy.lowMemory);
-      expect(false, copy.simulator);
-      expect(12345678, copy.memorySize);
-      expect(123456, copy.freeMemory);
-      expect(98765, copy.usableMemory);
-      expect(12345678, copy.storageSize);
-      expect(12345678, copy.freeStorage);
-      expect(987654, copy.externalStorageSize);
-      expect(987654, copy.externalFreeStorage);
-      expect(bootTime, copy.bootTime);
-      expect('Charging', copy.batteryStatus);
-      expect('Intel i9', copy.cpuDescription);
-      expect('Tablet', copy.deviceType);
-      expect('foo_bar_baz', copy.deviceUniqueIdentifier);
-      expect(8, copy.processorCount);
-      expect(3.4, copy.processorFrequency);
-      expect(false, copy.supportsAccelerometer);
-      expect(false, copy.supportsGyroscope);
-      expect(false, copy.supportsAudio);
-      expect(false, copy.supportsLocationService);
-      expect(false, copy.supportsVibration);
-      expect(2, copy.screenHeightPixels);
-      expect(2, copy.screenWidthPixels);
-    });
-  });
-
   group('toAttributes', () {
     test('returns empty map when all fields are null', () {
       expect(SentryDevice().toAttributes(), isEmpty);
@@ -482,62 +291,137 @@ void main() {
       }
 
       expectAttribute(
-          SemanticAttributesConstants.deviceName, 'testDevice', 'string');
+        SemanticAttributesConstants.deviceName,
+        'testDevice',
+        'string',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceFamily, 'testFamily', 'string');
+        SemanticAttributesConstants.deviceFamily,
+        'testFamily',
+        'string',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceModel, 'testModel', 'string');
+        SemanticAttributesConstants.deviceModel,
+        'testModel',
+        'string',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceModelId, 'testModelId', 'string');
+        SemanticAttributesConstants.deviceModelId,
+        'testModelId',
+        'string',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceManufacturer, 'testOEM', 'string');
+        SemanticAttributesConstants.deviceManufacturer,
+        'testOEM',
+        'string',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceBrand, 'testBrand', 'string');
+        SemanticAttributesConstants.deviceBrand,
+        'testBrand',
+        'string',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceBatteryLevel, 23.0, 'double');
+        SemanticAttributesConstants.deviceBatteryLevel,
+        23.0,
+        'double',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceScreenHeightPixels, 100, 'integer');
+        SemanticAttributesConstants.deviceScreenHeightPixels,
+        100,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceScreenWidthPixels, 100, 'integer');
+        SemanticAttributesConstants.deviceScreenWidthPixels,
+        100,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceScreenDensity, 99.1, 'double');
+        SemanticAttributesConstants.deviceScreenDensity,
+        99.1,
+        'double',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceScreenDpi, 100, 'integer');
+        SemanticAttributesConstants.deviceScreenDpi,
+        100,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceOnline, false, 'boolean');
+        SemanticAttributesConstants.deviceOnline,
+        false,
+        'boolean',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceCharging, true, 'boolean');
+        SemanticAttributesConstants.deviceCharging,
+        true,
+        'boolean',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceLowMemory, false, 'boolean');
+        SemanticAttributesConstants.deviceLowMemory,
+        false,
+        'boolean',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceSimulator, true, 'boolean');
+        SemanticAttributesConstants.deviceSimulator,
+        true,
+        'boolean',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceMemorySize, 1234567, 'integer');
+        SemanticAttributesConstants.deviceMemorySize,
+        1234567,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceFreeMemory, 12345, 'integer');
+        SemanticAttributesConstants.deviceFreeMemory,
+        12345,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceUsableMemory, 9876, 'integer');
+        SemanticAttributesConstants.deviceUsableMemory,
+        9876,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceStorageSize, 1234567, 'integer');
+        SemanticAttributesConstants.deviceStorageSize,
+        1234567,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceFreeStorage, 1234567, 'integer');
-      expectAttribute(SemanticAttributesConstants.deviceExternalStorageSize,
-          98765, 'integer');
-      expectAttribute(SemanticAttributesConstants.deviceExternalFreeStorage,
-          98765, 'integer');
+        SemanticAttributesConstants.deviceFreeStorage,
+        1234567,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceProcessorCount, 4, 'integer');
-      expectAttribute(SemanticAttributesConstants.deviceCpuDescription,
-          'M1 Pro Max Ultra', 'string');
+        SemanticAttributesConstants.deviceExternalStorageSize,
+        98765,
+        'integer',
+      );
       expectAttribute(
-          SemanticAttributesConstants.deviceProcessorFrequency, 1.2, 'double');
+        SemanticAttributesConstants.deviceExternalFreeStorage,
+        98765,
+        'integer',
+      );
+      expectAttribute(
+        SemanticAttributesConstants.deviceProcessorCount,
+        4,
+        'integer',
+      );
+      expectAttribute(
+        SemanticAttributesConstants.deviceCpuDescription,
+        'M1 Pro Max Ultra',
+        'string',
+      );
+      expectAttribute(
+        SemanticAttributesConstants.deviceProcessorFrequency,
+        1.2,
+        'double',
+      );
       expectAttribute(SemanticAttributesConstants.deviceId, 'uuid', 'string');
     });
 
     test('serializes orientation as its name', () {
       final device = SentryDevice(orientation: SentryOrientation.portrait);
-      final attribute =
-          device.toAttributes()[SemanticAttributesConstants.deviceOrientation];
+      final attribute = device
+          .toAttributes()[SemanticAttributesConstants.deviceOrientation];
       expect(attribute?.value, 'portrait');
       expect(attribute?.type, 'string');
     });
@@ -545,8 +429,8 @@ void main() {
     test('serializes bootTime as ISO-8601 string', () {
       final bootTime = DateTime.utc(2024, 1, 15, 12, 0, 0);
       final device = SentryDevice(bootTime: bootTime);
-      final attribute =
-          device.toAttributes()[SemanticAttributesConstants.deviceBootTime];
+      final attribute = device
+          .toAttributes()[SemanticAttributesConstants.deviceBootTime];
       expect(attribute?.value, bootTime.toIso8601String());
       expect(attribute?.type, 'string');
     });
@@ -566,31 +450,3 @@ void main() {
     });
   });
 }
-
-SentryDevice _generate({DateTime? testBootTime}) => SentryDevice(
-      name: 'name',
-      family: 'family',
-      model: 'model',
-      modelId: 'modelId',
-      arch: 'arch',
-      batteryLevel: 1,
-      orientation: SentryOrientation.landscape,
-      manufacturer: 'manufacturer',
-      brand: 'brand',
-      screenHeightPixels: 600,
-      screenWidthPixels: 800,
-      screenDensity: 99.1,
-      screenDpi: 100,
-      online: false,
-      charging: true,
-      lowMemory: false,
-      simulator: true,
-      memorySize: 1234567,
-      freeMemory: 12345,
-      usableMemory: 9876,
-      storageSize: 1234567,
-      freeStorage: 1234567,
-      externalStorageSize: 98765,
-      externalFreeStorage: 98765,
-      bootTime: testBootTime ?? DateTime.now(),
-    );

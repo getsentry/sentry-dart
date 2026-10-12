@@ -12,22 +12,20 @@ import 'package:sentry_logging/sentry_logging.dart';
 
 import 'app_config.dart' as config;
 import 'home_screen.dart';
+import 'screens/app_start_workloads.dart';
 import 'theme_provider.dart';
 
 Future<void> main() async {
-  await setupSentry(
-    () async {
-      runApp(
-        SentryWidget(
-          child: DefaultAssetBundle(
-            bundle: SentryAssetBundle(),
-            child: const MyApp(),
-          ),
+  await setupSentry(() async {
+    runApp(
+      SentryWidget(
+        child: DefaultAssetBundle(
+          bundle: SentryAssetBundle(),
+          child: const MyApp(),
         ),
-      );
-    },
-    config.exampleDsn,
-  );
+      ),
+    );
+  }, config.exampleDsn);
 }
 
 Future<void> _loadStartupConfiguration() async {
@@ -51,8 +49,9 @@ Future<void> _loadStartupConfiguration() async {
       'Load startup configuration',
       parentSpan: streamParent,
       attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string('app.init'),
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          'app.init',
+        ),
       },
     );
     try {
@@ -64,7 +63,9 @@ Future<void> _loadStartupConfiguration() async {
 }
 
 Future<void> setupSentryWithCustomInit(
-    AppRunner appRunner, OptionsConfiguration optionsConfiguration) async {
+  AppRunner appRunner,
+  OptionsConfiguration optionsConfiguration,
+) async {
   return SentryFlutter.init(optionsConfiguration, appRunner: appRunner);
 }
 
@@ -74,75 +75,71 @@ Future<void> setupSentry(
   bool isIntegrationTest = false,
   BeforeSendCallback? beforeSendCallback,
 }) async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = config.exampleDsn;
-      options.tracesSampleRate = 1.0;
-      options.profilesSampleRate = 1.0;
-      options.reportPackages = false;
-      options.addInAppInclude('sentry_flutter_example');
-      options.considerInAppFramesByDefault = false;
-      options.attachThreads = true;
-      options.enableWindowMetricBreadcrumbs = true;
-      options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
-      options.sendDefaultPii = true;
-      options.reportSilentFlutterErrors = true;
-      options.attachScreenshot = true;
-      options.attachViewHierarchy = true;
+  await SentryFlutter.init((options) {
+    options.dsn = config.exampleDsn;
+    options.tracesSampleRate = 1.0;
+    options.reportPackages = false;
+    options.addInAppInclude('sentry_flutter_example');
+    options.considerInAppFramesByDefault = false;
+    options.attachThreads = true;
+    options.enableWindowMetricBreadcrumbs = true;
+    options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
+    options.sendDefaultPii = true;
+    options.reportSilentFlutterErrors = true;
+    options.attachScreenshot = true;
+    options.attachViewHierarchy = true;
 
-      // We can enable Sentry debug logging during development. This is likely
-      // going to log too much for your app, but can be useful when figuring out
-      // configuration issues, e.g. finding out why your events are not uploaded.
-      options.diagnosticLevel = SentryLevel.debug;
-      options.debug = kDebugMode;
-      options.spotlight = Spotlight(enabled: true);
-      options.enableTimeToFullDisplayTracing = true;
-      options.maxRequestBodySize = MaxRequestBodySize.always;
-      options.navigatorKey = config.navigatorKey;
-      options.traceLifecycle = SentryTraceLifecycle.stream;
-      options.enableStandaloneAppStartTracing = true;
+    // We can enable Sentry debug logging during development. This is likely
+    // going to log too much for your app, but can be useful when figuring out
+    // configuration issues, e.g. finding out why your events are not uploaded.
+    options.diagnosticLevel = SentryLevel.debug;
+    options.debug = kDebugMode;
+    options.spotlight = Spotlight(enabled: true);
+    options.enableTimeToFullDisplayTracing = true;
+    options.maxRequestBodySize = MaxRequestBodySize.always;
+    options.navigatorKey = config.navigatorKey;
+    options.traceLifecycle = SentryTraceLifecycle.stream;
 
-      options.replay.sessionSampleRate = 1.0;
-      options.replay.onErrorSampleRate = 1.0;
-      options.replay.networkDetailAllowUrls.add(config.exampleUrl);
-      options.replay.networkRequestHeaders.add('foo');
-      options.enableLogs = true;
+    options.replay.sessionSampleRate = 1.0;
+    options.replay.onErrorSampleRate = 1.0;
+    options.replay.networkDetailAllowUrls.add(config.exampleUrl);
+    options.replay.networkRequestHeaders.add('foo');
 
-      options.beforeSendMetric = (metric) {
-        if (metric.name == 'drop-metric') {
-          return null;
-        }
-        return metric;
-      };
-
-      options.ignoreSpans = [
-        IgnoreSpanRule.nameContains('ignore'),
-        IgnoreSpanRule.nameContains('ignoreSpan1'),
-        IgnoreSpanRule.nameContains('ignoreSpan2'),
-        IgnoreSpanRule.nameContains('Open DB'),
-      ];
-
-      // Example: Scrub sensitive data from spans before sending
-      options.beforeSendSpan = (span) {
-        final sensitiveAttributes = span.attributes.entries
-            .where((entry) =>
-                entry.value.value is String &&
-                entry.value.value.contains('secret'))
-            .toList();
-        for (final attribute in sensitiveAttributes) {
-          span.removeAttribute(attribute.key);
-        }
-      };
-
-      config.isIntegrationTest = isIntegrationTest;
-      if (config.isIntegrationTest) {
-        options.dist = '1';
-        options.environment = 'integration';
-        options.beforeSend = beforeSendCallback;
+    options.beforeSendMetric = (metric, hint) {
+      if (metric.name == 'drop-metric') {
+        return null;
       }
-    },
-    appRunner: appRunner,
-  );
+      return metric;
+    };
+
+    options.ignoreSpans = [
+      IgnoreSpanRule.nameContains('ignore'),
+      IgnoreSpanRule.nameContains('ignoreSpan1'),
+      IgnoreSpanRule.nameContains('ignoreSpan2'),
+      IgnoreSpanRule.nameContains('Open DB'),
+    ];
+
+    // Example: Scrub sensitive data from spans before sending
+    options.beforeSendSpan = (span, hint) {
+      final sensitiveAttributes = span.attributes.entries
+          .where(
+            (entry) =>
+                entry.value.value is String &&
+                entry.value.value.contains('secret'),
+          )
+          .toList();
+      for (final attribute in sensitiveAttributes) {
+        span.removeAttribute(attribute.key);
+      }
+    };
+
+    config.isIntegrationTest = isIntegrationTest;
+    if (config.isIntegrationTest) {
+      options.dist = '1';
+      options.environment = 'integration';
+      options.beforeSend = beforeSendCallback;
+    }
+  }, appRunner: appRunner);
 
   Sentry.configureScope((scope) {
     final user = SentryUser(
@@ -165,6 +162,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    if (config.prolongRootWidgetAttachment) {
+      runRootAttachmentWorkload();
+    }
     doWork();
   }
 
@@ -191,9 +191,7 @@ class _MyAppState extends State<MyApp> {
         child: Builder(
           builder: (context) => MaterialApp(
             navigatorKey: config.navigatorKey,
-            navigatorObservers: [
-              SentryNavigatorObserver(),
-            ],
+            navigatorObservers: [SentryNavigatorObserver()],
             theme: Provider.of<ThemeProvider>(context).theme,
             home: const HomeScreen(),
           ),

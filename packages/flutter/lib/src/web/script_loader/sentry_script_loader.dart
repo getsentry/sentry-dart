@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:meta/meta.dart';
@@ -5,15 +7,14 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../sentry_js_bundle.dart';
 import 'script_dom_api.dart';
+import '../../utils/internal_logger.dart';
 
 @internal
 const String defaultTrustedPolicyName = 'sentry-dart';
 
 class SentryScriptLoader {
   SentryScriptLoader({SentryOptions? options})
-      :
-        // ignore: invalid_use_of_internal_member
-        _options = options ?? Sentry.currentHub.options;
+    : _options = options ?? Sentry.currentHub.options;
 
   final SentryOptions _options;
   bool _scriptLoaded = false;
@@ -28,8 +29,10 @@ class SentryScriptLoader {
   /// The function is only executed successfully once and will be guarded by a flag afterwards.
   ///
   /// TrustedTypes implementation inspired by https://pub.dev/packages/google_identity_services_web
-  Future<void> loadWebSdk(List<Map<String, String>> scripts,
-      {String trustedTypePolicyName = defaultTrustedPolicyName}) async {
+  Future<void> loadWebSdk(
+    List<Map<String, String>> scripts, {
+    String trustedTypePolicyName = defaultTrustedPolicyName,
+  }) async {
     if (_scriptLoaded) return;
 
     try {
@@ -38,18 +41,21 @@ class SentryScriptLoader {
         final integrity = script['integrity'];
 
         if (url != null) {
-          await loadScript(url, _options,
-              integrity: integrity,
-              trustedTypePolicyName: trustedTypePolicyName);
+          await loadScript(
+            url,
+            _options,
+            integrity: integrity,
+            trustedTypePolicyName: trustedTypePolicyName,
+          );
         }
       });
 
       _scriptLoaded = true;
-      _options.log(SentryLevel.debug,
-          'JS SDK integration: all Sentry scripts loaded successfully.');
+      internalLogger.debug(
+        'JS SDK integration: all Sentry scripts loaded successfully.',
+      );
     } catch (e) {
-      _options.log(SentryLevel.error, 'Failed to load Sentry scripts: $e');
-      // ignore: invalid_use_of_internal_member
+      internalLogger.error(() => 'Failed to load Sentry scripts: $e');
       if (_options.automatedTestMode) {
         rethrow;
       }
@@ -62,9 +68,11 @@ class SentryScriptLoader {
         : debugScripts;
 
     // no risk of injection since the scripts are constants
-    final selectors = scriptsToRemove.map((script) {
-      return 'script[src="${script['url']}"][integrity="${script['integrity']}"]';
-    }).join(', ');
+    final selectors = scriptsToRemove
+        .map((script) {
+          return 'script[src="${script['url']}"][integrity="${script['integrity']}"]';
+        })
+        .join(', ');
     final sentryScripts = fetchScripts(selectors);
     for (final script in sentryScripts) {
       script.remove();

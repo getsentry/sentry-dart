@@ -1,4 +1,5 @@
-import '_io_platform.dart' if (dart.library.js_interop) '_web_platform.dart'
+import '_io_platform.dart'
+    if (dart.library.js_interop) '_web_platform.dart'
     as impl;
 
 class Platform extends impl.PlatformBase {
@@ -19,12 +20,4 @@ class Platform extends impl.PlatformBase {
   bool get supportsNativeIntegration => !isFuchsia;
 }
 
-enum OperatingSystem {
-  android,
-  fuchsia,
-  ios,
-  linux,
-  macos,
-  windows,
-  unknown,
-}
+enum OperatingSystem { android, fuchsia, ios, linux, macos, windows, unknown }

@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_transport.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 
@@ -23,11 +23,7 @@ void main() {
 
     test('transformRequest creates span', () async {
       final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       await sut.transformRequest(RequestOptions(path: requestUri.toString()));
 
@@ -40,7 +36,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.data['http.fragment'], 'baz');
@@ -49,11 +45,7 @@ void main() {
 
     test('transformRequest finish span if errored request', () async {
       final sut = fixture.getSut(throwException: true);
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       try {
         await sut.transformRequest(RequestOptions(path: requestUri.toString()));
@@ -68,7 +60,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);
@@ -77,11 +69,7 @@ void main() {
 
     test('transformResponse creates span', () async {
       final sut = fixture.getSut();
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       await sut.transformResponse(
         RequestOptions(path: requestUri.toString()),
@@ -97,7 +85,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.origin, SentryTraceOrigins.autoHttpDioTransformer);
@@ -105,11 +93,7 @@ void main() {
 
     test('transformResponse finish span if errored request', () async {
       final sut = fixture.getSut(throwException: true);
-      final tr = fixture._hub.startTransaction(
-        'name',
-        'op',
-        bindToScope: true,
-      );
+      final tr = fixture._hub.startTransaction('name', 'op', bindToScope: true);
 
       try {
         await sut.transformResponse(
@@ -127,7 +111,7 @@ void main() {
       expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);
@@ -137,7 +121,8 @@ void main() {
 }
 
 class Fixture {
-  final _options = defaultTestOptions();
+  final _options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static;
   late Hub _hub;
   final transport = MockTransport();
   Fixture() {

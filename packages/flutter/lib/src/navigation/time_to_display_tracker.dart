@@ -7,7 +7,7 @@ import 'root_route.dart';
 import 'time_to_full_display_tracker.dart';
 import 'time_to_initial_display_tracker.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 
@@ -23,12 +23,10 @@ class TimeToDisplayTracker {
     TimeToInitialDisplayTracker? ttidTracker,
     TimeToFullDisplayTracker? ttfdTracker,
     required this.options,
-  })  : _hub = hub ?? HubAdapter(),
-        _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
-        _ttfdTracker = ttfdTracker ??
-            TimeToFullDisplayTracker(
-              Duration(seconds: 30),
-            );
+  }) : _hub = hub ?? HubAdapter(),
+       _ttidTracker = ttidTracker ?? TimeToInitialDisplayTracker(),
+       _ttfdTracker =
+           ttfdTracker ?? TimeToFullDisplayTracker(Duration(seconds: 30));
 
   // The id of the currently tracked transaction
   SpanId? transactionId;
@@ -123,8 +121,10 @@ class TimeToDisplayTracker {
     }
   }
 
-  Future<void> reportFullyDisplayed(
-      {SpanId? spanId, DateTime? endTimestamp}) async {
+  Future<void> reportFullyDisplayed({
+    SpanId? spanId,
+    DateTime? endTimestamp,
+  }) async {
     if (options.enableTimeToFullDisplayTracing) {
       final reported = await _ttfdTracker.reportFullyDisplayed(
         spanId: spanId,
@@ -140,7 +140,9 @@ class TimeToDisplayTracker {
   // Cancel unfinished TTID/TTFD spans, e.g this might happen if the user navigates
   // away from the current route before TTFD or TTID is finished.
   Future<void> cancelUnfinishedSpans(
-      SentryTracer transaction, DateTime endTimestamp) async {
+    SentryTracer transaction,
+    DateTime endTimestamp,
+  ) async {
     final ttidSpan = transaction.children.firstWhereOrNull(
       (child) =>
           child.context.operation ==
@@ -164,6 +166,11 @@ class TimeToDisplayTracker {
         endTimestamp: ttidSpan?.endTimestamp ?? endTimestamp,
       );
     }
+  }
+
+  /// Cancels initial display only while app-start preparation is pending.
+  void cancelAppStartPreparation() {
+    if (_prepared != null) clear();
   }
 
   void clear() {

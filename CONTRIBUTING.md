@@ -7,8 +7,8 @@ you get started.
 
 ### Required Tools
 
-* **Dart SDK** `>=3.5.0` - Required for all packages
-* **Flutter SDK** `>=3.24.0` - Required for `sentry-flutter` and Flutter integrations
+* **Dart SDK** `>=3.12.0` - Required for all packages
+* **Flutter SDK** `>=3.44.0` - Required for `sentry-flutter` and Flutter integrations
 * **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
 
@@ -76,13 +76,35 @@ The Flutter SDK supports the following platforms:
 We test the example app on Windows, macOS, and Linux to ensure cross-platform compatibility. CI runs
 against Flutter `stable` and `beta` channels.
 
+### Building the macOS example
+
+On macOS, Flutter derives the local SwiftPM package identity from the plugin's directory basename
+(`flutter`) rather than its pub name (`sentry_flutter`), so `flutter build macos` from
+`packages/flutter/example` fails with:
+
+```
+unable to override package 'sentry_flutter' because its identity 'flutter'
+doesn't match override's identity (directory name) 'sentry_flutter'
+```
+
+Use the helper script (or its melos alias), which temporarily renames the package directory to
+`sentry_flutter`, builds, then restores it:
+
+```bash
+melos run build:macos-example
+# or, forwarding extra flags to `flutter build macos`:
+./scripts/build-macos-example.sh --debug
+```
+
+This only affects the macOS example build; iOS is unaffected.
+
 ## Native SDK Dependencies
 
 The Flutter SDK embeds platform-specific native SDKs:
 
 * **Android**: [sentry-java](https://github.com/getsentry/sentry-java) (via
   Gradle) + [sentry-native](https://github.com/getsentry/sentry-native) for NDK
-* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via CocoaPods/SPM)
+* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via SwiftPM)
 * **Linux/Windows**: [sentry-native](https://github.com/getsentry/sentry-native) (bundled in
   `packages/flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)

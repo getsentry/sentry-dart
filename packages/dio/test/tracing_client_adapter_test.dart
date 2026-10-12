@@ -3,7 +3,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_dio/src/tracing_client_adapter.dart';
 import 'package:test/test.dart';
 
@@ -74,11 +74,11 @@ void main() {
       expect(span.context.operation, 'http.client');
       expect(span.context.description, 'GET https://example.com');
       expect(span.data['http.request.method'], 'GET');
-      expect(span.data['url'], 'https://example.com');
+      expect(span.data['url.full'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.data['http.response.status_code'], 200);
-      expect(span.data['http.response_content_length'], 2);
+      expect(span.data['http.response.body.size'], 2);
       expect(span.origin, SentryTraceOrigins.autoHttpDioHttpClientAdapter);
     });
 
@@ -292,14 +292,15 @@ void main() {
 }
 
 MockHttpClientAdapter createThrowingClient() {
-  return MockHttpClientAdapter((options, _, __) async {
+  return MockHttpClientAdapter((options, _, _) async {
     expect(options.uri, requestUri);
     throw TestException();
   });
 }
 
 class Fixture {
-  final _options = defaultTestOptions();
+  final _options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static;
   late Hub _hub;
   final transport = MockTransport();
   Fixture() {

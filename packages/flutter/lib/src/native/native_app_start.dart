@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
+
+import '../utils/internal_logger.dart';
 
 /// Raw app-start payload from the platform channel.
 ///
@@ -8,11 +9,12 @@ import 'package:sentry/sentry.dart';
 /// into validated timing and documents the full chain.
 @internal
 class NativeAppStart {
-  NativeAppStart(
-      {required this.appStartTime,
-      required this.pluginRegistrationTime,
-      required this.isColdStart,
-      required this.nativeSpanTimes});
+  NativeAppStart({
+    required this.appStartTime,
+    required this.pluginRegistrationTime,
+    required this.isColdStart,
+    required this.nativeSpanTimes,
+  });
 
   int appStartTime;
   int pluginRegistrationTime;
@@ -40,9 +42,8 @@ class NativeAppStart {
         isColdStart is! bool ||
         nativeSpanTimes is! Map) {
       // ignore: invalid_use_of_internal_member
-      Sentry.currentHub.options.log(
-        SentryLevel.warning,
-        'Failed to parse json when capturing App Start metrics. App Start wont be reported.',
+      internalLogger.warning(
+        'Failed to parse json when capturing App Start metrics. App Start won\'t be reported.',
       );
       return null;
     }

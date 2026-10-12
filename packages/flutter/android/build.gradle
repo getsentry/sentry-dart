@@ -1,5 +1,4 @@
 buildscript {
-    ext.kotlin_version = '1.8.0'
     repositories {
         google()
         mavenCentral()
@@ -7,7 +6,6 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -19,15 +17,6 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
-
-def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
-// android.builtInKotlin lets a project opt out of AGP 9's built-in Kotlin and fall back to the
-// standalone plugin, so it must be honored in addition to the AGP version.
-def builtInKotlin = agpMajor >= 9 && project.findProperty('android.builtInKotlin') != 'false'
-
-if (!builtInKotlin) {
-    apply plugin: 'kotlin-android'
-}
 
 android {
     compileSdkVersion 36
@@ -42,7 +31,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 26
         targetSdkVersion 36
 
         ndk {
@@ -66,25 +55,15 @@ android {
     }
 }
 
-// compilerOptions needs KGP 2.0 / 1.9+. Flutter 3.24-era apps (and this
-// repo's min_version_test) still ship KGP 1.8.x, which only has kotlinOptions.
-def kotlinExt = project.extensions.findByName('kotlin')
-if (kotlinExt?.hasProperty('compilerOptions')) {
-    kotlin {
-        compilerOptions {
-            jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
-        }
-    }
-} else {
-    android.kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8
     }
 }
 
 dependencies {
     api 'io.sentry:sentry-android:8.56.0'
     debugImplementation 'io.sentry:sentry-spotlight:8.56.0'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 
     // Required -- JUnit 4 framework
     testImplementation "junit:junit:4.13.2"

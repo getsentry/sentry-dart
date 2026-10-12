@@ -90,38 +90,11 @@ class SentryCulture {
   Map<String, dynamic> toJson() {
     return {
       ...?unknown,
-      if (calendar != null) 'calendar': calendar!,
-      if (displayName != null) 'display_name': displayName!,
-      if (locale != null) 'locale': locale!,
-      if (is24HourFormat != null) 'is_24_hour_format': is24HourFormat!,
-      if (timezone != null) 'timezone': timezone!,
+      'calendar': ?calendar,
+      'display_name': ?displayName,
+      'locale': ?locale,
+      'is_24_hour_format': ?is24HourFormat,
+      'timezone': ?timezone,
     };
   }
-
-  @Deprecated('Will be removed in a future version.')
-  SentryCulture clone() => SentryCulture(
-        calendar: calendar,
-        displayName: displayName,
-        locale: locale,
-        is24HourFormat: is24HourFormat,
-        timezone: timezone,
-        unknown: unknown,
-      );
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryCulture copyWith({
-    String? calendar,
-    String? displayName,
-    String? locale,
-    bool? is24HourFormat,
-    String? timezone,
-  }) =>
-      SentryCulture(
-        calendar: calendar ?? this.calendar,
-        displayName: displayName ?? this.displayName,
-        locale: locale ?? this.locale,
-        is24HourFormat: is24HourFormat ?? this.is24HourFormat,
-        timezone: timezone ?? this.timezone,
-        unknown: unknown,
-      );
 }

@@ -32,13 +32,15 @@ Future<void> runApp() async {
   );
 
   try {
-    final response = await dio
-        .get<Map<String, Object?>>('https://www.google.com/idontexist');
+    final response = await dio.get<Map<String, Object?>>(
+      'https://www.google.com/idontexist',
+    );
 
     print(response.toString());
 
-    transaction.status =
-        SpanStatus.fromHttpStatusCode(response.statusCode ?? -1);
+    transaction.status = SpanStatus.fromHttpStatusCode(
+      response.statusCode ?? -1,
+    );
   } catch (exception) {
     transaction.throwable = exception;
     transaction.status = const SpanStatus.internalError();

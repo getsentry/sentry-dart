@@ -2,15 +2,17 @@ import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
 import '_io_default_log_output.dart'
-    if (dart.library.js_interop) '_web_default_log_output.dart' as log_output;
+    if (dart.library.js_interop) '_web_default_log_output.dart'
+    as log_output;
 
-typedef LogOutputFunction = void Function({
-  required String name,
-  required SentryLevel level,
-  required String message,
-  Object? error,
-  StackTrace? stackTrace,
-});
+typedef LogOutputFunction =
+    void Function({
+      required String name,
+      required SentryLevel level,
+      required String message,
+      Object? error,
+      StackTrace? stackTrace,
+    });
 
 /// Lightweight isolate compatible diagnostic logger for the Sentry SDK.
 ///
@@ -83,39 +85,19 @@ class SentryInternalLogger {
     return _isEnabled && level.ordinal >= _minLevel.ordinal;
   }
 
-  void debug(
-    Object message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) =>
+  void debug(Object message, {Object? error, StackTrace? stackTrace}) =>
       _log(SentryLevel.debug, message, error: error, stackTrace: stackTrace);
 
-  void info(
-    Object message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) =>
+  void info(Object message, {Object? error, StackTrace? stackTrace}) =>
       _log(SentryLevel.info, message, error: error, stackTrace: stackTrace);
 
-  void warning(
-    Object message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) =>
+  void warning(Object message, {Object? error, StackTrace? stackTrace}) =>
       _log(SentryLevel.warning, message, error: error, stackTrace: stackTrace);
 
-  void error(
-    Object message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) =>
+  void error(Object message, {Object? error, StackTrace? stackTrace}) =>
       _log(SentryLevel.error, message, error: error, stackTrace: stackTrace);
 
-  void fatal(
-    Object message, {
-    Object? error,
-    StackTrace? stackTrace,
-  }) =>
+  void fatal(Object message, {Object? error, StackTrace? stackTrace}) =>
       _log(SentryLevel.fatal, message, error: error, stackTrace: stackTrace);
 
   @pragma('vm:prefer-inline')

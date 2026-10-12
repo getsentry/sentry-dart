@@ -15,8 +15,9 @@ void main() {
     }
 
     test('Production script is accessible', () async {
-      await Future.forEach(productionScripts,
-          (Map<String, String> script) async {
+      await Future.forEach(productionScripts, (
+        Map<String, String> script,
+      ) async {
         await checkScript(script);
       });
     });

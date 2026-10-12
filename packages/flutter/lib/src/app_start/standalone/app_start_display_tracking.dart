@@ -16,10 +16,12 @@ import '../../navigation/time_to_display_tracker_v2.dart';
 abstract interface class AppStartDisplayTracking {
   factory AppStartDisplayTracking.forOptions(SentryFlutterOptions options) =>
       switch (options.traceLifecycle) {
-        SentryTraceLifecycle.static =>
-          _StaticAppStartDisplayTracking(options.timeToDisplayTracker),
-        SentryTraceLifecycle.stream =>
-          _StreamingAppStartDisplayTracking(options.timeToDisplayTrackerV2),
+        SentryTraceLifecycle.static => _StaticAppStartDisplayTracking(
+          options.timeToDisplayTracker,
+        ),
+        SentryTraceLifecycle.stream => _StreamingAppStartDisplayTracking(
+          options.timeToDisplayTrackerV2,
+        ),
       };
 
   /// Opens initial-display tracking for an app start that began at
@@ -47,7 +49,7 @@ final class _StaticAppStartDisplayTracking implements AppStartDisplayTracking {
       _tracker.recordInitialDisplay(endTimestamp);
 
   @override
-  void cancel() => _tracker.clear();
+  void cancel() => _tracker.cancelAppStartPreparation();
 }
 
 final class _StreamingAppStartDisplayTracking
@@ -65,5 +67,5 @@ final class _StreamingAppStartDisplayTracking
       _tracker.trackAppStart(ttidEndTimestamp: endTimestamp);
 
   @override
-  void cancel() => _tracker.cancelCurrentRoute();
+  void cancel() => _tracker.cancelAppStartPreparation();
 }

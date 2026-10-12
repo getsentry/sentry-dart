@@ -40,7 +40,7 @@ jobs:
         with:
           path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
-          pattern: '^8\.' # Only update Cocoa SDK 8.x.x until the next Sentry Flutter major v10
+          pattern: '^9\.'
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 

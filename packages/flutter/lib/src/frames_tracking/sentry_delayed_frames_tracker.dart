@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../utils/internal_logger.dart';
 
 /// This is just an upper limit, ensuring that the buffer does not grow
 /// indefinitely in case of a long running span.
@@ -50,28 +51,30 @@ class SentryDelayedFramesTracker {
     required DateTime startTimestamp,
     required DateTime endTimestamp,
   }) {
-    return _delayedFrames.where((frame) {
-      // Fully contained or exactly matching
-      final fullyContainedOrMatching =
-          frame.startTimestamp.compareTo(startTimestamp) >= 0 &&
+    return _delayedFrames
+        .where((frame) {
+          // Fully contained or exactly matching
+          final fullyContainedOrMatching =
+              frame.startTimestamp.compareTo(startTimestamp) >= 0 &&
               frame.endTimestamp.compareTo(endTimestamp) <= 0;
 
-      // Partially contained, starts before range, ends within range
-      final startsBeforeEndsWithin =
-          frame.startTimestamp.isBefore(startTimestamp) &&
+          // Partially contained, starts before range, ends within range
+          final startsBeforeEndsWithin =
+              frame.startTimestamp.isBefore(startTimestamp) &&
               frame.endTimestamp.isAfter(startTimestamp) &&
               frame.endTimestamp.isBefore(endTimestamp);
 
-      // Partially contained, starts within range, ends after range
-      final startsWithinEndsAfter =
-          frame.startTimestamp.isAfter(startTimestamp) &&
+          // Partially contained, starts within range, ends after range
+          final startsWithinEndsAfter =
+              frame.startTimestamp.isAfter(startTimestamp) &&
               frame.startTimestamp.isBefore(endTimestamp) &&
               frame.endTimestamp.isAfter(endTimestamp);
 
-      return fullyContainedOrMatching ||
-          startsBeforeEndsWithin ||
-          startsWithinEndsAfter;
-    }).toList(growable: false);
+          return fullyContainedOrMatching ||
+              startsBeforeEndsWithin ||
+              startsWithinEndsAfter;
+        })
+        .toList(growable: false);
   }
 
   /// Records the start and end time of a delayed frame.
@@ -87,8 +90,7 @@ class SentryDelayedFramesTracker {
       return;
     }
     if (_delayedFrames.length > maxDelayedFramesBuffer) {
-      _options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'Frame tracking buffer is full, stopping frame collection until all active spans have finished processing',
       );
       return;
@@ -109,7 +111,12 @@ class SentryDelayedFramesTracker {
       _delayedFrames.removeWhere(
         (frame) => frame.startTimestamp.isBefore(spanStartTimestamp),
       );
-      _oldestFrameEndTimestamp = _delayedFrames.firstOrNull?.endTimestamp;
+      try {
+        // We cannot use firstOrNull, it requires at least Dart 3.0.0
+        _oldestFrameEndTimestamp = _delayedFrames.first.endTimestamp;
+      } catch (e) {
+        _oldestFrameEndTimestamp = null;
+      }
     }
   }
 
@@ -124,14 +131,15 @@ class SentryDelayedFramesTracker {
       startTimestamp: spanStartTimestamp,
       endTimestamp: spanEndTimestamp,
     );
-    final spanDuration =
-        spanEndTimestamp.difference(spanStartTimestamp).inMilliseconds;
+    final spanDuration = spanEndTimestamp
+        .difference(spanStartTimestamp)
+        .inMilliseconds;
 
     // No slow or frozen frames detected
     if (relevantFrames.isEmpty) {
       return SpanFrameMetrics(
-        totalFrameCount:
-            (spanDuration / _expectedFrameDuration.inMilliseconds).ceil(),
+        totalFrameCount: (spanDuration / _expectedFrameDuration.inMilliseconds)
+            .ceil(),
         slowFrameCount: 0,
         frozenFrameCount: 0,
         framesDelay: 0.0,
@@ -199,7 +207,7 @@ class SentryDelayedFramesTracker {
 
     final normalFramesCount =
         (spanDuration - (slowFramesDuration + frozenFramesDuration)) /
-            _expectedFrameDuration.inMilliseconds;
+        _expectedFrameDuration.inMilliseconds;
     final totalFrameCount =
         (normalFramesCount + slowFrameCount + frozenFrameCount).ceil();
 

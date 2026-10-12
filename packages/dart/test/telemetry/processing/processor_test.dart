@@ -42,8 +42,7 @@ void main() {
     group('addLog', () {
       test('routes log to log buffer', () {
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>();
-        final processor =
-            fixture.getSut(enableLogs: true, logBuffer: mockLogBuffer);
+        final processor = fixture.getSut(logBuffer: mockLogBuffer);
 
         final log = fixture.createLog();
         processor.addLog(log);
@@ -64,8 +63,7 @@ void main() {
     group('addMetric', () {
       test('routes metric to metric buffer', () {
         final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>();
-        final processor =
-            fixture.getSut(enableMetrics: true, metricBuffer: mockMetricBuffer);
+        final processor = fixture.getSut(metricBuffer: mockMetricBuffer);
 
         final metric = fixture.createMetric();
         processor.addMetric(metric);
@@ -82,7 +80,6 @@ void main() {
         final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>();
 
         final processor = fixture.getSut(
-          enableLogs: true,
           spanBuffer: mockSpanBuffer,
           logBuffer: mockLogBuffer,
           metricBuffer: mockMetricBuffer,
@@ -106,39 +103,49 @@ void main() {
       });
 
       test('returns sync (null) when all buffers flush synchronously', () {
-        final mockSpanBuffer =
-            MockTelemetryBuffer<RecordingSentrySpanV2>(asyncFlush: false);
+        final mockSpanBuffer = MockTelemetryBuffer<RecordingSentrySpanV2>(
+          asyncFlush: false,
+        );
         final mockLogBuffer = MockTelemetryBuffer<SentryLog>(asyncFlush: false);
-        final mockMetricBuffer =
-            MockTelemetryBuffer<SentryMetric>(asyncFlush: false);
+        final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>(
+          asyncFlush: false,
+        );
 
         final processor = fixture.getSut(
-            spanBuffer: mockSpanBuffer,
-            logBuffer: mockLogBuffer,
-            metricBuffer: mockMetricBuffer);
+          spanBuffer: mockSpanBuffer,
+          logBuffer: mockLogBuffer,
+          metricBuffer: mockMetricBuffer,
+        );
 
         final result = processor.flush();
 
         expect(result, isNull);
       });
 
-      test('returns Future when at least one buffer flushes asynchronously',
-          () async {
-        final mockSpanBuffer =
-            MockTelemetryBuffer<RecordingSentrySpanV2>(asyncFlush: true);
-        final mockLogBuffer = MockTelemetryBuffer<SentryLog>(asyncFlush: false);
-        final mockMetricBuffer =
-            MockTelemetryBuffer<SentryMetric>(asyncFlush: false);
-        final processor = fixture.getSut(
+      test(
+        'returns Future when at least one buffer flushes asynchronously',
+        () async {
+          final mockSpanBuffer = MockTelemetryBuffer<RecordingSentrySpanV2>(
+            asyncFlush: true,
+          );
+          final mockLogBuffer = MockTelemetryBuffer<SentryLog>(
+            asyncFlush: false,
+          );
+          final mockMetricBuffer = MockTelemetryBuffer<SentryMetric>(
+            asyncFlush: false,
+          );
+          final processor = fixture.getSut(
             spanBuffer: mockSpanBuffer,
             logBuffer: mockLogBuffer,
-            metricBuffer: mockMetricBuffer);
+            metricBuffer: mockMetricBuffer,
+          );
 
-        final result = processor.flush();
+          final result = processor.flush();
 
-        expect(result, isA<Future>());
-        await result;
-      });
+          expect(result, isA<Future>());
+          await result;
+        },
+      );
     });
   });
 }
@@ -151,14 +158,10 @@ class Fixture {
   }
 
   DefaultTelemetryProcessor getSut({
-    bool enableLogs = false,
-    bool enableMetrics = false,
     MockTelemetryBuffer<RecordingSentrySpanV2>? spanBuffer,
     MockTelemetryBuffer<SentryLog>? logBuffer,
     MockTelemetryBuffer<SentryMetric>? metricBuffer,
   }) {
-    options.enableLogs = enableLogs;
-    options.enableMetrics = enableMetrics;
     return DefaultTelemetryProcessor(
       spanBuffer: spanBuffer,
       logBuffer: logBuffer,
@@ -203,10 +206,10 @@ class Fixture {
   }
 
   SentryMetric createMetric() => SentryCounterMetric(
-        timestamp: DateTime.now().toUtc(),
-        attributes: {},
-        name: 'test-metric',
-        value: 1,
-        traceId: SentryId.newId(),
-      );
+    timestamp: DateTime.now().toUtc(),
+    attributes: {},
+    name: 'test-metric',
+    value: 1,
+    traceId: SentryId.newId(),
+  );
 }
