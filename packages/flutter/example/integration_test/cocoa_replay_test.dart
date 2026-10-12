@@ -30,6 +30,8 @@ void main() {
       await fixture.waitForScreenshot();
 
       expect(Sentry.currentHub.scope.replayId, isNull);
+      expect(SentryFlutter.native?.replayId, isNotNull);
+      await fixture.expectLogReplay(isBuffering: true);
     }, skip: !Platform.isIOS);
 
     testWidgets('links the scope after flushing a buffer', (tester) async {
@@ -37,6 +39,8 @@ void main() {
       await replay.startBuffering();
       await fixture.waitForScreenshot();
       expect(Sentry.currentHub.scope.replayId, isNull);
+      final bufferedReplayId = SentryFlutter.native?.replayId;
+      expect(bufferedReplayId, isNotNull);
 
       await replay.flush();
       await fixture.waitFor(
@@ -46,6 +50,8 @@ void main() {
       final replayId = Sentry.currentHub.scope.replayId;
       expect(replayId, isNot(const SentryId.empty()));
       expect(SentryFlutter.native?.replayId, replayId);
+      expect(replayId, bufferedReplayId);
+      await fixture.expectLogReplay(isBuffering: false);
 
       await replay.stop();
       final screenshotCount = fixture.channel.screenshotCount;
@@ -53,15 +59,19 @@ void main() {
       await fixture.waitForScreenshot(after: screenshotCount);
 
       expect(Sentry.currentHub.scope.replayId, isNull);
+      expect(SentryFlutter.native?.replayId, isNot(bufferedReplayId));
+      await fixture.expectLogReplay(isBuffering: true);
     }, skip: !Platform.isIOS);
   });
 }
 
 class Fixture {
   final channel = ReplayScreenshotChannel();
+  late SentryFlutterOptions options;
 
   Future<SentryReplay> getSut(WidgetTester tester) async {
     await SentryFlutter.init((options) {
+      this.options = options;
       options
         ..dsn = 'https://abc@def.ingest.sentry.io/1234567'
         ..automatedTestMode = true;
@@ -76,6 +86,25 @@ class Fixture {
     );
     await tester.pump();
     return SentryFlutter.replay;
+  }
+
+  Future<void> expectLogReplay({required bool isBuffering}) async {
+    final log = SentryLog(
+      timestamp: options.clock(),
+      traceId: SentryId.newId(),
+      level: SentryLogLevel.info,
+      body: 'Cocoa replay',
+      attributes: {},
+    );
+    await options.lifecycleRegistry.dispatchCallback(OnProcessLog(log, Hint()));
+    expect(
+      log.attributes['sentry.replay_id']?.value,
+      SentryFlutter.native!.replayId.toString(),
+    );
+    expect(
+      log.attributes['sentry._internal.replay_is_buffering']?.value,
+      isBuffering ? true : null,
+    );
   }
 
   Future<void> waitForScreenshot({int after = 0}) => waitFor(

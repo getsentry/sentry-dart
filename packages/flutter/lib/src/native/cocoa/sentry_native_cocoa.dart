@@ -38,12 +38,13 @@ class SentryNativeCocoa extends SentryNativeChannel {
                 ? null
                 : SentryId.fromId(replayIdArg as String);
 
-            if (_replayId != replayId) {
-              _replayId = replayId;
+            _replayId = replayId;
+            final scopeReplayId = replayIsBuffering ? null : replayId;
+            // ignore: invalid_use_of_internal_member
+            if (hub.scope.replayId != scopeReplayId) {
               hub.configureScope((s) {
-                // Only set replay ID on scope if not buffering (active session mode)
                 // ignore: invalid_use_of_internal_member
-                s.replayId = !replayIsBuffering ? replayId : null;
+                s.replayId = scopeReplayId;
               });
             }
 
