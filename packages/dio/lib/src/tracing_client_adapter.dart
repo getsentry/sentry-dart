@@ -15,9 +15,8 @@ class TracingClientAdapter implements HttpClientAdapter {
   static const String integrationName = 'HTTPNetworkTracing';
 
   // ignore: public_member_api_docs
-  TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client {
+  TracingClientAdapter({required this._client, Hub? hub})
+    : _hub = hub ?? HubAdapter() {
     _spanFactory = _hub.options.spanFactory;
     if (_hub.options.isTracingEnabled()) {
       _hub.options.sdk.addIntegration(integrationName);
@@ -66,23 +65,28 @@ class TracingClientAdapter implements HttpClientAdapter {
 
     instrumentationSpan?.origin =
         SentryTraceOrigins.autoHttpDioHttpClientAdapter;
-    instrumentationSpan?.setData('http.request.method', options.method);
+    instrumentationSpan?.setData(
+      SemanticAttributesConstants.httpRequestMethod,
+      options.method,
+    );
     urlDetails?.applyToSpan(instrumentationSpan);
 
     ResponseBody? response;
     try {
       response = await _client.fetch(options, requestStream, cancelFuture);
-      instrumentationSpan?.status =
-          SpanStatus.fromHttpStatusCode(response.statusCode);
-      instrumentationSpan?.setData(
-        'http.response.status_code',
+      instrumentationSpan?.status = SpanStatus.fromHttpStatusCode(
         response.statusCode,
       );
-      final contentLengthHeader =
-          HttpHeaderUtils.getContentLength(response.headers);
+      instrumentationSpan?.setData(
+        SemanticAttributesConstants.httpResponseStatusCode,
+        response.statusCode,
+      );
+      final contentLengthHeader = HttpHeaderUtils.getContentLength(
+        response.headers,
+      );
       if (contentLengthHeader != null) {
         instrumentationSpan?.setData(
-          'http.response_content_length',
+          SemanticAttributesConstants.httpResponseBodySize,
           contentLengthHeader,
         );
       }

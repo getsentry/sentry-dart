@@ -14,7 +14,7 @@ import 'package:sentry_flutter/src/web/replay/web_replay_canvas_bridge.dart';
 
 import '../../mocks.dart';
 import '../../replay/replay_test_util.dart';
-import '../../screenshot/test_widget.dart';
+import '../../screen_capture/test_widget.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -94,11 +94,13 @@ class _Fixture {
     );
     bridge.onFeedFrame = () => _completer.complete();
 
-    _sut.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
-      width: 1000,
-      height: 1000,
-      frameRate: 1000,
-    ));
+    _sut.onConfigurationChanged(
+      ScheduledScreenshotRecorderConfig(
+        width: 1000,
+        height: 1000,
+        frameRate: 1000,
+      ),
+    );
   }
 
   static Future<_Fixture> create(WidgetTester tester) async {

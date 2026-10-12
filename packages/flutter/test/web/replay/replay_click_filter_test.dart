@@ -14,7 +14,8 @@ void main() {
     test('is false for the Flutter click breadcrumb', () {
       expect(
         isFlutterViewClickEvent(
-            _breadcrumbEvent('flutter-view', category: 'flutter.ui.click')),
+          _breadcrumbEvent('flutter-view', category: 'flutter.ui.click'),
+        ),
         isFalse,
       );
     });
@@ -22,7 +23,8 @@ void main() {
     test('is false for other breadcrumb categories', () {
       expect(
         isFlutterViewClickEvent(
-            _breadcrumbEvent('flutter-view', category: 'navigation')),
+          _breadcrumbEvent('flutter-view', category: 'navigation'),
+        ),
         isFalse,
       );
     });
@@ -39,17 +41,21 @@ void main() {
 
     test('is false for non-custom events', () {
       expect(
-          isFlutterViewClickEvent(
-              <dynamic, dynamic>{'type': 3, 'data': <dynamic, dynamic>{}}),
-          isFalse);
+        isFlutterViewClickEvent(<dynamic, dynamic>{
+          'type': 3,
+          'data': <dynamic, dynamic>{},
+        }),
+        isFalse,
+      );
     });
 
     test('is false for malformed events', () {
       expect(isFlutterViewClickEvent(null), isFalse);
       expect(isFlutterViewClickEvent(<dynamic, dynamic>{'type': 5}), isFalse);
       expect(
-          isFlutterViewClickEvent(<dynamic, dynamic>{'type': 5, 'data': 'x'}),
-          isFalse);
+        isFlutterViewClickEvent(<dynamic, dynamic>{'type': 5, 'data': 'x'}),
+        isFalse,
+      );
       expect(
         isFlutterViewClickEvent(<dynamic, dynamic>{
           'type': 5,
@@ -64,18 +70,17 @@ void main() {
 Map<dynamic, dynamic> _breadcrumbEvent(
   String tagName, {
   String category = 'ui.click',
-}) =>
-    {
-      'type': 5,
+}) => {
+  'type': 5,
+  'data': {
+    'tag': 'breadcrumb',
+    'payload': {
+      'category': category,
+      'message': 'body > $tagName',
       'data': {
-        'tag': 'breadcrumb',
-        'payload': {
-          'category': category,
-          'message': 'body > $tagName',
-          'data': {
-            'nodeId': 27,
-            'node': {'id': 27, 'tagName': tagName},
-          },
-        },
+        'nodeId': 27,
+        'node': {'id': 27, 'tagName': tagName},
       },
-    };
+    },
+  },
+};

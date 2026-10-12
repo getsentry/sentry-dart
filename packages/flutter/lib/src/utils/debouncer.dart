@@ -7,8 +7,10 @@ class Debouncer {
   final Duration waitTime;
   DateTime? _lastExecutionTime;
 
-  Debouncer(this.clockProvider,
-      {this.waitTime = const Duration(milliseconds: 2000)});
+  Debouncer(
+    this.clockProvider, {
+    this.waitTime = const Duration(milliseconds: 2000),
+  });
 
   bool shouldDebounce() {
     final currentTime = clockProvider();

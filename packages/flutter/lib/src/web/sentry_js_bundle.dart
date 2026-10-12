@@ -11,7 +11,7 @@ const productionScripts = [
   {
     'url': 'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.min.js',
     'integrity': productionIntegrity,
-  }
+  },
 ];
 
 @internal
@@ -32,7 +32,7 @@ const productionReplayScripts = [
   {
     'url': 'https://browser.sentry-cdn.com/$jsSdkVersion/replay-canvas.min.js',
     'integrity': productionReplayCanvasIntegrity,
-  }
+  },
 ];
 
 @internal

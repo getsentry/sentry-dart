@@ -27,8 +27,10 @@ void main() {
 
       final processedEvent = await sut.apply(event, Hint());
 
-      expect(processedEvent?.contexts.trace?.replayId.toString(),
-          fixture.replayId);
+      expect(
+        processedEvent?.contexts.trace?.replayId.toString(),
+        fixture.replayId,
+      );
     });
 
     test('does not change event when replay ID is unavailable', () async {

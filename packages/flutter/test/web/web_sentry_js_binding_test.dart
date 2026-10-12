@@ -25,20 +25,21 @@ void main() {
     });
 
     test(
-        'getFilenameToDebugIdMap returns the cached result on subsequent calls',
-        () async {
-      final sut = await fixture.getSut();
-      sut.init({});
-      _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
+      'getFilenameToDebugIdMap returns the cached result on subsequent calls',
+      () async {
+        final sut = await fixture.getSut();
+        sut.init({});
+        _globalThis['_sentryDebugIds'] = debugIdMap.jsify();
 
-      final firstResult = sut.getFilenameToDebugIdMap();
-      final cachedResult = sut.filenameToDebugIds;
-      final secondResult = sut.getFilenameToDebugIdMap();
+        final firstResult = sut.getFilenameToDebugIdMap();
+        final cachedResult = sut.filenameToDebugIds;
+        final secondResult = sut.getFilenameToDebugIdMap();
 
-      expect(firstResult, isNotNull);
-      expect(firstResult, cachedResult);
-      expect(secondResult, cachedResult);
-    });
+        expect(firstResult, isNotNull);
+        expect(firstResult, cachedResult);
+        expect(secondResult, cachedResult);
+      },
+    );
 
     test('sets the JS SDK name for native JS errors', () async {
       final sut = await fixture.getSut();
@@ -89,8 +90,9 @@ void main() {
       sut.setExtra('fixture_extra', 'extra-value');
       sut.setTag('fixture_tag', 'tag-value');
 
-      final processedEvent =
-          await _captureNativeJsError('native js scope sync error');
+      final processedEvent = await _captureNativeJsError(
+        'native js scope sync error',
+      );
       final user = processedEvent['user'] as Map<dynamic, dynamic>?;
       final breadcrumbs = processedEvent['breadcrumbs'] as List<dynamic>?;
       final contexts = processedEvent['contexts'] as Map<dynamic, dynamic>?;
@@ -108,70 +110,76 @@ void main() {
       expect(tags?['fixture_tag'], 'tag-value');
     });
 
-    test('createManualReplayCanvasIntegration exposes manual snapshot',
-        () async {
-      final sut = await fixture.getSut(withReplay: true);
+    test(
+      'createManualReplayCanvasIntegration exposes manual snapshot',
+      () async {
+        final sut = await fixture.getSut(withReplay: true);
 
-      final integration =
-          sut.createManualReplayCanvasIntegration() as JSObject?;
+        final integration =
+            sut.createManualReplayCanvasIntegration() as JSObject?;
 
-      expect(integration, isNotNull);
-      expect(integration!['name'], 'ReplayCanvas'.toJS);
-      expect(integration['snapshot'].typeofEquals('function'), isTrue);
-    });
+        expect(integration, isNotNull);
+        expect(integration!['name'], 'ReplayCanvas'.toJS);
+        expect(integration['snapshot'].typeofEquals('function'), isTrue);
+      },
+    );
 
     // `blockAllMedia` doesn't cover <canvas>, so the replay integration must
     // block Flutter's real canvas explicitly (#2897).
-    test('replay integration blocks canvases except the shadow canvas',
-        () async {
-      final sut = await fixture.getSut(withReplay: true);
-      sut.init({
-        'dsn': fakeDsn,
-        'replaysSessionSampleRate': 1.0,
-        'integrations': [SentryJsIntegrationName.replay],
-      });
-      addTearDown(sut.close);
+    test(
+      'replay integration blocks canvases except the shadow canvas',
+      () async {
+        final sut = await fixture.getSut(withReplay: true);
+        sut.init({
+          'dsn': fakeDsn,
+          'replaysSessionSampleRate': 1.0,
+          'integrations': [SentryJsIntegrationName.replay],
+        });
+        addTearDown(sut.close);
 
-      final replay = _getReplayIntegration();
-      final recordingOptions = replay!['_recordingOptions'] as JSObject;
-      final blockSelector =
-          (recordingOptions['blockSelector'] as JSString).toDart;
+        final replay = _getReplayIntegration();
+        final recordingOptions = replay!['_recordingOptions'] as JSObject;
+        final blockSelector =
+            (recordingOptions['blockSelector'] as JSString).toDart;
 
-      expect(blockSelector, contains(webReplayBlockSelector));
-    });
+        expect(blockSelector, contains(webReplayBlockSelector));
+      },
+    );
 
-    test('replay integration drops the flutter-view DOM click breadcrumb',
-        () async {
-      final sut = await fixture.getSut(withReplay: true);
-      sut.init({
-        'dsn': fakeDsn,
-        'replaysSessionSampleRate': 1.0,
-        'integrations': [SentryJsIntegrationName.replay],
-      });
-      addTearDown(sut.close);
+    test(
+      'replay integration drops the flutter-view DOM click breadcrumb',
+      () async {
+        final sut = await fixture.getSut(withReplay: true);
+        sut.init({
+          'dsn': fakeDsn,
+          'replaysSessionSampleRate': 1.0,
+          'integrations': [SentryJsIntegrationName.replay],
+        });
+        addTearDown(sut.close);
 
-      final container = _getReplayIntegration()!['_replay'] as JSObject;
-      final options = container.callMethod<JSObject>('getOptions'.toJS);
-      final callback = options['beforeAddRecordingEvent'] as JSFunction;
-      JSAny? apply(Map<String, Object?> event) =>
-          callback.callAsFunction(null, event.jsify());
+        final container = _getReplayIntegration()!['_replay'] as JSObject;
+        final options = container.callMethod<JSObject>('getOptions'.toJS);
+        final callback = options['beforeAddRecordingEvent'] as JSFunction;
+        JSAny? apply(Map<String, Object?> event) =>
+            callback.callAsFunction(null, event.jsify());
 
-      Map<String, Object?> click(String tagName) => {
-            'type': 5,
-            'data': {
-              'tag': 'breadcrumb',
-              'payload': {
-                'category': 'ui.click',
-                'data': {
-                  'node': {'tagName': tagName},
-                },
+        Map<String, Object?> click(String tagName) => {
+          'type': 5,
+          'data': {
+            'tag': 'breadcrumb',
+            'payload': {
+              'category': 'ui.click',
+              'data': {
+                'node': {'tagName': tagName},
               },
             },
-          };
+          },
+        };
 
-      expect(apply(click('flutter-view')), isNull);
-      expect(apply(click('button')), isNotNull);
-    });
+        expect(apply(click('flutter-view')), isNull);
+        expect(apply(click('button')), isNotNull);
+      },
+    );
 
     test('emits replay breadcrumb hook', () async {
       final sut = await fixture.getSut();
@@ -187,7 +195,8 @@ void main() {
           return;
         }
         interceptedBreadcrumb.complete(
-            (breadcrumb as JSObject).dartify() as Map<dynamic, dynamic>);
+          (breadcrumb as JSObject).dartify() as Map<dynamic, dynamic>,
+        );
       }).toJS;
       client!.on('beforeAddBreadcrumb'.toJS, callback);
 
@@ -196,8 +205,9 @@ void main() {
         'category': 'default',
       });
 
-      final breadcrumb = await interceptedBreadcrumb.future
-          .timeout(const Duration(seconds: 5));
+      final breadcrumb = await interceptedBreadcrumb.future.timeout(
+        const Duration(seconds: 5),
+      );
       expect(breadcrumb['message'], 'fixture-replay-breadcrumb');
       expect(breadcrumb['category'], 'default');
     });
@@ -218,8 +228,9 @@ void main() {
       sut.setTag('fixture_tag', 'tag-value');
       sut.removeTag('fixture_tag');
 
-      final processedEvent =
-          await _captureNativeJsError('native js scope removal error');
+      final processedEvent = await _captureNativeJsError(
+        'native js scope removal error',
+      );
       final user = processedEvent['user'] as Map<dynamic, dynamic>?;
       final breadcrumbs = processedEvent['breadcrumbs'] as List<dynamic>?;
       final contexts = processedEvent['contexts'] as Map<dynamic, dynamic>?;
@@ -284,7 +295,8 @@ Future<Map<dynamic, dynamic>> _captureNativeJsError(String expectedMessage) {
     }
     if (!event.isA<JSObject>()) {
       completeFailure(
-          'beforeSendEvent callback received a non-JSObject event.');
+        'beforeSendEvent callback received a non-JSObject event.',
+      );
       return;
     }
 
@@ -298,14 +310,16 @@ Future<Map<dynamic, dynamic>> _captureNativeJsError(String expectedMessage) {
     final values = exception['values'];
     if (values is! List || values.isEmpty) {
       completeFailure(
-          "beforeSendEvent event exception map is missing a non-empty 'values' list.");
+        "beforeSendEvent event exception map is missing a non-empty 'values' list.",
+      );
       return;
     }
 
     final firstValue = values.first;
     if (firstValue is! Map) {
       completeFailure(
-          "beforeSendEvent event exception values first item is not a map.");
+        "beforeSendEvent event exception values first item is not a map.",
+      );
       return;
     }
 

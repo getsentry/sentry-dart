@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import '../../sentry.dart';
-import '../event_processor/enricher/flutter_runtime.dart';
+import '../enrichment/flutter_runtime.dart';
 
 /// The context interfaces provide additional context data.
 ///
@@ -24,18 +24,18 @@ class Contexts extends MapView<String, dynamic> {
     SentryFeedback? feedback,
     SentryFeatureFlags? flags,
   }) : super({
-          SentryDevice.type: device,
-          SentryOperatingSystem.type: operatingSystem,
-          SentryRuntime.listType: List<SentryRuntime>.from(runtimes ?? []),
-          SentryApp.type: app,
-          SentryBrowser.type: browser,
-          SentryGpu.type: gpu,
-          SentryCulture.type: culture,
-          SentryTraceContext.type: trace,
-          SentryResponse.type: response,
-          SentryFeedback.type: feedback,
-          SentryFeatureFlags.type: flags,
-        });
+         SentryDevice.type: device,
+         SentryOperatingSystem.type: operatingSystem,
+         SentryRuntime.listType: List<SentryRuntime>.from(runtimes ?? []),
+         SentryApp.type: app,
+         SentryBrowser.type: browser,
+         SentryGpu.type: gpu,
+         SentryCulture.type: culture,
+         SentryTraceContext.type: trace,
+         SentryResponse.type: response,
+         SentryFeedback.type: feedback,
+         SentryFeatureFlags.type: flags,
+       });
 
   /// Deserializes [Contexts] from JSON [Map].
   factory Contexts.fromJson(Map<String, dynamic> data) {
@@ -45,7 +45,8 @@ class Contexts extends MapView<String, dynamic> {
           : null,
       operatingSystem: data[SentryOperatingSystem.type] != null
           ? SentryOperatingSystem.fromJson(
-              Map.from(data[SentryOperatingSystem.type]))
+              Map.from(data[SentryOperatingSystem.type]),
+            )
           : null,
       app: data[SentryApp.type] != null
           ? SentryApp.fromJson(Map.from(data[SentryApp.type]))
@@ -195,13 +196,17 @@ class Contexts extends MapView<String, dynamic> {
     }
     final flutterVersion = FlutterVersion.version;
     if (flutterVersion != null) {
-      attributes.putIfAbsent(ProposedSemanticAttributes.flutterVersion,
-          () => SentryAttribute.string(flutterVersion));
+      attributes.putIfAbsent(
+        ProposedSemanticAttributes.flutterVersion,
+        () => SentryAttribute.string(flutterVersion),
+      );
     }
     final flutterChannel = FlutterVersion.channel;
     if (flutterChannel != null) {
-      attributes.putIfAbsent(ProposedSemanticAttributes.flutterChannel,
-          () => SentryAttribute.string(flutterChannel));
+      attributes.putIfAbsent(
+        ProposedSemanticAttributes.flutterChannel,
+        () => SentryAttribute.string(flutterChannel),
+      );
     }
     return attributes;
   }
@@ -321,59 +326,6 @@ class Contexts extends MapView<String, dynamic> {
 
     return json;
   }
-
-  @Deprecated('Will be removed in a future version.')
-  Contexts clone() {
-    final copy = Contexts(
-      device: device?.clone(),
-      operatingSystem: operatingSystem?.clone(),
-      app: app?.clone(),
-      browser: browser?.clone(),
-      culture: culture?.clone(),
-      gpu: gpu?.clone(),
-      trace: trace?.clone(),
-      response: response?.clone(),
-      runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
-      feedback: feedback?.clone(),
-      flags: flags?.clone(),
-    )..addEntries(
-        entries.where((element) => !defaultFields.contains(element.key)),
-      );
-
-    return copy;
-  }
-
-  @Deprecated(
-      'Will be removed in a future version. Assign values directly to the instance.')
-  Contexts copyWith({
-    SentryDevice? device,
-    SentryOperatingSystem? operatingSystem,
-    List<SentryRuntime>? runtimes,
-    SentryApp? app,
-    SentryBrowser? browser,
-    SentryCulture? culture,
-    SentryGpu? gpu,
-    SentryTraceContext? trace,
-    SentryResponse? response,
-    SentryFeedback? feedback,
-    SentryFeatureFlags? flags,
-  }) =>
-      Contexts(
-        device: device ?? this.device,
-        operatingSystem: operatingSystem ?? this.operatingSystem,
-        runtimes: runtimes ??
-            List<SentryRuntime>.from(this[SentryRuntime.listType] ?? []),
-        app: app ?? this.app,
-        browser: browser ?? this.browser,
-        gpu: gpu ?? this.gpu,
-        culture: culture ?? this.culture,
-        trace: trace ?? this.trace,
-        response: response ?? this.response,
-        feedback: feedback ?? this.feedback,
-        flags: flags ?? this.flags,
-      )..addEntries(
-          entries.where((element) => !defaultFields.contains(element.key)),
-        );
 
   @internal
   static const defaultFields = [

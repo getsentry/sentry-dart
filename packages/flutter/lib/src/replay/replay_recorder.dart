@@ -3,16 +3,17 @@ import 'dart:developer';
 
 import 'package:meta/meta.dart';
 
-import '../screenshot/recorder.dart';
+import '../screen_capture/recorder.dart';
 
 var _instanceCounter = 0;
 
 @internal
 class ReplayScreenshotRecorder extends ScreenshotRecorder {
   ReplayScreenshotRecorder(super.options)
-      : super(
-            privacyOptions: options.privacy,
-            logName: 'ReplayRecorder #${++_instanceCounter}');
+    : super(
+        privacyOptions: options.privacy,
+        logName: 'ReplayRecorder #${++_instanceCounter}',
+      );
 
   @override
   @protected

@@ -1,5 +1,5 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_envelope_header.dart';
+import 'package:sentry/src/envelope/sentry_envelope_header.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 
 class MockEnvelope implements SentryEnvelope {
@@ -17,9 +17,9 @@ class MockEnvelope implements SentryEnvelope {
 
   @override
   SentryEnvelopeHeader get header => SentryEnvelopeHeader(
-        SentryId.empty(),
-        SdkVersion(name: 'fixture-name', version: '1'),
-      );
+    SentryId.empty(),
+    SdkVersion(name: 'fixture-name', version: '1'),
+  );
 
   @override
   List<SentryEnvelopeItem> items = [];

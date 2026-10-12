@@ -15,10 +15,7 @@ class WebReplayEventProcessor implements EventProcessor {
       return event;
     }
 
-    event.tags = {
-      ...?event.tags,
-      'replayId': replayId,
-    };
+    event.tags = {...?event.tags, 'replayId': replayId};
     event.contexts.trace?.replayId = SentryId.fromId(replayId);
 
     return event;

@@ -18,8 +18,9 @@ abstract class SentryNativeBinding {
 
   bool get supportsCaptureEnvelope;
 
-  FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException);
+  FutureOr<void> captureEnvelope(Uint8List envelopeData);
+
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled);
 
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope);
 
@@ -45,14 +46,7 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> removeTag(String key);
 
-  int? startProfiler(SentryId traceId);
-
-  FutureOr<void> discardProfiler(SentryId traceId);
-
   FutureOr<int?> displayRefreshRate();
-
-  FutureOr<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs);
 
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace);
 
@@ -69,6 +63,18 @@ abstract class SentryNativeBinding {
   FutureOr<void> setReplayConfig(ReplayConfig config);
 
   FutureOr<SentryId> captureReplay();
+
+  FutureOr<void> startReplay();
+
+  FutureOr<void> startReplayBuffering();
+
+  FutureOr<void> pauseReplay();
+
+  FutureOr<void> resumeReplay();
+
+  FutureOr<void> stopReplay();
+
+  FutureOr<void> flushReplay();
 
   /// Starts a new session.
   ///

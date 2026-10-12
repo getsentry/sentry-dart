@@ -14,11 +14,15 @@ Core Dart SDK — foundation for all other packages in this monorepo.
 
 ## Key Directories
 
-- `lib/src/protocol/` — Sentry protocol types (events, breadcrumbs, spans, envelopes)
-- `lib/src/transport/` — HTTP transport, rate limiting, envelope serialization
-- `lib/src/tracing/` — Distributed tracing, span creation, sampling
-- `lib/src/telemetry/` — Metrics, logs, span v2 and processing pipelines
-- `lib/src/event_processor/` — Event enrichment and filtering
+- `lib/src/protocol/` — Shared event and context representations
+- `lib/src/envelope/` — Envelope payloads and serialization
+- `lib/src/transport/` — Delivery, queuing, and rate limiting
+- `lib/src/telemetry/span/` — Transaction and streaming spans, shared sampling, propagation, and instrumentation
+- `lib/src/telemetry/` — Logs, metrics, spans, and shared processing pipelines
+- `lib/src/exception/` — Exception identification, extraction, and processing
+- `lib/src/enrichment/` — Event enrichment and runtime information
 - `lib/src/http_client/` — HTTP client instrumentation
 - `lib/src/client_reports/` — Client-side outcome reporting
-- `lib/src/utils/` — Internal utilities including `SentryInternalLogger`
+- `lib/src/utils/` — Shared internal utilities including `SentryInternalLogger`
+
+Feature integrations and processors live with their owning feature. Tests mirror feature directories.

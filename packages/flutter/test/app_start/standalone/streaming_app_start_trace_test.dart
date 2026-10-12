@@ -4,10 +4,13 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/enrichment/thread_info_integration.dart';
 import 'package:sentry_flutter/src/app_start/app_start_timing.dart';
 import 'package:sentry_flutter/src/app_start/standalone/streaming_app_start_trace.dart';
 
 import '../../mocks.dart';
+import '../first_frame_timing.dart';
+import '../root_isolate_helper.dart';
 
 void main() {
   group('$StreamingAppStartTrace', () {
@@ -17,11 +20,29 @@ void main() {
       fixture = Fixture();
     });
 
+    testWidgets('waits for the frame when optional spans are ignored', (
+      tester,
+    ) async {
+      fixture.options.ignoreSpans = [
+        IgnoreSpanRule.nameEquals('Frame Build'),
+        IgnoreSpanRule.nameEquals('Frame Rasterization'),
+      ];
+      final sut = fixture.getSut()!;
+      sut.recordInitEnd(fixture.initEnd);
+      await tester.pump(const Duration(seconds: 4));
+      expect(fixture.root!.isEnded, isFalse);
+      sut.recordFirstFrame(fixture.rasterInterval);
+      fixture.root!.end(endTimestamp: fixture.rootFinish);
+      await tester.pump();
+      expect(fixture.root!.endTimestamp, fixture.naturalEnd);
+      expect(fixture.root!.attributes['app.vitals.start.value']?.value, 350.0);
+    });
+
     test('encodes the standalone root after natural end', () async {
       final sut = fixture.getSut()!;
       final root = fixture.root!;
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       root.end(endTimestamp: fixture.rootFinish);
       await pumpEventQueue(times: 10);
 
@@ -35,141 +56,152 @@ void main() {
       expect(root.attributes['sentry.segment.name']?.value, 'App Start');
     });
 
-    test('stamps spans captured after the first frame with that screen',
-        () async {
-      var screen = 'root /';
-      final sut = fixture.getSut(startScreenNameProvider: () => screen)!;
-      expect(
-        sut.tryExtend(
-          fixture.processStart.add(const Duration(milliseconds: 400)),
-        ),
-        isTrue,
-      );
-      final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final child = fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-      ) as RecordingSentrySpanV2;
-      final grandchild = fixture.hub.startInactiveSpan(
-        'extended grandchild',
-        parentSpan: child,
-      ) as RecordingSentrySpanV2;
-      screen = 'launch';
-
-      sut.recordFirstFrame(fixture.naturalEnd);
-      await sut.finishExtended(
-        fixture.processStart.add(const Duration(milliseconds: 600)),
-      );
-      child.end(
-        endTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 700)),
-      );
-      grandchild.end(
-        endTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 750)),
-      );
-      fixture.root!.end(endTimestamp: fixture.rootFinish);
-      await pumpEventQueue(times: 10);
-
-      expect(
-        fixture.root!.attributes['app.vitals.start.screen']?.value,
-        'launch',
-      );
-      expect(
-        [
-          fixture.children.firstWhere(
-            (span) => span.name == 'First frame render',
+    test(
+      'stamps spans captured after the first frame with that screen',
+      () async {
+        var screen = 'root /';
+        final sut = fixture.getSut(startScreenNameProvider: () => screen)!;
+        expect(
+          sut.tryExtend(
+            fixture.processStart.add(const Duration(milliseconds: 400)),
           ),
-          extension,
-          child,
-          grandchild,
-        ].map((span) => span.attributes['app.vitals.start.screen']?.value),
-        everyElement('launch'),
-      );
-      expect(
-        [child, grandchild].map(
-          (span) => span.attributes['app.vitals.start.type']?.value,
-        ),
-        everyElement('cold'),
-      );
-      expect(
-        fixture.children
-            .where(
-              (span) =>
-                  span.name == 'App start to plugin registration' ||
-                  span.name == 'Before Sentry Init Setup',
-            )
-            .map((span) => span.attributes['app.vitals.start.screen']?.value),
-        everyElement('root /'),
-      );
-    });
+          isTrue,
+        );
+        final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
+        final child =
+            fixture.hub.startInactiveSpan(
+                  'extended child',
+                  parentSpan: extension,
+                )
+                as RecordingSentrySpanV2;
+        final grandchild =
+            fixture.hub.startInactiveSpan(
+                  'extended grandchild',
+                  parentSpan: child,
+                )
+                as RecordingSentrySpanV2;
+        screen = 'launch';
 
-    test('measures the later extension endpoint instead of the root endpoint',
-        () async {
-      final sut = fixture.getSut()!;
-      final extensionStart = fixture.processStart.add(
-        const Duration(milliseconds: 400),
-      );
-      final extensionEnd = fixture.processStart.add(
-        const Duration(milliseconds: 600),
-      );
-      expect(sut.tryExtend(extensionStart), isTrue);
+        fixture.completeStartup(sut);
+        await sut.finishExtended(
+          fixture.processStart.add(const Duration(milliseconds: 600)),
+        );
+        child.end(
+          endTimestamp: fixture.processStart.add(
+            const Duration(milliseconds: 700),
+          ),
+        );
+        grandchild.end(
+          endTimestamp: fixture.processStart.add(
+            const Duration(milliseconds: 750),
+          ),
+        );
+        fixture.root!.end(endTimestamp: fixture.rootFinish);
+        await pumpEventQueue(times: 10);
 
-      sut.recordFirstFrame(fixture.naturalEnd);
-      await sut.finishExtended(extensionEnd);
-      fixture.root!.end(
-        endTimestamp: fixture.processStart.add(const Duration(seconds: 1)),
-      );
-      await pumpEventQueue(times: 10);
+        expect(
+          fixture.root!.attributes['app.vitals.start.screen']?.value,
+          'launch',
+        );
+        expect(
+          [
+            fixture.child('Frame Rasterization'),
+            extension,
+            child,
+            grandchild,
+          ].map((span) => span.attributes['app.vitals.start.screen']?.value),
+          everyElement('launch'),
+        );
+        expect(
+          [
+            child,
+            grandchild,
+          ].map((span) => span.attributes['app.vitals.start.type']?.value),
+          everyElement('cold'),
+        );
+        expect(
+          fixture
+              .child('Process Initialization')
+              .attributes['app.vitals.start.screen']
+              ?.value,
+          'root /',
+        );
+      },
+    );
 
-      expect(
-        fixture.root!.attributes['app.vitals.start.value']?.value,
-        600.0,
-      );
-      expect(
-        fixture.root!.attributes['app.vitals.start.cold.value']?.value,
-        600.0,
-      );
-    });
+    test(
+      'measures the later extension endpoint instead of the root endpoint',
+      () async {
+        final sut = fixture.getSut()!;
+        final extensionStart = fixture.processStart.add(
+          const Duration(milliseconds: 400),
+        );
+        final extensionEnd = fixture.processStart.add(
+          const Duration(milliseconds: 600),
+        );
+        expect(sut.tryExtend(extensionStart), isTrue);
 
-    test('keeps the natural endpoint above an early extension endpoint',
-        () async {
-      final sut = fixture.getSut()!;
-      final extensionStart = fixture.processStart.add(
-        const Duration(milliseconds: 200),
-      );
-      final extensionEnd = fixture.processStart.add(
-        const Duration(milliseconds: 250),
-      );
-      expect(sut.tryExtend(extensionStart), isTrue);
+        fixture.completeStartup(sut);
+        await sut.finishExtended(extensionEnd);
+        fixture.root!.end(
+          endTimestamp: fixture.processStart.add(const Duration(seconds: 1)),
+        );
+        await pumpEventQueue(times: 10);
 
-      await sut.finishExtended(extensionEnd);
-      sut.recordFirstFrame(fixture.naturalEnd);
-      final unrelated = fixture.hub.startInactiveSpan(
-        'unrelated child',
-        parentSpan: fixture.root,
-        startTimestamp: fixture.processStart.add(
-          const Duration(milliseconds: 700),
-        ),
-      ) as RecordingSentrySpanV2;
-      unrelated.end(
-        endTimestamp: fixture.processStart.add(
-          const Duration(milliseconds: 900),
-        ),
-      );
-      fixture.root!.end(
-        endTimestamp: fixture.processStart.add(const Duration(seconds: 1)),
-      );
-      await pumpEventQueue(times: 10);
+        expect(
+          fixture.root!.attributes['app.vitals.start.value']?.value,
+          600.0,
+        );
+        expect(
+          fixture.root!.attributes['app.vitals.start.cold.value']?.value,
+          600.0,
+        );
+      },
+    );
 
-      expect(
-        fixture.root!.attributes['app.vitals.start.value']?.value,
-        350.0,
-      );
-    });
+    test(
+      'keeps the natural endpoint above an early extension endpoint',
+      () async {
+        final sut = fixture.getSut()!;
+        final extensionStart = fixture.processStart.add(
+          const Duration(milliseconds: 200),
+        );
+        final extensionEnd = fixture.processStart.add(
+          const Duration(milliseconds: 250),
+        );
+        expect(sut.tryExtend(extensionStart), isTrue);
 
-    testWidgets('omits duration without a first frame at deadline',
-        (tester) async {
+        await sut.finishExtended(extensionEnd);
+        fixture.completeStartup(sut);
+        final unrelated =
+            fixture.hub.startInactiveSpan(
+                  'unrelated child',
+                  parentSpan: fixture.root,
+                  startTimestamp: fixture.processStart.add(
+                    const Duration(milliseconds: 700),
+                  ),
+                )
+                as RecordingSentrySpanV2;
+        unrelated.end(
+          endTimestamp: fixture.processStart.add(
+            const Duration(milliseconds: 900),
+          ),
+        );
+        fixture.root!.end(
+          endTimestamp: fixture.processStart.add(const Duration(seconds: 1)),
+        );
+        await pumpEventQueue(times: 10);
+
+        expect(
+          fixture.root!.attributes['app.vitals.start.value']?.value,
+          350.0,
+        );
+      },
+    );
+
+    testWidgets('omits duration without a first frame at deadline', (
+      tester,
+    ) async {
       final sut = fixture.getSut()!;
       expect(
         sut.tryExtend(
@@ -191,13 +223,15 @@ void main() {
       expect(extension.status, SentrySpanStatusV2.error);
       expect(
         extension
-            .attributes[SemanticAttributesConstants.sentryStatusMessage]?.value,
+            .attributes[SemanticAttributesConstants.sentryStatusMessage]
+            ?.value,
         'deadline_exceeded',
       );
     });
 
-    testWidgets('measures to the first frame when the extension never ended',
-        (tester) async {
+    testWidgets('measures to the first frame when the extension never ended', (
+      tester,
+    ) async {
       final sut = fixture.getSut()!;
       expect(
         sut.tryExtend(
@@ -206,7 +240,7 @@ void main() {
         isTrue,
       );
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await tester.pump(const Duration(seconds: 30));
       await tester.pump();
 
@@ -215,8 +249,9 @@ void main() {
       expect(root.attributes['app.vitals.start.value']?.value, 350.0);
     });
 
-    testWidgets('keeps the extension endpoint when a descendant deadlines',
-        (tester) async {
+    testWidgets('keeps the extension endpoint when a descendant deadlines', (
+      tester,
+    ) async {
       final sut = fixture.getSut()!;
       expect(
         sut.tryExtend(
@@ -227,7 +262,7 @@ void main() {
       final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
       fixture.hub.startInactiveSpan('extended child', parentSpan: extension);
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await sut.finishExtended(
         fixture.processStart.add(const Duration(milliseconds: 600)),
       );
@@ -258,7 +293,8 @@ void main() {
       expect(extension.status, SentrySpanStatusV2.error);
       expect(
         extension
-            .attributes[SemanticAttributesConstants.sentryStatusMessage]?.value,
+            .attributes[SemanticAttributesConstants.sentryStatusMessage]
+            ?.value,
         'deadline_exceeded',
       );
     });
@@ -266,7 +302,7 @@ void main() {
     test('creates direct standalone breakdown children', () {
       fixture.getSut();
 
-      expect(fixture.children, hasLength(3));
+      expect(fixture.children, hasLength(1));
       expect(
         fixture.children.map((span) => span.parentSpan),
         everyElement(same(fixture.root)),
@@ -302,16 +338,24 @@ void main() {
       expect(sut.tryExtend(extensionStart), isTrue);
 
       final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final child = fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-        startTimestamp: extensionStart.add(const Duration(milliseconds: 1)),
-      ) as RecordingSentrySpanV2;
-      final grandchild = fixture.hub.startInactiveSpan(
-        'extended grandchild',
-        parentSpan: child,
-        startTimestamp: extensionStart.add(const Duration(milliseconds: 2)),
-      ) as RecordingSentrySpanV2;
+      final child =
+          fixture.hub.startInactiveSpan(
+                'extended child',
+                parentSpan: extension,
+                startTimestamp: extensionStart.add(
+                  const Duration(milliseconds: 1),
+                ),
+              )
+              as RecordingSentrySpanV2;
+      final grandchild =
+          fixture.hub.startInactiveSpan(
+                'extended grandchild',
+                parentSpan: child,
+                startTimestamp: extensionStart.add(
+                  const Duration(milliseconds: 2),
+                ),
+              )
+              as RecordingSentrySpanV2;
       final extensionEnd = extensionStart.add(const Duration(seconds: 1));
 
       await sut.finishExtended(extensionEnd);
@@ -323,20 +367,20 @@ void main() {
       expect(extension.endTimestamp, extensionEnd);
     });
 
-    testWidgets('finishes open extension descendants at the final deadline',
-        (tester) async {
+    testWidgets('finishes open extension descendants at the final deadline', (
+      tester,
+    ) async {
       final sut = fixture.getSut()!;
       final extensionStart = fixture.processStart.add(
         const Duration(milliseconds: 400),
       );
       expect(sut.tryExtend(extensionStart), isTrue);
       final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final child = fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-      ) as RecordingSentrySpanV2;
+      final child =
+          fixture.hub.startInactiveSpan('extended child', parentSpan: extension)
+              as RecordingSentrySpanV2;
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       await sut.finishExtended(extensionStart.add(const Duration(seconds: 1)));
       expect(child.isEnded, isFalse);
 
@@ -347,7 +391,8 @@ void main() {
       expect(child.status, SentrySpanStatusV2.error);
       expect(
         child
-            .attributes[SemanticAttributesConstants.sentryStatusMessage]?.value,
+            .attributes[SemanticAttributesConstants.sentryStatusMessage]
+            ?.value,
         'deadline_exceeded',
       );
       expect(fixture.root!.status, SentrySpanStatusV2.error);
@@ -361,10 +406,9 @@ void main() {
       expect(sut.tryExtend(extensionStart), isTrue);
 
       final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final child = fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-      ) as RecordingSentrySpanV2;
+      final child =
+          fixture.hub.startInactiveSpan('extended child', parentSpan: extension)
+              as RecordingSentrySpanV2;
       final extensionEnd = extensionStart.add(const Duration(seconds: 1));
 
       extension.end(endTimestamp: extensionEnd);
@@ -376,20 +420,20 @@ void main() {
       expect(extension.endTimestamp, extensionEnd);
     });
 
-    testWidgets('finishes direct extension descendants at the final deadline',
-        (tester) async {
+    testWidgets('finishes direct extension descendants at the final deadline', (
+      tester,
+    ) async {
       final sut = fixture.getSut()!;
       final extensionStart = fixture.processStart.add(
         const Duration(milliseconds: 400),
       );
       expect(sut.tryExtend(extensionStart), isTrue);
       final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final child = fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-      ) as RecordingSentrySpanV2;
+      final child =
+          fixture.hub.startInactiveSpan('extended child', parentSpan: extension)
+              as RecordingSentrySpanV2;
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       extension.end(
         endTimestamp: extensionStart.add(const Duration(seconds: 1)),
       );
@@ -402,7 +446,8 @@ void main() {
       expect(child.status, SentrySpanStatusV2.error);
       expect(
         child
-            .attributes[SemanticAttributesConstants.sentryStatusMessage]?.value,
+            .attributes[SemanticAttributesConstants.sentryStatusMessage]
+            ?.value,
         'deadline_exceeded',
       );
       expect(fixture.root!.status, SentrySpanStatusV2.error);
@@ -416,18 +461,15 @@ void main() {
       expect(sut.tryExtend(extensionStart), isTrue);
       final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
       extension.status = SentrySpanStatusV2.error;
-      fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-      );
+      fixture.hub.startInactiveSpan('extended child', parentSpan: extension);
       SentrySpanStatusV2? processedStatus;
-      fixture.options.lifecycleRegistry.registerCallback<OnProcessSpan>(
-        (event) {
-          if (identical(event.span, extension)) {
-            processedStatus = event.span.status;
-          }
-        },
-      );
+      fixture.options.lifecycleRegistry.registerCallback<OnProcessSpan>((
+        event,
+      ) {
+        if (identical(event.span, extension)) {
+          processedStatus = event.span.status;
+        }
+      });
 
       extension.end(
         endTimestamp: extensionStart.add(const Duration(seconds: 1)),
@@ -452,116 +494,201 @@ void main() {
       expect(sut.extendedSpanV2, isNull);
     });
 
-    test('uses the direct extension endpoint when finish is also requested',
-        () async {
-      final sut = fixture.getSut()!;
-      final extensionStart = fixture.processStart.add(
-        const Duration(milliseconds: 400),
-      );
-      expect(sut.tryExtend(extensionStart), isTrue);
+    test(
+      'uses the direct extension endpoint when finish is also requested',
+      () async {
+        final sut = fixture.getSut()!;
+        final extensionStart = fixture.processStart.add(
+          const Duration(milliseconds: 400),
+        );
+        expect(sut.tryExtend(extensionStart), isTrue);
 
-      final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final child = fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-      ) as RecordingSentrySpanV2;
-      final directEnd = extensionStart.add(const Duration(seconds: 1));
-      final laterEnd = extensionStart.add(const Duration(seconds: 2));
-      extension.end(endTimestamp: directEnd);
+        final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
+        final child =
+            fixture.hub.startInactiveSpan(
+                  'extended child',
+                  parentSpan: extension,
+                )
+                as RecordingSentrySpanV2;
+        final directEnd = extensionStart.add(const Duration(seconds: 1));
+        final laterEnd = extensionStart.add(const Duration(seconds: 2));
+        extension.end(endTimestamp: directEnd);
 
-      await sut.finishExtended(laterEnd);
-      await pumpEventQueue(times: 10);
+        await sut.finishExtended(laterEnd);
+        await pumpEventQueue(times: 10);
 
-      expect(child.isEnded, isFalse);
-      expect(extension.endTimestamp, directEnd);
-    });
+        expect(child.isEnded, isFalse);
+        expect(extension.endTimestamp, directEnd);
+      },
+    );
 
-    test('measures the direct extension endpoint when finish is also requested',
-        () async {
-      final sut = fixture.getSut()!;
-      final extensionStart = fixture.processStart.add(
-        const Duration(milliseconds: 400),
-      );
-      RecordingSentrySpanV2? extension;
-      final onSpanEndBlocker = Completer<void>();
-      fixture.options.lifecycleRegistry.registerCallback<OnSpanEndV2>(
-        (event) async {
+    test(
+      'measures the direct extension endpoint when finish is also requested',
+      () async {
+        final sut = fixture.getSut()!;
+        final extensionStart = fixture.processStart.add(
+          const Duration(milliseconds: 400),
+        );
+        RecordingSentrySpanV2? extension;
+        final onSpanEndBlocker = Completer<void>();
+        fixture.options.lifecycleRegistry.registerCallback<OnSpanEndV2>((
+          event,
+        ) async {
           if (identical(event.span, extension)) {
             await onSpanEndBlocker.future;
           }
-        },
-      );
-      expect(sut.tryExtend(extensionStart), isTrue);
+        });
+        expect(sut.tryExtend(extensionStart), isTrue);
 
-      extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final directEnd = extensionStart.add(const Duration(seconds: 1));
-      final laterEnd = extensionStart.add(const Duration(seconds: 2));
-      extension.end(endTimestamp: directEnd);
+        extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
+        final directEnd = extensionStart.add(const Duration(seconds: 1));
+        final laterEnd = extensionStart.add(const Duration(seconds: 2));
+        extension.end(endTimestamp: directEnd);
 
-      await sut.finishExtended(laterEnd);
-      onSpanEndBlocker.complete();
-      sut.recordFirstFrame(fixture.naturalEnd);
-      fixture.root!.end(endTimestamp: fixture.rootFinish);
+        await sut.finishExtended(laterEnd);
+        onSpanEndBlocker.complete();
+        fixture.completeStartup(sut);
+        fixture.root!.end(endTimestamp: fixture.rootFinish);
+        await pumpEventQueue(times: 10);
+
+        expect(
+          fixture.root!.attributes['app.vitals.start.value']?.value,
+          1400.0,
+        );
+      },
+    );
+
+    test(
+      'preserves ended extension descendants and leaves root open',
+      () async {
+        final sut = fixture.getSut()!;
+        final extensionStart = fixture.processStart.add(
+          const Duration(milliseconds: 400),
+        );
+        expect(sut.tryExtend(extensionStart), isTrue);
+
+        final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
+        final child =
+            fixture.hub.startInactiveSpan(
+                  'extended child',
+                  parentSpan: extension,
+                )
+                as RecordingSentrySpanV2;
+        final childEnd = extensionStart.add(const Duration(milliseconds: 500));
+        child.status = SentrySpanStatusV2.error;
+        child.end(endTimestamp: childEnd);
+        await pumpEventQueue(times: 10);
+
+        final extensionEnd = extensionStart.add(const Duration(seconds: 1));
+        await sut.finishExtended(extensionEnd);
+        await pumpEventQueue(times: 10);
+
+        expect(child.status, SentrySpanStatusV2.error);
+        expect(child.endTimestamp, childEnd);
+        expect(extension.endTimestamp, extensionEnd);
+        expect(fixture.root!.isEnded, isFalse);
+      },
+    );
+
+    test('does not emit a Sentry initialization span', () async {
+      final sut = fixture.getSut()!;
+      fixture.completeStartup(sut);
       await pumpEventQueue(times: 10);
-
       expect(
-        fixture.root!.attributes['app.vitals.start.value']?.value,
-        1400.0,
+        fixture.children.map((span) => span.attributes['sentry.op']?.value),
+        isNot(contains('app.start.sentry_init')),
       );
     });
 
-    test('preserves ended extension descendants and leaves root open',
-        () async {
+    test(
+      'emits recorded framework and raster intervals as sibling spans',
+      () async {
+        final threadInfo = ThreadInfoIntegration(RootIsolateHelper());
+        threadInfo.call(fixture.hub, fixture.options);
+        addTearDown(threadInfo.close);
+        final sut = fixture.getSut()!;
+        final frameworkIntervals = [
+          AppStartRecordedInterval(
+            description: 'Root Widget Attachment',
+            operation: SentrySpanOperations.appStartRootWidgetAttachment,
+            startTimestamp: fixture.sentrySetup,
+            endTimestamp: fixture.initEnd,
+          ),
+          AppStartRecordedInterval(
+            description: 'Frame Build',
+            operation: SentrySpanOperations.appStartFrameBuild,
+            startTimestamp: fixture.initEnd,
+            endTimestamp: fixture.rasterInterval.startTimestamp,
+            data: {'flutter.frame.deferred': true},
+          ),
+        ];
+        sut.recordInitEnd(fixture.initEnd);
+        sut.recordFirstFrame(
+          fixture.rasterInterval,
+          frameworkIntervals: frameworkIntervals,
+        );
+        await pumpEventQueue(times: 10);
+        final build = fixture.child('Frame Build');
+        expect(build.parentSpan, fixture.root);
+        expect(build.attributes['flutter.frame.deferred']?.value, isTrue);
+        for (final name in ['Root Widget Attachment', 'Frame Build']) {
+          final span = fixture.child(name);
+          expect(span.attributes['thread.name']?.value, 'main');
+          expect(
+            span.attributes['thread.id']?.value,
+            'main'.hashCode.toString(),
+          );
+        }
+        final raster = fixture.child('Frame Rasterization');
+        expect(raster.attributes.containsKey('thread.name'), isFalse);
+        expect(raster.attributes.containsKey('thread.id'), isFalse);
+        expect(
+          fixture.child('Frame Rasterization').startTimestamp,
+          fixture.rasterInterval.startTimestamp,
+        );
+        expect(
+          fixture.child('Frame Rasterization').endTimestamp,
+          fixture.naturalEnd,
+        );
+        expect(
+          fixture.children.map((span) => span.name),
+          unorderedEquals([
+            'Process Initialization',
+            'Root Widget Attachment',
+            'Frame Build',
+            'Frame Rasterization',
+          ]),
+        );
+      },
+    );
+
+    test('does not fabricate build spans from engine timing', () async {
       final sut = fixture.getSut()!;
-      final extensionStart = fixture.processStart.add(
-        const Duration(milliseconds: 400),
+      fixture.completeStartup(sut);
+      await pumpEventQueue(times: 10);
+      expect(
+        fixture.children.map((span) => span.name),
+        isNot(contains('Frame Build')),
       );
-      expect(sut.tryExtend(extensionStart), isTrue);
-
-      final extension = sut.extendedSpanV2 as RecordingSentrySpanV2;
-      final child = fixture.hub.startInactiveSpan(
-        'extended child',
-        parentSpan: extension,
-      ) as RecordingSentrySpanV2;
-      final childEnd = extensionStart.add(const Duration(milliseconds: 500));
-      child.status = SentrySpanStatusV2.error;
-      child.end(endTimestamp: childEnd);
-      await pumpEventQueue(times: 10);
-
-      final extensionEnd = extensionStart.add(const Duration(seconds: 1));
-      await sut.finishExtended(extensionEnd);
-      await pumpEventQueue(times: 10);
-
-      expect(child.status, SentrySpanStatusV2.error);
-      expect(child.endTimestamp, childEnd);
-      expect(extension.endTimestamp, extensionEnd);
+      expect(fixture.child('Frame Rasterization').isEnded, isTrue);
       expect(fixture.root!.isEnded, isFalse);
     });
 
-    test('uses the first frame render operation for its span', () {
-      fixture.getSut();
-      final firstFrame = fixture.children.firstWhere(
-        (span) => span.name == 'First frame render',
-      );
-
-      expect(
-        firstFrame.attributes['sentry.op']?.value,
-        'app.start.first_frame_render',
-      );
-    });
-
-    test('keeps the root open after recording the first frame', () {
-      final sut = fixture.getSut()!;
-      final root = fixture.root!;
-      final firstFrame = fixture.children.firstWhere(
-        (span) => span.name == 'First frame render',
-      );
-
-      sut.recordFirstFrame(fixture.naturalEnd);
-
-      expect(firstFrame.isEnded, isTrue);
-      expect(root.isEnded, isFalse);
-    });
+    test(
+      'keeps the raster measurement when initialization ends later',
+      () async {
+        final sut = fixture.getSut()!;
+        final lateInit = fixture.naturalEnd.add(
+          const Duration(milliseconds: 20),
+        );
+        sut.recordFirstFrame(fixture.rasterInterval);
+        sut.recordInitEnd(lateInit);
+        fixture.root!.end(endTimestamp: fixture.rootFinish);
+        await pumpEventQueue(times: 10);
+        expect(fixture.root!.endTimestamp, fixture.naturalEnd);
+        expect(fixture.root!.attributes['app.vitals.start.value']?.value, 350);
+      },
+    );
 
     test('omits duration and retains metadata at deadline', () async {
       fixture.getSut();
@@ -588,51 +715,81 @@ void main() {
       expect(fixture.getSut(), isNull);
     });
 
+    for (final initFirst in [true, false]) {
+      for (final ignoreAllPhases in [false, true]) {
+        testWidgets(
+          'waits for init and frame observation with initFirst=$initFirst and ignoreAllPhases=$ignoreAllPhases',
+          (tester) async {
+            fixture.options.ignoreSpans = [
+              if (ignoreAllPhases) ...[
+                IgnoreSpanRule.nameEquals('Process Initialization'),
+                IgnoreSpanRule.nameEquals('Frame Rasterization'),
+              ],
+            ];
+            final trace = fixture.getSut();
+            expect(trace, isNotNull);
+            if (initFirst) {
+              trace!.recordInitEnd(fixture.initEnd);
+            } else {
+              trace!.recordFirstFrame(fixture.rasterInterval);
+            }
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.root!.isEnded, isFalse);
+            if (initFirst) {
+              trace.recordFirstFrame(fixture.rasterInterval);
+            } else {
+              trace.recordInitEnd(fixture.initEnd);
+            }
+            fixture.clock = fixture.rootFinish;
+            await tester.pump(const Duration(seconds: 4));
+            expect(fixture.root!.isEnded, isTrue);
+            expect(fixture.root!.endTimestamp, fixture.naturalEnd);
+            expect(
+              fixture.root!.attributes['app.vitals.start.value']?.value,
+              350.0,
+            );
+            expect(
+              fixture.children.where(
+                (span) => span.name == 'Sentry Initialization',
+              ),
+              isEmpty,
+            );
+          },
+        );
+      }
+    }
+
     test(
-        'returns null and ends the root when first frame render span is ignored',
-        () {
-      fixture.options.ignoreSpans = [
-        IgnoreSpanRule.nameEquals('First frame render'),
-      ];
+      'returns null and ends created spans when phase creation throws',
+      () async {
+        final throwingFixture = ThrowingPhaseCreationFixture();
 
-      final trace = fixture.getSut();
+        final trace = throwingFixture.getSut();
+        await pumpEventQueue(times: 10);
 
-      expect(trace, isNull);
-      expect(fixture.root?.isEnded, isTrue);
-      expect(fixture.processor.addedSpans, isEmpty);
-    });
-
-    test('returns null and ends created spans when phase creation throws',
-        () async {
-      final throwingFixture = ThrowingPhaseCreationFixture();
-
-      final trace = throwingFixture.getSut();
-      await pumpEventQueue(times: 10);
-
-      expect(trace, isNull);
-      expect(throwingFixture.hub.root?.isEnded, isTrue);
-      expect(throwingFixture.hub.firstFrameBarrier?.isEnded, isTrue);
-      expect(throwingFixture.hub.firstPhaseChild?.isEnded, isTrue);
-    });
+        expect(trace, isNull);
+        expect(throwingFixture.hub.root?.isEnded, isTrue);
+      },
+    );
 
     // Aborting only ends the root, which relies on the root having been told
     // about its children. That notification is dispatched through the lifecycle
     // registry, so an already-registered listener sits ahead of the root in the
     // dispatch order — as FramesTrackingIntegration does in a real SDK.
-    test('ends created spans when phase creation throws behind a listener',
-        () async {
-      final throwingFixture = ThrowingPhaseCreationFixture(
-        leadingListener: (_) {},
-      );
+    test(
+      'ends created spans when phase creation throws behind a listener',
+      () async {
+        final throwingFixture = ThrowingPhaseCreationFixture(
+          leadingListener: (_) {},
+        );
 
-      final trace = throwingFixture.getSut();
-      await pumpEventQueue(times: 10);
+        final trace = throwingFixture.getSut();
+        await pumpEventQueue(times: 10);
 
-      expect(trace, isNull);
-      expect(throwingFixture.hub.root?.isEnded, isTrue);
-      expect(throwingFixture.hub.firstFrameBarrier?.isEnded, isTrue);
-      expect(throwingFixture.hub.firstPhaseChild?.isEnded, isTrue);
-    });
+        expect(trace, isNull);
+        expect(throwingFixture.hub.root?.isEnded, isTrue);
+      },
+    );
 
     test('deregisters its process-span callback after enriching', () async {
       final sut = fixture.getSut()!;
@@ -641,7 +798,7 @@ void main() {
 
       expect(registry.lifecycleCallbacks[OnProcessSpan], hasLength(1));
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       root.end(endTimestamp: fixture.rootFinish);
       await pumpEventQueue(times: 10);
 
@@ -670,7 +827,7 @@ void main() {
         isTrue,
       );
 
-      sut.recordFirstFrame(fixture.naturalEnd);
+      fixture.completeStartup(sut);
       // Closing force-ends the extension long after the first frame, and that
       // endpoint must not become the app start's.
       fixture.clock = fixture.processStart.add(const Duration(seconds: 5));
@@ -716,28 +873,47 @@ class Fixture {
     ..telemetryProcessor = processor
     ..clock = () => clock;
   late final hub = Hub(options);
-  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
   late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
-    pluginRegistrationTimestamp: pluginRegistration,
     sentrySetupTimestamp: sentrySetup,
-    phases: [
-      AppStartPhase(
-        kind: AppStartPhaseKind.pluginRegistration,
-        description: 'App start to plugin registration',
+    intervals: [
+      AppStartRecordedInterval(
+        operation: SentrySpanOperations.appStartNative,
+        description: 'Process Initialization',
         startTimestamp: processStart,
-        endTimestamp: pluginRegistration,
-      ),
-      AppStartPhase(
-        kind: AppStartPhaseKind.sentrySetup,
-        description: 'Before Sentry Init Setup',
-        startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,
       ),
     ],
   );
+
+  late final initEnd = processStart.add(Duration(milliseconds: 220));
+
+  /// Engine frame timing that starts after [initEnd] and
+  /// rasterizes at [naturalEnd].
+  late final rasterInterval = tryResolveAppStartRasterInterval(
+    fakeFirstFrameTiming(
+      vsyncStart: processStart.add(Duration(milliseconds: 250)),
+      buildStart: processStart.add(Duration(milliseconds: 260)),
+      buildFinish: processStart.add(Duration(milliseconds: 300)),
+      rasterStart: processStart.add(Duration(milliseconds: 310)),
+      rasterFinish: naturalEnd,
+    ),
+  )!;
+
+  /// Drives the whole startup in production order: init ends, then the first
+  /// frame renders. Idle completion stays paused until init ends, so a
+  /// test that only records the frame never lets the root report.
+  void completeStartup(StreamingAppStartTrace sut) {
+    sut.recordInitEnd(initEnd);
+    sut.recordFirstFrame(rasterInterval);
+  }
+
+  /// The span named [description], which must be unique.
+  RecordingSentrySpanV2 child(String description) =>
+      children.singleWhere((span) => span.name == description)
+          as RecordingSentrySpanV2;
 
   Fixture() {
     options.lifecycleRegistry.registerCallback<OnSpanStartV2>((event) {
@@ -750,9 +926,7 @@ class Fixture {
     });
   }
 
-  StreamingAppStartTrace? getSut({
-    String Function()? startScreenNameProvider,
-  }) {
+  StreamingAppStartTrace? getSut({String Function()? startScreenNameProvider}) {
     final trace = StreamingAppStartTrace.tryCreate(
       hub: hub,
       timing: timing,
@@ -781,24 +955,16 @@ class ThrowingPhaseCreationFixture {
     ..clock = () => processStart.add(Duration(milliseconds: 300));
   late final baseHub = Hub(options);
   late final hub = _ThrowingOnPhaseStartHub(baseHub);
-  late final pluginRegistration = processStart.add(Duration(milliseconds: 100));
   late final sentrySetup = processStart.add(Duration(milliseconds: 200));
   late final timing = AppStartTiming(
     type: AppStartType.cold,
     processStartTimestamp: processStart,
-    pluginRegistrationTimestamp: pluginRegistration,
     sentrySetupTimestamp: sentrySetup,
-    phases: [
-      AppStartPhase(
-        kind: AppStartPhaseKind.pluginRegistration,
-        description: 'App start to plugin registration',
+    intervals: [
+      AppStartRecordedInterval(
+        operation: SentrySpanOperations.appStartNative,
+        description: 'Process Initialization',
         startTimestamp: processStart,
-        endTimestamp: pluginRegistration,
-      ),
-      AppStartPhase(
-        kind: AppStartPhaseKind.sentrySetup,
-        description: 'Before Sentry Init Setup',
-        startTimestamp: pluginRegistration,
         endTimestamp: sentrySetup,
       ),
     ],
@@ -822,8 +988,6 @@ class _ThrowingOnPhaseStartHub extends NoOpHub {
 
   final Hub _delegate;
   IdleRecordingSentrySpanV2? root;
-  RecordingSentrySpanV2? firstFrameBarrier;
-  RecordingSentrySpanV2? firstPhaseChild;
 
   @override
   SentryOptions get options => _delegate.options;
@@ -860,7 +1024,7 @@ class _ThrowingOnPhaseStartHub extends NoOpHub {
     SentrySpanV2? parentSpan = const UnsetSentrySpanV2(),
     DateTime? startTimestamp,
   }) {
-    if (name == 'Before Sentry Init Setup') {
+    if (name == 'Process Initialization') {
       throw StateError('failed to start $name');
     }
 
@@ -870,13 +1034,6 @@ class _ThrowingOnPhaseStartHub extends NoOpHub {
       parentSpan: parentSpan,
       startTimestamp: startTimestamp,
     );
-    if (span is RecordingSentrySpanV2) {
-      if (name == 'First frame render') {
-        firstFrameBarrier = span;
-      } else if (name == 'App start to plugin registration') {
-        firstPhaseChild = span;
-      }
-    }
     return span;
   }
 }

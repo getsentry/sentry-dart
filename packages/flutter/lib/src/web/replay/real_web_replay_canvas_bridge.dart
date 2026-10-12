@@ -102,8 +102,10 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
     }
 
     final clamped = Uint8ClampedList.view(
-            rgba.buffer, rgba.offsetInBytes, rgba.lengthInBytes)
-        .toJS;
+      rgba.buffer,
+      rgba.offsetInBytes,
+      rgba.lengthInBytes,
+    ).toJS;
     final imageData = web.ImageData(clamped, width, height.toJS);
     sourceCtx.putImageData(imageData, 0, 0);
 
@@ -120,7 +122,9 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
     );
 
     _canvasIntegration.snapshot(
-        shadow, _SnapshotOptions(skipRequestAnimationFrame: true));
+      shadow,
+      _SnapshotOptions(skipRequestAnimationFrame: true),
+    );
   }
 
   @override

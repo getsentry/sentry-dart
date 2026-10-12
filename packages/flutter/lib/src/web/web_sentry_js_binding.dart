@@ -87,10 +87,12 @@ class WebSentryJsBinding implements SentryJsBinding {
       case SentryJsIntegrationName.httpContext:
         return _httpContextIntegration();
       case SentryJsIntegrationName.replay:
-        return _replayIntegration(_ReplayOptions(
-          block: <JSString>[webReplayBlockSelector.toJS].toJS,
-          beforeAddRecordingEvent: _beforeAddRecordingEvent.toJS,
-        ));
+        return _replayIntegration(
+          _ReplayOptions(
+            block: <JSString>[webReplayBlockSelector.toJS].toJS,
+            beforeAddRecordingEvent: _beforeAddRecordingEvent.toJS,
+          ),
+        );
       case SentryJsIntegrationName.replayCanvas:
         return _replayCanvasIntegration();
       default:
@@ -204,10 +206,7 @@ class WebSentryJsBinding implements SentryJsBinding {
     }
 
     if (debugIdMap.keys.length != _lastKeysCount) {
-      _buildFilenameToDebugIdMap(
-        debugIdMap,
-        options,
-      );
+      _buildFilenameToDebugIdMap(debugIdMap, options);
       _lastKeysCount = debugIdMap.keys.length;
     }
 
@@ -218,8 +217,10 @@ class WebSentryJsBinding implements SentryJsBinding {
   String? getReplayId({bool onlyIfSampled = false}) {
     try {
       final replay = _getReplay();
-      final replayId =
-          replay?.callMethod<JSString?>('getReplayId'.toJS, onlyIfSampled.toJS);
+      final replayId = replay?.callMethod<JSString?>(
+        'getReplayId'.toJS,
+        onlyIfSampled.toJS,
+      );
       return replayId?.toDart;
     } catch (_) {
       return null;
@@ -229,7 +230,8 @@ class WebSentryJsBinding implements SentryJsBinding {
   @override
   WebReplayCanvasIntegration createManualReplayCanvasIntegration() =>
       _replayCanvasIntegrationManual(
-          _ReplayCanvasOptions(enableManualSnapshot: true));
+        _ReplayCanvasOptions(enableManualSnapshot: true),
+      );
 
   void _buildFilenameToDebugIdMap(
     Map<dynamic, dynamic> debugIdMap,
@@ -244,13 +246,14 @@ class WebSentryJsBinding implements SentryJsBinding {
       final String stackKeyStr = debugIdMapEntry.key.toString();
       final String debugIdStr = debugIdMapEntry.value.toString();
 
-      final debugIdHasCachedFilename =
-          _debugIdsWithFilenames.contains(debugIdStr);
+      final debugIdHasCachedFilename = _debugIdsWithFilenames.contains(
+        debugIdStr,
+      );
 
       if (!debugIdHasCachedFilename) {
-        final parsedStack = stackParser
-            .callAsFunction(options, stackKeyStr.toJS)
-            .dartify() as List<dynamic>?;
+        final parsedStack =
+            stackParser.callAsFunction(options, stackKeyStr.toJS).dartify()
+                as List<dynamic>?;
 
         if (parsedStack == null) continue;
 
@@ -362,7 +365,8 @@ external JSObject _replayCanvasIntegration();
 
 @JS('Sentry.replayCanvasIntegration')
 external WebReplayCanvasIntegration _replayCanvasIntegrationManual(
-    JSAny? options);
+  JSAny? options,
+);
 
 @JS()
 @anonymous

@@ -30,12 +30,16 @@ void main() {
       final builds = fixture.widgetBuilds;
       await fixture.start(tester);
       await fixture.waitForFrame(tester);
-      expect(fixture.widgetBuilds, builds,
-          reason: 'Recording must not depend on another root widget build');
+      expect(
+        fixture.widgetBuilds,
+        builds,
+        reason: 'Recording must not depend on another root widget build',
+      );
     });
 
-    testWidgets('survives recorder replacement without a widget rebuild',
-        (tester) async {
+    testWidgets('survives recorder replacement without a widget rebuild', (
+      tester,
+    ) async {
       await fixture.getSut(tester);
       await fixture.mount(tester);
       await fixture.waitForFrame(tester);
@@ -52,16 +56,35 @@ void main() {
       await fixture.getSut(tester);
       await fixture.stop(tester);
       await fixture.mount(tester);
-      fixture.binding.setReplayConfig(const ReplayConfig(
-          windowWidth: 160, windowHeight: 320, width: 96, height: 192));
-      fixture.binding.setReplayConfig(const ReplayConfig(
-          windowWidth: 160, windowHeight: 320, width: 173, height: 346));
-      fixture.binding.setReplayConfig(const ReplayConfig(
-          windowWidth: 0, windowHeight: 0, width: 0, height: 0));
+      fixture.binding.setReplayConfig(
+        const ReplayConfig(
+          windowWidth: 160,
+          windowHeight: 320,
+          width: 96,
+          height: 192,
+        ),
+      );
+      fixture.binding.setReplayConfig(
+        const ReplayConfig(
+          windowWidth: 160,
+          windowHeight: 320,
+          width: 173,
+          height: 346,
+        ),
+      );
+      fixture.binding.setReplayConfig(
+        const ReplayConfig(
+          windowWidth: 0,
+          windowHeight: 0,
+          width: 0,
+          height: 0,
+        ),
+      );
       await fixture.start(tester);
       await fixture.waitForFrame(tester);
-      final codec = await ui
-          .instantiateImageCodec(await fixture.frames.first.readAsBytes());
+      final codec = await ui.instantiateImageCodec(
+        await fixture.frames.first.readAsBytes(),
+      );
       final frame = await codec.getNextFrame();
       try {
         expect((frame.image.width, frame.image.height), (176, 352));
@@ -90,9 +113,10 @@ class Fixture {
     _replay = native.SentryFlutterPlugin.privateSentryGetReplayIntegration();
     expect(_replay, isNotNull);
     await waitUntil(
-        tester,
-        () => replay.isRecording() && binding.testRecorder != null,
-        'initial replay startup');
+      tester,
+      () => replay.isRecording && binding.testRecorder != null,
+      'initial replay startup',
+    );
     return binding;
   }
 
@@ -101,42 +125,46 @@ class Fixture {
       widgetBuilds++;
       return true;
     });
-    await tester.pumpWidget(Directionality(
-      textDirection: TextDirection.ltr,
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: SizedBox(
-          width: 160,
-          height: 320,
-          child: MediaQuery(
-            data: const MediaQueryData(size: Size(160, 320)),
-            child: SentryScreenshotWidget(
-              child: const ColoredBox(color: Color(0xff336699)),
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: Align(
+          alignment: Alignment.topLeft,
+          child: SizedBox(
+            width: 160,
+            height: 320,
+            child: MediaQuery(
+              data: const MediaQueryData(size: Size(160, 320)),
+              child: SentryScreenshotWidget(
+                child: const ColoredBox(color: Color(0xff336699)),
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 
   Future<void> stop(WidgetTester tester) async {
     replay.stop();
     await waitUntil(
-        tester,
-        () => !replay.isRecording() && binding.testRecorder == null,
-        'replay stop callback');
+      tester,
+      () => !replay.isRecording && binding.testRecorder == null,
+      'replay stop callback',
+    );
   }
 
   Future<void> start(WidgetTester tester) async {
     replay.start();
     await waitUntil(
-        tester,
-        () => replay.isRecording() && binding.testRecorder != null,
-        'replay start callback');
+      tester,
+      () => replay.isRecording && binding.testRecorder != null,
+      'replay start callback',
+    );
   }
 
   Directory? get replayDirectory {
-    final file = replay.getReplayCacheDir();
+    final file = replay.replayCacheDir;
     try {
       return file == null ? null : Directory(file.toString());
     } finally {
@@ -155,12 +183,16 @@ class Fixture {
   }
 
   Future<void> waitForFrame(WidgetTester tester) => waitUntil(
-      tester,
-      () => frames.isNotEmpty,
-      'a JPEG frame in the active native replay cache');
+    tester,
+    () => frames.isNotEmpty,
+    'a JPEG frame in the active native replay cache',
+  );
 
-  Future<void> waitUntil(WidgetTester tester, bool Function() condition,
-      String description) async {
+  Future<void> waitUntil(
+    WidgetTester tester,
+    bool Function() condition,
+    String description,
+  ) async {
     final deadline = DateTime.now().add(const Duration(seconds: 10));
     while (!condition()) {
       if (DateTime.now().isAfter(deadline)) {

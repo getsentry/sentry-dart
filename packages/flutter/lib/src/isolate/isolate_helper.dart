@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/utils/isolate_utils.dart' as isolate_utils;
+import 'package:sentry/src/isolate/isolate_utils.dart' as isolate_utils;
 
 @internal
 class IsolateHelper {

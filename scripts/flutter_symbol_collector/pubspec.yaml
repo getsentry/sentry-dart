@@ -3,7 +3,7 @@ description: Internal tool to collect Flutter debug symbols and upload them to S
 publish_to: none
 
 environment:
-  sdk: ^3.0.0
+  sdk: '>=3.12.0 <4.0.0'
 
 dependencies:
   archive: ^4.0.2

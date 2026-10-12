@@ -5,8 +5,8 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../replay/scheduled_recorder.dart';
-import '../../screenshot/screenshot.dart';
-import '../../screenshot/sentry_screenshot_widget.dart'
+import '../../screen_capture/screenshot.dart';
+import '../../screen_capture/sentry_screenshot_widget.dart'
     show sentryScreenshotWidgetGlobalKey;
 import '../../utils/internal_logger.dart';
 import 'web_replay_canvas_bridge.dart';
@@ -22,9 +22,7 @@ import 'web_replay_canvas_bridge.dart';
 /// native worker.
 @internal
 class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
-  SentryWebReplayRecorder(super.options,
-      {required WebReplayCanvasBridge bridge})
-      : _bridge = bridge {
+  SentryWebReplayRecorder(super.options, {required this._bridge}) {
     super.callback = _onScreenshot;
   }
 
@@ -49,7 +47,9 @@ class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
   }
 
   Future<void> _onScreenshot(
-      Screenshot screenshot, bool isNewlyCaptured) async {
+    Screenshot screenshot,
+    bool isNewlyCaptured,
+  ) async {
     try {
       // Read the boundary's current on-screen rect before the async gap
       // below -- per the documented invariant on ScreenshotRecorder.capture,
@@ -57,12 +57,17 @@ class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
       // whole-app boundary's own position/size changes far less often than
       // a moving mask rect, but there's no reason to take the risk here
       // either.
-      final renderObject = sentryScreenshotWidgetGlobalKey.currentContext
-          ?.findRenderObject() as RenderRepaintBoundary?;
+      final renderObject =
+          sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
       if (renderObject == null) return;
       final topLeft = renderObject.localToGlobal(Offset.zero);
-      final rect = ui.Rect.fromLTWH(topLeft.dx, topLeft.dy,
-          renderObject.size.width, renderObject.size.height);
+      final rect = ui.Rect.fromLTWH(
+        topLeft.dx,
+        topLeft.dy,
+        renderObject.size.width,
+        renderObject.size.height,
+      );
       final devicePixelRatio =
           ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
 
@@ -70,10 +75,16 @@ class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
 
       _bridge.updatePosition(rect, devicePixelRatio);
       _bridge.feedFrame(
-          data.buffer.asUint8List(), screenshot.width, screenshot.height);
+        data.buffer.asUint8List(),
+        screenshot.width,
+        screenshot.height,
+      );
     } catch (error, stackTrace) {
-      internalLogger.error('$logName: failed to feed replay frame',
-          error: error, stackTrace: stackTrace);
+      internalLogger.error(
+        '$logName: failed to feed replay frame',
+        error: error,
+        stackTrace: stackTrace,
+      );
       if (options.automatedTestMode) {
         rethrow;
       }

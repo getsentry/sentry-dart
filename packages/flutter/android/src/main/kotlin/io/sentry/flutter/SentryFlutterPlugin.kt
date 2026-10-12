@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Build
+import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -97,7 +98,11 @@ class SentryFlutterPlugin :
     // Stub
   }
   private fun closeNativeSdk(result: Result) {
+    // Let the SDK shut the ReplayIntegration down as part of its own teardown,
+    // then drop our reference so a closed integration can't be reached through
+    // privateSentryGetReplayIntegration().
     ScopesAdapter.getInstance().close()
+    tearDownReplayIntegration()
 
     result.success("")
   }
@@ -106,6 +111,8 @@ class SentryFlutterPlugin :
   companion object {
     @SuppressLint("StaticFieldLeak")
     private var replay: ReplayIntegration? = null
+
+    private var replayCallbacks: SafeReplayRecorderCallbacks? = null
 
     @SuppressLint("StaticFieldLeak")
     private var applicationContext: Context? = null
@@ -141,12 +148,32 @@ class SentryFlutterPlugin :
         Log.w("Sentry", "Failed to close existing ReplayIntegration", e)
       } finally {
         replay = null
+        replayCallbacks = null
       }
     }
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun privateSentryGetReplayIntegration(): ReplayIntegration? = replay
+
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun privateSentryFlushReplay() {
+      val integration = replay ?: return
+      val callbacks = replayCallbacks ?: return
+      integration.flush()
+      // flush() queues the transition on this looper. Read the resulting state
+      // afterwards; buffer promotion does not restart the Flutter recorder.
+      Handler(Looper.getMainLooper()).post {
+        if (integration !== replay) return@post
+        val replayId = integration.getReplayId()
+        var isBuffering = true
+        Sentry.configureScope { scope ->
+          isBuffering = scope.replayId != replayId
+        }
+        callbacks.replayStateChanged(replayId.toString(), isBuffering)
+      }
+    }
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
@@ -241,8 +268,7 @@ class SentryFlutterPlugin :
 
       // Replace the default ReplayIntegration with a Flutter-specific recorder.
       options.integrations.removeAll { it is ReplayIntegration }
-      val replayOptions = options.sessionReplay
-      if ((replayOptions.isSessionReplayEnabled || replayOptions.isSessionReplayForErrorsEnabled) && replayCallbacks != null) {
+      if (replayCallbacks != null) {
         val ctx = applicationContext
         if (ctx == null) {
           Log.w("Sentry", "setupReplay called before applicationContext initialized")
@@ -250,6 +276,7 @@ class SentryFlutterPlugin :
         }
 
         val safeCallbacks = SafeReplayRecorderCallbacks(replayCallbacks)
+        this.replayCallbacks = safeCallbacks
 
         replay =
           ReplayIntegration(

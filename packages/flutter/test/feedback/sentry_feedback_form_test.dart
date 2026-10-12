@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/replay/integration.dart';
+import 'package:sentry_flutter/src/replay/replay_integration.dart';
 
 import '../mocks.mocks.dart';
 
@@ -86,9 +86,7 @@ void main() {
 
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -102,9 +100,7 @@ void main() {
       fixture.options.feedback.isEmailRequired = true;
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -114,15 +110,14 @@ void main() {
       expect(find.text(' (Required)'), findsExactly(2));
     });
 
-    testWidgets('shows error on submit if name and email not valid',
-        (tester) async {
+    testWidgets('shows error on submit if name and email not valid', (
+      tester,
+    ) async {
       fixture.options.feedback.isNameRequired = true;
       fixture.options.feedback.isEmailRequired = true;
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       await tester.tap(find.text('Send Bug Report'));
@@ -181,28 +176,30 @@ void main() {
     });
 
     testWidgets(
-        'shows capture screenshot button if showCaptureScreenshot is true',
-        (tester) async {
-      fixture.options.feedback.showCaptureScreenshot = true;
-      await fixture.pumpFeedbackForm(
-        tester,
-        (hub) => SentryFeedbackForm(hub: hub),
-      );
+      'shows capture screenshot button if showCaptureScreenshot is true',
+      (tester) async {
+        fixture.options.feedback.showCaptureScreenshot = true;
+        await fixture.pumpFeedbackForm(
+          tester,
+          (hub) => SentryFeedbackForm(hub: hub),
+        );
 
-      expect(find.text('Capture a screenshot'), findsOne);
-    });
+        expect(find.text('Capture a screenshot'), findsOne);
+      },
+    );
 
     testWidgets(
-        'hides capture screenshot button if showCaptureScreenshot is false',
-        (tester) async {
-      fixture.options.feedback.showCaptureScreenshot = false;
-      await fixture.pumpFeedbackForm(
-        tester,
-        (hub) => SentryFeedbackForm(hub: hub),
-      );
+      'hides capture screenshot button if showCaptureScreenshot is false',
+      (tester) async {
+        fixture.options.feedback.showCaptureScreenshot = false;
+        await fixture.pumpFeedbackForm(
+          tester,
+          (hub) => SentryFeedbackForm(hub: hub),
+        );
 
-      expect(find.text('Capture a screenshot'), findsNothing);
-    });
+        expect(find.text('Capture a screenshot'), findsNothing);
+      },
+    );
 
     testWidgets('shows sentry logo if showBranding is true', (tester) async {
       fixture.options.feedback.showBranding = true;
@@ -211,8 +208,10 @@ void main() {
         (hub) => SentryFeedbackForm(hub: hub),
       );
 
-      expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
-          findsOne);
+      expect(
+        find.byKey(const ValueKey('sentry_feedback_branding_logo')),
+        findsOne,
+      );
     });
 
     testWidgets('hides sentry logo if showBranding is false', (tester) async {
@@ -222,8 +221,10 @@ void main() {
         (hub) => SentryFeedbackForm(hub: hub),
       );
 
-      expect(find.byKey(const ValueKey('sentry_feedback_branding_logo')),
-          findsNothing);
+      expect(
+        find.byKey(const ValueKey('sentry_feedback_branding_logo')),
+        findsNothing,
+      );
     });
   });
 
@@ -256,8 +257,9 @@ void main() {
       expect(emailField.controller?.text, "fixture@example.com");
     });
 
-    testWidgets('does not prefill form data if useSentryUser is false',
-        (tester) async {
+    testWidgets('does not prefill form data if useSentryUser is false', (
+      tester,
+    ) async {
       fixture.options.feedback.useSentryUser = false;
       fixture.hub.configureScope((scope) {
         scope.setUser(fixture.sentryUser);
@@ -404,7 +406,7 @@ void main() {
         0xAE,
         0x42,
         0x60,
-        0x82
+        0x82,
       ];
       final screenshot = SentryAttachment.fromIntList(
         data,
@@ -414,37 +416,44 @@ void main() {
 
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-          screenshot: screenshot,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub, screenshot: screenshot),
       );
 
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer(
-          (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      when(
+        fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        ),
+      ).thenAnswer(
+        (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+      );
 
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_name_textfield')),
-          "fixture-name");
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+        "fixture-name",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_email_textfield')),
-          "fixture-email");
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+        "fixture-email",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_message_textfield')),
-          "fixture-message");
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "fixture-message",
+      );
       await tester.tap(find.text('Send Bug Report'));
       await tester.pumpAndSettle();
 
-      verify(fixture.hub.captureFeedback(
-        any,
-        hint: argThat(predicate<Hint>((hint) => hint.screenshot == screenshot),
-            named: 'hint'),
-        withScope: anyNamed('withScope'),
-      )).called(1);
+      verify(
+        fixture.hub.captureFeedback(
+          any,
+          hint: argThat(
+            predicate<Hint>((hint) => hint.screenshot == screenshot),
+            named: 'hint',
+          ),
+          withScope: anyNamed('withScope'),
+        ),
+      ).called(1);
     });
 
     testWidgets('does call hub captureFeedback on submit', (tester) async {
@@ -452,43 +461,59 @@ void main() {
         tester,
         (hub) => SentryFeedbackForm(
           hub: hub,
-          associatedEventId:
-              SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+          associatedEventId: SentryId.fromId(
+            '1988bb1b6f0d4c509e232f0cb9aaeaea',
+          ),
         ),
       );
 
-      when(fixture.hub.captureFeedback(
-        any,
-        hint: anyNamed('hint'),
-        withScope: anyNamed('withScope'),
-      )).thenAnswer(
-          (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+      when(
+        fixture.hub.captureFeedback(
+          any,
+          hint: anyNamed('hint'),
+          withScope: anyNamed('withScope'),
+        ),
+      ).thenAnswer(
+        (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+      );
 
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_name_textfield')),
-          "fixture-name");
+        find.byKey(ValueKey('sentry_feedback_name_textfield')),
+        "fixture-name",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_email_textfield')),
-          "fixture-email");
+        find.byKey(ValueKey('sentry_feedback_email_textfield')),
+        "fixture-email",
+      );
       await tester.enterText(
-          find.byKey(ValueKey('sentry_feedback_message_textfield')),
-          "fixture-message");
+        find.byKey(ValueKey('sentry_feedback_message_textfield')),
+        "fixture-message",
+      );
       await tester.tap(find.text('Send Bug Report'));
       await tester.pumpAndSettle();
 
-      verify(fixture.hub.captureFeedback(
-        argThat(predicate<SentryFeedback>((feedback) =>
-            feedback.name == 'fixture-name' &&
-            feedback.contactEmail == 'fixture-email' &&
-            feedback.message == 'fixture-message' &&
-            feedback.associatedEventId ==
-                SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'))),
-        hint: argThat(predicate<Hint>(
-                // ignore: invalid_use_of_internal_member
-                (hint) => hint.get(TypeCheckHint.isWidgetFeedback) == true),
-            named: 'hint'),
-        withScope: anyNamed('withScope'),
-      )).called(1);
+      verify(
+        fixture.hub.captureFeedback(
+          argThat(
+            predicate<SentryFeedback>(
+              (feedback) =>
+                  feedback.name == 'fixture-name' &&
+                  feedback.contactEmail == 'fixture-email' &&
+                  feedback.message == 'fixture-message' &&
+                  feedback.associatedEventId ==
+                      SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+            ),
+          ),
+          hint: argThat(
+            predicate<Hint>(
+              // ignore: invalid_use_of_internal_member
+              (hint) => hint.get(TypeCheckHint.isWidgetFeedback) == true,
+            ),
+            named: 'hint',
+          ),
+          withScope: anyNamed('withScope'),
+        ),
+      ).called(1);
     });
   });
 
@@ -515,9 +540,7 @@ void main() {
 
       await fixture.pumpFeedbackForm(
         tester,
-        (hub) => SentryFeedbackForm(
-          hub: hub,
-        ),
+        (hub) => SentryFeedbackForm(hub: hub),
       );
 
       expect(find.text('fixture-title'), findsOne);
@@ -545,10 +568,12 @@ void main() {
       fixture = Fixture();
     });
 
-    testWidgets('sets pending accociatedEventId when taking screenshot',
-        (tester) async {
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+    testWidgets('sets pending accociatedEventId when taking screenshot', (
+      tester,
+    ) async {
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
 
       await fixture.pumpFeedbackForm(
         tester,
@@ -557,8 +582,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final button = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      final button = find.byKey(
+        const ValueKey('sentry_feedback_capture_screenshot_button'),
+      );
       expect(button, findsOneWidget);
       await tester.ensureVisible(button);
       await tester.pumpAndSettle();
@@ -568,10 +594,12 @@ void main() {
       expect(SentryFeedbackForm.pendingAssociatedEventId, associatedEventId);
     });
 
-    testWidgets('clears pending accociatedEventId when submitting feedback',
-        (tester) async {
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+    testWidgets('clears pending accociatedEventId when submitting feedback', (
+      tester,
+    ) async {
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
       SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
 
       await fixture.pumpFeedbackForm(
@@ -594,8 +622,9 @@ void main() {
     });
 
     testWidgets('clears pending accociatedEventId on cancel', (tester) async {
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
       SentryFeedbackForm.pendingAssociatedEventId = associatedEventId;
 
       await fixture.pumpFeedbackForm(
@@ -625,8 +654,9 @@ void main() {
       fixture.options.feedback.showName = true;
       fixture.options.feedback.showEmail = true;
 
-      final associatedEventId =
-          SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+      final associatedEventId = SentryId.fromId(
+        '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      );
       await fixture.pumpFeedbackForm(
         tester,
         (hub) =>
@@ -647,8 +677,9 @@ void main() {
         "test-message",
       );
 
-      final button = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
+      final button = find.byKey(
+        const ValueKey('sentry_feedback_capture_screenshot_button'),
+      );
       await tester.tap(button);
       await tester.pumpAndSettle();
 
@@ -664,39 +695,41 @@ void main() {
     });
 
     testWidgets(
-        'preserves form data when taking screenshot without associatedEventId',
-        (tester) async {
-      fixture.options.feedback.showName = true;
-      fixture.options.feedback.showEmail = true;
+      'preserves form data when taking screenshot without associatedEventId',
+      (tester) async {
+        fixture.options.feedback.showName = true;
+        fixture.options.feedback.showEmail = true;
 
-      await fixture.pumpFeedbackForm(
-        tester,
-        (hub) => SentryFeedbackForm(hub: hub),
-      );
+        await fixture.pumpFeedbackForm(
+          tester,
+          (hub) => SentryFeedbackForm(hub: hub),
+        );
 
-      await tester.enterText(
-        find.byKey(ValueKey('sentry_feedback_name_textfield')),
-        "test-name",
-      );
-      await tester.enterText(
-        find.byKey(ValueKey('sentry_feedback_email_textfield')),
-        "test@example.com",
-      );
-      await tester.enterText(
-        find.byKey(ValueKey('sentry_feedback_message_textfield')),
-        "test-message",
-      );
+        await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_name_textfield')),
+          "test-name",
+        );
+        await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_email_textfield')),
+          "test@example.com",
+        );
+        await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_message_textfield')),
+          "test-message",
+        );
 
-      final button = find
-          .byKey(const ValueKey('sentry_feedback_capture_screenshot_button'));
-      await tester.tap(button);
-      await tester.pumpAndSettle();
+        final button = find.byKey(
+          const ValueKey('sentry_feedback_capture_screenshot_button'),
+        );
+        await tester.tap(button);
+        await tester.pumpAndSettle();
 
-      expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
-      expect(SentryFeedbackForm.preservedName, "test-name");
-      expect(SentryFeedbackForm.preservedEmail, "test@example.com");
-      expect(SentryFeedbackForm.preservedMessage, "test-message");
-    });
+        expect(SentryFeedbackForm.pendingAssociatedEventId, isNull);
+        expect(SentryFeedbackForm.preservedName, "test-name");
+        expect(SentryFeedbackForm.preservedEmail, "test@example.com");
+        expect(SentryFeedbackForm.preservedMessage, "test-message");
+      },
+    );
 
     testWidgets('restores form data when widget is reopened', (tester) async {
       fixture.options.feedback.showName = true;
@@ -726,8 +759,9 @@ void main() {
       expect(messageField.controller?.text, "preserved-message");
     });
 
-    testWidgets('clears preserved data when submitting feedback',
-        (tester) async {
+    testWidgets('clears preserved data when submitting feedback', (
+      tester,
+    ) async {
       SentryFeedbackForm.preservedName = "test-name";
       SentryFeedbackForm.preservedEmail = "test@example.com";
       SentryFeedbackForm.preservedMessage = "test-message";
@@ -781,18 +815,23 @@ void main() {
     });
 
     testWidgets('adds integration when options are accessed', (tester) async {
-      expect(fixture.options.sdk.integrations,
-          isNot(contains('MobileFeedbackWidget')));
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains('MobileFeedbackWidget')),
+      );
 
       // Access feedback options (this should trigger integration tracking)
       fixture.options.feedback;
 
       expect(
-          fixture.options.sdk.integrations, contains('MobileFeedbackWidget'));
+        fixture.options.sdk.integrations,
+        contains('MobileFeedbackWidget'),
+      );
     });
 
-    testWidgets('does not duplicate integration if already added',
-        (tester) async {
+    testWidgets('does not duplicate integration if already added', (
+      tester,
+    ) async {
       // Access feedback options to add integration
       fixture.options.feedback;
 
@@ -812,8 +851,10 @@ void main() {
     });
 
     testWidgets('adds integration when widget is shown', (tester) async {
-      expect(fixture.options.sdk.integrations,
-          isNot(contains('MobileFeedbackWidget')));
+      expect(
+        fixture.options.sdk.integrations,
+        isNot(contains('MobileFeedbackWidget')),
+      );
 
       await tester.pumpWidget(
         MaterialApp(
@@ -833,7 +874,9 @@ void main() {
 
       // Integration should be added when the widget renders and accesses feedback options
       expect(
-          fixture.options.sdk.integrations, contains('MobileFeedbackWidget'));
+        fixture.options.sdk.integrations,
+        contains('MobileFeedbackWidget'),
+      );
     });
   });
 
@@ -845,8 +888,9 @@ void main() {
     });
 
     group('when submission succeeds', () {
-      testWidgets('shows a snackbar and dismisses the feedback form',
-          (tester) async {
+      testWidgets('shows a snackbar and dismisses the feedback form', (
+        tester,
+      ) async {
         await fixture.pumpFeedbackHost(tester);
 
         await tester.tap(find.text('Show Feedback'));
@@ -957,9 +1001,10 @@ void main() {
         expect(receivedEventId, isNot(const SentryId.empty()));
       });
 
-      testWidgets('dismisses the feedback form when onSubmitSuccess throws',
-          (tester) async {
-        fixture.options.feedback.onSubmitSuccess = (_, __) {
+      testWidgets('dismisses the feedback form when onSubmitSuccess throws', (
+        tester,
+      ) async {
+        fixture.options.feedback.onSubmitSuccess = (_, _) {
           throw StateError('boom');
         };
 
@@ -982,33 +1027,6 @@ void main() {
       });
     });
   });
-
-  group('SentryFeedbackWidget deprecated alias', () {
-    tearDown(() {
-      SentryFeedbackForm.pendingAssociatedEventId = null;
-      SentryFeedbackForm.clearPreservedData();
-    });
-
-    test('is a deprecated alias for SentryFeedbackForm', () {
-      expect(SentryFeedbackWidget, SentryFeedbackForm);
-    });
-
-    test('shares static form state with SentryFeedbackForm', () {
-      final associatedEventId = SentryId.fromId(
-        '1988bb1b6f0d4c509e232f0cb9aaeaea',
-      );
-
-      SentryFeedbackWidget.pendingAssociatedEventId = associatedEventId;
-      SentryFeedbackWidget.preservedName = 'fixture-name';
-      SentryFeedbackWidget.preservedEmail = 'fixture@example.com';
-      SentryFeedbackWidget.preservedMessage = 'fixture-message';
-
-      expect(SentryFeedbackForm.pendingAssociatedEventId, associatedEventId);
-      expect(SentryFeedbackForm.preservedName, 'fixture-name');
-      expect(SentryFeedbackForm.preservedEmail, 'fixture@example.com');
-      expect(SentryFeedbackForm.preservedMessage, 'fixture-message');
-    });
-  });
 }
 
 class Fixture {
@@ -1020,12 +1038,15 @@ class Fixture {
   Fixture() {
     when(hub.options).thenReturn(options);
     when(hub.scope).thenReturn(scope);
-    when(hub.captureFeedback(
-      any,
-      hint: anyNamed('hint'),
-      withScope: anyNamed('withScope'),
-    )).thenAnswer(
-        (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'));
+    when(
+      hub.captureFeedback(
+        any,
+        hint: anyNamed('hint'),
+        withScope: anyNamed('withScope'),
+      ),
+    ).thenAnswer(
+      (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+    );
     when(hub.configureScope(any)).thenAnswer((invocation) {
       final callback = invocation.positionalArguments.first;
       callback(scope);
@@ -1043,12 +1064,10 @@ class Fixture {
   }
 
   Future<void> pumpFeedbackForm(
-      WidgetTester tester, Widget Function(Hub) builder) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: builder(hub),
-      ),
-    );
+    WidgetTester tester,
+    Widget Function(Hub) builder,
+  ) async {
+    await tester.pumpWidget(MaterialApp(home: builder(hub)));
   }
 
   Future<void> pumpFeedbackHost(WidgetTester tester) async {

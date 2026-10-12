@@ -34,21 +34,14 @@ class Fixture {
     clientReportJson = <String, dynamic>{
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
       'discarded_events': [
-        {
-          'reason': 'ratelimit_backoff',
-          'category': 'error',
-          'quantity': 2,
-        }
+        {'reason': 'ratelimit_backoff', 'category': 'error', 'quantity': 2},
       ],
     };
   }
 
   ClientReport getSut() {
-    return ClientReport(
-      timestamp,
-      [
-        DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 2),
-      ],
-    );
+    return ClientReport(timestamp, [
+      DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 2),
+    ]);
   }
 }

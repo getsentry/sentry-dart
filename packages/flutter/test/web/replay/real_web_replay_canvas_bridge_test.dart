@@ -197,7 +197,8 @@ WebReplayCanvasIntegration _createFakeIntegration(List<_Snapshot> snapshots) {
   integration['snapshot'] = ((web.HTMLCanvasElement canvas, JSObject? options) {
     final skip = options?['skipRequestAnimationFrame'];
     snapshots.add(
-        _Snapshot(canvas, skip.isA<JSBoolean>() && (skip as JSBoolean).toDart));
+      _Snapshot(canvas, skip.isA<JSBoolean>() && (skip as JSBoolean).toDart),
+    );
   }).toJS;
   return integration as WebReplayCanvasIntegration;
 }

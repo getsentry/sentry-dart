@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_item_type.dart';
+import 'package:sentry/src/envelope/sentry_item_type.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 
@@ -16,9 +16,10 @@ import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';
 import '../native/utils/data_normalizer.dart';
+import '../utils/internal_logger.dart';
 import '../replay/replay_config.dart';
 import '../replay/scheduled_recorder_config.dart';
-import '../screenshot/screenshot_support.dart';
+import '../screen_capture/screenshot_support.dart';
 import 'replay/real_web_replay_canvas_bridge.dart';
 import 'replay/sentry_web_replay_recorder.dart';
 import 'replay/web_replay_canvas_bridge.dart';
@@ -31,18 +32,26 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     this._options, {
     @visibleForTesting
     WebReplayCanvasBridge Function(WebReplayCanvasIntegration)?
-        createReplayCanvasBridge,
+    createReplayCanvasBridge,
   }) : _createReplayCanvasBridge =
-            createReplayCanvasBridge ?? RealWebReplayCanvasBridge.new;
+           createReplayCanvasBridge ?? RealWebReplayCanvasBridge.new;
 
   final SentryJsBinding _binding;
   final SentryFlutterOptions _options;
   final WebReplayCanvasBridge Function(WebReplayCanvasIntegration)
-      _createReplayCanvasBridge;
+  _createReplayCanvasBridge;
   SentryWebReplayRecorder? _replayRecorder;
 
+  static const _piiKeyPatterns = [
+    'forwarded',
+    '-ip',
+    'remote-',
+    'via',
+    '-user',
+  ];
+
   void _log(String message) {
-    _options.log(SentryLevel.info, logger: '$SentryWeb', message);
+    internalLogger.info('$SentryWeb: $message');
   }
 
   void _logNotSupported(String operation) =>
@@ -61,6 +70,24 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         'tracesSampleRate': 0,
         'attachStacktrace': _options.attachStacktrace,
         'maxBreadcrumbs': _options.maxBreadcrumbs,
+        // Preserve the JS v10 PII baseline until Flutter exposes dataCollection.
+        // https://github.com/getsentry/sentry-javascript/blob/11.0.0/MIGRATION.md#senddefaultpii-is-replaced-by-datacollection
+        'dataCollection': {
+          'userInfo': _options.sendDefaultPii,
+          if (!_options.sendDefaultPii) ...{
+            'cookies': false,
+            'httpHeaders': {
+              'request': {'deny': _piiKeyPatterns},
+              'response': {'deny': _piiKeyPatterns},
+            },
+            'httpBodies': <String>[],
+            'urlQueryParams': {'deny': _piiKeyPatterns},
+            'graphQL': {'document': false, 'variables': false},
+            'genAI': {'inputs': false, 'outputs': false},
+            'databaseQueryData': false,
+            'queues': false,
+          },
+        },
         // using defaultIntegrations ensures that we can control which integrations are added
         'defaultIntegrations': <String>{
           SentryJsIntegrationName.globalHandlers,
@@ -92,7 +119,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         _replayRecorder = SentryWebReplayRecorder(
           _options,
           bridge: _createReplayCanvasBridge(
-              canvasIntegration as WebReplayCanvasIntegration),
+            canvasIntegration as WebReplayCanvasIntegration,
+          ),
         );
       }
     });
@@ -128,9 +156,13 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
     _logNotSupported('capture raw envelope data');
+  }
+
+  @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    _logNotSupported('update session for dropped non-terminating event');
   }
 
   @override
@@ -150,10 +182,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
               continue;
             }
 
-            envelopeItems.add([
-              await item.header.toJson(data.length),
-              data,
-            ]);
+            envelopeItems.add([await item.header.toJson(data.length), data]);
           } catch (_) {
             if (options.automatedTestMode) {
               rethrow;
@@ -198,24 +227,43 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<SentryId> captureReplay() {
     throw UnsupportedError(
-        "$SentryWeb.captureReplay() not supported on this platform");
+      "$SentryWeb.captureReplay() not supported on this platform",
+    );
+  }
+
+  @override
+  FutureOr<void> startReplay() {
+    _logNotSupported('starting replay');
+  }
+
+  @override
+  FutureOr<void> startReplayBuffering() {
+    _logNotSupported('starting replay buffering');
+  }
+
+  @override
+  FutureOr<void> pauseReplay() {
+    _logNotSupported('pausing replay');
+  }
+
+  @override
+  FutureOr<void> resumeReplay() {
+    _logNotSupported('resuming replay');
+  }
+
+  @override
+  FutureOr<void> stopReplay() {
+    _logNotSupported('stopping replay');
+  }
+
+  @override
+  FutureOr<void> flushReplay() {
+    _logNotSupported('flushing replay');
   }
 
   @override
   FutureOr<void> clearBreadcrumbs() {
     _binding.clearBreadcrumbs();
-  }
-
-  @override
-  FutureOr<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs) {
-    _logNotSupported('collect profile');
-    return null;
-  }
-
-  @override
-  FutureOr<void> discardProfiler(SentryId traceId) {
-    _logNotSupported('discard profiler');
   }
 
   @override
@@ -258,11 +306,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     final debugId = debugIdMap[codeFile];
     if (debugId != null) {
       return [
-        DebugImage(
-          debugId: debugId,
-          type: 'sourcemap',
-          codeFile: codeFile,
-        ),
+        DebugImage(debugId: debugId, type: 'sourcemap', codeFile: codeFile),
       ];
     }
 
@@ -323,11 +367,13 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       // ReplayIntegration that calls this -- web maps the quality to its own
       // factor on the real window size instead (see webReplayCaptureScale).
       final scale = webReplayCaptureScale(_options.replay.quality);
-      await recorder.onConfigurationChanged(ScheduledScreenshotRecorderConfig(
-        width: scale * config.windowWidth,
-        height: scale * config.windowHeight,
-        frameRate: config.frameRate,
-      ));
+      await recorder.onConfigurationChanged(
+        ScheduledScreenshotRecorderConfig(
+          width: scale * config.windowWidth,
+          height: scale * config.windowHeight,
+          frameRate: config.frameRate,
+        ),
+      );
       if (!_replayRecorderStarted) {
         await recorder.start();
         // Only after start() succeeds, so a failed start is retried on the
@@ -363,12 +409,6 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  int? startProfiler(SentryId traceId) {
-    _logNotSupported('start profiler');
-    return null;
-  }
-
-  @override
   bool get supportsCaptureEnvelope => true;
 
   @override
@@ -393,10 +433,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   Map<String, dynamic>? _replayBreadcrumb(Map<String, dynamic> breadcrumb) {
     final category = breadcrumb['category'];
     if (category is! String || category.isEmpty) {
-      return {
-        ...breadcrumb,
-        'category': 'default',
-      };
+      return {...breadcrumb, 'category': 'default'};
     }
 
     if (category == 'fetch' ||
@@ -405,7 +442,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       final message = breadcrumb['message'] ?? _viewName(breadcrumb['data']);
       return {
         ...breadcrumb,
-        if (message != null) 'message': message,
+        'message': ?message,
         'category': 'flutter.$category',
       };
     }

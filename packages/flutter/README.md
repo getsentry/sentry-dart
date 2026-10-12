@@ -15,6 +15,9 @@ Sentry SDK for Flutter
 This package includes support to native crashes through Sentry's native SDKs: ([Android](https://github.com/getsentry/sentry-java) and [iOS](https://github.com/getsentry/sentry-cocoa)).
 It will capture errors in the native layer, including (Java/Kotlin/C/C++ for Android and Objective-C/Swift for iOS).
 
+Starting with version 10.0.0, the iOS and macOS native SDKs are distributed through
+Swift Package Manager. The Sentry Flutter plugin does not support CocoaPods.
+
 #### Usage
 
 - Sign up for a Sentry.io account and get a DSN at https://sentry.io.

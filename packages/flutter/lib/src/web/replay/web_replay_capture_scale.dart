@@ -11,7 +11,7 @@ import '../../replay/replay_quality.dart';
 /// needs a wider range (see #2897).
 @internal
 double webReplayCaptureScale(SentryReplayQuality quality) => switch (quality) {
-      SentryReplayQuality.low => 0.5,
-      SentryReplayQuality.medium => 0.7,
-      SentryReplayQuality.high => 1.0,
-    };
+  SentryReplayQuality.low => 0.5,
+  SentryReplayQuality.medium => 0.7,
+  SentryReplayQuality.high => 1.0,
+};

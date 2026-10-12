@@ -13,7 +13,6 @@ build/
 .cxx/
 .vscode/
 .fvm/
-.fvmrc
 **/devtools_options.yaml
 
 .test_coverage.dart

@@ -2,7 +2,7 @@
 library;
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,37 +55,41 @@ void main() {
       await db.close();
     });
 
-    test('starts and finishes a open db span when performance enabled',
-        () async {
-      final db = await openDatabase(inMemoryDatabasePath);
+    test(
+      'starts and finishes a open db span when performance enabled',
+      () async {
+        final db = await openDatabase(inMemoryDatabasePath);
 
-      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
+        expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
 
-      final span = fixture.tracer.children.last;
-      expect(span.context.operation, 'db');
-      expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
+        final span = fixture.tracer.children.last;
+        expect(span.context.operation, 'db');
+        expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
 
-      expect(
-        span.origin,
-        // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoDbSqfliteDatabaseFactory,
-      );
-      await db.close();
-    });
+        expect(
+          span.origin,
+          // ignore: invalid_use_of_internal_member
+          SentryTraceOrigins.autoDbSqfliteDatabaseFactory,
+        );
+        await db.close();
+      },
+    );
 
-    test('starts and finishes a open db breadcrumb when performance enabled',
-        () async {
-      final db = await openDatabase(inMemoryDatabasePath);
+    test(
+      'starts and finishes a open db breadcrumb when performance enabled',
+      () async {
+        final db = await openDatabase(inMemoryDatabasePath);
 
-      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
+        expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
 
-      final breadcrumb = fixture.hub.scope.breadcrumbs.first;
-      expect(breadcrumb.category, 'db');
-      expect(breadcrumb.message, 'Open DB: $inMemoryDatabasePath');
-      expect(breadcrumb.data?['status'], 'ok');
+        final breadcrumb = fixture.hub.scope.breadcrumbs.first;
+        expect(breadcrumb.category, 'db');
+        expect(breadcrumb.message, 'Open DB: $inMemoryDatabasePath');
+        expect(breadcrumb.data?['status'], 'ok');
 
-      await db.close();
-    });
+        await db.close();
+      },
+    );
   });
 
   group('openDatabase without delegate', () {

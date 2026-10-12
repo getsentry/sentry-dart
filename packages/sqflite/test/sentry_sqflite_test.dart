@@ -4,7 +4,7 @@ library;
 import 'package:sentry/sentry.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sentry_sqflite/src/sentry_sqflite.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite_dev.dart';
@@ -38,17 +38,7 @@ void main() {
     });
 
     test('returns wrapped data base if performance enabled', () async {
-      final db =
-          await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
-
-      expect(db is SentryDatabase, true);
-
-      await db.close();
-    });
-
-    test('returns wrapped read only data base if performance enabled ',
-        () async {
-      final db = await openReadOnlyDatabaseWithSentry(
+      final db = await openDatabaseWithSentry(
         inMemoryDatabasePath,
         hub: fixture.hub,
       );
@@ -57,6 +47,20 @@ void main() {
 
       await db.close();
     });
+
+    test(
+      'returns wrapped read only data base if performance enabled ',
+      () async {
+        final db = await openReadOnlyDatabaseWithSentry(
+          inMemoryDatabasePath,
+          hub: fixture.hub,
+        );
+
+        expect(db is SentryDatabase, true);
+
+        await db.close();
+      },
+    );
 
     tearDown(() {
       databaseFactory = sqfliteDatabaseFactoryDefault;
@@ -90,8 +94,10 @@ void main() {
     });
 
     test('creates db open span', () async {
-      final db =
-          await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
+      final db = await openDatabaseWithSentry(
+        inMemoryDatabasePath,
+        hub: fixture.hub,
+      );
 
       final span = fixture.tracer.children.last;
 
@@ -106,8 +112,10 @@ void main() {
     });
 
     test('creates db open breadcrumb', () async {
-      final db =
-          await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
+      final db = await openDatabaseWithSentry(
+        inMemoryDatabasePath,
+        hub: fixture.hub,
+      );
 
       final breadcrumb = fixture.hub.scope.breadcrumbs.first;
       expect(breadcrumb.category, SentryDatabase.dbOp);

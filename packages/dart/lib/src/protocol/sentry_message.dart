@@ -27,12 +27,7 @@ class SentryMessage {
   @internal
   final Map<String, dynamic>? unknown;
 
-  SentryMessage(
-    this.formatted, {
-    this.template,
-    this.params,
-    this.unknown,
-  });
+  SentryMessage(this.formatted, {this.template, this.params, this.unknown});
 
   /// Deserializes a [SentryMessage] from JSON [Map].
   factory SentryMessage.fromJson(Map<String, dynamic> data) {
@@ -54,17 +49,4 @@ class SentryMessage {
       if (params?.isNotEmpty ?? false) 'params': params,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryMessage copyWith({
-    String? formatted,
-    String? template,
-    List<dynamic>? params,
-  }) =>
-      SentryMessage(
-        formatted ?? this.formatted,
-        template: template ?? this.template,
-        params: params ?? this.params,
-        unknown: unknown,
-      );
 }
