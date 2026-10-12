@@ -4,7 +4,7 @@ description: Testing utilities for Sentry Dart/Flutter SDK (internal use only)
 publish_to: none
 
 environment:
-  sdk: '>=3.5.0 <4.0.0'
+  sdk: '>=3.12.0 <4.0.0'
 
 dependencies:
   sentry:

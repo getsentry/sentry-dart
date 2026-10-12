@@ -11,11 +11,15 @@ import 'package:sentry/src/utils.dart';
 void main() {
   group('formatDateAsIso8601WithSecondPrecision', () {
     test('strips sub-millisecond parts', () {
-      final testDate =
-          DateTime.fromMillisecondsSinceEpoch(1502467721598, isUtc: true);
+      final testDate = DateTime.fromMillisecondsSinceEpoch(
+        1502467721598,
+        isUtc: true,
+      );
       expect(testDate.toIso8601String(), '2017-08-11T16:08:41.598Z');
-      expect(formatDateAsIso8601WithMillisPrecision(testDate),
-          '2017-08-11T16:08:41.598Z');
+      expect(
+        formatDateAsIso8601WithMillisPrecision(testDate),
+        '2017-08-11T16:08:41.598Z',
+      );
     });
 
     test('non enum returns toString serialization', () {
@@ -24,8 +28,10 @@ void main() {
     });
 
     test('enum returns described enum during serialization', () {
-      expect(jsonSerializationFallback(SentryOrientation.landscape),
-          'SentryOrientation.landscape');
+      expect(
+        jsonSerializationFallback(SentryOrientation.landscape),
+        'SentryOrientation.landscape',
+      );
     });
 
     test('null Object returns null during serialization', () {

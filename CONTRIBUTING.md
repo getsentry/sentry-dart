@@ -7,10 +7,11 @@ you get started.
 
 ### Required Tools
 
-* **Dart SDK** `>=3.5.0` - Required for all packages
-* **Flutter SDK** `>=3.24.0` - Required for `sentry-flutter` and Flutter integrations
+* **Dart SDK** `>=3.12.0` - Required for all packages
+* **Flutter SDK** `>=3.44.0` - Required for `sentry-flutter` and Flutter integrations
 * **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
+* **[jq](https://jqlang.org/)** - For reading the shared toolchain configuration
 
 ## Environment Setup
 
@@ -24,11 +25,18 @@ dart pub global activate melos
 ### 2. Install the Flutter SDK via fvm
 
 ```bash
-fvm use stable
+fvm install
 ```
 
 This reads `.fvmrc` and installs the pinned Flutter version. It also creates a `.fvm/flutter_sdk`
 symlink that melos uses to resolve `dart`/`flutter` commands (via `sdkPath` in `melos.yaml`).
+Formatting, analysis, and binding generation use this development toolchain, including its
+bundled Dart SDK for Dart-only packages. Compatibility tests separately cover the minimum
+supported and stable/beta SDKs.
+
+To upgrade the development toolchain, update `.fvmrc`, run `fvm install` and `melos bootstrap`,
+then regenerate bindings and format the repository with that SDK. Include any resulting
+formatting changes in the same PR.
 
 ### 3. Bootstrap the project
 
@@ -76,13 +84,35 @@ The Flutter SDK supports the following platforms:
 We test the example app on Windows, macOS, and Linux to ensure cross-platform compatibility. CI runs
 against Flutter `stable` and `beta` channels.
 
+### Building the macOS example
+
+On macOS, Flutter derives the local SwiftPM package identity from the plugin's directory basename
+(`flutter`) rather than its pub name (`sentry_flutter`), so `flutter build macos` from
+`packages/flutter/example` fails with:
+
+```
+unable to override package 'sentry_flutter' because its identity 'flutter'
+doesn't match override's identity (directory name) 'sentry_flutter'
+```
+
+Use the helper script (or its melos alias), which temporarily renames the package directory to
+`sentry_flutter`, builds, then restores it:
+
+```bash
+melos run build:macos-example
+# or, forwarding extra flags to `flutter build macos`:
+./scripts/build-macos-example.sh --debug
+```
+
+This only affects the macOS example build; iOS is unaffected.
+
 ## Native SDK Dependencies
 
 The Flutter SDK embeds platform-specific native SDKs:
 
 * **Android**: [sentry-java](https://github.com/getsentry/sentry-java) (via
   Gradle) + [sentry-native](https://github.com/getsentry/sentry-native) for NDK
-* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via CocoaPods/SPM)
+* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via SwiftPM)
 * **Linux/Windows**: [sentry-native](https://github.com/getsentry/sentry-native) (bundled in
   `packages/flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)

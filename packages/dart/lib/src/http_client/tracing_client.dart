@@ -1,12 +1,13 @@
 import 'package:http/http.dart';
 
+import '../constants.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
-import '../sentry_trace_origins.dart';
-import '../tracing/instrumentation/instrumentation.dart';
+import '../telemetry/span/sentry_trace_origins.dart';
+import '../telemetry/span/instrumentation/instrumentation.dart';
 import '../utils/http_sanitizer.dart';
-import '../utils/tracing_utils.dart';
+import '../telemetry/span/propagation/tracing_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature. If tracing is disabled
@@ -17,8 +18,8 @@ class TracingClient extends BaseClient {
   static const String integrationName = 'HTTPNetworkTracing';
 
   TracingClient({Client? client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client() {
+    : _hub = hub ?? HubAdapter(),
+      _client = client ?? Client() {
     _spanFactory = _hub.options.spanFactory;
     if (_hub.options.isTracingEnabled()) {
       _hub.options.sdk.addIntegration(integrationName);
@@ -51,7 +52,9 @@ class TracingClient extends BaseClient {
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).
     if (containsTargetOrMatchesRegExp(
-        _hub.options.tracePropagationTargets, request.url.toString())) {
+      _hub.options.tracePropagationTargets,
+      request.url.toString(),
+    )) {
       addTracingHeadersToHttpHeader(
         request.headers,
         _hub,
@@ -60,18 +63,26 @@ class TracingClient extends BaseClient {
     }
 
     instrumentationSpan?.origin = SentryTraceOrigins.autoHttpHttp;
-    instrumentationSpan?.setData('http.request.method', request.method);
+    instrumentationSpan?.setData(
+      SemanticAttributesConstants.httpRequestMethod,
+      request.method,
+    );
     urlDetails?.applyToSpan(instrumentationSpan);
 
     StreamedResponse? response;
     try {
       response = await _client.send(request);
       instrumentationSpan?.setData(
-          'http.response.status_code', response.statusCode);
+        SemanticAttributesConstants.httpResponseStatusCode,
+        response.statusCode,
+      );
       instrumentationSpan?.setData(
-          'http.response_content_length', response.contentLength);
-      instrumentationSpan?.status =
-          SpanStatus.fromHttpStatusCode(response.statusCode);
+        SemanticAttributesConstants.httpResponseBodySize,
+        response.contentLength,
+      );
+      instrumentationSpan?.status = SpanStatus.fromHttpStatusCode(
+        response.statusCode,
+      );
     } catch (exception) {
       instrumentationSpan?.throwable = exception;
       instrumentationSpan?.status = SpanStatus.internalError();

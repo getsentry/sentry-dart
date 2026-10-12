@@ -182,9 +182,7 @@ class Fixture {
   final supabaseUrl = 'https://example.com';
   final supabaseKey = 'YOUR_ANON_KEY';
 
-  final options = SentryOptions(
-    dsn: 'https://example.com/123',
-  );
+  final options = SentryOptions(dsn: 'https://example.com/123');
   final mockClient = _MockClient();
   late final mockHub = MockHub(options);
 
@@ -195,18 +193,11 @@ class Fixture {
   }
 
   SentrySupabaseBreadcrumbClient getSut() {
-    return SentrySupabaseBreadcrumbClient(
-      mockClient,
-      mockHub,
-    );
+    return SentrySupabaseBreadcrumbClient(mockClient, mockHub);
   }
 
   SupabaseClient getSupabaseClient() {
-    return SupabaseClient(
-      supabaseUrl,
-      supabaseKey,
-      httpClient: getSut(),
-    );
+    return SupabaseClient(supabaseUrl, supabaseKey, httpClient: getSut());
   }
 }
 

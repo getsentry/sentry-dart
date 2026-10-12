@@ -24,8 +24,9 @@ void main() {
       });
 
       test('does not include hostname when sendDefaultPii is false', () async {
-        final contexts =
-            await fixture.getSut(includePii: false).buildContexts();
+        final contexts = await fixture
+            .getSut(includePii: false)
+            .buildContexts();
 
         expect(contexts.device?.name, isNull);
       });
@@ -42,16 +43,19 @@ void main() {
         expect(contexts.operatingSystem?.name, isNotNull);
       });
 
-      test('returns Dart runtime with parsed version and raw description',
-          () async {
-        final contexts = await fixture.getSut().buildContexts();
+      test(
+        'returns Dart runtime with parsed version and raw description',
+        () async {
+          final contexts = await fixture.getSut().buildContexts();
 
-        final dart =
-            contexts.runtimes.firstWhere((runtime) => runtime.name == 'Dart');
-        expect(dart.version, isNotNull);
-        expect(Platform.version, contains(dart.version.toString()));
-        expect(dart.rawDescription, Platform.version);
-      });
+          final dart = contexts.runtimes.firstWhere(
+            (runtime) => runtime.name == 'Dart',
+          );
+          expect(dart.version, isNotNull);
+          expect(Platform.version, contains(dart.version.toString()));
+          expect(dart.rawDescription, Platform.version);
+        },
+      );
 
       test('returns culture with locale and timezone', () async {
         final contexts = await fixture.getSut().buildContexts();

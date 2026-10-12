@@ -1,4 +1,4 @@
-// ignore_for_file: inference_failure_on_function_return_type
+// ignore_for_file: inference_failure_on_function_return_type, invalid_use_of_internal_member
 
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
@@ -7,9 +7,10 @@ import 'package:meta/meta.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/platform.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry/src/telemetry/processing/processor.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/bindings/binding_wrapper.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/navigation/time_to_initial_display_tracker.dart';
@@ -33,11 +34,15 @@ final _secondFrame = '''Error at http://127.0.0.1:8080/main.dart.js:2:169
 final debugIdMap = {_firstFrame: 'whatever debug id', _secondFrame: debugId};
 final debugId = '82cc8a97-04c5-5e1e-b98d-bb3e647208e6';
 
-SentryFlutterOptions defaultTestOptions(
-    {Platform? platform, RuntimeChecker? checker}) {
+SentryFlutterOptions defaultTestOptions({
+  Platform? platform,
+  RuntimeChecker? checker,
+}) {
   return SentryFlutterOptions(
-      dsn: fakeDsn, platform: platform, checker: checker)
-    ..automatedTestMode = true;
+    dsn: fakeDsn,
+    platform: platform,
+    checker: checker,
+  )..automatedTestMode = true;
 }
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
@@ -56,25 +61,29 @@ ISentrySpan startTransactionShim(
   return MockSentryTracer();
 }
 
-@GenerateMocks([
-  Transport,
-  // ignore: invalid_use_of_internal_member
-  SentryTracer,
-  SentryTransaction,
-  SentrySpan,
-  SentryClient,
-  MethodChannel,
-  SentryNativeBinding,
-  SentryDelayedFramesTracker,
-  BindingWrapper,
-  WidgetsFlutterBinding,
-  SentryJsBinding,
-  TimeToDisplayTracker,
-  TimeToInitialDisplayTracker,
-  TimeToFullDisplayTracker,
-], customMocks: [
-  MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
-])
+@GenerateMocks(
+  [
+    Transport,
+    SentryTracer,
+    SentryTransaction,
+    SentrySpan,
+    SentryClient,
+    MethodChannel,
+    SentryNativeBinding,
+    SentryDelayedFramesTracker,
+    BindingWrapper,
+    WidgetsFlutterBinding,
+    SentryJsBinding,
+    TimeToDisplayTracker,
+    TimeToInitialDisplayTracker,
+    TimeToFullDisplayTracker,
+  ],
+  customMocks: [
+    MockSpec<Hub>(
+      fallbackGenerators: {#startTransaction: startTransactionShim},
+    ),
+  ],
+)
 void main() {}
 
 class MockRuntimeChecker with NoSuchMethodProvider implements RuntimeChecker {
@@ -173,7 +182,7 @@ abstract class Callbacks {
 class NativeChannelFixture {
   late final MethodChannel channel;
   late final Future<Object?>? Function(String method, [dynamic arguments])
-      handler;
+  handler;
   static TestDefaultBinaryMessenger get _messenger =>
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   late final codec = StandardMethodCodec();
@@ -186,14 +195,19 @@ class NativeChannelFixture {
     when(handler('closeNativeSdk', any)).thenAnswer((_) => Future.value());
     when(handler('setTrace', any)).thenAnswer((_) => Future.value());
     _messenger.setMockMethodCallHandler(
-        channel, (call) => handler(call.method, call.arguments));
+      channel,
+      (call) => handler(call.method, call.arguments),
+    );
   }
 
   // Mock this call as if it was invoked by the native side.
   Future<dynamic> invokeFromNative(String method, [dynamic arguments]) async {
     final call = codec.encodeMethodCall(MethodCall(method, arguments));
     final byteData = await _messenger.handlePlatformMessage(
-        channel.name, call, (ByteData? data) {});
+      channel.name,
+      call,
+      (ByteData? data) {},
+    );
     if (byteData != null) {
       return codec.decodeEnvelope(byteData);
     } else {
@@ -202,8 +216,8 @@ class NativeChannelFixture {
   }
 }
 
-typedef EventProcessorFunction = SentryEvent? Function(
-    SentryEvent event, Hint hint);
+typedef EventProcessorFunction =
+    SentryEvent? Function(SentryEvent event, Hint hint);
 
 class FunctionEventProcessor implements EventProcessor {
   FunctionEventProcessor(this.applyFunction);
@@ -219,10 +233,22 @@ class FunctionEventProcessor implements EventProcessor {
 class MockLogger {
   final items = <MockLogItem>[];
 
-  void call(SentryLevel level, String message,
-      {String? logger, Object? exception, StackTrace? stackTrace}) {
-    items.add(MockLogItem(level, message,
-        logger: logger, exception: exception, stackTrace: stackTrace));
+  void call(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    items.add(
+      MockLogItem(
+        level,
+        message,
+        logger: logger,
+        exception: exception,
+        stackTrace: stackTrace,
+      ),
+    );
   }
 
   void clear() => items.clear();
@@ -230,19 +256,23 @@ class MockLogger {
   /// Routes [SentryInternalLogger] output into this logger so tests can assert
   /// on what the SDK logged.
   void captureInternalLogs() {
-    // ignore: invalid_use_of_internal_member
     SentryInternalLogger.configure(
       isEnabled: true,
       minLevel: SentryLevel.debug,
-      logOutput: ({
-        required String name,
-        required SentryLevel level,
-        required String message,
-        Object? error,
-        StackTrace? stackTrace,
-      }) =>
-          call(level, message,
-              logger: name, exception: error, stackTrace: stackTrace),
+      logOutput:
+          ({
+            required String name,
+            required SentryLevel level,
+            required String message,
+            Object? error,
+            StackTrace? stackTrace,
+          }) => call(
+            level,
+            message,
+            logger: name,
+            exception: error,
+            stackTrace: stackTrace,
+          ),
     );
   }
 }
@@ -254,8 +284,13 @@ class MockLogItem {
   final Object? exception;
   final StackTrace? stackTrace;
 
-  const MockLogItem(this.level, this.message,
-      {this.logger, this.exception, this.stackTrace});
+  const MockLogItem(
+    this.level,
+    this.message, {
+    this.logger,
+    this.exception,
+    this.stackTrace,
+  });
 }
 
 class MockTelemetryProcessor implements TelemetryProcessor {

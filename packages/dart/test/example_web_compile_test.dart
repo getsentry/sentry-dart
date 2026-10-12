@@ -17,26 +17,42 @@ void main() {
     test(
       'dart pub get and compilation should run successfully',
       () async {
-        final result = await _runProcess('dart pub get',
-            workingDirectory: exampleAppWorkingDir);
-        expect(result.exitCode, 0,
-            reason: 'Could run `dart pub get` for $exampleAppDir. '
-                'Likely caused by outdated dependencies');
+        final result = await _runProcess(
+          'dart pub get',
+          workingDirectory: exampleAppWorkingDir,
+        );
+        expect(
+          result.exitCode,
+          0,
+          reason:
+              'Could run `dart pub get` for $exampleAppDir. '
+              'Likely caused by outdated dependencies',
+        );
         // running this test locally require clean working directory
-        final cleanResult = await _runProcess('dart run build_runner clean',
-            workingDirectory: exampleAppWorkingDir);
+        final cleanResult = await _runProcess(
+          'dart run build_runner clean',
+          workingDirectory: exampleAppWorkingDir,
+        );
         expect(cleanResult.exitCode, 0);
         final compileResult = await _runProcess(
-            'dart run build_runner build -r web -o build --delete-conflicting-outputs',
-            workingDirectory: exampleAppWorkingDir);
-        expect(compileResult.exitCode, 0,
-            reason: 'Could not compile $exampleAppDir project');
+          'dart run build_runner build -r web -o build --delete-conflicting-outputs',
+          workingDirectory: exampleAppWorkingDir,
+        );
         expect(
-            compileResult.stdout,
-            isNot(contains(
-                'Skipping compiling sentry_dart_web_example|web/main.dart')),
-            reason:
-                'Could not compile main.dart, likely because of dart:io import.');
+          compileResult.exitCode,
+          0,
+          reason: 'Could not compile $exampleAppDir project',
+        );
+        expect(
+          compileResult.stdout,
+          isNot(
+            contains(
+              'Skipping compiling sentry_dart_web_example|web/main.dart',
+            ),
+          ),
+          reason:
+              'Could not compile main.dart, likely because of dart:io import.',
+        );
         expect(
           compileResult.stdout,
           anyOf(
@@ -55,14 +71,19 @@ void main() {
 /// test runner's respective streams. It buffers stdout and returns it.
 ///
 /// Returns [_CommandResult] with exitCode and stdout as a single sting
-Future<_CommandResult> _runProcess(String command,
-    {String workingDirectory = '.'}) async {
+Future<_CommandResult> _runProcess(
+  String command, {
+  String workingDirectory = '.',
+}) async {
   final parts = command.split(' ');
   assert(parts.isNotEmpty);
   final cmd = parts[0];
   final args = parts.skip(1).toList();
-  final process =
-      await Process.start(cmd, args, workingDirectory: workingDirectory);
+  final process = await Process.start(
+    cmd,
+    args,
+    workingDirectory: workingDirectory,
+  );
   // forward standard streams
   unawaited(stderr.addStream(process.stderr));
   final buffer = <int>[];

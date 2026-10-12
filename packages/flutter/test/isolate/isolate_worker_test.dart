@@ -219,34 +219,38 @@ void main() {
       expect(() => worker.send('ignored'), returnsNormally);
     });
 
-    test('worker shuts itself down when its owner isolate exits abruptly',
-        () async {
-      final ready = ReceivePort();
-      final observed = ReceivePort();
+    test(
+      'worker shuts itself down when its owner isolate exits abruptly',
+      () async {
+        final ready = ReceivePort();
+        final observed = ReceivePort();
 
-      final owner = await Isolate.spawn(
-        _ownerEntry,
-        (ready: ready.sendPort, observed: observed.sendPort),
-      );
-      addTearDown(() {
-        ready.close();
-        observed.close();
-      });
+        final owner = await Isolate.spawn(_ownerEntry, (
+          ready: ready.sendPort,
+          observed: observed.sendPort,
+        ));
+        addTearDown(() {
+          ready.close();
+          observed.close();
+        });
 
-      // Owner has spawned its worker, called closeOnOwnerExit() on it, and
-      // the worker has confirmed its own self-exit listener is registered.
-      await ready.first;
+        // Owner has spawned its worker, called closeOnOwnerExit() on it, and
+        // the worker has confirmed its own self-exit listener is registered.
+        await ready.first;
 
-      // Simulate abrupt engine/isolate-group teardown - not a graceful Dart
-      // return from the owner's entry point.
-      owner.kill(priority: Isolate.immediate);
+        // Simulate abrupt engine/isolate-group teardown - not a graceful Dart
+        // return from the owner's entry point.
+        owner.kill(priority: Isolate.immediate);
 
-      // The runtime should still deliver the shutdown message to the worker
-      // from its now-dead owner, causing the worker to close its own inbox
-      // and terminate, which fires the worker's self-exit listener.
-      final result = await observed.first.timeout(const Duration(seconds: 10));
-      expect(result, 'worker_exited');
-    });
+        // The runtime should still deliver the shutdown message to the worker
+        // from its now-dead owner, causing the worker to close its own inbox
+        // and terminate, which fires the worker's self-exit listener.
+        final result = await observed.first.timeout(
+          const Duration(seconds: 10),
+        );
+        expect(result, 'worker_exited');
+      },
+    );
 
     test('debugName propagates to worker isolate', () async {
       const debugName = 'DebugNameWorker';

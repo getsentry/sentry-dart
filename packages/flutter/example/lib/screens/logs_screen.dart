@@ -33,10 +33,14 @@ class LogsScreen extends StatelessWidget {
                   ),
                   TooltipButton(
                     onPressed: () {
-                      Sentry.logger
-                          .info('Sentry Log With Test Attribute', attributes: {
-                        'test-attribute': SentryAttribute.string('test-value'),
-                      });
+                      Sentry.logger.info(
+                        'Sentry Log With Test Attribute',
+                        attributes: {
+                          'test-attribute': SentryAttribute.string(
+                            'test-value',
+                          ),
+                        },
+                      );
                     },
                     text: 'Demonstrates the logging with Sentry Log.',
                     buttonTitle: 'Sentry Log with Attribute',
