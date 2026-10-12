@@ -377,7 +377,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
        let breadcrumbConverter = SentryFlutterReplayBreadcrumbConverter()
        let screenshotProvider = SentryFlutterReplayScreenshotProvider(
         channel: self.channel,
-        replayIdProvider: { SentrySDK.internal.replay.replayId }
+        replayIdProvider: {
+          // The internal replay API also returns buffered IDs since Cocoa 9.28.
+          // Only the scope ID is safe to associate with Flutter events.
+          var replayId: String?
+          SentrySDK.configureScope { scope in replayId = scope.replayId }
+          return replayId
+        }
        )
        SentrySDK.internal.replay.configure(
         breadcrumbConverter: breadcrumbConverter,
