@@ -16,19 +16,19 @@ if ($env:CI)
     if ($IsLinux)
     {
         $flutterTar = Join-Path $tempRoot "flutter.tar.xz"
-        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.3-stable.tar.xz" -OutFile $flutterTar
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.44.0-stable.tar.xz" -OutFile $flutterTar
         tar xf $flutterTar -C $tempRoot
     }
     elseif ($IsMacOS)
     {
         $flutterZip = Join-Path $tempRoot "flutter.zip"
-        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.27.3-stable.zip" -OutFile $flutterZip
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.44.0-stable.zip" -OutFile $flutterZip
         Expand-Archive -Path $flutterZip -DestinationPath $tempRoot -Force
     }
     else
     {
         $flutterZip = Join-Path $tempRoot "flutter.zip"
-        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.27.3-stable.zip" -OutFile $flutterZip
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.44.0-stable.zip" -OutFile $flutterZip
         Expand-Archive -Path $flutterZip -DestinationPath $tempRoot -Force
     }
 
