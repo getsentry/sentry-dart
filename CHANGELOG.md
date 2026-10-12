@@ -290,6 +290,12 @@ Please carefully read through the migration guide in the Sentry docs on how to u
 
 - (flutter) Support int64 values from sentry-native by @buenaflor in [#3760](https://github.com/getsentry/sentry-dart/pull/3760)
 
+## 9.30.1
+
+### Fixes
+
+- (flutter) Restore Android replay config by @buenaflor in [#4037](https://github.com/getsentry/sentry-dart/pull/4037)
+
 ## 9.30.0
 
 ### Fixes
