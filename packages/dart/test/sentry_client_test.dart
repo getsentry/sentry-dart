@@ -2519,6 +2519,51 @@ void main() {
       expect(envelope.header.traceContext?.replayId, scope.replayId);
     });
 
+    test(
+      'captureEvent links a replay started after baggage was created',
+      () async {
+        final client = fixture.getSut();
+        final scope = Scope(fixture.options);
+        await client.captureEvent(SentryEvent(), scope: scope);
+        scope.replayId = SentryId.fromId('12345678901234567890123456789012');
+
+        await client.captureEvent(
+          SentryEvent(throwable: Exception('boom')),
+          scope: scope,
+        );
+
+        expect(
+          fixture.transport.envelopes.last.header.traceContext
+              ?.toJson()['replay_id'],
+          '12345678901234567890123456789012',
+        );
+      },
+    );
+
+    for (final replayId in [null, 'abcdefabcdefabcdefabcdefabcdefab']) {
+      test(
+        'captureEvent updates cached replay metadata after replay ${replayId == null ? 'stops' : 'restarts'}',
+        () async {
+          final client = fixture.getSut();
+          final scope = Scope(fixture.options)
+            ..replayId = SentryId.fromId('12345678901234567890123456789012');
+          await client.captureEvent(SentryEvent(), scope: scope);
+          scope.replayId = replayId == null ? null : SentryId.fromId(replayId);
+
+          await client.captureEvent(
+            SentryEvent(throwable: Exception('boom')),
+            scope: scope,
+          );
+
+          expect(
+            fixture.transport.envelopes.last.header.traceContext
+                ?.toJson()['replay_id'],
+            replayId,
+          );
+        },
+      );
+    }
+
     test('captureTransaction adds trace context', () async {
       final client = fixture.getSut();
 

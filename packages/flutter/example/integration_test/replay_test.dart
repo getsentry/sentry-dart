@@ -79,17 +79,49 @@ void main() {
 
   /// Installs Session Replay but never samples it, so a recording can only be
   /// started through `SentryFlutter.replay`.
-  Future<void> setupWithoutAutomaticReplay(WidgetTester tester) =>
-      SentryFlutter.init((options) {
-        options
-          ..dsn = fakeDsn
-          ..automatedTestMode = true;
-        options.replay
-          ..sessionSampleRate = 0
-          ..onErrorSampleRate = 0;
-      }, appRunner: () => pumpApp(tester));
+  Future<void> setupWithoutAutomaticReplay(
+    WidgetTester tester, {
+    Transport? transport,
+  }) => SentryFlutter.init((options) {
+    options
+      ..dsn = fakeDsn
+      ..automatedTestMode = true;
+    if (transport != null) options.transport = transport;
+    options.replay
+      ..sessionSampleRate = 0
+      ..onErrorSampleRate = 0;
+  }, appRunner: () => pumpApp(tester));
 
   group('Replay recording', () {
+    for (final primeBaggage in [false, true]) {
+      testWidgets(
+        'links errors to a manual replay with cached baggage=$primeBaggage',
+        (tester) async {
+          final transport = RecordingTransport();
+          await setupWithoutAutomaticReplay(tester, transport: transport);
+          if (primeBaggage) {
+            await Sentry.captureMessage('Before replay');
+          }
+
+          await SentryFlutter.replay.start();
+          await _waitUntilReplayId();
+          final replayId = SentryFlutter.native!.replayId!;
+
+          final eventId = await Sentry.captureException(Exception('boom'));
+          await SentryFlutter.replay.stop();
+
+          final envelope = transport.envelopes.singleWhere(
+            (envelope) => envelope.header.eventId == eventId,
+          );
+          expect(
+            envelope.header.traceContext?.toJson()['replay_id'],
+            replayId.toString(),
+          );
+        },
+        skip: !(Platform.isAndroid || Platform.isIOS),
+      );
+    }
+
     testWidgets('native binding is initialized', (tester) async {
       await setupSentryAndApp(tester);
       expect(SentryFlutter.native, isNotNull);
@@ -319,4 +351,14 @@ void main() {
       skip: !Platform.isAndroid,
     );
   });
+}
+
+class RecordingTransport implements Transport {
+  final envelopes = <SentryEnvelope>[];
+
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) async {
+    envelopes.add(envelope);
+    return envelope.header.eventId;
+  }
 }
