@@ -220,8 +220,7 @@ final class $SentryAndroid$Type$ extends jni$_.JType<SentryAndroid> {
 /// from: `io.sentry.android.core.SentryAndroidOptions$BeforeCaptureCallback`
 extension type SentryAndroidOptions$BeforeCaptureCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/android/core/SentryAndroidOptions$BeforeCaptureCallback',
   );
@@ -2208,6 +2207,67 @@ extension SentryAndroidOptions$$Methods on SentryAndroidOptions {
     ).check();
   }
 
+  static final _id_get$tombstoneMergeTimeThresholdMillis = SentryAndroidOptions
+      ._class
+      .instanceMethodId(r'getTombstoneMergeTimeThresholdMillis', r'()J');
+
+  static final _get$tombstoneMergeTimeThresholdMillis =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallLongMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public long getTombstoneMergeTimeThresholdMillis()`
+  core$_.int get tombstoneMergeTimeThresholdMillis {
+    final _$$selfRef = reference;
+    return _get$tombstoneMergeTimeThresholdMillis(
+      _$$selfRef.pointer,
+      _id_get$tombstoneMergeTimeThresholdMillis.pointer,
+    ).long;
+  }
+
+  static final _id_set$tombstoneMergeTimeThresholdMillis = SentryAndroidOptions
+      ._class
+      .instanceMethodId(r'setTombstoneMergeTimeThresholdMillis', r'(J)V');
+
+  static final _set$tombstoneMergeTimeThresholdMillis =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void setTombstoneMergeTimeThresholdMillis(long j)`
+  set tombstoneMergeTimeThresholdMillis(core$_.int j) {
+    final _$$selfRef = reference;
+    _set$tombstoneMergeTimeThresholdMillis(
+      _$$selfRef.pointer,
+      _id_set$tombstoneMergeTimeThresholdMillis.pointer,
+      j,
+    ).check();
+  }
+
   static final _id_get$isAttachRawTombstone = SentryAndroidOptions._class
       .instanceMethodId(r'isAttachRawTombstone', r'()Z');
 
@@ -2263,6 +2323,128 @@ extension SentryAndroidOptions$$Methods on SentryAndroidOptions {
     _set$attachRawTombstone(
       _$$selfRef.pointer,
       _id_set$attachRawTombstone.pointer,
+      z ? 1 : 0,
+    ).check();
+  }
+
+  static final _id_get$isMemoryLimiterEnabled = SentryAndroidOptions._class
+      .instanceMethodId(r'isMemoryLimiterEnabled', r'()Z');
+
+  static final _get$isMemoryLimiterEnabled =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean isMemoryLimiterEnabled()`
+  core$_.bool get isMemoryLimiterEnabled {
+    final _$$selfRef = reference;
+    return _get$isMemoryLimiterEnabled(
+      _$$selfRef.pointer,
+      _id_get$isMemoryLimiterEnabled.pointer,
+    ).boolean;
+  }
+
+  static final _id_set$memoryLimiterEnabled = SentryAndroidOptions._class
+      .instanceMethodId(r'setMemoryLimiterEnabled', r'(Z)V');
+
+  static final _set$memoryLimiterEnabled =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int32,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void setMemoryLimiterEnabled(boolean z)`
+  set memoryLimiterEnabled(core$_.bool z) {
+    final _$$selfRef = reference;
+    _set$memoryLimiterEnabled(
+      _$$selfRef.pointer,
+      _id_set$memoryLimiterEnabled.pointer,
+      z ? 1 : 0,
+    ).check();
+  }
+
+  static final _id_get$isReportHistoricalMemoryLimiterExits =
+      SentryAndroidOptions._class.instanceMethodId(
+        r'isReportHistoricalMemoryLimiterExits',
+        r'()Z',
+      );
+
+  static final _get$isReportHistoricalMemoryLimiterExits =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public boolean isReportHistoricalMemoryLimiterExits()`
+  core$_.bool get isReportHistoricalMemoryLimiterExits {
+    final _$$selfRef = reference;
+    return _get$isReportHistoricalMemoryLimiterExits(
+      _$$selfRef.pointer,
+      _id_get$isReportHistoricalMemoryLimiterExits.pointer,
+    ).boolean;
+  }
+
+  static final _id_set$reportHistoricalMemoryLimiterExits = SentryAndroidOptions
+      ._class
+      .instanceMethodId(r'setReportHistoricalMemoryLimiterExits', r'(Z)V');
+
+  static final _set$reportHistoricalMemoryLimiterExits =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int32,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public void setReportHistoricalMemoryLimiterExits(boolean z)`
+  set reportHistoricalMemoryLimiterExits(core$_.bool z) {
+    final _$$selfRef = reference;
+    _set$reportHistoricalMemoryLimiterExits(
+      _$$selfRef.pointer,
+      _id_set$reportHistoricalMemoryLimiterExits.pointer,
       z ? 1 : 0,
     ).check();
   }
@@ -6930,8 +7112,7 @@ final class $ReplayRecorderCallbacks$Type$
 /// from: `io.sentry.Sentry$OptionsConfiguration`
 extension type Sentry$OptionsConfiguration<$T extends jni$_.JObject?>._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/Sentry$OptionsConfiguration',
   );
@@ -10988,8 +11169,7 @@ final class $SentryOptions$BeforeSendReplayCallback$Type$
 /// from: `io.sentry.SentryOptions$BeforeSendTransactionCallback`
 extension type SentryOptions$BeforeSendTransactionCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/SentryOptions$BeforeSendTransactionCallback',
   );
@@ -12074,8 +12254,7 @@ final class $SentryOptions$Logs$Type$ extends jni$_.JType<SentryOptions$Logs> {
 /// from: `io.sentry.SentryOptions$Metrics$BeforeSendMetricCallback`
 extension type SentryOptions$Metrics$BeforeSendMetricCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/SentryOptions$Metrics$BeforeSendMetricCallback',
   );
@@ -13917,7 +14096,8 @@ final class $SentryOptions$TracesSamplerCallback$Type$
 }
 
 /// from: `io.sentry.SentryOptions`
-extension type SentryOptions._(jni$_.JObject _$this) implements jni$_.JObject {
+extension type SentryOptions._(jni$_.JObject _$this)
+    implements jni$_.JObject, RateLimiterConfig {
   static final _class = jni$_.JClass.forName(r'io/sentry/SentryOptions');
 
   /// The type which includes information such as the signature of this class.
@@ -17362,6 +17542,7 @@ extension SentryOptions$$Methods on SentryOptions {
           >();
 
   /// from: `public boolean isSendDefaultPii()`
+  @core$_.Deprecated('This Java method is deprecated.')
   core$_.bool get isSendDefaultPii {
     final _$$selfRef = reference;
     return _get$isSendDefaultPii(
@@ -17394,6 +17575,7 @@ extension SentryOptions$$Methods on SentryOptions {
           >();
 
   /// from: `public void setSendDefaultPii(boolean z)`
+  @core$_.Deprecated('This Java method is deprecated.')
   set sendDefaultPii(core$_.bool z) {
     final _$$selfRef = reference;
     _set$sendDefaultPii(
@@ -17401,6 +17583,103 @@ extension SentryOptions$$Methods on SentryOptions {
       _id_set$sendDefaultPii.pointer,
       z ? 1 : 0,
     ).check();
+  }
+
+  static final _id_get$dataCollection = SentryOptions._class.instanceMethodId(
+    r'getDataCollection',
+    r'()Lio/sentry/DataCollection;',
+  );
+
+  static final _get$dataCollection =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.DataCollection getDataCollection()`
+  /// The returned object must be released after use, by calling the [release] method.
+  DataCollection get dataCollection {
+    final _$$selfRef = reference;
+    return _get$dataCollection(
+      _$$selfRef.pointer,
+      _id_get$dataCollection.pointer,
+    ).object<DataCollection>();
+  }
+
+  static final _id_set$dataCollection = SentryOptions._class.instanceMethodId(
+    r'setDataCollection',
+    r'(Lio/sentry/DataCollection;)V',
+  );
+
+  static final _set$dataCollection =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setDataCollection(io.sentry.DataCollection dataCollection)`
+  set dataCollection(DataCollection dataCollection) {
+    final _$$selfRef = reference;
+    final _$dataCollection = dataCollection.reference;
+    _set$dataCollection(
+      _$$selfRef.pointer,
+      _id_set$dataCollection.pointer,
+      _$dataCollection.pointer,
+    ).check();
+  }
+
+  static final _id_get$dataCollectionResolver = SentryOptions._class
+      .instanceMethodId(
+        r'getDataCollectionResolver',
+        r'()Lio/sentry/DataCollectionResolver;',
+      );
+
+  static final _get$dataCollectionResolver =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.DataCollectionResolver getDataCollectionResolver()`
+  /// The returned object must be released after use, by calling the [release] method.
+  DataCollectionResolver get dataCollectionResolver {
+    final _$$selfRef = reference;
+    return _get$dataCollectionResolver(
+      _$$selfRef.pointer,
+      _id_get$dataCollectionResolver.pointer,
+    ).object<DataCollectionResolver>();
   }
 
   static final _id_addScopeObserver = SentryOptions._class.instanceMethodId(
@@ -23374,8 +23653,7 @@ final class $SentryOptions$Type$ extends jni$_.JType<SentryOptions> {
 /// from: `io.sentry.SentryReplayOptions$BeforeErrorSamplingCallback`
 extension type SentryReplayOptions$BeforeErrorSamplingCallback._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static final _class = jni$_.JClass.forName(
     r'io/sentry/SentryReplayOptions$BeforeErrorSamplingCallback',
   );
@@ -31468,6 +31746,63 @@ extension type Breadcrumb._(jni$_.JObject _$this)
       _$string.pointer,
       _$string1.pointer,
       _$integer.pointer,
+    ).object<Breadcrumb>();
+  }
+
+  static final _id_http$2 = _class.staticMethodId(
+    r'http',
+    r'(Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lio/sentry/DataCollectionResolver;)Lio/sentry/Breadcrumb;',
+  );
+
+  static final _http$2 =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Pointer<jni$_.Void>,
+                    jni$_.Pointer<jni$_.Void>,
+                  )
+                >,
+              )
+            >
+          >('globalEnv_CallStaticObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `static public io.sentry.Breadcrumb http(java.lang.String string, java.lang.String string1, java.lang.Integer integer, io.sentry.DataCollectionResolver dataCollectionResolver)`
+  /// The returned object must be released after use, by calling the [release] method.
+  static Breadcrumb http$2(
+    jni$_.JString string,
+    jni$_.JString string1,
+    jni$_.JInteger? integer,
+    DataCollectionResolver? dataCollectionResolver,
+  ) {
+    final _$$classRef = _class.reference;
+    final _$string = string.reference;
+    final _$string1 = string1.reference;
+    final _$integer = integer?.reference ?? jni$_.jNullReference;
+    final _$dataCollectionResolver =
+        dataCollectionResolver?.reference ?? jni$_.jNullReference;
+    return _http$2(
+      _$$classRef.pointer,
+      _id_http$2.pointer,
+      _$string.pointer,
+      _$string1.pointer,
+      _$integer.pointer,
+      _$dataCollectionResolver.pointer,
     ).object<Breadcrumb>();
   }
 
@@ -53215,6 +53550,45 @@ final class $SSLSocketFactory$Type$ extends jni$_.JType<SSLSocketFactory> {
   String get signature => r'Ljavax/net/ssl/SSLSocketFactory;';
 }
 
+/// from: `io.sentry.DataCollection`
+///
+/// WARNING: DataCollection is a stub. To generate bindings for this class, include
+/// io.sentry.DataCollection in your config's classes list.
+///
+extension type DataCollection._(jni$_.JObject _$this) implements jni$_.JObject {
+  static const jni$_.JType<DataCollection> type = $DataCollection$Type$();
+}
+
+final class $DataCollection$Type$ extends jni$_.JType<DataCollection> {
+  @jni$_.internal
+  const $DataCollection$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/DataCollection;';
+}
+
+/// from: `io.sentry.DataCollectionResolver`
+///
+/// WARNING: DataCollectionResolver is a stub. To generate bindings for this class, include
+/// io.sentry.DataCollectionResolver in your config's classes list.
+///
+extension type DataCollectionResolver._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static const jni$_.JType<DataCollectionResolver> type =
+      $DataCollectionResolver$Type$();
+}
+
+final class $DataCollectionResolver$Type$
+    extends jni$_.JType<DataCollectionResolver> {
+  @jni$_.internal
+  const $DataCollectionResolver$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/DataCollectionResolver;';
+}
+
 /// from: `io.sentry.IScopeObserver`
 ///
 /// WARNING: IScopeObserver is a stub. To generate bindings for this class, include
@@ -53920,6 +54294,25 @@ final class $IScopesStorageFactory$Type$
   String get signature => r'Lio/sentry/IScopesStorageFactory;';
 }
 
+/// from: `io.sentry.transport.RateLimiterConfig`
+///
+/// WARNING: RateLimiterConfig is a stub. To generate bindings for this class, include
+/// io.sentry.transport.RateLimiterConfig in your config's classes list.
+///
+extension type RateLimiterConfig._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static const jni$_.JType<RateLimiterConfig> type = $RateLimiterConfig$Type$();
+}
+
+final class $RateLimiterConfig$Type$ extends jni$_.JType<RateLimiterConfig> {
+  @jni$_.internal
+  const $RateLimiterConfig$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/transport/RateLimiterConfig;';
+}
+
 /// from: `io.sentry.android.core.IDebugImagesLoader`
 ///
 /// WARNING: IDebugImagesLoader is a stub. To generate bindings for this class, include
@@ -54010,8 +54403,7 @@ final class $SentryScreenshotOptions$Type$
 ///
 extension type SentryFeedbackOptions$$OptionsConfigurator._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static const jni$_.JType<SentryFeedbackOptions$$OptionsConfigurator> type =
       $SentryFeedbackOptions$$OptionsConfigurator$Type$();
 }
@@ -54299,8 +54691,7 @@ final class $ReplayBreadcrumbConverter$Type$
 ///
 extension type IConnectionStatusProvider$$ConnectionStatus._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static const jni$_.JType<IConnectionStatusProvider$$ConnectionStatus> type =
       $IConnectionStatusProvider$$ConnectionStatus$Type$();
 }
@@ -54421,8 +54812,7 @@ final class $TouchRecorderCallback$Type$
 ///
 extension type IConnectionStatusProvider$$IConnectionStatusObserver._(
   jni$_.JObject _$this
-)
-    implements jni$_.JObject {
+) implements jni$_.JObject {
   static const jni$_.JType<IConnectionStatusProvider$$IConnectionStatusObserver>
   type = $IConnectionStatusProvider$$IConnectionStatusObserver$Type$();
 }
