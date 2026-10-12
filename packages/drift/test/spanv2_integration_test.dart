@@ -6,7 +6,7 @@ import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_drift/sentry_drift.dart';
 import 'package:sqlite3/open.dart';
 import 'package:test/test.dart';
@@ -33,19 +33,17 @@ void main() {
       final db = fixture.db;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await db.into(db.todoItems).insert(
-                TodoItemsCompanion.insert(
-                  title: 'Test Task',
-                  content: 'Test content',
-                ),
-              );
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await db
+            .into(db.todoItems)
+            .insert(
+              TodoItemsCompanion.insert(
+                title: 'Test Task',
+                content: 'Test content',
+              ),
+            );
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -66,8 +64,8 @@ void main() {
         equals('db.sql.query'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-        equals('db.sqlite'),
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
+        equals('sqlite'),
       );
       expect(
         span.attributes[SemanticAttributesConstants.sentryOrigin]?.value,
@@ -82,7 +80,9 @@ void main() {
     test('Select operation creates spanv2', () async {
       final db = fixture.db;
 
-      await db.into(db.todoItems).insert(
+      await db
+          .into(db.todoItems)
+          .insert(
             TodoItemsCompanion.insert(
               title: 'Sample Task',
               content: 'Sample content',
@@ -91,14 +91,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late List<TodoItem> result;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          result = await db.select(db.todoItems).get();
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        result = await db.select(db.todoItems).get();
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -118,8 +114,8 @@ void main() {
         equals('db.sql.query'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-        equals('db.sqlite'),
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
+        equals('sqlite'),
       );
       expect(span.parentSpan, equals(transactionSpan));
     });
@@ -127,7 +123,9 @@ void main() {
     test('Update operation creates spanv2', () async {
       final db = fixture.db;
 
-      await db.into(db.todoItems).insert(
+      await db
+          .into(db.todoItems)
+          .insert(
             TodoItemsCompanion.insert(
               title: 'Old Title',
               content: 'Old content',
@@ -135,20 +133,12 @@ void main() {
           );
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await (db.update(db.todoItems)
-                ..where((tbl) => tbl.title.equals('Old Title')))
-              .write(
-            TodoItemsCompanion(
-              title: Value('New Title'),
-            ),
-          );
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await (db.update(db.todoItems)
+              ..where((tbl) => tbl.title.equals('Old Title')))
+            .write(TodoItemsCompanion(title: Value('New Title')));
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -168,8 +158,8 @@ void main() {
         equals('db.sql.query'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
-        equals('db.sqlite'),
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
+        equals('sqlite'),
       );
       expect(span.parentSpan, equals(transactionSpan));
     });

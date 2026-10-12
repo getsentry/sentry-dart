@@ -21,25 +21,29 @@ void main() {
       SentryInternalLogger.configure(
         isEnabled: true,
         minLevel: SentryLevel.debug,
-        logOutput: ({
-          required String name,
-          required SentryLevel level,
-          required String message,
-          Object? error,
-          StackTrace? stackTrace,
-        }) {
-          logs.add((level, message.toString()));
-        },
+        logOutput:
+            ({
+              required String name,
+              required SentryLevel level,
+              required String message,
+              Object? error,
+              StackTrace? stackTrace,
+            }) {
+              logs.add((level, message.toString()));
+            },
       );
 
       final worker = AndroidCoreWorker(options);
-      worker.captureEnvelope(Uint8List.fromList([1, 2, 3]), false);
+      worker.captureEnvelope(Uint8List.fromList([1, 2, 3]));
 
       expect(
-        logs.any((e) =>
-            e.$1 == SentryLevel.info &&
-            e.$2.contains(
-                'captureEnvelope called before core worker started: sending envelope in main isolate instead')),
+        logs.any(
+          (e) =>
+              e.$1 == SentryLevel.info &&
+              e.$2.contains(
+                'captureEnvelope called before core worker started: sending envelope in main isolate instead',
+              ),
+        ),
         isTrue,
       );
     });
@@ -88,15 +92,16 @@ void main() {
       SentryInternalLogger.configure(
         isEnabled: true,
         minLevel: SentryLevel.debug,
-        logOutput: ({
-          required String name,
-          required SentryLevel level,
-          required String message,
-          Object? error,
-          StackTrace? stackTrace,
-        }) {
-          logs.add((level, message.toString()));
-        },
+        logOutput:
+            ({
+              required String name,
+              required SentryLevel level,
+              required String message,
+              Object? error,
+              StackTrace? stackTrace,
+            }) {
+              logs.add((level, message.toString()));
+            },
       );
 
       Future<Worker> fakeSpawn(WorkerConfig config, WorkerEntry entry) async {
@@ -107,9 +112,11 @@ void main() {
       await worker.start();
 
       expect(
-        logs.any((e) =>
-            e.$1 == SentryLevel.error &&
-            e.$2.contains('Failed to start Android core worker')),
+        logs.any(
+          (e) =>
+              e.$1 == SentryLevel.error &&
+              e.$2.contains('Failed to start Android core worker'),
+        ),
         isTrue,
       );
     });
@@ -129,11 +136,14 @@ void main() {
 
       final result = worker.close();
 
-      expect(result, isNull,
-          reason:
-              'close() must return synchronously (not a pending Future) once '
-              'the worker has started, so its shutdown send cannot be '
-              'deferred past a microtask boundary that may never run.');
+      expect(
+        result,
+        isNull,
+        reason:
+            'close() must return synchronously (not a pending Future) once '
+            'the worker has started, so its shutdown send cannot be '
+            'deferred past a microtask boundary that may never run.',
+      );
       expect(await inbox.first, '_shutdown_');
     });
 
@@ -186,10 +196,9 @@ void main() {
       await worker.start();
 
       final payload = Uint8List.fromList([4, 5, 6]);
-      worker.captureEnvelope(payload, true);
+      worker.captureEnvelope(payload);
 
       final msg = await inboxes.last.first as dynamic;
-      expect(msg.containsUnhandledException, true);
       final transferable = msg.envelopeData as TransferableTypedData;
       final data = transferable.materialize().asUint8List();
       expect(data, [4, 5, 6]);
@@ -222,7 +231,7 @@ void main() {
       worker.close();
     });
 
-    test('sends envelope capture requests sequentially with flags', () async {
+    test('sends envelope capture requests sequentially', () async {
       final options = SentryFlutterOptions();
       options.debug = true;
       options.diagnosticLevel = SentryLevel.debug;
@@ -239,16 +248,13 @@ void main() {
       final worker = AndroidCoreWorker(options, spawn: fakeSpawn);
       await worker.start();
 
-      worker.captureEnvelope(Uint8List.fromList([10]), true);
-      worker.captureEnvelope(Uint8List.fromList([11]), false);
+      worker.captureEnvelope(Uint8List.fromList([10]));
+      worker.captureEnvelope(Uint8List.fromList([11]));
 
       final inbox = inboxes.last;
       final msgs = await inbox.take(2).toList();
       final msg1 = msgs[0] as dynamic;
       final msg2 = msgs[1] as dynamic;
-
-      expect(msg1.containsUnhandledException, true);
-      expect(msg2.containsUnhandledException, false);
 
       final t1 = msg1.envelopeData as TransferableTypedData;
       final t2 = msg2.envelopeData as TransferableTypedData;
@@ -260,20 +266,36 @@ void main() {
       worker.close();
     });
 
+    test('awaits sampled out session update', () async {
+      final fixture = _Fixture();
+      final worker = fixture.getSut();
+      await worker.start();
+
+      final payload = await fixture.expectPendingRequest(
+        worker.updateSessionForDroppedEventNonTerminating(true),
+      );
+
+      expect((payload as dynamic).unhandled, true);
+    });
+
     test('requests debug images by instruction addresses', () async {
       final fixture = _Fixture();
       final worker = fixture.getSut();
       await worker.start();
 
-      final resultFuture = worker.loadDebugImages(SentryStackTrace(frames: [
-        SentryStackFrame(instructionAddr: '0x1'),
-        SentryStackFrame(),
-      ]));
+      final resultFuture = worker.loadDebugImages(
+        SentryStackTrace(
+          frames: [
+            SentryStackFrame(instructionAddr: '0x1'),
+            SentryStackFrame(),
+          ],
+        ),
+      );
 
       final (id, payload) = await fixture.nextRequest;
       expect((payload as dynamic).instructionAddresses, ['0x1']);
       fixture.respond(id, [
-        {'type': 'elf', 'debug_id': 'debug-id'}
+        {'type': 'elf', 'debug_id': 'debug-id'},
       ]);
 
       final result = await resultFuture;
@@ -287,9 +309,9 @@ void main() {
       final worker = fixture.getSut();
       await worker.start();
 
-      final resultFuture = worker.loadDebugImages(SentryStackTrace(frames: [
-        SentryStackFrame(instructionAddr: '0x1'),
-      ]));
+      final resultFuture = worker.loadDebugImages(
+        SentryStackTrace(frames: [SentryStackFrame(instructionAddr: '0x1')]),
+      );
 
       final (id, _) = await fixture.nextRequest;
       fixture.respondError(id);
@@ -304,9 +326,9 @@ void main() {
       await worker.start();
       await worker.close();
 
-      final result = worker.loadDebugImages(SentryStackTrace(frames: [
-        SentryStackFrame(instructionAddr: '0x1'),
-      ]));
+      final result = worker.loadDebugImages(
+        SentryStackTrace(frames: [SentryStackFrame(instructionAddr: '0x1')]),
+      );
 
       expect(await Future<List<DebugImage>?>.value(result), isNull);
     });
@@ -321,11 +343,11 @@ void main() {
       final (id, payload) = await fixture.nextRequest;
       expect(payload.runtimeType.toString(), '_LoadContextsRequest');
       fixture.respond(id, {
-        'contexts': {'fixture': true}
+        'contexts': {'fixture': true},
       });
 
       expect(await resultFuture, {
-        'contexts': {'fixture': true}
+        'contexts': {'fixture': true},
       });
     });
 
@@ -372,10 +394,9 @@ void main() {
       await worker.start();
 
       final payload = await fixture.expectPendingRequest(
-        worker.addBreadcrumb(Breadcrumb(
-          message: 'crumb',
-          data: {'value': _UnserializableValue()},
-        )),
+        worker.addBreadcrumb(
+          Breadcrumb(message: 'crumb', data: {'value': _UnserializableValue()}),
+        ),
       );
 
       expect((payload as dynamic).breadcrumb['data'], {
@@ -413,21 +434,19 @@ void main() {
       await worker.start();
 
       final payload = await fixture.expectPendingRequest(
-        worker.setUser(SentryUser(
-          id: 'fixture-user',
-          data: {'value': _UnserializableValue()},
-          // ignore: deprecated_member_use
-          extras: {'extra': _UnserializableValue()},
-        )),
+        worker.setUser(
+          SentryUser(
+            id: 'fixture-user',
+            data: {'value': _UnserializableValue()},
+            // ignore: deprecated_member_use
+            extras: {'extra': _UnserializableValue()},
+          ),
+        ),
       );
 
       final user = (payload as dynamic).user as Map;
-      expect(user['data'], {
-        'value': 'normalized-value',
-      });
-      expect(user['extras'], {
-        'extra': 'normalized-value',
-      });
+      expect(user['data'], {'value': 'normalized-value'});
+      expect(user['extras'], {'extra': 'normalized-value'});
     });
 
     test('sends context update and awaits response', () async {
@@ -437,13 +456,13 @@ void main() {
 
       final payload = await fixture.expectPendingRequest(
         worker.setContexts('fixture-key', <String, dynamic>{
-          'nested': <String, dynamic>{'value': true}
+          'nested': <String, dynamic>{'value': true},
         }),
       );
 
       expect((payload as dynamic).key, 'fixture-key');
       expect((payload as dynamic).value, {
-        'nested': {'value': true}
+        'nested': {'value': true},
       });
     });
 

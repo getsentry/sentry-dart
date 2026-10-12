@@ -54,8 +54,9 @@ class SentryException {
       stackTrace: stackTraceJson != null
           ? SentryStackTrace.fromJson(stackTraceJson)
           : null,
-      mechanism:
-          mechanismJson != null ? Mechanism.fromJson(mechanismJson) : null,
+      mechanism: mechanismJson != null
+          ? Mechanism.fromJson(mechanismJson)
+          : null,
       threadId: json['thread_id'],
       unknown: json.notAccessed(),
     );
@@ -73,27 +74,6 @@ class SentryException {
       if (threadId != null) 'thread_id': threadId,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryException copyWith({
-    String? type,
-    String? value,
-    String? module,
-    SentryStackTrace? stackTrace,
-    Mechanism? mechanism,
-    int? threadId,
-    dynamic throwable,
-  }) =>
-      SentryException(
-        type: type ?? this.type,
-        value: value ?? this.value,
-        module: module ?? this.module,
-        stackTrace: stackTrace ?? this.stackTrace?.copyWith(),
-        mechanism: mechanism ?? this.mechanism?.copyWith(),
-        threadId: threadId ?? this.threadId,
-        throwable: throwable ?? this.throwable,
-        unknown: unknown,
-      );
 
   @internal
   List<SentryException>? get exceptions =>

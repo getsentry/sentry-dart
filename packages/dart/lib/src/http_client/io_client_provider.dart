@@ -4,10 +4,10 @@ import 'package:http/http.dart';
 import 'package:http/io_client.dart';
 import 'package:meta/meta.dart';
 
-import '../protocol.dart';
 import '../protocol/sentry_proxy.dart';
 import '../sentry_options.dart';
 import 'client_provider.dart';
+import '../utils/internal_logger.dart';
 
 @internal
 ClientProvider getClientProvider() {
@@ -36,16 +36,10 @@ class IoClientProvider implements ClientProvider {
     }
     final pac = proxy.toPacString();
     if (proxy.type == SentryProxyType.socks) {
-      options.log(
-        SentryLevel.warning,
-        "Setting proxy '$pac' is not supported.",
-      );
+      internalLogger.warning("Setting proxy '$pac' is not supported.");
       return Client();
     }
-    options.log(
-      SentryLevel.info,
-      "Setting proxy '$pac'",
-    );
+    internalLogger.info("Setting proxy '$pac'");
     final httpClient = _httpClient();
     httpClient.findProxy = (url) => pac;
 

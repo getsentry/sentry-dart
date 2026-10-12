@@ -14,8 +14,8 @@ const rootRouteName = 'root /';
 @internal
 String resolveRouteDisplayName(String? routeName) =>
     routeName == null || routeName.isEmpty || routeName == '/'
-        ? rootRouteName
-        : routeName;
+    ? rootRouteName
+    : routeName;
 
 /// Context for the initial `ui.load` root transaction (static lifecycle).
 @internal

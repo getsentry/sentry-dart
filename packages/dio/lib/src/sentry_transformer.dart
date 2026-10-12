@@ -8,9 +8,8 @@ class SentryTransformer implements Transformer {
   static const _serializeOp = 'serialize.http.client';
 
   // ignore: public_member_api_docs
-  SentryTransformer({required Transformer transformer, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _transformer = transformer {
+  SentryTransformer({required this._transformer, Hub? hub})
+    : _hub = hub ?? HubAdapter() {
     _spanFactory = _hub.options.spanFactory;
   }
 
@@ -35,7 +34,10 @@ class SentryTransformer implements Transformer {
           )
         : null;
 
-    span?.setData('http.request.method', options.method);
+    span?.setData(
+      SemanticAttributesConstants.httpRequestMethod,
+      options.method,
+    );
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);
@@ -75,15 +77,20 @@ class SentryTransformer implements Transformer {
           )
         : null;
 
-    span?.setData('http.request.method', options.method);
+    span?.setData(
+      SemanticAttributesConstants.httpRequestMethod,
+      options.method,
+    );
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);
 
     dynamic transformedResponse;
     try {
-      transformedResponse =
-          await _transformer.transformResponse(options, response);
+      transformedResponse = await _transformer.transformResponse(
+        options,
+        response,
+      );
       span?.status = const SpanStatus.ok();
     } catch (exception) {
       span?.throwable = exception;

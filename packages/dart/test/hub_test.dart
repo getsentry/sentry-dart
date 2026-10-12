@@ -1,14 +1,12 @@
 import 'package:collection/collection.dart';
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/propagation_context.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/propagation/propagation_context.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
-import 'mocks.mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_sentry_client.dart';
 import 'test_utils.dart';
@@ -41,40 +39,105 @@ void main() {
       fakeEvent = getFakeEvent();
     });
 
-    test(
-      'should capture event with the default scope',
-      () async {
-        final hub = fixture.getSut();
-        await hub.captureEvent(fakeEvent);
+    test('should capture event with the default scope', () async {
+      final hub = fixture.getSut();
+      await hub.captureEvent(fakeEvent);
 
-        var scope = fixture.client.captureEventCalls.first.scope;
+      var scope = fixture.client.captureEventCalls.first.scope;
+
+      expect(fixture.client.captureEventCalls.first.event, fakeEvent);
+
+      expect(scopeEquals(scope, Scope(fixture.options)), true);
+    });
+
+    group('with an active streaming span', () {
+      test('captureEvent passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureEvent(fakeEvent);
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
+      test('captureException passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureException(fakeException);
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
+      test('captureMessage passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureMessage('message');
+
+          expect(
+            fixture.client.captureMessageCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
+      test('captureFeedback passes the span on the scope', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('span', (span) async {
+          await hub.captureFeedback(SentryFeedback(message: 'message'));
+
+          expect(
+            fixture.client.captureFeedbackCalls.single.scope?.getActiveSpan(),
+            span,
+          );
+        });
+      });
+
+      test('captureException passes the active idle span', () async {
+        final hub = fixture.getSut();
+        final span = hub.startIdleSpan('idle');
+        addTearDown(span.end);
+
+        await hub.captureException(fakeException);
 
         expect(
-          fixture.client.captureEventCalls.first.event,
-          fakeEvent,
+          fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+          span,
         );
+      });
 
-        expect(scopeEquals(scope, Scope(fixture.options)), true);
-      },
-    );
-
-    test(
-      'should capture feedback with the default scope',
-      () async {
+      test('does not set the span on the hub scope', () async {
         final hub = fixture.getSut();
-        final feedback = SentryFeedback(message: 'message');
-        await hub.captureFeedback(feedback);
 
-        var scope = fixture.client.captureFeedbackCalls.first.scope;
+        await hub.startSpan('span', (_) async {
+          await hub.captureException(fakeException);
+        });
 
-        expect(
-          fixture.client.captureFeedbackCalls.first.feedback,
-          feedback,
-        );
+        expect(hub.scope.getActiveSpan(), isNull);
+      });
+    });
 
-        expect(scopeEquals(scope, Scope(fixture.options)), true);
-      },
-    );
+    test('should capture feedback with the default scope', () async {
+      final hub = fixture.getSut();
+      final feedback = SentryFeedback(message: 'message');
+      await hub.captureFeedback(feedback);
+
+      var scope = fixture.client.captureFeedbackCalls.first.scope;
+
+      expect(fixture.client.captureFeedbackCalls.first.feedback, feedback);
+
+      expect(scopeEquals(scope, Scope(fixture.options)), true);
+    });
 
     test('should capture exception', () async {
       final hub = fixture.getSut();
@@ -90,11 +153,15 @@ void main() {
 
     test('should capture exception with message', () async {
       final hub = fixture.getSut();
-      await hub.captureException(fakeException,
-          message: SentryMessage('Sentry rocks'));
+      await hub.captureException(
+        fakeException,
+        message: SentryMessage('Sentry rocks'),
+      );
 
-      expect(fixture.client.captureEventCalls.first.event.message?.formatted,
-          'Sentry rocks');
+      expect(
+        fixture.client.captureEventCalls.first.event.message?.formatted,
+        'Sentry rocks',
+      );
     });
 
     test('should capture message', () async {
@@ -107,10 +174,14 @@ void main() {
       );
 
       expect(fixture.client.captureMessageCalls.length, 1);
-      expect(fixture.client.captureMessageCalls.first.formatted,
-          fakeMessage.formatted);
       expect(
-          fixture.client.captureMessageCalls.first.level, SentryLevel.warning);
+        fixture.client.captureMessageCalls.first.formatted,
+        fakeMessage.formatted,
+      );
+      expect(
+        fixture.client.captureMessageCalls.first.level,
+        SentryLevel.warning,
+      );
       expect(fixture.client.captureMessageCalls.first.scope, isNotNull);
     });
 
@@ -167,25 +238,67 @@ void main() {
       expect(capturedEvent.event.contexts.trace!.sampled, isTrue);
     });
 
-    test('Expando does not throw when exception type is not supported',
-        () async {
+    test('capture exception trace context status defaults to ok', () async {
       final hub = fixture.getSut();
 
-      try {
-        throw 'string error';
-      } catch (exception) {
-        final event = SentryEvent(throwable: exception);
-        final span = NoOpSentrySpan();
-        hub.setSpanContext(exception, span, 'test');
+      final span = SentrySpan(
+        fixture.tracer,
+        fixture._context,
+        hub,
+        samplingDecision: fixture._context.samplingDecision,
+      );
+      hub.setSpanContext(fakeException, span, 'test');
 
-        await hub.captureEvent(event);
-      }
-
+      await hub.captureException(fakeException);
       final capturedEvent = fixture.client.captureEventCalls.first;
 
-      expect(capturedEvent.event.transaction, 'test');
-      expect(capturedEvent.event.contexts.trace, isNotNull);
+      expect(capturedEvent.event.contexts.trace!.status, SpanStatus.ok());
     });
+
+    test(
+      'capture exception trace context keeps span status when set',
+      () async {
+        final hub = fixture.getSut();
+
+        final span = SentrySpan(
+          fixture.tracer,
+          fixture._context,
+          hub,
+          samplingDecision: fixture._context.samplingDecision,
+        )..status = SpanStatus.internalError();
+        hub.setSpanContext(fakeException, span, 'test');
+
+        await hub.captureException(fakeException);
+        final capturedEvent = fixture.client.captureEventCalls.first;
+
+        expect(
+          capturedEvent.event.contexts.trace!.status,
+          SpanStatus.internalError(),
+        );
+      },
+    );
+
+    test(
+      'Expando does not throw when exception type is not supported',
+      () async {
+        final hub = fixture.getSut();
+
+        try {
+          throw 'string error';
+        } catch (exception) {
+          final event = SentryEvent(throwable: exception);
+          final span = NoOpSentrySpan();
+          hub.setSpanContext(exception, span, 'test');
+
+          await hub.captureEvent(event);
+        }
+
+        final capturedEvent = fixture.client.captureEventCalls.first;
+
+        expect(capturedEvent.event.transaction, 'test');
+        expect(capturedEvent.event.contexts.trace, isNotNull);
+      },
+    );
   });
 
   group('Hub transactions', () {
@@ -193,26 +306,29 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+      fixture.options.traceLifecycle = SentryTraceLifecycle.static;
     });
 
-    test('start transaction with given name, op, desc and start time',
-        () async {
-      final hub = fixture.getSut();
-      final startTime = DateTime.now();
+    test(
+      'start transaction with given name, op, desc and start time',
+      () async {
+        final hub = fixture.getSut();
+        final startTime = DateTime.now();
 
-      final tr = hub.startTransaction(
-        'name',
-        'op',
-        startTimestamp: startTime,
-        description: 'desc',
-      );
+        final tr = hub.startTransaction(
+          'name',
+          'op',
+          startTimestamp: startTime,
+          description: 'desc',
+        );
 
-      expect(tr.context.operation, 'op');
-      expect(tr.context.description, 'desc');
-      expect(tr.startTimestamp.isAtSameMomentAs(startTime), true);
-      expect((tr as SentryTracer).name, 'name');
-      expect(tr.origin, SentryTraceOrigins.manual);
-    });
+        expect(tr.context.operation, 'op');
+        expect(tr.context.description, 'desc');
+        expect(tr.startTimestamp.isAtSameMomentAs(startTime), true);
+        expect((tr as SentryTracer).name, 'name');
+        expect(tr.origin, SentryTraceOrigins.manual);
+      },
+    );
 
     test('start transaction binds span to the scope', () async {
       final hub = fixture.getSut();
@@ -232,11 +348,7 @@ void main() {
     test('start transaction does not bind span to the scope', () async {
       final hub = fixture.getSut();
 
-      hub.startTransaction(
-        'name',
-        'op',
-        description: 'desc',
-      );
+      hub.startTransaction('name', 'op', description: 'desc');
 
       await hub.configureScope((Scope scope) {
         expect(scope.span, isNull);
@@ -246,11 +358,7 @@ void main() {
     test('start transaction samples the transaction', () async {
       final hub = fixture.getSut();
 
-      final tr = hub.startTransaction(
-        'name',
-        'op',
-        description: 'desc',
-      );
+      final tr = hub.startTransaction('name', 'op', description: 'desc');
 
       expect(tr.samplingDecision?.sampled, true);
     });
@@ -258,44 +366,45 @@ void main() {
     test('start transaction does not sample the transaction', () async {
       final hub = fixture.getSut(tracesSampleRate: 0.0);
 
-      final tr = hub.startTransaction(
-        'name',
-        'op',
-        description: 'desc',
-      );
+      final tr = hub.startTransaction('name', 'op', description: 'desc');
 
       expect(tr.samplingDecision?.sampled, false);
     });
 
-    test('start transaction runs callback with customSamplingContext',
-        () async {
-      double? mySampling(SentrySamplingContext samplingContext) {
-        expect(samplingContext.customSamplingContext['test'], '1');
-        return 0.0;
-      }
+    test(
+      'start transaction runs callback with customSamplingContext',
+      () async {
+        double? mySampling(SentrySamplingContext samplingContext) {
+          expect(samplingContext.customSamplingContext['test'], '1');
+          return 0.0;
+        }
 
-      final hub = fixture.getSut(
-        tracesSampleRate: null,
-        tracesSampler: mySampling,
-      );
-      final map = {'test': '1'};
+        final hub = fixture.getSut(
+          tracesSampleRate: null,
+          tracesSampler: mySampling,
+        );
+        final map = {'test': '1'};
 
-      final tr = hub.startTransaction(
-        'name',
-        'op',
-        description: 'desc',
-        customSamplingContext: map,
-      );
+        final tr = hub.startTransaction(
+          'name',
+          'op',
+          description: 'desc',
+          customSamplingContext: map,
+        );
 
-      expect(tr.samplingDecision?.sampled, false);
-    });
+        expect(tr.samplingDecision?.sampled, false);
+      },
+    );
 
     test('start transaction respects given sampled', () async {
       final hub = fixture.getSut();
 
       final tr = hub.startTransactionWithContext(
-        SentryTransactionContext('name', 'op',
-            samplingDecision: SentryTracesSamplingDecision(false)),
+        SentryTransactionContext(
+          'name',
+          'op',
+          samplingDecision: SentryTracesSamplingDecision(false),
+        ),
       );
 
       expect(tr.samplingDecision?.sampled, false);
@@ -320,11 +429,7 @@ void main() {
     test('start transaction return NoOp if performance is disabled', () async {
       final hub = fixture.getSut(tracesSampleRate: null);
 
-      final tr = hub.startTransaction(
-        'name',
-        'op',
-        description: 'desc',
-      );
+      final tr = hub.startTransaction('name', 'op', description: 'desc');
 
       expect(tr, NoOpSentrySpan());
     });
@@ -345,11 +450,7 @@ void main() {
     test('get span does not return span if not bound to the scope', () async {
       final hub = fixture.getSut();
 
-      hub.startTransaction(
-        'name',
-        'op',
-        description: 'desc',
-      );
+      hub.startTransaction('name', 'op', description: 'desc');
 
       expect(hub.getSpan(), isNull);
     });
@@ -357,11 +458,7 @@ void main() {
     test('get span does not return span if tracing is disabled', () async {
       final hub = fixture.getSut(tracesSampleRate: null);
 
-      hub.startTransaction(
-        'name',
-        'op',
-        description: 'desc',
-      );
+      hub.startTransaction('name', 'op', description: 'desc');
 
       expect(hub.getSpan(), isNull);
     });
@@ -407,7 +504,9 @@ void main() {
       expect(id, tr.eventId);
       expect(fixture.client.captureTransactionCalls.length, 1);
       expect(
-          fixture.client.captureTransactionCalls.first.traceContext, context);
+        fixture.client.captureTransactionCalls.first.traceContext,
+        context,
+      );
     });
 
     test('captureTransaction hint is passed to client', () async {
@@ -421,20 +520,27 @@ void main() {
     });
 
     test(
-        'startTransactionWithContext sets traceId from scope propagationContext',
-        () async {
-      final hub = fixture.getSut();
+      'startTransactionWithContext sets traceId from scope propagationContext',
+      () async {
+        final hub = fixture.getSut();
 
-      hub.scope.propagationContext = PropagationContext();
-      final tr1 = hub.startTransactionWithContext(fixture._context);
-      expect(tr1.traceContext()?.traceId, hub.scope.propagationContext.traceId);
+        hub.scope.propagationContext = PropagationContext();
+        final tr1 = hub.startTransactionWithContext(fixture._context);
+        expect(
+          tr1.traceContext()?.traceId,
+          hub.scope.propagationContext.traceId,
+        );
 
-      hub.scope.propagationContext = PropagationContext();
-      final tr2 = hub.startTransactionWithContext(fixture._context);
-      expect(tr2.traceContext()?.traceId, hub.scope.propagationContext.traceId);
+        hub.scope.propagationContext = PropagationContext();
+        final tr2 = hub.startTransactionWithContext(fixture._context);
+        expect(
+          tr2.traceContext()?.traceId,
+          hub.scope.propagationContext.traceId,
+        );
 
-      expect(tr1.traceContext()?.traceId, isNot(tr2.traceContext()?.traceId));
-    });
+        expect(tr1.traceContext()?.traceId, isNot(tr2.traceContext()?.traceId));
+      },
+    );
   });
 
   group('Hub traceLifecycle guards', () {
@@ -484,70 +590,6 @@ void main() {
     });
   });
 
-  group('Hub profiles', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('profiler is not started by default', () async {
-      final hub = fixture.getSut();
-      final tr = hub.startTransaction('name', 'op');
-      expect(tr, isA<SentryTracer>());
-      expect((tr as SentryTracer).profiler, isNull);
-    });
-
-    test('profiler is started according to the sampling rate', () async {
-      final hub = fixture.getSut();
-      final factory = MockSentryProfilerFactory();
-      when(factory.startProfiler(fixture._context))
-          .thenReturn(MockSentryProfiler());
-      hub.profilerFactory = factory;
-
-      var tr = hub.startTransactionWithContext(fixture._context);
-      expect((tr as SentryTracer).profiler, isNull);
-      verifyZeroInteractions(factory);
-
-      hub.options.profilesSampleRate = 1.0;
-      tr = hub.startTransactionWithContext(fixture._context);
-      expect((tr as SentryTracer).profiler, isNotNull);
-      verify(factory.startProfiler(fixture._context)).called(1);
-    });
-
-    test('profiler.finish() is called', () async {
-      final hub = fixture.getSut();
-      final factory = MockSentryProfilerFactory();
-      final profiler = MockSentryProfiler();
-      final expected = MockSentryProfileInfo();
-      when(factory.startProfiler(fixture._context)).thenReturn(profiler);
-      when(profiler.finishFor(any)).thenAnswer((_) async => expected);
-
-      hub.profilerFactory = factory;
-      hub.options.profilesSampleRate = 1.0;
-      final tr = hub.startTransactionWithContext(fixture._context);
-      await tr.finish();
-      verify(profiler.finishFor(any)).called(1);
-      verify(profiler.dispose()).called(1);
-    });
-
-    test('profiler.dispose() is called even if not captured', () async {
-      final hub = fixture.getSut();
-      final factory = MockSentryProfilerFactory();
-      final profiler = MockSentryProfiler();
-      final expected = MockSentryProfileInfo();
-      when(factory.startProfiler(fixture._context)).thenReturn(profiler);
-      when(profiler.finishFor(any)).thenAnswer((_) async => expected);
-
-      hub.profilerFactory = factory;
-      hub.options.profilesSampleRate = 1.0;
-      final tr = hub.startTransactionWithContext(fixture._context);
-      await tr.finish(status: SpanStatus.aborted());
-      verify(profiler.dispose()).called(1);
-      verifyNever(profiler.finishFor(any));
-    });
-  });
-
   group('Hub scope', () {
     var hub = Hub(defaultTestOptions());
     var client = MockSentryClient();
@@ -588,13 +630,7 @@ void main() {
 
       await otherScope.setUser(fakeUser);
 
-      expect(
-        scopeEquals(
-          scope,
-          otherScope,
-        ),
-        true,
-      );
+      expect(scopeEquals(scope, otherScope), true);
     });
 
     test('setAttributes sets attributes on scope', () {
@@ -602,7 +638,7 @@ void main() {
         'attr1': SentryAttribute.string('value'),
         'attr2': SentryAttribute.int(42),
         'attr3': SentryAttribute.bool(true),
-        'attr4': SentryAttribute.double(3.14)
+        'attr4': SentryAttribute.double(3.14),
       });
       hub.setAttributes({'merged': SentryAttribute.double(12)});
 
@@ -620,7 +656,7 @@ void main() {
         'attr1': SentryAttribute.string('value'),
         'attr2': SentryAttribute.int(42),
         'attr3': SentryAttribute.bool(true),
-        'attr4': SentryAttribute.double(3.14)
+        'attr4': SentryAttribute.double(3.14),
       });
       hub.setAttributes({'merged': SentryAttribute.double(12)});
 
@@ -648,12 +684,7 @@ void main() {
       final otherScope = Scope(defaultTestOptions());
       await otherScope.setUser(fakeUser);
 
-      expect(
-          scopeEquals(
-            scope,
-            otherScope,
-          ),
-          true);
+      expect(scopeEquals(scope, otherScope), true);
     });
 
     test('should add breadcrumb to current Scope', () async {
@@ -665,6 +696,23 @@ void main() {
         expect(1, scope.breadcrumbs.length);
         expect('test', scope.breadcrumbs.first.message);
       });
+    });
+
+    test('adds feature flag to current Scope', () async {
+      await hub.addFeatureFlag('foo', true);
+
+      final flags =
+          hub.scope.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(flags.values.first.flag, 'foo');
+      expect(flags.values.first.result, true);
+    });
+
+    test('does not add feature flag when disabled', () async {
+      await hub.close();
+
+      await hub.addFeatureFlag('foo', true);
+
+      expect(hub.scope.contexts[SentryFeatureFlags.type], isNull);
     });
 
     test('generateNewTrace creates new trace id in propagation context', () {
@@ -687,8 +735,9 @@ void main() {
 
     test('generateNewTrace dispatches OnTraceReset with traceId', () {
       SentryId? receivedTraceId;
-      hub.options.lifecycleRegistry
-          .registerCallback<OnGenerateNewTrace>((event) {
+      hub.options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>((
+        event,
+      ) {
         receivedTraceId = event.traceId;
       });
 
@@ -699,52 +748,293 @@ void main() {
     });
 
     test(
-        'generateNewTrace dispatches OnTraceReset with spanId from active span',
-        () {
-      SpanId? receivedSpanId;
-      hub.options.tracesSampleRate = 1.0;
-      hub.options.lifecycleRegistry
-          .registerCallback<OnGenerateNewTrace>((event) {
-        receivedSpanId = event.spanId;
+      'generateNewTrace dispatches OnTraceReset with spanId from active span',
+      () {
+        SpanId? receivedSpanId;
+        hub.options.traceLifecycle = SentryTraceLifecycle.static;
+        hub.options.tracesSampleRate = 1.0;
+        hub.options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>((
+          event,
+        ) {
+          receivedSpanId = event.spanId;
+        });
+
+        hub.startTransaction('name', 'op', bindToScope: true);
+        hub.generateNewTrace();
+
+        expect(receivedSpanId, isNotNull);
+        expect(receivedSpanId, hub.getSpan()?.context.spanId);
+      },
+    );
+
+    test(
+      'generateNewTrace dispatches OnTraceReset with new spanId if no active span',
+      () {
+        SpanId? receivedSpanId;
+        hub.options.tracesSampleRate = 1.0;
+        hub.options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>((
+          event,
+        ) {
+          receivedSpanId = event.spanId;
+        });
+
+        hub.generateNewTrace();
+
+        expect(hub.getSpan(), isNull);
+        expect(receivedSpanId, isNotNull);
+      },
+    );
+
+    test(
+      'generateNewTrace dispatches OnTraceReset with new spanId if tracing is disabled',
+      () {
+        SpanId? receivedSpanId;
+        hub.options.tracesSampleRate = null;
+        hub.options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>((
+          event,
+        ) {
+          receivedSpanId = event.spanId;
+        });
+
+        hub.generateNewTrace();
+
+        expect(hub.getSpan(), isNull);
+        expect(receivedSpanId, isNotNull);
+      },
+    );
+  });
+
+  group('Hub addFeatureFlag active spans', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    Map<String, Map<String, dynamic>> featureFlagAttributes(SentrySpanV2 span) {
+      return Map.fromEntries(
+        span.attributes.entries
+            .where((entry) => entry.key.startsWith('flag.evaluation.'))
+            .map((entry) => MapEntry(entry.key, entry.value.toJson())),
+      );
+    }
+
+    Map<String, dynamic> featureFlagData(SentryTracer span) {
+      return Map.fromEntries(
+        span.data.entries.where(
+          (entry) => entry.key.startsWith('flag.evaluation.'),
+        ),
+      );
+    }
+
+    test('adds feature flag to active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        await hub.addFeatureFlag('checkout', true);
+
+        expect(
+          span.attributes['flag.evaluation.checkout']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
       });
-
-      hub.startTransaction('name', 'op', bindToScope: true);
-      hub.generateNewTrace();
-
-      expect(receivedSpanId, isNotNull);
-      expect(receivedSpanId, hub.getSpan()?.context.spanId);
     });
 
     test(
-        'generateNewTrace dispatches OnTraceReset with new spanId if no active span',
-        () {
-      SpanId? receivedSpanId;
-      hub.options.tracesSampleRate = 1.0;
-      hub.options.lifecycleRegistry
-          .registerCallback<OnGenerateNewTrace>((event) {
-        receivedSpanId = event.spanId;
+      'does not add feature flag to static span when span v2 is active',
+      () async {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+        final staticSpan = SentryTracer(
+          SentryTransactionContext('root', 'operation'),
+          hub,
+        );
+        hub.scope.span = staticSpan;
+
+        await hub.startSpan('checkout', (span) async {
+          await hub.addFeatureFlag('checkout', true);
+
+          expect(
+            span.attributes['flag.evaluation.checkout']?.toJson(),
+            equals({'value': true, 'type': 'boolean'}),
+          );
+        });
+        expect(staticSpan.data, isNot(contains('flag.evaluation.checkout')));
+      },
+    );
+
+    test('updates active span feature flag in place', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        await hub.addFeatureFlag('checkout', true);
+        await hub.addFeatureFlag('checkout', false);
+
+        expect(
+          featureFlagAttributes(span),
+          equals({
+            'flag.evaluation.checkout': {'value': false, 'type': 'boolean'},
+          }),
+        );
       });
+    });
 
-      hub.generateNewTrace();
+    test('adds at most 10 unique feature flags to active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
 
-      expect(hub.getSpan(), isNull);
-      expect(receivedSpanId, isNotNull);
+      await hub.startSpan('checkout', (span) async {
+        for (var i = 0; i < 11; i++) {
+          await hub.addFeatureFlag('foo_$i', i.isEven);
+        }
+
+        expect(featureFlagAttributes(span).keys, hasLength(10));
+        expect(span.attributes, isNot(contains('flag.evaluation.foo_10')));
+      });
     });
 
     test(
-        'generateNewTrace dispatches OnTraceReset with new spanId if tracing is disabled',
-        () {
-      SpanId? receivedSpanId;
-      hub.options.tracesSampleRate = null;
-      hub.options.lifecycleRegistry
-          .registerCallback<OnGenerateNewTrace>((event) {
-        receivedSpanId = event.spanId;
+      'updates existing active span feature flag after limit is reached',
+      () async {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+        await hub.startSpan('checkout', (span) async {
+          for (var i = 0; i < 10; i++) {
+            await hub.addFeatureFlag('foo_$i', i.isEven);
+          }
+          await hub.addFeatureFlag('foo_5', true);
+
+          expect(featureFlagAttributes(span).keys, hasLength(10));
+          expect(
+            span.attributes['flag.evaluation.foo_5']?.toJson(),
+            equals({'value': true, 'type': 'boolean'}),
+          );
+        });
+      },
+    );
+
+    test('does not add feature flag to ended active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('checkout', (span) async {
+        span.end();
+
+        await hub.addFeatureFlag('foo', true);
+
+        expect(span.attributes, isNot(contains('flag.evaluation.foo')));
       });
+    });
 
-      hub.generateNewTrace();
+    test('does not backfill existing scope flags into active span', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
 
-      expect(hub.getSpan(), isNull);
-      expect(receivedSpanId, isNotNull);
+      await hub.addFeatureFlag('old', true);
+      await hub.startSpan('checkout', (span) async {
+        await hub.addFeatureFlag('new', true);
+
+        expect(span.attributes, isNot(contains('flag.evaluation.old')));
+        expect(
+          span.attributes['flag.evaluation.new']?.toJson(),
+          equals({'value': true, 'type': 'boolean'}),
+        );
+      });
+    });
+
+    test('does not propagate active span feature flags to children', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+      await hub.startSpan('parent', (parent) async {
+        await hub.addFeatureFlag('parent', true);
+
+        await hub.startSpan('child', (child) async {
+          await hub.addFeatureFlag('child', true);
+
+          expect(child.attributes, isNot(contains('flag.evaluation.parent')));
+        });
+
+        expect(parent.attributes, isNot(contains('flag.evaluation.child')));
+      });
+    });
+
+    test('adds feature flag to active static span', () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      hub.scope.span = span;
+
+      await hub.addFeatureFlag('checkout', true);
+
+      expect(span.data['flag.evaluation.checkout'], isTrue);
+    });
+
+    test('updates active static span feature flag in place', () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      hub.scope.span = span;
+
+      await hub.addFeatureFlag('checkout', true);
+      await hub.addFeatureFlag('checkout', false);
+
+      expect(
+        featureFlagData(span),
+        equals({'flag.evaluation.checkout': false}),
+      );
+    });
+
+    test(
+      'adds at most 10 unique feature flags to active static span',
+      () async {
+        final hub = fixture.getSut();
+        final span = SentryTracer(
+          SentryTransactionContext('root', 'operation'),
+          hub,
+        );
+        hub.scope.span = span;
+
+        for (var i = 0; i < 11; i++) {
+          await hub.addFeatureFlag('foo_$i', i.isEven);
+        }
+
+        expect(featureFlagData(span).keys, hasLength(10));
+        expect(span.data, isNot(contains('flag.evaluation.foo_10')));
+      },
+    );
+
+    test(
+      'updates existing active static span feature flag after limit is reached',
+      () async {
+        final hub = fixture.getSut();
+        final span = SentryTracer(
+          SentryTransactionContext('root', 'operation'),
+          hub,
+        );
+        hub.scope.span = span;
+
+        for (var i = 0; i < 10; i++) {
+          await hub.addFeatureFlag('foo_$i', i.isEven);
+        }
+        await hub.addFeatureFlag('foo_5', true);
+
+        expect(featureFlagData(span).keys, hasLength(10));
+        expect(span.data['flag.evaluation.foo_5'], isTrue);
+      },
+    );
+
+    test('does not add feature flag to ended active static span', () async {
+      final hub = fixture.getSut();
+      final span = SentryTracer(
+        SentryTransactionContext('root', 'operation'),
+        hub,
+      );
+      await span.finish();
+      hub.scope.span = span;
+
+      await hub.addFeatureFlag('foo', true);
+
+      expect(span.data, isNot(contains('flag.evaluation.foo')));
     });
   });
 
@@ -772,55 +1062,61 @@ void main() {
       expect(fixture.loggedLevel, SentryLevel.error);
     });
 
-    test('captureFeedback should handle thrown error in scope callback',
-        () async {
-      fixture.options.automatedTestMode = false;
-      final hub = fixture.getSut(debug: true);
-      final scopeCallbackException = Exception('error in scope callback');
+    test(
+      'captureFeedback should handle thrown error in scope callback',
+      () async {
+        fixture.options.automatedTestMode = false;
+        final hub = fixture.getSut(debug: true);
+        final scopeCallbackException = Exception('error in scope callback');
 
-      ScopeCallback scopeCallback = (Scope scope) {
-        throw scopeCallbackException;
-      };
+        ScopeCallback scopeCallback = (Scope scope) {
+          throw scopeCallbackException;
+        };
 
-      final feedback = SentryFeedback(message: 'message');
-      await hub.captureFeedback(feedback, withScope: scopeCallback);
+        final feedback = SentryFeedback(message: 'message');
+        await hub.captureFeedback(feedback, withScope: scopeCallback);
 
-      expect(fixture.loggedException, scopeCallbackException);
-      expect(fixture.loggedLevel, SentryLevel.error);
-    });
+        expect(fixture.loggedException, scopeCallbackException);
+        expect(fixture.loggedLevel, SentryLevel.error);
+      },
+    );
 
-    test('captureException should handle thrown error in scope callback',
-        () async {
-      fixture.options.automatedTestMode = false;
-      final hub = fixture.getSut(debug: true);
-      final scopeCallbackException = Exception('error in scope callback');
+    test(
+      'captureException should handle thrown error in scope callback',
+      () async {
+        fixture.options.automatedTestMode = false;
+        final hub = fixture.getSut(debug: true);
+        final scopeCallbackException = Exception('error in scope callback');
 
-      ScopeCallback scopeCallback = (Scope scope) {
-        throw scopeCallbackException;
-      };
+        ScopeCallback scopeCallback = (Scope scope) {
+          throw scopeCallbackException;
+        };
 
-      final exception = Exception("captured exception");
-      await hub.captureException(exception, withScope: scopeCallback);
+        final exception = Exception("captured exception");
+        await hub.captureException(exception, withScope: scopeCallback);
 
-      expect(fixture.loggedException, scopeCallbackException);
-      expect(fixture.loggedLevel, SentryLevel.error);
-    });
+        expect(fixture.loggedException, scopeCallbackException);
+        expect(fixture.loggedLevel, SentryLevel.error);
+      },
+    );
 
-    test('captureMessage should handle thrown error in scope callback',
-        () async {
-      fixture.options.automatedTestMode = false;
-      final hub = fixture.getSut(debug: true);
-      final scopeCallbackException = Exception('error in scope callback');
+    test(
+      'captureMessage should handle thrown error in scope callback',
+      () async {
+        fixture.options.automatedTestMode = false;
+        final hub = fixture.getSut(debug: true);
+        final scopeCallbackException = Exception('error in scope callback');
 
-      ScopeCallback scopeCallback = (Scope scope) {
-        throw scopeCallbackException;
-      };
+        ScopeCallback scopeCallback = (Scope scope) {
+          throw scopeCallbackException;
+        };
 
-      await hub.captureMessage("captured message", withScope: scopeCallback);
+        await hub.captureMessage("captured message", withScope: scopeCallback);
 
-      expect(fixture.loggedException, scopeCallbackException);
-      expect(fixture.loggedLevel, SentryLevel.error);
-    });
+        expect(fixture.loggedException, scopeCallbackException);
+        expect(fixture.loggedLevel, SentryLevel.error);
+      },
+    );
   });
 
   group('Hub Client', () {
@@ -866,48 +1162,56 @@ void main() {
       fixture = Fixture();
     });
 
-    test('withScope can override scope attributes for that call only',
-        () async {
-      final hub = fixture.getSut();
-      hub.setAttributes({
-        'overridden': SentryAttribute.string('global'),
-        'kept': SentryAttribute.bool(true),
-      });
-
-      await hub.captureMessage('msg', withScope: (scope) async {
-        // cloned scope starts with global attributes
-        expect(scope.attributes['overridden']?.value, 'global');
-        expect(scope.attributes['kept']?.value, true);
-
-        // override and add one more
-        scope.setAttributes({
-          'overridden': SentryAttribute.string('local'),
-          'extra': SentryAttribute.int(1),
+    test(
+      'withScope can override scope attributes for that call only',
+      () async {
+        final hub = fixture.getSut();
+        hub.setAttributes({
+          'overridden': SentryAttribute.string('global'),
+          'kept': SentryAttribute.bool(true),
         });
 
-        expect(scope.attributes['overridden']?.value, 'local');
-        expect(scope.attributes['kept']?.value, true);
-        expect(scope.attributes['extra']?.value, 1);
-      });
+        await hub.captureMessage(
+          'msg',
+          withScope: (scope) async {
+            // cloned scope starts with global attributes
+            expect(scope.attributes['overridden']?.value, 'global');
+            expect(scope.attributes['kept']?.value, true);
 
-      // The scope passed to the client should reflect overridden attributes
-      final capturedScope = fixture.client.captureMessageCalls.last.scope!;
-      expect(capturedScope.attributes['overridden']?.value, 'local');
-      expect(capturedScope.attributes['kept']?.value, true);
-      expect(capturedScope.attributes['extra']?.value, 1);
+            // override and add one more
+            scope.setAttributes({
+              'overridden': SentryAttribute.string('local'),
+              'extra': SentryAttribute.int(1),
+            });
 
-      // Global scope remains unchanged
-      expect(hub.scope.attributes['overridden']?.value, 'global');
-      expect(hub.scope.attributes['kept']?.value, true);
-      expect(hub.scope.attributes.containsKey('extra'), false);
-    });
+            expect(scope.attributes['overridden']?.value, 'local');
+            expect(scope.attributes['kept']?.value, true);
+            expect(scope.attributes['extra']?.value, 1);
+          },
+        );
+
+        // The scope passed to the client should reflect overridden attributes
+        final capturedScope = fixture.client.captureMessageCalls.last.scope!;
+        expect(capturedScope.attributes['overridden']?.value, 'local');
+        expect(capturedScope.attributes['kept']?.value, true);
+        expect(capturedScope.attributes['extra']?.value, 1);
+
+        // Global scope remains unchanged
+        expect(hub.scope.attributes['overridden']?.value, 'global');
+        expect(hub.scope.attributes['kept']?.value, true);
+        expect(hub.scope.attributes.containsKey('extra'), false);
+      },
+    );
 
     test('captureEvent should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());
-      await hub.captureEvent(SentryEvent(), withScope: (scope) async {
-        await scope.setUser(SentryUser(id: 'foo bar'));
-      });
+      await hub.captureEvent(
+        SentryEvent(),
+        withScope: (scope) async {
+          await scope.setUser(SentryUser(id: 'foo bar'));
+        },
+      );
       await hub.captureEvent(SentryEvent());
 
       var calls = fixture.client.captureEventCalls;
@@ -920,10 +1224,12 @@ void main() {
     test('captureFeedback should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureFeedback(SentryFeedback(message: 'message'));
-      await hub.captureFeedback(SentryFeedback(message: 'message'),
-          withScope: (scope) async {
-        await scope.setUser(SentryUser(id: 'foo bar'));
-      });
+      await hub.captureFeedback(
+        SentryFeedback(message: 'message'),
+        withScope: (scope) async {
+          await scope.setUser(SentryUser(id: 'foo bar'));
+        },
+      );
       await hub.captureFeedback(SentryFeedback(message: 'message'));
 
       var calls = fixture.client.captureFeedbackCalls;
@@ -936,9 +1242,12 @@ void main() {
     test('captureException should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureException(Exception('0'));
-      await hub.captureException(Exception('1'), withScope: (scope) async {
-        await scope.setUser(SentryUser(id: 'foo bar'));
-      });
+      await hub.captureException(
+        Exception('1'),
+        withScope: (scope) async {
+          await scope.setUser(SentryUser(id: 'foo bar'));
+        },
+      );
       await hub.captureException(Exception('2'));
 
       var calls = fixture.client.captureEventCalls;
@@ -956,9 +1265,12 @@ void main() {
     test('captureMessage should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureMessage('foo bar 0');
-      await hub.captureMessage('foo bar 1', withScope: (scope) async {
-        await scope.setUser(SentryUser(id: 'foo bar'));
-      });
+      await hub.captureMessage(
+        'foo bar 1',
+        withScope: (scope) async {
+          await scope.setUser(SentryUser(id: 'foo bar'));
+        },
+      );
       await hub.captureMessage('foo bar 2');
 
       var calls = fixture.client.captureMessageCalls;
@@ -974,24 +1286,33 @@ void main() {
     });
 
     test(
-        'withScope should use the same propagation context as the current scope',
-        () async {
-      final hub = fixture.getSut();
-      late Scope clonedScope;
-      final currentScope = hub.scope;
-      await hub.captureEvent(SentryEvent(), withScope: (scope) async {
-        clonedScope = scope;
-      });
+      'withScope should use the same propagation context as the current scope',
+      () async {
+        final hub = fixture.getSut();
+        late Scope clonedScope;
+        final currentScope = hub.scope;
+        await hub.captureEvent(
+          SentryEvent(),
+          withScope: (scope) async {
+            clonedScope = scope;
+          },
+        );
 
-      // Verify the propagation context is shared (same instance)
-      expect(
+        // Verify the propagation context is shared (same instance)
+        expect(
           identical(
-              clonedScope.propagationContext, currentScope.propagationContext),
+            clonedScope.propagationContext,
+            currentScope.propagationContext,
+          ),
           true,
-          reason: 'Propagation context should be the same instance');
-      expect(clonedScope.propagationContext.traceId,
-          currentScope.propagationContext.traceId);
-    });
+          reason: 'Propagation context should be the same instance',
+        );
+        expect(
+          clonedScope.propagationContext.traceId,
+          currentScope.propagationContext.traceId,
+        );
+      },
+    );
   });
 
   group('ClientReportRecorder', () {
@@ -1015,9 +1336,11 @@ void main() {
       // we dropped the whole tracer and it has 3 span children so the span count should be 4
       // 3 children + 1 root span
       final spanCount = fixture.recorder.discardedEvents
-          .firstWhere((element) =>
-              element.category == DataCategory.span &&
-              element.reason == DiscardReason.sampleRate)
+          .firstWhere(
+            (element) =>
+                element.category == DataCategory.span &&
+                element.reason == DiscardReason.sampleRate,
+          )
           .quantity;
       expect(spanCount, 4);
     });
@@ -1036,9 +1359,7 @@ void main() {
         traceId: SentryId.newId(),
         level: SentryLogLevel.info,
         body: 'test',
-        attributes: {
-          'attribute': SentryAttribute.string('value'),
-        },
+        attributes: {'attribute': SentryAttribute.string('value')},
       );
     }
 
@@ -1066,9 +1387,7 @@ void main() {
         name: 'test-metric',
         value: 1,
         traceId: SentryId.newId(),
-        attributes: {
-          'attribute': SentryAttribute.string('value'),
-        },
+        attributes: {'attribute': SentryAttribute.string('value')},
       );
     }
 
@@ -1131,7 +1450,9 @@ class Fixture {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
-    options.log = mockLogger; // Enable logging in DiagnosticsLogger
+    if (debug) {
+      configureDiagnosticTestLogger(onLog: mockLogger);
+    }
     if (traceLifecycle != null) {
       options.traceLifecycle = traceLifecycle;
     }
@@ -1157,12 +1478,11 @@ class Fixture {
   void mockLogger(
     SentryLevel level,
     String message, {
-    String? logger,
-    Object? exception,
+    Object? error,
     StackTrace? stackTrace,
   }) {
     loggedLevel = level;
     loggedMessage = message;
-    loggedException = exception;
+    loggedException = error;
   }
 }

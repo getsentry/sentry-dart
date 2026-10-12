@@ -19,20 +19,14 @@ void main() {
   group('json', () {
     test('toJson', () {
       final json = featureFlag.toJson();
-      expect(
-        DeepCollectionEquality().equals(featureFlagJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(featureFlagJson, json), true);
     });
 
     test('fromJson', () {
       final featureFlag = SentryFeatureFlag.fromJson(featureFlagJson);
       final json = featureFlag.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(featureFlagJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(featureFlagJson, json), true);
     });
   });
 }

@@ -17,8 +17,9 @@ class EventsScreen extends StatefulWidget {
 class _EventsScreenState extends State<EventsScreen> {
   static const _defaultHangSeconds = 5;
 
-  final _hangSecondsController =
-      TextEditingController(text: '$_defaultHangSeconds');
+  final _hangSecondsController = TextEditingController(
+    text: '$_defaultHangSeconds',
+  );
 
   int get _hangSeconds {
     final seconds = int.tryParse(_hangSecondsController.text);
@@ -58,7 +59,8 @@ class _EventsScreenState extends State<EventsScreen> {
                       // ignore: avoid_print
                       print('A print breadcrumb');
                       Sentry.captureMessage(
-                          'A message with a print() Breadcrumb');
+                        'A message with a print() Breadcrumb',
+                      );
                     },
                     text:
                         'Sends a captureMessage to Sentry with a breadcrumb created by a print() statement.',
@@ -100,29 +102,29 @@ class _EventsScreenState extends State<EventsScreen> {
                   ),
                   TooltipButton(
                     onPressed: () {
-                      feedback.BetterFeedback.of(context).show(
-                        (feedback.UserFeedback userFeedback) {
-                          Sentry.captureMessage(
-                            userFeedback.text,
-                            withScope: (scope) {
-                              final entries = userFeedback.extra?.entries;
-                              if (entries != null) {
-                                for (final extra in entries) {
-                                  // ignore: deprecated_member_use
-                                  scope.setExtra(extra.key, extra.value);
-                                }
+                      feedback.BetterFeedback.of(context).show((
+                        feedback.UserFeedback userFeedback,
+                      ) {
+                        Sentry.captureMessage(
+                          userFeedback.text,
+                          withScope: (scope) {
+                            final entries = userFeedback.extra?.entries;
+                            if (entries != null) {
+                              for (final extra in entries) {
+                                // ignore: deprecated_member_use
+                                scope.setExtra(extra.key, extra.value);
                               }
-                              scope.addAttachment(
-                                SentryAttachment.fromUint8List(
-                                  userFeedback.screenshot,
-                                  'feedback.png',
-                                  contentType: 'image/png',
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
+                            }
+                            scope.addAttachment(
+                              SentryAttachment.fromUint8List(
+                                userFeedback.screenshot,
+                                'feedback.png',
+                                contentType: 'image/png',
+                              ),
+                            );
+                          },
+                        );
+                      });
                     },
                     text:
                         'Sends the capture message with an image attachment to Sentry.',
@@ -132,10 +134,7 @@ class _EventsScreenState extends State<EventsScreen> {
                     onPressed: () async {
                       final id = await Sentry.captureMessage('UserFeedback');
                       if (!context.mounted) return;
-                      SentryFeedbackForm.show(
-                        context,
-                        associatedEventId: id,
-                      );
+                      SentryFeedbackForm.show(context, associatedEventId: id);
                     },
                     text:
                         'Shows a custom feedback dialog without an ongoing event that captures and sends user feedback data to Sentry.',

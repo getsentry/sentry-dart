@@ -1,19 +1,17 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../sentry_native_channel.dart';
-import 'binding.dart' as cocoa;
 import 'cocoa_replay_recorder.dart';
 
 @internal
 class SentryNativeCocoa extends SentryNativeChannel {
-  late final _lib = cocoa.SentryCocoa(DynamicLibrary.process());
   CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
+  Hub? _hub;
 
   SentryNativeCocoa(super.options);
 
@@ -25,9 +23,8 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
   @override
   Future<void> init(Hub hub) async {
-    // We only need these when replay is enabled (session or error capture)
-    // so let's set it up conditionally. This allows Dart to trim the code.
-    if (options.replay.isEnabled) {
+    _hub = hub;
+    if (supportsReplay) {
       channel.setMethodCallHandler((call) async {
         switch (call.method) {
           case 'captureReplayScreenshot':
@@ -68,16 +65,22 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
-  FutureOr<void> setReplayConfig(ReplayConfig config) {
-    // Note: unused on iOS.
+  Future<void> stopReplay() async {
+    try {
+      await super.stopReplay();
+    } finally {
+      // iOS reports replay IDs only through the screenshot provider, which goes
+      // quiet once recording stops. Android has `replayStopped` for this.
+      _replayId = null;
+      _hub?.configureScope((s) {
+        // ignore: invalid_use_of_internal_member
+        s.replayId = null;
+      });
+    }
   }
 
   @override
-  int? startProfiler(SentryId traceId) => tryCatchSync('startProfiler', () {
-        final cSentryId = cocoa.SentryId1.alloc(_lib)
-          ..initWithUUIDString_(cocoa.NSString(_lib, traceId.toString()));
-        final startTime =
-            cocoa.PrivateSentrySDKOnly.startProfilerForTrace_(_lib, cSentryId);
-        return startTime;
-      });
+  FutureOr<void> setReplayConfig(ReplayConfig config) {
+    // Note: unused on iOS.
+  }
 }

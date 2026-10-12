@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import 'constants.dart';
 import 'internal_logger.dart';
 
 @internal
@@ -60,13 +61,10 @@ class SentrySpanHelper {
 
     span.origin = _origin;
 
-    span.setData(
-      SentrySpanData.dbSystemKey,
-      SentrySpanData.dbSystemSqlite,
-    );
+    span.setData(SemanticAttributesConstants.dbSystemName, dbSystemNameSqlite);
 
     if (dbName != null) {
-      span.setData(SentrySpanData.dbNameKey, dbName);
+      span.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
 
     try {
@@ -84,10 +82,7 @@ class SentrySpanHelper {
     }
   }
 
-  T beginTransaction<T>(
-    T Function() execute, {
-    String? dbName,
-  }) {
+  T beginTransaction<T>(T Function() execute, {String? dbName}) {
     final parentSpan = _getParent();
     if (parentSpan == null) {
       internalLogger.warning(
@@ -109,12 +104,12 @@ class SentrySpanHelper {
     newParent.origin = _origin;
 
     newParent.setData(
-      SentrySpanData.dbSystemKey,
-      SentrySpanData.dbSystemSqlite,
+      SemanticAttributesConstants.dbSystemName,
+      dbSystemNameSqlite,
     );
 
     if (dbName != null) {
-      newParent.setData(SentrySpanData.dbNameKey, dbName);
+      newParent.setData(SemanticAttributesConstants.dbNamespace, dbName);
     }
 
     try {

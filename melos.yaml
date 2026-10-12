@@ -54,6 +54,14 @@ scripts:
       flutter: true
       dirExists: test
 
+  build:macos-example:
+    run: ./scripts/build-macos-example.sh --debug
+    description: >
+      Build the Flutter example for macOS. Temporarily renames packages/flutter
+      to packages/sentry_flutter so the SwiftPM package identity matches the pub
+      name on macOS, then restores it. Append extra `flutter build macos` flags
+      after `--`.
+
   # Lifecycle script, executed as part of `melos clean`.
   postclean: melos exec --flutter -- "flutter clean"
 

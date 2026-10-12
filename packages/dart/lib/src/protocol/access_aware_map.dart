@@ -45,9 +45,9 @@ class AccessAwareMap<V> extends MapBase<String, V> {
     Map<String, dynamic> unknown = _map.keys
         .where((key) => !_accessedKeysWithValues.contains(key))
         .fold<Map<String, dynamic>>({}, (map, key) {
-      map[key] = _map[key];
-      return map;
-    });
+          map[key] = _map[key];
+          return map;
+        });
     return unknown.isNotEmpty ? unknown : null;
   }
 }

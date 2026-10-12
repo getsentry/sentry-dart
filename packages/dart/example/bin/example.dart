@@ -34,20 +34,22 @@ Future<void> runApp() async {
       type: 'debug',
       data: {
         'admin': true,
-        'permissions': [1, 2, 3]
+        'permissions': [1, 2, 3],
       },
     ),
   );
 
   await Sentry.configureScope((scope) async {
-    await scope.setUser(SentryUser(
-      id: '800',
-      username: 'first-user',
-      email: 'first@user.lan',
-      // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
-      // ignore: deprecated_member_use
-      extras: <String, String>{'first-sign-in': '2020-01-01'},
-    ));
+    await scope.setUser(
+      SentryUser(
+        id: '800',
+        username: 'first-user',
+        email: 'first@user.lan',
+        // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
+        // ignore: deprecated_member_use
+        extras: <String, String>{'first-sign-in': '2020-01-01'},
+      ),
+    );
     scope
       // ..fingerprint = ['example-dart'], fingerprint forces events to group together
       ..transaction = '/example/app'
