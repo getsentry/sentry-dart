@@ -3,7 +3,11 @@
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-# If running in CI, set up Flutter SDK first (keep version in sync with other scripts).
+$repoRoot = Resolve-Path "$PSScriptRoot/../../.."
+$flutterVersion = jq -er '.flutter' (Join-Path $repoRoot '.fvmrc')
+if ($LASTEXITCODE -ne 0) { throw "Could not read the Flutter version from .fvmrc" }
+
+# If running in CI, set up the pinned development SDK first.
 if ($env:CI)
 {
     Write-Host "Running in CI so we need to set up Flutter SDK first"
@@ -16,19 +20,19 @@ if ($env:CI)
     if ($IsLinux)
     {
         $flutterTar = Join-Path $tempRoot "flutter.tar.xz"
-        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.44.0-stable.tar.xz" -OutFile $flutterTar
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${flutterVersion}-stable.tar.xz" -OutFile $flutterTar
         tar xf $flutterTar -C $tempRoot
     }
     elseif ($IsMacOS)
     {
         $flutterZip = Join-Path $tempRoot "flutter.zip"
-        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_3.44.0-stable.zip" -OutFile $flutterZip
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_${flutterVersion}-stable.zip" -OutFile $flutterZip
         Expand-Archive -Path $flutterZip -DestinationPath $tempRoot -Force
     }
     else
     {
         $flutterZip = Join-Path $tempRoot "flutter.zip"
-        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_3.44.0-stable.zip" -OutFile $flutterZip
+        Invoke-WebRequest -Uri "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_${flutterVersion}-stable.zip" -OutFile $flutterZip
         Expand-Archive -Path $flutterZip -DestinationPath $tempRoot -Force
     }
 
@@ -39,6 +43,26 @@ if ($env:CI)
     Get-Command flutter | Out-Host
     flutter --version
 }
+else
+{
+    $localBin = Join-Path $repoRoot '.fvm/flutter_sdk/bin'
+    if (-not (Test-Path $localBin))
+    {
+        throw "The development Flutter SDK is missing. Run 'fvm install'."
+    }
+    $pathSep = if ($IsWindows) { ';' } else { ':' }
+    $env:PATH = "$localBin$pathSep$env:PATH"
+}
+
+$versionInfo = flutter --version --machine
+if ($LASTEXITCODE -ne 0) { throw "Could not determine the installed Flutter version" }
+$installedVersion = $versionInfo | jq -er '.frameworkVersion'
+if ($LASTEXITCODE -ne 0) { throw "Could not read the installed Flutter version" }
+if ($installedVersion -ne $flutterVersion)
+{
+    throw "Expected Flutter $flutterVersion from .fvmrc, found $installedVersion. Run 'fvm install'."
+}
+
 Push-Location "$PSScriptRoot/../"
 try
 {
