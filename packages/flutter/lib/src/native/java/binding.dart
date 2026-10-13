@@ -5459,31 +5459,34 @@ extension SentryFlutterPlugin$Companion$$Methods
 
   static final _id_privateSentryFlushReplay = SentryFlutterPlugin$Companion
       ._class
-      .instanceMethodId(r'privateSentryFlushReplay', r'()V');
+      .instanceMethodId(r'privateSentryFlushReplay', r'(J)Z');
 
   static final _privateSentryFlushReplay =
       jni$_.ProtectedJniExtensions.lookup<
             jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
+              jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
               )
             >
-          >('globalEnv_CallVoidMethod')
+          >('globalEnv_CallBooleanMethod')
           .asFunction<
-            jni$_.JThrowablePtr Function(
+            jni$_.JniResult Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
+              core$_.int,
             )
           >();
 
-  /// from: `public fun privateSentryFlushReplay(): kotlin.Unit`
-  void privateSentryFlushReplay() {
+  /// from: `public fun privateSentryFlushReplay(requestId: kotlin.Long): kotlin.Boolean`
+  core$_.bool privateSentryFlushReplay(core$_.int j) {
     final _$$selfRef = reference;
-    _privateSentryFlushReplay(
+    return _privateSentryFlushReplay(
       _$$selfRef.pointer,
       _id_privateSentryFlushReplay.pointer,
-    ).check();
+      j,
+    ).boolean;
   }
 
   static final _id_setupBeforeSend = SentryFlutterPlugin$Companion._class
@@ -5975,32 +5978,35 @@ extension type SentryFlutterPlugin._(jni$_.JObject _$this)
 
   static final _id_privateSentryFlushReplay = _class.staticMethodId(
     r'privateSentryFlushReplay',
-    r'()V',
+    r'(J)Z',
   );
 
   static final _privateSentryFlushReplay =
       jni$_.ProtectedJniExtensions.lookup<
             jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
+              jni$_.JniResult Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
               )
             >
-          >('globalEnv_CallStaticVoidMethod')
+          >('globalEnv_CallStaticBooleanMethod')
           .asFunction<
-            jni$_.JThrowablePtr Function(
+            jni$_.JniResult Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
+              core$_.int,
             )
           >();
 
-  /// from: `static public final void privateSentryFlushReplay()`
-  static void privateSentryFlushReplay() {
+  /// from: `static public final boolean privateSentryFlushReplay(long j)`
+  static core$_.bool privateSentryFlushReplay(core$_.int j) {
     final _$$classRef = _class.reference;
-    _privateSentryFlushReplay(
+    return _privateSentryFlushReplay(
       _$$classRef.pointer,
       _id_privateSentryFlushReplay.pointer,
-    ).check();
+      j,
+    ).boolean;
   }
 
   static final _id_setupBeforeSend = _class.staticMethodId(
@@ -6713,6 +6719,12 @@ extension type ReplayRecorderCallbacks._(jni$_.JObject _$this)
         _$impls[$p]!.replayResumed();
         return jni$_.nullptr;
       }
+      if ($d == r'replayFlushed(J)V') {
+        _$impls[$p]!.replayFlushed(
+          ($a![0] as jni$_.JLong).toDartInt(releaseOriginal: true),
+        );
+        return jni$_.nullptr;
+      }
       if ($d == r'replayStateChanged(Ljava/lang/String;Z)V') {
         _$impls[$p]!.replayStateChanged(
           ($a![0] as jni$_.JString),
@@ -6769,6 +6781,7 @@ extension type ReplayRecorderCallbacks._(jni$_.JObject _$this)
       [
         if ($impl.replayStarted$async) r'replayStarted(Ljava/lang/String;Z)V',
         if ($impl.replayResumed$async) r'replayResumed()V',
+        if ($impl.replayFlushed$async) r'replayFlushed(J)V',
         if ($impl.replayStateChanged$async)
           r'replayStateChanged(Ljava/lang/String;Z)V',
         if ($impl.replayPaused$async) r'replayPaused()V',
@@ -6846,6 +6859,33 @@ extension ReplayRecorderCallbacks$$Methods on ReplayRecorderCallbacks {
   void replayResumed() {
     final _$$selfRef = reference;
     _replayResumed(_$$selfRef.pointer, _id_replayResumed.pointer).check();
+  }
+
+  static final _id_replayFlushed = ReplayRecorderCallbacks._class
+      .instanceMethodId(r'replayFlushed', r'(J)V');
+
+  static final _replayFlushed =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public fun replayFlushed(requestId: kotlin.Long): kotlin.Unit`
+  void replayFlushed(core$_.int j) {
+    final _$$selfRef = reference;
+    _replayFlushed(_$$selfRef.pointer, _id_replayFlushed.pointer, j).check();
   }
 
   static final _id_replayStateChanged = ReplayRecorderCallbacks._class
@@ -6999,6 +7039,8 @@ abstract base mixin class $ReplayRecorderCallbacks {
     core$_.bool replayStarted$async,
     required void Function() replayResumed,
     core$_.bool replayResumed$async,
+    required void Function(core$_.int j) replayFlushed,
+    core$_.bool replayFlushed$async,
     required void Function(jni$_.JString string, core$_.bool z)
     replayStateChanged,
     core$_.bool replayStateChanged$async,
@@ -7017,6 +7059,8 @@ abstract base mixin class $ReplayRecorderCallbacks {
   core$_.bool get replayStarted$async => false;
   void replayResumed();
   core$_.bool get replayResumed$async => false;
+  void replayFlushed(core$_.int j);
+  core$_.bool get replayFlushed$async => false;
   void replayStateChanged(jni$_.JString string, core$_.bool z);
   core$_.bool get replayStateChanged$async => false;
   void replayPaused();
@@ -7035,6 +7079,8 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
     this.replayStarted$async = false,
     required void Function() replayResumed,
     this.replayResumed$async = false,
+    required void Function(core$_.int j) replayFlushed,
+    this.replayFlushed$async = false,
     required void Function(jni$_.JString string, core$_.bool z)
     replayStateChanged,
     this.replayStateChanged$async = false,
@@ -7049,6 +7095,7 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
     this.replayConfigChanged$async = false,
   }) : _replayStarted = replayStarted,
        _replayResumed = replayResumed,
+       _replayFlushed = replayFlushed,
        _replayStateChanged = replayStateChanged,
        _replayPaused = replayPaused,
        _replayStopped = replayStopped,
@@ -7059,6 +7106,8 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
   final core$_.bool replayStarted$async;
   final void Function() _replayResumed;
   final core$_.bool replayResumed$async;
+  final void Function(core$_.int j) _replayFlushed;
+  final core$_.bool replayFlushed$async;
   final void Function(jni$_.JString string, core$_.bool z) _replayStateChanged;
   final core$_.bool replayStateChanged$async;
   final void Function() _replayPaused;
@@ -7077,6 +7126,10 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
 
   void replayResumed() {
     return _replayResumed();
+  }
+
+  void replayFlushed(core$_.int j) {
+    return _replayFlushed(j);
   }
 
   void replayStateChanged(jni$_.JString string, core$_.bool z) {

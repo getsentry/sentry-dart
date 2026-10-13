@@ -527,24 +527,31 @@ void main() {
         ).called(1);
       });
 
-      test('flushReplay waits for native completion', () async {
-        final nativeFlush = Completer<void>();
-        when(
-          channel.invokeMethod<void>('flushReplay'),
-        ).thenAnswer((_) => nativeFlush.future);
-        var completed = false;
+      if (mockPlatform.isAndroid) {
+        test('flushReplay uses JNI without invoking the channel', () async {
+          await expectLater(sut.flushReplay(), _nativeUnavailableMatcher());
+          verifyZeroInteractions(channel);
+        });
+      } else {
+        test('flushReplay waits for native completion', () async {
+          final nativeFlush = Completer<void>();
+          when(
+            channel.invokeMethod<void>('flushReplay'),
+          ).thenAnswer((_) => nativeFlush.future);
+          var completed = false;
 
-        final flush = Future<void>.sync(
-          sut.flushReplay,
-        ).then((_) => completed = true);
-        await Future<void>.value();
-        expect(completed, isFalse);
+          final flush = Future<void>.sync(
+            sut.flushReplay,
+          ).then((_) => completed = true);
+          await Future<void>.value();
+          expect(completed, isFalse);
 
-        nativeFlush.complete();
-        await flush;
+          nativeFlush.complete();
+          await flush;
 
-        expect(completed, isTrue);
-      });
+          expect(completed, isTrue);
+        });
+      }
 
       test('stopReplay clears the last known replay ID', () async {
         if (!mockPlatform.isIOS) {

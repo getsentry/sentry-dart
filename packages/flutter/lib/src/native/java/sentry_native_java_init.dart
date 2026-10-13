@@ -148,6 +148,9 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
       replayResumed: () async {
         await owner._replayRecorder?.resume();
       },
+      replayFlushed: (int requestId) {
+        owner._pendingReplayFlushes.remove(requestId)?.complete();
+      },
       replayPaused: () async {
         await owner._replayRecorder?.pause();
       },

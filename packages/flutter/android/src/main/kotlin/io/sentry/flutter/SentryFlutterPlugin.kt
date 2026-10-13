@@ -68,7 +68,6 @@ class SentryFlutterPlugin :
   ) {
     when (call.method) {
       "closeNativeSdk" -> closeNativeSdk(result)
-      "flushReplay" -> flushReplay(result)
       else -> result.notImplemented()
     }
   }
@@ -98,6 +97,7 @@ class SentryFlutterPlugin :
   override fun onDetachedFromActivityForConfigChanges() {
     // Stub
   }
+
   private fun closeNativeSdk(result: Result) {
     // Let the SDK shut the ReplayIntegration down as part of its own teardown,
     // then drop our reference so a closed integration can't be reached through
@@ -159,21 +159,13 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun privateSentryFlushReplay() {
-      flushReplay(null)
-    }
-
-    private fun flushReplay(result: Result?) {
-      val integration = replay
-      val callbacks = replayCallbacks
-      if (integration == null || callbacks == null) {
-        result?.success(null)
-        return
-      }
+    fun privateSentryFlushReplay(requestId: Long): Boolean {
+      val integration = replay ?: return false
+      val callbacks = replayCallbacks ?: return false
       integration.flush()
       // flush() queues the transition on this looper. Read the resulting state
       // afterwards; buffer promotion does not restart the Flutter recorder.
-      Handler(Looper.getMainLooper()).post {
+      return Handler(Looper.getMainLooper()).post {
         try {
           if (integration !== replay) return@post
           val replayId = integration.getReplayId()
@@ -183,7 +175,7 @@ class SentryFlutterPlugin :
           }
           callbacks.replayStateChanged(replayId.toString(), isBuffering)
         } finally {
-          result?.success(null)
+          callbacks.replayFlushed(requestId)
         }
       }
     }

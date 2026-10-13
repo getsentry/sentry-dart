@@ -214,6 +214,23 @@ void main() {
       skip: !Platform.isAndroid,
     );
 
+    testWidgets('completes flush when native Replay is unavailable', (
+      tester,
+    ) async {
+      await SentryFlutter.init((options) {
+        options
+          ..dsn = fakeDsn
+          ..automatedTestMode = true
+          ..autoInitializeNativeSdk = false;
+      }, appRunner: () => pumpApp(tester));
+      expect(
+        native.SentryFlutterPlugin.privateSentryGetReplayIntegration(),
+        isNull,
+      );
+
+      await expectLater(SentryFlutter.replay.flush(), completes);
+    }, skip: !Platform.isAndroid);
+
     testWidgets('completes a manual flush when the native SDK closes', (
       tester,
     ) async {
@@ -222,10 +239,14 @@ void main() {
       await _waitUntilRecording(_replayIntegration(), true);
       await _waitUntilReplayId();
 
+      final nativeBinding = SentryFlutter.native!;
       final flush = SentryFlutter.replay.flush();
-      await Sentry.close();
+      final close = Sentry.close();
+      await nativeBinding.flushReplay();
+      await close;
 
       await expectLater(flush, completes);
+      await expectLater(nativeBinding.flushReplay(), completes);
     }, skip: !Platform.isAndroid);
 
     testWidgets(
