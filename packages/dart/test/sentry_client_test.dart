@@ -753,7 +753,13 @@ void main() {
         final dsc = SentryTraceContextHeader(
           SentryId.newId(),
           'publicKey',
+          release: 'release',
+          environment: 'production',
+          transaction: 'streaming span',
+          sampleRate: '0.5',
           sampled: 'true',
+          replayId: SentryId.fromId('abcdefabcdefabcdefabcdefabcdefab'),
+          orgId: '123',
         );
         final span = RecordingSentrySpanV2.root(
           name: 'span',
@@ -763,47 +769,76 @@ void main() {
           dscCreator: (_) => dsc,
           samplingDecision: SentryTracesSamplingDecision(true),
         );
-        final scope = Scope(fixture.options)..setActiveSpan(span);
+        final scope = Scope(fixture.options)
+          ..replayId = SentryId.fromId('12345678901234567890123456789012')
+          ..span = SentrySpan(fixture.tracer, fixture.tracer.context, MockHub())
+          ..setActiveSpan(span);
 
         await client.captureEvent(SentryEvent(), scope: scope);
 
         final capturedTraceContext =
             fixture.transport.envelopes.single.header.traceContext;
-        expect(capturedTraceContext?.traceId, dsc.traceId);
-        expect(capturedTraceContext?.sampled, 'true');
+        expect(capturedTraceContext?.toJson(), {
+          'trace_id': dsc.traceId.toString(),
+          'public_key': 'publicKey',
+          'release': 'release',
+          'environment': 'production',
+          'transaction': 'streaming span',
+          'sample_rate': '0.5',
+          'sampled': 'true',
+          'replay_id': 'abcdefabcdefabcdefabcdefabcdefab',
+          'org_id': '123',
+        });
       },
     );
 
-    test(
-      'uses the current replay ID when the active streaming span DSC is already frozen',
-      () async {
-        final client = fixture.getSut();
-        SentryId? currentReplayId;
-        final span = RecordingSentrySpanV2.root(
-          name: 'span',
-          traceId: SentryId.newId(),
-          onSpanEnd: (_) async {},
-          clock: fixture.options.clock,
-          dscCreator: (span) => SentryTraceContextHeader(
-            span.traceId,
-            'publicKey',
-            replayId: currentReplayId,
-          ),
-          samplingDecision: SentryTracesSamplingDecision(true),
-        );
-        span.resolveDsc();
-        final replayId = SentryId.newId();
-        currentReplayId = replayId;
-        final scope = Scope(fixture.options)..setActiveSpan(span);
+    for (final (state, replayId, expectedReplayId) in [
+      (
+        'starts',
+        SentryId.fromId('abcdefabcdefabcdefabcdefabcdefab'),
+        'abcdefabcdefabcdefabcdefabcdefab',
+      ),
+      ('stops', null, null),
+      ('stops with an empty ID', const SentryId.empty(), null),
+      (
+        'restarts',
+        SentryId.fromId('abcdefabcdefabcdefabcdefabcdefab'),
+        'abcdefabcdefabcdefabcdefabcdefab',
+      ),
+    ]) {
+      test(
+        'updates the active streaming span DSC after replay $state',
+        () async {
+          final client = fixture.getSut();
+          SentryId? currentReplayId = state == 'starts'
+              ? null
+              : SentryId.fromId('12345678901234567890123456789012');
+          final span = RecordingSentrySpanV2.root(
+            name: 'span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) async {},
+            clock: fixture.options.clock,
+            dscCreator: (span) => SentryTraceContextHeader(
+              span.traceId,
+              'publicKey',
+              replayId: currentReplayId,
+            ),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+          span.resolveDsc();
+          currentReplayId = replayId;
+          final scope = Scope(fixture.options)..setActiveSpan(span);
 
-        await client.captureEvent(SentryEvent(), scope: scope);
+          await client.captureEvent(SentryEvent(), scope: scope);
 
-        expect(
-          fixture.transport.envelopes.single.header.traceContext?.replayId,
-          replayId,
-        );
-      },
-    );
+          expect(
+            fixture.transport.envelopes.single.header.traceContext
+                ?.toJson()['replay_id'],
+            expectedReplayId,
+          );
+        },
+      );
+    }
 
     test('should contain a transaction in the envelope', () async {
       try {
@@ -2519,6 +2554,52 @@ void main() {
       expect(envelope.header.traceContext?.replayId, scope.replayId);
     });
 
+    test('captureEvent omits an empty replay ID with a legacy span', () async {
+      final client = fixture.getSut();
+      final scope = Scope(fixture.options)
+        ..replayId = const SentryId.empty()
+        ..span = SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
+
+      await client.captureEvent(fakeEvent, scope: scope);
+
+      expect(
+        fixture.transport.envelopes.single.header.traceContext!.toJson(),
+        isNot(contains('replay_id')),
+      );
+    });
+
+    for (final frozenDsc in [false, true]) {
+      test(
+        'captureEvent omits an empty replay ID with a streaming span and frozen DSC=$frozenDsc',
+        () async {
+          final client = fixture.getSut();
+          final span = RecordingSentrySpanV2.root(
+            name: 'span',
+            traceId: SentryId.newId(),
+            onSpanEnd: (_) async {},
+            clock: fixture.options.clock,
+            dscCreator: (span) => SentryTraceContextHeader(
+              span.traceId,
+              'publicKey',
+              replayId: const SentryId.empty(),
+            ),
+            samplingDecision: SentryTracesSamplingDecision(true),
+          );
+          if (frozenDsc) {
+            span.resolveDsc();
+          }
+          final scope = Scope(fixture.options)..setActiveSpan(span);
+
+          await client.captureEvent(fakeEvent, scope: scope);
+
+          expect(
+            fixture.transport.envelopes.single.header.traceContext!.toJson(),
+            isNot(contains('replay_id')),
+          );
+        },
+      );
+    }
+
     test(
       'captureEvent links a replay started after baggage was created',
       () async {
@@ -2567,28 +2648,39 @@ void main() {
       );
     }
 
-    for (final replayId in [null, 'abcdefabcdefabcdefabcdefabcdefab']) {
-      test(
-        'captureEvent updates cached replay metadata after replay ${replayId == null ? 'stops' : 'restarts'}',
-        () async {
-          final client = fixture.getSut();
-          final scope = Scope(fixture.options)
-            ..replayId = SentryId.fromId('12345678901234567890123456789012');
-          await client.captureEvent(SentryEvent(), scope: scope);
-          scope.replayId = replayId == null ? null : SentryId.fromId(replayId);
+    for (final withLegacySpan in [false, true]) {
+      for (final replayId in [null, 'abcdefabcdefabcdefabcdefabcdefab']) {
+        test(
+          'captureEvent updates cached replay metadata after replay ${replayId == null ? 'stops' : 'restarts'} with legacy span=$withLegacySpan',
+          () async {
+            final client = fixture.getSut();
+            final scope = Scope(fixture.options)
+              ..replayId = SentryId.fromId('12345678901234567890123456789012');
+            if (withLegacySpan) {
+              scope.span = SentrySpan(
+                fixture.tracer,
+                fixture.tracer.context,
+                MockHub(),
+              );
+            }
+            await client.captureEvent(SentryEvent(), scope: scope);
+            scope.replayId = replayId == null
+                ? null
+                : SentryId.fromId(replayId);
 
-          await client.captureEvent(
-            SentryEvent(throwable: Exception('boom')),
-            scope: scope,
-          );
+            await client.captureEvent(
+              SentryEvent(throwable: Exception('boom')),
+              scope: scope,
+            );
 
-          expect(
-            fixture.transport.envelopes.last.header.traceContext
-                ?.toJson()['replay_id'],
-            replayId,
-          );
-        },
-      );
+            expect(
+              fixture.transport.envelopes.last.header.traceContext
+                  ?.toJson()['replay_id'],
+              replayId,
+            );
+          },
+        );
+      }
     }
 
     test('captureTransaction adds trace context', () async {

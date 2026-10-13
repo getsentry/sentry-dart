@@ -222,11 +222,13 @@ class SentryClient {
           scope.propagationContext.baggage!,
         );
         // Replay can start or stop after the propagation baggage was created.
-        final replayId = scope.replayId;
-        traceContext.replayId = replayId == SentryId.empty() ? null : replayId;
+        traceContext.replayId = scope.replayId;
       }
     } else {
       traceContext.replayId = scope?.replayId;
+    }
+    if (traceContext?.replayId == SentryId.empty()) {
+      traceContext?.replayId = null;
     }
 
     final envelope = SentryEnvelope.fromEvent(
