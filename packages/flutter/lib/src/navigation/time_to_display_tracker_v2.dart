@@ -12,6 +12,7 @@ class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
+  bool _preparedTtfdCompleted = false;
   String _appStartRouteName = rootRouteName;
   bool _isAppStartRouteNamePending = false;
 
@@ -80,8 +81,9 @@ class TimeToDisplayTrackerV2 {
     _isAppStartRouteNamePending = false;
     final SentrySpanV2 routeSpan;
     DateTime? displayStartTimestamp = startTimestamp;
-    final preparedRouteSpan = _preparedRootNavigationSpan;
-    switch (preparedRouteSpan) {
+    final preparedTtfdCompleted = _preparedTtfdCompleted;
+    _preparedTtfdCompleted = false;
+    switch (_preparedRootNavigationSpan) {
       case final prepared?:
         _preparedRootNavigationSpan = null;
         displayStartTimestamp ??= prepared.startTimestamp;
@@ -103,7 +105,7 @@ class TimeToDisplayTrackerV2 {
       routeName,
       startTimestamp: displayStartTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
-      createTtfdSpan: preparedRouteSpan == null,
+      createTtfdSpan: !preparedTtfdCompleted,
     );
     return routeSpan;
   }
@@ -171,7 +173,7 @@ class TimeToDisplayTrackerV2 {
     DateTime? ttidEndTimestamp,
     bool createTtfdSpan = true,
   }) {
-    // A prepared route already created TTFD, which may have completed before
+    // The prepared TTFD may already have completed before
     // the engine delivers the first-frame timing callback.
     if (createTtfdSpan) {
       _ensureTtfdSpan(routeSpan, routeName, startTimestamp: startTimestamp);
@@ -238,6 +240,7 @@ class TimeToDisplayTrackerV2 {
             .toDouble(),
       ),
     );
+    _preparedTtfdCompleted = _preparedRootNavigationSpan != null;
     ttfdSpan.end(endTimestamp: endTimestamp);
     _ttfdSpan = null;
   }
@@ -248,6 +251,7 @@ class TimeToDisplayTrackerV2 {
     if (prepared == null) return;
     _preparedRootNavigationSpan = null;
     _isAppStartRouteNamePending = false;
+    _preparedTtfdCompleted = false;
     _ttfdSpan = null;
     prepared
       ..status = SentrySpanStatusV2.ok
@@ -261,6 +265,7 @@ class TimeToDisplayTrackerV2 {
   /// Cancels all spans for the current route and resets tracker state.
   void cancelCurrentRoute() {
     _ttfdSpan = null;
+    _preparedTtfdCompleted = false;
     _preparedRootNavigationSpan = null;
     _isAppStartRouteNamePending = false;
 
