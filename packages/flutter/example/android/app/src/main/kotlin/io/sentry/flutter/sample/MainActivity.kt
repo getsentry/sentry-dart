@@ -26,6 +26,13 @@ class MainActivity : FlutterActivity() {
 
         "anr" -> anr()
 
+        "delayMainLooper" -> {
+          // Let the integration test call JNI while Android's looper is busy.
+          result.success("")
+          Thread.sleep(call.argument<Number>("durationMillis")!!.toLong())
+          return@setMethodCallHandler
+        }
+
         "capture" ->
           try {
             throw RuntimeException("Catch this java exception!")

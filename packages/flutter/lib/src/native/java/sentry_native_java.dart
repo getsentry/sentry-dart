@@ -251,10 +251,12 @@ class SentryNativeJava extends SentryNativeChannel {
   void stopReplay() => tryCatchSync('stopReplay', () => _replay?.stop());
 
   @override
-  void flushReplay() => tryCatchSync(
-    'flushReplay',
-    native.SentryFlutterPlugin.privateSentryFlushReplay,
-  );
+  Future<void> flushReplay() async {
+    // Wait for native buffer promotion and its Dart scope update.
+    await tryCatchAsync<void>('flushReplay', () async {
+      await super.flushReplay();
+    });
+  }
 
   @override
   void setReplayConfig(ReplayConfig config) =>
