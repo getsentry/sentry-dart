@@ -43,11 +43,6 @@ internal class SafeReplayRecorderCallbacks(
       delegate.replayResumed()
     }
 
-  override fun replayFlushed(requestId: Long) =
-    guard {
-      delegate.replayFlushed(requestId)
-    }
-
   override fun replayStateChanged(
     replayId: String,
     replayIsBuffering: Boolean,

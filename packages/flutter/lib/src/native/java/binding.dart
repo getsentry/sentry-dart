@@ -5459,34 +5459,38 @@ extension SentryFlutterPlugin$Companion$$Methods
 
   static final _id_privateSentryFlushReplay = SentryFlutterPlugin$Companion
       ._class
-      .instanceMethodId(r'privateSentryFlushReplay', r'(J)Z');
+      .instanceMethodId(
+        r'privateSentryFlushReplay',
+        r'(Lio/sentry/flutter/ReplayFlushListener;)V',
+      );
 
   static final _privateSentryFlushReplay =
       jni$_.ProtectedJniExtensions.lookup<
             jni$_.NativeFunction<
-              jni$_.JniResult Function(
+              jni$_.JThrowablePtr Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
-                jni$_.VarArgs<(jni$_.Int64,)>,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
               )
             >
-          >('globalEnv_CallBooleanMethod')
+          >('globalEnv_CallVoidMethod')
           .asFunction<
-            jni$_.JniResult Function(
+            jni$_.JThrowablePtr Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
-              core$_.int,
+              jni$_.Pointer<jni$_.Void>,
             )
           >();
 
-  /// from: `public fun privateSentryFlushReplay(requestId: kotlin.Long): kotlin.Boolean`
-  core$_.bool privateSentryFlushReplay(core$_.int j) {
+  /// from: `public fun privateSentryFlushReplay(listener: io.sentry.flutter.ReplayFlushListener): kotlin.Unit`
+  void privateSentryFlushReplay(ReplayFlushListener replayFlushListener) {
     final _$$selfRef = reference;
-    return _privateSentryFlushReplay(
+    final _$replayFlushListener = replayFlushListener.reference;
+    _privateSentryFlushReplay(
       _$$selfRef.pointer,
       _id_privateSentryFlushReplay.pointer,
-      j,
-    ).boolean;
+      _$replayFlushListener.pointer,
+    ).check();
   }
 
   static final _id_setupBeforeSend = SentryFlutterPlugin$Companion._class
@@ -5978,35 +5982,38 @@ extension type SentryFlutterPlugin._(jni$_.JObject _$this)
 
   static final _id_privateSentryFlushReplay = _class.staticMethodId(
     r'privateSentryFlushReplay',
-    r'(J)Z',
+    r'(Lio/sentry/flutter/ReplayFlushListener;)V',
   );
 
   static final _privateSentryFlushReplay =
       jni$_.ProtectedJniExtensions.lookup<
             jni$_.NativeFunction<
-              jni$_.JniResult Function(
+              jni$_.JThrowablePtr Function(
                 jni$_.Pointer<jni$_.Void>,
                 jni$_.JMethodIDPtr,
-                jni$_.VarArgs<(jni$_.Int64,)>,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
               )
             >
-          >('globalEnv_CallStaticBooleanMethod')
+          >('globalEnv_CallStaticVoidMethod')
           .asFunction<
-            jni$_.JniResult Function(
+            jni$_.JThrowablePtr Function(
               jni$_.Pointer<jni$_.Void>,
               jni$_.JMethodIDPtr,
-              core$_.int,
+              jni$_.Pointer<jni$_.Void>,
             )
           >();
 
-  /// from: `static public final boolean privateSentryFlushReplay(long j)`
-  static core$_.bool privateSentryFlushReplay(core$_.int j) {
+  /// from: `static public final void privateSentryFlushReplay(io.sentry.flutter.ReplayFlushListener replayFlushListener)`
+  static void privateSentryFlushReplay(
+    ReplayFlushListener replayFlushListener,
+  ) {
     final _$$classRef = _class.reference;
-    return _privateSentryFlushReplay(
+    final _$replayFlushListener = replayFlushListener.reference;
+    _privateSentryFlushReplay(
       _$$classRef.pointer,
       _id_privateSentryFlushReplay.pointer,
-      j,
-    ).boolean;
+      _$replayFlushListener.pointer,
+    ).check();
   }
 
   static final _id_setupBeforeSend = _class.staticMethodId(
@@ -6719,12 +6726,6 @@ extension type ReplayRecorderCallbacks._(jni$_.JObject _$this)
         _$impls[$p]!.replayResumed();
         return jni$_.nullptr;
       }
-      if ($d == r'replayFlushed(J)V') {
-        _$impls[$p]!.replayFlushed(
-          ($a![0] as jni$_.JLong).toDartInt(releaseOriginal: true),
-        );
-        return jni$_.nullptr;
-      }
       if ($d == r'replayStateChanged(Ljava/lang/String;Z)V') {
         _$impls[$p]!.replayStateChanged(
           ($a![0] as jni$_.JString),
@@ -6781,7 +6782,6 @@ extension type ReplayRecorderCallbacks._(jni$_.JObject _$this)
       [
         if ($impl.replayStarted$async) r'replayStarted(Ljava/lang/String;Z)V',
         if ($impl.replayResumed$async) r'replayResumed()V',
-        if ($impl.replayFlushed$async) r'replayFlushed(J)V',
         if ($impl.replayStateChanged$async)
           r'replayStateChanged(Ljava/lang/String;Z)V',
         if ($impl.replayPaused$async) r'replayPaused()V',
@@ -6859,33 +6859,6 @@ extension ReplayRecorderCallbacks$$Methods on ReplayRecorderCallbacks {
   void replayResumed() {
     final _$$selfRef = reference;
     _replayResumed(_$$selfRef.pointer, _id_replayResumed.pointer).check();
-  }
-
-  static final _id_replayFlushed = ReplayRecorderCallbacks._class
-      .instanceMethodId(r'replayFlushed', r'(J)V');
-
-  static final _replayFlushed =
-      jni$_.ProtectedJniExtensions.lookup<
-            jni$_.NativeFunction<
-              jni$_.JThrowablePtr Function(
-                jni$_.Pointer<jni$_.Void>,
-                jni$_.JMethodIDPtr,
-                jni$_.VarArgs<(jni$_.Int64,)>,
-              )
-            >
-          >('globalEnv_CallVoidMethod')
-          .asFunction<
-            jni$_.JThrowablePtr Function(
-              jni$_.Pointer<jni$_.Void>,
-              jni$_.JMethodIDPtr,
-              core$_.int,
-            )
-          >();
-
-  /// from: `public fun replayFlushed(requestId: kotlin.Long): kotlin.Unit`
-  void replayFlushed(core$_.int j) {
-    final _$$selfRef = reference;
-    _replayFlushed(_$$selfRef.pointer, _id_replayFlushed.pointer, j).check();
   }
 
   static final _id_replayStateChanged = ReplayRecorderCallbacks._class
@@ -7039,8 +7012,6 @@ abstract base mixin class $ReplayRecorderCallbacks {
     core$_.bool replayStarted$async,
     required void Function() replayResumed,
     core$_.bool replayResumed$async,
-    required void Function(core$_.int j) replayFlushed,
-    core$_.bool replayFlushed$async,
     required void Function(jni$_.JString string, core$_.bool z)
     replayStateChanged,
     core$_.bool replayStateChanged$async,
@@ -7059,8 +7030,6 @@ abstract base mixin class $ReplayRecorderCallbacks {
   core$_.bool get replayStarted$async => false;
   void replayResumed();
   core$_.bool get replayResumed$async => false;
-  void replayFlushed(core$_.int j);
-  core$_.bool get replayFlushed$async => false;
   void replayStateChanged(jni$_.JString string, core$_.bool z);
   core$_.bool get replayStateChanged$async => false;
   void replayPaused();
@@ -7079,8 +7048,6 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
     this.replayStarted$async = false,
     required void Function() replayResumed,
     this.replayResumed$async = false,
-    required void Function(core$_.int j) replayFlushed,
-    this.replayFlushed$async = false,
     required void Function(jni$_.JString string, core$_.bool z)
     replayStateChanged,
     this.replayStateChanged$async = false,
@@ -7095,7 +7062,6 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
     this.replayConfigChanged$async = false,
   }) : _replayStarted = replayStarted,
        _replayResumed = replayResumed,
-       _replayFlushed = replayFlushed,
        _replayStateChanged = replayStateChanged,
        _replayPaused = replayPaused,
        _replayStopped = replayStopped,
@@ -7106,8 +7072,6 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
   final core$_.bool replayStarted$async;
   final void Function() _replayResumed;
   final core$_.bool replayResumed$async;
-  final void Function(core$_.int j) _replayFlushed;
-  final core$_.bool replayFlushed$async;
   final void Function(jni$_.JString string, core$_.bool z) _replayStateChanged;
   final core$_.bool replayStateChanged$async;
   final void Function() _replayPaused;
@@ -7126,10 +7090,6 @@ final class _$ReplayRecorderCallbacks with $ReplayRecorderCallbacks {
 
   void replayResumed() {
     return _replayResumed();
-  }
-
-  void replayFlushed(core$_.int j) {
-    return _replayFlushed(j);
   }
 
   void replayStateChanged(jni$_.JString string, core$_.bool z) {
@@ -7161,6 +7121,150 @@ final class $ReplayRecorderCallbacks$Type$
   @jni$_.internal
   @core$_.override
   String get signature => r'Lio/sentry/flutter/ReplayRecorderCallbacks;';
+}
+
+/// from: `io.sentry.flutter.ReplayFlushListener`
+extension type ReplayFlushListener._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(
+    r'io/sentry/flutter/ReplayFlushListener',
+  );
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<ReplayFlushListener> type =
+      $ReplayFlushListener$Type$();
+
+  /// Maps a specific port to the implemented interface.
+  static final core$_.Map<core$_.int, $ReplayFlushListener> _$impls = {};
+  static jni$_.JObjectPtr _$invoke(
+    core$_.int port,
+    jni$_.JObjectPtr descriptor,
+    jni$_.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      jni$_.MethodInvocation.fromAddresses(0, descriptor.address, args.address),
+    );
+  }
+
+  static final jni$_.Pointer<
+    jni$_.NativeFunction<
+      jni$_.JObjectPtr Function(jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)
+    >
+  >
+  _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
+
+  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
+    core$_.int $p,
+    jni$_.MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d == r'onFlushed()V') {
+        _$impls[$p]!.onFlushed();
+        return jni$_.nullptr;
+      }
+    } catch (e) {
+      return jni$_.ProtectedJniExtensions.newDartException(e);
+    }
+    return jni$_.nullptr;
+  }
+
+  static void implementIn(
+    jni$_.JImplementer implementer,
+    $ReplayFlushListener $impl,
+  ) {
+    late final jni$_.RawReceivePort $p;
+    $p = jni$_.RawReceivePort(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = jni$_.MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      $i.args?.release();
+      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    implementer.add(
+      r'io.sentry.flutter.ReplayFlushListener',
+      $p,
+      _$invokePointer,
+      [if ($impl.onFlushed$async) r'onFlushed()V'],
+    );
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+  }
+
+  factory ReplayFlushListener.implement($ReplayFlushListener $impl) {
+    final $i = jni$_.JImplementer();
+    implementIn($i, $impl);
+    return $i.implement<ReplayFlushListener>();
+  }
+}
+
+extension ReplayFlushListener$$Methods on ReplayFlushListener {
+  static final _id_onFlushed = ReplayFlushListener._class.instanceMethodId(
+    r'onFlushed',
+    r'()V',
+  );
+
+  static final _onFlushed =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public fun onFlushed(): kotlin.Unit`
+  void onFlushed() {
+    final _$$selfRef = reference;
+    _onFlushed(_$$selfRef.pointer, _id_onFlushed.pointer).check();
+  }
+}
+
+abstract base mixin class $ReplayFlushListener {
+  factory $ReplayFlushListener({
+    required void Function() onFlushed,
+    core$_.bool onFlushed$async,
+  }) = _$ReplayFlushListener;
+
+  void onFlushed();
+  core$_.bool get onFlushed$async => false;
+}
+
+final class _$ReplayFlushListener with $ReplayFlushListener {
+  _$ReplayFlushListener({
+    required void Function() onFlushed,
+    this.onFlushed$async = false,
+  }) : _onFlushed = onFlushed;
+
+  final void Function() _onFlushed;
+  final core$_.bool onFlushed$async;
+
+  void onFlushed() {
+    return _onFlushed();
+  }
+}
+
+final class $ReplayFlushListener$Type$
+    extends jni$_.JType<ReplayFlushListener> {
+  @jni$_.internal
+  const $ReplayFlushListener$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/flutter/ReplayFlushListener;';
 }
 
 /// from: `io.sentry.Sentry$OptionsConfiguration`

@@ -159,13 +159,17 @@ class SentryFlutterPlugin :
 
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
-    fun privateSentryFlushReplay(requestId: Long): Boolean {
-      val integration = replay ?: return false
-      val callbacks = replayCallbacks ?: return false
+    fun privateSentryFlushReplay(listener: ReplayFlushListener) {
+      val integration = replay
+      val callbacks = replayCallbacks
+      if (integration == null || callbacks == null) {
+        listener.onFlushed()
+        return
+      }
       integration.flush()
       // flush() queues the transition on this looper. Read the resulting state
       // afterwards; buffer promotion does not restart the Flutter recorder.
-      return Handler(Looper.getMainLooper()).post {
+      Handler(Looper.getMainLooper()).post {
         try {
           if (integration !== replay) return@post
           val replayId = integration.getReplayId()
@@ -175,7 +179,7 @@ class SentryFlutterPlugin :
           }
           callbacks.replayStateChanged(replayId.toString(), isBuffering)
         } finally {
-          callbacks.replayFlushed(requestId)
+          listener.onFlushed()
         }
       }
     }

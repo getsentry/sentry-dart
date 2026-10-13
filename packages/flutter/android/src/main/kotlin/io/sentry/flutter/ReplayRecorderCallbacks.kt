@@ -8,8 +8,6 @@ interface ReplayRecorderCallbacks {
 
   fun replayResumed()
 
-  fun replayFlushed(requestId: Long)
-
   fun replayStateChanged(
     replayId: String,
     replayIsBuffering: Boolean,

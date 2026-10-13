@@ -26,9 +26,6 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
   ReplayConfig? _replayConfig;
-  final _pendingReplayFlushes = <int, Completer<void>>{};
-  int _nextReplayFlushId = 0;
-  bool _isClosed = false;
 
   SentryNativeJava(super.options) {
     // Initialize core worker here in the ctor instead of init().
@@ -143,11 +140,6 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> close() async {
-    _isClosed = true;
-    for (final pending in _pendingReplayFlushes.values) {
-      pending.complete();
-    }
-    _pendingReplayFlushes.clear();
     _replayConfig = null;
     // Start worker shutdown before awaiting replay cleanup.
     final coreWorkerClosed = _coreWorker?.close();
@@ -260,18 +252,22 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   Future<void> flushReplay() async {
-    if (_isClosed) return;
     // Wait for native buffer promotion and its Dart scope update.
     await tryCatchAsync<void>('flushReplay', () async {
-      final requestId = _nextReplayFlushId++;
-      final completion = Completer<void>();
-      _pendingReplayFlushes[requestId] = completion;
+      final flushed = Completer<void>();
+      // Async so a flush completing after a hot restart is dropped instead of
+      // calling into the old isolate.
+      final listener = native.ReplayFlushListener.implement(
+        native.$ReplayFlushListener(
+          onFlushed: flushed.complete,
+          onFlushed$async: true,
+        ),
+      );
       try {
-        if (native.SentryFlutterPlugin.privateSentryFlushReplay(requestId)) {
-          await completion.future;
-        }
+        native.SentryFlutterPlugin.privateSentryFlushReplay(listener);
+        await flushed.future;
       } finally {
-        _pendingReplayFlushes.remove(requestId);
+        listener.release();
       }
     });
   }
