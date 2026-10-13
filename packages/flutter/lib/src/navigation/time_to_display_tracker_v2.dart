@@ -80,7 +80,8 @@ class TimeToDisplayTrackerV2 {
     _isAppStartRouteNamePending = false;
     final SentrySpanV2 routeSpan;
     DateTime? displayStartTimestamp = startTimestamp;
-    switch (_preparedRootNavigationSpan) {
+    final preparedRouteSpan = _preparedRootNavigationSpan;
+    switch (preparedRouteSpan) {
       case final prepared?:
         _preparedRootNavigationSpan = null;
         displayStartTimestamp ??= prepared.startTimestamp;
@@ -102,6 +103,7 @@ class TimeToDisplayTrackerV2 {
       routeName,
       startTimestamp: displayStartTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
+      createTtfdSpan: preparedRouteSpan == null,
     );
     return routeSpan;
   }
@@ -167,8 +169,13 @@ class TimeToDisplayTrackerV2 {
     String routeName, {
     DateTime? startTimestamp,
     DateTime? ttidEndTimestamp,
+    bool createTtfdSpan = true,
   }) {
-    _ensureTtfdSpan(routeSpan, routeName, startTimestamp: startTimestamp);
+    // A prepared route already created TTFD, which may have completed before
+    // the engine delivers the first-frame timing callback.
+    if (createTtfdSpan) {
+      _ensureTtfdSpan(routeSpan, routeName, startTimestamp: startTimestamp);
+    }
 
     final ttidSpan = _hub.startInactiveSpan(
       '$routeName initial display',

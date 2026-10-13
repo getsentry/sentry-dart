@@ -417,6 +417,30 @@ void main() {
         expect(ttfdSpans, hasLength(1));
       });
 
+      test(
+        'does not reopen TTFD completed before the first-frame callback',
+        () {
+          final sut = fixture.getSut();
+          final childSpans = fixture.captureChildSpans();
+          final start = DateTime.utc(2026);
+          sut.prepareAppStart(startTimestamp: start);
+          final ttfdSpanId = sut.ttfdSpanId!;
+          sut.reportFullyDisplayed(ttfdSpanId);
+
+          sut.trackAppStart(
+            ttidEndTimestamp: start.add(const Duration(seconds: 1)),
+          );
+
+          final ttfdSpans = childSpans.where(
+            (span) => span.name == 'root / full display',
+          );
+          expect(ttfdSpans, hasLength(1));
+          expect(ttfdSpans.single.spanId, ttfdSpanId);
+          expect(ttfdSpans.single.isEnded, isTrue);
+          expect(sut.ttfdSpanId, isNull);
+        },
+      );
+
       test('ends TTID immediately with ttidEndTimestamp', () {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();
