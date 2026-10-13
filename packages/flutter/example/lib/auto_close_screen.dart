@@ -41,9 +41,7 @@ class AutoCloseScreenState extends State<AutoCloseScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Delayed Screen'),
-      ),
+      appBar: AppBar(title: const Text('Delayed Screen')),
       body: const Center(
         child: Text(
           'This screen will automatically close in a few seconds.',

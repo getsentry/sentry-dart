@@ -3,7 +3,7 @@
 
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 
@@ -25,8 +25,9 @@ void main() {
 
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       await sut.track(transaction);
 
@@ -35,21 +36,27 @@ void main() {
 
     test('calls ttid tracker with endTimestamp', () async {
       final sut = fixture.getSut();
-      final endTimestamp =
-          fixture.startTimestamp.add(Duration(milliseconds: 100));
+      final endTimestamp = fixture.startTimestamp.add(
+        Duration(milliseconds: 100),
+      );
 
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(
-              transaction: transaction, endTimestamp: anyNamed('endTimestamp')))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(
+          transaction: transaction,
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      ).thenAnswer((_) async => ttidTransaction);
 
       await sut.track(transaction, ttidEndTimestamp: endTimestamp);
 
-      verify(fixture.ttidTracker.track(
-        transaction: transaction,
-        endTimestamp: endTimestamp,
-      )).called(1);
+      verify(
+        fixture.ttidTracker.track(
+          transaction: transaction,
+          endTimestamp: endTimestamp,
+        ),
+      ).called(1);
     });
 
     test('calls ttfd tracker', () async {
@@ -59,8 +66,9 @@ void main() {
 
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       await sut.track(transaction);
 
@@ -74,8 +82,9 @@ void main() {
 
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       await sut.track(transaction);
 
@@ -87,27 +96,30 @@ void main() {
 
       final sut = fixture.getSut();
 
-      final ttidEndTimestamp =
-          fixture.startTimestamp.add(Duration(milliseconds: 75));
+      final ttidEndTimestamp = fixture.startTimestamp.add(
+        Duration(milliseconds: 75),
+      );
 
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
       await ttidTransaction.finish(endTimestamp: ttidEndTimestamp);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       await sut.track(transaction);
 
-      verify(fixture.ttfdTracker.track(
-        transaction: transaction,
-        ttidEndTimestamp: ttidEndTimestamp,
-      )).called(1);
+      verify(
+        fixture.ttfdTracker.track(
+          transaction: transaction,
+          ttidEndTimestamp: ttidEndTimestamp,
+        ),
+      ).called(1);
     });
   });
 
   group('app start tracking', () {
-    test(
-        'prepareInitialDisplay reserves the transaction id without starting a '
+    test('prepareInitialDisplay reserves the transaction id without starting a '
         'transaction', () {
       final sut = fixture.getSut();
 
@@ -117,8 +129,7 @@ void main() {
       expect(fixture.hub.scope.span, isNull);
     });
 
-    test(
-        'recordInitialDisplay tracks a live transaction when the first frame '
+    test('recordInitialDisplay tracks a live transaction when the first frame '
         'outlives the idle timeout', () {
       fakeAsync((async) {
         final sut = fixture.getSut();
@@ -126,10 +137,12 @@ void main() {
         final endTimestamp = startTimestamp.add(const Duration(seconds: 5));
 
         SentryTracer? tracked;
-        when(fixture.ttidTracker.track(
-          transaction: anyNamed('transaction'),
-          endTimestamp: anyNamed('endTimestamp'),
-        )).thenAnswer((invocation) async {
+        when(
+          fixture.ttidTracker.track(
+            transaction: anyNamed('transaction'),
+            endTimestamp: anyNamed('endTimestamp'),
+          ),
+        ).thenAnswer((invocation) async {
           final transaction =
               invocation.namedArguments[#transaction] as SentryTracer;
           tracked = transaction;
@@ -146,31 +159,38 @@ void main() {
       });
     });
 
-    test('recordInitialDisplay starts the reserved ui.load transaction',
-        () async {
-      final sut = fixture.getSut();
-      final startTimestamp = DateTime.utc(2024, 1, 1, 12);
-      final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
-      when(fixture.ttidTracker.track(
-        transaction: anyNamed('transaction'),
-        endTimestamp: endTimestamp,
-      )).thenAnswer((invocation) async => fixture.getTTIDTransaction(
-          invocation.namedArguments[#transaction] as SentryTracer));
+    test(
+      'recordInitialDisplay starts the reserved ui.load transaction',
+      () async {
+        final sut = fixture.getSut();
+        final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+        final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+        when(
+          fixture.ttidTracker.track(
+            transaction: anyNamed('transaction'),
+            endTimestamp: endTimestamp,
+          ),
+        ).thenAnswer(
+          (invocation) async => fixture.getTTIDTransaction(
+            invocation.namedArguments[#transaction] as SentryTracer,
+          ),
+        );
 
-      sut.prepareInitialDisplay(startTimestamp);
-      final reservedId = sut.transactionId;
-      await sut.recordInitialDisplay(endTimestamp);
+        sut.prepareInitialDisplay(startTimestamp);
+        final reservedId = sut.transactionId;
+        await sut.recordInitialDisplay(endTimestamp);
 
-      final transaction = fixture.hub.scope.span as SentryTracer;
-      expect(transaction.name, 'root /');
-      expect(transaction.context.operation, SentrySpanOperations.uiLoad);
-      expect(
-        transaction.transactionNameSource,
-        SentryTransactionNameSource.component,
-      );
-      expect(transaction.startTimestamp, startTimestamp);
-      expect(transaction.context.spanId, reservedId);
-    });
+        final transaction = fixture.hub.scope.span as SentryTracer;
+        expect(transaction.name, 'root /');
+        expect(transaction.context.operation, SentrySpanOperations.uiLoad);
+        expect(
+          transaction.transactionNameSource,
+          SentryTransactionNameSource.component,
+        );
+        expect(transaction.startTimestamp, startTimestamp);
+        expect(transaction.context.spanId, reservedId);
+      },
+    );
 
     test('setAppStartRouteName names the reserved transaction', () async {
       final sut = fixture.getSut();
@@ -233,10 +253,12 @@ void main() {
         startTimestamp.add(const Duration(seconds: 1)),
       );
       expect(fixture.hub.scope.span, isNull);
-      verifyNever(fixture.ttidTracker.track(
-        transaction: anyNamed('transaction'),
-        endTimestamp: anyNamed('endTimestamp'),
-      ));
+      verifyNever(
+        fixture.ttidTracker.track(
+          transaction: anyNamed('transaction'),
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      );
     });
   });
 
@@ -258,8 +280,9 @@ void main() {
 
       final sut = fixture.getSut();
 
-      final endTimestamp =
-          transaction.startTimestamp.add(Duration(milliseconds: 100));
+      final endTimestamp = transaction.startTimestamp.add(
+        Duration(milliseconds: 100),
+      );
       await sut.cancelUnfinishedSpans(transaction, endTimestamp);
 
       expect(ttidSpan.finished, isTrue);
@@ -273,8 +296,9 @@ void main() {
 
     test('unfinished ttfd will match ttid duration if available', () async {
       final transaction = fixture.getTransaction();
-      final ttidEndTimestamp =
-          transaction.startTimestamp.add(Duration(milliseconds: 50));
+      final ttidEndTimestamp = transaction.startTimestamp.add(
+        Duration(milliseconds: 50),
+      );
 
       final ttidSpan = transaction.startChild(
         SentrySpanOperations.uiTimeToInitialDisplay,
@@ -291,8 +315,9 @@ void main() {
 
       final sut = fixture.getSut();
 
-      final endTimestamp =
-          transaction.startTimestamp.add(Duration(milliseconds: 100));
+      final endTimestamp = transaction.startTimestamp.add(
+        Duration(milliseconds: 100),
+      );
       await sut.cancelUnfinishedSpans(transaction, endTimestamp);
 
       expect(ttfdSpan.finished, isTrue);
@@ -305,8 +330,9 @@ void main() {
     test('is set when tracking', () async {
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       final sut = fixture.getSut();
       unawaited(sut.track(transaction));
@@ -322,8 +348,9 @@ void main() {
     test('is reset when clear is called', () async {
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       final sut = fixture.getSut();
       unawaited(sut.track(transaction));
@@ -341,14 +368,18 @@ void main() {
       final spanId = SpanId.newId();
       sut.transactionId = spanId;
 
-      when(fixture.ttfdTracker.reportFullyDisplayed(
-        spanId: spanId,
-        endTimestamp: anyNamed('endTimestamp'),
-      )).thenAnswer((_) async => false);
+      when(
+        fixture.ttfdTracker.reportFullyDisplayed(
+          spanId: spanId,
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      ).thenAnswer((_) async => false);
 
       final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
       await sut.reportFullyDisplayed(
-          spanId: spanId, endTimestamp: endTimestamp);
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
 
       expect(sut.pendingTTFDEndTimestamp, endTimestamp);
     });
@@ -360,38 +391,47 @@ void main() {
       final spanId = SpanId.newId();
       sut.transactionId = spanId;
 
-      when(fixture.ttfdTracker.reportFullyDisplayed(
-        spanId: spanId,
-        endTimestamp: anyNamed('endTimestamp'),
-      )).thenAnswer((_) async => true);
+      when(
+        fixture.ttfdTracker.reportFullyDisplayed(
+          spanId: spanId,
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      ).thenAnswer((_) async => true);
 
       final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
       await sut.reportFullyDisplayed(
-          spanId: spanId, endTimestamp: endTimestamp);
+        spanId: spanId,
+        endTimestamp: endTimestamp,
+      );
 
       expect(sut.pendingTTFDEndTimestamp, isNull);
     });
 
     test(
-        'ttfd before track does not set pending ttfd end timestamp if spanId does not match',
-        () async {
-      fixture.options.enableTimeToFullDisplayTracing = true;
+      'ttfd before track does not set pending ttfd end timestamp if spanId does not match',
+      () async {
+        fixture.options.enableTimeToFullDisplayTracing = true;
 
-      final sut = fixture.getSut();
-      final spanId = SpanId.newId();
-      sut.transactionId = SpanId.newId();
+        final sut = fixture.getSut();
+        final spanId = SpanId.newId();
+        sut.transactionId = SpanId.newId();
 
-      when(fixture.ttfdTracker.reportFullyDisplayed(
-        spanId: spanId,
-        endTimestamp: anyNamed('endTimestamp'),
-      )).thenAnswer((_) async => false);
+        when(
+          fixture.ttfdTracker.reportFullyDisplayed(
+            spanId: spanId,
+            endTimestamp: anyNamed('endTimestamp'),
+          ),
+        ).thenAnswer((_) async => false);
 
-      final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
-      await sut.reportFullyDisplayed(
-          spanId: spanId, endTimestamp: endTimestamp);
+        final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
+        await sut.reportFullyDisplayed(
+          spanId: spanId,
+          endTimestamp: endTimestamp,
+        );
 
-      expect(sut.pendingTTFDEndTimestamp, isNull);
-    });
+        expect(sut.pendingTTFDEndTimestamp, isNull);
+      },
+    );
 
     test('track uses pending ttfd', () async {
       fixture.options.enableTimeToFullDisplayTracing = true;
@@ -399,16 +439,19 @@ void main() {
       final sut = fixture.getSut();
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       final spanId = transaction.context.spanId;
       sut.transactionId = spanId;
 
-      when(fixture.ttfdTracker.reportFullyDisplayed(
-        spanId: spanId,
-        endTimestamp: anyNamed('endTimestamp'),
-      )).thenAnswer((_) async => false);
+      when(
+        fixture.ttfdTracker.reportFullyDisplayed(
+          spanId: spanId,
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      ).thenAnswer((_) async => false);
 
       final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
 
@@ -418,10 +461,12 @@ void main() {
       );
       await sut.track(transaction);
 
-      verify(fixture.ttfdTracker.track(
-        transaction: anyNamed('transaction'),
-        ttfdEndTimestamp: endTimestamp,
-      )).called(1);
+      verify(
+        fixture.ttfdTracker.track(
+          transaction: anyNamed('transaction'),
+          ttfdEndTimestamp: endTimestamp,
+        ),
+      ).called(1);
     });
 
     test('track with unrelated transaction resets pending ttfd', () async {
@@ -432,10 +477,12 @@ void main() {
       final spanId = SpanId.newId();
       sut.transactionId = spanId;
 
-      when(fixture.ttfdTracker.reportFullyDisplayed(
-        spanId: spanId,
-        endTimestamp: anyNamed('endTimestamp'),
-      )).thenAnswer((_) async => false);
+      when(
+        fixture.ttfdTracker.reportFullyDisplayed(
+          spanId: spanId,
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      ).thenAnswer((_) async => false);
 
       final endTimestamp = DateTime.now().add(Duration(milliseconds: 100));
 
@@ -446,8 +493,9 @@ void main() {
 
       final transaction = fixture.getTransaction();
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
-      when(fixture.ttidTracker.track(transaction: transaction))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(transaction: transaction),
+      ).thenAnswer((_) async => ttidTransaction);
 
       await sut.track(transaction);
 
@@ -464,10 +512,12 @@ void main() {
       final spanId = transaction.context.spanId;
       sut.transactionId = spanId;
 
-      when(fixture.ttfdTracker.reportFullyDisplayed(
-        spanId: spanId,
-        endTimestamp: anyNamed('endTimestamp'),
-      )).thenAnswer((_) async => false);
+      when(
+        fixture.ttfdTracker.reportFullyDisplayed(
+          spanId: spanId,
+          endTimestamp: anyNamed('endTimestamp'),
+        ),
+      ).thenAnswer((_) async => false);
 
       // TTID
 
@@ -475,9 +525,12 @@ void main() {
       final ttidTransaction = fixture.getTTIDTransaction(transaction);
       await ttidTransaction.finish(endTimestamp: ttidEndTimestamp);
 
-      when(fixture.ttidTracker
-              .track(transaction: transaction, endTimestamp: ttidEndTimestamp))
-          .thenAnswer((_) async => ttidTransaction);
+      when(
+        fixture.ttidTracker.track(
+          transaction: transaction,
+          endTimestamp: ttidEndTimestamp,
+        ),
+      ).thenAnswer((_) async => ttidTransaction);
 
       final endTimestamp = ttidEndTimestamp.add(Duration(milliseconds: -100));
 
@@ -487,11 +540,13 @@ void main() {
       );
       await sut.track(transaction, ttidEndTimestamp: ttidEndTimestamp);
 
-      verify(fixture.ttfdTracker.track(
-        transaction: anyNamed('transaction'),
-        ttidEndTimestamp: ttidTransaction.endTimestamp,
-        ttfdEndTimestamp: ttidTransaction.endTimestamp,
-      )).called(1);
+      verify(
+        fixture.ttfdTracker.track(
+          transaction: anyNamed('transaction'),
+          ttidEndTimestamp: ttidTransaction.endTimestamp,
+          ttfdEndTimestamp: ttidTransaction.endTimestamp,
+        ),
+      ).called(1);
     });
   });
 }
@@ -499,6 +554,7 @@ void main() {
 class Fixture {
   final startTimestamp = getUtcDateTime();
   final options = defaultTestOptions()
+    ..traceLifecycle = SentryTraceLifecycle.static
     ..dsn = fakeDsn
     ..tracesSampleRate = 1.0;
   late final hub = Hub(options);
@@ -513,19 +569,25 @@ class Fixture {
   SentryTracer getTransaction({String? name}) {
     latestTransactionName = name ?? 'Current route';
     return hub.startTransaction(
-      latestTransactionName,
-      'ui.load',
-      startTimestamp: startTimestamp,
-    ) as SentryTracer;
+          latestTransactionName,
+          'ui.load',
+          startTimestamp: startTimestamp,
+        )
+        as SentryTracer;
   }
 
   /// Stubs the TTID tracker to attach its span to whichever transaction it gets.
   void whenTtidTracked(DateTime endTimestamp) {
-    when(ttidTracker.track(
-      transaction: anyNamed('transaction'),
-      endTimestamp: endTimestamp,
-    )).thenAnswer((invocation) async => getTTIDTransaction(
-        invocation.namedArguments[#transaction] as SentryTracer));
+    when(
+      ttidTracker.track(
+        transaction: anyNamed('transaction'),
+        endTimestamp: endTimestamp,
+      ),
+    ).thenAnswer(
+      (invocation) async => getTTIDTransaction(
+        invocation.namedArguments[#transaction] as SentryTracer,
+      ),
+    );
   }
 
   ISentrySpan getTTIDTransaction(SentryTracer parent) {

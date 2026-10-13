@@ -27,10 +27,7 @@ Future<void> runApp() async {
 
   var box = await SentryHive.openBox('testBox');
 
-  var person = Person(
-    name: 'Dave',
-    age: 22,
-  );
+  var person = Person(name: 'Dave', age: 22);
 
   await box.put('dave', person);
 

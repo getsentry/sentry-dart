@@ -53,14 +53,29 @@ resolve_sdk() {
   fi
 }
 
+# git exports an absolute GIT_DIR to hooks. The Flutter SDK determines its own
+# version by running git inside its checkout, which then resolves against this
+# repository instead and reports `0.0.0-unknown`, so pub refuses to resolve any
+# package with a Flutter SDK constraint. Clear the inherited git environment for
+# the nested tools; they rediscover this repository from the working directory.
+run_without_git_env() {
+  env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE "$@"
+}
+
 SDK=$(resolve_sdk)
-if [ -n "$SDK" ]; then
-  DART="$SDK/bin/dart"
-  MELOS_SDK="--sdk-path=$SDK"
-else
-  DART=dart
-  MELOS_SDK=--sdk-path=auto
+if [ -z "$SDK" ]; then
+  echo "The development Flutter SDK is missing. Run 'fvm install'." >&2
+  exit 1
 fi
+EXPECTED_FLUTTER=$(jq -er '.flutter' .fvmrc) || exit 1
+INSTALLED_FLUTTER=$(run_without_git_env "$SDK/bin/flutter" --version --machine) || exit 1
+INSTALLED_FLUTTER=$(printf '%s' "$INSTALLED_FLUTTER" | jq -er '.frameworkVersion') || exit 1
+if [ "$INSTALLED_FLUTTER" != "$EXPECTED_FLUTTER" ]; then
+  echo "Expected Flutter $EXPECTED_FLUTTER from .fvmrc, found $INSTALLED_FLUTTER. Run 'fvm install'." >&2
+  exit 1
+fi
+DART="$SDK/bin/dart"
+MELOS_SDK="--sdk-path=$SDK"
 echo "Using Dart SDK: $DART"
 echo "               $($DART --version 2>&1)"
 
@@ -68,6 +83,12 @@ echo "               $($DART --version 2>&1)"
 # here would sweep in deliberately held-back hunks of a partially staged file.
 STAGED_DART=$(git diff --cached --name-only --diff-filter=d -- '*.dart')
 if [ -n "$STAGED_DART" ]; then
+  echo "Resolving affected package dependencies before formatting..."
+  if ! run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart pub get --offline ||
+     ! run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter pub get --offline; then
+    echo "Dependency resolution failed. Run 'melos bootstrap' before committing." >&2
+    exit 1
+  fi
   echo "Checking formatting of staged .dart files..."
   if ! $DART format --set-exit-if-changed $STAGED_DART; then
     echo
@@ -80,5 +101,5 @@ fi
 
 echo "Running pre-commit checks for:$NAMES"
 
-melos $MELOS_SDK exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
-melos $MELOS_SDK exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings
+run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --no-flutter --dir-exists=lib -- dart analyze --fatal-warnings &&
+run_without_git_env melos $MELOS_SDK exec $SCOPE --fail-fast --flutter --dir-exists=lib -- flutter analyze --fatal-warnings

@@ -7,8 +7,5 @@ import 'protocol.dart';
 /// return a new event which in most cases means just adding data *or* return
 /// null in case the event will be dropped and not sent.
 abstract class EventProcessor {
-  FutureOr<SentryEvent?> apply(
-    SentryEvent event,
-    Hint hint,
-  );
+  FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint);
 }

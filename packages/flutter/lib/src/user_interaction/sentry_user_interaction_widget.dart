@@ -207,10 +207,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
-import '../widget_utils.dart';
+import '../utils/widget_utils.dart';
+import '../utils/internal_logger.dart';
 import 'user_interaction_info.dart';
 import 'user_interaction_widget_types.dart';
 
@@ -302,10 +303,9 @@ class _SentryUserInteractionWidgetState
       _lastPointerId = event.pointer;
       _lastPointerDownLocation = event.localPosition;
     } catch (exception, stacktrace) {
-      _options?.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error while handling pointer-down event $event in $SentryUserInteractionWidget',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_options?.automatedTestMode ?? false) {
@@ -331,10 +331,9 @@ class _SentryUserInteractionWidgetState
         _onTappedAt(event.localPosition);
       }
     } catch (exception, stacktrace) {
-      _options?.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error while handling pointer-up event $event in $SentryUserInteractionWidget',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_options?.automatedTestMode ?? false) {
@@ -364,10 +363,7 @@ class _SentryUserInteractionWidgetState
     }
 
     final label = _getLabelRecursively(info.element, info.labelFromText);
-    final data = {
-      'path': _getTouchPath(info.element),
-      if (label != null) 'label': label
-    };
+    final data = {'path': _getTouchPath(info.element), 'label': ?label};
 
     final crumb = Breadcrumb.userInteraction(
       subCategory: 'click',
@@ -432,7 +428,8 @@ class _SentryUserInteractionWidgetState
 
       if (activeSpan is IdleRecordingSentrySpanV2) {
         final lastElement = _lastTappedWidget?.element;
-        final isSameWidget = _isElementMounted(lastElement) &&
+        final isSameWidget =
+            _isElementMounted(lastElement) &&
             _isElementMounted(info.element) &&
             lastElement?.widget == info.element.widget;
 
@@ -460,10 +457,12 @@ class _SentryUserInteractionWidgetState
       idleTimeout: const Duration(seconds: 1),
       widgetKey,
       attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(SentrySpanOperations.uiActionClick),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoUiInteraction),
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          SentrySpanOperations.uiActionClick,
+        ),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoUiInteraction,
+        ),
         SemanticAttributesConstants.sentrySegmentNameSource:
             SentryAttribute.string(SentryTransactionNameSource.component.name),
       },
@@ -610,8 +609,10 @@ class _SentryUserInteractionWidgetState
       }
 
       final transform = renderObject.getTransformTo(rootElement.renderObject);
-      final paintBounds =
-          MatrixUtils.transformRect(transform, renderObject.paintBounds);
+      final paintBounds = MatrixUtils.transformRect(
+        transform,
+        renderObject.paintBounds,
+      );
 
       if (!paintBounds.contains(position)) {
         return;

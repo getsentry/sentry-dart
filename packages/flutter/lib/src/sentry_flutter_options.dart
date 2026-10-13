@@ -6,14 +6,14 @@ import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 
 import 'app_start/standalone/app_start_trace.dart';
-import 'binding_wrapper.dart';
-import 'event_processor/screenshot_event_processor.dart';
+import 'bindings/binding_wrapper.dart';
+import 'screenshot/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'navigation/time_to_display_tracker_v2.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'sentry_privacy_options.dart';
-import 'sentry_replay_options.dart';
+import 'screen_capture/sentry_privacy_options.dart';
+import 'replay/sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 import 'user_interaction/user_interaction_widget_types.dart';
 import 'feedback/sentry_feedback_options.dart';
@@ -181,26 +181,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
 
-  /// Whether standalone app-start tracing is enabled.
-  ///
-  /// Requires tracing to be enabled and is supported on Android and iOS.
-  /// Defaults to `false`.
-  @meta.experimental
-  bool enableStandaloneAppStartTracing = false;
-
-  /// Whether this app start is reported by the standalone path rather than
-  /// attached to the initial `ui.load`.
-  ///
-  /// Both app-start integrations are registered before the options callback
-  /// sets [enableStandaloneAppStartTracing], so each one selects itself at call
-  /// time instead. Deriving both choices from this single predicate keeps them
-  /// mutually exclusive — a platform without standalone support must not lose
-  /// app start because the native integration stood down for a standalone
-  /// integration that never runs there.
-  @meta.internal
-  bool get usesStandaloneAppStart =>
-      enableStandaloneAppStartTracing && (platform.isIOS || platform.isAndroid);
-
   @meta.internal
   AppStartTrace? standaloneAppStartTrace;
 
@@ -342,13 +322,11 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Renders an ASCII representation of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
-  @meta.experimental
   bool attachViewHierarchy = false;
 
   /// Sets a callback which is executed before capturing view hierarchy. Only
   /// relevant if `attachViewHierarchy` is set to true. When false is returned
   /// from the function, no view hierarchy will be attached.
-  @meta.experimental
   BeforeCaptureCallback? beforeCaptureViewHierarchy;
 
   /// Enables collection of view hierarchy element identifiers.
@@ -483,28 +461,8 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
-  @meta.experimental
+  @meta.internal
   BindingWrapper bindingUtils = BindingWrapper();
-
-  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
-  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
-  /// At the moment, only apps targeting iOS and macOS are supported.
-  @override
-  @meta.experimental
-  double? get profilesSampleRate {
-    // ignore: invalid_use_of_internal_member
-    return super.profilesSampleRate;
-  }
-
-  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
-  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
-  /// At the moment, only apps targeting iOS and macOS are supported.
-  @override
-  @meta.experimental
-  set profilesSampleRate(double? value) {
-    // ignore: invalid_use_of_internal_member
-    super.profilesSampleRate = value;
-  }
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
@@ -558,8 +516,5 @@ class SentryFlutterOptions extends SentryOptions {
 /// [debounce] indicates if capturing is marked for being debounced.
 ///
 /// Returns `true` if capturing should be performed, otherwise `false`.
-typedef BeforeCaptureCallback = FutureOr<bool> Function(
-  SentryEvent event,
-  Hint hint,
-  bool debounce,
-);
+typedef BeforeCaptureCallback =
+    FutureOr<bool> Function(SentryEvent event, Hint hint, bool debounce);

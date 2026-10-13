@@ -7,47 +7,46 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
-import 'event_processor/android_platform_exception_event_processor.dart';
-import 'event_processor/flutter_enricher_event_processor.dart';
-import 'event_processor/flutter_exception_event_processor.dart';
-import 'event_processor/platform_exception_event_processor.dart';
-import 'event_processor/screenshot_event_processor.dart';
-import 'event_processor/url_filter/url_filter_event_processor.dart';
-import 'event_processor/widget_event_processor.dart';
-import 'file_system_transport.dart';
-import 'flutter_exception_type_identifier.dart';
-import 'frame_callback_handler.dart';
+import 'exception/android_platform_exception_event_processor.dart';
+import 'enrichment/flutter_enricher_event_processor.dart';
+import 'exception/flutter_exception_event_processor.dart';
+import 'exception/platform_exception_event_processor.dart';
+import 'screenshot/screenshot_event_processor.dart';
+import 'url_filter/url_filter_event_processor.dart';
+import 'enrichment/widget_event_processor.dart';
+import 'transport/file_system_transport.dart';
+import 'exception/flutter_exception_type_identifier.dart';
+import 'bindings/frame_callback_handler.dart';
+import 'app_start/generic_app_start_integration.dart';
 import 'app_start/standalone/app_start_trace.dart';
-import 'app_start/standalone/standalone_app_start_integration.dart';
 import 'app_start/standalone/standalone_app_start_handler.dart';
-import 'app_start/ui_load_attached/generic_app_start_integration.dart';
-import 'app_start/ui_load_attached/native_app_start_handler.dart';
-import 'app_start/ui_load_attached/native_app_start_handler_v2.dart';
-import 'integrations/connectivity/connectivity_integration.dart';
-import 'integrations/flutter_framework_feature_flag_integration.dart';
-import 'integrations/frames_tracking_integration.dart';
-import 'integrations/integrations.dart';
-import 'integrations/replay_telemetry_integration.dart';
-import 'integrations/screenshot_integration.dart';
-import 'integrations/native_trace_sync_integration.dart';
-import 'integrations/thread_info_integration.dart';
-import 'integrations/web_session_integration.dart';
+import 'app_start/standalone/standalone_app_start_integration.dart';
+import 'connectivity/connectivity_integration.dart';
+import 'enrichment/flutter_framework_feature_flag_integration.dart';
+import 'frames_tracking/frames_tracking_integration.dart';
+import 'integrations.dart';
+import 'sessions/native_session_integration.dart';
+import 'replay/replay_telemetry_integration.dart';
+import 'screenshot/screenshot_integration.dart';
+import 'native/native_trace_sync_integration.dart';
+import 'enrichment/thread_info_integration.dart';
+import 'sessions/web_session_integration.dart';
 import 'native/factory.dart';
 import 'native/native_scope_observer.dart';
 import 'native/sentry_native_binding.dart';
-import 'profiling.dart';
-import 'replay/integration.dart';
+import 'replay/replay_integration.dart';
 import 'replay/network_details_capture.dart';
-import 'screenshot/screenshot_support.dart';
+import 'replay/replay_api.dart';
+import 'screen_capture/screenshot_support.dart';
 import 'utils/internal_logger.dart';
-import 'utils/platform_dispatcher_wrapper.dart';
+import 'bindings/platform_dispatcher_wrapper.dart';
 import 'version.dart';
 import 'view_hierarchy/view_hierarchy_integration.dart';
 import 'web/javascript_transport.dart';
 
 /// Configuration options callback
-typedef FlutterOptionsConfiguration = FutureOr<void> Function(
-    SentryFlutterOptions);
+typedef FlutterOptionsConfiguration =
+    FutureOr<void> Function(SentryFlutterOptions);
 
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
@@ -94,8 +93,9 @@ mixin SentryFlutter {
     // If onError is not supported and no custom zone exists, use runZonedGuarded to capture errors.
     final bool useRunZonedGuarded = !isOnErrorSupported && isRootZone;
 
-    RunZonedGuardedOnError? runZonedGuardedOnError =
-        useRunZonedGuarded ? _createRunZonedGuardedOnError() : null;
+    RunZonedGuardedOnError? runZonedGuardedOnError = useRunZonedGuarded
+        ? _createRunZonedGuardedOnError()
+        : null;
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
@@ -109,19 +109,31 @@ mixin SentryFlutter {
 
     await _initDefaultValues(options);
 
+    // End SDK initialization before invoking application work in the runner,
+    // or when initialization completes if the caller runs the app separately.
+    final initializedOptions = options;
+    final runner = appRunner;
+    void recordAppStartInitEnd() => initializedOptions.standaloneAppStartTrace
+        ?.recordInitEnd(initializedOptions.clock());
+
     await Sentry.init(
       (o) {
         assert(options == o);
         return optionsConfiguration(o as SentryFlutterOptions);
       },
-      appRunner: appRunner,
+      appRunner: runner == null
+          ? null
+          : () async {
+              recordAppStartInitEnd();
+              await runner();
+            },
       options: options,
       callAppRunnerInRunZonedGuarded: useRunZonedGuarded,
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
 
-    if (_native != null) {
-      SentryNativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
+    if (runner == null) {
+      recordAppStartInitEnd();
     }
 
     // Insert it at the start of the list, before the Dart Exceptions that are set in Sentry.init
@@ -137,13 +149,13 @@ mixin SentryFlutter {
     if (_native != null) {
       if (_native!.supportsCaptureEnvelope) {
         if (options.platform.isWeb) {
-          options.transport = JavascriptTransport(_native!, options);
+          options.transport = JavascriptTransport(_native!);
         } else {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
       if (!options.platform.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!, options));
+        options.addScopeObserver(NativeScopeObserver(_native!));
       }
     }
 
@@ -197,6 +209,9 @@ mixin SentryFlutter {
       // We also need to call this before the native sdk integrations so release is properly propagated.
       integrations.add(LoadReleaseIntegration());
       integrations.add(createSdkIntegration(native));
+      if (platform.isAndroid || platform.isIOS || platform.isMacOS) {
+        integrations.add(NativeSessionIntegration(native));
+      }
       if (native.supportsTraceSync) {
         integrations.add(NativeTraceSyncIntegration(native));
       }
@@ -206,25 +221,16 @@ mixin SentryFlutter {
           integrations.add(LoadContextsIntegration(native));
         }
         integrations.add(FramesTrackingIntegration(native));
-        if (platform.isIOS || platform.isAndroid || platform.isMacOS) {
+        if (platform.isIOS || platform.isAndroid) {
           final frameCallbackHandler = DefaultFrameCallbackHandler();
           integrations.add(
-            NativeAppStartIntegration(
-              frameCallbackHandler,
-              NativeAppStartHandler(native),
-              NativeAppStartHandlerV2(native),
+            StandaloneAppStartIntegration(
+              StandaloneAppStartHandler(
+                frameCallbackHandler: frameCallbackHandler,
+                native: native,
+              ),
             ),
           );
-          if (platform.isIOS || platform.isAndroid) {
-            integrations.add(
-              StandaloneAppStartIntegration(
-                StandaloneAppStartHandler(
-                  frameCallbackHandler: frameCallbackHandler,
-                  native: native,
-                ),
-              ),
-            );
-          }
         }
         integrations.add(ReplayIntegration(native));
       } else {
@@ -238,7 +244,10 @@ mixin SentryFlutter {
       options.enableDartSymbolication = false;
     }
 
-    if (platform.isWeb || platform.isLinux || platform.isWindows) {
+    if (platform.isWeb ||
+        platform.isLinux ||
+        platform.isWindows ||
+        platform.isMacOS) {
       integrations.add(GenericAppStartIntegration());
     }
 
@@ -302,10 +311,9 @@ mixin SentryFlutter {
           spanId: transactionId,
         );
       } catch (exception, stackTrace) {
-        options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'Error while reporting TTFD',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
       }
@@ -367,10 +375,9 @@ mixin SentryFlutter {
   /// [finishExtendedAppStart] in a `try` / `finally` so an early return or a
   /// throw cannot strand it.
   ///
-  /// Requires [SentryFlutterOptions.enableStandaloneAppStartTracing] on iOS or
-  /// Android. Does nothing on other platforms, once the first frame has
-  /// rendered, or when the App Start is already extended — each of those is
-  /// logged rather than reported back to the caller.
+  /// Requires tracing on iOS or Android. Does nothing on other platforms, once
+  /// the first frame has rendered, or when the App Start is already extended —
+  /// each of those is logged rather than reported back to the caller.
   ///
   /// Call this in [init]'s `appRunner` before `runApp`:
   ///
@@ -379,8 +386,7 @@ mixin SentryFlutter {
   ///   (options) {
   ///     options
   ///       ..dsn = 'YOUR_DSN'
-  ///       ..tracesSampleRate = 1.0
-  ///       ..enableStandaloneAppStartTracing = true;
+  ///       ..tracesSampleRate = 1.0;
   ///   },
   ///   appRunner: () async {
   ///     SentryFlutter.extendAppStart();
@@ -394,7 +400,6 @@ mixin SentryFlutter {
   ///   },
   /// );
   /// ```
-  @experimental
   static void extendAppStart() {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {
@@ -430,7 +435,6 @@ mixin SentryFlutter {
   /// [SentryTraceLifecycle.static]. It returns `null` when standalone App Start
   /// is inactive, already finished, unavailable, or using the streaming
   /// lifecycle instead.
-  @experimental
   static ISentrySpan? getExtendedAppStartSpan() {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {
@@ -458,7 +462,6 @@ mixin SentryFlutter {
   /// [SentryTraceLifecycle.stream]. It returns `null` when standalone App Start
   /// is inactive, already finished, unavailable, or using the static lifecycle
   /// instead.
-  @experimental
   static SentrySpanV2? getExtendedAppStartSpanV2() {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {
@@ -491,7 +494,6 @@ mixin SentryFlutter {
   /// started, or the App Start has already been reported because it hit its
   /// deadline first. As with [extendAppStart], each of those is logged rather
   /// than reported back to the caller.
-  @experimental
   static Future<void> finishExtendedAppStart() async {
     final options = Sentry.currentHub.options;
     if (options is! SentryFlutterOptions) {
@@ -540,19 +542,15 @@ mixin SentryFlutter {
   static Future<SentryAttachment?> captureScreenshot() async {
     final options = Sentry.currentHub.options;
     if (!SentryScreenshotWidget.isMounted) {
-      options.log(
-        SentryLevel.debug,
+      internalLogger.debug(
         'SentryScreenshotWidget could not be found in the widget tree.',
       );
       return null;
     }
-    final processors =
-        options.eventProcessors.whereType<ScreenshotEventProcessor>();
+    final processors = options.eventProcessors
+        .whereType<ScreenshotEventProcessor>();
     if (processors.isEmpty) {
-      options.log(
-        SentryLevel.debug,
-        'ScreenshotEventProcessor could not be found.',
-      );
+      internalLogger.debug('ScreenshotEventProcessor could not be found.');
       return null;
     }
     final processor = processors.first;
@@ -572,6 +570,12 @@ mixin SentryFlutter {
 
   static SentryNativeBinding? _native;
 
+  /// Controls Session Replay recording.
+  ///
+  /// Only Android and iOS support Session Replay. On every other platform the
+  /// methods on the returned [SentryReplay] are no-ops.
+  static final SentryReplay replay = DefaultSentryReplay(() => _native);
+
   /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
   /// This should not be used in production code.
   /// Only for Android, iOS and macOS
@@ -584,8 +588,7 @@ mixin SentryFlutter {
   }
 
   static void _logNativeIntegrationNotAvailable(String methodName) {
-    Sentry.currentHub.options.log(
-      SentryLevel.debug,
+    internalLogger.debug(
       'Native integration is not available. Make sure SentryFlutter is initialized before accessing the $methodName API.',
     );
   }

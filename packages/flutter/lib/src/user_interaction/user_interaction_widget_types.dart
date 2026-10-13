@@ -17,8 +17,10 @@ final class UserInteractionWidgetTypes {
     bool labelFromText = false,
   }) {
     final type = (name: name, labelFromText: labelFromText);
-    _types.add((widget) =>
-        widget is T && (isEnabled?.call(widget) ?? true) ? type : null);
+    _types.add(
+      (widget) =>
+          widget is T && (isEnabled?.call(widget) ?? true) ? type : null,
+    );
   }
 
   void addLabel<T extends Widget>(String? Function(T widget) labelOf) {

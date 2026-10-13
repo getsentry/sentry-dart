@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'utils/internal_logger.dart';
 
 @internal
-typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> = FutureOr<void>
-    Function(T event);
+typedef SdkLifecycleCallback<T extends SdkLifecycleEvent> =
+    FutureOr<void> Function(T event);
 
 @internal
 abstract class SdkLifecycleEvent {}
@@ -23,13 +24,15 @@ class SdkLifecycleRegistry {
   Map<Type, List<Function>> get lifecycleCallbacks => _lifecycleCallbacks;
 
   void registerCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {
+    SdkLifecycleCallback<T> callback,
+  ) {
     _lifecycleCallbacks[T] ??= [];
     _lifecycleCallbacks[T]?.add(callback);
   }
 
   void removeCallback<T extends SdkLifecycleEvent>(
-      SdkLifecycleCallback<T> callback) {
+    SdkLifecycleCallback<T> callback,
+  ) {
     final callbacks = _lifecycleCallbacks[T];
     callbacks?.remove(callback);
   }
@@ -44,7 +47,9 @@ class SdkLifecycleRegistry {
   }
 
   Future<void> _dispatchCallbackAsync<T extends SdkLifecycleEvent>(
-      T event, List<Function> callbacks) async {
+    T event,
+    List<Function> callbacks,
+  ) async {
     for (final cb in List<Function>.of(callbacks)) {
       try {
         final result = (cb as SdkLifecycleCallback<T>)(event);
@@ -52,10 +57,9 @@ class SdkLifecycleRegistry {
           await result;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        internalLogger.error(
           'The SDK lifecycle callback threw an exception',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {
@@ -68,14 +72,24 @@ class SdkLifecycleRegistry {
 
 @internal
 class OnProcessLog extends SdkLifecycleEvent {
-  OnProcessLog(this.log);
+  OnProcessLog(this.log, this.hint);
 
   final SentryLog log;
+  final Hint hint;
 }
 
 @internal
 class OnBeforeSendEvent extends SdkLifecycleEvent {
   OnBeforeSendEvent(this.event, this.hint);
+
+  final SentryEvent event;
+  final Hint hint;
+}
+
+/// Dispatched when an event is dropped by the configured sample rate.
+@internal
+class OnEventSampledOut extends SdkLifecycleEvent {
+  OnEventSampledOut(this.event, this.hint);
 
   final SentryEvent event;
   final Hint hint;
@@ -120,8 +134,9 @@ class OnSpanEndV2 extends SdkLifecycleEvent {
 @internal
 class OnProcessSpan extends SdkLifecycleEvent {
   final RecordingSentrySpanV2 span;
+  final Hint hint;
 
-  OnProcessSpan(this.span);
+  OnProcessSpan(this.span, this.hint);
 }
 
 /// Dispatched when a metric has been captured and is ready for processing (before default enrichment)
@@ -129,8 +144,9 @@ class OnProcessSpan extends SdkLifecycleEvent {
 @internal
 class OnProcessMetric extends SdkLifecycleEvent {
   final SentryMetric metric;
+  final Hint hint;
 
-  OnProcessMetric(this.metric);
+  OnProcessMetric(this.metric, this.hint);
 }
 
 /// Dispatched when a new trace is generated via [Hub.generateNewTrace].

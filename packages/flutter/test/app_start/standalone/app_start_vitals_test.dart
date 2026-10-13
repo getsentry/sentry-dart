@@ -14,8 +14,9 @@ void main() {
   group('$AppStartVitals', () {
     test('reports the duration from process start to the first frame', () {
       final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 750)),
+        firstFrameTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 750),
+        ),
       );
 
       expect(vitals.duration, const Duration(milliseconds: 750));
@@ -25,8 +26,9 @@ void main() {
       final vitals = fixture.resolve(
         type: AppStartType.warm,
         screen: 'MyHomePage',
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(seconds: 1)),
+        firstFrameTimestamp: fixture.processStart.add(
+          const Duration(seconds: 1),
+        ),
       );
 
       expect(vitals.type, AppStartType.warm);
@@ -41,10 +43,12 @@ void main() {
 
     test('measures to an extension that outlasted the first frame', () {
       final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 750)),
-        extensionEndTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 1200)),
+        firstFrameTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 750),
+        ),
+        extensionEndTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 1200),
+        ),
       );
 
       expect(vitals.duration, const Duration(milliseconds: 1200));
@@ -52,25 +56,30 @@ void main() {
 
     test('keeps the first frame when the extension ended before it', () {
       final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 750)),
-        extensionEndTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 400)),
+        firstFrameTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 750),
+        ),
+        extensionEndTimestamp: fixture.processStart.add(
+          const Duration(milliseconds: 400),
+        ),
       );
 
       expect(vitals.duration, const Duration(milliseconds: 750));
     });
 
-    test('keeps the first frame when the extension contributed no endpoint',
-        () {
-      final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(milliseconds: 750)),
-        extensionEndTimestamp: null,
-      );
+    test(
+      'keeps the first frame when the extension contributed no endpoint',
+      () {
+        final vitals = fixture.resolve(
+          firstFrameTimestamp: fixture.processStart.add(
+            const Duration(milliseconds: 750),
+          ),
+          extensionEndTimestamp: null,
+        );
 
-      expect(vitals.duration, const Duration(milliseconds: 750));
-    });
+        expect(vitals.duration, const Duration(milliseconds: 750));
+      },
+    );
 
     test('still reports type and screen when the duration is absent', () {
       final vitals = fixture.resolve(
@@ -83,54 +92,67 @@ void main() {
       expect(vitals.screen, 'MyHomePage');
     });
 
-    test('returns null duration when the window exceeds the plausible ceiling',
-        () {
-      final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(seconds: 61)),
-      );
+    test(
+      'returns null duration when the window exceeds the plausible ceiling',
+      () {
+        final vitals = fixture.resolve(
+          firstFrameTimestamp: fixture.processStart.add(
+            const Duration(seconds: 61),
+          ),
+        );
 
-      expect(vitals.duration, isNull);
-    });
+        expect(vitals.duration, isNull);
+      },
+    );
 
     test('keeps the first frame when the extension exceeds the ceiling', () {
       final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(seconds: 41)),
-        extensionEndTimestamp:
-            fixture.processStart.add(const Duration(seconds: 65)),
+        firstFrameTimestamp: fixture.processStart.add(
+          const Duration(seconds: 41),
+        ),
+        extensionEndTimestamp: fixture.processStart.add(
+          const Duration(seconds: 65),
+        ),
       );
 
       expect(vitals.duration, const Duration(seconds: 41));
     });
 
-    test('returns null duration when the first frame also exceeds the ceiling',
-        () {
-      final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.add(const Duration(seconds: 61)),
-        extensionEndTimestamp:
-            fixture.processStart.add(const Duration(seconds: 65)),
-      );
+    test(
+      'returns null duration when the first frame also exceeds the ceiling',
+      () {
+        final vitals = fixture.resolve(
+          firstFrameTimestamp: fixture.processStart.add(
+            const Duration(seconds: 61),
+          ),
+          extensionEndTimestamp: fixture.processStart.add(
+            const Duration(seconds: 65),
+          ),
+        );
 
-      expect(vitals.duration, isNull);
-    });
+        expect(vitals.duration, isNull);
+      },
+    );
 
-    test('returns null duration when the first frame precedes process start',
-        () {
-      final vitals = fixture.resolve(
-        firstFrameTimestamp:
-            fixture.processStart.subtract(const Duration(seconds: 1)),
-      );
+    test(
+      'returns null duration when the first frame precedes process start',
+      () {
+        final vitals = fixture.resolve(
+          firstFrameTimestamp: fixture.processStart.subtract(
+            const Duration(seconds: 1),
+          ),
+        );
 
-      expect(vitals.duration, isNull);
-    });
+        expect(vitals.duration, isNull);
+      },
+    );
 
     group('measurement', () {
       test('is a cold app start on a cold launch', () {
         final vitals = fixture.resolve(
-          firstFrameTimestamp:
-              fixture.processStart.add(const Duration(seconds: 1)),
+          firstFrameTimestamp: fixture.processStart.add(
+            const Duration(seconds: 1),
+          ),
         );
 
         expect(vitals.measurement?.name, 'app_start_cold');
@@ -140,8 +162,9 @@ void main() {
       test('is a warm app start on a warm launch', () {
         final vitals = fixture.resolve(
           type: AppStartType.warm,
-          firstFrameTimestamp:
-              fixture.processStart.add(const Duration(seconds: 1)),
+          firstFrameTimestamp: fixture.processStart.add(
+            const Duration(seconds: 1),
+          ),
         );
 
         expect(vitals.measurement?.name, 'app_start_warm');
@@ -157,8 +180,9 @@ void main() {
     group('durationAttributeKey', () {
       test('is the cold key on a cold launch', () {
         final vitals = fixture.resolve(
-          firstFrameTimestamp:
-              fixture.processStart.add(const Duration(seconds: 1)),
+          firstFrameTimestamp: fixture.processStart.add(
+            const Duration(seconds: 1),
+          ),
         );
 
         expect(vitals.durationAttributeKey, 'app.vitals.start.cold.value');
@@ -167,8 +191,9 @@ void main() {
       test('is the warm key on a warm launch', () {
         final vitals = fixture.resolve(
           type: AppStartType.warm,
-          firstFrameTimestamp:
-              fixture.processStart.add(const Duration(seconds: 1)),
+          firstFrameTimestamp: fixture.processStart.add(
+            const Duration(seconds: 1),
+          ),
         );
 
         expect(vitals.durationAttributeKey, 'app.vitals.start.warm.value');
@@ -184,11 +209,10 @@ class Fixture {
       AppStartTiming(
         type: type,
         processStartTimestamp: processStart,
-        pluginRegistrationTimestamp:
-            processStart.add(const Duration(milliseconds: 100)),
-        sentrySetupTimestamp:
-            processStart.add(const Duration(milliseconds: 200)),
-        phases: [],
+        sentrySetupTimestamp: processStart.add(
+          const Duration(milliseconds: 200),
+        ),
+        intervals: [],
       );
 
   AppStartVitals resolve({
@@ -196,11 +220,10 @@ class Fixture {
     String screen = 'root /',
     required DateTime? firstFrameTimestamp,
     DateTime? extensionEndTimestamp,
-  }) =>
-      AppStartVitals.resolve(
-        timing: timing(type: type),
-        screen: screen,
-        firstFrameTimestamp: firstFrameTimestamp,
-        extensionEndTimestamp: extensionEndTimestamp,
-      );
+  }) => AppStartVitals.resolve(
+    timing: timing(type: type),
+    screen: screen,
+    firstFrameTimestamp: firstFrameTimestamp,
+    extensionEndTimestamp: extensionEndTimestamp,
+  );
 }

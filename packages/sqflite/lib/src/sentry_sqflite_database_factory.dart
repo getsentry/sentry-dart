@@ -23,7 +23,6 @@ import 'sentry_database.dart';
 ///
 /// final database = await openDatabase('path/to/db');
 /// ```
-@experimental
 class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -35,8 +34,8 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   SentrySqfliteDatabaseFactory({
     sqflite.DatabaseFactory? databaseFactory,
     @internal Hub? hub,
-  })  : _databaseFactory = databaseFactory ?? sqflite.databaseFactory,
-        _hub = hub ?? HubAdapter() {
+  }) : _databaseFactory = databaseFactory ?? sqflite.databaseFactory,
+       _hub = hub ?? HubAdapter() {
     // ignore: invalid_use_of_internal_member
     _spanFactory = _hub.options.spanFactory;
   }
@@ -85,8 +84,10 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
       );
 
       try {
-        final database =
-            await databaseFactory.openDatabase(path, options: options);
+        final database = await databaseFactory.openDatabase(
+          path,
+          options: options,
+        );
 
         final sentryDatabase = SentryDatabase(database, hub: _hub);
 

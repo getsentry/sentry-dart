@@ -15,17 +15,19 @@ void main() {
         final sut = fixture.getSut()
           ..addWidget<Text>('Text', labelFromText: true);
 
-        expect(
-            sut.typeOf(const Text('a')), (name: 'Text', labelFromText: true));
+        expect(sut.typeOf(const Text('a')), (
+          name: 'Text',
+          labelFromText: true,
+        ));
       });
 
       test('returns added type for subclass of that type', () {
         final sut = fixture.getSut()..addWidget<StatelessWidget>('Stateless');
 
-        expect(
-          sut.typeOf(const Text('a')),
-          (name: 'Stateless', labelFromText: false),
-        );
+        expect(sut.typeOf(const Text('a')), (
+          name: 'Stateless',
+          labelFromText: false,
+        ));
       });
 
       test('returns null for other widgets', () {

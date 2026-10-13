@@ -91,8 +91,9 @@ class SentryOperatingSystem {
     final attributes = <String, SentryAttribute>{};
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.osName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.osName] = SentryAttribute.string(
+        name,
+      );
     }
     final version = this.version;
     if (version != null) {
@@ -111,8 +112,9 @@ class SentryOperatingSystem {
     }
     final rooted = this.rooted;
     if (rooted != null) {
-      attributes[SemanticAttributesConstants.osRooted] =
-          SentryAttribute.bool(rooted);
+      attributes[SemanticAttributesConstants.osRooted] = SentryAttribute.bool(
+        rooted,
+      );
     }
     final rawDescription = this.rawDescription;
     if (rawDescription != null) {
@@ -121,44 +123,12 @@ class SentryOperatingSystem {
     }
     final theme = this.theme;
     if (theme != null) {
-      attributes[SemanticAttributesConstants.osTheme] =
-          SentryAttribute.string(theme);
+      attributes[SemanticAttributesConstants.osTheme] = SentryAttribute.string(
+        theme,
+      );
     }
     return attributes;
   }
-
-  @Deprecated('Will be removed in a future version.')
-  SentryOperatingSystem clone() => SentryOperatingSystem(
-        name: name,
-        version: version,
-        build: build,
-        kernelVersion: kernelVersion,
-        rooted: rooted,
-        rawDescription: rawDescription,
-        theme: theme,
-        unknown: unknown,
-      );
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryOperatingSystem copyWith({
-    String? name,
-    String? version,
-    String? build,
-    String? kernelVersion,
-    bool? rooted,
-    String? rawDescription,
-    String? theme,
-  }) =>
-      SentryOperatingSystem(
-        name: name ?? this.name,
-        version: version ?? this.version,
-        build: build ?? this.build,
-        kernelVersion: kernelVersion ?? this.kernelVersion,
-        rooted: rooted ?? this.rooted,
-        rawDescription: rawDescription ?? this.rawDescription,
-        theme: theme ?? this.theme,
-        unknown: unknown,
-      );
 
   SentryOperatingSystem mergeWith(SentryOperatingSystem other) =>
       SentryOperatingSystem(
@@ -172,7 +142,7 @@ class SentryOperatingSystem {
         unknown: other.unknown == null
             ? unknown
             : unknown == null
-                ? null
-                : {...unknown!, ...other.unknown!},
+            ? null
+            : {...unknown!, ...other.unknown!},
       );
 }

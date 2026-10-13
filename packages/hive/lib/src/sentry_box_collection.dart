@@ -35,13 +35,9 @@ class SentryBoxCollection implements stub.BoxCollection {
 
   @override
   Future<void> deleteFromDisk() {
-    return _spanHelper.asyncWrapInSpan(
-      'deleteFromDisk',
-      () {
-        return _boxCollection.deleteFromDisk();
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('deleteFromDisk', () {
+      return _boxCollection.deleteFromDisk();
+    }, dbName: name);
   }
 
   @override
@@ -62,19 +58,15 @@ class SentryBoxCollection implements stub.BoxCollection {
       hub: resolvedHub,
     );
 
-    return await spanHelper.asyncWrapInSpan(
-      'open',
-      () async {
-        final boxCollection = await impl.BoxCollection.open(
-          name,
-          boxNames,
-          path: path,
-          key: key,
-        );
-        return SentryBoxCollection(boxCollection, hub: resolvedHub);
-      },
-      dbName: name,
-    );
+    return await spanHelper.asyncWrapInSpan('open', () async {
+      final boxCollection = await impl.BoxCollection.open(
+        name,
+        boxNames,
+        path: path,
+        key: key,
+      );
+      return SentryBoxCollection(boxCollection, hub: resolvedHub);
+    }, dbName: name);
   }
 
   @override
@@ -82,19 +74,15 @@ class SentryBoxCollection implements stub.BoxCollection {
     String name, {
     bool preload = false,
     stub.CollectionBox<V> Function(String p1, stub.BoxCollection p2)?
-        boxCreator,
+    boxCreator,
   }) {
-    return _spanHelper.asyncWrapInSpan(
-      'openBox',
-      () {
-        return _boxCollection.openBox(
-          name,
-          preload: preload,
-          boxCreator: boxCreator,
-        );
-      },
-      dbName: this.name,
-    );
+    return _spanHelper.asyncWrapInSpan('openBox', () {
+      return _boxCollection.openBox(
+        name,
+        preload: preload,
+        boxCreator: boxCreator,
+      );
+    }, dbName: this.name);
   }
 
   @override
@@ -103,16 +91,12 @@ class SentryBoxCollection implements stub.BoxCollection {
     List<String>? boxNames,
     bool readOnly = false,
   }) async {
-    return await _spanHelper.asyncWrapInSpan(
-      'transaction',
-      () {
-        return _boxCollection.transaction(
-          action,
-          boxNames: boxNames,
-          readOnly: readOnly,
-        );
-      },
-      dbName: name,
-    );
+    return await _spanHelper.asyncWrapInSpan('transaction', () {
+      return _boxCollection.transaction(
+        action,
+        boxNames: boxNames,
+        readOnly: readOnly,
+      );
+    }, dbName: name);
   }
 }

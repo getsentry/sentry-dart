@@ -8,13 +8,10 @@ Future<void> main() async {
   const dsn =
       'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
-  await Sentry.init(
-    (options) {
-      options.dsn = dsn;
-      options.addIntegration(LoggingIntegration());
-    },
-    appRunner: runApp,
-  );
+  await Sentry.init((options) {
+    options.dsn = dsn;
+    options.addIntegration(LoggingIntegration());
+  }, appRunner: runApp);
 }
 
 Future<void> runApp() async {
@@ -26,9 +23,6 @@ Future<void> runApp() async {
     throw Exception();
   } catch (error, stackTrace) {
     // The log from above will be contained in this crash report.
-    await Sentry.captureException(
-      error,
-      stackTrace: stackTrace,
-    );
+    await Sentry.captureException(error, stackTrace: stackTrace);
   }
 }
