@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -77,38 +78,101 @@ void main() {
         isIntegrationTest: true,
       );
 
-  /// Installs Session Replay but never samples it, so a recording can only be
-  /// started through `SentryFlutter.replay`.
-  Future<void> setupWithoutAutomaticReplay(
+  Future<void> setupReplay(
     WidgetTester tester, {
     Transport? transport,
+    double sessionSampleRate = 0,
+    double onErrorSampleRate = 0,
   }) => SentryFlutter.init((options) {
     options
       ..dsn = fakeDsn
       ..automatedTestMode = true;
     if (transport != null) options.transport = transport;
     options.replay
-      ..sessionSampleRate = 0
-      ..onErrorSampleRate = 0;
+      ..sessionSampleRate = sessionSampleRate
+      ..onErrorSampleRate = onErrorSampleRate;
   }, appRunner: () => pumpApp(tester));
 
   group('Replay recording', () {
+    for (final mode in [
+      (name: 'manual session', sessionRate: 0.0, errorRate: 0.0),
+      (name: 'manual buffer', sessionRate: 0.0, errorRate: 0.0),
+      (name: 'automatic session', sessionRate: 1.0, errorRate: 0.0),
+      (
+        name: 'automatic session with error capture',
+        sessionRate: 1.0,
+        errorRate: 1.0,
+      ),
+      (name: 'automatic buffer', sessionRate: 0.0, errorRate: 1.0),
+    ]) {
+      for (final primeBaggage in [false, true]) {
+        testWidgets(
+          'links errors to ${mode.name} replay with cached baggage=$primeBaggage',
+          (tester) async {
+            final transport = RecordingTransport();
+            await setupReplay(
+              tester,
+              transport: transport,
+              sessionSampleRate: mode.sessionRate,
+              onErrorSampleRate: mode.errorRate,
+            );
+            if (primeBaggage) {
+              await Sentry.captureMessage('Before replay');
+            }
+
+            if (mode.name == 'manual session') {
+              await SentryFlutter.replay.start();
+            } else if (mode.name == 'manual buffer') {
+              await SentryFlutter.replay.startBuffering();
+            }
+            if (Platform.isAndroid) {
+              await _waitUntilRecording(_replayIntegration(), true);
+            }
+            if (mode.name == 'manual buffer') {
+              await SentryFlutter.replay.flush();
+            }
+            if (mode.name != 'automatic buffer') {
+              await _waitUntilReplayId();
+            }
+
+            final eventId = await Sentry.captureException(Exception('boom'));
+            await _waitUntilReplayId();
+            final replayId = SentryFlutter.native!.replayId!;
+            await SentryFlutter.replay.stop();
+
+            final envelope = transport.envelopes.singleWhere(
+              (envelope) => envelope.header.eventId == eventId,
+            );
+            expect(
+              envelope.header.traceContext?.toJson()['replay_id'],
+              replayId.toString(),
+            );
+            expect(replayId, isNot(const SentryId.empty()));
+          },
+          skip: !(Platform.isAndroid || Platform.isIOS),
+        );
+      }
+    }
+
     for (final primeBaggage in [false, true]) {
       testWidgets(
-        'links errors to a manual replay with cached baggage=$primeBaggage',
+        'links errors after flushing a manual buffer while Android looper is busy with cached baggage=$primeBaggage',
         (tester) async {
           final transport = RecordingTransport();
-          await setupWithoutAutomaticReplay(tester, transport: transport);
+          await setupReplay(tester, transport: transport);
           if (primeBaggage) {
             await Sentry.captureMessage('Before replay');
           }
-
-          await SentryFlutter.replay.start();
+          await SentryFlutter.replay.startBuffering();
+          await _waitUntilRecording(_replayIntegration(), true);
           await _waitUntilReplayId();
           final replayId = SentryFlutter.native!.replayId!;
 
+          await const MethodChannel(
+            'example.flutter.sentry.io',
+          ).invokeMethod<void>('delayMainLooper', {'durationMillis': 1000});
+          await SentryFlutter.replay.flush();
           final eventId = await Sentry.captureException(Exception('boom'));
-          await SentryFlutter.replay.stop();
 
           final envelope = transport.envelopes.singleWhere(
             (envelope) => envelope.header.eventId == eventId,
@@ -118,9 +182,80 @@ void main() {
             replayId.toString(),
           );
         },
-        skip: !(Platform.isAndroid || Platform.isIOS),
+        skip: !Platform.isAndroid,
       );
     }
+
+    testWidgets(
+      'completes concurrent manual flushes and links the following error',
+      (tester) async {
+        final transport = RecordingTransport();
+        await setupReplay(tester, transport: transport);
+        await Sentry.captureMessage('Before replay');
+        await SentryFlutter.replay.startBuffering();
+        await _waitUntilRecording(_replayIntegration(), true);
+        await _waitUntilReplayId();
+        final replayId = SentryFlutter.native!.replayId!;
+
+        await Future.wait([
+          SentryFlutter.replay.flush(),
+          SentryFlutter.replay.flush(),
+        ]);
+        final eventId = await Sentry.captureException(Exception('boom'));
+
+        final envelope = transport.envelopes.singleWhere(
+          (envelope) => envelope.header.eventId == eventId,
+        );
+        expect(
+          envelope.header.traceContext?.toJson()['replay_id'],
+          replayId.toString(),
+        );
+      },
+      skip: !Platform.isAndroid,
+    );
+
+    testWidgets('completes a manual flush when the native SDK closes', (
+      tester,
+    ) async {
+      await setupReplay(tester);
+      await SentryFlutter.replay.startBuffering();
+      await _waitUntilRecording(_replayIntegration(), true);
+      await _waitUntilReplayId();
+
+      final flush = SentryFlutter.replay.flush();
+      await Sentry.close();
+
+      await expectLater(flush, completes);
+    }, skip: !Platform.isAndroid);
+
+    testWidgets(
+      'links errors immediately after flushing a manual buffer repeatedly',
+      (tester) async {
+        for (var attempt = 0; attempt < 10; attempt++) {
+          final transport = RecordingTransport();
+          await setupReplay(tester, transport: transport);
+          await Sentry.captureMessage('Before replay');
+          await SentryFlutter.replay.startBuffering();
+          await _waitUntilRecording(_replayIntegration(), true);
+          await _waitUntilReplayId();
+          final replayId = SentryFlutter.native!.replayId!;
+
+          await SentryFlutter.replay.flush();
+          final eventId = await Sentry.captureException(Exception('boom'));
+
+          final envelope = transport.envelopes.singleWhere(
+            (envelope) => envelope.header.eventId == eventId,
+          );
+          expect(
+            envelope.header.traceContext?.toJson()['replay_id'],
+            replayId.toString(),
+            reason: 'attempt $attempt',
+          );
+          await Sentry.close();
+        }
+      },
+      skip: !Platform.isAndroid,
+    );
 
     testWidgets('native binding is initialized', (tester) async {
       await setupSentryAndApp(tester);
@@ -201,7 +336,7 @@ void main() {
     testWidgets('manual start records when automatic sampling is disabled', (
       tester,
     ) async {
-      await setupWithoutAutomaticReplay(tester);
+      await setupReplay(tester);
 
       await SentryFlutter.replay.start();
 
