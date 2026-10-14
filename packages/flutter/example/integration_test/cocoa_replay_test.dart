@@ -34,6 +34,18 @@ void main() {
       await fixture.expectLogReplay(isBuffering: true);
     }, skip: !Platform.isIOS);
 
+    testWidgets('registers a trace ID with native replay', (tester) async {
+      final replay = await fixture.getSut(tester);
+      await replay.startBuffering();
+      await fixture.waitForScreenshot();
+
+      // Throws MissingPluginException if the native method is not handled.
+      await expectLater(
+        Future.value(SentryFlutter.native?.registerTraceId(SentryId.newId())),
+        completes,
+      );
+    }, skip: !Platform.isIOS);
+
     testWidgets('links the scope after flushing a buffer', (tester) async {
       final replay = await fixture.getSut(tester);
       await replay.startBuffering();
