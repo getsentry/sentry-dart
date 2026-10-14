@@ -709,6 +709,65 @@ void main() {
         });
       });
 
+      // Labels are widget text that the replay video masks.
+      group('replay click breadcrumb data', () {
+        Map<String, dynamic> replayBreadcrumbDataFor(Breadcrumb breadcrumb) {
+          sut.addBreadcrumb(breadcrumb);
+          final captured =
+              verify(
+                    mockBinding.addReplayBreadcrumb(captureAny),
+                  ).captured.single
+                  as Map<String, dynamic>;
+          return captured['data'] as Map<String, dynamic>;
+        }
+
+        test('drops the label', () {
+          final data = replayBreadcrumbDataFor(
+            Breadcrumb.userInteraction(
+              subCategory: 'click',
+              viewId: 'login_button',
+              data: {'label': 'secret label'},
+            ),
+          );
+
+          expect(data.containsKey('label'), isFalse);
+          expect(data['view.id'], 'login_button');
+        });
+
+        test('drops the labels in the touch path', () {
+          final data = replayBreadcrumbDataFor(
+            Breadcrumb.userInteraction(
+              subCategory: 'click',
+              data: {
+                'path': [
+                  {'element': 'ElevatedButton', 'label': 'secret label'},
+                  {'name': 'form', 'element': 'Column'},
+                ],
+              },
+            ),
+          );
+
+          expect(data['path'], [
+            {'element': 'ElevatedButton'},
+            {'name': 'form', 'element': 'Column'},
+          ]);
+        });
+
+        test('does not drop the label from the event breadcrumb', () {
+          sut.addBreadcrumb(
+            Breadcrumb.userInteraction(
+              subCategory: 'click',
+              data: {'label': 'secret label'},
+            ),
+          );
+
+          final captured =
+              verify(mockBinding.addBreadcrumb(captureAny)).captured.single
+                  as Map<String, dynamic>;
+          expect((captured['data'] as Map)['label'], 'secret label');
+        });
+      });
+
       test('scope methods call JS binding with normalized payloads', () {
         final userObject = Object();
         final user = SentryUser(id: 'fixture-id', data: {'object': userObject});

@@ -477,6 +477,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         ...breadcrumb,
         'message': ?message,
         'category': 'flutter.$category',
+        'data': ?_withoutLabels(breadcrumb['data']),
       };
     }
 
@@ -489,5 +490,23 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     if (data is! Map) return null;
     final name = data['view.id'] ?? data['view.class'];
     return name is String && name.isNotEmpty ? name : null;
+  }
+
+  // Copies breadcrumb data without the tapped widget's label or the labels in
+  // its touch path: they're text the replay video masks. The event breadcrumb
+  // keeps them, gated by `sendDefaultPii` where they're collected.
+  Map<String, dynamic>? _withoutLabels(Object? data) {
+    if (data is! Map) return null;
+    final result = Map<String, dynamic>.from(data)..remove('label');
+    final path = result['path'];
+    if (path is List) {
+      result['path'] = [
+        for (final node in path)
+          node is Map
+              ? (Map<String, dynamic>.from(node)..remove('label'))
+              : node,
+      ];
+    }
+    return result;
   }
 }
