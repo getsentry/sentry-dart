@@ -11,6 +11,7 @@ you get started.
 * **Flutter SDK** `>=3.44.0` - Required for `sentry-flutter` and Flutter integrations
 * **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
+* **[jq](https://jqlang.org/)** - For reading the shared toolchain configuration
 
 ## Environment Setup
 
@@ -24,11 +25,18 @@ dart pub global activate melos
 ### 2. Install the Flutter SDK via fvm
 
 ```bash
-fvm use stable
+fvm install
 ```
 
 This reads `.fvmrc` and installs the pinned Flutter version. It also creates a `.fvm/flutter_sdk`
 symlink that melos uses to resolve `dart`/`flutter` commands (via `sdkPath` in `melos.yaml`).
+Formatting, analysis, and binding generation use this development toolchain, including its
+bundled Dart SDK for Dart-only packages. Compatibility tests separately cover the minimum
+supported and stable/beta SDKs.
+
+To upgrade the development toolchain, update `.fvmrc`, run `fvm install` and `melos bootstrap`,
+then regenerate bindings and format the repository with that SDK. Include any resulting
+formatting changes in the same PR.
 
 ### 3. Bootstrap the project
 
