@@ -36,6 +36,42 @@ void main() async {
     });
   });
 
+  testWidgets(
+    'config changes while running keep the capture cadence and apply on the next scheduled capture',
+    (tester) async {
+      await tester.runAsync(() async {
+        final fixture = await _Fixture.create(tester, frameRate: 1);
+        await fixture.nextFrame();
+        expect(fixture.bridge.feedFrameCalls, hasLength(1));
+
+        // A window drag: one config change per frame.
+        for (final size in [800.0, 600.0, 100.0]) {
+          await fixture.sut.onConfigurationChanged(
+            ScheduledScreenshotRecorderConfig(
+              width: size,
+              height: size,
+              frameRate: 1,
+            ),
+          );
+          await fixture.pumpFrame();
+        }
+
+        expect(fixture.bridge.feedFrameCalls, hasLength(1));
+        expect(fixture.bridge.updatePositionCalls, hasLength(1));
+
+        await fixture.nextFrame();
+
+        expect(fixture.bridge.feedFrameCalls, hasLength(2));
+        expect(
+          fixture.bridge.feedFrameCalls.last.width,
+          lessThanOrEqualTo(100),
+        );
+
+        await fixture.sut.stop();
+      });
+    },
+  );
+
   testWidgets('stops the bridge on stop', (tester) async {
     await tester.runAsync(() async {
       final fixture = await _Fixture.create(tester);
@@ -83,28 +119,33 @@ class _Fixture {
   final WidgetTester _tester;
   late final SentryWebReplayRecorder _sut;
   final bridge = _FakeWebReplayCanvasBridge();
-  late Completer<void> _completer;
+  var _completer = Completer<void>();
 
   SentryWebReplayRecorder get sut => _sut;
 
-  _Fixture._(this._tester) {
+  _Fixture._(this._tester, int frameRate) {
     _sut = SentryWebReplayRecorder(
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
       bridge: bridge,
     );
-    bridge.onFeedFrame = () => _completer.complete();
+    bridge.onFeedFrame = () {
+      if (!_completer.isCompleted) _completer.complete();
+    };
 
     _sut.onConfigurationChanged(
       ScheduledScreenshotRecorderConfig(
         width: 1000,
         height: 1000,
-        frameRate: 1000,
+        frameRate: frameRate,
       ),
     );
   }
 
-  static Future<_Fixture> create(WidgetTester tester) async {
-    final fixture = _Fixture._(tester);
+  static Future<_Fixture> create(
+    WidgetTester tester, {
+    int frameRate = 1000,
+  }) async {
+    final fixture = _Fixture._(tester, frameRate);
     await pumpTestElement(tester);
     await fixture.sut.start();
     return fixture;
@@ -114,5 +155,13 @@ class _Fixture {
     _completer = Completer();
     _tester.binding.scheduleFrame();
     await _tester.pumpAndWaitUntil(_completer.future);
+  }
+
+  /// Renders one frame and gives any capture it triggers time to complete.
+  Future<void> pumpFrame() async {
+    _tester.binding.scheduleFrame();
+    await _tester.pump();
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    await _tester.pump();
   }
 }

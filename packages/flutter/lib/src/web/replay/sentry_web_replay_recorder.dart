@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../replay/scheduled_recorder.dart';
+import '../../replay/scheduled_recorder_config.dart';
 import '../../screen_capture/screenshot.dart';
 import '../../screen_capture/sentry_screenshot_widget.dart'
     show sentryScreenshotWidgetGlobalKey;
@@ -34,16 +35,42 @@ class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
   @override
   Future<void> yieldToEventLoop() => Future.delayed(Duration.zero);
 
+  bool _started = false;
+  int? _frameRate;
+
   @override
   Future<void> start() async {
     _bridge.start();
     await super.start();
+    _started = true;
   }
 
   @override
   Future<void> stop() async {
+    _started = false;
     await super.stop();
     _bridge.stop();
+  }
+
+  // The base class restarts the scheduler on every config change, and a
+  // fresh scheduler captures on the very next frame. A window drag or
+  // rotation changes the config every frame, so that would capture -- and
+  // resize the shadow canvas, which rrweb records immediately -- at frame
+  // rate, while rrweb's own snapshot throttling drops most of the matching
+  // draws. That desyncs canvas size from its content in the recording.
+  // Instead, keep the cadence: capture() reads [config] on every run, so the
+  // next scheduled capture already uses the new size.
+  @override
+  Future<void> onConfigurationChanged(
+    ScheduledScreenshotRecorderConfig config,
+  ) async {
+    final frameRateUnchanged = config.frameRate == _frameRate;
+    _frameRate = config.frameRate;
+    if (_started && frameRateUnchanged) {
+      super.config = config;
+      return;
+    }
+    await super.onConfigurationChanged(config);
   }
 
   Future<void> _onScreenshot(
