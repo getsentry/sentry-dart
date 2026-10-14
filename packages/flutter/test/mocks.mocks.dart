@@ -2893,8 +2893,11 @@ class MockSentryJsBinding extends _i1.Mock implements _i22.SentryJsBinding {
   );
 
   @override
-  void captureEnvelope(List<Object>? envelope) => super.noSuchMethod(
-    Invocation.method(#captureEnvelope, [envelope]),
+  void captureEnvelope(
+    List<Object>? envelope,
+    List<Map<String, dynamic>>? events,
+  ) => super.noSuchMethod(
+    Invocation.method(#captureEnvelope, [envelope, events]),
     returnValueForMissingStub: null,
   );
 

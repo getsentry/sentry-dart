@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:meta/meta.dart';
@@ -169,6 +170,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope) =>
       tryCatchAsync('captureStructuredEnvelope', () async {
         final List<dynamic> envelopeItems = [];
+        final List<Map<String, dynamic>> events = [];
 
         for (final item in envelope.items) {
           try {
@@ -183,6 +185,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
             }
 
             envelopeItems.add([await item.header.toJson(data.length), data]);
+
+            if (item.header.type == SentryItemType.event ||
+                item.header.type == SentryItemType.transaction) {
+              events.add(jsonDecode(utf8.decode(data)) as Map<String, dynamic>);
+            }
           } catch (_) {
             if (options.automatedTestMode) {
               rethrow;
@@ -194,7 +201,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
         final jsEnvelope = [envelope.header.toJson(), envelopeItems];
 
-        _binding.captureEnvelope(jsEnvelope);
+        _binding.captureEnvelope(jsEnvelope, events);
       });
 
   @override

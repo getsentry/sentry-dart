@@ -14,7 +14,10 @@ class NoOpSentryJsBinding implements SentryJsBinding {
   void close() {}
 
   @override
-  void captureEnvelope(List<Object> envelope) {}
+  void captureEnvelope(
+    List<Object> envelope,
+    List<Map<String, dynamic>> events,
+  ) {}
 
   @override
   void setUser(Map<String, dynamic>? user) {}

@@ -293,6 +293,36 @@ void main() {
         );
       });
 
+      // The JS SDK's Replay turns a buffering replay into a session from this
+      // hook, when an error carrying its replay ID is sent.
+      test('reports sent events to the JS afterSendEvent hook', () async {
+        await sut.init(hub);
+        final sentEventIds = <String>[];
+        final sent = Completer<void>();
+        final client = (_globalThis['Sentry'] as JSObject).callMethod<JSObject>(
+          'getClient'.toJS,
+        );
+        client.callMethod<JSAny?>(
+          'on'.toJS,
+          'afterSendEvent'.toJS,
+          ((JSObject event, JSAny? response) {
+            sentEventIds.add((event['event_id'] as JSString).toDart);
+            if (!sent.isCompleted) sent.complete();
+          }).toJS,
+        );
+        final event = SentryEvent();
+
+        await sut.captureStructuredEnvelope(
+          SentryEnvelope.fromEvent(
+            event,
+            SdkVersion(name: 'test', version: '0'),
+          ),
+        );
+        await sent.future.timeout(const Duration(seconds: 10));
+
+        expect(sentEventIds, [event.eventId.toString()]);
+      });
+
       test(
         'loadDebugImages returns null if no debug ids are available',
         () async {
@@ -464,7 +494,9 @@ void main() {
 
           await sut.captureStructuredEnvelope(envelope);
 
-          final verification = verify(mockBinding.captureEnvelope(captureAny));
+          final verification = verify(
+            mockBinding.captureEnvelope(captureAny, any),
+          );
           verification.called(1);
 
           final List<dynamic> capturedEnvelope =
@@ -876,7 +908,9 @@ void main() {
 
         await sut.captureStructuredEnvelope(envelope);
 
-        final verification = verify(mockBinding.captureEnvelope(captureAny));
+        final verification = verify(
+          mockBinding.captureEnvelope(captureAny, any),
+        );
         verification.called(1);
 
         final List<dynamic> capturedEnvelope =
@@ -891,6 +925,39 @@ void main() {
         expect(envelopeAttachmentItem.length, 100);
       });
 
+      test('passes the envelope events to the binding', () async {
+        final event = SentryEvent(tags: {'replayId': 'fixture-replay-id'});
+        final envelope = SentryEnvelope.fromEvent(
+          event,
+          SdkVersion(name: 'test', version: '1000'),
+        );
+
+        await sut.captureStructuredEnvelope(envelope);
+
+        final events =
+            verify(mockBinding.captureEnvelope(any, captureAny)).captured.single
+                as List<Map<String, dynamic>>;
+        expect(events, hasLength(1));
+        expect(events.single['event_id'], event.eventId.toString());
+        expect(events.single['tags'], {'replayId': 'fixture-replay-id'});
+      });
+
+      test('passes no events for an envelope without events', () async {
+        final attachment = SentryEnvelopeItem.fromAttachment(
+          SentryAttachment.fromByteData(ByteData(10), 'test'),
+        );
+        final envelope = SentryEnvelope(SentryEnvelopeHeader(null, null), [
+          attachment,
+        ]);
+
+        await sut.captureStructuredEnvelope(envelope);
+
+        final events = verify(
+          mockBinding.captureEnvelope(any, captureAny),
+        ).captured.single;
+        expect(events, isEmpty);
+      });
+
       test('payload json: captures correct length', () async {
         final sdkVersion = SdkVersion(name: 'test', version: '1000');
         final event = SentryEvent();
@@ -898,7 +965,9 @@ void main() {
 
         await sut.captureStructuredEnvelope(envelope);
 
-        final verification = verify(mockBinding.captureEnvelope(captureAny));
+        final verification = verify(
+          mockBinding.captureEnvelope(captureAny, any),
+        );
         verification.called(1);
 
         final List<dynamic> capturedEnvelope =

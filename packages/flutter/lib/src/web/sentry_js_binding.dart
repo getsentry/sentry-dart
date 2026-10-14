@@ -6,7 +6,14 @@ export 'noop_sentry_js_binding.dart'
 abstract class SentryJsBinding {
   void init(Map<String, dynamic> options);
   void close();
-  void captureEnvelope(List<Object> envelope);
+
+  /// Sends [envelope] through the JS SDK's transport. [events] are the
+  /// events and transactions in it, as JSON; once sent, they're reported to
+  /// the JS SDK's `afterSendEvent` hook, as its own `sendEvent()` does.
+  void captureEnvelope(
+    List<Object> envelope,
+    List<Map<String, dynamic>> events,
+  );
   void setUser(Map<String, dynamic>? user);
   void addBreadcrumb(Map<String, dynamic> breadcrumb);
   void addReplayBreadcrumb(Map<String, dynamic> breadcrumb);

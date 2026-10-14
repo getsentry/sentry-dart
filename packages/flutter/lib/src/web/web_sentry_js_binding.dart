@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
@@ -110,10 +111,25 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   @override
-  void captureEnvelope(List<Object> envelope) {
-    if (_client != null) {
-      _client?.sendEnvelope(envelope.jsify());
-    }
+  void captureEnvelope(
+    List<Object> envelope,
+    List<Map<String, dynamic>> events,
+  ) {
+    final client = _client;
+    if (client == null) return;
+
+    final sent = client.sendEnvelope(envelope.jsify());
+    if (events.isEmpty) return;
+    // Dart events reach the JS SDK as raw envelopes, which skip the hooks its
+    // own sendEvent() runs -- e.g. Replay turning a buffering replay into a
+    // session when an error with its replay ID is sent.
+    unawaited(
+      sent.toDart.then((response) {
+        for (final event in events) {
+          client.emit('afterSendEvent'.toJS, event.jsify(), response);
+        }
+      }, onError: (Object _) {}),
+    );
   }
 
   @override
@@ -339,9 +355,9 @@ class SentryJsClient {
 }
 
 extension _SentryJsClientExtension on SentryJsClient {
-  external void sendEnvelope(JSAny? envelope);
+  external JSPromise<JSAny?> sendEnvelope(JSAny? envelope);
   external JSObject? getOptions();
-  external void emit(JSString event, JSAny? arg);
+  external void emit(JSString event, JSAny? arg, [JSAny? arg2]);
 }
 
 @JS('Sentry.startSession')
