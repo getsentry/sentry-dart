@@ -5,6 +5,7 @@ import 'platform_integrations_test.dart' as c;
 import 'native_jni_utils_test.dart' as d;
 import 'native_sdk_lifecycle_test.dart' as e;
 import 'replay_config_test.dart' as f;
+import 'cocoa_replay_test.dart' as g;
 
 void main() {
   a.main();
@@ -13,4 +14,5 @@ void main() {
   d.main();
   e.main();
   f.main();
+  g.main();
 }
