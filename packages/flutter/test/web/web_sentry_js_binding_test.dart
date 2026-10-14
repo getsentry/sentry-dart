@@ -7,7 +7,6 @@ import 'dart:js_interop_unsafe';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
-import 'package:sentry_flutter/src/web/replay/web_replay_canvas_bridge.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 import 'package:sentry_flutter/src/web/web_sentry_js_binding.dart';
@@ -142,7 +141,10 @@ void main() {
         final blockSelector =
             (recordingOptions['blockSelector'] as JSString).toDart;
 
-        expect(blockSelector, contains(webReplayBlockSelector));
+        expect(
+          blockSelector,
+          contains('canvas:not(#sentry-flutter-replay-canvas)'),
+        );
       },
     );
 

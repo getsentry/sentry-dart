@@ -42,7 +42,6 @@ void main() async {
       await tester.runAsync(() async {
         final fixture = await _Fixture.create(tester, frameRate: 1);
         await fixture.nextFrame();
-        expect(fixture.bridge.feedFrameCalls, hasLength(1));
 
         // A window drag: one config change per frame.
         for (final size in [800.0, 600.0, 100.0]) {
@@ -53,19 +52,20 @@ void main() async {
               frameRate: 1,
             ),
           );
-          await fixture.pumpFrame();
         }
-
-        expect(fixture.bridge.feedFrameCalls, hasLength(1));
-        expect(fixture.bridge.updatePositionCalls, hasLength(1));
-
+        // A restarted scheduler captures on the very next frame; the kept
+        // cadence waits out the frame interval (1s at 1 fps). A slow capture
+        // only widens the gap.
+        await fixture.renderFrame();
+        final renderedAt = _clock.elapsed;
         await fixture.nextFrame();
 
-        expect(fixture.bridge.feedFrameCalls, hasLength(2));
+        final next = fixture.bridge.feedFrameCalls[1];
         expect(
-          fixture.bridge.feedFrameCalls.last.width,
-          lessThanOrEqualTo(100),
+          next.at - renderedAt,
+          greaterThanOrEqualTo(const Duration(milliseconds: 500)),
         );
+        expect(next.width, lessThanOrEqualTo(100));
 
         await fixture.sut.stop();
       });
@@ -85,11 +85,16 @@ void main() async {
 }
 
 class _FeedFrameCall {
-  _FeedFrameCall(this.rgba, this.width, this.height);
+  _FeedFrameCall(this.rgba, this.width, this.height, this.at);
   final Uint8List rgba;
   final int width;
   final int height;
+
+  /// When the frame was fed, on [_clock].
+  final Duration at;
 }
+
+final _clock = Stopwatch()..start();
 
 class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
   int startCalls = 0;
@@ -107,7 +112,7 @@ class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
 
   @override
   void feedFrame(Uint8List rgba, int width, int height) {
-    feedFrameCalls.add(_FeedFrameCall(rgba, width, height));
+    feedFrameCalls.add(_FeedFrameCall(rgba, width, height, _clock.elapsed));
     onFeedFrame?.call();
   }
 
@@ -157,11 +162,8 @@ class _Fixture {
     await _tester.pumpAndWaitUntil(_completer.future);
   }
 
-  /// Renders one frame and gives any capture it triggers time to complete.
-  Future<void> pumpFrame() async {
+  Future<void> renderFrame() async {
     _tester.binding.scheduleFrame();
-    await _tester.pump();
-    await Future<void>.delayed(const Duration(milliseconds: 50));
     await _tester.pump();
   }
 }
