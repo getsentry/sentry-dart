@@ -403,6 +403,9 @@ class SentryNativeChannel
   SentryId? get replayId => null;
 
   @override
+  String? get proguardUuid => null;
+
+  @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
     if (options.platform.isAndroid) {
       assert(

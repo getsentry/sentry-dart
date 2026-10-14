@@ -96,6 +96,22 @@ void main() {
       expect(1, event!.debugMeta!.images.length);
     });
 
+    test('Event processor keeps existing debug images', () async {
+      final ep = fixture.options.eventProcessors.first;
+      final existingImage = DebugImage(
+        type: 'proguard',
+        uuid: 'c3bd4245-1865-372f-9919-87061e189470',
+      );
+      SentryEvent? event = _getEvent()
+        ..debugMeta = DebugMeta(images: [existingImage]);
+      event = await ep.apply(event, Hint());
+
+      final images = event!.debugMeta!.images;
+      expect(images.length, 2);
+      expect(images.first, existingImage);
+      expect(images.last.type, 'elf');
+    });
+
     test('Event processor asserts image list', () async {
       final ep = fixture.options.eventProcessors.first;
       SentryEvent? event = _getEvent();
