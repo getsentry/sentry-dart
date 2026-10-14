@@ -157,6 +157,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let spanId = arguments?["spanId"] as? String
             setTrace(traceId: traceId, spanId: spanId, result: result)
 
+        case "registerTraceId":
+            let arguments = call.arguments as? [String: Any?]
+            let traceId = arguments?["traceId"] as? String
+            registerReplayTraceId(traceId, result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -184,6 +189,17 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             replay.flush()
         default:
             break
+        }
+#endif
+        result(nil)
+    }
+
+    private func registerReplayTraceId(_ traceId: String?, result: @escaping FlutterResult) {
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+        // SentryId(uuidString:) accepts the un-hyphenated 32-char hex sent from Dart.
+        // Cocoa owns dedup, the per-segment cap, and the no-op when replay isn't recording.
+        if let traceId = traceId {
+            SentrySDK.internal.replay.registerTraceId(SentryId(uuidString: traceId))
         }
 #endif
         result(nil)
