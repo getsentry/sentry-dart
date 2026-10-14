@@ -55,6 +55,33 @@ void main() {
         expect(fixture.scriptLoader.loadedScripts, same(debugReplayScripts));
         verify(fixture.web.init(fixture.hub)).called(1);
       });
+
+      test('loads production scripts in release mode', () async {
+        fixture.options.runtimeChecker = MockRuntimeChecker(
+          buildMode: MockRuntimeCheckerBuildMode.release,
+        );
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.scriptLoader.loadedScripts, same(productionScripts));
+      });
+
+      test(
+        'loads production replay scripts in release mode when replay is enabled',
+        () async {
+          fixture.options.runtimeChecker = MockRuntimeChecker(
+            buildMode: MockRuntimeCheckerBuildMode.release,
+          );
+          fixture.options.replay.sessionSampleRate = 1.0;
+
+          await sut.call(fixture.hub, fixture.options);
+
+          expect(
+            fixture.scriptLoader.loadedScripts,
+            same(productionReplayScripts),
+          );
+        },
+      );
     });
 
     group('disabled scenarios', () {
