@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+repo_root="$(cd "$(dirname "$0")/../../.." && pwd)"
+flutter_version=$(jq -er '.flutter' "$repo_root/.fvmrc")
+
 if [[ -n ${CI:+x} ]]; then
     echo "Running in CI – setting up Flutter SDK first"
-    # Note: keep version in sync with other binding generation scripts.
-    curl -Lv https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.44.0-stable.tar.xz --output /tmp/flutter.tar.xz
+    curl -fLv "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${flutter_version}-stable.tar.xz" --output /tmp/flutter.tar.xz
     tar xf /tmp/flutter.tar.xz -C /tmp
     export PATH="/tmp/flutter/bin:$PATH"
     which flutter
     flutter --version
+elif [[ -x "$repo_root/.fvm/flutter_sdk/bin/flutter" ]]; then
+    export PATH="$repo_root/.fvm/flutter_sdk/bin:$PATH"
+else
+    echo "The development Flutter SDK is missing. Run 'fvm install'." >&2
+    exit 1
+fi
+
+installed_version=$(flutter --version --machine | jq -er '.frameworkVersion')
+if [[ "$installed_version" != "$flutter_version" ]]; then
+    echo "Expected Flutter $flutter_version from .fvmrc, found $installed_version. Run 'fvm install'." >&2
+    exit 1
 fi
 
 # Move to the Flutter package root (…/flutter).
