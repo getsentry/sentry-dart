@@ -113,10 +113,12 @@ void main() {
           if (buffering) {
             await SentryFlutter.replay.flush();
           }
+          if (!buffering) {
+            await _waitUntilReplayId();
+          }
+          final eventId = await Sentry.captureException(Exception('boom'));
           await _waitUntilReplayId();
           final replayId = SentryFlutter.native!.replayId!;
-
-          final eventId = await Sentry.captureException(Exception('boom'));
           await SentryFlutter.replay.stop();
 
           expect(transport.replayIdOf(eventId), replayId.toString());
@@ -124,6 +126,81 @@ void main() {
         skip: !(Platform.isAndroid || Platform.isIOS),
       );
     }
+
+    testWidgets(
+      'links errors after an iOS manual buffer has recorded for three seconds',
+      (tester) async {
+        final transport = RecordingTransport();
+        await setupWithoutAutomaticReplay(tester, transport: transport);
+        await SentryFlutter.replay.startBuffering();
+        await Future<void>.delayed(const Duration(seconds: 3));
+        await SentryFlutter.replay.flush();
+        final eventId = await Sentry.captureException(Exception('boom'));
+
+        // Resolve the expected ID only after capturing the immediate error.
+        await _waitUntilReplayId();
+        expect(
+          transport.replayIdOf(eventId),
+          SentryFlutter.native!.replayId.toString(),
+        );
+      },
+      skip: !Platform.isIOS,
+    );
+
+    testWidgets(
+      'keeps iOS replay IDs cleared when stop overlaps a flush repeatedly',
+      (tester) async {
+        final transport = RecordingTransport();
+        await setupWithoutAutomaticReplay(tester, transport: transport);
+        await Sentry.captureMessage('Before replay');
+
+        for (var attempt = 0; attempt < 10; attempt++) {
+          await SentryFlutter.replay.startBuffering();
+          await Future<void>.delayed(const Duration(milliseconds: 300));
+          final flush = SentryFlutter.replay.flush();
+          await SentryFlutter.replay.stop();
+          await flush;
+          final eventId = await Sentry.captureException(
+            Exception('after stop $attempt'),
+          );
+
+          expect(
+            transport.replayIdOf(eventId),
+            isNull,
+            reason: 'overlapping stop attempt $attempt',
+          );
+          expect(SentryFlutter.native!.replayId, isNull);
+          await Sentry.configureScope((scope) {
+            expect(scope.replayId, isNull);
+          });
+        }
+      },
+      skip: !Platform.isIOS,
+    );
+
+    testWidgets(
+      'completes iOS flush without a replay ID when native Replay is unavailable',
+      (tester) async {
+        final transport = RecordingTransport();
+        await SentryFlutter.init((options) {
+          options
+            ..dsn = fakeDsn
+            ..automatedTestMode = true
+            ..autoInitializeNativeSdk = false
+            ..transport = transport;
+          options.replay
+            ..sessionSampleRate = 0
+            ..onErrorSampleRate = 0;
+        }).timeout(const Duration(seconds: 10));
+
+        await SentryFlutter.replay.flush().timeout(const Duration(seconds: 5));
+        expect(SentryFlutter.native!.replayId, isNull);
+        await Sentry.configureScope((scope) {
+          expect(scope.replayId, isNull);
+        });
+      },
+      skip: !Platform.isIOS,
+    );
 
     testWidgets(
       'links errors after flushing a manual buffer while the Android main looper is busy',
@@ -136,13 +213,26 @@ void main() {
         await _waitUntilReplayId();
         final replayId = SentryFlutter.native!.replayId!;
 
-        await const MethodChannel(
+        final mainLooperDelay = const MethodChannel(
           'example.flutter.sentry.io',
-        ).invokeMethod<void>('delayMainLooper', {'durationMillis': 1000});
-        await SentryFlutter.replay.flush();
-        final eventId = await Sentry.captureException(Exception('boom'));
+        ).invokeMethod<void>('delayMainLooper', {'durationMillis': 3000});
+        try {
+          // Awaiting the channel response would wait out the blocked looper.
+          await Future<void>.delayed(const Duration(milliseconds: 250));
+          await SentryFlutter.replay.flush().timeout(
+            const Duration(seconds: 10),
+          );
+          SentryId? scopeReplayId;
+          await Sentry.configureScope(
+            (scope) => scopeReplayId = scope.replayId,
+          );
+          final eventId = await Sentry.captureException(Exception('boom'));
 
-        expect(transport.replayIdOf(eventId), replayId.toString());
+          expect(transport.replayIdOf(eventId), replayId.toString());
+          expect(scopeReplayId, replayId);
+        } finally {
+          await mainLooperDelay;
+        }
       },
       skip: !Platform.isAndroid,
     );
@@ -165,6 +255,58 @@ void main() {
         final eventId = await Sentry.captureException(Exception('boom'));
 
         expect(transport.replayIdOf(eventId), replayId.toString());
+      },
+      skip: !Platform.isAndroid,
+    );
+
+    testWidgets(
+      'links immediate errors across ten buffered replay restarts with cached baggage',
+      (tester) async {
+        final transport = RecordingTransport();
+        await setupWithoutAutomaticReplay(tester, transport: transport);
+        await Sentry.captureMessage('Before replay');
+        SentryId? previousReplayId;
+
+        for (var attempt = 0; attempt < 10; attempt++) {
+          await SentryFlutter.replay.startBuffering();
+          final replay = _replayIntegration();
+          await _waitUntilRecording(replay, true);
+          await _waitUntilReplayId(differentFrom: previousReplayId);
+          final replayId = SentryFlutter.native!.replayId!;
+          expect(replayId, isNot(const SentryId.empty()));
+
+          final bufferedEvent = await Sentry.captureMessage('Still buffering');
+          expect(transport.replayIdOf(bufferedEvent), isNull);
+
+          await SentryFlutter.replay.flush().timeout(
+            const Duration(seconds: 5),
+          );
+          final eventId = await Sentry.captureException(Exception('boom'));
+          expect(
+            transport.replayIdOf(eventId),
+            replayId.toString(),
+            reason: 'buffered replay cycle $attempt',
+          );
+
+          await SentryFlutter.replay.stop();
+          await _waitUntilRecording(replay, false);
+          final deadline = DateTime.now().add(const Duration(seconds: 10));
+          while (SentryFlutter.native!.replayId != null) {
+            if (!DateTime.now().isBefore(deadline)) {
+              fail('Replay ID remained set after stopping cycle $attempt');
+            }
+            await Future<void>.delayed(const Duration(milliseconds: 10));
+          }
+          final stoppedEvent = await Sentry.captureException(
+            Exception('stopped'),
+          );
+          expect(
+            transport.replayIdOf(stoppedEvent),
+            isNull,
+            reason: 'stopped replay cycle $attempt',
+          );
+          previousReplayId = replayId;
+        }
       },
       skip: !Platform.isAndroid,
     );

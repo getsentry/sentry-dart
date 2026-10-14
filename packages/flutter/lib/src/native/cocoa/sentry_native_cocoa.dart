@@ -11,6 +11,7 @@ import 'cocoa_replay_recorder.dart';
 class SentryNativeCocoa extends SentryNativeChannel {
   CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
+  int _replayGeneration = 0;
   Hub? _hub;
 
   SentryNativeCocoa(super.options);
@@ -66,7 +67,23 @@ class SentryNativeCocoa extends SentryNativeChannel {
   }
 
   @override
+  Future<void> flushReplay() async {
+    final generation = _replayGeneration;
+    final value = await channel.invokeMethod<String>('flushReplay');
+    // A stop invalidates promotion responses that are already in flight.
+    if (generation != _replayGeneration) return;
+    final replayId = value == null ? null : SentryId.fromId(value);
+    _replayId = replayId == const SentryId.empty() ? null : replayId;
+    // Synchronize promotion before returning, without waiting for a screenshot.
+    await _hub?.configureScope((s) {
+      // ignore: invalid_use_of_internal_member
+      s.replayId = _replayId;
+    });
+  }
+
+  @override
   Future<void> stopReplay() async {
+    _replayGeneration++;
     try {
       await super.stopReplay();
     } finally {
