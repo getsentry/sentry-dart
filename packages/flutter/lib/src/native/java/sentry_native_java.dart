@@ -42,13 +42,16 @@ class SentryNativeJava extends SentryNativeChannel {
   SentryId? _replayId;
 
   @override
-  String? get proguardUuid => _proguardUuid;
+  String? get proguardUuid => _proguardUuid ??= _readProguardUuid();
 
-  /// Read once, on first use rather than in [init]: the native SDK resolves
-  /// it at its own init (from [SentryFlutterOptions.proguardUuid] or the
+  /// Read on use rather than in [init]: the native SDK resolves it at its own
+  /// init (from [SentryFlutterOptions.proguardUuid] or the
   /// `sentry-debug-meta.properties` asset), which may happen outside of
-  /// [init] when `autoInitializeNativeSdk` is disabled.
-  late final String? _proguardUuid = () {
+  /// [init] when `autoInitializeNativeSdk` is disabled. Cached once found; a
+  /// null read is retried, as the native SDK may not have resolved it yet.
+  String? _proguardUuid;
+
+  String? _readProguardUuid() {
     native.ScopesAdapter? scopes;
     native.SentryOptions? nativeOptions;
     return tryCatchSync(
@@ -63,7 +66,7 @@ class SentryNativeJava extends SentryNativeChannel {
         scopes?.release();
       },
     );
-  }();
+  }
 
   @visibleForTesting
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
