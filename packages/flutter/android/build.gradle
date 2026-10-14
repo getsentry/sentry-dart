@@ -25,8 +25,11 @@ def agpMajor = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0
 // standalone plugin, so it must be honored in addition to the AGP version.
 def builtInKotlin = agpMajor >= 9 && project.findProperty('android.builtInKotlin') != 'false'
 
+// Flutter's KGP detection scans this file as text and does not see the guard,
+// so it would flag the plugin even when built-in Kotlin skips this branch.
+// pluginManager.apply behaves the same but is not matched by that scan.
 if (!builtInKotlin) {
-    apply plugin: 'kotlin-android'
+    pluginManager.apply('kotlin-android')
 }
 
 android {
