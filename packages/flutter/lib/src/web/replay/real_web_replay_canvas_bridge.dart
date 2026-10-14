@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:meta/meta.dart';
 import 'package:web/web.dart' as web;
 
+import '../../utils/internal_logger.dart';
 import 'web_replay_canvas_bridge.dart';
 
 /// The subset of the JS SDK's `replayCanvasIntegration()` return value this
@@ -166,7 +167,16 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
         _awaitingRegistration = false;
         // Stopped or replaced again in the meantime.
         if (_shadowCanvas != shadow) return;
-        _snapshot(shadow);
+        // Runs outside the recorder's error handling around feedFrame.
+        try {
+          _snapshot(shadow);
+        } catch (error, stackTrace) {
+          internalLogger.error(
+            'Failed to snapshot the replaced replay canvas',
+            error: error,
+            stackTrace: stackTrace,
+          );
+        }
       });
     } else {
       _snapshot(shadow);

@@ -130,10 +130,13 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> close() {
     return tryCatchAsync('close', () async {
-      // Stopping waits for an in-flight capture, which could otherwise
-      // snapshot into the JS SDK after it's closed.
-      await _replayRecorder?.stop();
-      _binding.close();
+      try {
+        // Stopping waits for an in-flight capture, which could otherwise
+        // snapshot into the JS SDK after it's closed.
+        await _replayRecorder?.stop();
+      } finally {
+        _binding.close();
+      }
     });
   }
 
@@ -407,6 +410,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     await recorder.start();
     // Only after start() succeeds, so a failed start is retried next time.
     _replayRecorderStarted = true;
+    // stopReplay() ran while starting, when there was nothing to stop yet.
+    if (_replayStopped) {
+      await recorder.stop();
+      _replayRecorderStarted = false;
+    }
   }
 
   FutureOr<void> _startReplay(

@@ -12,194 +12,213 @@ import 'package:sentry_flutter/src/web/replay/web_replay_canvas_bridge.dart';
 import 'package:web/web.dart' as web;
 
 void main() {
-  late _Fixture fixture;
+  group('$RealWebReplayCanvasBridge', () {
+    late _Fixture fixture;
 
-  setUp(() {
-    fixture = _Fixture();
-  });
-
-  tearDown(() {
-    fixture.dispose();
-  });
-
-  group('start', () {
-    test('adds a shadow canvas behind the app', () {
-      fixture.sut.start();
-
-      final shadow = fixture.shadowCanvas;
-      expect(shadow, isNotNull);
-      expect(shadow!.style.position, 'fixed');
-      expect(shadow.style.zIndex, '-1');
+    setUp(() {
+      fixture = _Fixture();
     });
 
-    // The Replay integration blocks every other canvas via
-    // [webReplayBlockSelector], which excludes this id.
-    test('gives the shadow canvas the id the block selector excludes', () {
-      fixture.sut.start();
-
-      expect(fixture.shadowCanvas!.id, webReplayShadowCanvasId);
-      expect(webReplayBlockSelector, contains('#$webReplayShadowCanvasId'));
+    tearDown(() {
+      fixture.dispose();
     });
 
-    test('is idempotent', () {
-      fixture.sut.start();
-      fixture.sut.start();
+    group('start', () {
+      test('adds a shadow canvas behind the app', () {
+        fixture.sut.start();
 
-      expect(fixture.shadowCanvases, hasLength(1));
-    });
-  });
+        final shadow = fixture.shadowCanvas;
+        expect(shadow, isNotNull);
+        expect(shadow!.style.position, 'fixed');
+        expect(shadow.style.zIndex, '-1');
+      });
 
-  group('updatePosition', () {
-    test('sizes the shadow canvas in css pixels', () {
-      fixture.sut.start();
+      // The Replay integration blocks every other canvas via
+      // [webReplayBlockSelector], which excludes this id.
+      test('gives the shadow canvas the id the block selector excludes', () {
+        fixture.sut.start();
 
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(10, 20, 300, 200), 1);
+        expect(fixture.shadowCanvas!.id, webReplayShadowCanvasId);
+        expect(webReplayBlockSelector, contains('#$webReplayShadowCanvasId'));
+      });
 
-      final style = fixture.shadowCanvas!.style;
-      expect(style.left, '10px');
-      expect(style.top, '20px');
-      expect(style.width, '300px');
-      expect(style.height, '200px');
-    });
+      test('is idempotent', () {
+        fixture.sut.start();
+        fixture.sut.start();
 
-    // The replayer falls back to the backing buffer size, so it must always
-    // equal css size * devicePixelRatio (see #2897).
-    test('sizes the backing buffer as css size times devicePixelRatio', () {
-      fixture.sut.start();
-
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 300, 200), 2);
-
-      expect(fixture.shadowCanvas!.width, 600);
-      expect(fixture.shadowCanvas!.height, 400);
+        expect(fixture.shadowCanvases, hasLength(1));
+      });
     });
 
-    test('does nothing when not started', () {
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 300, 200), 2);
+    group('updatePosition', () {
+      test('sizes the shadow canvas in css pixels', () {
+        fixture.sut.start();
 
-      expect(fixture.shadowCanvas, isNull);
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(10, 20, 300, 200), 1);
+
+        final style = fixture.shadowCanvas!.style;
+        expect(style.left, '10px');
+        expect(style.top, '20px');
+        expect(style.width, '300px');
+        expect(style.height, '200px');
+      });
+
+      // The replayer falls back to the backing buffer size, so it must always
+      // equal css size * devicePixelRatio (see #2897).
+      test('sizes the backing buffer as css size times devicePixelRatio', () {
+        fixture.sut.start();
+
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 300, 200), 2);
+
+        expect(fixture.shadowCanvas!.width, 600);
+        expect(fixture.shadowCanvas!.height, 400);
+      });
+
+      test('does nothing when not started', () {
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 300, 200), 2);
+
+        expect(fixture.shadowCanvas, isNull);
+      });
+
+      // Sentry's replay player clones a canvas once, on its first recorded
+      // draw, and keeps drawing into that clone -- later width/height changes
+      // never reach it. A new element gets a fresh clone at the new size.
+      test('replaces a snapshotted shadow canvas when its size changes', () {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+        final previous = fixture.shadowCanvas!;
+
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+
+        final current = fixture.shadowCanvas!;
+        expect(current, isNot(same(previous)));
+        expect(previous.isConnected, isFalse);
+        expect(current.id, webReplayShadowCanvasId);
+        expect(current.style.position, 'fixed');
+        expect(current.style.zIndex, '-1');
+        expect(current.style.width, '8px');
+        expect(current.width, 8);
+        expect(current.height, 4);
+      });
+
+      test('keeps the shadow canvas when only its position changes', () {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+        final previous = fixture.shadowCanvas!;
+
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(5, 5, 4, 4), 1);
+
+        expect(fixture.shadowCanvas, same(previous));
+        expect(previous.style.left, '5px');
+      });
     });
 
-    // Sentry's replay player clones a canvas once, on its first recorded
-    // draw, and keeps drawing into that clone -- later width/height changes
-    // never reach it. A new element gets a fresh clone at the new size.
-    test('replaces a snapshotted shadow canvas when its size changes', () {
-      fixture.sut.start();
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
-      final previous = fixture.shadowCanvas!;
+    group('feedFrame', () {
+      test(
+        'snapshots the shadow canvas without waiting for animation frame',
+        () {
+          fixture.sut.start();
+          fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
 
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+          fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
 
-      final current = fixture.shadowCanvas!;
-      expect(current, isNot(same(previous)));
-      expect(previous.isConnected, isFalse);
-      expect(current.id, webReplayShadowCanvasId);
-      expect(current.style.position, 'fixed');
-      expect(current.style.zIndex, '-1');
-      expect(current.style.width, '8px');
-      expect(current.width, 8);
-      expect(current.height, 4);
+          expect(fixture.snapshots, hasLength(1));
+          expect(fixture.snapshots.single.canvas, fixture.shadowCanvas);
+          expect(fixture.snapshots.single.skipRequestAnimationFrame, isTrue);
+        },
+      );
+
+      test('draws the frame onto the shadow canvas', () {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+
+        final pixel = fixture.pixelAt(fixture.shadowCanvas!, 1, 1);
+        expect(pixel, [255, 0, 0, 255]);
+      });
+
+      test('scales a smaller frame up to the shadow canvas size', () {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 8), 1);
+
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+
+        final shadow = fixture.shadowCanvas!;
+        expect(shadow.width, 8);
+        expect(shadow.height, 8);
+        expect(fixture.pixelAt(shadow, 7, 7), [255, 0, 0, 255]);
+      });
+
+      test('does nothing when not started', () {
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+
+        expect(fixture.snapshots, isEmpty);
+      });
+
+      // rrweb only snapshots canvases it has registered, which happens in its
+      // MutationObserver callback -- after the task that added the element.
+      test('snapshots a replaced shadow canvas on the next task', () async {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+
+        fixture.sut.feedFrame(_solid(8, 4, red: 255), 8, 4);
+
+        expect(fixture.snapshots, hasLength(1));
+        await Future<void>.delayed(Duration.zero);
+        expect(fixture.snapshots, hasLength(2));
+        expect(fixture.snapshots.last.canvas, fixture.shadowCanvas);
+      });
+
+      // The deferred snapshot runs outside the recorder's error handling.
+      test('contains a throwing deferred snapshot', () async {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+        fixture.sut.feedFrame(_solid(8, 4, red: 255), 8, 4);
+        fixture.throwOnSnapshot = true;
+
+        await Future<void>.delayed(Duration.zero);
+
+        expect(fixture.snapshots, hasLength(1));
+      });
+
+      test('drops a deferred snapshot when stopped before it runs', () async {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+        fixture.sut.feedFrame(_solid(8, 4, red: 255), 8, 4);
+
+        fixture.sut.stop();
+        await Future<void>.delayed(Duration.zero);
+
+        expect(fixture.snapshots, hasLength(1));
+      });
     });
 
-    test('keeps the shadow canvas when only its position changes', () {
-      fixture.sut.start();
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
-      final previous = fixture.shadowCanvas!;
+    group('stop', () {
+      test('removes the shadow canvas', () {
+        fixture.sut.start();
 
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(5, 5, 4, 4), 1);
+        fixture.sut.stop();
 
-      expect(fixture.shadowCanvas, same(previous));
-      expect(previous.style.left, '5px');
-    });
-  });
+        expect(fixture.shadowCanvas, isNull);
+      });
 
-  group('feedFrame', () {
-    test('snapshots the shadow canvas without waiting for animation frame', () {
-      fixture.sut.start();
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+      test('can be started again', () {
+        fixture.sut.start();
+        fixture.sut.stop();
 
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+        fixture.sut.start();
 
-      expect(fixture.snapshots, hasLength(1));
-      expect(fixture.snapshots.single.canvas, fixture.shadowCanvas);
-      expect(fixture.snapshots.single.skipRequestAnimationFrame, isTrue);
-    });
-
-    test('draws the frame onto the shadow canvas', () {
-      fixture.sut.start();
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
-
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
-
-      final pixel = fixture.pixelAt(fixture.shadowCanvas!, 1, 1);
-      expect(pixel, [255, 0, 0, 255]);
-    });
-
-    test('scales a smaller frame up to the shadow canvas size', () {
-      fixture.sut.start();
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 8), 1);
-
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
-
-      final shadow = fixture.shadowCanvas!;
-      expect(shadow.width, 8);
-      expect(shadow.height, 8);
-      expect(fixture.pixelAt(shadow, 7, 7), [255, 0, 0, 255]);
-    });
-
-    test('does nothing when not started', () {
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
-
-      expect(fixture.snapshots, isEmpty);
-    });
-
-    // rrweb only snapshots canvases it has registered, which happens in its
-    // MutationObserver callback -- after the task that added the element.
-    test('snapshots a replaced shadow canvas on the next task', () async {
-      fixture.sut.start();
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
-
-      fixture.sut.feedFrame(_solid(8, 4, red: 255), 8, 4);
-
-      expect(fixture.snapshots, hasLength(1));
-      await Future<void>.delayed(Duration.zero);
-      expect(fixture.snapshots, hasLength(2));
-      expect(fixture.snapshots.last.canvas, fixture.shadowCanvas);
-    });
-
-    test('drops a deferred snapshot when stopped before it runs', () async {
-      fixture.sut.start();
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
-      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
-      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
-      fixture.sut.feedFrame(_solid(8, 4, red: 255), 8, 4);
-
-      fixture.sut.stop();
-      await Future<void>.delayed(Duration.zero);
-
-      expect(fixture.snapshots, hasLength(1));
-    });
-  });
-
-  group('stop', () {
-    test('removes the shadow canvas', () {
-      fixture.sut.start();
-
-      fixture.sut.stop();
-
-      expect(fixture.shadowCanvas, isNull);
-    });
-
-    test('can be started again', () {
-      fixture.sut.start();
-      fixture.sut.stop();
-
-      fixture.sut.start();
-
-      expect(fixture.shadowCanvases, hasLength(1));
+        expect(fixture.shadowCanvases, hasLength(1));
+      });
     });
   });
 }
@@ -221,10 +240,14 @@ class _Snapshot {
 
 class _Fixture {
   final snapshots = <_Snapshot>[];
+  var throwOnSnapshot = false;
   late final RealWebReplayCanvasBridge sut;
 
   _Fixture() {
-    final integration = _createFakeIntegration(snapshots);
+    final integration = _createFakeIntegration(
+      snapshots,
+      () => throwOnSnapshot,
+    );
     sut = RealWebReplayCanvasBridge(integration);
   }
 
@@ -255,9 +278,13 @@ class _Fixture {
 
 /// A stand-in for the JS SDK's canvas integration that records `snapshot`
 /// calls.
-WebReplayCanvasIntegration _createFakeIntegration(List<_Snapshot> snapshots) {
+WebReplayCanvasIntegration _createFakeIntegration(
+  List<_Snapshot> snapshots,
+  bool Function() shouldThrow,
+) {
   final integration = JSObject();
   integration['snapshot'] = ((web.HTMLCanvasElement canvas, JSObject? options) {
+    if (shouldThrow()) throw StateError('snapshot failed');
     final skip = options?['skipRequestAnimationFrame'];
     snapshots.add(
       _Snapshot(canvas, skip.isA<JSBoolean>() && (skip as JSBoolean).toDart),

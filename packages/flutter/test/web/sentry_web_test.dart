@@ -434,10 +434,12 @@ void main() {
           expectedOnErrorSampleRate,
         );
         final integrationNames = integrations.map(
-          (integration) => integration.toString(),
+          // dartify() converts plain-object integrations, not class instances.
+          (integration) => integration is Map
+              ? integration['name']
+              : ((integration as JSObject)['name'] as JSString).toDart,
         );
-        expect(integrationNames, contains(contains('name: Replay')));
-        expect(integrationNames, contains(contains('name: ReplayCanvas')));
+        expect(integrationNames, containsAll(['Replay', 'ReplayCanvas']));
       });
 
       test('stopReplay and startReplay control the JS replay', () async {
@@ -564,6 +566,11 @@ void main() {
           await sut.init(hub);
         });
 
+        // Tests start the recorder, whose scheduler would keep capturing.
+        tearDown(() async {
+          await sut.close();
+        });
+
         test(
           'close stops the replay bridge before closing the JS SDK',
           () async {
@@ -572,6 +579,19 @@ void main() {
             await sut.close();
 
             expect(calls, ['bridgeStart', 'bridgeStop', 'jsClose']);
+          },
+        );
+
+        test(
+          'close closes the JS SDK even if stopping the recorder fails',
+          () async {
+            options.automatedTestMode = false;
+            await sut.setReplayConfig(config);
+            bridge.throwOnStop = true;
+
+            await sut.close();
+
+            expect(calls, ['bridgeStart', 'jsClose']);
           },
         );
 
@@ -607,6 +627,20 @@ void main() {
             await sut.stopReplay();
 
             expect(calls, ['bridgeStart', 'bridgeStop', 'jsStop']);
+          });
+
+          // ReplayIntegration doesn't await setReplayConfig, so a stop can
+          // land while the recorder is still starting.
+          test('stopReplay stops a recorder that is still starting', () async {
+            final configured = sut.setReplayConfig(config);
+            while (!calls.contains('bridgeStart')) {
+              await Future<void>.microtask(() {});
+            }
+
+            await sut.stopReplay();
+            await configured;
+
+            expect(calls, ['bridgeStart', 'jsStop', 'bridgeStop']);
           });
 
           test('setReplayConfig does not restart a stopped recorder', () async {
@@ -997,6 +1031,7 @@ class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
   final List<String> calls;
   int startCalls = 0;
   bool throwOnNextStart = false;
+  bool throwOnStop = false;
 
   @override
   void start() {
@@ -1015,5 +1050,8 @@ class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
   void feedFrame(Uint8List rgba, int width, int height) {}
 
   @override
-  void stop() => calls.add('bridgeStop');
+  void stop() {
+    if (throwOnStop) throw StateError('bridge failed to stop');
+    calls.add('bridgeStop');
+  }
 }
