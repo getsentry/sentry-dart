@@ -232,15 +232,14 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> startReplay() {
-    _logNotSupported('starting replay');
-  }
+  FutureOr<void> startReplay() =>
+      _startReplay('startReplay', _binding.startReplay);
 
   @override
-  FutureOr<void> startReplayBuffering() {
-    _logNotSupported('starting replay buffering');
-  }
+  FutureOr<void> startReplayBuffering() =>
+      _startReplay('startReplayBuffering', _binding.startReplayBuffering);
 
+  // The JS SDK can't pause a replay.
   @override
   FutureOr<void> pauseReplay() {
     _logNotSupported('pausing replay');
@@ -253,13 +252,26 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> stopReplay() {
-    _logNotSupported('stopping replay');
+    final recorder = _replayRecorder;
+    if (recorder == null) return null;
+
+    return tryCatchAsync('stopReplay', () async {
+      _replayStopped = true;
+      if (_replayRecorderStarted) {
+        // Stopping waits for an in-flight capture, which could otherwise
+        // snapshot into the stopped replay.
+        await recorder.stop();
+        _replayRecorderStarted = false;
+      }
+      await _binding.stopReplay();
+    });
   }
 
+  // The JS SDK starts a new replay when flushing an inactive one, so the
+  // recorder is started too.
   @override
-  FutureOr<void> flushReplay() {
-    _logNotSupported('flushing replay');
-  }
+  FutureOr<void> flushReplay() =>
+      _startReplay('flushReplay', _binding.flushReplay);
 
   @override
   FutureOr<void> clearBreadcrumbs() {
@@ -355,6 +367,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   bool _replayRecorderStarted = false;
+  // Set by stopReplay so that config changes (e.g. a window resize) don't
+  // restart recording until the replay is started again.
+  bool _replayStopped = false;
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
@@ -374,12 +389,30 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
           frameRate: config.frameRate,
         ),
       );
-      if (!_replayRecorderStarted) {
-        await recorder.start();
-        // Only after start() succeeds, so a failed start is retried on the
-        // next config.
-        _replayRecorderStarted = true;
+      if (!_replayStopped) {
+        await _startReplayRecorder(recorder);
       }
+    });
+  }
+
+  Future<void> _startReplayRecorder(SentryWebReplayRecorder recorder) async {
+    if (_replayRecorderStarted) return;
+    await recorder.start();
+    // Only after start() succeeds, so a failed start is retried next time.
+    _replayRecorderStarted = true;
+  }
+
+  FutureOr<void> _startReplay(
+    String nativeMethodName,
+    FutureOr<void> Function() startJsReplay,
+  ) {
+    final recorder = _replayRecorder;
+    if (recorder == null) return null;
+
+    return tryCatchAsync(nativeMethodName, () async {
+      await startJsReplay();
+      _replayStopped = false;
+      await _startReplayRecorder(recorder);
     });
   }
 

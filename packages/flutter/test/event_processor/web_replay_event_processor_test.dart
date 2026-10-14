@@ -64,6 +64,18 @@ class FakeSentryJsBinding implements SentryJsBinding {
   Object? createManualReplayCanvasIntegration() => null;
 
   @override
+  void startReplay() {}
+
+  @override
+  void startReplayBuffering() {}
+
+  @override
+  Future<void> stopReplay() async {}
+
+  @override
+  Future<void> flushReplay() async {}
+
+  @override
   void init(Map<String, dynamic> options) {}
 
   @override

@@ -9,8 +9,8 @@ import '../utils/internal_logger.dart';
 ///
 /// Access via `SentryFlutter.replay`.
 ///
-/// Only Android and iOS support Session Replay. On every other platform these
-/// methods are no-ops.
+/// Only Android, iOS and Web support Session Replay. On every other platform
+/// these methods are no-ops.
 abstract interface class SentryReplay {
   /// Starts a new replay session.
   ///
@@ -26,9 +26,13 @@ abstract interface class SentryReplay {
   Future<void> startBuffering();
 
   /// Pauses the active replay until [resume] is called.
+  ///
+  /// A no-op on Web, where the JavaScript SDK can't pause a replay.
   Future<void> pause();
 
   /// Resumes a replay paused with [pause].
+  ///
+  /// A no-op on Web, see [pause].
   Future<void> resume();
 
   /// Stops the active replay.

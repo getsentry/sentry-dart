@@ -74,5 +74,17 @@ class NoOpSentryJsBinding implements SentryJsBinding {
   }
 
   @override
+  void startReplay() {}
+
+  @override
+  void startReplayBuffering() {}
+
+  @override
+  Future<void> stopReplay() async {}
+
+  @override
+  Future<void> flushReplay() async {}
+
+  @override
   Object? createManualReplayCanvasIntegration() => null;
 }

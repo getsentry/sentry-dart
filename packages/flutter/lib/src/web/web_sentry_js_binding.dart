@@ -228,6 +228,26 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   @override
+  void startReplay() {
+    _getReplay()?.callMethod<JSAny?>('start'.toJS);
+  }
+
+  @override
+  void startReplayBuffering() {
+    _getReplay()?.callMethod<JSAny?>('startBuffering'.toJS);
+  }
+
+  @override
+  Future<void> stopReplay() async {
+    await _getReplay()?.callMethod<JSPromise<JSAny?>>('stop'.toJS).toDart;
+  }
+
+  @override
+  Future<void> flushReplay() async {
+    await _getReplay()?.callMethod<JSPromise<JSAny?>>('flush'.toJS).toDart;
+  }
+
+  @override
   WebReplayCanvasIntegration createManualReplayCanvasIntegration() =>
       _replayCanvasIntegrationManual(
         _ReplayCanvasOptions(enableManualSnapshot: true),

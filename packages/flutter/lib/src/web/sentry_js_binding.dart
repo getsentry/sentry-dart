@@ -23,6 +23,10 @@ abstract class SentryJsBinding {
   void captureSession();
   Map<String, String>? getFilenameToDebugIdMap();
   String? getReplayId({bool onlyIfSampled = false});
+  void startReplay();
+  void startReplayBuffering();
+  Future<void> stopReplay();
+  Future<void> flushReplay();
 
   /// Constructs the JS SDK's canvas-replay integration in manual-snapshot
   /// mode and returns a reference to it -- unlike other integrations, this
