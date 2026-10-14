@@ -43,12 +43,14 @@ abstract class WebReplayCanvasBridge {
   /// buffer to `rect.size * devicePixelRatio` -- always, regardless of
   /// capture scale.
   ///
-  /// Confirmed (#2897): canvas-mutation replay ignores a separately-applied
-  /// CSS display size and falls back to rendering the canvas at its own
-  /// backing-buffer pixel dimensions when the two diverge. Resolution
-  /// scaling therefore must not shrink this canvas -- it happens on the
-  /// source frame fed to [feedFrame] instead, which gets scaled up onto this
-  /// canvas regardless of its own fixed size.
+  /// Sentry's replay player draws each recorded canvas into a clone made on
+  /// its first draw and shows that clone's backing buffer as an image, so
+  /// the backing-buffer size -- not the CSS size -- is what viewers see, and
+  /// it can't change afterwards. Resolution scaling therefore must not
+  /// shrink this canvas -- it happens on the source frame fed to [feedFrame]
+  /// instead, which gets scaled up onto this canvas regardless of its own
+  /// size -- and a size change after the first draw replaces the canvas
+  /// with a new element rather than resizing it.
   void updatePosition(ui.Rect rect, double devicePixelRatio);
 
   /// Feeds one already-captured, already-masked frame.

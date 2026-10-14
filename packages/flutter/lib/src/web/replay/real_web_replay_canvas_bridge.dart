@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -43,20 +44,25 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
   web.HTMLCanvasElement? _sourceCanvas;
   web.CanvasRenderingContext2D? _sourceCtx;
 
+  // Whether rrweb may already have recorded a draw of the current shadow
+  // canvas -- from then on, a size change needs a new element (see
+  // [updatePosition]).
+  bool _snapshotted = false;
+
+  // Whether the current shadow canvas was added in this task, before rrweb's
+  // MutationObserver has registered it. rrweb skips snapshots of canvases
+  // it doesn't know yet.
+  bool _awaitingRegistration = false;
+
   bool get isStarted => _shadowCanvas != null;
 
   @override
   void start() {
     if (isStarted) return;
 
-    final shadow =
-        web.document.createElement('canvas') as web.HTMLCanvasElement;
-    shadow.id = webReplayShadowCanvasId;
-    shadow.style.position = 'fixed';
-    shadow.style.zIndex = '-1';
+    final shadow = _createShadowCanvas();
     web.document.body?.append(shadow);
-    _shadowCanvas = shadow;
-    _shadowCtx = shadow.getContext('2d') as web.CanvasRenderingContext2D;
+    _setShadowCanvas(shadow);
 
     final source =
         web.document.createElement('canvas') as web.HTMLCanvasElement;
@@ -66,8 +72,21 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
 
   @override
   void updatePosition(ui.Rect rect, double devicePixelRatio) {
-    final canvas = _shadowCanvas;
-    if (canvas == null) return;
+    final current = _shadowCanvas;
+    if (current == null) return;
+
+    final targetWidth = (rect.width * devicePixelRatio).round();
+    final targetHeight = (rect.height * devicePixelRatio).round();
+    final resize =
+        current.width != targetWidth || current.height != targetHeight;
+
+    // Sentry's replay player clones a canvas on its first recorded draw and
+    // keeps drawing into that clone, so later width/height changes never
+    // reach it: smaller frames only cover its top-left corner, leaving the
+    // previous frame's leftovers around them. A new element gets a fresh
+    // clone at the new size.
+    final replace = resize && _snapshotted;
+    final canvas = replace ? _createShadowCanvas() : current;
 
     canvas.style
       ..left = '${rect.left}px'
@@ -75,12 +94,33 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
       ..width = '${rect.width}px'
       ..height = '${rect.height}px';
 
-    final targetWidth = (rect.width * devicePixelRatio).round();
-    final targetHeight = (rect.height * devicePixelRatio).round();
-    if (canvas.width != targetWidth || canvas.height != targetHeight) {
+    if (resize) {
       canvas.width = targetWidth;
       canvas.height = targetHeight;
     }
+
+    // Sized before it's attached, so rrweb records it at its final size.
+    if (replace) {
+      current.remove();
+      web.document.body?.append(canvas);
+      _setShadowCanvas(canvas);
+      _awaitingRegistration = true;
+    }
+  }
+
+  web.HTMLCanvasElement _createShadowCanvas() {
+    final canvas =
+        web.document.createElement('canvas') as web.HTMLCanvasElement;
+    canvas.id = webReplayShadowCanvasId;
+    canvas.style.position = 'fixed';
+    canvas.style.zIndex = '-1';
+    return canvas;
+  }
+
+  void _setShadowCanvas(web.HTMLCanvasElement canvas) {
+    _shadowCanvas = canvas;
+    _shadowCtx = canvas.getContext('2d') as web.CanvasRenderingContext2D;
+    _snapshotted = false;
   }
 
   @override
@@ -121,6 +161,20 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
       shadow.height,
     );
 
+    if (_awaitingRegistration) {
+      Timer.run(() {
+        _awaitingRegistration = false;
+        // Stopped or replaced again in the meantime.
+        if (_shadowCanvas != shadow) return;
+        _snapshot(shadow);
+      });
+    } else {
+      _snapshot(shadow);
+    }
+  }
+
+  void _snapshot(web.HTMLCanvasElement shadow) {
+    _snapshotted = true;
     _canvasIntegration.snapshot(
       shadow,
       _SnapshotOptions(skipRequestAnimationFrame: true),
@@ -132,6 +186,8 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
     _shadowCanvas?.remove();
     _shadowCanvas = null;
     _shadowCtx = null;
+    _snapshotted = false;
+    _awaitingRegistration = false;
     _sourceCanvas = null;
     _sourceCtx = null;
   }

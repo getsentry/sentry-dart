@@ -78,6 +78,40 @@ void main() {
 
       expect(fixture.shadowCanvas, isNull);
     });
+
+    // Sentry's replay player clones a canvas once, on its first recorded
+    // draw, and keeps drawing into that clone -- later width/height changes
+    // never reach it. A new element gets a fresh clone at the new size.
+    test('replaces a snapshotted shadow canvas when its size changes', () {
+      fixture.sut.start();
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+      final previous = fixture.shadowCanvas!;
+
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+
+      final current = fixture.shadowCanvas!;
+      expect(current, isNot(same(previous)));
+      expect(previous.isConnected, isFalse);
+      expect(current.id, webReplayShadowCanvasId);
+      expect(current.style.position, 'fixed');
+      expect(current.style.zIndex, '-1');
+      expect(current.style.width, '8px');
+      expect(current.width, 8);
+      expect(current.height, 4);
+    });
+
+    test('keeps the shadow canvas when only its position changes', () {
+      fixture.sut.start();
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+      final previous = fixture.shadowCanvas!;
+
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(5, 5, 4, 4), 1);
+
+      expect(fixture.shadowCanvas, same(previous));
+      expect(previous.style.left, '5px');
+    });
   });
 
   group('feedFrame', () {
@@ -118,6 +152,35 @@ void main() {
       fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
 
       expect(fixture.snapshots, isEmpty);
+    });
+
+    // rrweb only snapshots canvases it has registered, which happens in its
+    // MutationObserver callback -- after the task that added the element.
+    test('snapshots a replaced shadow canvas on the next task', () async {
+      fixture.sut.start();
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+
+      fixture.sut.feedFrame(_solid(8, 4, red: 255), 8, 4);
+
+      expect(fixture.snapshots, hasLength(1));
+      await Future<void>.delayed(Duration.zero);
+      expect(fixture.snapshots, hasLength(2));
+      expect(fixture.snapshots.last.canvas, fixture.shadowCanvas);
+    });
+
+    test('drops a deferred snapshot when stopped before it runs', () async {
+      fixture.sut.start();
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+      fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+      fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
+      fixture.sut.feedFrame(_solid(8, 4, red: 255), 8, 4);
+
+      fixture.sut.stop();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(fixture.snapshots, hasLength(1));
     });
   });
 
