@@ -497,11 +497,13 @@ class SentryNativeChannel
 
   @override
   FutureOr<void> registerTraceId(SentryId traceId) {
-    // No-op. Replay trace ID registration is currently Android-only.
+    return channel.invokeMethod('registerTraceId', {
+      'traceId': traceId.toString(),
+    });
   }
 
   @override
   FutureOr<void> registerSegmentName(String segmentName) {
-    // No-op. Replay segment name registration is currently Android-only.
+    // No-op. sentry-cocoa has no segment name registration API.
   }
 }

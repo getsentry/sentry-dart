@@ -920,7 +920,11 @@ class SentryNative {
   late final _remove_context = _remove_contextPtr
       .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
 
-  /// Sentry SDK version.
+  /// Returns the runtime SDK version as string.
+  ///
+  /// May include a prerelease suffix (e.g. `-rc.1`) or downstream SDK build
+  /// metadata (e.g. `+YYYYMMDD`). Use `SENTRY_SDK_VERSION` for the compile-time
+  /// version.
   ffi.Pointer<ffi.Char> sdk_version() {
     return _sdk_version();
   }
