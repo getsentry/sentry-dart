@@ -509,6 +509,24 @@ void main() {
         }
       });
 
+      test('registerTraceId invokes native method', () async {
+        if (mockPlatform.isAndroid) {
+          return;
+        }
+        final traceId = SentryId.newId();
+        when(
+          channel.invokeMethod('registerTraceId', any),
+        ).thenAnswer((_) => Future.value());
+
+        await sut.registerTraceId(traceId);
+
+        verify(
+          channel.invokeMethod('registerTraceId', {
+            'traceId': traceId.toString(),
+          }),
+        ).called(1);
+      });
+
       test('stopReplay clears the last known replay ID', () async {
         if (!mockPlatform.isIOS) {
           return;
