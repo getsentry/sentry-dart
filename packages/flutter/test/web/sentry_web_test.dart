@@ -17,6 +17,7 @@ import 'package:sentry_flutter/src/replay/replay_config.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
+import 'package:sentry_flutter/src/web/replay/web_replay_event_processor.dart';
 import 'package:sentry_flutter/src/web/replay/web_replay_canvas_bridge.dart';
 import 'package:sentry_flutter/src/web/sentry_web.dart';
 import 'package:sentry_flutter/src/sessions/web_session_handler.dart';
@@ -599,6 +600,20 @@ void main() {
             expect(calls, ['bridgeStart', 'bridgeStop', 'jsClose']);
           },
         );
+
+        test('close removes the replay event processor', () async {
+          expect(
+            options.eventProcessors.whereType<WebReplayEventProcessor>(),
+            hasLength(1),
+          );
+
+          await sut.close();
+
+          expect(
+            options.eventProcessors.whereType<WebReplayEventProcessor>(),
+            isEmpty,
+          );
+        });
 
         test(
           'close closes the JS SDK even if stopping the recorder fails',

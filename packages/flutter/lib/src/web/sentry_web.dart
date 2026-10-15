@@ -42,6 +42,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   final WebReplayCanvasBridge Function(WebReplayCanvasIntegration)
   _createReplayCanvasBridge;
   SentryWebReplayRecorder? _replayRecorder;
+  WebReplayEventProcessor? _replayEventProcessor;
 
   static const _piiKeyPatterns = [
     'forwarded',
@@ -116,7 +117,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       }
       _binding.init(jsOptions);
       if (supportsReplay && canvasIntegration != null) {
-        _options.addEventProcessor(WebReplayEventProcessor(_binding));
+        final processor = WebReplayEventProcessor(_binding);
+        _options.addEventProcessor(processor);
+        _replayEventProcessor = processor;
         _replayRecorder = SentryWebReplayRecorder(
           _options,
           bridge: _createReplayCanvasBridge(
@@ -134,6 +137,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     // teardown.
     _replayStopped = true;
     _replayStops++;
+    final processor = _replayEventProcessor;
+    if (processor != null) {
+      _options.removeEventProcessor(processor);
+      _replayEventProcessor = null;
+    }
     return tryCatchAsync('close', () async {
       try {
         // Stopping waits for an in-flight capture, which could otherwise
