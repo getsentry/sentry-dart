@@ -297,6 +297,9 @@ void main() {
       // hook, when an error carrying its replay ID is sent.
       test('reports sent events to the JS afterSendEvent hook', () async {
         await sut.init(hub);
+        // Events are only collected for the hook when replay is enabled; set
+        // after init so the JS SDK doesn't need the replay bundle.
+        options.replay.onErrorSampleRate = 1.0;
         final sentEventIds = <String>[];
         final sent = Completer<void>();
         final client = (_globalThis['Sentry'] as JSObject).callMethod<JSObject>(
@@ -1045,7 +1048,24 @@ void main() {
         expect(envelopeAttachmentItem.length, 100);
       });
 
+      // The JS SDK's afterSendEvent hook, which these feed, only matters for
+      // Replay.
+      test('passes no envelope events when replay is disabled', () async {
+        final envelope = SentryEnvelope.fromEvent(
+          SentryEvent(),
+          SdkVersion(name: 'test', version: '1000'),
+        );
+
+        await sut.captureStructuredEnvelope(envelope);
+
+        final events =
+            verify(mockBinding.captureEnvelope(any, captureAny)).captured.single
+                as List<Map<String, dynamic>>;
+        expect(events, isEmpty);
+      });
+
       test('passes the envelope events to the binding', () async {
+        options.replay.onErrorSampleRate = 1.0;
         final event = SentryEvent(tags: {'replayId': 'fixture-replay-id'});
         final envelope = SentryEnvelope.fromEvent(
           event,

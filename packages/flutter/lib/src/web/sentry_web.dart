@@ -183,6 +183,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       tryCatchAsync('captureStructuredEnvelope', () async {
         final List<dynamic> envelopeItems = [];
         final List<Map<String, dynamic>> events = [];
+        // Only the JS SDK's Replay needs the events (for afterSendEvent), so
+        // don't decode every event without it.
+        final collectEvents = supportsReplay;
 
         for (final item in envelope.items) {
           try {
@@ -198,8 +201,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
             envelopeItems.add([await item.header.toJson(data.length), data]);
 
-            if (item.header.type == SentryItemType.event ||
-                item.header.type == SentryItemType.transaction) {
+            if (collectEvents &&
+                (item.header.type == SentryItemType.event ||
+                    item.header.type == SentryItemType.transaction)) {
               events.add(jsonDecode(utf8.decode(data)) as Map<String, dynamic>);
             }
           } catch (_) {
