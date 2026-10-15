@@ -267,13 +267,16 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
     return tryCatchAsync('stopReplay', () async {
       _replayStopped = true;
-      if (_replayRecorderStarted) {
-        // Stopping waits for an in-flight capture, which could otherwise
-        // snapshot into the stopped replay.
-        await recorder.stop();
-        _replayRecorderStarted = false;
+      try {
+        if (_replayRecorderStarted) {
+          // Stopping waits for an in-flight capture, which could otherwise
+          // snapshot into the stopped replay.
+          _replayRecorderStarted = false;
+          await recorder.stop();
+        }
+      } finally {
+        await _binding.stopReplay();
       }
-      await _binding.stopReplay();
     });
   }
 

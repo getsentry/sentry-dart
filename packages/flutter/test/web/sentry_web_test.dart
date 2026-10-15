@@ -556,6 +556,18 @@ void main() {
           when(mockBinding.init(any)).thenReturn(null);
           when(mockBinding.close()).thenAnswer((_) => calls.add('jsClose'));
           when(
+            mockBinding.startReplay(),
+          ).thenAnswer((_) => calls.add('jsStart'));
+          when(
+            mockBinding.startReplayBuffering(),
+          ).thenAnswer((_) => calls.add('jsStartBuffering'));
+          when(mockBinding.stopReplay()).thenAnswer((_) async {
+            calls.add('jsStop');
+          });
+          when(mockBinding.flushReplay()).thenAnswer((_) async {
+            calls.add('jsFlush');
+          });
+          when(
             mockBinding.createManualReplayCanvasIntegration(),
           ).thenReturn(JSObject());
           sut = SentryWeb(
@@ -605,101 +617,113 @@ void main() {
           expect(bridge.startCalls, 2);
         });
 
-        group('replay controls', () {
-          setUp(() {
-            when(
-              mockBinding.startReplay(),
-            ).thenAnswer((_) => calls.add('jsStart'));
-            when(
-              mockBinding.startReplayBuffering(),
-            ).thenAnswer((_) => calls.add('jsStartBuffering'));
-            when(mockBinding.stopReplay()).thenAnswer((_) async {
-              calls.add('jsStop');
-            });
-            when(mockBinding.flushReplay()).thenAnswer((_) async {
-              calls.add('jsFlush');
-            });
-          });
+        test('stopReplay stops the recorder before the JS replay', () async {
+          await sut.setReplayConfig(config);
 
-          test('stopReplay stops the recorder before the JS replay', () async {
+          await sut.stopReplay();
+
+          expect(calls, ['bridgeStart', 'bridgeStop', 'jsStop']);
+        });
+
+        test(
+          'stopReplay stops the JS replay even if stopping the recorder fails',
+          () async {
+            options.automatedTestMode = false;
             await sut.setReplayConfig(config);
+            bridge.throwOnStop = true;
 
             await sut.stopReplay();
 
-            expect(calls, ['bridgeStart', 'bridgeStop', 'jsStop']);
-          });
+            expect(calls, ['bridgeStart', 'jsStop']);
+          },
+        );
 
-          // ReplayIntegration doesn't await setReplayConfig, so a stop can
-          // land while the recorder is still starting.
-          test('stopReplay stops a recorder that is still starting', () async {
-            final configured = sut.setReplayConfig(config);
-            while (!calls.contains('bridgeStart')) {
-              await Future<void>.microtask(() {});
-            }
-
-            await sut.stopReplay();
-            await configured;
-
-            expect(calls, ['bridgeStart', 'jsStop', 'bridgeStop']);
-          });
-
-          test('setReplayConfig does not restart a stopped recorder', () async {
+        test(
+          'startReplay restarts the recorder after stopping it failed',
+          () async {
+            options.automatedTestMode = false;
             await sut.setReplayConfig(config);
+            bridge.throwOnStop = true;
             await sut.stopReplay();
-
-            await sut.setReplayConfig(config);
-
-            expect(bridge.startCalls, 1);
-          });
-
-          test('startReplay starts the JS replay and the recorder', () async {
-            await sut.setReplayConfig(config);
-            await sut.stopReplay();
+            bridge.throwOnStop = false;
             calls.clear();
 
             await sut.startReplay();
 
             expect(calls, ['jsStart', 'bridgeStart']);
-          });
+          },
+        );
 
-          test(
-            'startReplayBuffering starts the JS replay buffering and the recorder',
-            () async {
-              await sut.setReplayConfig(config);
-              await sut.stopReplay();
-              calls.clear();
+        // ReplayIntegration doesn't await setReplayConfig, so a stop can
+        // land while the recorder is still starting.
+        test('stopReplay stops a recorder that is still starting', () async {
+          final configured = sut.setReplayConfig(config);
+          while (!calls.contains('bridgeStart')) {
+            await Future<void>.microtask(() {});
+          }
 
-              await sut.startReplayBuffering();
+          await sut.stopReplay();
+          await configured;
 
-              expect(calls, ['jsStartBuffering', 'bridgeStart']);
-            },
-          );
+          expect(calls, ['bridgeStart', 'jsStop', 'bridgeStop']);
+        });
 
-          test('flushReplay flushes the JS replay', () async {
-            await sut.setReplayConfig(config);
+        test('setReplayConfig does not restart a stopped recorder', () async {
+          await sut.setReplayConfig(config);
+          await sut.stopReplay();
 
-            await sut.flushReplay();
+          await sut.setReplayConfig(config);
 
-            expect(calls, ['bridgeStart', 'jsFlush']);
-          });
+          expect(bridge.startCalls, 1);
+        });
 
-          test('flushReplay restarts a stopped recorder', () async {
+        test('startReplay starts the JS replay and the recorder', () async {
+          await sut.setReplayConfig(config);
+          await sut.stopReplay();
+          calls.clear();
+
+          await sut.startReplay();
+
+          expect(calls, ['jsStart', 'bridgeStart']);
+        });
+
+        test(
+          'startReplayBuffering starts the JS replay buffering and the recorder',
+          () async {
             await sut.setReplayConfig(config);
             await sut.stopReplay();
             calls.clear();
 
-            await sut.flushReplay();
+            await sut.startReplayBuffering();
 
-            expect(calls, ['jsFlush', 'bridgeStart']);
-          });
+            expect(calls, ['jsStartBuffering', 'bridgeStart']);
+          },
+        );
 
-          test('startReplay does not restart a running recorder', () async {
-            await sut.setReplayConfig(config);
+        test('flushReplay flushes the JS replay', () async {
+          await sut.setReplayConfig(config);
 
-            await sut.startReplay();
+          await sut.flushReplay();
 
-            expect(bridge.startCalls, 1);
-          });
+          expect(calls, ['bridgeStart', 'jsFlush']);
+        });
+
+        test('flushReplay restarts a stopped recorder', () async {
+          await sut.setReplayConfig(config);
+          await sut.stopReplay();
+          calls.clear();
+
+          await sut.flushReplay();
+
+          expect(calls, ['jsFlush', 'bridgeStart']);
+        });
+
+        test('startReplay does not restart a running recorder', () async {
+          await sut.setReplayConfig(config);
+
+          await sut.startReplay();
+
+          expect(bridge.startCalls, 1);
         });
       });
 
