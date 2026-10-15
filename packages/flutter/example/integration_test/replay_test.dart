@@ -94,6 +94,30 @@ void main() {
   }, appRunner: () => pumpApp(tester));
 
   group('Replay recording', () {
+    testWidgets('rejects invalid Android main looper delays', (tester) async {
+      const channel = MethodChannel('example.flutter.sentry.io');
+      for (final arguments in [
+        null,
+        <String, Object>{},
+        {'durationMillis': 'invalid'},
+        {'durationMillis': -1},
+      ]) {
+        await expectLater(
+          channel.invokeMethod<void>('delayMainLooper', arguments),
+          throwsA(
+            isA<PlatformException>().having(
+              (error) => error.code,
+              'code',
+              'invalid_argument',
+            ),
+          ),
+        );
+      }
+      await channel.invokeMethod<void>('delayMainLooper', {
+        'durationMillis': 0,
+      });
+    }, skip: !Platform.isAndroid);
+
     for (final buffering in [false, true]) {
       testWidgets(
         'links errors to a manual ${buffering ? 'buffer' : 'session'} replay',

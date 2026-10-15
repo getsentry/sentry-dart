@@ -27,9 +27,15 @@ class MainActivity : FlutterActivity() {
         "anr" -> anr()
 
         "delayMainLooper" -> {
+          val arguments = call.arguments as? Map<*, *>
+          val durationMillis = (arguments?.get("durationMillis") as? Number)?.toLong()
+          if (durationMillis == null || durationMillis < 0) {
+            result.error("invalid_argument", "durationMillis must be a non-negative number", null)
+            return@setMethodCallHandler
+          }
           // Let the integration test call JNI while Android's looper is busy.
           result.success("")
-          Thread.sleep(call.argument<Number>("durationMillis")!!.toLong())
+          Thread.sleep(durationMillis)
           return@setMethodCallHandler
         }
 
