@@ -33,6 +33,15 @@ void main() {
       );
     });
 
+    test('does not add the ID of an unsampled replay', () async {
+      final sut = fixture.getSut(replayId: fixture.replayId, sampled: false);
+      final event = SentryEvent();
+
+      final processedEvent = await sut.apply(event, Hint());
+
+      expect(processedEvent?.tags, isNull);
+    });
+
     test('does not change event when replay ID is unavailable', () async {
       final sut = fixture.getSut();
       final event = SentryEvent();
@@ -47,18 +56,23 @@ void main() {
 class Fixture {
   final replayId = '1988bb1b6f0d4c509e232f0cb9aaeaea';
 
-  WebReplayEventProcessor getSut({String? replayId}) {
-    return WebReplayEventProcessor(FakeSentryJsBinding(replayId: replayId));
+  WebReplayEventProcessor getSut({String? replayId, bool sampled = true}) {
+    return WebReplayEventProcessor(
+      FakeSentryJsBinding(replayId: replayId, sampled: sampled),
+    );
   }
 }
 
 class FakeSentryJsBinding implements SentryJsBinding {
-  FakeSentryJsBinding({this.replayId});
+  FakeSentryJsBinding({this.replayId, this.sampled = true});
 
   final String? replayId;
+  final bool sampled;
 
+  // Like the JS SDK: an unsampled session's ID only without onlyIfSampled.
   @override
-  String? getReplayId({bool onlyIfSampled = false}) => replayId;
+  String? getReplayId({bool onlyIfSampled = false}) =>
+      onlyIfSampled && !sampled ? null : replayId;
 
   @override
   Object? createManualReplayCanvasIntegration() => null;
