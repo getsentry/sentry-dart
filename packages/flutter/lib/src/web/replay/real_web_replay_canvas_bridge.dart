@@ -26,9 +26,8 @@ extension type _SnapshotOptions._(JSObject _) implements JSObject {
 }
 
 /// Real, DOM-touching implementation of [WebReplayCanvasBridge]. See that
-/// interface for the contract; this class is exercised only by an
-/// integration test (`example/integration_test`), not a unit test -- same
-/// treatment JNI/FFI interop gets elsewhere in this SDK.
+/// interface for the contract; this class is tested in the browser
+/// (`test/web/replay/real_web_replay_canvas_bridge_test.dart`).
 @internal
 class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
   RealWebReplayCanvasBridge(this._canvasIntegration);

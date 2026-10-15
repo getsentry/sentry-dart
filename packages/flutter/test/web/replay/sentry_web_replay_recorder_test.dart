@@ -1,5 +1,6 @@
-// For some reason, this test is not working in the browser but that's OK, we
-// don't support video recording anyway.
+// Runs on the VM: like the other replay recorder tests, capturing doesn't
+// work in the browser test runner. The browser side is covered by the
+// canvas bridge tests.
 @TestOn('vm')
 library;
 
@@ -19,86 +20,91 @@ import '../../screen_capture/test_widget.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('feeds captured frame to the bridge', (tester) async {
-    await tester.runAsync(() async {
-      final fixture = await _Fixture.create(tester);
-
-      await fixture.nextFrame();
-
-      expect(fixture.bridge.startCalls, 1);
-      expect(fixture.bridge.updatePositionCalls, hasLength(1));
-      expect(fixture.bridge.feedFrameCalls, hasLength(1));
-      final fed = fixture.bridge.feedFrameCalls.single;
-      expect(fed.width, greaterThan(0));
-      expect(fed.height, greaterThan(0));
-
-      await fixture.sut.stop();
-    });
-  });
-
-  testWidgets(
-    'config changes while running keep the capture cadence and apply on the next scheduled capture',
-    (tester) async {
+  group('$SentryWebReplayRecorder', () {
+    testWidgets('feeds captured frame to the bridge', (tester) async {
       await tester.runAsync(() async {
-        final fixture = await _Fixture.create(tester, frameRate: 1);
+        final fixture = await _Fixture.create(tester);
+
         await fixture.nextFrame();
 
-        // A window drag: one config change per frame.
-        for (final size in [800.0, 600.0, 100.0]) {
-          await fixture.sut.onConfigurationChanged(
-            ScheduledScreenshotRecorderConfig(
-              width: size,
-              height: size,
-              frameRate: 1,
-            ),
-          );
-        }
-        // A restarted scheduler captures on the very next frame; the kept
-        // cadence waits out the frame interval (1s at 1 fps). The wait gives
-        // an immediate capture time to land, well short of the interval.
-        await fixture.renderFrame();
-        await fixture.renderFrame();
-        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(fixture.bridge.startCalls, 1);
+        expect(fixture.bridge.updatePositionCalls, hasLength(1));
         expect(fixture.bridge.feedFrameCalls, hasLength(1));
-
-        await fixture.nextFrame();
-
-        expect(fixture.bridge.feedFrameCalls[1].width, lessThanOrEqualTo(100));
+        final fed = fixture.bridge.feedFrameCalls.single;
+        expect(fed.width, greaterThan(0));
+        expect(fed.height, greaterThan(0));
 
         await fixture.sut.stop();
       });
-    },
-  );
-
-  // E.g. the JS replay wasn't sampled, or stopped itself on session expiry.
-  testWidgets('does not capture while the JS replay is not recording', (
-    tester,
-  ) async {
-    await tester.runAsync(() async {
-      final fixture = await _Fixture.create(tester);
-      fixture.recording = false;
-
-      await fixture.renderFrame();
-      await fixture.renderFrame();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-      expect(fixture.bridge.feedFrameCalls, isEmpty);
-
-      fixture.recording = true;
-      await fixture.nextFrame();
-      expect(fixture.bridge.feedFrameCalls, hasLength(1));
-
-      await fixture.sut.stop();
     });
-  });
 
-  testWidgets('stops the bridge on stop', (tester) async {
-    await tester.runAsync(() async {
-      final fixture = await _Fixture.create(tester);
-      await fixture.nextFrame();
+    testWidgets(
+      'config changes while running keep the capture cadence and apply on the next scheduled capture',
+      (tester) async {
+        await tester.runAsync(() async {
+          final fixture = await _Fixture.create(tester, frameRate: 1);
+          await fixture.nextFrame();
 
-      await fixture.sut.stop();
+          // A window drag: one config change per frame.
+          for (final size in [800.0, 600.0, 100.0]) {
+            await fixture.sut.onConfigurationChanged(
+              ScheduledScreenshotRecorderConfig(
+                width: size,
+                height: size,
+                frameRate: 1,
+              ),
+            );
+          }
+          // A restarted scheduler captures on the very next frame; the kept
+          // cadence waits out the frame interval (1s at 1 fps). The wait gives
+          // an immediate capture time to land, well short of the interval.
+          await fixture.renderFrame();
+          await fixture.renderFrame();
+          await Future<void>.delayed(const Duration(milliseconds: 100));
+          expect(fixture.bridge.feedFrameCalls, hasLength(1));
 
-      expect(fixture.bridge.stopCalls, 1);
+          await fixture.nextFrame();
+
+          expect(
+            fixture.bridge.feedFrameCalls[1].width,
+            lessThanOrEqualTo(100),
+          );
+
+          await fixture.sut.stop();
+        });
+      },
+    );
+
+    // E.g. the JS replay wasn't sampled, or stopped itself on session expiry.
+    testWidgets('does not capture while the JS replay is not recording', (
+      tester,
+    ) async {
+      await tester.runAsync(() async {
+        final fixture = await _Fixture.create(tester);
+        fixture.recording = false;
+
+        await fixture.renderFrame();
+        await fixture.renderFrame();
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(fixture.bridge.feedFrameCalls, isEmpty);
+
+        fixture.recording = true;
+        await fixture.nextFrame();
+        expect(fixture.bridge.feedFrameCalls, hasLength(1));
+
+        await fixture.sut.stop();
+      });
+    });
+
+    testWidgets('stops the bridge on stop', (tester) async {
+      await tester.runAsync(() async {
+        final fixture = await _Fixture.create(tester);
+        await fixture.nextFrame();
+
+        await fixture.sut.stop();
+
+        expect(fixture.bridge.stopCalls, 1);
+      });
     });
   });
 }

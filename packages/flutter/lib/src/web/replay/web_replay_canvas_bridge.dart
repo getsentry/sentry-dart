@@ -31,8 +31,7 @@ const webReplayBlockSelector = 'canvas:not(#$webReplayShadowCanvasId)';
 /// library isn't importable outside web at all -- see the conditional
 /// export in `sentry_js_binding.dart`) so [SentryWebReplayRecorder] can be
 /// unit-tested on the VM against a fake, with the real DOM-touching
-/// implementation ([RealWebReplayCanvasBridge]) exercised only by an
-/// integration test.
+/// implementation ([RealWebReplayCanvasBridge]) tested in the browser.
 @internal
 abstract class WebReplayCanvasBridge {
   /// Creates the shadow canvas ([webReplayShadowCanvasId]).
