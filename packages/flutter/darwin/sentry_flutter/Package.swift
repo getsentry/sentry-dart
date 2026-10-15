@@ -16,7 +16,7 @@ let package = Package(
       .package(name: "FlutterFramework", path: "../FlutterFramework"),
       // Cocoa 9.30.1 declares a revision dependency in its Swift 6.1 manifest.
       // Resolve the release tag as a revision until the next Cocoa release fixes it.
-      .package(url: "https://github.com/getsentry/sentry-cocoa", revision: "9.30.1")
+      .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "9.30.2")
     ],
     targets: [
         .target(

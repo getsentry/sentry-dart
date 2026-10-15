@@ -26,6 +26,7 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
   ReplayConfig? _replayConfig;
+  Hub? _hub;
 
   SentryNativeJava(super.options) {
     // Initialize core worker here in the ctor instead of init().
@@ -83,6 +84,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void init(Hub hub) {
+    _hub = hub;
     // Only record the native SDK as initialized if init actually attempted
     // to run - initSentryAndroid can bail out early (e.g. a null
     // application context), and a later close() shouldn't try to tear down
@@ -275,13 +277,37 @@ class SentryNativeJava extends SentryNativeChannel {
   void resumeReplay() => tryCatchSync('resumeReplay', () => _replay?.resume());
 
   @override
-  void stopReplay() => tryCatchSync('stopReplay', () => _replay?.stop());
+  void stopReplay() {
+    try {
+      tryCatchSync('stopReplay', () => _replay?.stop());
+    } finally {
+      // Invalidate queued promotion updates before the native stop callback.
+      _replayId = null;
+      _hub?.configureScope((scope) => scope.replayId = null);
+    }
+  }
 
   @override
-  void flushReplay() => tryCatchSync(
-    'flushReplay',
-    native.SentryFlutterPlugin.privateSentryFlushReplay,
-  );
+  FutureOr<void> flushReplay() async {
+    // Wait for native buffer promotion and its Dart scope update.
+    await tryCatchAsync<void>('flushReplay', () async {
+      final flushed = Completer<void>();
+      // Async so a flush completing after a hot restart is dropped instead of
+      // calling into the old isolate.
+      final listener = native.ReplayFlushListener.implement(
+        native.$ReplayFlushListener(
+          onFlushed: flushed.complete,
+          onFlushed$async: true,
+        ),
+      );
+      try {
+        native.SentryFlutterPlugin.privateSentryFlushReplay(listener);
+        await flushed.future;
+      } finally {
+        listener.release();
+      }
+    });
+  }
 
   @override
   void setReplayConfig(ReplayConfig config) =>

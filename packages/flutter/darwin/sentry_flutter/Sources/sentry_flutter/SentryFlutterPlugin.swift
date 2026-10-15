@@ -187,6 +187,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             replay.stop()
         case "flushReplay":
             replay.flush()
+            // Cocoa queues flush on the main queue; respond after promotion.
+            DispatchQueue.main.async {
+                result(replay.replayId)
+            }
+            return
         default:
             break
         }
