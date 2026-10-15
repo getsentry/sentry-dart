@@ -80,6 +80,11 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   ///
   /// Captures already in flight when the transition happens are handled by
   /// [Scheduler.stop]; this only prevents new ones from starting.
+  /// Whether a scheduled capture should run. Lets a subclass skip the
+  /// capture work while there's nothing to record into.
+  @protected
+  bool get shouldCapture => true;
+
   bool get _canStartCapture {
     final state = options.bindingUtils.instance?.lifecycleState;
     // null until the first lifecycle message arrives, i.e. during startup,
@@ -109,6 +114,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
         );
         return;
       }
+      if (!shouldCapture) return;
       await capture(_onImageCaptured);
     }, _addPostFrameCallback);
 

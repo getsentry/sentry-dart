@@ -70,6 +70,27 @@ void main() async {
     },
   );
 
+  // E.g. the JS replay wasn't sampled, or stopped itself on session expiry.
+  testWidgets('does not capture while the JS replay is not recording', (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      final fixture = await _Fixture.create(tester);
+      fixture.recording = false;
+
+      await fixture.renderFrame();
+      await fixture.renderFrame();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      expect(fixture.bridge.feedFrameCalls, isEmpty);
+
+      fixture.recording = true;
+      await fixture.nextFrame();
+      expect(fixture.bridge.feedFrameCalls, hasLength(1));
+
+      await fixture.sut.stop();
+    });
+  });
+
   testWidgets('stops the bridge on stop', (tester) async {
     await tester.runAsync(() async {
       final fixture = await _Fixture.create(tester);
@@ -118,6 +139,7 @@ class _Fixture {
   late final SentryWebReplayRecorder _sut;
   final bridge = _FakeWebReplayCanvasBridge();
   var _completer = Completer<void>();
+  var recording = true;
 
   SentryWebReplayRecorder get sut => _sut;
 
@@ -125,6 +147,7 @@ class _Fixture {
     _sut = SentryWebReplayRecorder(
       defaultTestOptions()..bindingUtils = TestBindingWrapper(),
       bridge: bridge,
+      isRecording: () => recording,
     );
     bridge.onFeedFrame = () {
       if (!_completer.isCompleted) _completer.complete();

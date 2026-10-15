@@ -122,6 +122,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
           bridge: _createReplayCanvasBridge(
             canvasIntegration as WebReplayCanvasIntegration,
           ),
+          isRecording: () => replayId != null,
         );
       }
     });

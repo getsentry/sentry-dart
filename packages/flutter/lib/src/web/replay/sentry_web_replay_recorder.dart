@@ -23,11 +23,23 @@ import 'web_replay_canvas_bridge.dart';
 /// native worker.
 @internal
 class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
-  SentryWebReplayRecorder(super.options, {required this._bridge}) {
+  SentryWebReplayRecorder(
+    super.options, {
+    required this._bridge,
+    required this._isRecording,
+  }) {
     super.callback = _onScreenshot;
   }
 
   final WebReplayCanvasBridge _bridge;
+  final bool Function() _isRecording;
+
+  // The JS replay may not be recording: the session wasn't sampled, or the
+  // JS SDK stopped it on its own (session expiry, max duration). Capturing
+  // and masking then only costs main-thread time, so skip it until the JS
+  // replay records again.
+  @override
+  bool get shouldCapture => _isRecording();
 
   // See the comment on ScreenshotRecorder.yieldToEventLoop: the default
   // no-op preserves every other recorder's behavior; only web's pipeline

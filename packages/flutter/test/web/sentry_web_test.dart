@@ -556,6 +556,9 @@ void main() {
           when(mockBinding.init(any)).thenReturn(null);
           when(mockBinding.close()).thenAnswer((_) => calls.add('jsClose'));
           when(
+            mockBinding.getReplayId(onlyIfSampled: true),
+          ).thenReturn('fixture-replay-id');
+          when(
             mockBinding.startReplay(),
           ).thenAnswer((_) => calls.add('jsStart'));
           when(
