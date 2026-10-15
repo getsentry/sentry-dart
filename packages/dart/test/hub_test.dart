@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/exception/unhandled_error_span_status.dart';
 import 'package:sentry/src/telemetry/log/logger_setup_integration.dart';
 import 'package:sentry/src/telemetry/metric/metrics_setup_integration.dart';
 import 'package:sentry/src/telemetry/span/propagation/propagation_context.dart';
@@ -1289,6 +1290,22 @@ void main() {
       expect(capturedMetric.traceId, zoneTraceId);
       expect(capturedMetric.traceId, isNot(outerTraceId));
     });
+
+    test(
+      'markActiveSpanAsErrored reaches a transaction bound inside the callback',
+      () {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+
+        final boundTx = hub.startNewTrace(() {
+          final tx = hub.startTransaction('inner', 'op', bindToScope: true);
+          hub.markActiveSpanAsErrored();
+          return tx;
+        });
+
+        expect(boundTx.status, const SpanStatus.internalError());
+        expect(hub.scope.span, isNull);
+      },
+    );
 
     test(
       'startTransaction(bindToScope: true) inside callback is visible to '
