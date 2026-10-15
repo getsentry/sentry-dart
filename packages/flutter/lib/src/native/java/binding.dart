@@ -21729,6 +21729,37 @@ extension SentryOptions$$Methods on SentryOptions {
     ).object<MonotonicTicker>();
   }
 
+  static final _id_get$hostnameCache = SentryOptions._class.instanceMethodId(
+    r'getHostnameCache',
+    r'()Lio/sentry/HostnameCache;',
+  );
+
+  static final _get$hostnameCache =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.HostnameCache getHostnameCache()`
+  /// The returned object must be released after use, by calling the [release] method.
+  HostnameCache get hostnameCache {
+    final _$$selfRef = reference;
+    return _get$hostnameCache(
+      _$$selfRef.pointer,
+      _id_get$hostnameCache.pointer,
+    ).object<HostnameCache>();
+  }
+
   static final _id_addPerformanceCollector = SentryOptions._class
       .instanceMethodId(
         r'addPerformanceCollector',
@@ -54002,6 +54033,24 @@ final class $MonotonicTicker$Type$ extends jni$_.JType<MonotonicTicker> {
   @jni$_.internal
   @core$_.override
   String get signature => r'Lio/sentry/time/MonotonicTicker;';
+}
+
+/// from: `io.sentry.HostnameCache`
+///
+/// WARNING: HostnameCache is a stub. To generate bindings for this class, include
+/// io.sentry.HostnameCache in your config's classes list.
+///
+extension type HostnameCache._(jni$_.JObject _$this) implements jni$_.JObject {
+  static const jni$_.JType<HostnameCache> type = $HostnameCache$Type$();
+}
+
+final class $HostnameCache$Type$ extends jni$_.JType<HostnameCache> {
+  @jni$_.internal
+  const $HostnameCache$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/HostnameCache;';
 }
 
 /// from: `io.sentry.IPerformanceCollector`
