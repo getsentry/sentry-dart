@@ -607,6 +607,20 @@ void main() {
           },
         );
 
+        // ReplayIntegration doesn't await setReplayConfig, so teardown can
+        // land while it's still configuring the recorder.
+        test(
+          'close keeps an in-flight setReplayConfig from starting the recorder',
+          () async {
+            final configured = sut.setReplayConfig(config);
+
+            await sut.close();
+            await configured;
+
+            expect(bridge.startCalls, 0);
+          },
+        );
+
         test('setReplayConfig retries starting after a failed start', () async {
           options.automatedTestMode = false;
           bridge.throwOnNextStart = true;

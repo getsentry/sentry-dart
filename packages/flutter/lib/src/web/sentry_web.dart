@@ -129,6 +129,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> close() {
+    // Keeps an in-flight setReplayConfig from starting the recorder after
+    // teardown.
+    _replayStopped = true;
     return tryCatchAsync('close', () async {
       try {
         // Stopping waits for an in-flight capture, which could otherwise
