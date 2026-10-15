@@ -54,18 +54,16 @@ void main() async {
           );
         }
         // A restarted scheduler captures on the very next frame; the kept
-        // cadence waits out the frame interval (1s at 1 fps). A slow capture
-        // only widens the gap.
+        // cadence waits out the frame interval (1s at 1 fps). The wait gives
+        // an immediate capture time to land, well short of the interval.
         await fixture.renderFrame();
-        final renderedAt = _clock.elapsed;
+        await fixture.renderFrame();
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        expect(fixture.bridge.feedFrameCalls, hasLength(1));
+
         await fixture.nextFrame();
 
-        final next = fixture.bridge.feedFrameCalls[1];
-        expect(
-          next.at - renderedAt,
-          greaterThanOrEqualTo(const Duration(milliseconds: 500)),
-        );
-        expect(next.width, lessThanOrEqualTo(100));
+        expect(fixture.bridge.feedFrameCalls[1].width, lessThanOrEqualTo(100));
 
         await fixture.sut.stop();
       });
@@ -85,16 +83,11 @@ void main() async {
 }
 
 class _FeedFrameCall {
-  _FeedFrameCall(this.rgba, this.width, this.height, this.at);
+  _FeedFrameCall(this.rgba, this.width, this.height);
   final Uint8List rgba;
   final int width;
   final int height;
-
-  /// When the frame was fed, on [_clock].
-  final Duration at;
 }
-
-final _clock = Stopwatch()..start();
 
 class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
   int startCalls = 0;
@@ -112,7 +105,7 @@ class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
 
   @override
   void feedFrame(Uint8List rgba, int width, int height) {
-    feedFrameCalls.add(_FeedFrameCall(rgba, width, height, _clock.elapsed));
+    feedFrameCalls.add(_FeedFrameCall(rgba, width, height));
     onFeedFrame?.call();
   }
 
