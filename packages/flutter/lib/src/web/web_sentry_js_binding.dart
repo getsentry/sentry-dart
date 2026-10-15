@@ -380,6 +380,16 @@ external JSObject _httpContextIntegration();
 
 // Returning null discards the event.
 JSAny? _beforeAddRecordingEvent(JSAny? event) {
+  // Runs for every recording event, including full DOM snapshots and canvas
+  // frames, so only the small custom events (5 = rrweb `EventType.Custom`)
+  // are copied into Dart.
+  if (event == null || !event.isA<JSObject>()) return event;
+  final type = (event as JSObject)['type'];
+  if (type == null ||
+      !type.isA<JSNumber>() ||
+      (type as JSNumber).toDartInt != 5) {
+    return event;
+  }
   final dartEvent = event.dartify();
   return dartEvent is Map && isFlutterViewClickEvent(dartEvent) ? null : event;
 }

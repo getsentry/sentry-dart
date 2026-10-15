@@ -180,6 +180,9 @@ void main() {
 
         expect(apply(click('flutter-view')), isNull);
         expect(apply(click('button')), isNotNull);
+        // 2 = rrweb `EventType.FullSnapshot`
+        final snapshot = {'type': 2, 'data': <String, Object?>{}}.jsify();
+        expect(callback.callAsFunction(null, snapshot), same(snapshot));
       },
     );
 
