@@ -126,8 +126,16 @@ class WebSentryJsBinding implements SentryJsBinding {
           // Dart events reach the JS SDK as raw envelopes, which skip the
           // hooks its own sendEvent() runs -- e.g. Replay turning a buffering
           // replay into a session when an error with its replay ID is sent.
-          for (final event in events) {
-            client.emit('afterSendEvent'.toJS, event.jsify(), response);
+          try {
+            for (final event in events) {
+              client.emit('afterSendEvent'.toJS, event.jsify(), response);
+            }
+          } catch (error, stackTrace) {
+            internalLogger.error(
+              'JS SDK integration: failed to emit afterSendEvent',
+              error: error,
+              stackTrace: stackTrace,
+            );
           }
         },
         onError: (Object error) {
