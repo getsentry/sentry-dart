@@ -94,6 +94,79 @@ void main() {
   }, appRunner: () => pumpApp(tester));
 
   group('Replay recording', () {
+    testWidgets(
+      'completes Android flush after a scope lookup exception and remains usable',
+      (tester) async {
+        final transport = RecordingTransport();
+        await setupWithoutAutomaticReplay(tester, transport: transport);
+        await SentryFlutter.replay.startBuffering();
+        await _waitUntilRecording(_replayIntegration(), true);
+        await _waitUntilReplayId();
+        const channel = MethodChannel('example.flutter.sentry.io');
+        final injected = await channel
+            .invokeMethod<bool>('testReplayFlushScopeFailure')
+            .timeout(const Duration(seconds: 5));
+        expect(injected, isTrue);
+        // A second main-looper command must run after the failing callback.
+        await channel
+            .invokeMethod<void>('delayMainLooper', {'durationMillis': 0})
+            .timeout(const Duration(seconds: 5));
+        await SentryFlutter.replay.flush().timeout(const Duration(seconds: 5));
+        final eventId = await Sentry.captureException(
+          Exception('after failure'),
+        );
+        expect(
+          transport.replayIdOf(eventId),
+          SentryFlutter.native!.replayId.toString(),
+        );
+      },
+      skip: !Platform.isAndroid,
+    );
+
+    testWidgets(
+      'keeps Android replay IDs cleared when stop overlaps a flush across restarts',
+      (tester) async {
+        final transport = RecordingTransport();
+        await setupWithoutAutomaticReplay(tester, transport: transport);
+        await Sentry.captureMessage('Before replay');
+        final replay = _replayIntegration();
+        SentryId? previousReplayId;
+
+        for (var attempt = 0; attempt < 5; attempt++) {
+          await SentryFlutter.replay.startBuffering();
+          await _waitUntilRecording(replay, true);
+          await _waitUntilReplayId(differentFrom: previousReplayId);
+          previousReplayId = SentryFlutter.native!.replayId;
+          final delay = const MethodChannel(
+            'example.flutter.sentry.io',
+          ).invokeMethod<void>('delayMainLooper', {'durationMillis': 1000});
+          await Future<void>.delayed(const Duration(milliseconds: 250));
+          final flush = SentryFlutter.replay.flush();
+          try {
+            await SentryFlutter.replay.stop();
+            expect(SentryFlutter.native!.replayId, isNull);
+            await Sentry.configureScope((scope) {
+              expect(scope.replayId, isNull);
+            });
+            await flush;
+            expect(SentryFlutter.native!.replayId, isNull);
+            await Sentry.configureScope((scope) {
+              expect(scope.replayId, isNull);
+            });
+            final eventId = await Sentry.captureException(
+              Exception('after overlapping stop $attempt'),
+            );
+            expect(transport.replayIdOf(eventId), isNull);
+          } finally {
+            await flush;
+            await delay;
+          }
+          await _waitUntilRecording(replay, false);
+        }
+      },
+      skip: !Platform.isAndroid,
+    );
+
     testWidgets('rejects invalid Android main looper delays', (tester) async {
       const channel = MethodChannel('example.flutter.sentry.io');
       for (final arguments in [

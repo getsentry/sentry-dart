@@ -178,6 +178,8 @@ class SentryFlutterPlugin :
             isBuffering = scope.replayId != replayId
           }
           callbacks.replayStateChanged(replayId.toString(), isBuffering)
+        } catch (error: Exception) {
+          Log.w("Sentry", "Failed to flush replay", error)
         } finally {
           listener.onFlushed()
         }

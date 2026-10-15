@@ -26,6 +26,7 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
   ReplayConfig? _replayConfig;
+  Hub? _hub;
 
   SentryNativeJava(super.options) {
     // Initialize core worker here in the ctor instead of init().
@@ -56,6 +57,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void init(Hub hub) {
+    _hub = hub;
     // Only record the native SDK as initialized if init actually attempted
     // to run - initSentryAndroid can bail out early (e.g. a null
     // application context), and a later close() shouldn't try to tear down
@@ -248,7 +250,15 @@ class SentryNativeJava extends SentryNativeChannel {
   void resumeReplay() => tryCatchSync('resumeReplay', () => _replay?.resume());
 
   @override
-  void stopReplay() => tryCatchSync('stopReplay', () => _replay?.stop());
+  void stopReplay() {
+    try {
+      tryCatchSync('stopReplay', () => _replay?.stop());
+    } finally {
+      // Invalidate queued promotion updates before the native stop callback.
+      _replayId = null;
+      _hub?.configureScope((scope) => scope.replayId = null);
+    }
+  }
 
   @override
   FutureOr<void> flushReplay() async {
