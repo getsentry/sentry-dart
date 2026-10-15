@@ -5,11 +5,13 @@ library;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/exception/android_platform_exception_event_processor.dart';
 
 import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -186,12 +188,91 @@ void main() {
 
       expect(fixture.eventWithPlatformEmpty, platformExceptionEvent);
     });
+
+    group('when native SDK has a proguard UUID', () {
+      setUp(() {
+        when(fixture.native.proguardUuid).thenReturn(proguardUuid);
+      });
+
+      test('adds a proguard debug image', () async {
+        final event = await fixture.processor.apply(
+          fixture.eventWithPlatformStackTrace,
+          Hint(),
+        );
+
+        final images = event!.debugMeta!.images;
+        expect(images.length, 1);
+        expect(images.first.type, 'proguard');
+        expect(images.first.uuid, proguardUuid);
+      });
+
+      test('keeps existing debug images', () async {
+        final existingImage = DebugImage(type: 'elf', debugId: 'debug-id');
+        fixture.eventWithPlatformStackTrace.debugMeta = DebugMeta(
+          images: [existingImage],
+        );
+
+        final event = await fixture.processor.apply(
+          fixture.eventWithPlatformStackTrace,
+          Hint(),
+        );
+
+        final images = event!.debugMeta!.images;
+        expect(images.length, 2);
+        expect(images.first, existingImage);
+        expect(images.last.type, 'proguard');
+        expect(images.last.uuid, proguardUuid);
+      });
+
+      test('does not add a duplicate proguard debug image', () async {
+        fixture.eventWithPlatformStackTrace.debugMeta = DebugMeta(
+          images: [DebugImage(type: 'proguard', uuid: proguardUuid)],
+        );
+
+        final event = await fixture.processor.apply(
+          fixture.eventWithPlatformStackTrace,
+          Hint(),
+        );
+
+        expect(event!.debugMeta!.images.length, 1);
+      });
+
+      test(
+        'does not add a proguard debug image if PlatformException has no stackTrace',
+        () async {
+          final event = await fixture.processor.apply(
+            fixture.eventWithPlatformEmpty,
+            Hint(),
+          );
+
+          expect(event!.debugMeta, isNull);
+        },
+      );
+    });
+
+    test(
+      'does not add a proguard debug image if native SDK has no proguard UUID',
+      () async {
+        when(fixture.native.proguardUuid).thenReturn(null);
+
+        final event = await fixture.processor.apply(
+          fixture.eventWithPlatformStackTrace,
+          Hint(),
+        );
+
+        expect(event!.debugMeta, isNull);
+      },
+    );
   });
 }
 
+const proguardUuid = 'c3bd4245-1865-372f-9919-87061e189470';
+
 class Fixture {
   late AndroidPlatformExceptionEventProcessor processor =
-      AndroidPlatformExceptionEventProcessor(options);
+      AndroidPlatformExceptionEventProcessor(options, native);
+
+  final native = MockSentryNativeBinding();
 
   late SentryException withPlatformDetailsAndStackTrace = options
       .exceptionFactory
@@ -240,6 +321,7 @@ class Fixture {
   SentryFlutterOptions options = defaultTestOptions()..attachThreads = true;
 
   Fixture() {
+    when(native.proguardUuid).thenReturn(null);
     withPlatformDetailsAndStackTrace.threadId = 1;
     withPlatformDetails.threadId = 1;
     withPlatformStackTrace.threadId = 1;
