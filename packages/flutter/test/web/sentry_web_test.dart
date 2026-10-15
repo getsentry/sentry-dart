@@ -703,6 +703,25 @@ void main() {
           expect(calls, ['bridgeStart', 'jsStop', 'bridgeStop']);
         });
 
+        test(
+          'startReplay restarts the recorder after a deferred stop failed',
+          () async {
+            options.automatedTestMode = false;
+            bridge.throwOnStop = true;
+            final configured = sut.setReplayConfig(config);
+            while (!calls.contains('bridgeStart')) {
+              await Future<void>.microtask(() {});
+            }
+            await sut.stopReplay();
+            await configured;
+            bridge.throwOnStop = false;
+
+            await sut.startReplay();
+
+            expect(bridge.startCalls, 2);
+          },
+        );
+
         test('setReplayConfig does not restart a stopped recorder', () async {
           await sut.setReplayConfig(config);
           await sut.stopReplay();

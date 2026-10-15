@@ -451,8 +451,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     _replayRecorderStarted = true;
     // stopReplay() ran while starting, when there was nothing to stop yet.
     if (_replayStopped) {
-      await recorder.stop();
+      // Cleared first, so a failed stop doesn't block later starts.
       _replayRecorderStarted = false;
+      await recorder.stop();
     }
   }
 
