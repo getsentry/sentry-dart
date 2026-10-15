@@ -118,24 +118,21 @@ class WebSentryJsBinding implements SentryJsBinding {
     if (client == null) return;
 
     final sent = client.sendEnvelope(envelope.jsify());
-    if (events.isEmpty) return;
-    // Dart events reach the JS SDK as raw envelopes, which skip the hooks its
-    // own sendEvent() runs -- e.g. Replay turning a buffering replay into a
-    // session when an error with its replay ID is sent.
+    // Handled even without events, so a rejection (e.g. a throwing
+    // beforeEnvelope listener) isn't left unhandled.
     unawaited(
       sent.toDart.then(
         (response) {
+          // Dart events reach the JS SDK as raw envelopes, which skip the
+          // hooks its own sendEvent() runs -- e.g. Replay turning a buffering
+          // replay into a session when an error with its replay ID is sent.
           for (final event in events) {
             client.emit('afterSendEvent'.toJS, event.jsify(), response);
           }
         },
         onError: (Object error) {
-          // The transport already reports failed sends; only Replay's hook is
-          // skipped.
           internalLogger.debug(
-            () =>
-                'JS SDK integration: envelope not sent, skipping '
-                'afterSendEvent: $error',
+            () => 'JS SDK integration: failed to send envelope: $error',
           );
         },
       ),
