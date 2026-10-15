@@ -1,6 +1,0 @@
-# melos_managed_dependency_overrides: sentry,_sentry_testing
-dependency_overrides:
-  _sentry_testing:
-    path: ../_sentry_testing
-  sentry:
-    path: ../dart
