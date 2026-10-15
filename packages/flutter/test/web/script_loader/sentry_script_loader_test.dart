@@ -95,11 +95,9 @@ void main() {
       ];
       final sut = fixture.getSut();
 
-      // Modify script URL to cause failure
-      expect(
-        () async => await sut.loadWebSdk(failingScripts),
-        throwsA(anything),
-      );
+      // Awaited: the failed load's cleanup would otherwise race the next
+      // load and remove its scripts.
+      await expectLater(sut.loadWebSdk(failingScripts), throwsA(anything));
 
       // loading after the failure still works
       await sut.loadWebSdk(productionScripts);
