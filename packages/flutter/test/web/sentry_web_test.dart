@@ -732,6 +732,23 @@ void main() {
           expect(calls, ['jsFlush', 'bridgeStart']);
         });
 
+        test(
+          'stopReplay during flushReplay keeps the recorder stopped',
+          () async {
+            await sut.setReplayConfig(config);
+            await sut.stopReplay();
+            final flushed = Completer<void>();
+            when(mockBinding.flushReplay()).thenAnswer((_) => flushed.future);
+
+            final flushing = sut.flushReplay();
+            await sut.stopReplay();
+            flushed.complete();
+            await flushing;
+
+            expect(bridge.startCalls, 1);
+          },
+        );
+
         test('startReplay does not restart a running recorder', () async {
           await sut.setReplayConfig(config);
 

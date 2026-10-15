@@ -132,6 +132,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     // Keeps an in-flight setReplayConfig from starting the recorder after
     // teardown.
     _replayStopped = true;
+    _replayStops++;
     return tryCatchAsync('close', () async {
       try {
         // Stopping waits for an in-flight capture, which could otherwise
@@ -274,6 +275,7 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
     return tryCatchAsync('stopReplay', () async {
       _replayStopped = true;
+      _replayStops++;
       try {
         if (_replayRecorderStarted) {
           // Stopping waits for an in-flight capture, which could otherwise
@@ -402,6 +404,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   // Set by stopReplay so that config changes (e.g. a window resize) don't
   // restart recording until the replay is started again.
   bool _replayStopped = false;
+  // Counts stops, so a start can tell whether one ran while it awaited JS.
+  int _replayStops = 0;
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
@@ -447,7 +451,10 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     if (recorder == null) return null;
 
     return tryCatchAsync(nativeMethodName, () async {
+      final stops = _replayStops;
       await startJsReplay();
+      // stopReplay() or close() ran while the JS replay was starting.
+      if (_replayStops != stops) return;
       _replayStopped = false;
       await _startReplayRecorder(recorder);
     });
