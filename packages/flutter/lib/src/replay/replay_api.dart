@@ -11,6 +11,11 @@ import '../utils/internal_logger.dart';
 ///
 /// Only Android, iOS and Web support Session Replay. On every other platform
 /// these methods are no-ops.
+///
+/// On Web, these methods also need Replay enabled through
+/// `options.replay.sessionSampleRate` or `options.replay.onErrorSampleRate`
+/// (any rate above 0): the Replay JavaScript bundle is only loaded then, so
+/// apps that don't use Replay don't download it.
 abstract interface class SentryReplay {
   /// Starts a new replay session.
   ///
