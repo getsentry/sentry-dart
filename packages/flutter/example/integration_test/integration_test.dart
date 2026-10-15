@@ -301,6 +301,7 @@ void main() {
           options.connectionTimeout = const Duration(milliseconds: 1234);
           options.readTimeout = const Duration(milliseconds: 2345);
           options.enableTombstone = true;
+          options.proguardUuid = 'c3bd4245-1865-372f-9919-87061e189470';
         },
       );
     });
@@ -385,6 +386,15 @@ void main() {
     expect(r.sessionSampleRate, isNotNull);
     expect(r.onErrorSampleRate, isNotNull);
     expect(r.isTrackConfiguration, isFalse);
+
+    expect(
+      androidOptions.proguardUuid?.toDartString(),
+      'c3bd4245-1865-372f-9919-87061e189470',
+    );
+    expect(
+      SentryFlutter.native?.proguardUuid,
+      'c3bd4245-1865-372f-9919-87061e189470',
+    );
   }, skip: !Platform.isAndroid);
 
   testWidgets('loads native contexts through loadContexts', (tester) async {

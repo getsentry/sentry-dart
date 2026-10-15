@@ -473,6 +473,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  String? get proguardUuid => null;
+
+  @override
   bool get supportsTraceSync => false;
 
   @override
