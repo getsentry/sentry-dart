@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'replay/real_web_replay_canvas_bridge.dart';
 import 'replay/replay_click_filter.dart';
 import 'replay/web_replay_canvas_bridge.dart';
+import '../utils/internal_logger.dart';
 import 'sentry_js_binding.dart';
 
 @visibleForTesting
@@ -76,8 +77,6 @@ class WebSentryJsBinding implements SentryJsBinding {
   // name-only list can't express.
   JSObject? _createIntegration(Object? integration) {
     if (integration is! String) {
-      // Already a constructed integration (e.g. from
-      // createManualReplayCanvasIntegration) -- pass it through unchanged.
       return integration as JSObject?;
     }
     switch (integration) {
@@ -124,11 +123,22 @@ class WebSentryJsBinding implements SentryJsBinding {
     // own sendEvent() runs -- e.g. Replay turning a buffering replay into a
     // session when an error with its replay ID is sent.
     unawaited(
-      sent.toDart.then((response) {
-        for (final event in events) {
-          client.emit('afterSendEvent'.toJS, event.jsify(), response);
-        }
-      }, onError: (Object _) {}),
+      sent.toDart.then(
+        (response) {
+          for (final event in events) {
+            client.emit('afterSendEvent'.toJS, event.jsify(), response);
+          }
+        },
+        onError: (Object error) {
+          // The transport already reports failed sends; only Replay's hook is
+          // skipped.
+          internalLogger.debug(
+            () =>
+                'JS SDK integration: envelope not sent, skipping '
+                'afterSendEvent: $error',
+          );
+        },
+      ),
     );
   }
 
@@ -238,7 +248,12 @@ class WebSentryJsBinding implements SentryJsBinding {
         onlyIfSampled.toJS,
       );
       return replayId?.toDart;
-    } catch (_) {
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'JS SDK integration: failed to get the replay ID',
+        error: error,
+        stackTrace: stackTrace,
+      );
       return null;
     }
   }

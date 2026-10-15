@@ -4,7 +4,7 @@ import 'package:sentry_flutter/src/web/replay/web_replay_event_processor.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 
 void main() {
-  group('WebReplayEventProcessor', () {
+  group('$WebReplayEventProcessor', () {
     late Fixture fixture;
 
     setUp(() {
