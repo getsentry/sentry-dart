@@ -418,10 +418,10 @@ void main() {
         await sut.close();
       });
 
+      // The session rate is covered with the mock binding: a sampled session
+      // replay uploads on close, which would depend on the network.
       test('init maps replay options to JS SDK', () async {
-        const expectedSessionSampleRate = 0.1;
         const expectedOnErrorSampleRate = 1.0;
-        options.replay.sessionSampleRate = expectedSessionSampleRate;
         options.replay.onErrorSampleRate = expectedOnErrorSampleRate;
 
         await sut.init(hub);
@@ -429,10 +429,6 @@ void main() {
         final jsOptions = binding.getJsOptions();
         final integrations = jsOptions['integrations'] as List<dynamic>;
 
-        expect(
-          jsOptions['replaysSessionSampleRate'],
-          expectedSessionSampleRate,
-        );
         expect(
           jsOptions['replaysOnErrorSampleRate'],
           expectedOnErrorSampleRate,
@@ -583,6 +579,23 @@ void main() {
             createReplayCanvasBridge: (_) => bridge,
           );
           await sut.init(hub);
+        });
+
+        test('init maps replay sample rates to JS SDK', () async {
+          options.replay.sessionSampleRate = 0.1;
+          sut = SentryWeb(
+            mockBinding,
+            options,
+            createReplayCanvasBridge: (_) => bridge,
+          );
+
+          await sut.init(hub);
+
+          final jsOptions =
+              verify(mockBinding.init(captureAny)).captured.last
+                  as Map<String, dynamic>;
+          expect(jsOptions['replaysSessionSampleRate'], 0.1);
+          expect(jsOptions['replaysOnErrorSampleRate'], 1.0);
         });
 
         // Tests start the recorder, whose scheduler would keep capturing.
