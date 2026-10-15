@@ -764,6 +764,13 @@ void main() {
         reason: 'Device connection_type missing',
       );
       expect(deviceContext['connection_type'], isA<String>());
+      // The native SDKs add this key only on a cellular connection.
+      if (deviceContext.containsKey('connection_effective_type')) {
+        expect(
+          deviceContext['connection_effective_type'],
+          isIn(['2g', '3g', '4g', '5g']),
+        );
+      }
       expect(
         deviceContext.containsKey('charging'),
         isTrue,
