@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/event_processor/web_replay_event_processor.dart';
+import 'package:sentry_flutter/src/web/replay/web_replay_event_processor.dart';
 import 'package:sentry_flutter/src/web/sentry_js_binding.dart';
 
 void main() {

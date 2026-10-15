@@ -12,7 +12,7 @@ import 'package:sentry/src/envelope/sentry_item_type.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
-import '../event_processor/web_replay_event_processor.dart';
+import 'replay/web_replay_event_processor.dart';
 import '../native/native_app_start.dart';
 import '../native/sentry_native_binding.dart';
 import '../native/sentry_native_invoker.dart';

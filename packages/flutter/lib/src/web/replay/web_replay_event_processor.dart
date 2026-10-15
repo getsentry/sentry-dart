@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import '../../sentry_flutter.dart';
-import '../web/sentry_js_binding.dart';
+import '../../../sentry_flutter.dart';
+import '../sentry_js_binding.dart';
 
 class WebReplayEventProcessor implements EventProcessor {
   WebReplayEventProcessor(this._binding);
