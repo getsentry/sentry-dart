@@ -114,7 +114,8 @@ class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
 
       _bridge.updatePosition(rect, devicePixelRatio);
       _bridge.feedFrame(
-        data.buffer.asUint8List(),
+        // Bounded to the view: its buffer can be larger, e.g. Wasm memory.
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
         screenshot.width,
         screenshot.height,
       );

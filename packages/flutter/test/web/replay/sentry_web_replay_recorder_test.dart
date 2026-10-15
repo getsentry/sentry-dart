@@ -33,6 +33,7 @@ void main() async {
         final fed = fixture.bridge.feedFrameCalls.single;
         expect(fed.width, greaterThan(0));
         expect(fed.height, greaterThan(0));
+        expect(fed.rgba.lengthInBytes, fed.width * fed.height * 4);
 
         await fixture.sut.stop();
       });
