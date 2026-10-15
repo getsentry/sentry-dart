@@ -23,6 +23,8 @@
 -keep,includedescriptorclasses class io.sentry.flutter.SentryFlutterPlugin$* { *; }
 -keep,includedescriptorclasses class io.sentry.flutter.ReplayRecorderCallbacks { *; }
 -keep,includedescriptorclasses class io.sentry.flutter.ReplayRecorderCallbacks$* { *; }
+-keep,includedescriptorclasses class io.sentry.flutter.ReplayFlushListener { *; }
+-keep,includedescriptorclasses class io.sentry.flutter.ReplayFlushListener$* { *; }
 -keep,includedescriptorclasses class io.sentry.Sentry { *; }
 -keep,includedescriptorclasses class io.sentry.Sentry$* { *; }
 -keep,includedescriptorclasses class io.sentry.SentryOptions { *; }

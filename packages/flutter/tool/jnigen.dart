@@ -64,6 +64,7 @@ void main() {
         'io.sentry.android.replay.ScreenshotRecorderConfig',
         'io.sentry.flutter.SentryFlutterPlugin',
         'io.sentry.flutter.ReplayRecorderCallbacks',
+        'io.sentry.flutter.ReplayFlushListener',
         'io.sentry.Sentry',
         'io.sentry.SentryOptions',
         'io.sentry.SentryReplayOptions',

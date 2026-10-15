@@ -29,7 +29,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: [stable, beta]
+        # Re-enable Android beta after upgrading the example to AGP 9.1.1.
+        sdk: [stable]
     steps:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

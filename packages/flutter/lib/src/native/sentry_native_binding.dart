@@ -50,6 +50,10 @@ abstract class SentryNativeBinding {
 
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace);
 
+  /// The ProGuard mapping UUID the native SDK attaches to its own events.
+  /// Only available on Android.
+  String? get proguardUuid;
+
   FutureOr<void> pauseAppHangTracking();
 
   FutureOr<void> resumeAppHangTracking();

@@ -26,9 +26,12 @@
   // Replay ID may be null if session replay is disabled.
   // Replay is still captured for on-error replays.
   NSString *_Nullable replayId = self->replayIdProvider();
-  // On iOS, we only have access to scope's replay ID, so we cannot detect buffer mode
-  // If replay ID exists, it's always in active session mode (not buffering)
-  BOOL replayIsBuffering = NO;
+  // The internal replay API includes buffered IDs, but the scope only gets an
+  // ID once the replay is selected for upload.
+  __block BOOL replayIsBuffering = NO;
+  [SentrySDK configureScope:^(SentryScope *_Nonnull scope) {
+    replayIsBuffering = replayId != nil && scope.replayId == nil;
+  }];
   [self->channel
       invokeMethod:@"captureReplayScreenshot"
          arguments:@{

@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 import '../../sentry_flutter.dart';
+import '../native/sentry_native_binding.dart';
 import 'jvm/jvm_exception.dart';
 import 'jvm/jvm_frame.dart';
 import '../utils/internal_logger.dart';
@@ -14,9 +15,12 @@ import '../utils/internal_logger.dart';
 // Relevant links:
 // - https://docs.flutter.dev/development/platform-integration/platform-channels?tab=ios-channel-objective-c-tab#channels-and-platform-threading
 class AndroidPlatformExceptionEventProcessor implements EventProcessor {
-  const AndroidPlatformExceptionEventProcessor(this._options);
+  const AndroidPlatformExceptionEventProcessor(this._options, this._native);
 
   final SentryFlutterOptions _options;
+  final SentryNativeBinding? _native;
+
+  static const _proguardImageType = 'proguard';
 
   @override
   Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
@@ -127,7 +131,26 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       ...?event.threads,
       if (_options.attachThreads) ...jvmThreads,
     ];
+    _addProguardImage(event);
     return event;
+  }
+
+  /// The Android SDK only attaches the proguard image to the events it
+  /// captures itself. Without it, the Java frames parsed here can't be
+  /// deobfuscated.
+  void _addProguardImage(SentryEvent event) {
+    final uuid = _native?.proguardUuid;
+    if (uuid == null) {
+      return;
+    }
+    final debugMeta = event.debugMeta ?? DebugMeta();
+    final hasImage = debugMeta.images.any(
+      (image) => image.type == _proguardImageType && image.uuid == uuid,
+    );
+    if (!hasImage) {
+      debugMeta.addDebugImage(DebugImage(type: _proguardImageType, uuid: uuid));
+    }
+    event.debugMeta = debugMeta;
   }
 
   /// If the crash originated on Android, the Dart side didn't crash.

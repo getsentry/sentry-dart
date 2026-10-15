@@ -165,7 +165,7 @@ mixin SentryFlutter {
 
     if (options.platform.isAndroid) {
       options.addEventProcessor(
-        AndroidPlatformExceptionEventProcessor(options),
+        AndroidPlatformExceptionEventProcessor(options, _native),
       );
     }
 
