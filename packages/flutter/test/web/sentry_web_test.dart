@@ -735,6 +735,23 @@ void main() {
           },
         );
 
+        test(
+          'startReplay during stopReplay leaves the recorder running',
+          () async {
+            await sut.setReplayConfig(config);
+            calls.clear();
+
+            final stopping = sut.stopReplay();
+            await sut.startReplay();
+            await stopping;
+
+            expect(calls.where((c) => c.startsWith('bridge')), [
+              'bridgeStop',
+              'bridgeStart',
+            ]);
+          },
+        );
+
         test('setReplayConfig does not restart a stopped recorder', () async {
           await sut.setReplayConfig(config);
           await sut.stopReplay();

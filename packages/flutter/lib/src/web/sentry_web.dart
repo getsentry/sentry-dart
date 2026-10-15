@@ -294,7 +294,15 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
           // Stopping waits for an in-flight capture, which could otherwise
           // snapshot into the stopped replay.
           _replayRecorderStarted = false;
-          await recorder.stop();
+          final stopping = recorder.stop();
+          _recorderStopping = stopping;
+          try {
+            await stopping;
+          } finally {
+            if (identical(_recorderStopping, stopping)) {
+              _recorderStopping = null;
+            }
+          }
         }
       } finally {
         await _binding.stopReplay();
@@ -419,6 +427,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool _replayStopped = false;
   // Counts stops, so a start can tell whether one ran while it awaited JS.
   int _replayStops = 0;
+  // The recorder stop in flight from stopReplay(), awaited by starts.
+  Future<void>? _recorderStopping;
 
   @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
@@ -445,6 +455,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   Future<void> _startReplayRecorder(SentryWebReplayRecorder recorder) async {
+    // A stop still in flight would otherwise remove the bridge after this
+    // start. Its failure is handled by stopReplay().
+    await _recorderStopping?.then((_) {}, onError: (Object _) {});
     if (_replayRecorderStarted) return;
     await recorder.start();
     // Only after start() succeeds, so a failed start is retried next time.
