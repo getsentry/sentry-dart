@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import '../native/sentry_native_binding.dart';
+import '../screen_capture/screenshot_support.dart';
 import '../sentry_flutter_options.dart';
 import 'script_loader/sentry_script_loader.dart';
 import 'sentry_js_bundle.dart';
@@ -52,7 +53,9 @@ class WebSdkIntegration implements Integration<SentryFlutterOptions> {
   }
 
   List<Map<String, String>> _scriptsForOptions(SentryFlutterOptions options) {
-    if (options.replay.isEnabled) {
+    // Matches SentryWeb.supportsReplay: without a renderer it can capture
+    // from, nothing would record into the heavier replay bundle.
+    if (options.replay.isEnabled && options.isScreenshotSupported) {
       return options.runtimeChecker.isDebugMode()
           ? debugReplayScripts
           : productionReplayScripts;
