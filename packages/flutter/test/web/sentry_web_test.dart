@@ -858,6 +858,34 @@ void main() {
         });
       });
 
+      test('scope methods do not throw when the JS binding throws', () {
+        options.automatedTestMode = false;
+        final error = Exception('js failure');
+        when(mockBinding.setUser(any)).thenThrow(error);
+        when(mockBinding.addBreadcrumb(any)).thenThrow(error);
+        when(mockBinding.addReplayBreadcrumb(any)).thenThrow(error);
+        when(mockBinding.clearBreadcrumbs()).thenThrow(error);
+        when(mockBinding.setContext(any, any)).thenThrow(error);
+        when(mockBinding.removeContext(any)).thenThrow(error);
+        when(mockBinding.setExtra(any, any)).thenThrow(error);
+        when(mockBinding.removeExtra(any)).thenThrow(error);
+        when(mockBinding.setTag(any, any)).thenThrow(error);
+        when(mockBinding.removeTag(any)).thenThrow(error);
+
+        expect(
+          () => sut.setUser(SentryUser(id: 'fixture-id')),
+          returnsNormally,
+        );
+        expect(() => sut.addBreadcrumb(Breadcrumb()), returnsNormally);
+        expect(() => sut.clearBreadcrumbs(), returnsNormally);
+        expect(() => sut.setContexts('key', 'value'), returnsNormally);
+        expect(() => sut.removeContexts('key'), returnsNormally);
+        expect(() => sut.setExtra('key', 'value'), returnsNormally);
+        expect(() => sut.removeExtra('key'), returnsNormally);
+        expect(() => sut.setTag('key', 'value'), returnsNormally);
+        expect(() => sut.removeTag('key'), returnsNormally);
+      });
+
       test('scope methods call JS binding with normalized payloads', () {
         final userObject = Object();
         final user = SentryUser(id: 'fixture-id', data: {'object': userObject});

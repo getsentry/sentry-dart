@@ -151,11 +151,15 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
       if (breadcrumb.type != null) 'type': breadcrumb.type,
     };
-    _binding.addBreadcrumb(jsBreadcrumb);
+    tryCatchSync('addBreadcrumb', () {
+      _binding.addBreadcrumb(jsBreadcrumb);
+    });
 
     final replayBreadcrumb = _replayBreadcrumb(jsBreadcrumb);
     if (replayBreadcrumb != null) {
-      _binding.addReplayBreadcrumb(replayBreadcrumb);
+      tryCatchSync('addReplayBreadcrumb', () {
+        _binding.addReplayBreadcrumb(replayBreadcrumb);
+      });
     }
   }
 
@@ -288,7 +292,9 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> clearBreadcrumbs() {
-    _binding.clearBreadcrumbs();
+    tryCatchSync('clearBreadcrumbs', () {
+      _binding.clearBreadcrumbs();
+    });
   }
 
   @override
@@ -346,17 +352,23 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeContexts(String key) {
-    _binding.removeContext(key);
+    tryCatchSync('removeContexts', () {
+      _binding.removeContext(key);
+    });
   }
 
   @override
   FutureOr<void> removeExtra(String key) {
-    _binding.removeExtra(key);
+    tryCatchSync('removeExtra', () {
+      _binding.removeExtra(key);
+    });
   }
 
   @override
   FutureOr<void> removeTag(String key) {
-    _binding.removeTag(key);
+    tryCatchSync('removeTag', () {
+      _binding.removeTag(key);
+    });
   }
 
   @override
@@ -371,12 +383,16 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setContexts(String key, value) {
-    _binding.setContext(key, normalize(value));
+    tryCatchSync('setContexts', () {
+      _binding.setContext(key, normalize(value));
+    });
   }
 
   @override
   FutureOr<void> setExtra(String key, value) {
-    _binding.setExtra(key, normalize(value));
+    tryCatchSync('setExtra', () {
+      _binding.setExtra(key, normalize(value));
+    });
   }
 
   bool _replayRecorderStarted = false;
@@ -436,12 +452,16 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setTag(String key, String value) {
-    _binding.setTag(key, value);
+    tryCatchSync('setTag', () {
+      _binding.setTag(key, value);
+    });
   }
 
   @override
   FutureOr<void> setUser(SentryUser? user) {
-    _binding.setUser(user == null ? null : normalizeMap(user.toJson()));
+    tryCatchSync('setUser', () {
+      _binding.setUser(user == null ? null : normalizeMap(user.toJson()));
+    });
   }
 
   @override
