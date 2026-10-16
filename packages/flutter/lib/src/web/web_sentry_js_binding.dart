@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 
 import 'package:meta/meta.dart';
 
+import 'replay/real_web_replay_canvas_bridge.dart';
+import 'replay/replay_click_filter.dart';
+import 'replay/web_replay_canvas_bridge.dart';
+import '../utils/internal_logger.dart';
 import 'sentry_js_binding.dart';
 
 @visibleForTesting
@@ -25,11 +30,8 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   void init(Map<String, dynamic> options) {
-    if (options['defaultIntegrations'] != null) {
-      options['defaultIntegrations'] = options['defaultIntegrations'].map(
-        (String integration) => _createIntegration(integration),
-      );
-    }
+    _setIntegrations(options, 'defaultIntegrations');
+    _setIntegrations(options, 'integrations');
     final jsOptions = options.jsify() as JSObject;
     jsOptions['beforeSend'] = _beforeSend.toJS;
     _init(jsOptions);
@@ -61,12 +63,38 @@ class WebSentryJsBinding implements SentryJsBinding {
     isolationScope.setSession(currentSession);
   }
 
-  JSObject? _createIntegration(String integration) {
+  void _setIntegrations(Map<String, dynamic> options, String key) {
+    final integrations = options[key];
+    if (integrations is Iterable) {
+      options[key] = integrations.map(_createIntegration);
+    }
+  }
+
+  // Accepts either an integration name to construct (the common case) or an
+  // already-constructed integration object to pass through unchanged -- the
+  // latter lets callers keep a reference to an integration they need to
+  // drive afterwards (see createManualReplayCanvasIntegration), which a
+  // name-only list can't express.
+  JSObject? _createIntegration(Object? integration) {
+    if (integration is! String) {
+      return integration as JSObject?;
+    }
     switch (integration) {
       case SentryJsIntegrationName.globalHandlers:
         return _globalHandlersIntegration();
       case SentryJsIntegrationName.dedupe:
         return _dedupeIntegration();
+      case SentryJsIntegrationName.httpContext:
+        return _httpContextIntegration();
+      case SentryJsIntegrationName.replay:
+        return _replayIntegration(
+          _ReplayOptions(
+            block: <JSString>[webReplayBlockSelector.toJS].toJS,
+            beforeAddRecordingEvent: _beforeAddRecordingEvent.toJS,
+          ),
+        );
+      case SentryJsIntegrationName.replayCanvas:
+        return _replayCanvasIntegration();
       default:
         return null;
     }
@@ -82,10 +110,91 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   @override
-  void captureEnvelope(List<Object> envelope) {
-    if (_client != null) {
-      _client?.sendEnvelope(envelope.jsify());
-    }
+  void captureEnvelope(
+    List<Object> envelope,
+    List<Map<String, dynamic>> events,
+  ) {
+    final client = _client;
+    if (client == null) return;
+
+    final sent = client.sendEnvelope(envelope.jsify());
+    // Handled even without events, so a rejection (e.g. a throwing
+    // beforeEnvelope listener) isn't left unhandled.
+    unawaited(
+      sent.toDart.then(
+        (response) {
+          // Dart events reach the JS SDK as raw envelopes, which skip the
+          // hooks its own sendEvent() runs -- e.g. Replay turning a buffering
+          // replay into a session when an error with its replay ID is sent.
+          try {
+            for (final event in events) {
+              client.emit('afterSendEvent'.toJS, event.jsify(), response);
+            }
+          } catch (error, stackTrace) {
+            internalLogger.error(
+              'JS SDK integration: failed to emit afterSendEvent',
+              error: error,
+              stackTrace: stackTrace,
+            );
+          }
+        },
+        onError: (Object error) {
+          internalLogger.debug(
+            () => 'JS SDK integration: failed to send envelope: $error',
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  void setUser(Map<String, dynamic>? user) {
+    _setUser(user.jsify());
+  }
+
+  @override
+  void addBreadcrumb(Map<String, dynamic> breadcrumb) {
+    _addBreadcrumb(breadcrumb.jsify());
+  }
+
+  @override
+  void addReplayBreadcrumb(Map<String, dynamic> breadcrumb) {
+    _client?.emit('beforeAddBreadcrumb'.toJS, breadcrumb.jsify());
+  }
+
+  @override
+  void clearBreadcrumbs() {
+    SentryJsIsolationScope().clearBreadcrumbs();
+  }
+
+  @override
+  void setContext(String key, Object? value) {
+    _setContext(key.toJS, value.jsify());
+  }
+
+  @override
+  void removeContext(String key) {
+    _setContext(key.toJS, null);
+  }
+
+  @override
+  void setExtra(String key, Object? value) {
+    _setExtra(key.toJS, value.jsify());
+  }
+
+  @override
+  void removeExtra(String key) {
+    _setExtra(key.toJS);
+  }
+
+  @override
+  void setTag(String key, String value) {
+    _setTag(key.toJS, value.toJS);
+  }
+
+  @override
+  void removeTag(String key) {
+    _setTag(key.toJS);
   }
 
   @visibleForTesting
@@ -134,6 +243,51 @@ class WebSentryJsBinding implements SentryJsBinding {
 
     return Map.unmodifiable(_filenameToDebugIds);
   }
+
+  @override
+  String? getReplayId({bool onlyIfSampled = false}) {
+    try {
+      final replay = _getReplay();
+      final replayId = replay?.callMethod<JSString?>(
+        'getReplayId'.toJS,
+        onlyIfSampled.toJS,
+      );
+      return replayId?.toDart;
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'JS SDK integration: failed to get the replay ID',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
+  }
+
+  @override
+  void startReplay() {
+    _getReplay()?.callMethod<JSAny?>('start'.toJS);
+  }
+
+  @override
+  void startReplayBuffering() {
+    _getReplay()?.callMethod<JSAny?>('startBuffering'.toJS);
+  }
+
+  @override
+  Future<void> stopReplay() async {
+    await _getReplay()?.callMethod<JSPromise<JSAny?>>('stop'.toJS).toDart;
+  }
+
+  @override
+  Future<void> flushReplay() async {
+    await _getReplay()?.callMethod<JSPromise<JSAny?>>('flush'.toJS).toDart;
+  }
+
+  @override
+  WebReplayCanvasIntegration createManualReplayCanvasIntegration() =>
+      _replayCanvasIntegrationManual(
+        _ReplayCanvasOptions(enableManualSnapshot: true),
+      );
 
   void _buildFilenameToDebugIdMap(
     Map<dynamic, dynamic> debugIdMap,
@@ -187,6 +341,21 @@ external void _init(JSAny? options);
 @JS('Sentry.close')
 external void _close();
 
+@JS('Sentry.setUser')
+external void _setUser(JSAny? user);
+
+@JS('Sentry.addBreadcrumb')
+external void _addBreadcrumb(JSAny? breadcrumb);
+
+@JS('Sentry.setContext')
+external void _setContext(JSString key, JSAny? value);
+
+@JS('Sentry.setExtra')
+external void _setExtra(JSString key, [JSAny? value]);
+
+@JS('Sentry.setTag')
+external void _setTag(JSString key, [JSAny? value]);
+
 @JS('Sentry.getIsolationScope')
 @staticInterop
 class SentryJsIsolationScope {
@@ -196,6 +365,7 @@ class SentryJsIsolationScope {
 extension _SentryJsIsolationScopeExtension on SentryJsIsolationScope {
   external JSObject? getSession();
   external void setSession(JSObject session);
+  external void clearBreadcrumbs();
 }
 
 @JS('Sentry.getClient')
@@ -205,8 +375,9 @@ class SentryJsClient {
 }
 
 extension _SentryJsClientExtension on SentryJsClient {
-  external void sendEnvelope(JSAny? envelope);
+  external JSPromise<JSAny?> sendEnvelope(JSAny? envelope);
   external JSObject? getOptions();
+  external void emit(JSString event, JSAny? arg, [JSAny? arg2]);
 }
 
 @JS('Sentry.startSession')
@@ -215,11 +386,59 @@ external void _startSession(JSAny? context);
 @JS('Sentry.captureSession')
 external void _captureSession();
 
+@JS('Sentry.getReplay')
+external JSObject? _getReplay();
+
 @JS('Sentry.globalHandlersIntegration')
 external JSObject _globalHandlersIntegration();
 
 @JS('Sentry.dedupeIntegration')
 external JSObject _dedupeIntegration();
+
+@JS('Sentry.httpContextIntegration')
+external JSObject _httpContextIntegration();
+
+// Returning null discards the event.
+JSAny? _beforeAddRecordingEvent(JSAny? event) {
+  // Runs for every recording event, including full DOM snapshots and canvas
+  // frames, so only the small custom events (5 = rrweb `EventType.Custom`)
+  // are copied into Dart.
+  if (event == null || !event.isA<JSObject>()) return event;
+  final type = (event as JSObject)['type'];
+  if (type == null ||
+      !type.isA<JSNumber>() ||
+      (type as JSNumber).toDartInt != 5) {
+    return event;
+  }
+  final dartEvent = event.dartify();
+  return dartEvent is Map && isFlutterViewClickEvent(dartEvent) ? null : event;
+}
+
+@JS('Sentry.replayIntegration')
+external JSObject _replayIntegration(JSAny? options);
+
+@JS()
+@anonymous
+extension type _ReplayOptions._(JSObject _) implements JSObject {
+  external factory _ReplayOptions({
+    JSArray<JSString> block,
+    JSFunction beforeAddRecordingEvent,
+  });
+}
+
+@JS('Sentry.replayCanvasIntegration')
+external JSObject _replayCanvasIntegration();
+
+@JS('Sentry.replayCanvasIntegration')
+external WebReplayCanvasIntegration _replayCanvasIntegrationManual(
+  JSAny? options,
+);
+
+@JS()
+@anonymous
+extension type _ReplayCanvasOptions._(JSObject _) implements JSObject {
+  external factory _ReplayCanvasOptions({bool enableManualSnapshot});
+}
 
 @JS('globalThis')
 @internal

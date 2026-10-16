@@ -73,6 +73,11 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     return _scheduler?.stop() ?? Future.value();
   }
 
+  /// Whether a scheduled capture should run. Lets a subclass skip the
+  /// capture work while there's nothing to record into.
+  @protected
+  bool get shouldCapture => true;
+
   /// The engine's surface can be torn down as soon as the app leaves
   /// [AppLifecycleState.resumed]. A capture started after that point can
   /// outlive the surface backing its GPU texture, and releasing the texture
@@ -109,6 +114,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
         );
         return;
       }
+      if (!shouldCapture) return;
       await capture(_onImageCaptured);
     }, _addPostFrameCallback);
 

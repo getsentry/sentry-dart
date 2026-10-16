@@ -154,9 +154,7 @@ mixin SentryFlutter {
           options.transport = FileSystemTransport(_native!, options);
         }
       }
-      if (!options.platform.isWeb) {
-        options.addScopeObserver(NativeScopeObserver(_native!));
-      }
+      options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
     options.addEventProcessor(FlutterEnricherEventProcessor(options));
@@ -240,6 +238,9 @@ mixin SentryFlutter {
         // Important:
         // Complete initialization of the integration depends on the SentryNavigatorObserver
         integrations.add(WebSessionIntegration(native));
+        // Drives the web replay recorder via `setReplayConfig`. A no-op
+        // unless `native.supportsReplay`.
+        integrations.add(ReplayIntegration(native));
       }
       options.enableDartSymbolication = false;
     }
@@ -572,8 +573,8 @@ mixin SentryFlutter {
 
   /// Controls Session Replay recording.
   ///
-  /// Only Android and iOS support Session Replay. On every other platform the
-  /// methods on the returned [SentryReplay] are no-ops.
+  /// Only Android, iOS and Web support Session Replay. On every other platform
+  /// the methods on the returned [SentryReplay] are no-ops.
   static final SentryReplay replay = DefaultSentryReplay(() => _native);
 
   /// Use `nativeCrash()` to crash the native implementation and test/debug the crash reporting for native code.
