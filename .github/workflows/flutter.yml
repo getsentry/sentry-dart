@@ -46,6 +46,9 @@ jobs:
           - target: js
             os: ubuntu
         exclude:
+          # Re-enable Android beta after upgrading the example to AGP 9.1.1.
+          - target: android
+            sdk: beta
           # Flutter WASM tests don't compile on beta currently and hangs on stable.
           # https://github.com/getsentry/sentry-dart/issues/3477
           - target: wasm

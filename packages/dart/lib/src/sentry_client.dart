@@ -214,16 +214,19 @@ class SentryClient {
     final activeSpan = scope?.getActiveSpan();
     if (activeSpan != null) {
       traceContext = activeSpan.resolveDsc();
-    } else if (traceContext == null) {
-      if (scope != null) {
+    } else {
+      if (traceContext == null && scope != null) {
         scope.propagationContext.baggage ??= SentryBaggage({})
           ..setValuesFromScope(scope, _options);
         traceContext = SentryTraceContextHeader.fromBaggage(
           scope.propagationContext.baggage!,
         );
       }
-    } else {
-      traceContext.replayId = scope?.replayId;
+      // Replay can start or stop after the trace context was created.
+      traceContext?.replayId = scope?.replayId;
+    }
+    if (traceContext?.replayId == SentryId.empty()) {
+      traceContext?.replayId = null;
     }
 
     final envelope = SentryEnvelope.fromEvent(
