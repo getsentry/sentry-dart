@@ -1,5 +1,30 @@
 # Changelog
 
+## 10.1.0
+
+### Features
+
+- Session Replays on iOS now include trace IDs, so they can be found by searching for a trace ID in Sentry by @antonis in [#4083](https://github.com/getsentry/sentry-dart/pull/4083)
+
+### Fixes
+
+- Deobfuscate the Java frames of Dart-captured `PlatformException` events on Android by attaching the ProGuard debug image, and keep existing debug images when loading native ones. by @xelarich in [#4081](https://github.com/getsentry/sentry-dart/pull/4081)
+- (app-start) Keep builds and deduplicate TTFD by @buenaflor in [#4079](https://github.com/getsentry/sentry-dart/pull/4079)
+- (flutter) Don't report feedback success when send fails by @lucas-zimerman in [#4043](https://github.com/getsentry/sentry-dart/pull/4043)
+- (replay) Link errors to manual replays by @buenaflor in [#4078](https://github.com/getsentry/sentry-dart/pull/4078)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.61.0 by @github-actions in [#4090](https://github.com/getsentry/sentry-dart/pull/4090)
+- chore(deps): update Cocoa SDK to v9.30.2 by @github-actions in [#4089](https://github.com/getsentry/sentry-dart/pull/4089)
+- chore(deps): update Native SDK to v0.17.3 by @github-actions in [#4082](https://github.com/getsentry/sentry-dart/pull/4082)
+
+### Internal Changes
+
+- Remove Collect App Metrics jobs by @buenaflor in [#4091](https://github.com/getsentry/sentry-dart/pull/4091)
+
 ## 10.0.0
 
 Version 10.0.0 marks a major release of the Sentry Dart/Flutter SDKs containing breaking changes.

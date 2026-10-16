@@ -110,26 +110,42 @@ void main() {
         hasLength(10),
       );
     });
-    test('omits builds crossing or following raster completion', () {
-      final sut = fixture.getSut();
-      sut.beginRootAttachment(hasRoot: false);
-      sut.endRootAttachment();
-      fixture.advance(90);
-      sut.beginFrameBuild(warmUp: false);
-      fixture.advance(20);
-      sut.endFrameBuild(deferred: false);
-      sut.beginFrameBuild(warmUp: false);
-      fixture.advance(5);
-      sut.endFrameBuild(deferred: false);
-      final intervals = sut.takeIntervals(
-        processStart: fixture.start,
-        rasterStart: fixture.rasterInterval.startTimestamp,
-        rasterFinish: fixture.rasterInterval.endTimestamp,
-      );
-      expect(intervals.map((interval) => interval.operation), [
-        SentrySpanOperations.appStartRootWidgetAttachment,
-      ]);
-    });
+    test(
+      'clips build finalization and omits builds after raster completion',
+      () {
+        final sut = fixture.getSut();
+        sut.beginRootAttachment(hasRoot: false);
+        sut.endRootAttachment();
+        fixture.advance(90);
+        sut.beginFrameBuild(warmUp: true);
+        fixture.advance(20);
+        sut.endFrameBuild(deferred: false);
+        sut.beginFrameBuild(warmUp: false);
+        fixture.advance(5);
+        sut.endFrameBuild(deferred: false);
+        final intervals = sut.takeIntervals(
+          processStart: fixture.start,
+          rasterStart: fixture.rasterInterval.startTimestamp,
+          rasterFinish: fixture.rasterInterval.endTimestamp,
+        );
+        expect(intervals.map((interval) => interval.operation), [
+          SentrySpanOperations.appStartRootWidgetAttachment,
+          SentrySpanOperations.appStartFrameBuild,
+        ]);
+        expect(
+          intervals.last.startTimestamp,
+          fixture.start.add(const Duration(milliseconds: 90)),
+        );
+        expect(
+          intervals.last.endTimestamp,
+          fixture.start.add(const Duration(milliseconds: 100)),
+        );
+        expect(intervals.last.data, {
+          'flutter.frame.warm_up': true,
+          'flutter.frame.deferred': false,
+        });
+      },
+    );
     test('ignores work after cancellation and discards pending intervals', () {
       final sut = fixture.getSut();
       sut.beginRootAttachment(hasRoot: false);

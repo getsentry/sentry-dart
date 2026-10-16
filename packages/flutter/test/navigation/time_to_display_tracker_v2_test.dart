@@ -417,6 +417,84 @@ void main() {
         expect(ttfdSpans, hasLength(1));
       });
 
+      test('creates TTFD when enabled after preparation', () {
+        final sut = fixture.getSut();
+        final childSpans = fixture.captureChildSpans();
+        final start = DateTime.utc(2026);
+        fixture.options.enableTimeToFullDisplayTracing = false;
+        sut.prepareAppStart(startTimestamp: start);
+        expect(sut.ttfdSpanId, isNull);
+
+        fixture.options.enableTimeToFullDisplayTracing = true;
+        sut.trackAppStart(
+          ttidEndTimestamp: start.add(const Duration(seconds: 1)),
+        );
+
+        final ttfdSpans = childSpans.where(
+          (span) => span.name == 'root / full display',
+        );
+        expect(ttfdSpans, hasLength(1));
+        expect(ttfdSpans.single.isEnded, isFalse);
+        expect(ttfdSpans.single.startTimestamp, start);
+        expect(sut.ttfdSpanId, ttfdSpans.single.spanId);
+      });
+
+      test(
+        'does not reopen TTFD completed before the first-frame callback',
+        () {
+          final sut = fixture.getSut();
+          final childSpans = fixture.captureChildSpans();
+          final start = DateTime.utc(2026);
+          sut.prepareAppStart(startTimestamp: start);
+          final ttfdSpanId = sut.ttfdSpanId!;
+          sut.reportFullyDisplayed(ttfdSpanId);
+
+          sut.trackAppStart(
+            ttidEndTimestamp: start.add(const Duration(seconds: 1)),
+          );
+
+          final ttfdSpans = childSpans.where(
+            (span) => span.name == 'root / full display',
+          );
+          expect(ttfdSpans, hasLength(1));
+          expect(ttfdSpans.single.spanId, ttfdSpanId);
+          expect(ttfdSpans.single.isEnded, isTrue);
+          expect(sut.ttfdSpanId, isNull);
+        },
+      );
+
+      for (final cancelPreparationOnly in [true, false]) {
+        test(
+          'creates TTFD after cancelling ${cancelPreparationOnly ? 'preparation' : 'the route'} with completed TTFD',
+          () {
+            final sut = fixture.getSut();
+            final childSpans = fixture.captureChildSpans();
+            final start = DateTime.utc(2026);
+            sut.prepareAppStart(startTimestamp: start);
+            final completedSpanId = sut.ttfdSpanId!;
+            sut.reportFullyDisplayed(completedSpanId);
+            if (cancelPreparationOnly) {
+              sut.cancelAppStartPreparation();
+            } else {
+              sut.cancelCurrentRoute();
+            }
+
+            sut.trackAppStart(
+              startTimestamp: start,
+              ttidEndTimestamp: start.add(const Duration(seconds: 1)),
+            );
+
+            final ttfdSpans = childSpans.where(
+              (span) => span.name == 'root / full display',
+            );
+            expect(ttfdSpans, hasLength(2));
+            expect(ttfdSpans.last.isEnded, isFalse);
+            expect(sut.ttfdSpanId, ttfdSpans.last.spanId);
+            expect(sut.ttfdSpanId, isNot(completedSpanId));
+          },
+        );
+      }
+
       test('ends TTID immediately with ttidEndTimestamp', () {
         final sut = fixture.getSut();
         final childSpans = fixture.captureChildSpans();

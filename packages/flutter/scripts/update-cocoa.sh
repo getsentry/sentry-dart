@@ -6,31 +6,31 @@ cd $(dirname "$0")/../darwin
 get_spm_version() {
   local file='sentry_flutter/Package.swift'
   local content=$(cat $file)
-  regex="(url: *['\"]https://github.com/getsentry/sentry-cocoa['\"], *exact: *)['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
+  regex="(url: *['\"]https://github.com/getsentry/sentry-cocoa['\"], *)(exact|revision): *['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
   if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1
   else
-    echo "${BASH_REMATCH[2]}"
+    echo "${BASH_REMATCH[3]}"
   fi
 }
 
 set_spm_version() {
   local file='sentry_flutter/Package.swift'
   local content=$(cat $file)
-  regex="(url: *['\"]https://github.com/getsentry/sentry-cocoa['\"], *exact: *)['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
+  regex="(url: *['\"]https://github.com/getsentry/sentry-cocoa['\"], *)(exact|revision): *['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
   if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1
   else
-    newValue="${BASH_REMATCH[1]}\"$1\""
+    newValue="${BASH_REMATCH[1]}exact: \"$1\""
     echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
   fi
 }
 
 case $1 in
 get-version)
-    echo $(get_spm_version)
+    get_spm_version
     ;;
 get-repo)
     echo "https://github.com/getsentry/sentry-cocoa.git"

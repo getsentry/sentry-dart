@@ -97,12 +97,27 @@ final class AppStartRecorder {
     // Later builds can run while the first frame is rasterizing.
     // Keep earlier builds intact even if they overlap raster start.
     final intervals =
-        <AppStartRecordedInterval>[?_rootAttachment, ..._frameBuilds].where(
-          (interval) =>
-              !interval.startTimestamp.isBefore(processStart) &&
-              interval.startTimestamp.isBefore(rasterStart) &&
-              !interval.endTimestamp.isAfter(rasterFinish),
-        );
+        <AppStartRecordedInterval>[?_rootAttachment, ..._frameBuilds]
+            .where(
+              (interval) =>
+                  !interval.startTimestamp.isBefore(processStart) &&
+                  interval.startTimestamp.isBefore(rasterStart) &&
+                  (interval.operation ==
+                          SentrySpanOperations.appStartFrameBuild ||
+                      !interval.endTimestamp.isAfter(rasterFinish)),
+            )
+            .map((interval) {
+              if (!interval.endTimestamp.isAfter(rasterFinish)) return interval;
+              // Framework finalization can outlive rasterization. Keep the part
+              // of the build within the first-frame startup window.
+              return AppStartRecordedInterval(
+                description: interval.description,
+                operation: interval.operation,
+                startTimestamp: interval.startTimestamp,
+                endTimestamp: rasterFinish,
+                data: interval.data,
+              );
+            });
     final result = List<AppStartRecordedInterval>.unmodifiable(intervals);
     cancel();
     return result;
