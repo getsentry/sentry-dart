@@ -33,8 +33,23 @@ void main() {
       );
     });
 
+    test('adds the ID of a buffering replay', () async {
+      final sut = fixture.getSut(
+        replayId: fixture.replayId,
+        sampling: FakeReplaySampling.buffer,
+      );
+      final event = SentryEvent();
+
+      final processedEvent = await sut.apply(event, Hint());
+
+      expect(processedEvent?.tags?['replayId'], fixture.replayId);
+    });
+
     test('does not add the ID of an unsampled replay', () async {
-      final sut = fixture.getSut(replayId: fixture.replayId, sampled: false);
+      final sut = fixture.getSut(
+        replayId: fixture.replayId,
+        sampling: FakeReplaySampling.unsampled,
+      );
       final event = SentryEvent();
 
       final processedEvent = await sut.apply(event, Hint());
@@ -56,23 +71,35 @@ void main() {
 class Fixture {
   final replayId = '1988bb1b6f0d4c509e232f0cb9aaeaea';
 
-  WebReplayEventProcessor getSut({String? replayId, bool sampled = true}) {
+  WebReplayEventProcessor getSut({
+    String? replayId,
+    FakeReplaySampling sampling = FakeReplaySampling.session,
+  }) {
     return WebReplayEventProcessor(
-      FakeSentryJsBinding(replayId: replayId, sampled: sampled),
+      FakeSentryJsBinding(replayId: replayId, sampling: sampling),
     );
   }
 }
 
+/// The JS SDK's replay session `sampled` values: `'session'`, `'buffer'` and
+/// `false`.
+enum FakeReplaySampling { session, buffer, unsampled }
+
 class FakeSentryJsBinding implements SentryJsBinding {
-  FakeSentryJsBinding({this.replayId, this.sampled = true});
+  FakeSentryJsBinding({
+    this.replayId,
+    this.sampling = FakeReplaySampling.session,
+  });
 
   final String? replayId;
-  final bool sampled;
+  final FakeReplaySampling sampling;
 
-  // Like the JS SDK: an unsampled session's ID only without onlyIfSampled.
+  // Like the JS SDK: only an unsampled session's ID needs !onlyIfSampled.
   @override
   String? getReplayId({bool onlyIfSampled = false}) =>
-      onlyIfSampled && !sampled ? null : replayId;
+      onlyIfSampled && sampling == FakeReplaySampling.unsampled
+      ? null
+      : replayId;
 
   @override
   Object? createManualReplayCanvasIntegration() => null;

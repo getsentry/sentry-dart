@@ -29,6 +29,14 @@ abstract class SentryJsBinding {
   void updateSession({int? errors, String? status});
   void captureSession();
   Map<String, String>? getFilenameToDebugIdMap();
+
+  /// The current JS replay's ID, or `null` without one.
+  ///
+  /// With [onlyIfSampled], also `null` for a replay whose session wasn't
+  /// sampled. A replay buffering for `replaysOnErrorSampleRate` counts as
+  /// sampled: the JS SDK only drops the ID when the session's `sampled` is
+  /// `false`, and it's `'buffer'` then (`ReplayContainer.getSessionId` in
+  /// @sentry-internal/replay 11.0.0).
   String? getReplayId({bool onlyIfSampled = false});
   void startReplay();
   void startReplayBuffering();

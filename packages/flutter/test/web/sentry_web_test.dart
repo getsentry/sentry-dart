@@ -644,16 +644,28 @@ void main() {
         // ReplayIntegration doesn't await setReplayConfig, so teardown can
         // land while it's still configuring the recorder.
         test(
-          'close keeps an in-flight setReplayConfig from starting the recorder',
+          'close stops the recorder an in-flight setReplayConfig started',
           () async {
             final configured = sut.setReplayConfig(config);
 
             await sut.close();
             await configured;
 
-            expect(bridge.startCalls, 0);
+            expect(calls, ['bridgeStart', 'bridgeStop', 'jsClose']);
           },
         );
+
+        test('replay calls after close do nothing', () async {
+          await sut.close();
+          calls.clear();
+
+          await sut.setReplayConfig(config);
+          await sut.startReplay();
+          await sut.flushReplay();
+          await sut.stopReplay();
+
+          expect(calls, isEmpty);
+        });
 
         test('setReplayConfig retries starting after a failed start', () async {
           options.automatedTestMode = false;
@@ -713,7 +725,15 @@ void main() {
           await sut.stopReplay();
           await configured;
 
-          expect(calls, ['bridgeStart', 'jsStop', 'bridgeStop']);
+          expect(calls, ['bridgeStart', 'bridgeStop', 'jsStop']);
+        });
+
+        test('concurrent starts start the recorder once', () async {
+          final configured = sut.setReplayConfig(config);
+          await sut.startReplay();
+          await configured;
+
+          expect(bridge.startCalls, 1);
         });
 
         test(
@@ -803,19 +823,24 @@ void main() {
         });
 
         test(
-          'stopReplay during flushReplay keeps the recorder stopped',
+          'stopReplay during flushReplay runs after it and stops the recorder',
           () async {
             await sut.setReplayConfig(config);
             await sut.stopReplay();
             final flushed = Completer<void>();
-            when(mockBinding.flushReplay()).thenAnswer((_) => flushed.future);
+            when(mockBinding.flushReplay()).thenAnswer((_) async {
+              await flushed.future;
+              calls.add('jsFlush');
+            });
+            calls.clear();
 
             final flushing = sut.flushReplay();
-            await sut.stopReplay();
+            final stopping = sut.stopReplay();
             flushed.complete();
             await flushing;
+            await stopping;
 
-            expect(bridge.startCalls, 1);
+            expect(calls, ['jsFlush', 'bridgeStart', 'bridgeStop', 'jsStop']);
           },
         );
 
@@ -957,6 +982,15 @@ void main() {
                   as Map<String, dynamic>;
           expect((captured['data'] as Map)['label'], 'secret label');
         });
+      });
+
+      // The JS Replay already records these from addBreadcrumb.
+      test('does not copy recorded breadcrumbs to the replay', () {
+        sut.addBreadcrumb(Breadcrumb(category: 'navigation'));
+        sut.addBreadcrumb(Breadcrumb(category: 'http'));
+
+        verify(mockBinding.addBreadcrumb(any)).called(2);
+        verifyNever(mockBinding.addReplayBreadcrumb(any));
       });
 
       test('scope methods do not throw when the JS binding throws', () {

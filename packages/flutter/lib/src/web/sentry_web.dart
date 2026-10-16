@@ -125,6 +125,8 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
           bridge: _createReplayCanvasBridge(
             canvasIntegration as WebReplayCanvasIntegration,
           ),
+          // Also non-null while the replay buffers for onErrorSampleRate:
+          // see SentryJsBinding.getReplayId.
           isRecording: () => replayId != null,
         );
       }
@@ -133,20 +135,23 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> close() {
-    // Keeps an in-flight setReplayConfig from starting the recorder after
-    // teardown.
-    _replayStopped = true;
-    _replayStops++;
     final processor = _replayEventProcessor;
     if (processor != null) {
       _options.removeEventProcessor(processor);
       _replayEventProcessor = null;
     }
-    return tryCatchAsync('close', () async {
+    // Queued, so replay calls still in flight finish before the JS SDK closes.
+    // Only flushReplay and stopReplay await the JS SDK, which uploads the
+    // replay there with bounded retries (sendReplay in
+    // @sentry-internal/replay 11.0.0).
+    return _enqueueReplayCall('close', () async {
+      final recorder = _replayRecorder;
+      // Later replay calls see no recorder and do nothing.
+      _replayRecorder = null;
       try {
         // Stopping waits for an in-flight capture, which could otherwise
         // snapshot into the JS SDK after it's closed.
-        await _replayRecorder?.stop();
+        if (recorder != null) await _stopReplayRecorder(recorder);
       } finally {
         _binding.close();
       }
@@ -282,33 +287,17 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> stopReplay() {
-    final recorder = _replayRecorder;
-    if (recorder == null) return null;
-
-    return tryCatchAsync('stopReplay', () async {
-      _replayStopped = true;
-      _replayStops++;
-      try {
-        if (_replayRecorderStarted) {
+  FutureOr<void> stopReplay() =>
+      _replayRecorderCall('stopReplay', (recorder) async {
+        _replayStopped = true;
+        try {
           // Stopping waits for an in-flight capture, which could otherwise
           // snapshot into the stopped replay.
-          _replayRecorderStarted = false;
-          final stopping = recorder.stop();
-          _recorderStopping = stopping;
-          try {
-            await stopping;
-          } finally {
-            if (identical(_recorderStopping, stopping)) {
-              _recorderStopping = null;
-            }
-          }
+          await _stopReplayRecorder(recorder);
+        } finally {
+          await _binding.stopReplay();
         }
-      } finally {
-        await _binding.stopReplay();
-      }
-    });
-  }
+      });
 
   // The JS SDK starts a new replay when flushing an inactive one, so the
   // recorder is started too.
@@ -425,66 +414,80 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   // Set by stopReplay so that config changes (e.g. a window resize) don't
   // restart recording until the replay is started again.
   bool _replayStopped = false;
-  // Counts stops, so a start can tell whether one ran while it awaited JS.
-  int _replayStops = 0;
-  // The recorder stop in flight from stopReplay(), awaited by starts.
-  Future<void>? _recorderStopping;
 
-  @override
-  FutureOr<void> setReplayConfig(ReplayConfig config) {
-    final recorder = _replayRecorder;
-    if (recorder == null) return null;
+  // Replay calls (start, stop, flush, config changes, close) run one at a
+  // time, in call order. Each awaits the JS SDK and the recorder, and letting
+  // them interleave raced, e.g. a stop landing while a start still awaited
+  // the JS SDK. Queued, each starts from the state the previous one left.
+  Future<void> _replayCalls = Future.value();
 
-    return tryCatchAsync('setReplayConfig', () async {
-      // Independent of config.width/height, which already have
-      // SentryReplayQuality.resolutionScalingFactor baked in by the shared
-      // ReplayIntegration that calls this -- web maps the quality to its own
-      // factor on the real window size instead (see webReplayCaptureScale).
-      final scale = webReplayCaptureScale(_options.replay.quality);
-      await recorder.onConfigurationChanged(
-        ScheduledScreenshotRecorderConfig(
-          width: scale * config.windowWidth,
-          height: scale * config.windowHeight,
-          frameRate: config.frameRate,
-        ),
-      );
-      if (!_replayStopped) {
-        await _startReplayRecorder(recorder);
-      }
+  Future<void> _enqueueReplayCall(
+    String nativeMethodName,
+    Future<void> Function() call,
+  ) {
+    final result = _replayCalls.then(
+      (_) => tryCatchAsync(nativeMethodName, call),
+    );
+    // A failure reaches only this call's caller; later calls still run.
+    _replayCalls = result.then((_) {}, onError: (Object _) {});
+    return result;
+  }
+
+  FutureOr<void> _replayRecorderCall(
+    String nativeMethodName,
+    Future<void> Function(SentryWebReplayRecorder recorder) call,
+  ) {
+    // Replay is disabled: don't call the JS SDK.
+    if (_replayRecorder == null) return null;
+
+    return _enqueueReplayCall(nativeMethodName, () async {
+      // Null once close() ran.
+      final recorder = _replayRecorder;
+      if (recorder != null) await call(recorder);
     });
   }
 
-  Future<void> _startReplayRecorder(SentryWebReplayRecorder recorder) async {
-    // A stop still in flight would otherwise remove the bridge after this
-    // start. Its failure is handled by stopReplay().
-    await _recorderStopping?.then((_) {}, onError: (Object _) {});
-    if (_replayRecorderStarted) return;
-    await recorder.start();
-    // Only after start() succeeds, so a failed start is retried next time.
-    _replayRecorderStarted = true;
-    // stopReplay() ran while starting, when there was nothing to stop yet.
-    if (_replayStopped) {
-      // Cleared first, so a failed stop doesn't block later starts.
-      _replayRecorderStarted = false;
-      await recorder.stop();
-    }
-  }
+  @override
+  FutureOr<void> setReplayConfig(ReplayConfig config) =>
+      _replayRecorderCall('setReplayConfig', (recorder) async {
+        // Independent of config.width/height, which already have
+        // SentryReplayQuality.resolutionScalingFactor baked in by the shared
+        // ReplayIntegration that calls this -- web maps the quality to its own
+        // factor on the real window size instead (see webReplayCaptureScale).
+        final scale = webReplayCaptureScale(_options.replay.quality);
+        await recorder.onConfigurationChanged(
+          ScheduledScreenshotRecorderConfig(
+            width: scale * config.windowWidth,
+            height: scale * config.windowHeight,
+            frameRate: config.frameRate,
+          ),
+        );
+        if (!_replayStopped) {
+          await _startReplayRecorder(recorder);
+        }
+      });
 
   FutureOr<void> _startReplay(
     String nativeMethodName,
     FutureOr<void> Function() startJsReplay,
-  ) {
-    final recorder = _replayRecorder;
-    if (recorder == null) return null;
+  ) => _replayRecorderCall(nativeMethodName, (recorder) async {
+    await startJsReplay();
+    _replayStopped = false;
+    await _startReplayRecorder(recorder);
+  });
 
-    return tryCatchAsync(nativeMethodName, () async {
-      final stops = _replayStops;
-      await startJsReplay();
-      // stopReplay() or close() ran while the JS replay was starting.
-      if (_replayStops != stops) return;
-      _replayStopped = false;
-      await _startReplayRecorder(recorder);
-    });
+  Future<void> _startReplayRecorder(SentryWebReplayRecorder recorder) async {
+    if (_replayRecorderStarted) return;
+    await recorder.start();
+    // Only after start() succeeds, so a failed start is retried next time.
+    _replayRecorderStarted = true;
+  }
+
+  Future<void> _stopReplayRecorder(SentryWebReplayRecorder recorder) async {
+    if (!_replayRecorderStarted) return;
+    // Cleared first, so a failed stop doesn't block later starts.
+    _replayRecorderStarted = false;
+    await recorder.stop();
   }
 
   @override
@@ -522,6 +525,10 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   bool get supportsLoadContexts => false;
 
+  // Requires a sample rate, unlike on mobile: init only loads the JS Replay
+  // bundle then, so apps not using replay don't download it. A manual
+  // SentryFlutter.replay.start() therefore needs a rate above 0 on web (see
+  // SentryReplay).
   @override
   bool get supportsReplay =>
       _options.replay.isEnabled && _options.isScreenshotSupported;
@@ -541,6 +548,13 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   SentryFlutterOptions get options => _options;
 
+  // The JS Replay records every breadcrumb added through the JS SDK, except
+  // the ones its normalizeBreadcrumb drops (@sentry-internal/replay 11.0.0):
+  // uncategorized ones, `fetch`, `xhr` and `ui.*` (it records its own network
+  // requests and DOM clicks) and `sentry.event`/`sentry.transaction`. This
+  // returns a replay-only copy of the dropped Dart ones, recategorized so the
+  // replay keeps them. Each Dart breadcrumb therefore reaches the replay once,
+  // and the labeled `ui.*` event breadcrumb never does.
   Map<String, dynamic>? _replayBreadcrumb(Map<String, dynamic> breadcrumb) {
     final category = breadcrumb['category'];
     if (category is! String || category.isEmpty) {

@@ -18,6 +18,8 @@ class WebReplayEventProcessor implements EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, Hint hint) {
+    // Also the ID of a buffering replay, which the JS Replay needs on an error
+    // to send its buffer (see SentryJsBinding.getReplayId).
     final replayId = _binding.getReplayId(onlyIfSampled: true);
     if (replayId == null) {
       return event;
