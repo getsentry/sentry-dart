@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
@@ -27,10 +28,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @visibleForTesting
   static final native = binding.SentryNative(
-    DynamicLibrary.open(
-      '$dynamicLibraryDirectory${Platform.isWindows ? 'sentry.dll' : 'libsentry.so'}',
-    ),
+    DynamicLibrary.open(_dynamicLibraryPath),
   );
+
+  static String get _dynamicLibraryPath =>
+      '$dynamicLibraryDirectory${Platform.isWindows ? 'sentry.dll' : 'libsentry.so'}';
 
   /// If the path is just the library name, the loader will look for it in
   /// the usual places for shared libraries:
@@ -58,6 +60,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   // initialized.
   bool _nativeSdkAutoInitialized = false;
 
+  /// Completes once a background `sentry_init()` has returned.
+  Future<void>? _pendingInit;
+
   void _logNotSupported(String operation) =>
       internalLogger.debug('SentryNative: $operation is not supported');
 
@@ -65,20 +70,64 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
       internalLogger.info('SentryNative crash handling is disabled');
+    } else if (Platform.isWindows) {
+      return _initInBackground();
     } else {
       tryCatchSync("init", () {
         final cOptions = createOptions(options);
-        final code = native.init(cOptions);
-        if (code != 0) {
-          throw StateError(
-            'Failed to initialize native SDK - init() exit code: $code. '
-            'Native crashes will not be captured. Make sure the native '
-            'database path is writable, see `nativeDatabasePath`.',
-          );
-        }
-        _nativeSdkAutoInitialized = true;
+        _checkInitResult(native.init(cOptions));
       });
     }
+  }
+
+  /// On Windows the root isolate runs on the platform thread, so a blocking
+  /// `sentry_init()` (e.g. waiting for the Crashpad handler) freezes the UI.
+  Future<void> _initInBackground() async {
+    final done = Completer<void>();
+    _pendingInit = done.future;
+    try {
+      await tryCatchAsync("init", () async {
+        final cOptions = createOptions(options);
+        _checkInitResult(
+          await _initOnHelperIsolate(_dynamicLibraryPath, cOptions.address),
+        );
+      });
+    } finally {
+      _pendingInit = null;
+      done.complete();
+    }
+  }
+
+  // Static, so the closure sent to the helper isolate captures only the
+  // library path and the options address.
+  static Future<int> _initOnHelperIsolate(
+    String libraryPath,
+    int optionsAddress,
+  ) => Isolate.run(
+    () => binding.SentryNative(
+      DynamicLibrary.open(libraryPath),
+    ).init(Pointer.fromAddress(optionsAddress)),
+  );
+
+  void _checkInitResult(int code) {
+    if (code != 0) {
+      throw StateError(
+        'Failed to initialize native SDK - init() exit code: $code. '
+        'Native crashes will not be captured. Make sure the native '
+        'database path is writable, see `nativeDatabasePath`.',
+      );
+    }
+    _nativeSdkAutoInitialized = true;
+  }
+
+  /// `sentry_init()` holds the native options lock, so scope calls made while
+  /// it runs in the background would block the calling isolate until it ends.
+  FutureOr<void> _whenInitialized(String nativeMethodName, void Function() fn) {
+    final pending = _pendingInit;
+    if (pending != null) {
+      return pending.then((_) => tryCatchSync(nativeMethodName, fn));
+    }
+    tryCatchSync(nativeMethodName, fn);
   }
 
   @visibleForTesting
@@ -144,6 +193,10 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> close() {
+    final pending = _pendingInit;
+    if (pending != null) {
+      return pending.then((_) => close());
+    }
     if (!_nativeSdkAutoInitialized) {
       return null;
     }
@@ -176,9 +229,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> setUser(SentryUser? user) {
     if (user == null) {
-      tryCatchSync('remove_user', native.remove_user);
+      return _whenInitialized('remove_user', native.remove_user);
     } else {
-      tryCatchSync('set_user', () {
+      return _whenInitialized('set_user', () {
         var cUser = user.toJson().toNativeValue();
         native.set_user(cUser);
       });
@@ -191,7 +244,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     Map<String, dynamic>? networkRequestDetail,
     Map<String, dynamic>? networkResponseDetail,
   }) {
-    tryCatchSync('add_breadcrumb', () {
+    return _whenInitialized('add_breadcrumb', () {
       var cBreadcrumb = breadcrumb.toJson().toNativeValue();
       native.add_breadcrumb(cBreadcrumb);
     });
@@ -213,7 +266,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setContexts(String key, dynamic value) {
-    tryCatchSync('set_context', () {
+    return _whenInitialized('set_context', () {
       final cValue = dynamicToNativeValue(value);
       if (cValue != null) {
         final cKey = key.toNativeUtf8();
@@ -229,7 +282,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeContexts(String key) {
-    tryCatchSync('remove_context', () {
+    return _whenInitialized('remove_context', () {
       final cKey = key.toNativeUtf8();
       native.remove_context(cKey.cast());
       malloc.free(cKey);
@@ -238,7 +291,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setExtra(String key, dynamic value) {
-    tryCatchSync('set_extra', () {
+    return _whenInitialized('set_extra', () {
       final cValue = dynamicToNativeValue(value);
       if (cValue != null) {
         final cKey = key.toNativeUtf8();
@@ -254,7 +307,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeExtra(String key) {
-    tryCatchSync('remove_extra', () {
+    return _whenInitialized('remove_extra', () {
       final cKey = key.toNativeUtf8();
       native.remove_extra(cKey.cast());
       malloc.free(cKey);
@@ -263,7 +316,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setTag(String key, String value) {
-    tryCatchSync('set_tag', () {
+    return _whenInitialized('set_tag', () {
       final c = FreeableFactory();
       native.set_tag(c.str(key), c.str(value));
       c.freeAll();
@@ -272,7 +325,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeTag(String key) {
-    tryCatchSync('remove_tag', () {
+    return _whenInitialized('remove_tag', () {
       final cKey = key.toNativeUtf8();
       native.remove_tag(cKey.cast());
       malloc.free(cKey);
