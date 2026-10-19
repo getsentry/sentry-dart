@@ -324,6 +324,38 @@ void main() {
       });
     });
 
+    // Web: the replay ID isn't on the scope, so the binding tells the mode.
+    group('when the binding knows the recording mode', () {
+      setUp(() {
+        fixture.options.replay.sessionSampleRate = 0.5;
+        when(
+          fixture.nativeBinding.replayId,
+        ).thenReturn(SentryId.fromId('test-replay-id'));
+      });
+
+      test('does not add buffering flag in session mode', () async {
+        when(fixture.nativeBinding.isReplayBuffering).thenReturn(false);
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        final log = fixture.createTestLog();
+        await fixture.hub.captureLog(log);
+
+        expect(log.attributes[_replayId]?.value, 'testreplayid');
+        expect(log.attributes.containsKey(_replayIsBuffering), false);
+      });
+
+      test('adds buffering flag in buffer mode', () async {
+        when(fixture.nativeBinding.isReplayBuffering).thenReturn(true);
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        final log = fixture.createTestLog();
+        await fixture.hub.captureLog(log);
+
+        expect(log.attributes[_replayId]?.value, 'testreplayid');
+        expect(log.attributes[_replayIsBuffering]?.value, true);
+      });
+    });
+
     group('when no replay is running', () {
       setUp(() {
         fixture.options.replay.sessionSampleRate = 0.5;
@@ -477,6 +509,7 @@ class Fixture {
       );
     });
     when(nativeBinding.supportsReplay).thenReturn(true);
+    when(nativeBinding.isReplayBuffering).thenReturn(null);
     when(nativeBinding.replayId).thenReturn(null);
     when(nativeBinding.registerTraceId(any)).thenReturn(null);
     when(nativeBinding.registerSegmentName(any)).thenReturn(null);

@@ -456,6 +456,17 @@ void main() {
         expect(binding.getReplayId(), isNotNull);
       });
 
+      test('isReplayBuffering reflects the JS recording mode', () async {
+        // Buffer mode: a session replay would upload on close, which would
+        // make this test depend on the network.
+        options.replay.onErrorSampleRate = 1.0;
+        await sut.init(hub);
+        expect(sut.isReplayBuffering, isTrue);
+
+        await sut.stopReplay();
+        expect(sut.isReplayBuffering, isFalse);
+      });
+
       test('flushReplay starts a stopped JS replay', () async {
         // Buffer mode: stopping a session replay uploads its last segment,
         // which would make this test depend on the network.

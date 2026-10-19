@@ -38,6 +38,10 @@ abstract class SentryJsBinding {
   /// `false`, and it's `'buffer'` then (`ReplayContainer.getSessionId` in
   /// @sentry-internal/replay 11.0.0).
   String? getReplayId({bool onlyIfSampled = false});
+
+  /// Whether the current JS replay is buffering (`recordingMode` `'buffer'`),
+  /// as the JS SDK checks for `sentry._internal.replay_is_buffering`.
+  bool isReplayBuffering();
   void startReplay();
   void startReplayBuffering();
   Future<void> stopReplay();

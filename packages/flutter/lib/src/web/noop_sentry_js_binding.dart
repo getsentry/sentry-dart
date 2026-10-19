@@ -77,6 +77,9 @@ class NoOpSentryJsBinding implements SentryJsBinding {
   }
 
   @override
+  bool isReplayBuffering() => false;
+
+  @override
   void startReplay() {}
 
   @override

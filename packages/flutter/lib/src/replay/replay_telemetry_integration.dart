@@ -86,8 +86,8 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
 
     // Both native layers put the replay ID on the scope only while recording in
     // session mode, so an ID the binding knows about but the scope doesn't
-    // belongs to a replay that is still buffering.
-    final isBuffering = scopeReplayId == null;
+    // belongs to a replay that is still buffering. Web asks the JS SDK.
+    final isBuffering = _native?.isReplayBuffering ?? scopeReplayId == null;
 
     return {
       SemanticAttributesConstants.sentryReplayId: SentryAttribute.string(

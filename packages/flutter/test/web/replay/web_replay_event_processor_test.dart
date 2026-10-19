@@ -102,6 +102,9 @@ class FakeSentryJsBinding implements SentryJsBinding {
       : replayId;
 
   @override
+  bool isReplayBuffering() => sampling == FakeReplaySampling.buffer;
+
+  @override
   Object? createManualReplayCanvasIntegration() => null;
 
   @override

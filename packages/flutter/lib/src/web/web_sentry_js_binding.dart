@@ -264,6 +264,21 @@ class WebSentryJsBinding implements SentryJsBinding {
   }
 
   @override
+  bool isReplayBuffering() {
+    try {
+      final mode = _getReplay()?.callMethod<JSString?>('getRecordingMode'.toJS);
+      return mode?.toDart == 'buffer';
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'JS SDK integration: failed to get the replay recording mode',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return false;
+    }
+  }
+
+  @override
   void startReplay() {
     _getReplay()?.callMethod<JSAny?>('start'.toJS);
   }

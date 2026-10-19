@@ -544,6 +544,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     return replayId == null ? null : SentryId.fromId(replayId);
   }
 
+  // Nothing puts the JS replay's ID on the Dart scope, so the scope can't
+  // tell a buffering replay from a session one.
+  @override
+  bool? get isReplayBuffering => _binding.isReplayBuffering();
+
   @override
   String? get proguardUuid => null;
 
