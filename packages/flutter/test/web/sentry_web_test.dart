@@ -327,6 +327,45 @@ void main() {
         expect(sentEventIds, [event.eventId.toString()]);
       });
 
+      test('logs an error when the JS SDK fails to send an envelope', () async {
+        final logger = MockLogger()..captureInternalLogs();
+        addTearDown(
+          // ignore: invalid_use_of_internal_member
+          () => SentryInternalLogger.configure(isEnabled: false),
+        );
+        await sut.init(hub);
+        final client = (_globalThis['Sentry'] as JSObject).callMethod<JSObject>(
+          'getClient'.toJS,
+        );
+        // A throwing beforeEnvelope listener rejects client.sendEnvelope();
+        // the JS transport itself resolves on send failures.
+        void throwingListener(JSAny? envelope) =>
+            throw StateError('beforeEnvelope failed');
+        final unsubscribe = client.callMethod<JSFunction>(
+          'on'.toJS,
+          'beforeEnvelope'.toJS,
+          throwingListener.toJS,
+        );
+        addTearDown(() => unsubscribe.callAsFunction());
+
+        await sut.captureStructuredEnvelope(
+          SentryEnvelope.fromEvent(
+            SentryEvent(),
+            SdkVersion(name: 'test', version: '0'),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+
+        expect(
+          logger.items.where(
+            (item) =>
+                item.level == SentryLevel.error &&
+                item.message.contains('failed to send envelope'),
+          ),
+          hasLength(1),
+        );
+      });
+
       test(
         'loadDebugImages returns null if no debug ids are available',
         () async {
@@ -442,19 +481,25 @@ void main() {
         expect(integrationNames, containsAll(['Replay', 'ReplayCanvas']));
       });
 
-      test('stopReplay and startReplay control the JS replay', () async {
-        // Buffer mode: stopping a session replay uploads its last segment,
-        // which would make this test depend on the network.
-        options.replay.onErrorSampleRate = 1.0;
-        await sut.init(hub);
-        expect(binding.getReplayId(), isNotNull);
+      // Buffer mode throughout: a session replay uploads its last segment
+      // when stopped or closed, which would make this test depend on the
+      // network. startReplay and flushReplay start a session replay, so
+      // they're covered with the mock binding.
+      test(
+        'stopReplay and startReplayBuffering control the JS replay',
+        () async {
+          options.replay.onErrorSampleRate = 1.0;
+          await sut.init(hub);
+          expect(binding.getReplayId(), isNotNull);
 
-        await sut.stopReplay();
-        expect(binding.getReplayId(), isNull);
+          await sut.stopReplay();
+          expect(binding.getReplayId(), isNull);
 
-        await sut.startReplay();
-        expect(binding.getReplayId(), isNotNull);
-      });
+          await sut.startReplayBuffering();
+          expect(binding.getReplayId(), isNotNull);
+          expect(sut.isReplayBuffering, isTrue);
+        },
+      );
 
       test('isReplayBuffering reflects the JS recording mode', () async {
         // Buffer mode: a session replay would upload on close, which would
@@ -465,18 +510,6 @@ void main() {
 
         await sut.stopReplay();
         expect(sut.isReplayBuffering, isFalse);
-      });
-
-      test('flushReplay starts a stopped JS replay', () async {
-        // Buffer mode: stopping a session replay uploads its last segment,
-        // which would make this test depend on the network.
-        options.replay.onErrorSampleRate = 1.0;
-        await sut.init(hub);
-        await sut.stopReplay();
-
-        await sut.flushReplay();
-
-        expect(binding.getReplayId(), isNotNull);
       });
     });
 

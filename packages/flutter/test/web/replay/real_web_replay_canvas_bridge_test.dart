@@ -33,13 +33,15 @@ void main() {
         expect(shadow.style.zIndex, '-1');
       });
 
-      // The Replay integration blocks every other canvas via
-      // [webReplayBlockSelector], which excludes this id.
-      test('gives the shadow canvas the id the block selector excludes', () {
+      // The Replay integration blocks every canvas matching
+      // [webReplayBlockSelector], which must spare this one.
+      test('gives the shadow canvas an id the block selector spares', () {
         fixture.sut.start();
+        final appCanvas = web.document.createElement('canvas');
 
-        expect(fixture.shadowCanvas!.id, webReplayShadowCanvasId);
-        expect(webReplayBlockSelector, contains('#$webReplayShadowCanvasId'));
+        expect(fixture.shadowCanvas!.id, 'sentry-flutter-replay-canvas');
+        expect(fixture.shadowCanvas!.matches(webReplayBlockSelector), isFalse);
+        expect(appCanvas.matches(webReplayBlockSelector), isTrue);
       });
 
       test('is idempotent', () {
@@ -94,7 +96,7 @@ void main() {
         final current = fixture.shadowCanvas!;
         expect(current, isNot(same(previous)));
         expect(previous.isConnected, isFalse);
-        expect(current.id, webReplayShadowCanvasId);
+        expect(current.id, 'sentry-flutter-replay-canvas');
         expect(current.style.position, 'fixed');
         expect(current.style.zIndex, '-1');
         expect(current.style.width, '8px');

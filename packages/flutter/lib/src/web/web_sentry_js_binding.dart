@@ -138,9 +138,11 @@ class WebSentryJsBinding implements SentryJsBinding {
             );
           }
         },
-        onError: (Object error) {
-          internalLogger.debug(
-            () => 'JS SDK integration: failed to send envelope: $error',
+        onError: (Object error, StackTrace stackTrace) {
+          internalLogger.error(
+            'JS SDK integration: failed to send envelope',
+            error: error,
+            stackTrace: stackTrace,
           );
         },
       ),
