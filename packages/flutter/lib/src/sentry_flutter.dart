@@ -265,8 +265,10 @@ mixin SentryFlutter {
 
     integrations.add(DebugPrintIntegration());
 
-    // Only add ReplayTelemetryIntegration on platforms that support replay
-    if (native != null && native.supportsReplay) {
+    // Only add ReplayTelemetryIntegration on platforms that support replay.
+    // On web, that depends on the replay sample rates, which aren't set until
+    // after this, so the integration checks again when it runs.
+    if (native != null && (native.supportsReplay || platform.isWeb)) {
       integrations.add(ReplayTelemetryIntegration(native));
     }
 

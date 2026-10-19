@@ -21,6 +21,34 @@ void main() {
   });
 
   group('$ReplayTelemetryIntegration', () {
+    // On web, replay support depends on the options configuration, so it's
+    // only known once the integration runs.
+    group('when the native binding does not support replay', () {
+      setUp(() {
+        when(fixture.nativeBinding.supportsReplay).thenReturn(false);
+      });
+
+      test('does not register', () async {
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        expect(
+          fixture.options.sdk.integrations,
+          isNot(contains('ReplayTelemetry')),
+        );
+      });
+
+      test('does not add replay_id to logs', () async {
+        fixture.scope.replayId = SentryId.fromId('test-replay-id');
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+
+        final log = fixture.createTestLog();
+        await fixture.hub.captureLog(log);
+
+        expect(log.attributes.containsKey(_replayId), false);
+      });
+    });
+
     group('when automatic sampling is disabled', () {
       setUp(() {
         fixture.options.replay.sessionSampleRate = 0.0;
@@ -448,6 +476,7 @@ class Fixture {
         OnProcessLog(log, Hint()),
       );
     });
+    when(nativeBinding.supportsReplay).thenReturn(true);
     when(nativeBinding.replayId).thenReturn(null);
     when(nativeBinding.registerTraceId(any)).thenReturn(null);
     when(nativeBinding.registerSegmentName(any)).thenReturn(null);

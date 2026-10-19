@@ -248,11 +248,6 @@ class _Capture<R> {
         Error.throwWithStackTrace(imageResult.error, imageResult.stackTrace);
       }
       final image = imageResult as Image;
-      await yieldToEventLoop();
-
-      Timeline.startSync('Sentry::renderScreenshot', flow: flow);
-      final recorder = PictureRecorder();
-      final canvas = Canvas(recorder);
 
       // Note: there's a weird bug when we write image to canvas directly.
       // If the UI is updating quickly in some apps, the image could get
@@ -260,10 +255,16 @@ class _Capture<R> {
       // This can be reproduced, for example, by switching between Spotube's
       // Search vs Library (2nd and 3rd bottom bar buttons).
       // Weirdly, dumping the image data seems to prevent this issue...
+      // Done before yielding, so the UI can't update before the readback.
       {
         // we do so in a block so it can be GC'ed early.
         final _ = await image.toByteData();
       }
+      await yieldToEventLoop();
+
+      Timeline.startSync('Sentry::renderScreenshot', flow: flow);
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder);
 
       try {
         canvas.drawImage(image, Offset.zero, Paint());

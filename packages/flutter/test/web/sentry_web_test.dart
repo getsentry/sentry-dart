@@ -655,6 +655,16 @@ void main() {
           },
         );
 
+        test('close stops the replay bridge after a failed start', () async {
+          options.automatedTestMode = false;
+          bridge.throwOnNextStart = true;
+          await sut.setReplayConfig(config);
+
+          await sut.close();
+
+          expect(calls, ['bridgeStop', 'jsClose']);
+        });
+
         test('replay calls after close do nothing', () async {
           await sut.close();
           calls.clear();

@@ -150,8 +150,13 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
       _replayRecorder = null;
       try {
         // Stopping waits for an in-flight capture, which could otherwise
-        // snapshot into the JS SDK after it's closed.
-        if (recorder != null) await _stopReplayRecorder(recorder);
+        // snapshot into the JS SDK after it's closed. Stopped even if it
+        // never started: a failed start() can leave the shadow canvas in
+        // the DOM.
+        if (recorder != null) {
+          _replayRecorderStarted = false;
+          await recorder.stop();
+        }
       } finally {
         _binding.close();
       }

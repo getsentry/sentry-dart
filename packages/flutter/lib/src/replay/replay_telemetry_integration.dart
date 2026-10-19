@@ -22,6 +22,10 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
+    // Checked here rather than only when adding the integration: on web it
+    // depends on the replay sample rates set in the options configuration.
+    if (_native?.supportsReplay != true) return;
+
     // Deliberately not gated on `options.replay.isEnabled`: a replay can also
     // be started manually while both sample rates are zero. See
     // [_replayAttributes] for what decides whether anything is attached.
