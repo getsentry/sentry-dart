@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
@@ -26,6 +27,7 @@ part 'sentry_native_java_init.dart';
 class SentryNativeJava extends SentryNativeChannel {
   AndroidReplayRecorder? _replayRecorder;
   AndroidCoreWorker? _coreWorker;
+  AppLifecycleListener? _coreWorkerLifecycle;
   native.ReplayIntegration? _nativeReplay;
   ReplayConfig? _replayConfig;
 
@@ -34,6 +36,16 @@ class SentryNativeJava extends SentryNativeChannel {
     // Ensures it starts when autoInitializeNativeSdk is enabled and disabled.
     _coreWorker = AndroidCoreWorker.factory(options);
     _coreWorker?.start();
+    // The native binding is created before the default binding integration.
+    // Detach is best-effort cleanup; owner-exit cleanup can run Flutter GPU
+    // finalizers after native engine teardown (#4092).
+    _coreWorkerLifecycle = AppLifecycleListener(
+      binding: options.bindingUtils.ensureInitialized(),
+      onDetach: () => _coreWorker?.stop(),
+      onResume: () {
+        unawaited(Future<void>.value(_coreWorker?.start()));
+      },
+    );
   }
 
   @override
@@ -121,6 +133,8 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   Future<void> close() async {
     _replayConfig = null;
+    _coreWorkerLifecycle?.dispose();
+    _coreWorkerLifecycle = null;
     // Start worker shutdown before awaiting replay cleanup.
     final coreWorkerClosed = _coreWorker?.close();
     await _replayRecorder?.stop();

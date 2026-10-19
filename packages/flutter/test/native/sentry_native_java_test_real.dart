@@ -70,6 +70,45 @@ void main() {
       AndroidCoreWorker.factory = originalFactory;
     });
 
+    test('stops the worker on detach without closing the SDK', () async {
+      fixture.getSut();
+
+      await fixture.lifecycle(['resumed', 'detached']);
+
+      expect(fixture.worker.stopCount, 1);
+      expect(fixture.worker.closed, isFalse);
+    });
+
+    test('restarts the worker when a detached engine resumes', () async {
+      fixture.getSut();
+      await fixture.lifecycle(['resumed', 'detached']);
+      final startsBeforeResume = fixture.worker.startCount;
+
+      await fixture.lifecycle(['resumed']);
+
+      expect(fixture.worker.startCount, startsBeforeResume + 1);
+    });
+
+    test('keeps the worker running while paused', () async {
+      fixture.getSut();
+
+      await fixture.lifecycle(['resumed', 'paused']);
+
+      expect(fixture.worker.stopCount, 0);
+      expect(fixture.worker.closed, isFalse);
+    });
+
+    test('removes lifecycle callbacks when the SDK closes', () async {
+      final native = fixture.getSut();
+      await native.close();
+      final startsBeforeResume = fixture.worker.startCount;
+
+      await fixture.lifecycle(['detached', 'resumed']);
+
+      expect(fixture.worker.startCount, startsBeforeResume);
+      expect(fixture.worker.stopCount, 0);
+    });
+
     test('closes the worker explicitly after detach and reattach', () async {
       final binding = TestWidgetsFlutterBinding.ensureInitialized();
       fixture.options
@@ -113,10 +152,18 @@ void main() {
 class _FakeCoreWorker implements AndroidCoreWorker {
   bool started = false;
   bool closed = false;
+  int stopCount = 0;
+  int startCount = 0;
+
+  @override
+  void stop() {
+    stopCount++;
+  }
 
   @override
   FutureOr<void> start() {
     started = true;
+    startCount++;
   }
 
   @override
@@ -167,8 +214,23 @@ class _FakeCoreWorker implements AndroidCoreWorker {
 }
 
 class Fixture {
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
   final options = defaultTestOptions();
   final worker = _FakeCoreWorker();
 
-  SentryNativeJava getSut() => SentryNativeJava(options);
+  SentryNativeJava getSut() {
+    final native = SentryNativeJava(options);
+    addTearDown(native.close);
+    return native;
+  }
+
+  Future<void> lifecycle(List<String> states) async {
+    for (final state in states) {
+      await binding.defaultBinaryMessenger.handlePlatformMessage(
+        'flutter/lifecycle',
+        const StringCodec().encodeMessage('AppLifecycleState.$state'),
+        (_) {},
+      );
+    }
+  }
 }
