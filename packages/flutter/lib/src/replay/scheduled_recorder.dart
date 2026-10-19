@@ -89,8 +89,14 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     final state = options.bindingUtils.instance?.lifecycleState;
     // null until the first lifecycle message arrives, i.e. during startup,
     // where the app is foreground by definition.
-    return state == null || state == AppLifecycleState.resumed;
+    return state == null || canCaptureInLifecycleState(state);
   }
+
+  /// Whether a new capture may start in [state]. Only
+  /// [AppLifecycleState.resumed] by default, see [_canStartCapture].
+  @protected
+  bool canCaptureInLifecycleState(AppLifecycleState state) =>
+      state == AppLifecycleState.resumed;
 
   Future<void> _restartScheduler() async {
     final generation = ++_schedulerRestartGeneration;

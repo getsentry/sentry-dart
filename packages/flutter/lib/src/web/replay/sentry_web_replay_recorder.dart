@@ -41,6 +41,16 @@ class SentryWebReplayRecorder extends ScheduledScreenshotRecorder {
   @override
   bool get shouldCapture => _isRecording();
 
+  // Flutter Web reports `inactive` when a still-visible page loses focus
+  // (another window, the address bar, DevTools), so the page keeps showing
+  // the app. The base class's resumed-only guard protects against a
+  // native GPU surface teardown that doesn't apply to the browser. Only a
+  // hidden page has nothing to record.
+  @override
+  bool canCaptureInLifecycleState(ui.AppLifecycleState state) =>
+      state == ui.AppLifecycleState.resumed ||
+      state == ui.AppLifecycleState.inactive;
+
   // See the comment on ScreenshotRecorder.yieldToEventLoop: the default
   // no-op preserves every other recorder's behavior; only web's pipeline
   // shares a thread with anything else that needs a chance to run.

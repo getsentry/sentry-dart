@@ -97,6 +97,31 @@ void main() async {
       });
     });
 
+    // Flutter Web reports `inactive` when a visible page loses focus, e.g.
+    // to another window, the address bar, or DevTools. The page is still on
+    // screen, so the replay must keep its canvas frames.
+    testWidgets('captures while the page is visible but unfocused', (
+      tester,
+    ) async {
+      addTearDown(
+        () => tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        ),
+      );
+      await tester.runAsync(() async {
+        final fixture = await _Fixture.create(tester);
+        tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.inactive,
+        );
+
+        await fixture.nextFrame();
+
+        expect(fixture.bridge.feedFrameCalls, hasLength(1));
+
+        await fixture.sut.stop();
+      });
+    });
+
     testWidgets('stops the bridge on stop', (tester) async {
       await tester.runAsync(() async {
         final fixture = await _Fixture.create(tester);
