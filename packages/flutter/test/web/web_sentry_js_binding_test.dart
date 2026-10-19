@@ -120,6 +120,12 @@ void main() {
         expect(integration, isNotNull);
         expect(integration!['name'], 'ReplayCanvas'.toJS);
         expect(integration['snapshot'].typeofEquals('function'), isTrue);
+        // Without it, the JS SDK samples canvases itself instead of waiting
+        // for Dart to snapshot the shadow canvas.
+        final canvasOptions = integration.callMethod<JSObject>(
+          'getOptions'.toJS,
+        );
+        expect(canvasOptions['enableManualSnapshot'], true.toJS);
       },
     );
 

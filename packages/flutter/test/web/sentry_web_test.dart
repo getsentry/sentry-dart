@@ -1231,6 +1231,8 @@ void main() {
       });
 
       test('passes no events for an envelope without events', () async {
+        // Events are only collected with replay enabled.
+        options.replay.onErrorSampleRate = 1.0;
         final attachment = SentryEnvelopeItem.fromAttachment(
           SentryAttachment.fromByteData(ByteData(10), 'test'),
         );
