@@ -739,9 +739,7 @@ void main() {
         // land while the recorder is still starting.
         test('stopReplay stops a recorder that is still starting', () async {
           final configured = sut.setReplayConfig(config);
-          while (!calls.contains('bridgeStart')) {
-            await Future<void>.microtask(() {});
-          }
+          await bridge.started;
 
           await sut.stopReplay();
           await configured;
@@ -763,9 +761,7 @@ void main() {
             options.automatedTestMode = false;
             bridge.throwOnStop = true;
             final configured = sut.setReplayConfig(config);
-            while (!calls.contains('bridgeStart')) {
-              await Future<void>.microtask(() {});
-            }
+            await bridge.started;
             await sut.stopReplay();
             await configured;
             bridge.throwOnStop = false;
@@ -1257,6 +1253,12 @@ class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
   int startCalls = 0;
   bool throwOnNextStart = false;
   bool throwOnStop = false;
+  final _started = Completer<void>();
+
+  /// Completes on the first successful [start]. Times out so a start that
+  /// never runs fails the test instead of hanging it.
+  Future<void> get started =>
+      _started.future.timeout(const Duration(seconds: 5));
 
   @override
   void start() {
@@ -1266,6 +1268,7 @@ class _FakeWebReplayCanvasBridge implements WebReplayCanvasBridge {
       throw StateError('bridge failed to start');
     }
     calls.add('bridgeStart');
+    if (!_started.isCompleted) _started.complete();
   }
 
   @override
