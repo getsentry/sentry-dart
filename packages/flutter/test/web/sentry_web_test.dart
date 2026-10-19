@@ -688,7 +688,7 @@ void main() {
         // ReplayIntegration doesn't await setReplayConfig, so teardown can
         // land while it's still configuring the recorder.
         test(
-          'close stops the recorder an in-flight setReplayConfig started',
+          'close stops the recorder that an in-flight setReplayConfig started',
           () async {
             final configured = sut.setReplayConfig(config);
 
@@ -1071,100 +1071,151 @@ void main() {
         expect(() => sut.removeTag('key'), returnsNormally);
       });
 
-      test('scope methods call JS binding with normalized payloads', () {
-        final userObject = Object();
-        final user = SentryUser(id: 'fixture-id', data: {'object': userObject});
-        sut.setUser(user);
-        final userVerification = verify(mockBinding.setUser(captureAny));
-        userVerification.called(1);
-        expect(userVerification.captured.single, normalizeMap(user.toJson()));
+      group('scope sync', () {
+        test('setUser passes the normalized user to the JS binding', () {
+          final user = SentryUser(id: 'fixture-id', data: {'object': Object()});
 
-        sut.setUser(null);
-        verify(mockBinding.setUser(null)).called(1);
+          sut.setUser(user);
 
-        final breadcrumbObject = Object();
-        final breadcrumb = Breadcrumb(
-          message: 'fixture-message',
-          data: {'object': breadcrumbObject},
-          timestamp: DateTime.utc(2026, 1, 1),
-        );
-        sut.addBreadcrumb(breadcrumb);
-
-        final userInteractionBreadcrumb = Breadcrumb.userInteraction(
-          subCategory: 'click',
-          timestamp: DateTime.utc(2026, 1, 2),
-        );
-        sut.addBreadcrumb(userInteractionBreadcrumb);
-
-        final breadcrumbVerification = verify(
-          mockBinding.addBreadcrumb(captureAny),
-        );
-        breadcrumbVerification.called(2);
-        expect(breadcrumbVerification.captured[0], {
-          'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
-          'message': 'fixture-message',
-          'data': normalizeMap(breadcrumb.data),
-          if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
-        });
-        expect(breadcrumbVerification.captured[1], {
-          'timestamp':
-              userInteractionBreadcrumb.timestamp.millisecondsSinceEpoch / 1000,
-          'category': 'ui.click',
-          if (userInteractionBreadcrumb.level != null)
-            'level': userInteractionBreadcrumb.level!.name,
-          'type': 'user',
+          final verification = verify(mockBinding.setUser(captureAny));
+          verification.called(1);
+          expect(verification.captured.single, normalizeMap(user.toJson()));
         });
 
-        final replayBreadcrumbVerification = verify(
-          mockBinding.addReplayBreadcrumb(captureAny),
-        );
-        replayBreadcrumbVerification.called(2);
-        expect(replayBreadcrumbVerification.captured[0], {
-          'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
-          'message': 'fixture-message',
-          'data': normalizeMap(breadcrumb.data),
-          if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
-          'category': 'default',
-        });
-        expect(replayBreadcrumbVerification.captured[1], {
-          'timestamp':
-              userInteractionBreadcrumb.timestamp.millisecondsSinceEpoch / 1000,
-          'category': 'flutter.ui.click',
-          if (userInteractionBreadcrumb.level != null)
-            'level': userInteractionBreadcrumb.level!.name,
-          'type': 'user',
+        test('setUser with null clears the JS user', () {
+          sut.setUser(null);
+
+          verify(mockBinding.setUser(null)).called(1);
         });
 
-        sut.clearBreadcrumbs();
-        verify(mockBinding.clearBreadcrumbs()).called(1);
+        test(
+          'addBreadcrumb passes the normalized breadcrumb to the JS binding',
+          () {
+            final breadcrumb = Breadcrumb(
+              message: 'fixture-message',
+              data: {'object': Object()},
+              timestamp: DateTime.utc(2026, 1, 1),
+            );
+            final userInteractionBreadcrumb = Breadcrumb.userInteraction(
+              subCategory: 'click',
+              timestamp: DateTime.utc(2026, 1, 2),
+            );
 
-        final contextValue = {'object': Object()};
-        sut.setContexts('fixture-context', contextValue);
-        final contextVerification = verify(
-          mockBinding.setContext('fixture-context', captureAny),
+            sut.addBreadcrumb(breadcrumb);
+            sut.addBreadcrumb(userInteractionBreadcrumb);
+
+            final verification = verify(mockBinding.addBreadcrumb(captureAny));
+            verification.called(2);
+            expect(verification.captured[0], {
+              'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
+              'message': 'fixture-message',
+              'data': normalizeMap(breadcrumb.data),
+              if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
+            });
+            expect(verification.captured[1], {
+              'timestamp':
+                  userInteractionBreadcrumb.timestamp.millisecondsSinceEpoch /
+                  1000,
+              'category': 'ui.click',
+              if (userInteractionBreadcrumb.level != null)
+                'level': userInteractionBreadcrumb.level!.name,
+              'type': 'user',
+            });
+          },
         );
-        contextVerification.called(1);
-        expect(contextVerification.captured.single, normalize(contextValue));
 
-        sut.removeContexts('fixture-context');
-        verify(mockBinding.removeContext('fixture-context')).called(1);
+        test(
+          'addBreadcrumb passes a categorized replay breadcrumb to the JS binding',
+          () {
+            final breadcrumb = Breadcrumb(
+              message: 'fixture-message',
+              data: {'object': Object()},
+              timestamp: DateTime.utc(2026, 1, 1),
+            );
+            final userInteractionBreadcrumb = Breadcrumb.userInteraction(
+              subCategory: 'click',
+              timestamp: DateTime.utc(2026, 1, 2),
+            );
 
-        final extraValue = {'object': Object()};
-        sut.setExtra('fixture-extra', extraValue);
-        final extraVerification = verify(
-          mockBinding.setExtra('fixture-extra', captureAny),
+            sut.addBreadcrumb(breadcrumb);
+            sut.addBreadcrumb(userInteractionBreadcrumb);
+
+            final verification = verify(
+              mockBinding.addReplayBreadcrumb(captureAny),
+            );
+            verification.called(2);
+            expect(verification.captured[0], {
+              'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
+              'message': 'fixture-message',
+              'data': normalizeMap(breadcrumb.data),
+              if (breadcrumb.level != null) 'level': breadcrumb.level!.name,
+              'category': 'default',
+            });
+            expect(verification.captured[1], {
+              'timestamp':
+                  userInteractionBreadcrumb.timestamp.millisecondsSinceEpoch /
+                  1000,
+              'category': 'flutter.ui.click',
+              if (userInteractionBreadcrumb.level != null)
+                'level': userInteractionBreadcrumb.level!.name,
+              'type': 'user',
+            });
+          },
         );
-        extraVerification.called(1);
-        expect(extraVerification.captured.single, normalize(extraValue));
 
-        sut.removeExtra('fixture-extra');
-        verify(mockBinding.removeExtra('fixture-extra')).called(1);
+        test('clearBreadcrumbs clears the JS breadcrumbs', () {
+          sut.clearBreadcrumbs();
 
-        sut.setTag('fixture-tag', 'fixture-value');
-        verify(mockBinding.setTag('fixture-tag', 'fixture-value')).called(1);
+          verify(mockBinding.clearBreadcrumbs()).called(1);
+        });
 
-        sut.removeTag('fixture-tag');
-        verify(mockBinding.removeTag('fixture-tag')).called(1);
+        test('setContexts passes the normalized value to the JS binding', () {
+          final value = {'object': Object()};
+
+          sut.setContexts('fixture-context', value);
+
+          final verification = verify(
+            mockBinding.setContext('fixture-context', captureAny),
+          );
+          verification.called(1);
+          expect(verification.captured.single, normalize(value));
+        });
+
+        test('removeContexts removes the JS context', () {
+          sut.removeContexts('fixture-context');
+
+          verify(mockBinding.removeContext('fixture-context')).called(1);
+        });
+
+        test('setExtra passes the normalized value to the JS binding', () {
+          final value = {'object': Object()};
+
+          sut.setExtra('fixture-extra', value);
+
+          final verification = verify(
+            mockBinding.setExtra('fixture-extra', captureAny),
+          );
+          verification.called(1);
+          expect(verification.captured.single, normalize(value));
+        });
+
+        test('removeExtra removes the JS extra', () {
+          sut.removeExtra('fixture-extra');
+
+          verify(mockBinding.removeExtra('fixture-extra')).called(1);
+        });
+
+        test('setTag passes the tag to the JS binding', () {
+          sut.setTag('fixture-tag', 'fixture-value');
+
+          verify(mockBinding.setTag('fixture-tag', 'fixture-value')).called(1);
+        });
+
+        test('removeTag removes the JS tag', () {
+          sut.removeTag('fixture-tag');
+
+          verify(mockBinding.removeTag('fixture-tag')).called(1);
+        });
       });
 
       test('payload uint8list: captures correct length', () async {

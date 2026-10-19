@@ -177,7 +177,7 @@ void main() {
       });
 
       // The deferred snapshot runs outside the recorder's error handling.
-      test('contains a throwing deferred snapshot', () async {
+      test('swallows errors from a deferred snapshot', () async {
         fixture.sut.start();
         fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
         fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);

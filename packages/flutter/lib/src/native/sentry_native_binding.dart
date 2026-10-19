@@ -65,8 +65,13 @@ abstract class SentryNativeBinding {
   SentryId? get replayId;
 
   /// Whether the replay with [replayId] is buffering rather than recording a
-  /// session, or `null` when the scope tells: native layers put the replay
-  /// ID on the scope only while recording a session.
+  /// session.
+  ///
+  /// Bindings that can ask their replay SDK directly (web, via the JS
+  /// Replay's recording mode) return `true` or `false`. Bindings that can't
+  /// return `null`; callers then infer buffering from the scope: native
+  /// layers put the replay ID on the scope only while recording a session,
+  /// so a scope without a replay ID means the replay is buffering.
   bool? get isReplayBuffering;
 
   FutureOr<void> setReplayConfig(ReplayConfig config);

@@ -53,7 +53,7 @@ void main() {
       final firstValue = values?.first as Map<dynamic, dynamic>?;
 
       expect(sdk, isNotNull);
-      expect(sdk!['name'], jsSdkName);
+      expect(sdk!['name'], 'sentry.javascript.browser.flutter');
       expect(firstValue?['value'], contains(expectedMessage));
     });
 

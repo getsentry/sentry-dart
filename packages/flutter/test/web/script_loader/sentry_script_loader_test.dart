@@ -48,33 +48,33 @@ void main() {
       expect(scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.js'));
     });
 
-    test('Loads production replay scripts correctly', () async {
+    test('Loads production replay scripts', () async {
       final sut = fixture.getSut();
 
       await sut.loadWebSdk(productionReplayScripts);
 
-      final scripts = fetchAllScripts();
+      final sources = fetchAllScripts().map((script) => script.src);
       expect(
-        scripts.any(
-          (script) =>
-              script.src.endsWith('$jsSdkVersion/bundle.tracing.replay.min.js'),
-        ),
-        isTrue,
+        sources,
+        containsAll([
+          'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.replay.min.js',
+          'https://browser.sentry-cdn.com/$jsSdkVersion/replay-canvas.min.js',
+        ]),
       );
     });
 
-    test('Loads debug replay scripts correctly', () async {
+    test('Loads debug replay scripts', () async {
       final sut = fixture.getSut();
 
       await sut.loadWebSdk(debugReplayScripts);
 
-      final scripts = fetchAllScripts();
+      final sources = fetchAllScripts().map((script) => script.src);
       expect(
-        scripts.any(
-          (script) =>
-              script.src.endsWith('$jsSdkVersion/bundle.tracing.replay.js'),
-        ),
-        isTrue,
+        sources,
+        containsAll([
+          'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.replay.js',
+          'https://browser.sentry-cdn.com/$jsSdkVersion/replay-canvas.js',
+        ]),
       );
     });
 
