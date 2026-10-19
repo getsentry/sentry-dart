@@ -357,7 +357,7 @@ void main() {
         expect(
           path?.any(
             (element) =>
-                element['element'] == 'Tooltip' &&
+                element['element'] == 'RawTooltip' &&
                 element['label'] == 'Tooltip message.',
           ),
           isTrue,
@@ -854,9 +854,7 @@ void main() {
         });
       });
 
-      testWidgets('adds crumb with text label when labelFromText is true', (
-        tester,
-      ) async {
+      testWidgets('adds crumb with text label', (tester) async {
         await tester.runAsync(() async {
           final sut = fixture.getSut(
             sendDefaultPii: true,
@@ -870,49 +868,16 @@ void main() {
         });
       });
 
-      testWidgets('adds crumb without text label when labelFromText is false', (
+      testWidgets('adds crumb without label when sendDefaultPii is false', (
         tester,
       ) async {
         await tester.runAsync(() async {
           final sut = fixture.getSut(
-            sendDefaultPii: true,
             child: ThirdPartyApp(),
             optionsConfiguration: addThirdPartyWidgetTypes,
           );
 
-          await tapMe(tester, sut, 'third_party_ink_well');
-
-          final data = fixture.getBreadcrumb().data;
-          expect(data?['view.class'], 'InkWell');
-          expect(data?.containsKey('label'), isFalse);
-        });
-      });
-
-      testWidgets('adds crumb with label from added label type', (
-        tester,
-      ) async {
-        await tester.runAsync(() async {
-          final sut = fixture.getSut(
-            sendDefaultPii: true,
-            child: ThirdPartyApp(),
-            optionsConfiguration: addThirdPartyWidgetTypes,
-          );
-
-          await tapMe(tester, sut, 'third_party_tooltip_button');
-
-          expect(fixture.getBreadcrumb().data?['label'], 'Close');
-        });
-      });
-
-      testWidgets('adds crumb without label from added label type '
-          'when sendDefaultPii is false', (tester) async {
-        await tester.runAsync(() async {
-          final sut = fixture.getSut(
-            child: ThirdPartyApp(),
-            optionsConfiguration: addThirdPartyWidgetTypes,
-          );
-
-          await tapMe(tester, sut, 'third_party_tooltip_button');
+          await tapMe(tester, sut, 'third_party_button');
 
           expect(fixture.getBreadcrumb().data?.containsKey('label'), isFalse);
         });
@@ -1049,19 +1014,16 @@ void main() {
         });
       });
 
-      testWidgets('adds crumb without text label for InkWell', (tester) async {
+      testWidgets('adds crumb for InkWell', (tester) async {
         await tester.runAsync(() async {
           final sut = fixture.getSut(
-            sendDefaultPii: true,
             child: MaterialUiApp(),
             optionsConfiguration: addMaterialUiWidgetTypes,
           );
 
           await tapMe(tester, sut, 'material_ui_ink_well');
 
-          final data = fixture.getBreadcrumb().data;
-          expect(data?['view.class'], 'InkWell');
-          expect(data?.containsKey('label'), isFalse);
+          expect(fixture.getBreadcrumb().data?['view.class'], 'InkWell');
         });
       });
 
@@ -1126,17 +1088,14 @@ void addMaterialUiWidgetTypes(SentryFlutterOptions options) {
     ..addUserInteractionWidget<material_ui.ButtonStyleButton>(
       'ButtonStyleButton',
       isEnabled: (widget) => widget.enabled,
-      labelFromText: true,
     )
     ..addUserInteractionWidget<material_ui.MaterialButton>(
       'MaterialButton',
       isEnabled: (widget) => widget.enabled,
-      labelFromText: true,
     )
     ..addUserInteractionWidget<cupertino_ui.CupertinoButton>(
       'CupertinoButton',
       isEnabled: (widget) => widget.enabled,
-      labelFromText: true,
     )
     ..addUserInteractionWidget<material_ui.InkWell>(
       'InkWell',
@@ -1153,22 +1112,14 @@ void addMaterialUiWidgetTypes(SentryFlutterOptions options) {
     ..addUserInteractionWidget<material_ui.PopupMenuItem<Object?>>(
       'PopupMenuItem',
       isEnabled: (widget) => widget.enabled,
-    )
-    ..addUserInteractionLabel<material_ui.Tooltip>((widget) => widget.message);
+    );
 }
 
 void addThirdPartyWidgetTypes(SentryFlutterOptions options) {
-  options
-    ..addUserInteractionWidget<third_party.ButtonStyleButton>(
-      'ButtonStyleButton',
-      isEnabled: (widget) => widget.enabled,
-      labelFromText: true,
-    )
-    ..addUserInteractionWidget<third_party.InkWell>(
-      'InkWell',
-      isEnabled: (widget) => widget.onTap != null,
-    )
-    ..addUserInteractionLabel<third_party.Tooltip>((widget) => widget.message);
+  options.addUserInteractionWidget<third_party.ButtonStyleButton>(
+    'ButtonStyleButton',
+    isEnabled: (widget) => widget.enabled,
+  );
 }
 
 Future<void> tapMe(
@@ -1397,17 +1348,6 @@ class ThirdPartyApp extends StatelessWidget {
               key: Key('disabled_third_party_button'),
               onPressed: null,
               child: const Text('Disabled button'),
-            ),
-            third_party.ElevatedButton(
-              key: Key('third_party_tooltip_button'),
-              tooltip: 'Close',
-              onPressed: () {},
-              child: const Icon(Icons.close),
-            ),
-            third_party.InkWell(
-              key: Key('third_party_ink_well'),
-              onTap: () {},
-              child: const Text('Ink well'),
             ),
           ],
         ),

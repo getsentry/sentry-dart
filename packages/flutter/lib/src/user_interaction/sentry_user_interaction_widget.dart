@@ -213,10 +213,11 @@ import '../../sentry_flutter.dart';
 import '../utils/widget_utils.dart';
 import '../utils/internal_logger.dart';
 import 'user_interaction_info.dart';
-import 'user_interaction_widget_types.dart';
 
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
+
+typedef _ElementType = ({String name, bool allowText});
 
 /// Enables the Auto instrumentation for user interaction tracing.
 /// It starts a transaction and finishes after the timeout.
@@ -362,7 +363,7 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    final label = _getLabelRecursively(info.element, info.labelFromText);
+    final label = _getLabelRecursively(info.element, info.allowText);
     final data = {'path': _getTouchPath(info.element), 'label': ?label};
 
     final crumb = Breadcrumb.userInteraction(
@@ -552,10 +553,8 @@ class _SentryUserInteractionWidgetState
         label = widget.properties.label;
       } else if (widget is Icon) {
         label = widget.semanticLabel;
-      } else if (widget is Tooltip) {
-        label = widget.message;
-      } else {
-        label = _options?.userInteractionWidgetTypes.labelOf(widget);
+      } else if (widget is RawTooltip) {
+        label = widget.semanticsTooltip;
       }
 
       if (label?.isEmpty ?? true) {
@@ -623,7 +622,7 @@ class _SentryUserInteractionWidgetState
         tappedWidget = UserInteractionInfo(
           element: element,
           type: type.name,
-          labelFromText: type.labelFromText,
+          allowText: type.allowText,
         );
       }
 
@@ -643,39 +642,42 @@ class _SentryUserInteractionWidgetState
     return tappedWidget;
   }
 
-  UserInteractionWidgetType? _getElementType(Element element) {
+  _ElementType? _getElementType(Element element) {
     final widget = element.widget;
     // Used by ElevatedButton, TextButton, OutlinedButton.
     if (widget is ButtonStyleButton) {
       if (widget.enabled) {
-        return (name: 'ButtonStyleButton', labelFromText: true);
+        return (name: 'ButtonStyleButton', allowText: true);
       }
     } else if (widget is MaterialButton) {
       if (widget.enabled) {
-        return (name: 'MaterialButton', labelFromText: true);
+        return (name: 'MaterialButton', allowText: true);
       }
     } else if (widget is CupertinoButton) {
       if (widget.enabled) {
-        return (name: 'CupertinoButton', labelFromText: true);
+        return (name: 'CupertinoButton', allowText: true);
       }
     } else if (widget is InkWell) {
       if (widget.onTap != null) {
-        return (name: 'InkWell', labelFromText: false);
+        return (name: 'InkWell', allowText: false);
       }
     } else if (widget is IconButton) {
       if (widget.onPressed != null) {
-        return (name: 'IconButton', labelFromText: false);
+        return (name: 'IconButton', allowText: false);
       }
     } else if (widget is PopupMenuButton) {
       if (widget.enabled) {
-        return (name: 'PopupMenuButton', labelFromText: false);
+        return (name: 'PopupMenuButton', allowText: false);
       }
     } else if (widget is PopupMenuItem) {
       if (widget.enabled) {
-        return (name: 'PopupMenuItem', labelFromText: false);
+        return (name: 'PopupMenuItem', allowText: false);
       }
     } else {
-      return _options?.userInteractionWidgetTypes.typeOf(widget);
+      final name = _options?.userInteractionWidgetTypes.nameOf(widget);
+      if (name != null) {
+        return (name: name, allowText: true);
+      }
     }
 
     return null;

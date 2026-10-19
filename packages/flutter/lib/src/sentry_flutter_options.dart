@@ -230,7 +230,6 @@ class SentryFlutterOptions extends SentryOptions {
   ///   ..addUserInteractionWidget<ButtonStyleButton>(
   ///     'ButtonStyleButton',
   ///     isEnabled: (widget) => widget.enabled,
-  ///     labelFromText: true,
   ///   )
   ///   ..addUserInteractionWidget<IconButton>(
   ///     'IconButton',
@@ -240,8 +239,7 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// To match the built-in support, add the same types from these packages:
   /// `ButtonStyleButton`, `MaterialButton`, `CupertinoButton`, `InkWell`,
-  /// `IconButton`, `PopupMenuButton` and `PopupMenuItem`, and read `Tooltip`
-  /// labels with [addUserInteractionLabel].
+  /// `IconButton`, `PopupMenuButton` and `PopupMenuItem`.
   ///
   /// [name] is reported as the `view.class` of the breadcrumb. Pass a fixed
   /// string, since type names are minified or obfuscated in release builds.
@@ -249,9 +247,8 @@ class SentryFlutterOptions extends SentryOptions {
   /// Taps are tracked only while [isEnabled] returns `true`, or always if it
   /// is not set.
   ///
-  /// If [labelFromText] is `true` and [sendDefaultPii] is enabled, the label
-  /// can also come from a [Text] inside the widget, like for the built-in
-  /// buttons.
+  /// If [sendDefaultPii] is enabled, the breadcrumb label is read from the
+  /// widget's descendants, including [Text].
   ///
   /// Built-in widgets keep their built-in name, and the outermost tracked
   /// widget at the tap position wins. Avoid broad types such as
@@ -259,35 +256,9 @@ class SentryFlutterOptions extends SentryOptions {
   void addUserInteractionWidget<T extends Widget>(
     String name, {
     bool Function(T widget)? isEnabled,
-    bool labelFromText = false,
   }) {
     assert(T != Widget, 'Pass a widget type, for example <IconButton>.');
-    userInteractionWidgetTypes.addWidget<T>(
-      name,
-      isEnabled: isEnabled,
-      labelFromText: labelFromText,
-    );
-    // ignore: invalid_use_of_internal_member
-    sdk.addFeature(SentryFeatures.userInteractionWidgetTypes);
-  }
-
-  /// Reads user interaction breadcrumb labels from widgets of type [T]
-  /// (or subclasses of [T]) with [labelOf].
-  ///
-  /// The SDK reads labels from [Text], [Semantics], [Icon] and the `Tooltip`
-  /// of `package:flutter/material.dart`. Use this for other label sources,
-  /// for example the `Tooltip` of `package:material_ui`:
-  ///
-  /// ```dart
-  /// options.addUserInteractionLabel<Tooltip>((widget) => widget.message);
-  /// ```
-  ///
-  /// Labels are only added if [sendDefaultPii] is enabled.
-  void addUserInteractionLabel<T extends Widget>(
-    String? Function(T widget) labelOf,
-  ) {
-    assert(T != Widget, 'Pass a widget type, for example <Tooltip>.');
-    userInteractionWidgetTypes.addLabel<T>(labelOf);
+    userInteractionWidgetTypes.addWidget<T>(name, isEnabled: isEnabled);
     // ignore: invalid_use_of_internal_member
     sdk.addFeature(SentryFeatures.userInteractionWidgetTypes);
   }

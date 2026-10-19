@@ -78,28 +78,11 @@ void main() {
       expect(options.sdk.features, contains('userInteractionWidgetTypes'));
     });
 
-    test('addUserInteractionLabel adds sdk feature', () {
-      final options = defaultTestOptions();
-
-      options.addUserInteractionLabel<Text>((widget) => widget.data);
-
-      expect(options.sdk.features, contains('userInteractionWidgetTypes'));
-    });
-
     test('addUserInteractionWidget throws AssertionError for Widget type', () {
       final options = defaultTestOptions();
 
       expect(
         () => options.addUserInteractionWidget<Widget>('Widget'),
-        throwsA(isA<AssertionError>()),
-      );
-    });
-
-    test('addUserInteractionLabel throws AssertionError for Widget type', () {
-      final options = defaultTestOptions();
-
-      expect(
-        () => options.addUserInteractionLabel<Widget>((_) => null),
         throwsA(isA<AssertionError>()),
       );
     });

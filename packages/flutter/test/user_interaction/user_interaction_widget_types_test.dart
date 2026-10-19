@@ -10,45 +10,38 @@ void main() {
       fixture = Fixture();
     });
 
-    group('typeOf', () {
-      test('returns added type for widget of that type', () {
-        final sut = fixture.getSut()
-          ..addWidget<Text>('Text', labelFromText: true);
+    group('nameOf', () {
+      test('returns name of added type for widget of that type', () {
+        final sut = fixture.getSut()..addWidget<Text>('Text');
 
-        expect(sut.typeOf(const Text('a')), (
-          name: 'Text',
-          labelFromText: true,
-        ));
+        expect(sut.nameOf(const Text('a')), 'Text');
       });
 
-      test('returns added type for subclass of that type', () {
+      test('returns name of added type for subclass of that type', () {
         final sut = fixture.getSut()..addWidget<StatelessWidget>('Stateless');
 
-        expect(sut.typeOf(const Text('a')), (
-          name: 'Stateless',
-          labelFromText: false,
-        ));
+        expect(sut.nameOf(const Text('a')), 'Stateless');
       });
 
       test('returns null for other widgets', () {
         final sut = fixture.getSut()..addWidget<Text>('Text');
 
-        expect(sut.typeOf(const SizedBox()), isNull);
+        expect(sut.nameOf(const SizedBox()), isNull);
       });
 
       test('returns null when isEnabled returns false', () {
         final sut = fixture.getSut()
           ..addWidget<Text>('Text', isEnabled: (widget) => widget.data != 'a');
 
-        expect(sut.typeOf(const Text('a')), isNull);
+        expect(sut.nameOf(const Text('a')), isNull);
       });
 
-      test('returns first added type that matches', () {
+      test('returns name of first added type that matches', () {
         final sut = fixture.getSut()
           ..addWidget<Text>('First')
           ..addWidget<Text>('Second');
 
-        expect(sut.typeOf(const Text('a'))?.name, 'First');
+        expect(sut.nameOf(const Text('a')), 'First');
       });
 
       test('skips added type whose isEnabled throws', () {
@@ -59,29 +52,7 @@ void main() {
           )
           ..addWidget<Text>('Text');
 
-        expect(sut.typeOf(const Text('a'))?.name, 'Text');
-      });
-    });
-
-    group('labelOf', () {
-      test('returns label from added label type', () {
-        final sut = fixture.getSut()..addLabel<Text>((widget) => widget.data);
-
-        expect(sut.labelOf(const Text('a')), 'a');
-      });
-
-      test('returns null for other widgets', () {
-        final sut = fixture.getSut()..addLabel<Text>((widget) => widget.data);
-
-        expect(sut.labelOf(const SizedBox()), isNull);
-      });
-
-      test('skips added label type whose callback throws', () {
-        final sut = fixture.getSut()
-          ..addLabel<Text>((_) => throw StateError('label failed'))
-          ..addLabel<Text>((widget) => widget.data);
-
-        expect(sut.labelOf(const Text('a')), 'a');
+        expect(sut.nameOf(const Text('a')), 'Text');
       });
     });
   });
