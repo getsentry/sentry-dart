@@ -178,6 +178,75 @@ void main() {
       expect(await inbox.first, '_shutdown_');
     });
 
+    group('during lifecycle transitions', () {
+      late _Fixture fixture;
+
+      setUp(() {
+        fixture = _Fixture();
+      });
+
+      test('stops the worker and starts a replacement', () async {
+        final worker = fixture.getSut();
+        await worker.start();
+        final firstInbox = fixture.inboxes.single;
+
+        worker.stop();
+
+        expect(await firstInbox.first, '_shutdown_');
+        await worker.start();
+        expect(fixture.inboxes, hasLength(2));
+
+        worker.captureEnvelope(Uint8List.fromList([7]));
+        final message = await fixture.inboxes.last.first as dynamic;
+        final data = message.envelopeData as TransferableTypedData;
+        expect(data.materialize().asUint8List(), [7]);
+      });
+
+      test('stops a worker that finishes spawning while detached', () async {
+        fixture.deferSpawn = true;
+        final worker = fixture.getSut();
+        final starting = worker.start();
+
+        worker.stop();
+        fixture.completeSpawn();
+        await starting;
+
+        expect(await fixture.inboxes.single.first, '_shutdown_');
+      });
+
+      test(
+        'keeps an in-flight spawn when the engine resumes before it completes',
+        () async {
+          fixture.deferSpawn = true;
+          final worker = fixture.getSut();
+          final starting = worker.start();
+
+          worker.stop();
+          final resuming = worker.start();
+          fixture.completeSpawn();
+          await starting;
+          await resuming;
+          worker.captureEnvelope(Uint8List.fromList([9]));
+
+          expect(fixture.inboxes, hasLength(1));
+          final message = await fixture.inboxes.single.first as dynamic;
+          final data = message.envelopeData as TransferableTypedData;
+          expect(data.materialize().asUint8List(), [9]);
+        },
+      );
+
+      test('does not restart after permanent close', () async {
+        final worker = fixture.getSut();
+        await worker.start();
+        await worker.close();
+
+        worker.stop();
+        await worker.start();
+
+        expect(fixture.inboxes, hasLength(1));
+      });
+    });
+
     test('sends envelope capture request after start', () async {
       final options = SentryFlutterOptions();
       options.debug = true;
@@ -481,14 +550,27 @@ void main() {
 }
 
 class _Fixture {
-  final options = SentryFlutterOptions()
+  final options = defaultTestOptions()
+    ..automatedTestMode = false
     ..debug = true
     ..diagnosticLevel = SentryLevel.debug;
 
   final inboxes = <ReceivePort>[];
   final responsePorts = <SendPort>[];
 
-  AndroidCoreWorker getSut() => AndroidCoreWorker(options, spawn: _fakeSpawn);
+  bool deferSpawn = false;
+  final _spawnGate = Completer<void>();
+
+  AndroidCoreWorker getSut() {
+    final worker = AndroidCoreWorker(options, spawn: _fakeSpawn);
+    addTearDown(() async {
+      if (deferSpawn && !_spawnGate.isCompleted) completeSpawn();
+      await worker.close();
+    });
+    return worker;
+  }
+
+  void completeSpawn() => _spawnGate.complete();
 
   Future<(int, Object?)> get nextRequest async {
     final request = await inboxes.last.first as (int, Object?);
@@ -527,7 +609,9 @@ class _Fixture {
     responsePorts.add(replies.sendPort);
     addTearDown(replies.close);
 
-    return Worker(inbox.sendPort, replies);
+    final worker = Worker(inbox.sendPort, replies);
+    if (deferSpawn) await _spawnGate.future;
+    return worker;
   }
 }
 

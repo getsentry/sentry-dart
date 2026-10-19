@@ -19,6 +19,7 @@ class AndroidCoreWorker {
   final SpawnWorkerFn _spawn;
 
   bool _isClosed = false;
+  bool _isStopped = false;
   Future<void>? _startFuture;
   Worker? _worker;
 
@@ -38,6 +39,7 @@ class AndroidCoreWorker {
 
   FutureOr<void> start() {
     if (_isClosed) return null;
+    _isStopped = false;
     if (_worker != null) return null;
     if (_startFuture != null) return _startFuture;
     _startFuture = _start();
@@ -47,15 +49,12 @@ class AndroidCoreWorker {
   Future<void> _start() async {
     try {
       final worker = await _spawn(_config, _entryPoint);
-      // Guard against close() being called during spawn.
-      if (_isClosed) {
+      // A detach or SDK close can happen while the worker is spawning.
+      if (_isClosed || _isStopped) {
         worker.close();
         return;
       }
       _worker = worker;
-      // A view can detach while its cached engine keeps running. Only owner
-      // exit should stop the worker automatically. See #3960.
-      worker.closeOnOwnerExit();
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Failed to start Android core worker',
@@ -65,6 +64,14 @@ class AndroidCoreWorker {
     } finally {
       _startFuture = null;
     }
+  }
+
+  /// Stops the isolate while keeping native operations available on the caller.
+  /// A retained engine can start a replacement worker when it resumes.
+  void stop() {
+    _isStopped = true;
+    _worker?.close();
+    _worker = null;
   }
 
   // Send shutdown immediately when startup has completed.
