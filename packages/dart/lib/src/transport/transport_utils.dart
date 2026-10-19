@@ -33,23 +33,40 @@ class TransportUtils {
     DiscardReason reason,
   ) {
     for (final item in envelope.items) {
-      final category = DataCategory.fromItemType(item.header.type);
-      if (category == DataCategory.logItem) {
-        recordLostLogItem(options, item, reason);
-      } else if (category == DataCategory.metric) {
-        recordLostMetricItem(options, item, reason);
-      } else {
-        options.recorder.recordLostEvent(reason, category);
-      }
+      recordLostItem(options, item, reason);
+    }
+  }
 
-      final originalObject = item.originalObject;
-      if (originalObject is SentryTransaction) {
+  /// Records a dropped envelope item, counting every telemetry item it
+  /// contains rather than the envelope item itself.
+  static void recordLostItem(
+    SentryOptions options,
+    SentryEnvelopeItem item,
+    DiscardReason reason,
+  ) {
+    final category = DataCategory.fromItemType(item.header.type);
+    switch (category) {
+      case DataCategory.logItem:
+        recordLostLogItem(options, item, reason);
+      case DataCategory.metric:
+        recordLostMetricItem(options, item, reason);
+      case DataCategory.span:
         options.recorder.recordLostEvent(
           reason,
           DataCategory.span,
-          count: originalObject.spans.length + 1,
+          count: item.header.itemCount ?? 1,
         );
-      }
+      default:
+        options.recorder.recordLostEvent(reason, category);
+    }
+
+    final originalObject = item.originalObject;
+    if (originalObject is SentryTransaction) {
+      options.recorder.recordLostEvent(
+        reason,
+        DataCategory.span,
+        count: originalObject.spans.length + 1,
+      );
     }
   }
 
