@@ -308,6 +308,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   SentryId? get replayId => null;
 
   @override
+  String? get proguardUuid => null;
+
+  @override
   FutureOr<void> setReplayConfig(ReplayConfig config) {
     _logNotSupported('replay config');
   }
