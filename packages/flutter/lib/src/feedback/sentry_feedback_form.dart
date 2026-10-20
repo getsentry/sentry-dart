@@ -13,12 +13,16 @@ import '../utils/internal_logger.dart';
 
 /// A form for submitting user feedback to Sentry.
 class SentryFeedbackForm extends StatefulWidget {
+  /// An empty [associatedEventId] (e.g. returned when the original event
+  /// could not be captured) is treated as no association.
   SentryFeedbackForm({
     super.key,
-    this.associatedEventId,
+    SentryId? associatedEventId,
     this.screenshot,
     @internal Hub? hub,
-  }) : assert(associatedEventId != const SentryId.empty()),
+  }) : associatedEventId = associatedEventId == const SentryId.empty()
+           ? null
+           : associatedEventId,
        _hub = hub ?? HubAdapter() {
     assert(
       _hub.options is SentryFlutterOptions,
