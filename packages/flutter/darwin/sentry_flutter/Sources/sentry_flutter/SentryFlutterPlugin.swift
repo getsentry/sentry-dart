@@ -213,7 +213,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     // swiftlint:disable:next cyclomatic_complexity
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
-            let serializedScope = scope.serialize()
+            let serializedScope = SentrySDK.internal.serializer.serialize(scope: scope)
 
             var context: [String: Any] = [:]
             if let newContext = serializedScope["context"] as? [String: Any] {
@@ -314,7 +314,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             debugImages = SentrySDK.internal.debug.images
         }
 
-        result(debugImages.map { $0.serialize() })
+        result(debugImages.map { SentrySDK.internal.serializer.serialize(debugMeta: $0) })
     }
 
     // swiftlint:disable:next cyclomatic_complexity
