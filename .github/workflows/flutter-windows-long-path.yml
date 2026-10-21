@@ -1,0 +1,102 @@
+name: sentry-flutter-windows-long-path
+# Builds the example for Windows from a deep checkout path to compare how
+# sentry-native is fetched (SENTRY_NATIVE_FETCH_METHOD).
+# https://github.com/getsentry/sentry-dart/issues/3969
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/flutter-windows-long-path.yml'
+      - 'packages/flutter/sentry-native/**'
+      - 'packages/flutter/windows/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Length of the `...\build\windows\x64\_deps\` dir, matching the report in
+  # #3969 where a 160 char path below it hit 261 chars, one over MAX_PATH.
+  DEPS_DIR_LENGTH: 101
+
+jobs:
+  build:
+    name: 'windows | ${{ matrix.fetch }}'
+    runs-on: windows-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        # git is the control: it is expected to fail at this depth. If it
+        # doesn't, the runner doesn't reproduce #3969 and the others prove nothing.
+        fetch: [git, tempdir, zip]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repo
+
+      - name: Move checkout to a deep path
+        shell: bash
+        run: |
+          suffix='\packages\flutter\example\build\windows\x64\_deps\'
+          workspace=$(cygpath -w "$GITHUB_WORKSPACE")
+          pad_length=$(( DEPS_DIR_LENGTH - ${#workspace} - 1 - ${#suffix} ))
+          if (( pad_length < 1 )); then
+            echo "::error::Workspace path '$workspace' is too long to pad to $DEPS_DIR_LENGTH chars"
+            exit 1
+          fi
+          pad=$(printf 'p%.0s' $(seq 1 "$pad_length"))
+          mv repo "$pad"
+          deps_dir="$workspace\\$pad$suffix"
+          echo "Deps dir (${#deps_dir} chars): $deps_dir"
+          echo "REPO_DIR=$workspace\\$pad" >> "$GITHUB_ENV"
+
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        with:
+          channel: stable
+
+      - name: Prepare example
+        working-directory: ${{ env.REPO_DIR }}/packages/flutter/example
+        run: |
+          flutter config --enable-windows-desktop
+          flutter pub get
+
+      - name: Build example
+        id: build
+        continue-on-error: ${{ matrix.fetch == 'git' }}
+        working-directory: ${{ env.REPO_DIR }}/packages/flutter/example
+        env:
+          # Crashpad pulls in the deepest nested submodules (mini_chromium).
+          SENTRY_NATIVE_BACKEND: crashpad
+          SENTRY_NATIVE_FETCH_METHOD: ${{ matrix.fetch }}
+        run: flutter build windows
+
+      - name: Long path settings
+        if: always()
+        shell: pwsh
+        run: |
+          $enabled = (Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem).LongPathsEnabled
+          "LongPathsEnabled=$enabled" | Tee-Object -Append $env:GITHUB_STEP_SUMMARY
+          "core.longpaths=$(git config --get core.longpaths)" | Tee-Object -Append $env:GITHUB_STEP_SUMMARY
+
+      - name: Report
+        if: always()
+        shell: bash
+        run: |
+          deps="$(cygpath -u "$REPO_DIR")/packages/flutter/example/build/windows/x64/_deps"
+          outcome='${{ steps.build.outcome }}'
+          {
+            echo "### ${{ matrix.fetch }}: build ${outcome}"
+            if [[ -d "$deps/sentry-native-src" ]]; then
+              deps_win=$(cygpath -w "$deps")
+              longest=$(cd "$deps" && find sentry-native-src -type f | awk '{ print length($0), $0 }' | sort -rn | head -1)
+              echo "Longest source path: $(( ${#deps_win} + 1 + ${longest%% *} )) chars (\`${longest#* }\`)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ '${{ matrix.fetch }}' == 'git' && "$outcome" == 'success' ]]; then
+            echo "::warning::git baseline built fine, so this runner doesn't reproduce #3969"
+          fi
