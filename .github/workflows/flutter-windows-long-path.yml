@@ -151,6 +151,7 @@ jobs:
 
           echo "### fetch time: ${{ matrix.fetch }}" >> "$GITHUB_STEP_SUMMARY"
           for run in 1 2 3; do
-            ms=$(cmake -S "$harness" -B "$RUNNER_TEMP/b$run" | tee /dev/stderr | sed -n 's/.*FETCH_MS=//p')
+            cmake -S "$harness" -B "$RUNNER_TEMP/b$run" > "$RUNNER_TEMP/b$run.log" || { cat "$RUNNER_TEMP/b$run.log"; exit 1; }
+            ms=$(sed -n 's/.*FETCH_MS=//p' "$RUNNER_TEMP/b$run.log")
             echo "Run $run: ${ms} ms" | tee -a "$GITHUB_STEP_SUMMARY"
           done
