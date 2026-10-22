@@ -1,3 +1,0 @@
-{"event_id":"00000000000000000000000000000000","sdk":{"name":"","version":""},"dsn":"https://abc@def.ingest.sentry.io/1234567"}
-{"content_type":"application/json","type":"event","length":86}
-{"event_id":"00000000000000000000000000000000","timestamp":"1970-01-01T00:00:00.000Z"}
