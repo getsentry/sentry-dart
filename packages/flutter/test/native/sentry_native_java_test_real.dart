@@ -70,6 +70,22 @@ void main() {
       AndroidCoreWorker.factory = originalFactory;
     });
 
+    test('waits for delayed core worker envelope submission', () async {
+      final submitted = Completer<void>();
+      fixture.worker.capturing = submitted.future;
+      final native = fixture.getSut();
+      var captured = false;
+      final capturing = Future<void>.value(
+        native.captureEnvelope(Uint8List.fromList([1]), false),
+      ).then((_) => captured = true);
+
+      await pumpEventQueue();
+      expect(captured, isFalse);
+      submitted.complete();
+      await capturing;
+      expect(captured, isTrue);
+    });
+
     test('stops the worker on detach without closing the SDK', () async {
       fixture.getSut();
 
@@ -150,6 +166,7 @@ void main() {
 
 /// Fake core worker for testing that tracks method calls.
 class _FakeCoreWorker implements AndroidCoreWorker {
+  Future<void>? capturing;
   bool started = false;
   bool closed = false;
   int stopCount = 0;
@@ -172,10 +189,9 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
-  void captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
-    // No-op for testing
-  }
+  FutureOr<void> captureEnvelope(
+          Uint8List envelopeData, bool containsUnhandledException) =>
+      capturing;
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
