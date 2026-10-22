@@ -19,7 +19,9 @@ class AndroidCoreWorker {
   final SpawnWorkerFn _spawn;
 
   bool _isClosed = false;
+  bool _isStopped = false;
   Future<void>? _startFuture;
+  Future<void>? _stopFuture;
   Worker? _worker;
 
   AndroidCoreWorker(SentryOptions options, {SpawnWorkerFn? spawn})
@@ -38,6 +40,7 @@ class AndroidCoreWorker {
 
   FutureOr<void> start() {
     if (_isClosed) return null;
+    _isStopped = false;
     if (_worker != null) return null;
     if (_startFuture != null) return _startFuture;
     _startFuture = _start();
@@ -46,16 +49,18 @@ class AndroidCoreWorker {
 
   Future<void> _start() async {
     try {
+      final stopping = _stopFuture;
+      if (stopping != null) {
+        await stopping;
+        if (_isClosed || _isStopped) return;
+      }
       final worker = await _spawn(_config, _entryPoint);
-      // Guard against close() being called during spawn.
-      if (_isClosed) {
+      // A detach or SDK close can happen while the worker is spawning.
+      if (_isClosed || _isStopped) {
         worker.close();
         return;
       }
       _worker = worker;
-      // A view can detach while its cached engine keeps running. Only owner
-      // exit should stop the worker automatically. See #3960.
-      worker.closeOnOwnerExit();
     } catch (exception, stackTrace) {
       internalLogger.error(
         'Failed to start Android core worker',
@@ -67,6 +72,24 @@ class AndroidCoreWorker {
     }
   }
 
+  /// Stops the isolate while keeping native operations available on the caller.
+  /// A retained engine can start a replacement worker when it resumes.
+  void stop() {
+    _isStopped = true;
+    final worker = _worker;
+    if (worker == null) return;
+    _worker = null;
+    // The acknowledgement is queued behind all native operations, including
+    // fire-and-forget envelopes. New calls must wait before using JNI directly.
+    _stopFuture = worker
+        .request(const _DrainRequest())
+        .then<void>((_) {})
+        .whenComplete(() {
+          _stopFuture = null;
+        });
+    worker.close();
+  }
+
   // Send shutdown immediately when startup has completed.
   FutureOr<void> close() {
     _isClosed = true;
@@ -74,7 +97,7 @@ class AndroidCoreWorker {
     if (startFuture == null) {
       _worker?.close();
       _worker = null;
-      return null;
+      return _stopFuture;
     }
     return startFuture.then((_) {
       _worker?.close();
@@ -82,22 +105,23 @@ class AndroidCoreWorker {
     });
   }
 
-  void captureEnvelope(Uint8List envelopeData) {
-    if (_isClosed) return;
+  FutureOr<void> captureEnvelope(Uint8List envelopeData) {
+    if (_isClosed) return null;
 
-    final client = _worker;
-    if (client == null) {
-      internalLogger.info(
-        'captureEnvelope called before core worker started: sending envelope in main isolate instead',
-      );
-      _captureEnvelope(
-        envelopeData,
-        automatedTestMode: _config.automatedTestMode,
-      );
-      return;
-    }
+    return _withWorker<void>((client) {
+      if (client == null) {
+        internalLogger.info(
+          'captureEnvelope called before core worker started: sending envelope in main isolate instead',
+        );
+        _captureEnvelope(
+          envelopeData,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return;
+      }
 
-    _captureEnvelopeFromWorker(client, envelopeData);
+      _captureEnvelopeFromWorker(client, envelopeData);
+    });
   }
 
   void _captureEnvelopeFromWorker(Worker client, Uint8List envelopeData) {
@@ -109,19 +133,20 @@ class AndroidCoreWorker {
   FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
     if (_isClosed) return null;
 
-    final client = _worker;
-    if (client == null) {
-      _updateSessionForDroppedEventNonTerminating(
-        unhandled,
-        automatedTestMode: _config.automatedTestMode,
-      );
-      return null;
-    }
+    return _withWorker<void>((client) {
+      if (client == null) {
+        _updateSessionForDroppedEventNonTerminating(
+          unhandled,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      }
 
-    return _updateSessionForDroppedEventNonTerminatingFromWorker(
-      client,
-      unhandled,
-    );
+      return _updateSessionForDroppedEventNonTerminatingFromWorker(
+        client,
+        unhandled,
+      );
+    });
   }
 
   Future<void> _updateSessionForDroppedEventNonTerminatingFromWorker(
@@ -152,15 +177,16 @@ class AndroidCoreWorker {
         .nonNulls
         .toList(growable: false);
 
-    final client = _worker;
-    if (client == null) {
-      return _loadDebugImages(
-        instructionAddresses,
-        automatedTestMode: _config.automatedTestMode,
-      );
-    }
+    return _withWorker<List<DebugImage>?>((client) {
+      if (client == null) {
+        return _loadDebugImages(
+          instructionAddresses,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      }
 
-    return _loadDebugImagesFromWorker(client, instructionAddresses);
+      return _loadDebugImagesFromWorker(client, instructionAddresses);
+    });
   }
 
   Future<List<DebugImage>?> _loadDebugImagesFromWorker(
@@ -192,12 +218,13 @@ class AndroidCoreWorker {
   FutureOr<Map<String, dynamic>?> loadContexts() {
     if (_isClosed) return null;
 
-    final client = _worker;
-    if (client == null) {
-      return _loadContexts(automatedTestMode: _config.automatedTestMode);
-    }
+    return _withWorker<Map<String, dynamic>?>((client) {
+      if (client == null) {
+        return _loadContexts(automatedTestMode: _config.automatedTestMode);
+      }
 
-    return _loadContextsFromWorker(client);
+      return _loadContextsFromWorker(client);
+    });
   }
 
   Future<Map<String, dynamic>?> _loadContextsFromWorker(Worker client) async {
@@ -224,16 +251,17 @@ class AndroidCoreWorker {
 
     final normalizedBreadcrumbJson =
         normalize(breadcrumb.toJson()) as Map<String, dynamic>;
-    final client = _worker;
-    if (client == null) {
-      _addBreadcrumb(
-        normalizedBreadcrumbJson,
-        automatedTestMode: _config.automatedTestMode,
-      );
-      return null;
-    }
+    return _withWorker<void>((client) {
+      if (client == null) {
+        _addBreadcrumb(
+          normalizedBreadcrumbJson,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      }
 
-    return _addBreadcrumbFromWorker(client, normalizedBreadcrumbJson);
+      return _addBreadcrumbFromWorker(client, normalizedBreadcrumbJson);
+    });
   }
 
   Future<void> _addBreadcrumbFromWorker(
@@ -257,13 +285,14 @@ class AndroidCoreWorker {
   FutureOr<void> clearBreadcrumbs() {
     if (_isClosed) return null;
 
-    final client = _worker;
-    if (client == null) {
-      _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
-      return null;
-    }
+    return _withWorker<void>((client) {
+      if (client == null) {
+        _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+        return null;
+      }
 
-    return _clearBreadcrumbsFromWorker(client);
+      return _clearBreadcrumbsFromWorker(client);
+    });
   }
 
   Future<void> _clearBreadcrumbsFromWorker(Worker client) async {
@@ -287,16 +316,17 @@ class AndroidCoreWorker {
     final normalizedUserJson = user == null
         ? null
         : normalize(user.toJson()) as Map<String, dynamic>;
-    final client = _worker;
-    if (client == null) {
-      _setUser(
-        normalizedUserJson,
-        automatedTestMode: _config.automatedTestMode,
-      );
-      return null;
-    }
+    return _withWorker<void>((client) {
+      if (client == null) {
+        _setUser(
+          normalizedUserJson,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      }
 
-    return _setUserFromWorker(client, normalizedUserJson);
+      return _setUserFromWorker(client, normalizedUserJson);
+    });
   }
 
   Future<void> _setUserFromWorker(
@@ -321,17 +351,18 @@ class AndroidCoreWorker {
     if (_isClosed) return null;
 
     final normalizedValue = normalize(value);
-    final client = _worker;
-    if (client == null) {
-      _setContexts(
-        key,
-        normalizedValue,
-        automatedTestMode: _config.automatedTestMode,
-      );
-      return null;
-    }
+    return _withWorker<void>((client) {
+      if (client == null) {
+        _setContexts(
+          key,
+          normalizedValue,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      }
 
-    return _setContextsFromWorker(client, key, normalizedValue);
+      return _setContextsFromWorker(client, key, normalizedValue);
+    });
   }
 
   Future<void> _setContextsFromWorker(
@@ -356,13 +387,14 @@ class AndroidCoreWorker {
   FutureOr<void> removeContexts(String key) {
     if (_isClosed) return null;
 
-    final client = _worker;
-    if (client == null) {
-      _removeContexts(key, automatedTestMode: _config.automatedTestMode);
-      return null;
-    }
+    return _withWorker<void>((client) {
+      if (client == null) {
+        _removeContexts(key, automatedTestMode: _config.automatedTestMode);
+        return null;
+      }
 
-    return _removeContextsFromWorker(client, key);
+      return _removeContextsFromWorker(client, key);
+    });
   }
 
   Future<void> _removeContextsFromWorker(Worker client, String key) async {
@@ -378,6 +410,13 @@ class AndroidCoreWorker {
         rethrow;
       }
     }
+  }
+
+  FutureOr<T> _withWorker<T>(FutureOr<T> Function(Worker?) operation) {
+    final stopping = _stopFuture;
+    if (stopping == null) return operation(_worker);
+    // Calls accepted before close must still execute after the retiring work.
+    return stopping.then((_) => operation(_worker));
   }
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
@@ -426,6 +465,8 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
   @override
   FutureOr<Object?> onRequest(Object? payload) => _enqueue<Object?>(() {
     switch (payload) {
+      case _DrainRequest _:
+        return null;
       case _LoadDebugImagesRequest request:
         return _loadDebugImageMaps(
           request.instructionAddresses,
@@ -488,6 +529,10 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
       '${_config.debugName}: unexpected message type: $msg',
     );
   }
+}
+
+class _DrainRequest {
+  const _DrainRequest();
 }
 
 class _CaptureEnvelopeRequest {
