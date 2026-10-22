@@ -3,8 +3,11 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/web/web_sdk_integration.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
+import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -41,8 +44,64 @@ void main() {
         await sut.call(fixture.hub, fixture.options);
 
         expect(fixture.scriptLoader.loadScriptsCalls, 1);
+        expect(fixture.scriptLoader.loadedScripts, same(debugScripts));
         verify(fixture.web.init(fixture.hub)).called(1);
       });
+
+      test('loads replay scripts when replay is enabled', () async {
+        fixture.useCanvasKitRenderer();
+        fixture.options.replay.sessionSampleRate = 1.0;
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.scriptLoader.loadScriptsCalls, 1);
+        expect(fixture.scriptLoader.loadedScripts, same(debugReplayScripts));
+        verify(fixture.web.init(fixture.hub)).called(1);
+      });
+
+      // SentryWeb only records with a renderer it can capture from.
+      test(
+        'loads the scripts without replay when the renderer is unsupported',
+        () async {
+          fixture.options.replay.sessionSampleRate = 1.0;
+          fixture.options.platform = MockPlatform(isWeb: true);
+          fixture.options.rendererWrapper = MockRendererWrapper(
+            FlutterRenderer.html,
+          );
+
+          await sut.call(fixture.hub, fixture.options);
+
+          expect(fixture.scriptLoader.loadedScripts, same(debugScripts));
+        },
+      );
+
+      test('loads production scripts in release mode', () async {
+        fixture.options.runtimeChecker = MockRuntimeChecker(
+          buildMode: MockRuntimeCheckerBuildMode.release,
+        );
+
+        await sut.call(fixture.hub, fixture.options);
+
+        expect(fixture.scriptLoader.loadedScripts, same(productionScripts));
+      });
+
+      test(
+        'loads production replay scripts in release mode when replay is enabled',
+        () async {
+          fixture.useCanvasKitRenderer();
+          fixture.options.runtimeChecker = MockRuntimeChecker(
+            buildMode: MockRuntimeCheckerBuildMode.release,
+          );
+          fixture.options.replay.sessionSampleRate = 1.0;
+
+          await sut.call(fixture.hub, fixture.options);
+
+          expect(
+            fixture.scriptLoader.loadedScripts,
+            same(productionReplayScripts),
+          );
+        },
+      );
     });
 
     group('disabled scenarios', () {
@@ -100,6 +159,13 @@ class Fixture {
     web = MockSentryNativeBinding();
     return WebSdkIntegration(web, scriptLoader);
   }
+
+  // Replay scripts load only with a renderer replay can capture from, so
+  // don't depend on the renderer the tests run with.
+  void useCanvasKitRenderer() {
+    options.platform = MockPlatform(isWeb: true);
+    options.rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit);
+  }
 }
 
 class FakeSentryScriptLoader extends SentryScriptLoader {
@@ -107,6 +173,7 @@ class FakeSentryScriptLoader extends SentryScriptLoader {
 
   int loadScriptsCalls = 0;
   int closeCalls = 0;
+  List<Map<String, String>>? loadedScripts;
 
   @override
   Future<void> loadWebSdk(
@@ -114,6 +181,7 @@ class FakeSentryScriptLoader extends SentryScriptLoader {
     String trustedTypePolicyName = defaultTrustedPolicyName,
   }) {
     loadScriptsCalls += 1;
+    loadedScripts = scripts;
 
     return super.loadWebSdk(
       scripts,

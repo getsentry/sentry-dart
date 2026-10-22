@@ -73,6 +73,11 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     return _scheduler?.stop() ?? Future.value();
   }
 
+  /// Whether a scheduled capture should run. Lets a subclass skip the
+  /// capture work while there's nothing to record into.
+  @protected
+  bool get shouldCapture => true;
+
   /// The engine's surface can be torn down as soon as the app leaves
   /// [AppLifecycleState.resumed]. A capture started after that point can
   /// outlive the surface backing its GPU texture, and releasing the texture
@@ -84,8 +89,14 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
     final state = options.bindingUtils.instance?.lifecycleState;
     // null until the first lifecycle message arrives, i.e. during startup,
     // where the app is foreground by definition.
-    return state == null || state == AppLifecycleState.resumed;
+    return state == null || canCaptureInLifecycleState(state);
   }
+
+  /// Whether a new capture may start in [state]. Only
+  /// [AppLifecycleState.resumed] by default, see [_canStartCapture].
+  @protected
+  bool canCaptureInLifecycleState(AppLifecycleState state) =>
+      state == AppLifecycleState.resumed;
 
   Future<void> _restartScheduler() async {
     final generation = ++_schedulerRestartGeneration;
@@ -109,6 +120,7 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
         );
         return;
       }
+      if (!shouldCapture) return;
       await capture(_onImageCaptured);
     }, _addPostFrameCallback);
 
