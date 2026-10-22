@@ -110,7 +110,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   FutureOr<void> captureEnvelope(Uint8List envelopeData) {
-    _coreWorker?.captureEnvelope(envelopeData);
+    return _coreWorker?.captureEnvelope(envelopeData);
   }
 
   @override

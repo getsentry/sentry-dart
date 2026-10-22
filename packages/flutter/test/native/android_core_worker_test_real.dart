@@ -188,11 +188,16 @@ void main() {
       test('stops the worker and starts a replacement', () async {
         final worker = fixture.getSut();
         await worker.start();
-        final firstInbox = fixture.inboxes.single;
+        final firstInbox = StreamIterator(fixture.inboxes.single);
+        addTearDown(firstInbox.cancel);
 
         worker.stop();
 
-        expect(await firstInbox.first, '_shutdown_');
+        await firstInbox.moveNext();
+        final (int id, Object? _) = firstInbox.current as (int, Object?);
+        fixture.respond(id, null);
+        await firstInbox.moveNext();
+        expect(firstInbox.current, '_shutdown_');
         await worker.start();
         expect(fixture.inboxes, hasLength(2));
 
@@ -232,6 +237,81 @@ void main() {
           final message = await fixture.inboxes.single.first as dynamic;
           final data = message.envelopeData as TransferableTypedData;
           expect(data.materialize().asUint8List(), [9]);
+        },
+      );
+
+      test('waits for retiring updates before clearing the user', () async {
+        final worker = fixture.getSut();
+        await worker.start();
+        final inbox = StreamIterator(fixture.inboxes.single);
+        addTearDown(inbox.cancel);
+        final updating = worker.setUser(SentryUser(id: 'previous-user'));
+        await inbox.moveNext();
+        final (int updateId, Object? _) = inbox.current as (int, Object?);
+
+        worker.stop();
+        var cleared = false;
+        final clearing = Future<void>.value(
+          worker.setUser(null),
+        ).then((_) => cleared = true);
+        await pumpEventQueue();
+        expect(cleared, isFalse);
+
+        fixture.respond(updateId, null);
+        await updating;
+        await inbox.moveNext();
+        final (int drainId, Object? _) = inbox.current as (int, Object?);
+        fixture.respond(drainId, null);
+        await clearing;
+        expect(cleared, isTrue);
+      });
+
+      test(
+        'waits for retiring updates before starting a replacement',
+        () async {
+          final worker = fixture.getSut();
+          await worker.start();
+          final inbox = StreamIterator(fixture.inboxes.single);
+          addTearDown(inbox.cancel);
+
+          worker.stop();
+          var resumed = false;
+          final resuming = Future<void>.value(
+            worker.start(),
+          ).then((_) => resumed = true);
+          await pumpEventQueue();
+          expect(resumed, isFalse);
+          expect(fixture.inboxes, hasLength(1));
+
+          await inbox.moveNext();
+          final (int id, Object? _) = inbox.current as (int, Object?);
+          fixture.respond(id, null);
+          await resuming;
+          expect(fixture.inboxes, hasLength(2));
+        },
+      );
+
+      test(
+        'waits for delayed envelope submission before completing capture',
+        () async {
+          final worker = fixture.getSut();
+          await worker.start();
+          final inbox = StreamIterator(fixture.inboxes.single);
+          addTearDown(inbox.cancel);
+
+          worker.stop();
+          var captured = false;
+          final capturing = Future<void>.sync(
+            () => worker.captureEnvelope(Uint8List.fromList([1])),
+          ).then((_) => captured = true);
+          await pumpEventQueue();
+          expect(captured, isFalse);
+
+          await inbox.moveNext();
+          final (int id, Object? _) = inbox.current as (int, Object?);
+          fixture.respond(id, null);
+          await capturing;
+          expect(captured, isTrue);
         },
       );
 
