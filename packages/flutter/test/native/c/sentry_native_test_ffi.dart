@@ -212,6 +212,22 @@ void main() {
       await sut.init(MockHub());
     });
 
+    test('init runs in background and defers scope calls', () async {
+      addTearDown(sut.close);
+      final init = sut.init(MockHub());
+      expect(init, isA<Future<void>>());
+
+      final pendingTag = sut.setTag('fixture-key', 'fixture-value');
+      expect(pendingTag, isA<Future<void>>());
+
+      await init;
+      await pendingTag;
+      expect(
+        sut.setTag('fixture-key', 'fixture-value'),
+        isNot(isA<Future<void>>()),
+      );
+    }, testOn: 'windows');
+
     test(
       'init creates native database path directory when configured',
       () async {
