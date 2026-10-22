@@ -695,15 +695,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        if #available(iOS 13.0, *) {
-            guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
-                result(nil)
-                return
-            }
-            result(windowScene.screen.maximumFramesPerSecond)
-        } else {
-            result(UIScreen.main.maximumFramesPerSecond)
+        let windowScenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = windowScenes.first(where: { $0.activationState == .foregroundActive })
+            ?? windowScenes.first else {
+            result(nil)
+            return
         }
+        result(windowScene.screen.maximumFramesPerSecond)
     }
 
     @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
