@@ -70,6 +70,61 @@ void main() {
       AndroidCoreWorker.factory = originalFactory;
     });
 
+    test('waits for delayed core worker envelope submission', () async {
+      final submitted = Completer<void>();
+      fixture.worker.capturing = submitted.future;
+      final native = fixture.getSut();
+      var captured = false;
+      final capturing = Future<void>.value(
+        native.captureEnvelope(Uint8List.fromList([1]), false),
+      ).then((_) => captured = true);
+
+      await pumpEventQueue();
+      expect(captured, isFalse);
+      submitted.complete();
+      await capturing;
+      expect(captured, isTrue);
+    });
+
+    test('stops the worker on detach without closing the SDK', () async {
+      fixture.getSut();
+
+      await fixture.lifecycle(['resumed', 'detached']);
+
+      expect(fixture.worker.stopCount, 1);
+      expect(fixture.worker.closed, isFalse);
+    });
+
+    test('restarts the worker when a detached engine resumes', () async {
+      fixture.getSut();
+      await fixture.lifecycle(['resumed', 'detached']);
+      final startsBeforeResume = fixture.worker.startCount;
+
+      await fixture.lifecycle(['resumed']);
+
+      expect(fixture.worker.startCount, startsBeforeResume + 1);
+    });
+
+    test('keeps the worker running while paused', () async {
+      fixture.getSut();
+
+      await fixture.lifecycle(['resumed', 'paused']);
+
+      expect(fixture.worker.stopCount, 0);
+      expect(fixture.worker.closed, isFalse);
+    });
+
+    test('removes lifecycle callbacks when the SDK closes', () async {
+      final native = fixture.getSut();
+      await native.close();
+      final startsBeforeResume = fixture.worker.startCount;
+
+      await fixture.lifecycle(['detached', 'resumed']);
+
+      expect(fixture.worker.startCount, startsBeforeResume);
+      expect(fixture.worker.stopCount, 0);
+    });
+
     test('closes the worker explicitly after detach and reattach', () async {
       final binding = TestWidgetsFlutterBinding.ensureInitialized();
       fixture.options
@@ -111,12 +166,21 @@ void main() {
 
 /// Fake core worker for testing that tracks method calls.
 class _FakeCoreWorker implements AndroidCoreWorker {
+  Future<void>? capturing;
   bool started = false;
   bool closed = false;
+  int stopCount = 0;
+  int startCount = 0;
+
+  @override
+  void stop() {
+    stopCount++;
+  }
 
   @override
   FutureOr<void> start() {
     started = true;
+    startCount++;
   }
 
   @override
@@ -125,10 +189,9 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
-  void captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
-    // No-op for testing
-  }
+  FutureOr<void> captureEnvelope(
+          Uint8List envelopeData, bool containsUnhandledException) =>
+      capturing;
 
   @override
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
@@ -167,8 +230,23 @@ class _FakeCoreWorker implements AndroidCoreWorker {
 }
 
 class Fixture {
+  final binding = TestWidgetsFlutterBinding.ensureInitialized();
   final options = defaultTestOptions();
   final worker = _FakeCoreWorker();
 
-  SentryNativeJava getSut() => SentryNativeJava(options);
+  SentryNativeJava getSut() {
+    final native = SentryNativeJava(options);
+    addTearDown(native.close);
+    return native;
+  }
+
+  Future<void> lifecycle(List<String> states) async {
+    for (final state in states) {
+      await binding.defaultBinaryMessenger.handlePlatformMessage(
+        'flutter/lifecycle',
+        const StringCodec().encodeMessage('AppLifecycleState.$state'),
+        (_) {},
+      );
+    }
+  }
 }

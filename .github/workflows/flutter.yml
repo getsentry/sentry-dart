@@ -45,6 +45,9 @@ jobs:
           - target: js
             os: ubuntu
         exclude:
+          # Keep Android on stable for the v9 maintenance line.
+          - target: android
+            sdk: beta
           # Flutter WASM tests don't compile on beta currently and hangs on stable.
           # https://github.com/getsentry/sentry-dart/issues/3477
           - target: wasm
