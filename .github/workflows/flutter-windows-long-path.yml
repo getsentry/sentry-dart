@@ -1,0 +1,157 @@
+name: sentry-flutter-windows-long-path
+# Builds the example for Windows from deep checkout paths to compare how
+# sentry-native is fetched (SENTRY_NATIVE_FETCH_METHOD), and times each fetch.
+# https://github.com/getsentry/sentry-dart/issues/3969
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/flutter-windows-long-path.yml'
+      - 'packages/flutter/sentry-native/**'
+      - 'packages/flutter/windows/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: 'windows | ${{ matrix.fetch }} | ${{ matrix.deps-length }}'
+    runs-on: windows-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        fetch: [tempdir, zip]
+        # Length of the `...\build\windows\x64\_deps\` dir. 101 matches the
+        # report in #3969, the others probe where each method breaks.
+        deps-length: [101, 108, 120, 135, 150]
+        include:
+          # Control: expected to fail at the reported depth. If it doesn't,
+          # the runner doesn't reproduce #3969 and the others prove nothing.
+          - fetch: git
+            deps-length: 101
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: repo
+
+      - name: Move checkout to a deep path
+        shell: bash
+        env:
+          DEPS_DIR_LENGTH: ${{ matrix.deps-length }}
+        run: |
+          suffix='\packages\flutter\example\build\windows\x64\_deps\'
+          workspace=$(cygpath -w "$GITHUB_WORKSPACE")
+          pad_length=$(( DEPS_DIR_LENGTH - ${#workspace} - 1 - ${#suffix} ))
+          if (( pad_length < 1 )); then
+            echo "::error::Workspace path '$workspace' is too long to pad to $DEPS_DIR_LENGTH chars"
+            exit 1
+          fi
+          pad=$(printf 'p%.0s' $(seq 1 "$pad_length"))
+          mv repo "$pad"
+          deps_dir="$workspace\\$pad$suffix"
+          echo "Deps dir (${#deps_dir} chars): $deps_dir"
+          echo "REPO_DIR=$workspace\\$pad" >> "$GITHUB_ENV"
+
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        with:
+          channel: stable
+
+      - name: Prepare example
+        working-directory: ${{ env.REPO_DIR }}/packages/flutter/example
+        run: |
+          flutter config --enable-windows-desktop
+          flutter pub get
+
+      - name: Build example
+        id: build
+        # Deeper legs are expected to fail at some depth; the summary records where.
+        continue-on-error: true
+        working-directory: ${{ env.REPO_DIR }}/packages/flutter/example
+        shell: bash
+        env:
+          # Crashpad pulls in the deepest nested submodules (mini_chromium).
+          SENTRY_NATIVE_BACKEND: crashpad
+          SENTRY_NATIVE_FETCH_METHOD: ${{ matrix.fetch }}
+        run: |
+          start=$SECONDS
+          status=0
+          flutter build windows || status=$?
+          echo "BUILD_SECONDS=$(( SECONDS - start ))" >> "$GITHUB_ENV"
+          exit $status
+
+      - name: Long path settings
+        if: always()
+        shell: pwsh
+        run: |
+          $enabled = (Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem).LongPathsEnabled
+          "LongPathsEnabled=$enabled" | Tee-Object -Append $env:GITHUB_STEP_SUMMARY
+          "core.longpaths=$(git config --get core.longpaths)" | Tee-Object -Append $env:GITHUB_STEP_SUMMARY
+          # git config exits with 1 when the key is unset.
+          exit 0
+
+      - name: Report
+        if: always()
+        shell: bash
+        run: |
+          deps="$(cygpath -u "$REPO_DIR")/packages/flutter/example/build/windows/x64/_deps"
+          outcome='${{ steps.build.outcome }}'
+          {
+            echo "### ${{ matrix.fetch }} @ ${{ matrix.deps-length }}: build ${outcome} in ${BUILD_SECONDS:-?}s"
+            for dir in sentry-native-src sentry-native-build; do
+              if [[ -d "$deps/$dir" ]]; then
+                deps_win=$(cygpath -w "$deps")
+                longest=$(cd "$deps" && find "$dir" -type f | awk 'length($0) > max { max = length($0); path = $0 } END { print max, path }')
+                echo "Longest $dir path: $(( ${#deps_win} + 1 + ${longest%% *} )) chars (\`${longest#* }\`)"
+              fi
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ '${{ matrix.fetch }}' == 'git' && "$outcome" == 'success' ]]; then
+            echo "::warning::git baseline built fine, so this runner doesn't reproduce #3969"
+          fi
+
+  fetch-time:
+    name: 'fetch time | ${{ matrix.fetch }}'
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        fetch: [git, tempdir, zip]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # A short path, so every method succeeds and only the fetch is compared.
+      # The timer wraps FetchContent_MakeAvailable, which also configures
+      # sentry-native itself; that part is the same for every method.
+      - name: Time sentry-native fetch
+        shell: bash
+        env:
+          SENTRY_NATIVE_BACKEND: crashpad
+          SENTRY_NATIVE_FETCH_METHOD: ${{ matrix.fetch }}
+        run: |
+          harness="$RUNNER_TEMP/h"
+          mkdir -p "$harness/plugin"
+          cat > "$harness/CMakeLists.txt" <<'EOF'
+          cmake_minimum_required(VERSION 3.23)
+          project(fetch_time C CXX)
+          string(TIMESTAMP start "%s%f")
+          add_subdirectory(plugin)
+          string(TIMESTAMP end "%s%f")
+          math(EXPR elapsed_ms "(${end} - ${start}) / 1000")
+          message(STATUS "FETCH_MS=${elapsed_ms}")
+          EOF
+          echo "include(\"$(cygpath -m "$GITHUB_WORKSPACE")/packages/flutter/sentry-native/sentry-native.cmake\")" > "$harness/plugin/CMakeLists.txt"
+
+          echo "### fetch time: ${{ matrix.fetch }}" >> "$GITHUB_STEP_SUMMARY"
+          for run in 1 2 3; do
+            cmake -S "$harness" -B "$RUNNER_TEMP/b$run" > "$RUNNER_TEMP/b$run.log" || { cat "$RUNNER_TEMP/b$run.log"; exit 1; }
+            ms=$(sed -n 's/.*FETCH_MS=//p' "$RUNNER_TEMP/b$run.log")
+            echo "Run $run: ${ms} ms" | tee -a "$GITHUB_STEP_SUMMARY"
+          done
