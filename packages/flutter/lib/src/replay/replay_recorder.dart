@@ -15,6 +15,12 @@ class ReplayScreenshotRecorder extends ScreenshotRecorder {
         logName: 'ReplayRecorder #${++_instanceCounter}',
       );
 
+  /// A skipped frame keeps showing the previous one in the replay, which is
+  /// closer to what was on screen than a covered frame.
+  @override
+  @protected
+  bool get skipsFrozenFrames => true;
+
   @override
   @protected
   Future<void> executeTask(Future<void> Function() task, Flow flow) {

@@ -116,6 +116,39 @@ void main() async {
     });
   });
 
+  group('while a ${widgets.SnapshotWidget} shows a frozen snapshot', () {
+    Future<void> pumpFrozenSnapshot(WidgetTester tester) => pumpTestElement(
+      tester,
+      children: [
+        widgets.SnapshotWidget(
+          controller: widgets.SnapshotController(allowSnapshotting: true),
+          child: const widgets.Text('Frozen text'),
+        ),
+      ],
+    );
+
+    testWidgets('replay recorder skips the capture', (tester) async {
+      await tester.runAsync(() async {
+        await pumpFrozenSnapshot(tester);
+        final sut = _RenderCountingRecorder(
+          defaultTestOptions()..bindingUtils = TestBindingWrapper(),
+        )..config = ScreenshotRecorderConfig();
+
+        expect(await sut.capture<String?>((_) async => 'captured'), isNull);
+        expect(sut.renderCount, 0);
+      });
+    });
+
+    testWidgets('screenshot recorder still captures', (tester) async {
+      await tester.runAsync(() async {
+        await pumpFrozenSnapshot(tester);
+        final fixture = _Fixture();
+
+        expect(await fixture.capture(), isNotNull);
+      });
+    });
+  });
+
   testWidgets('handles a failed image render without escaping to the zone', (
     tester,
   ) async {
@@ -263,6 +296,21 @@ class _FailingRenderRecorder extends ReplayScreenshotRecorder {
     RenderRepaintBoundary renderObject,
     double pixelRatio,
   ) async => throw Exception('testing image render error');
+}
+
+class _RenderCountingRecorder extends ReplayScreenshotRecorder {
+  _RenderCountingRecorder(super.options);
+
+  var renderCount = 0;
+
+  @override
+  Future<Image> renderImage(
+    RenderRepaintBoundary renderObject,
+    double pixelRatio,
+  ) {
+    renderCount++;
+    return super.renderImage(renderObject, pixelRatio);
+  }
 }
 
 class _Fixture {

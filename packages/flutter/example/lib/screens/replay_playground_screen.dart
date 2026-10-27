@@ -71,6 +71,16 @@ class _ReplayPlaygroundScreenState extends State<ReplayPlaygroundScreen>
       ZoomPageTransitionsBuilder(),
       duration: _slowTransition,
     ),
+    // Without snapshotting, pages are painted live during the zoom, like on
+    // web, instead of as images frozen when it starts.
+    'Zoom (no snapshot)': const ZoomPageTransitionsBuilder(
+      allowSnapshotting: false,
+    ),
+    'Zoom (${_slowTransition.inSeconds}s, no snapshot)':
+        const SlowPageTransitionsBuilder(
+          ZoomPageTransitionsBuilder(allowSnapshotting: false),
+          duration: _slowTransition,
+        ),
     'Fade forwards': const FadeForwardsPageTransitionsBuilder(),
     'Predictive back': const PredictiveBackPageTransitionsBuilder(),
     'Open upwards': const OpenUpwardsPageTransitionsBuilder(),
