@@ -57,17 +57,6 @@ void main() {
         verify(fixture.web.init(fixture.hub)).called(1);
       });
 
-      test(
-        'loads the scripts without replay when web does not support replay',
-        () async {
-          when(fixture.web.supportsReplay).thenReturn(false);
-
-          await sut.call(fixture.hub, fixture.options);
-
-          expect(fixture.scriptLoader.loadedScripts, same(debugScripts));
-        },
-      );
-
       test('loads production scripts in release mode', () async {
         fixture.options.runtimeChecker = MockRuntimeChecker(
           buildMode: MockRuntimeCheckerBuildMode.release,

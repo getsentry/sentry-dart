@@ -3,15 +3,15 @@ import 'package:sentry_flutter/src/web/replay/replay_click_filter.dart';
 
 void main() {
   group('isFlutterViewClickEvent', () {
-    test('is true for the DOM click on the flutter-view', () {
+    test('returns true for the DOM click on the flutter-view', () {
       expect(isFlutterViewClickEvent(_breadcrumbEvent('flutter-view')), isTrue);
     });
 
-    test('is false for a DOM click on another element', () {
+    test('returns false for a DOM click on another element', () {
       expect(isFlutterViewClickEvent(_breadcrumbEvent('button')), isFalse);
     });
 
-    test('is false for the Flutter click breadcrumb', () {
+    test('returns false for the Flutter click breadcrumb', () {
       expect(
         isFlutterViewClickEvent(
           _breadcrumbEvent('flutter-view', category: 'flutter.ui.click'),
@@ -20,7 +20,7 @@ void main() {
       );
     });
 
-    test('is false for other breadcrumb categories', () {
+    test('returns false for other breadcrumb categories', () {
       expect(
         isFlutterViewClickEvent(
           _breadcrumbEvent('flutter-view', category: 'navigation'),
@@ -29,7 +29,7 @@ void main() {
       );
     });
 
-    test('is false for non-breadcrumb custom events', () {
+    test('returns false for non-breadcrumb custom events', () {
       expect(
         isFlutterViewClickEvent(<dynamic, dynamic>{
           'type': 5,
@@ -39,7 +39,7 @@ void main() {
       );
     });
 
-    test('is false for non-custom events', () {
+    test('returns false for non-custom events', () {
       expect(
         isFlutterViewClickEvent(<dynamic, dynamic>{
           'type': 3,
@@ -49,7 +49,7 @@ void main() {
       );
     });
 
-    test('is false for malformed events', () {
+    test('returns false for malformed events', () {
       expect(isFlutterViewClickEvent(null), isFalse);
       expect(isFlutterViewClickEvent(<dynamic, dynamic>{'type': 5}), isFalse);
       expect(
