@@ -69,5 +69,4 @@ class SentryJsIntegrationName {
   static const String dedupe = 'dedupeIntegration';
   static const String httpContext = 'httpContextIntegration';
   static const String replay = 'replayIntegration';
-  static const String replayCanvas = 'replayCanvasIntegration';
 }

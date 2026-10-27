@@ -142,6 +142,17 @@ void main() {
         expect(pixel, [255, 0, 0, 255]);
       });
 
+      test('clears the previous frame before drawing a transparent one', () {
+        fixture.sut.start();
+        fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 4, 4), 1);
+        fixture.sut.feedFrame(_solid(4, 4, red: 255), 4, 4);
+
+        fixture.sut.feedFrame(Uint8List(4 * 4 * 4), 4, 4);
+
+        final pixel = fixture.pixelAt(fixture.shadowCanvas!, 1, 1);
+        expect(pixel, [0, 0, 0, 0]);
+      });
+
       test('scales a smaller frame up to the shadow canvas size', () {
         fixture.sut.start();
         fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 8), 1);

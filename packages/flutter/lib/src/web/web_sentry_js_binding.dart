@@ -93,8 +93,6 @@ class WebSentryJsBinding implements SentryJsBinding {
             beforeAddRecordingEvent: _beforeAddRecordingEvent.toJS,
           ),
         );
-      case SentryJsIntegrationName.replayCanvas:
-        return _replayCanvasIntegration();
       default:
         return null;
     }
@@ -302,7 +300,7 @@ class WebSentryJsBinding implements SentryJsBinding {
 
   @override
   WebReplayCanvasIntegration createManualReplayCanvasIntegration() =>
-      _replayCanvasIntegrationManual(
+      _replayCanvasIntegration(
         _ReplayCanvasOptions(enableManualSnapshot: true),
       );
 
@@ -444,12 +442,7 @@ extension type _ReplayOptions._(JSObject _) implements JSObject {
 }
 
 @JS('Sentry.replayCanvasIntegration')
-external JSObject _replayCanvasIntegration();
-
-@JS('Sentry.replayCanvasIntegration')
-external WebReplayCanvasIntegration _replayCanvasIntegrationManual(
-  JSAny? options,
-);
+external WebReplayCanvasIntegration _replayCanvasIntegration(JSAny? options);
 
 @JS()
 @anonymous

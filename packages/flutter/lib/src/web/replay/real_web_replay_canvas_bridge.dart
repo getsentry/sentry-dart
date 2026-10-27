@@ -149,6 +149,8 @@ class RealWebReplayCanvasBridge implements WebReplayCanvasBridge {
     final imageData = web.ImageData(clamped, width, height.toJS);
     sourceCtx.putImageData(imageData, 0, 0);
 
+    // drawImage composites, so transparent pixels would keep the last frame.
+    shadowCtx.clearRect(0, 0, shadow.width, shadow.height);
     shadowCtx.drawImage(
       source,
       0,

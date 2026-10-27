@@ -3,8 +3,6 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/platform/mock_platform.dart';
-import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/web/web_sdk_integration.dart';
 import 'package:sentry_flutter/src/web/script_loader/sentry_script_loader.dart';
 import 'package:sentry_flutter/src/web/sentry_js_bundle.dart';
@@ -24,6 +22,7 @@ void main() {
       when(fixture.web.init(any)).thenReturn(null);
       when(fixture.web.close()).thenReturn(null);
       when(fixture.web.supportsCaptureEnvelope).thenReturn(true);
+      when(fixture.web.supportsReplay).thenReturn(false);
     });
 
     group('enabled', () {
@@ -48,9 +47,8 @@ void main() {
         verify(fixture.web.init(fixture.hub)).called(1);
       });
 
-      test('loads replay scripts when replay is enabled', () async {
-        fixture.useCanvasKitRenderer();
-        fixture.options.replay.sessionSampleRate = 1.0;
+      test('loads replay scripts when web supports replay', () async {
+        when(fixture.web.supportsReplay).thenReturn(true);
 
         await sut.call(fixture.hub, fixture.options);
 
@@ -59,15 +57,10 @@ void main() {
         verify(fixture.web.init(fixture.hub)).called(1);
       });
 
-      // SentryWeb only records with a renderer it can capture from.
       test(
-        'loads the scripts without replay when the renderer is unsupported',
+        'loads the scripts without replay when web does not support replay',
         () async {
-          fixture.options.replay.sessionSampleRate = 1.0;
-          fixture.options.platform = MockPlatform(isWeb: true);
-          fixture.options.rendererWrapper = MockRendererWrapper(
-            FlutterRenderer.html,
-          );
+          when(fixture.web.supportsReplay).thenReturn(false);
 
           await sut.call(fixture.hub, fixture.options);
 
@@ -86,13 +79,12 @@ void main() {
       });
 
       test(
-        'loads production replay scripts in release mode when replay is enabled',
+        'loads production replay scripts in release mode when web supports replay',
         () async {
-          fixture.useCanvasKitRenderer();
+          when(fixture.web.supportsReplay).thenReturn(true);
           fixture.options.runtimeChecker = MockRuntimeChecker(
             buildMode: MockRuntimeCheckerBuildMode.release,
           );
-          fixture.options.replay.sessionSampleRate = 1.0;
 
           await sut.call(fixture.hub, fixture.options);
 
@@ -158,13 +150,6 @@ class Fixture {
     scriptLoader = FakeSentryScriptLoader(options: options);
     web = MockSentryNativeBinding();
     return WebSdkIntegration(web, scriptLoader);
-  }
-
-  // Replay scripts load only with a renderer replay can capture from, so
-  // don't depend on the renderer the tests run with.
-  void useCanvasKitRenderer() {
-    options.platform = MockPlatform(isWeb: true);
-    options.rendererWrapper = MockRendererWrapper(FlutterRenderer.canvasKit);
   }
 }
 
