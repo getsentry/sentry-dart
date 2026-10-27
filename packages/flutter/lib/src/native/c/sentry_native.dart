@@ -79,6 +79,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     _pendingInit = done.future;
     try {
       await tryCatchAsync("init", () async {
+        // Loading sentry.dll can take seconds (e.g. antivirus scan); do it off
+        // the platform thread so the `native` open below only bumps a refcount.
+        await _loadLibraryOnHelperIsolate(_dynamicLibraryPath);
         final cOptions = createOptions(options);
         _checkInitResult(
           await _initOnHelperIsolate(_dynamicLibraryPath, cOptions.address),
@@ -100,6 +103,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       DynamicLibrary.open(libraryPath),
     ).init(Pointer.fromAddress(optionsAddress)),
   );
+
+  static Future<void> _loadLibraryOnHelperIsolate(String libraryPath) =>
+      Isolate.run(() {
+        DynamicLibrary.open(libraryPath);
+      });
 
   void _checkInitResult(int code) {
     if (code != 0) {
