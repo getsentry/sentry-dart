@@ -281,7 +281,10 @@ void main() {
         sut.scopeWorker = Worker(inbox.sendPort, responses);
       });
 
-      tearDown(() {
+      tearDown(() async {
+        // Answers a close the test left pending, so it can't block later inits.
+        responses.sendPort.send((0, null));
+        await SentryNative.pendingWorkerClose;
         inbox.close();
         responses.close();
       });
@@ -338,7 +341,7 @@ void main() {
         expect(received, [(0, 'close'), '_shutdown_']);
       });
 
-      test('init waits for a close still running on the worker', () async {
+      test('init of a new binding waits for a close still running', () async {
         final timeout = SentryNative.scopeWorkerCloseTimeout;
         SentryNative.scopeWorkerCloseTimeout = Duration.zero;
         addTearDown(() => SentryNative.scopeWorkerCloseTimeout = timeout);
@@ -350,12 +353,13 @@ void main() {
           events.add('closed');
           responses.sendPort.send((0, null));
         });
-        addTearDown(sut.close);
-        await sut.init(MockHub());
+        final next = createBinding(options) as SentryNative;
+        addTearDown(next.close);
+        await next.init(MockHub());
         events.add('initialized');
 
         expect(events, ['closed', 'initialized']);
-        expect(sut.hasScopeWorker, isTrue);
+        expect(next.hasScopeWorker, isTrue);
       }, testOn: 'windows');
     });
 

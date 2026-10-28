@@ -57,8 +57,12 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   Future<void>? _pendingInit;
 
   /// Completes once a `sentry_close()` queued on the scope worker has returned,
-  /// which may be after [close] stopped waiting for it.
-  Future<void>? _pendingWorkerClose;
+  /// which may be after [close] stopped waiting for it. Static because native
+  /// SDK state is per process and a re-init creates a new binding.
+  static Future<void>? _pendingWorkerClose;
+
+  @visibleForTesting
+  static Future<void>? get pendingWorkerClose => _pendingWorkerClose;
 
   void _logNotSupported(String operation) =>
       internalLogger.debug('SentryNative: $operation is not supported');
