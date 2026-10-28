@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -7,6 +8,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 import 'package:sentry_flutter/src/native/c/binding.dart' as binding;
 import 'package:sentry_flutter/src/native/c/sentry_native.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
@@ -264,6 +266,64 @@ void main() {
       },
       testOn: 'windows',
     );
+
+    group('close with a scope worker', () {
+      late ReceivePort inbox;
+      late ReceivePort responses;
+      late List<Object?> received;
+      late Completer<void> shutdown;
+
+      setUp(() {
+        inbox = ReceivePort();
+        responses = ReceivePort();
+        received = [];
+        shutdown = Completer<void>();
+        sut.scopeWorker = Worker(inbox.sendPort, responses);
+      });
+
+      tearDown(() {
+        inbox.close();
+        responses.close();
+      });
+
+      void listen({required bool answer}) => inbox.listen((message) {
+        received.add(message);
+        if (message == '_shutdown_') shutdown.complete();
+        if (message case (final int id, _) when answer) {
+          responses.sendPort.send((id, null));
+        }
+      });
+
+      test('runs close on the worker after queued scope calls', () async {
+        listen(answer: true);
+
+        await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+        await sut.setTag('fixture-key', 'fixture-value');
+        await sut.close();
+        await shutdown.future;
+
+        expect(received.map((m) => m is (String, List<Object?>) ? m.$1 : m), [
+          'add_breadcrumb',
+          'set_tag',
+          (0, 'close'),
+          '_shutdown_',
+        ]);
+        expect(sut.hasScopeWorker, isFalse);
+      });
+
+      test('stops waiting when the worker does not answer', () async {
+        final timeout = SentryNative.scopeWorkerCloseTimeout;
+        SentryNative.scopeWorkerCloseTimeout = Duration.zero;
+        addTearDown(() => SentryNative.scopeWorkerCloseTimeout = timeout);
+        listen(answer: false);
+
+        await sut.close();
+        await shutdown.future;
+
+        expect(received, [(0, 'close'), '_shutdown_']);
+        expect(sut.hasScopeWorker, isFalse);
+      });
+    });
 
     test(
       'init creates native database path directory when configured',

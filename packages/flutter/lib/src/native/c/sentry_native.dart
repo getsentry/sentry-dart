@@ -137,6 +137,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @visibleForTesting
   bool get hasScopeWorker => _scopeWorker != null;
 
+  @visibleForTesting
+  set scopeWorker(Worker? worker) => _scopeWorker = worker;
+
   // Static, so the worker entry captures only the library directory.
   static Future<Worker?> _spawnScopeWorker(
     WorkerConfig config,
@@ -322,12 +325,44 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     if (pending != null) {
       return pending.then((_) => close());
     }
-    _scopeWorker?.close();
-    _scopeWorker = null;
+    final worker = _scopeWorker;
+    if (worker != null) {
+      return _closeOnScopeWorker(worker);
+    }
     if (!_nativeSdkAutoInitialized) {
       return null;
     }
     tryCatchSync('close', native.close);
+  }
+
+  static const _closeRequest = 'close';
+
+  @visibleForTesting
+  static Duration scopeWorkerCloseTimeout = const Duration(seconds: 5);
+
+  /// The worker's port is FIFO, so `sentry_close()` runs after every queued
+  /// scope call and never overlaps them, and a busy handler can't block the UI.
+  Future<void> _closeOnScopeWorker(Worker worker) async {
+    try {
+      await tryCatchAsync(
+        'close',
+        () => worker
+            .request(_closeRequest)
+            .timeout(
+              scopeWorkerCloseTimeout,
+              onTimeout: () {
+                internalLogger.warning(
+                  'SentryNative: close did not finish within '
+                  '$scopeWorkerCloseTimeout, it stays queued on the scope worker',
+                );
+                return null;
+              },
+            ),
+      );
+    } finally {
+      _scopeWorker = null;
+      worker.close();
+    }
   }
 
   @override
@@ -541,6 +576,15 @@ class _ScopeCallHandler extends WorkerHandler {
   void onMessage(Object? message) {
     final (method, args) = message as (String, List<Object?>);
     SentryNative._applyScopeCall(method, args);
+  }
+
+  @override
+  Object? onRequest(Object? payload) {
+    if (payload != SentryNative._closeRequest) {
+      throw ArgumentError.value(payload, 'payload', 'Unknown request');
+    }
+    SentryNative.native.close();
+    return null;
   }
 }
 
