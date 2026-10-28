@@ -12,6 +12,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../../sentry_flutter.dart';
+import '../../isolate/isolate_worker.dart';
 import '../../replay/replay_config.dart';
 import '../../utils/internal_logger.dart';
 import '../native_app_start.dart';
@@ -86,6 +87,15 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         _checkInitResult(
           await _initOnHelperIsolate(_dynamicLibraryPath, cOptions.address),
         );
+        _scopeWorker = await _spawnScopeWorker(
+          WorkerConfig(
+            debugName: 'SentryNativeScopeWorker',
+            debug: options.debug,
+            diagnosticLevel: options.diagnosticLevel,
+            automatedTestMode: options.automatedTestMode,
+          ),
+          dynamicLibraryDirectory,
+        );
       });
     } finally {
       _pendingInit = null;
@@ -118,14 +128,105 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     _nativeSdkAutoInitialized = true;
   }
 
+  /// With the Crashpad backend on Windows, every scope change is a blocking
+  /// IPC round-trip to crashpad_handler.exe, which waits for a free pipe
+  /// instance without a timeout. Scope calls run on this worker so a busy
+  /// handler (e.g. slow or antivirus-filtered disk) can't freeze the UI.
+  Worker? _scopeWorker;
+
+  @visibleForTesting
+  bool get hasScopeWorker => _scopeWorker != null;
+
+  // Static, so the worker entry captures only the library directory.
+  static Future<Worker?> _spawnScopeWorker(
+    WorkerConfig config,
+    String libraryDirectory,
+  ) async {
+    try {
+      final worker = await spawnWorker(config, (message) {
+        dynamicLibraryDirectory = libraryDirectory;
+        final (host, workerConfig) = message;
+        runWorker(workerConfig, host, _ScopeCallHandler());
+      });
+      worker.closeOnOwnerExit();
+      return worker;
+    } catch (error, stackTrace) {
+      internalLogger.error(
+        'SentryNative: failed to start the scope worker, '
+        'syncing the scope on the calling isolate',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
+  }
+
   /// `sentry_init()` holds the native options lock, so scope calls made while
   /// it runs in the background would block the calling isolate until it ends.
-  FutureOr<void> _whenInitialized(String nativeMethodName, void Function() fn) {
+  FutureOr<void> _scopeCall(String method, List<Object?> args) {
     final pending = _pendingInit;
     if (pending != null) {
-      return pending.then((_) => tryCatchSync(nativeMethodName, fn));
+      return pending.then((_) => _scopeCall(method, args));
     }
-    tryCatchSync(nativeMethodName, fn);
+    final worker = _scopeWorker;
+    tryCatchSync(method, () {
+      if (worker != null) {
+        worker.send((method, args));
+      } else {
+        _applyScopeCall(method, args);
+      }
+    });
+  }
+
+  static void _applyScopeCall(String method, List<Object?> args) {
+    switch (method) {
+      case 'remove_user':
+        native.remove_user();
+      case 'set_user':
+        native.set_user((args[0] as Map<String, dynamic>).toNativeValue());
+      case 'add_breadcrumb':
+        native.add_breadcrumb(
+          (args[0] as Map<String, dynamic>).toNativeValue(),
+        );
+      case 'set_context':
+        _withNativeValue('context', args, native.set_context);
+      case 'set_extra':
+        _withNativeValue('extra', args, native.set_extra);
+      case 'remove_context':
+        _withNativeKey(args[0], native.remove_context);
+      case 'remove_extra':
+        _withNativeKey(args[0], native.remove_extra);
+      case 'remove_tag':
+        _withNativeKey(args[0], native.remove_tag);
+      case 'set_tag':
+        final c = FreeableFactory();
+        native.set_tag(c.str(args[0] as String), c.str(args[1] as String));
+        c.freeAll();
+      default:
+        throw ArgumentError.value(method, 'method', 'Unknown scope call');
+    }
+  }
+
+  static void _withNativeKey(Object? key, void Function(Pointer<Char>) fn) {
+    final cKey = (key as String).toNativeUtf8();
+    fn(cKey.cast());
+    malloc.free(cKey);
+  }
+
+  static void _withNativeValue(
+    String kind,
+    List<Object?> args,
+    void Function(Pointer<Char>, binding.sentry_value_u) fn,
+  ) {
+    final key = args[0] as String;
+    final cValue = dynamicToNativeValue(args[1]);
+    if (cValue == null) {
+      internalLogger.warning(
+        'SentryNative: failed to set $kind $key - value couldn\'t be converted to native',
+      );
+      return;
+    }
+    _withNativeKey(key, (cKey) => fn(cKey, cValue));
   }
 
   @visibleForTesting
@@ -183,6 +284,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     if (pending != null) {
       return pending.then((_) => close());
     }
+    _scopeWorker?.close();
+    _scopeWorker = null;
     if (!_nativeSdkAutoInitialized) {
       return null;
     }
@@ -213,24 +316,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> setUser(SentryUser? user) {
-    if (user == null) {
-      return _whenInitialized('remove_user', native.remove_user);
-    } else {
-      return _whenInitialized('set_user', () {
-        var cUser = user.toJson().toNativeValue();
-        native.set_user(cUser);
-      });
-    }
-  }
+  FutureOr<void> setUser(SentryUser? user) => user == null
+      ? _scopeCall('remove_user', const [])
+      : _scopeCall('set_user', [user.toJson()]);
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    return _whenInitialized('add_breadcrumb', () {
-      var cBreadcrumb = breadcrumb.toJson().toNativeValue();
-      native.add_breadcrumb(cBreadcrumb);
-    });
-  }
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) =>
+      _scopeCall('add_breadcrumb', [breadcrumb.toJson()]);
 
   @override
   FutureOr<void> clearBreadcrumbs() {
@@ -247,72 +339,26 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> setContexts(String key, dynamic value) {
-    return _whenInitialized('set_context', () {
-      final cValue = dynamicToNativeValue(value);
-      if (cValue != null) {
-        final cKey = key.toNativeUtf8();
-        native.set_context(cKey.cast(), cValue);
-        malloc.free(cKey);
-      } else {
-        internalLogger.warning(
-          'SentryNative: failed to set context $key - value couldn\'t be converted to native',
-        );
-      }
-    });
-  }
+  FutureOr<void> setContexts(String key, dynamic value) =>
+      _scopeCall('set_context', [key, value]);
 
   @override
-  FutureOr<void> removeContexts(String key) {
-    return _whenInitialized('remove_context', () {
-      final cKey = key.toNativeUtf8();
-      native.remove_context(cKey.cast());
-      malloc.free(cKey);
-    });
-  }
+  FutureOr<void> removeContexts(String key) =>
+      _scopeCall('remove_context', [key]);
 
   @override
-  FutureOr<void> setExtra(String key, dynamic value) {
-    return _whenInitialized('set_extra', () {
-      final cValue = dynamicToNativeValue(value);
-      if (cValue != null) {
-        final cKey = key.toNativeUtf8();
-        native.set_extra(cKey.cast(), cValue);
-        malloc.free(cKey);
-      } else {
-        internalLogger.warning(
-          'SentryNative: failed to set extra $key - value couldn\'t be converted to native',
-        );
-      }
-    });
-  }
+  FutureOr<void> setExtra(String key, dynamic value) =>
+      _scopeCall('set_extra', [key, value]);
 
   @override
-  FutureOr<void> removeExtra(String key) {
-    return _whenInitialized('remove_extra', () {
-      final cKey = key.toNativeUtf8();
-      native.remove_extra(cKey.cast());
-      malloc.free(cKey);
-    });
-  }
+  FutureOr<void> removeExtra(String key) => _scopeCall('remove_extra', [key]);
 
   @override
-  FutureOr<void> setTag(String key, String value) {
-    return _whenInitialized('set_tag', () {
-      final c = FreeableFactory();
-      native.set_tag(c.str(key), c.str(value));
-      c.freeAll();
-    });
-  }
+  FutureOr<void> setTag(String key, String value) =>
+      _scopeCall('set_tag', [key, value]);
 
   @override
-  FutureOr<void> removeTag(String key) {
-    return _whenInitialized('remove_tag', () {
-      final cKey = key.toNativeUtf8();
-      native.remove_tag(cKey.cast());
-      malloc.free(cKey);
-    });
-  }
+  FutureOr<void> removeTag(String key) => _scopeCall('remove_tag', [key]);
 
   @override
   FutureOr<int?> displayRefreshRate() {
@@ -449,6 +495,14 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   FutureOr<void> registerSegmentName(String segmentName) {
     // No-op. Replay segment name registration is currently Android-only.
+  }
+}
+
+class _ScopeCallHandler extends WorkerHandler {
+  @override
+  void onMessage(Object? message) {
+    final (method, args) = message as (String, List<Object?>);
+    SentryNative._applyScopeCall(method, args);
   }
 }
 
