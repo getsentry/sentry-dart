@@ -228,6 +228,24 @@ void main() {
       );
     }, testOn: 'windows');
 
+    test('scope calls after init run on a worker isolate', () async {
+      await sut.init(MockHub());
+      expect(sut.hasScopeWorker, isTrue);
+
+      await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+      await sut.setUser(SentryUser(id: 'fixture-id'));
+      await sut.setContexts('fixture-key', {'object': Object()});
+      await sut.setExtra('fixture-key', 'fixture-value');
+      await sut.removeExtra('fixture-key');
+      await sut.removeContexts('fixture-key');
+      await sut.setTag('fixture-key', 'fixture-value');
+      await sut.removeTag('fixture-key');
+      await sut.setUser(null);
+
+      await sut.close();
+      expect(sut.hasScopeWorker, isFalse);
+    }, testOn: 'windows');
+
     test(
       'init creates native database path directory when configured',
       () async {
