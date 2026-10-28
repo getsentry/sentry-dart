@@ -170,12 +170,50 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     }
     final worker = _scopeWorker;
     tryCatchSync(method, () {
-      if (worker != null) {
-        worker.send((method, args));
-      } else {
+      if (worker == null) {
         _applyScopeCall(method, args);
+        return;
       }
+      final sendable = [for (final arg in args) _toSendable(arg)];
+      if (sendable.contains(_unsupported)) {
+        internalLogger.warning(
+          'SentryNative: failed to $method ${args[0]} - '
+          'value couldn\'t be converted to native',
+        );
+        return;
+      }
+      worker.send((method, sendable));
     });
+  }
+
+  static const _unsupported = Object();
+
+  /// Keeps only what [dynamicToNativeValue] converts, so a message never fails
+  /// to send (e.g. a ReceivePort in breadcrumb data) and drops what it drops.
+  static Object? _toSendable(Object? value) {
+    if (value == null || value is String || value is num || value is bool) {
+      return value;
+    }
+    if (value is Map<String, dynamic>) {
+      return <String, dynamic>{
+        for (final entry in value.entries)
+          if (_toSendable(entry.value) case final v
+              when !identical(v, _unsupported))
+            entry.key: v,
+      };
+    }
+    if (value is List) {
+      return [
+        for (final item in value)
+          if (_toSendable(item) case final v when !identical(v, _unsupported))
+            v,
+      ];
+    }
+    internalLogger.warning(
+      'SentryNative: unsupported data for conversion: '
+      '${value.runtimeType} ($value)',
+    );
+    return _unsupported;
   }
 
   static void _applyScopeCall(String method, List<Object?> args) {

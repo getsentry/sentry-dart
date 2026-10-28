@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
@@ -245,6 +246,24 @@ void main() {
       await sut.close();
       expect(sut.hasScopeWorker, isFalse);
     }, testOn: 'windows');
+
+    test(
+      'scope worker skips values it cannot convert, like the sync path',
+      () async {
+        addTearDown(sut.close);
+        await sut.init(MockHub());
+        expect(sut.hasScopeWorker, isTrue);
+        final port = ReceivePort();
+        addTearDown(port.close);
+
+        await sut.addBreadcrumb(Breadcrumb(data: {'port': port, 'n': 1}));
+        await sut.setContexts('fixture-key', {
+          'list': [port, 'fixture-value'],
+        });
+        await sut.setExtra('fixture-key', port);
+      },
+      testOn: 'windows',
+    );
 
     test(
       'init creates native database path directory when configured',
