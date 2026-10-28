@@ -323,6 +323,40 @@ void main() {
         expect(received, [(0, 'close'), '_shutdown_']);
         expect(sut.hasScopeWorker, isFalse);
       });
+
+      test('drops scope calls and repeated closes while closing', () async {
+        listen(answer: false);
+
+        final close = sut.close();
+        await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+        await sut.setTag('fixture-key', 'fixture-value');
+        await sut.close();
+        await shutdown.future;
+        responses.sendPort.send((0, null));
+        await close;
+
+        expect(received, [(0, 'close'), '_shutdown_']);
+      });
+
+      test('init waits for a close still running on the worker', () async {
+        final timeout = SentryNative.scopeWorkerCloseTimeout;
+        SentryNative.scopeWorkerCloseTimeout = Duration.zero;
+        addTearDown(() => SentryNative.scopeWorkerCloseTimeout = timeout);
+        listen(answer: false);
+        await sut.close();
+
+        final events = <String>[];
+        Timer(const Duration(seconds: 1), () {
+          events.add('closed');
+          responses.sendPort.send((0, null));
+        });
+        addTearDown(sut.close);
+        await sut.init(MockHub());
+        events.add('initialized');
+
+        expect(events, ['closed', 'initialized']);
+        expect(sut.hasScopeWorker, isTrue);
+      }, testOn: 'windows');
     });
 
     test(
