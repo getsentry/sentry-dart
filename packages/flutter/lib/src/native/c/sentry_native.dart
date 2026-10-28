@@ -56,6 +56,10 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   /// Completes once a background `sentry_init()` has returned.
   Future<void>? _pendingInit;
 
+  /// Completes once a `sentry_close()` queued on the scope worker has returned,
+  /// which may be after [close] stopped waiting for it.
+  Future<void>? _pendingWorkerClose;
+
   void _logNotSupported(String operation) =>
       internalLogger.debug('SentryNative: $operation is not supported');
 
@@ -80,6 +84,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     _pendingInit = done.future;
     try {
       await tryCatchAsync("init", () async {
+        // sentry_init() must not overlap a sentry_close() still on the worker.
+        await _pendingWorkerClose;
         // Loading sentry.dll can take seconds (e.g. antivirus scan); do it off
         // the platform thread so the `native` open below only bumps a refcount.
         await _loadLibraryOnHelperIsolate(_dynamicLibraryPath);
@@ -172,6 +178,10 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       return pending.then((_) => _scopeCall(method, args));
     }
     final worker = _scopeWorker;
+    if (worker == null && _pendingWorkerClose != null) {
+      internalLogger.debug('SentryNative: $method dropped, the SDK is closing');
+      return null;
+    }
     tryCatchSync(method, () {
       if (worker == null) {
         _applyScopeCall(method, args);
@@ -327,6 +337,8 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     }
     final worker = _scopeWorker;
     if (worker != null) {
+      _scopeWorker = null;
+      _nativeSdkAutoInitialized = false;
       return _closeOnScopeWorker(worker);
     }
     if (!_nativeSdkAutoInitialized) {
@@ -343,26 +355,29 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   /// The worker's port is FIFO, so `sentry_close()` runs after every queued
   /// scope call and never overlaps them, and a busy handler can't block the UI.
   Future<void> _closeOnScopeWorker(Worker worker) async {
-    try {
-      await tryCatchAsync(
-        'close',
-        () => worker
-            .request(_closeRequest)
-            .timeout(
-              scopeWorkerCloseTimeout,
-              onTimeout: () {
-                internalLogger.warning(
-                  'SentryNative: close did not finish within '
-                  '$scopeWorkerCloseTimeout, it stays queued on the scope worker',
-                );
-                return null;
-              },
-            ),
-      );
-    } finally {
-      _scopeWorker = null;
-      worker.close();
-    }
+    final request = worker.request(_closeRequest);
+    worker.close();
+    final closed = Completer<void>();
+    _pendingWorkerClose = closed.future;
+    request.whenComplete(() {
+      if (identical(_pendingWorkerClose, closed.future)) {
+        _pendingWorkerClose = null;
+      }
+      closed.complete();
+    }).ignore();
+    await tryCatchAsync(
+      'close',
+      () => request.timeout(
+        scopeWorkerCloseTimeout,
+        onTimeout: () {
+          internalLogger.warning(
+            'SentryNative: close did not finish within '
+            '$scopeWorkerCloseTimeout, it stays queued on the scope worker',
+          );
+          return null;
+        },
+      ),
+    );
   }
 
   @override
