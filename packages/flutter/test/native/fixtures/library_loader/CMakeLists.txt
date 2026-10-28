@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.14)
+project(library_loader_fixture C)
+add_library(slow_loader SHARED slow_loader.c)
+if(NOT WIN32)
+  add_library(kernel32_fixture SHARED kernel32_fixture.c)
+  target_link_libraries(kernel32_fixture ${CMAKE_DL_LIBS})
+endif()
