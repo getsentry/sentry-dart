@@ -1,5 +1,34 @@
 # Changelog
 
+## 10.2.0
+
+### Features
+
+- Report the generation of the cellular network technology in `device.connection_effective_type` on Android and iOS, for example `4g` or `5g`. On Android 11 and earlier, the app must have the `READ_PHONE_STATE` permission. by @alwx in [#4066](https://github.com/getsentry/sentry-dart/pull/4066)
+
+### Fixes
+
+#### Flutter
+
+- Support JNI 1.1 by @Carapacik in [#4099](https://github.com/getsentry/sentry-dart/pull/4099)
+- Allow empty associatedEventId in SentryFeedbackForm by @lucas-zimerman in [#4108](https://github.com/getsentry/sentry-dart/pull/4108)
+
+#### Other
+
+- (ios) Avoid deprecated windows in refresh rate by @ananyateklu in [#4111](https://github.com/getsentry/sentry-dart/pull/4111)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.61.1 by @github-actions in [#4114](https://github.com/getsentry/sentry-dart/pull/4114)
+- chore(deps): update Cocoa SDK to v9.31.0 by @github-actions in [#4112](https://github.com/getsentry/sentry-dart/pull/4112)
+- chore(deps): update Native SDK to v0.17.4 by @github-actions in [#4093](https://github.com/getsentry/sentry-dart/pull/4093)
+
+### Internal Changes
+
+- Pin Java 17 for Android updater by @buenaflor in [#4113](https://github.com/getsentry/sentry-dart/pull/4113)
+
 ## 10.1.0
 
 ### Features

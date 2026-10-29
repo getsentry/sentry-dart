@@ -517,6 +517,48 @@ void main() {
         ),
       ).called(1);
     });
+
+    testWidgets(
+      'submits feedback without association when associatedEventId is empty',
+      (tester) async {
+        await fixture.pumpFeedbackForm(
+          tester,
+          (hub) => SentryFeedbackForm(
+            hub: hub,
+            associatedEventId: const SentryId.empty(),
+          ),
+        );
+
+        when(
+          fixture.hub.captureFeedback(
+            any,
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).thenAnswer(
+          (_) async => SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea'),
+        );
+
+        await tester.enterText(
+          find.byKey(ValueKey('sentry_feedback_message_textfield')),
+          "fixture-message",
+        );
+        await tester.tap(find.text('Send Bug Report'));
+        await tester.pumpAndSettle();
+
+        verify(
+          fixture.hub.captureFeedback(
+            argThat(
+              predicate<SentryFeedback>(
+                (feedback) => feedback.associatedEventId == null,
+              ),
+            ),
+            hint: anyNamed('hint'),
+            withScope: anyNamed('withScope'),
+          ),
+        ).called(1);
+      },
+    );
   });
 
   group('$SentryFeedbackForm localization', () {
