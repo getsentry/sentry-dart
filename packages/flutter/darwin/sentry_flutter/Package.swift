@@ -6,7 +6,9 @@ import PackageDescription
 // sentry-cocoa's hybrid SDK tests replace everything between these markers to build
 // against a local sentry-cocoa checkout. Keep both declarations inside the markers.
 // BEGIN:SENTRY-COCOA
-let sentryDependency: Package.Dependency = .package(url: "https://github.com/getsentry/sentry-apple-binaries", exact: "9.32.0")
+let sentryDependency: Package.Dependency = .package(
+    url: "https://github.com/getsentry/sentry-apple-binaries", exact: "9.32.0"
+)
 let sentryProduct: Target.Dependency = .product(name: "Sentry-Static", package: "sentry-apple-binaries")
 // END:SENTRY-COCOA
 
