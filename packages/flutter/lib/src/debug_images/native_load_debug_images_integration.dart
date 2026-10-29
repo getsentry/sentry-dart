@@ -65,7 +65,12 @@ class _LoadNativeDebugImagesIntegrationEventProcessor
         }
       }
       if (images != null) {
-        event.debugMeta = DebugMeta(images: images);
+        // Keep images added by earlier processors, e.g. the proguard image.
+        final debugMeta = event.debugMeta ?? DebugMeta();
+        for (final image in images) {
+          debugMeta.addDebugImage(image);
+        }
+        event.debugMeta = debugMeta;
       }
     }
 

@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
       .package(name: "FlutterFramework", path: "../FlutterFramework"),
-      .package(url: "https://github.com/getsentry/sentry-cocoa", exact: "9.27.0")
+      .package(url: "https://github.com/getsentry/sentry-apple-binaries", exact: "9.31.0")
     ],
     targets: [
         .target(
@@ -22,7 +22,7 @@ let package = Package(
             dependencies: [
                 "sentry_flutter_objc",
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                .product(name: "Sentry-Static", package: "sentry-apple-binaries")
             ]
         ),
         // SPM does not support mixed-language targets, so we need to move the ObjC files into a separate one
@@ -30,7 +30,7 @@ let package = Package(
             name: "sentry_flutter_objc",
             dependencies: [
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                .product(name: "Sentry-Static", package: "sentry-apple-binaries")
             ]
         )
     ]
