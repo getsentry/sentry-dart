@@ -62,8 +62,8 @@ kotlin {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:8.61.1'
-    debugImplementation 'io.sentry:sentry-spotlight:8.61.1'
+    api 'io.sentry:sentry-android:8.62.0'
+    debugImplementation 'io.sentry:sentry-spotlight:8.62.0'
 
     // Required -- JUnit 4 framework
     testImplementation "junit:junit:4.13.2"
