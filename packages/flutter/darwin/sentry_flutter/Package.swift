@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
       .package(name: "FlutterFramework", path: "../FlutterFramework"),
-      .package(url: "https://github.com/getsentry/sentry-apple-binaries", exact: "9.31.0")
+      .package(url: "https://github.com/getsentry/sentry-apple-binaries", exact: "9.32.0")
     ],
     targets: [
         .target(
