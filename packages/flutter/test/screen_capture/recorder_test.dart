@@ -12,6 +12,8 @@ import 'package:flutter/widgets.dart' as widgets;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/replay_recorder.dart';
+import 'package:sentry_flutter/src/replay/scheduled_recorder.dart';
+import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 import 'package:sentry_flutter/src/screen_capture/recorder.dart';
 import 'package:sentry_flutter/src/screen_capture/recorder_config.dart';
 import 'package:sentry_flutter/src/screen_capture/screenshot.dart';
@@ -127,15 +129,28 @@ void main() async {
       ],
     );
 
-    testWidgets('replay recorder skips the capture', (tester) async {
+    testWidgets('scheduled replay recorder skips the capture', (tester) async {
       await tester.runAsync(() async {
         await pumpFrozenSnapshot(tester);
         final sut = _RenderCountingRecorder(
           defaultTestOptions()..bindingUtils = TestBindingWrapper(),
-        )..config = ScreenshotRecorderConfig();
+        )..config = ScheduledScreenshotRecorderConfig(frameRate: 1);
 
         expect(await sut.capture<String?>((_) async => 'captured'), isNull);
         expect(sut.renderCount, 0);
+      });
+    });
+
+    // The iOS SDK requests each frame and waits for it before requesting the
+    // next one, so this recorder must always produce one.
+    testWidgets('replay recorder still captures', (tester) async {
+      await tester.runAsync(() async {
+        await pumpFrozenSnapshot(tester);
+        final sut = ReplayScreenshotRecorder(
+          defaultTestOptions()..bindingUtils = TestBindingWrapper(),
+        )..config = ScreenshotRecorderConfig();
+
+        expect(await sut.capture<String?>((_) async => 'captured'), 'captured');
       });
     });
 
@@ -298,7 +313,7 @@ class _FailingRenderRecorder extends ReplayScreenshotRecorder {
   ) async => throw Exception('testing image render error');
 }
 
-class _RenderCountingRecorder extends ReplayScreenshotRecorder {
+class _RenderCountingRecorder extends ScheduledScreenshotRecorder {
   _RenderCountingRecorder(super.options);
 
   var renderCount = 0;
