@@ -273,11 +273,44 @@ void main() {
         expect(sut.supportsReplay, isFalse);
       });
 
-      test('replay is supported when a replay sample rate is set', () {
+      test(
+        'replay is supported when a replay sample rate is set and web replay is enabled',
+        () {
+          options.replay.onErrorSampleRate = 1.0;
+          options.replay.enableWebReplay = true;
+
+          expect(sut.supportsReplay, isTrue);
+        },
+      );
+
+      test('replay is not supported when web replay is not enabled', () {
+        options.replay.sessionSampleRate = 1.0;
         options.replay.onErrorSampleRate = 1.0;
 
-        expect(sut.supportsReplay, isTrue);
+        expect(sut.supportsReplay, isFalse);
       });
+
+      test(
+        'init logs that replay is skipped when web replay is not enabled',
+        () async {
+          final logger = MockLogger()..captureInternalLogs();
+          addTearDown(
+            // ignore: invalid_use_of_internal_member
+            () => SentryInternalLogger.configure(isEnabled: false),
+          );
+          options.replay.onErrorSampleRate = 1.0;
+
+          await sut.init(hub);
+
+          expect(
+            logger.items.where(
+              (item) => item.message.contains('enableWebReplay'),
+            ),
+            hasLength(1),
+          );
+          expect(binding.getJsOptions()['replaysOnErrorSampleRate'], isNull);
+        },
+      );
 
       test('capturing envelope is supported', () {
         expect(sut.supportsCaptureEnvelope, isTrue);
@@ -301,6 +334,7 @@ void main() {
         // Events are only collected for the hook when replay is enabled; set
         // after init so the JS SDK doesn't need the replay bundle.
         options.replay.onErrorSampleRate = 1.0;
+        options.replay.enableWebReplay = true;
         final sentEventIds = <String>[];
         final sent = Completer<void>();
         final client = (_globalThis['Sentry'] as JSObject).callMethod<JSObject>(
@@ -462,6 +496,7 @@ void main() {
       test('init maps replay options to JS SDK', () async {
         const expectedOnErrorSampleRate = 1.0;
         options.replay.onErrorSampleRate = expectedOnErrorSampleRate;
+        options.replay.enableWebReplay = true;
 
         await sut.init(hub);
 
@@ -489,6 +524,7 @@ void main() {
         'stopReplay and startReplayBuffering control the JS replay',
         () async {
           options.replay.onErrorSampleRate = 1.0;
+          options.replay.enableWebReplay = true;
           await sut.init(hub);
           expect(binding.getReplayId(), isNotNull);
 
@@ -505,6 +541,7 @@ void main() {
         // Buffer mode: a session replay would upload on close, which would
         // make this test depend on the network.
         options.replay.onErrorSampleRate = 1.0;
+        options.replay.enableWebReplay = true;
         await sut.init(hub);
         expect(sut.isReplayBuffering, isTrue);
 
@@ -597,6 +634,7 @@ void main() {
           TestWidgetsFlutterBinding.ensureInitialized();
           options.bindingUtils = TestBindingWrapper();
           options.replay.onErrorSampleRate = 1.0;
+          options.replay.enableWebReplay = true;
           when(mockBinding.init(any)).thenReturn(null);
           when(mockBinding.close()).thenAnswer((_) => calls.add('jsClose'));
           when(
@@ -627,6 +665,7 @@ void main() {
 
         test('init maps replay sample rates to JS SDK', () async {
           options.replay.sessionSampleRate = 0.1;
+          options.replay.enableWebReplay = true;
           sut = SentryWeb(
             mockBinding,
             options,
@@ -1265,6 +1304,7 @@ void main() {
 
       test('passes the envelope events to the binding', () async {
         options.replay.onErrorSampleRate = 1.0;
+        options.replay.enableWebReplay = true;
         final event = SentryEvent(tags: {'replayId': 'fixture-replay-id'});
         final envelope = SentryEnvelope.fromEvent(
           event,
@@ -1284,6 +1324,7 @@ void main() {
       test('passes no events for an envelope without events', () async {
         // Events are only collected with replay enabled.
         options.replay.onErrorSampleRate = 1.0;
+        options.replay.enableWebReplay = true;
         final attachment = SentryEnvelopeItem.fromAttachment(
           SentryAttachment.fromByteData(ByteData(10), 'test'),
         );

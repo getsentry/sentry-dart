@@ -100,6 +100,12 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
         },
       };
       Object? canvasIntegration;
+      if (_options.replay.isEnabled && !_options.replay.enableWebReplay) {
+        _log(
+          'Session Replay is not started: set '
+          'options.replay.enableWebReplay to true to enable it on web',
+        );
+      }
       if (supportsReplay) {
         // Constructed (not just named) so we keep a reference to drive it
         // ourselves -- enableManualSnapshot means auto-sampling is off, so
@@ -530,13 +536,16 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   @override
   bool get supportsLoadContexts => false;
 
-  // Requires a sample rate, unlike on mobile: init only loads the JS Replay
-  // bundle then, so apps not using replay don't download it. A manual
+  // Opt-in through the experimental enableWebReplay flag. Also requires a
+  // sample rate, unlike on mobile: init only loads the JS Replay bundle then,
+  // so apps not using replay don't download it. A manual
   // SentryFlutter.replay.start() therefore needs a rate above 0 on web (see
   // SentryReplay).
   @override
   bool get supportsReplay =>
-      _options.replay.isEnabled && _options.isScreenshotSupported;
+      _options.replay.enableWebReplay &&
+      _options.replay.isEnabled &&
+      _options.isScreenshotSupported;
 
   @override
   SentryId? get replayId {
