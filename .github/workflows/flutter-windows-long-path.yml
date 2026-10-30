@@ -34,6 +34,8 @@ jobs:
           - { fetch: git, deps-length: 115 }
           - { fetch: git-longpaths, deps-length: 101 }
           - { fetch: git-longpaths, deps-length: 115 }
+          - { fetch: git-shallow, deps-length: 101 }
+          - { fetch: git-shallow, deps-length: 115 }
           - { fetch: separate-gitdir, deps-length: 101 }
           - { fetch: separate-gitdir, deps-length: 115 }
           - { fetch: separate-gitdir, deps-length: 125 }
@@ -41,6 +43,8 @@ jobs:
           - { fetch: tempdir, deps-length: 125 }
           - { fetch: tempdir, deps-length: 140 }
           - { fetch: tempdir, deps-length: 150 }
+          - { fetch: tempdir-move, deps-length: 101 }
+          - { fetch: tempdir-move, deps-length: 140 }
           - { fetch: zip, deps-length: 101 }
           - { fetch: zip, deps-length: 125 }
           - { fetch: zip, deps-length: 140 }
@@ -127,13 +131,18 @@ jobs:
           fi
 
   fetch-time:
-    name: 'fetch time | ${{ matrix.fetch }}'
+    name: "fetch time | ${{ matrix.fetch }}${{ matrix.same-volume-temp && ' | same-volume temp' || '' }}"
     runs-on: windows-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        fetch: [git, git-longpaths, separate-gitdir, tempdir, zip]
+        fetch: [git, git-longpaths, git-shallow, separate-gitdir, tempdir, tempdir-move, zip]
+        include:
+          # %TEMP% is on C: and the build on D:, so tempdir-move has to copy.
+          # This leg puts %TEMP% on D: so the move is a rename.
+          - fetch: tempdir-move
+            same-volume-temp: true
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -160,9 +169,16 @@ jobs:
           EOF
           echo "include(\"$(cygpath -m "$GITHUB_WORKSPACE")/packages/flutter/sentry-native/sentry-native.cmake\")" > "$harness/plugin/CMakeLists.txt"
 
+          if [[ '${{ matrix.same-volume-temp }}' == 'true' ]]; then
+            mkdir -p "$RUNNER_TEMP/t"
+            export TEMP="$(cygpath -w "$RUNNER_TEMP/t")" TMP="$(cygpath -w "$RUNNER_TEMP/t")"
+          fi
+          echo "TEMP=$TEMP"
+
           echo "### fetch time: ${{ matrix.fetch }}" >> "$GITHUB_STEP_SUMMARY"
           for run in 1 2 3; do
             cmake -S "$harness" -B "$RUNNER_TEMP/b$run" > "$RUNNER_TEMP/b$run.log" || { cat "$RUNNER_TEMP/b$run.log"; exit 1; }
             ms=$(sed -n 's/.*FETCH_MS=//p' "$RUNNER_TEMP/b$run.log")
-            echo "Run $run: ${ms} ms" | tee -a "$GITHUB_STEP_SUMMARY"
+            phases=$(sed -n 's/.*sentry-native phase //p' "$RUNNER_TEMP/b$run.log" | paste -sd ',' -)
+            echo "Run $run: ${ms} ms${phases:+ ($phases)}" | tee -a "$GITHUB_STEP_SUMMARY"
           done

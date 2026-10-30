@@ -3,10 +3,12 @@ load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo vers
 # How sentry-native sources are fetched:
 #   git             - FetchContent git clone with submodules (default)
 #   git-longpaths   - same, with core.longpaths=true passed to the clone
+#   git-shallow     - same, with GIT_SHALLOW
 #   separate-gitdir - git clone with its git dir in a short temp dir, checked
 #                     out directly into the build dir; the git dir is deleted
 #   tempdir         - git clone into a short temp dir, drop .git, copy into
 #                     the build dir
+#   tempdir-move    - same, but move instead of copy where possible
 #   zip             - download the release zip, which has no .git metadata
 # All but git try to keep nested submodule git dirs from exceeding the Windows
 # MAX_PATH limit for deep project paths.
@@ -15,8 +17,8 @@ set(SENTRY_NATIVE_FETCH_METHOD "git")
 if(NOT "$ENV{SENTRY_NATIVE_FETCH_METHOD}" STREQUAL "")
     set(SENTRY_NATIVE_FETCH_METHOD $ENV{SENTRY_NATIVE_FETCH_METHOD})
 endif()
-if(NOT SENTRY_NATIVE_FETCH_METHOD MATCHES "^(git|git-longpaths|separate-gitdir|tempdir|zip)$")
-    message(FATAL_ERROR "Unknown SENTRY_NATIVE_FETCH_METHOD '${SENTRY_NATIVE_FETCH_METHOD}', expected git, git-longpaths, separate-gitdir, tempdir or zip")
+if(NOT SENTRY_NATIVE_FETCH_METHOD MATCHES "^(git|git-longpaths|git-shallow|separate-gitdir|tempdir|tempdir-move|zip)$")
+    message(FATAL_ERROR "Unknown SENTRY_NATIVE_FETCH_METHOD '${SENTRY_NATIVE_FETCH_METHOD}', expected git, git-longpaths, git-shallow, separate-gitdir, tempdir, tempdir-move or zip")
 endif()
 message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${SENTRY_NATIVE_repo} (${SENTRY_NATIVE_FETCH_METHOD})")
 
@@ -59,6 +61,8 @@ else()
     endif()
     if(SENTRY_NATIVE_FETCH_METHOD STREQUAL "git-longpaths")
         list(APPEND sentry_native_fetch_options GIT_CONFIG core.longpaths=true)
+    elseif(SENTRY_NATIVE_FETCH_METHOD STREQUAL "git-shallow")
+        list(APPEND sentry_native_fetch_options GIT_SHALLOW TRUE)
     endif()
     FetchContent_Declare(
         sn
@@ -69,7 +73,7 @@ else()
     )
 endif()
 
-if(SENTRY_NATIVE_FETCH_METHOD MATCHES "^(separate-gitdir|tempdir)$")
+if(SENTRY_NATIVE_FETCH_METHOD MATCHES "^(separate-gitdir|tempdir|tempdir-move)$")
     include("${CMAKE_CURRENT_LIST_DIR}/sentry-native-tempdir.cmake")
     sentry_native_fetch_via_tempdir(${SENTRY_NATIVE_FETCH_METHOD})
 endif()
