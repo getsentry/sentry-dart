@@ -3,6 +3,15 @@
 
 import PackageDescription
 
+// sentry-cocoa's hybrid SDK tests replace everything between these markers to build
+// against a local sentry-cocoa checkout. Keep both declarations inside the markers.
+// BEGIN:SENTRY-COCOA
+let sentryDependency: Package.Dependency = .package(
+    url: "https://github.com/getsentry/sentry-apple-binaries", exact: "9.32.0"
+)
+let sentryProduct: Target.Dependency = .product(name: "Sentry-Static", package: "sentry-apple-binaries")
+// END:SENTRY-COCOA
+
 let package = Package(
     name: "sentry_flutter",
     platforms: [
@@ -14,9 +23,7 @@ let package = Package(
     ],
     dependencies: [
       .package(name: "FlutterFramework", path: "../FlutterFramework"),
-      // Cocoa 9.30.1 declares a revision dependency in its Swift 6.1 manifest.
-      // Resolve the release tag as a revision until the next Cocoa release fixes it.
-      .package(url: "https://github.com/getsentry/sentry-cocoa", revision: "9.30.1")
+      sentryDependency
     ],
     targets: [
         .target(
@@ -24,7 +31,7 @@ let package = Package(
             dependencies: [
                 "sentry_flutter_objc",
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                sentryProduct
             ]
         ),
         // SPM does not support mixed-language targets, so we need to move the ObjC files into a separate one
@@ -32,7 +39,7 @@ let package = Package(
             name: "sentry_flutter_objc",
             dependencies: [
                 .product(name: "FlutterFramework", package: "FlutterFramework"),
-                .product(name: "Sentry", package: "sentry-cocoa")
+                sentryProduct
             ]
         )
     ]

@@ -495,7 +495,6 @@ void main() {
           'pauseReplay': sut.pauseReplay,
           'resumeReplay': sut.resumeReplay,
           'stopReplay': sut.stopReplay,
-          'flushReplay': sut.flushReplay,
         };
 
         for (final entry in controls.entries) {
@@ -526,6 +525,141 @@ void main() {
           }),
         ).called(1);
       });
+
+      if (mockPlatform.isAndroid) {
+        test('flushReplay uses JNI without invoking the channel', () async {
+          await expectLater(sut.flushReplay(), _nativeUnavailableMatcher());
+          verifyZeroInteractions(channel);
+        });
+      } else {
+        test('flushReplay waits for native completion', () async {
+          final nativeFlush = Completer<String?>();
+          when(
+            channel.invokeMethod<String>('flushReplay'),
+          ).thenAnswer((_) => nativeFlush.future);
+          var completed = false;
+
+          final flush = Future<void>.sync(
+            sut.flushReplay,
+          ).then((_) => completed = true);
+          await Future<void>.value();
+          expect(completed, isFalse);
+
+          nativeFlush.complete();
+          await flush;
+
+          expect(completed, isTrue);
+          verify(channel.invokeMethod<String>('flushReplay')).called(1);
+        });
+      }
+
+      if (mockPlatform.isIOS) {
+        for (final stopCompletesFirst in [false, true]) {
+          test(
+            'flushReplay ignores a stale response ${stopCompletesFirst ? 'after stop completes' : 'while stop is pending'}',
+            () async {
+              final hub = Hub(defaultTestOptions());
+              when(
+                channel.invokeMethod<dynamic>('initNativeSdk', any),
+              ).thenAnswer((_) async => null);
+              await sut.init(hub);
+              final nativeFlush = Completer<String?>();
+              final nativeStop = Completer<void>();
+              when(
+                channel.invokeMethod<String>('flushReplay'),
+              ).thenAnswer((_) => nativeFlush.future);
+              when(
+                channel.invokeMethod<void>('stopReplay'),
+              ).thenAnswer((_) => nativeStop.future);
+
+              final flush = Future<void>.sync(sut.flushReplay);
+              final stop = Future<void>.sync(sut.stopReplay);
+              if (stopCompletesFirst) {
+                nativeStop.complete();
+                await stop;
+              }
+              nativeFlush.complete('12345678901234567890123456789012');
+              await flush;
+              try {
+                expect(sut.replayId, isNull);
+                await hub.configureScope((scope) {
+                  // ignore: invalid_use_of_internal_member
+                  expect(scope.replayId, isNull);
+                });
+              } finally {
+                if (!stopCompletesFirst) {
+                  nativeStop.complete();
+                  await stop;
+                }
+              }
+            },
+          );
+        }
+
+        test(
+          'flushReplay preserves a restarted replay when an old response arrives',
+          () async {
+            final hub = Hub(defaultTestOptions());
+            when(
+              channel.invokeMethod<dynamic>('initNativeSdk', any),
+            ).thenAnswer((_) async => null);
+            await sut.init(hub);
+            final oldNativeFlush = Completer<String?>();
+            final newNativeFlush = Completer<String?>();
+            var flushCalls = 0;
+            when(channel.invokeMethod<String>('flushReplay')).thenAnswer(
+              (_) => flushCalls++ == 0
+                  ? oldNativeFlush.future
+                  : newNativeFlush.future,
+            );
+            when(
+              channel.invokeMethod<void>('stopReplay'),
+            ).thenAnswer((_) async {});
+            when(
+              channel.invokeMethod<void>('startReplayBuffering'),
+            ).thenAnswer((_) async {});
+
+            final oldFlush = Future<void>.sync(sut.flushReplay);
+            await sut.stopReplay();
+            await sut.startReplayBuffering();
+            final newFlush = Future<void>.sync(sut.flushReplay);
+            newNativeFlush.complete('abcdefabcdefabcdefabcdefabcdefab');
+            await newFlush;
+            oldNativeFlush.complete('12345678901234567890123456789012');
+            await oldFlush;
+
+            expect(sut.replayId.toString(), 'abcdefabcdefabcdefabcdefabcdefab');
+            await hub.configureScope((scope) {
+              expect(
+                // ignore: invalid_use_of_internal_member
+                scope.replayId.toString(),
+                'abcdefabcdefabcdefabcdefabcdefab',
+              );
+            });
+          },
+        );
+      }
+
+      if (mockPlatform.isIOS) {
+        for (final value in [null, '00000000000000000000000000000000']) {
+          test(
+            'flushReplay clears the cached ID when native returns ${value == null ? 'null' : 'an empty ID'}',
+            () async {
+              when(
+                channel.invokeMethod<String>('captureReplay', any),
+              ).thenAnswer((_) async => '12345678901234567890123456789012');
+              await sut.captureReplay();
+              when(
+                channel.invokeMethod<String>('flushReplay'),
+              ).thenAnswer((_) async => value);
+
+              await sut.flushReplay();
+
+              expect(sut.replayId, isNull);
+            },
+          );
+        }
+      }
 
       test('stopReplay clears the last known replay ID', () async {
         if (!mockPlatform.isIOS) {

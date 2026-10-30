@@ -26,6 +26,7 @@ class SentryNativeJava extends SentryNativeChannel {
   AndroidCoreWorker? _coreWorker;
   native.ReplayIntegration? _nativeReplay;
   ReplayConfig? _replayConfig;
+  Hub? _hub;
 
   SentryNativeJava(super.options) {
     // Initialize core worker here in the ctor instead of init().
@@ -40,6 +41,33 @@ class SentryNativeJava extends SentryNativeChannel {
   @override
   SentryId? get replayId => _replayId;
   SentryId? _replayId;
+
+  @override
+  String? get proguardUuid => _proguardUuid ??= _readProguardUuid();
+
+  /// Read on use rather than in [init]: the native SDK resolves it at its own
+  /// init (from [SentryFlutterOptions.proguardUuid] or the
+  /// `sentry-debug-meta.properties` asset), which may happen outside of
+  /// [init] when `autoInitializeNativeSdk` is disabled. Cached once found; a
+  /// null read is retried, as the native SDK may not have resolved it yet.
+  String? _proguardUuid;
+
+  String? _readProguardUuid() {
+    native.ScopesAdapter? scopes;
+    native.SentryOptions? nativeOptions;
+    return tryCatchSync(
+      'proguardUuid',
+      () {
+        scopes = native.ScopesAdapter.instance;
+        nativeOptions = scopes?.options;
+        return nativeOptions?.proguardUuid?.toDartString(releaseOriginal: true);
+      },
+      finallyFn: () {
+        nativeOptions?.release();
+        scopes?.release();
+      },
+    );
+  }
 
   @visibleForTesting
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
@@ -56,6 +84,7 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   void init(Hub hub) {
+    _hub = hub;
     // Only record the native SDK as initialized if init actually attempted
     // to run - initSentryAndroid can bail out early (e.g. a null
     // application context), and a later close() shouldn't try to tear down
@@ -248,13 +277,37 @@ class SentryNativeJava extends SentryNativeChannel {
   void resumeReplay() => tryCatchSync('resumeReplay', () => _replay?.resume());
 
   @override
-  void stopReplay() => tryCatchSync('stopReplay', () => _replay?.stop());
+  void stopReplay() {
+    try {
+      tryCatchSync('stopReplay', () => _replay?.stop());
+    } finally {
+      // Invalidate queued promotion updates before the native stop callback.
+      _replayId = null;
+      _hub?.configureScope((scope) => scope.replayId = null);
+    }
+  }
 
   @override
-  void flushReplay() => tryCatchSync(
-    'flushReplay',
-    native.SentryFlutterPlugin.privateSentryFlushReplay,
-  );
+  FutureOr<void> flushReplay() async {
+    // Wait for native buffer promotion and its Dart scope update.
+    await tryCatchAsync<void>('flushReplay', () async {
+      final flushed = Completer<void>();
+      // Async so a flush completing after a hot restart is dropped instead of
+      // calling into the old isolate.
+      final listener = native.ReplayFlushListener.implement(
+        native.$ReplayFlushListener(
+          onFlushed: flushed.complete,
+          onFlushed$async: true,
+        ),
+      );
+      try {
+        native.SentryFlutterPlugin.privateSentryFlushReplay(listener);
+        await flushed.future;
+      } finally {
+        listener.release();
+      }
+    });
+  }
 
   @override
   void setReplayConfig(ReplayConfig config) =>

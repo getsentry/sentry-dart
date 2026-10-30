@@ -187,6 +187,11 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             replay.stop()
         case "flushReplay":
             replay.flush()
+            // Cocoa queues flush on the main queue; respond after promotion.
+            DispatchQueue.main.async {
+                result(replay.replayId)
+            }
+            return
         default:
             break
         }
@@ -208,7 +213,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
     // swiftlint:disable:next cyclomatic_complexity
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
-            let serializedScope = scope.serialize()
+            let serializedScope = SentrySDK.internal.serializer.serialize(scope: scope)
 
             var context: [String: Any] = [:]
             if let newContext = serializedScope["context"] as? [String: Any] {
@@ -309,7 +314,7 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             debugImages = SentrySDK.internal.debug.images
         }
 
-        result(debugImages.map { $0.serialize() })
+        result(debugImages.map { SentrySDK.internal.serializer.serialize(debugMeta: $0) })
     }
 
     // swiftlint:disable:next cyclomatic_complexity
@@ -690,15 +695,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
 
-        if #available(iOS 13.0, *) {
-            guard let windowScene = UIApplication.shared.windows.first?.windowScene else {
-                result(nil)
-                return
-            }
-            result(windowScene.screen.maximumFramesPerSecond)
-        } else {
-            result(UIScreen.main.maximumFramesPerSecond)
+        let windowScenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        guard let windowScene = windowScenes.first(where: { $0.activationState == .foregroundActive })
+            ?? windowScenes.first else {
+            result(nil)
+            return
         }
+        result(windowScene.screen.maximumFramesPerSecond)
     }
 
     @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
