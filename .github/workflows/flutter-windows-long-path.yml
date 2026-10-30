@@ -25,15 +25,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        fetch: [tempdir, zip]
-        # Length of the `...\build\windows\x64\_deps\` dir. 101 matches the
-        # report in #3969, the others probe where each method breaks.
-        deps-length: [101, 108, 120, 135, 150]
+        # deps-length is the length of the `...\build\windows\x64\_deps\` dir.
+        # 101 matches the report in #3969, the others probe where each method
+        # breaks. git at 115 is the control: it's expected to fail there. If
+        # it doesn't, the runner doesn't reproduce #3969.
         include:
-          # Control: expected to fail at the reported depth. If it doesn't,
-          # the runner doesn't reproduce #3969 and the others prove nothing.
-          - fetch: git
-            deps-length: 101
+          - { fetch: git, deps-length: 101 }
+          - { fetch: git, deps-length: 115 }
+          - { fetch: git-longpaths, deps-length: 101 }
+          - { fetch: git-longpaths, deps-length: 115 }
+          - { fetch: separate-gitdir, deps-length: 101 }
+          - { fetch: separate-gitdir, deps-length: 115 }
+          - { fetch: separate-gitdir, deps-length: 125 }
+          - { fetch: tempdir, deps-length: 101 }
+          - { fetch: tempdir, deps-length: 125 }
+          - { fetch: tempdir, deps-length: 140 }
+          - { fetch: tempdir, deps-length: 150 }
+          - { fetch: zip, deps-length: 101 }
+          - { fetch: zip, deps-length: 125 }
+          - { fetch: zip, deps-length: 140 }
+          - { fetch: zip, deps-length: 150 }
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -103,7 +114,7 @@ jobs:
           outcome='${{ steps.build.outcome }}'
           {
             echo "### ${{ matrix.fetch }} @ ${{ matrix.deps-length }}: build ${outcome} in ${BUILD_SECONDS:-?}s"
-            for dir in sentry-native-src sentry-native-build; do
+            for dir in sn-src sn-build; do
               if [[ -d "$deps/$dir" ]]; then
                 deps_win=$(cygpath -w "$deps")
                 longest=$(cd "$deps" && find "$dir" -type f | awk 'length($0) > max { max = length($0); path = $0 } END { print max, path }')
@@ -111,7 +122,7 @@ jobs:
               fi
             done
           } >> "$GITHUB_STEP_SUMMARY"
-          if [[ '${{ matrix.fetch }}' == 'git' && "$outcome" == 'success' ]]; then
+          if [[ '${{ matrix.fetch }}' == 'git' && '${{ matrix.deps-length }}' == '115' && "$outcome" == 'success' ]]; then
             echo "::warning::git baseline built fine, so this runner doesn't reproduce #3969"
           fi
 
@@ -122,7 +133,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        fetch: [git, tempdir, zip]
+        fetch: [git, git-longpaths, separate-gitdir, tempdir, zip]
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -1,18 +1,22 @@
 load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo version sha256)
 
 # How sentry-native sources are fetched:
-#   git     - FetchContent git clone with submodules (default)
-#   tempdir - git clone into a short temp dir, drop .git, copy into the build dir
-#   zip     - download the release zip, which has no .git metadata
-# The last two keep nested submodule git dirs out of the build dir, which can
-# exceed the Windows MAX_PATH limit for deep project paths.
+#   git             - FetchContent git clone with submodules (default)
+#   git-longpaths   - same, with core.longpaths=true passed to the clone
+#   separate-gitdir - git clone with its git dir in a short temp dir, checked
+#                     out directly into the build dir; the git dir is deleted
+#   tempdir         - git clone into a short temp dir, drop .git, copy into
+#                     the build dir
+#   zip             - download the release zip, which has no .git metadata
+# All but git try to keep nested submodule git dirs from exceeding the Windows
+# MAX_PATH limit for deep project paths.
 # https://github.com/getsentry/sentry-dart/issues/3969
 set(SENTRY_NATIVE_FETCH_METHOD "git")
 if(NOT "$ENV{SENTRY_NATIVE_FETCH_METHOD}" STREQUAL "")
     set(SENTRY_NATIVE_FETCH_METHOD $ENV{SENTRY_NATIVE_FETCH_METHOD})
 endif()
-if(NOT SENTRY_NATIVE_FETCH_METHOD MATCHES "^(git|tempdir|zip)$")
-    message(FATAL_ERROR "Unknown SENTRY_NATIVE_FETCH_METHOD '${SENTRY_NATIVE_FETCH_METHOD}', expected git, tempdir or zip")
+if(NOT SENTRY_NATIVE_FETCH_METHOD MATCHES "^(git|git-longpaths|separate-gitdir|tempdir|zip)$")
+    message(FATAL_ERROR "Unknown SENTRY_NATIVE_FETCH_METHOD '${SENTRY_NATIVE_FETCH_METHOD}', expected git, git-longpaths, separate-gitdir, tempdir or zip")
 endif()
 message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${SENTRY_NATIVE_repo} (${SENTRY_NATIVE_FETCH_METHOD})")
 
@@ -43,7 +47,7 @@ if(SENTRY_NATIVE_FETCH_METHOD STREQUAL "zip")
         cmake_policy(SET CMP0135 NEW)
     endif()
     FetchContent_Declare(
-        sentry-native
+        sn
         URL ${SENTRY_NATIVE_repo}/releases/download/${SENTRY_NATIVE_version}/sentry-native.zip
         URL_HASH SHA256=${SENTRY_NATIVE_sha256}
         EXCLUDE_FROM_ALL
@@ -53,8 +57,11 @@ else()
     if(sentry_native_submodules)
         set(sentry_native_fetch_options GIT_SUBMODULES ${sentry_native_submodules})
     endif()
+    if(SENTRY_NATIVE_FETCH_METHOD STREQUAL "git-longpaths")
+        list(APPEND sentry_native_fetch_options GIT_CONFIG core.longpaths=true)
+    endif()
     FetchContent_Declare(
-        sentry-native
+        sn
         GIT_REPOSITORY ${SENTRY_NATIVE_repo}
         GIT_TAG ${SENTRY_NATIVE_version}
         ${sentry_native_fetch_options}
@@ -62,12 +69,13 @@ else()
     )
 endif()
 
-if(SENTRY_NATIVE_FETCH_METHOD STREQUAL "tempdir")
+if(SENTRY_NATIVE_FETCH_METHOD MATCHES "^(separate-gitdir|tempdir)$")
     include("${CMAKE_CURRENT_LIST_DIR}/sentry-native-tempdir.cmake")
-    sentry_native_fetch_via_tempdir()
+    sentry_native_fetch_via_tempdir(${SENTRY_NATIVE_FETCH_METHOD})
 endif()
 
-FetchContent_MakeAvailable(sentry-native)
+# A short name keeps the _deps/sn-src and _deps/sn-build paths short (#3969).
+FetchContent_MakeAvailable(sn)
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an external build triggered from this build file.
