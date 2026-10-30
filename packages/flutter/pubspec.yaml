@@ -43,6 +43,8 @@ dev_dependencies:
   remove_from_coverage: ^2.0.0
   flutter_localizations:
     sdk: flutter
+  material_ui: ^1.6.0
+  cupertino_ui: ^1.1.2
   ffigen:
     git:
       url: https://github.com/getsentry/ffigen
