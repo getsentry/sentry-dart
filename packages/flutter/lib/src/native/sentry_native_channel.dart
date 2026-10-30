@@ -403,6 +403,9 @@ class SentryNativeChannel
   SentryId? get replayId => null;
 
   @override
+  bool? get isReplayBuffering => null;
+
+  @override
   String? get proguardUuid => null;
 
   @override

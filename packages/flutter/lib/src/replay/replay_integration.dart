@@ -95,7 +95,10 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
     final isWidgetFeedbackEvent =
         lifecycleEvent.hint.get(TypeCheckHint.isWidgetFeedback) == true;
 
-    if (isErrorEvent || (isFeedbackEvent && !isWidgetFeedbackEvent)) {
+    // On web, the JS SDK converts buffered error replays to sessions itself.
+    final captureForError = isErrorEvent && _options?.platform.isWeb != true;
+
+    if (captureForError || (isFeedbackEvent && !isWidgetFeedbackEvent)) {
       await captureReplay();
     }
   }
@@ -104,11 +107,21 @@ class ReplayIntegration extends Integration<SentryFlutterOptions> {
     // A replay started through `SentryFlutter.replay` is only sent by
     // `SentryFlutter.replay.flush()`; error and feedback events send the buffer
     // only for the configured sample rates.
-    if (_native.supportsReplay && _options?.replay.isEnabled == true) {
-      final replayId = await _native.captureReplay();
-      _hub?.configureScope((scope) {
-        scope.replayId = replayId;
-      });
+    if (!_native.supportsReplay || _options?.replay.isEnabled != true) return;
+
+    if (_options?.platform.isWeb == true) {
+      // The JS SDK only sends a buffered replay for errors and transactions,
+      // so flush it for feedback the way its own feedback integration does.
+      // Events already carry the replay ID via WebReplayEventProcessor.
+      if (_native.replayId != null) {
+        await _native.flushReplay();
+      }
+      return;
     }
+
+    final replayId = await _native.captureReplay();
+    _hub?.configureScope((scope) {
+      scope.replayId = replayId;
+    });
   }
 }

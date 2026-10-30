@@ -48,6 +48,36 @@ void main() {
       expect(scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.js'));
     });
 
+    test('Loads production replay scripts', () async {
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk(productionReplayScripts);
+
+      final sources = fetchAllScripts().map((script) => script.src);
+      expect(
+        sources,
+        containsAll([
+          'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.replay.min.js',
+          'https://browser.sentry-cdn.com/$jsSdkVersion/replay-canvas.min.js',
+        ]),
+      );
+    });
+
+    test('Loads debug replay scripts', () async {
+      final sut = fixture.getSut();
+
+      await sut.loadWebSdk(debugReplayScripts);
+
+      final sources = fetchAllScripts().map((script) => script.src);
+      expect(
+        sources,
+        containsAll([
+          'https://browser.sentry-cdn.com/$jsSdkVersion/bundle.tracing.replay.js',
+          'https://browser.sentry-cdn.com/$jsSdkVersion/replay-canvas.js',
+        ]),
+      );
+    });
+
     test('Does not load scripts twice', () async {
       final sut = fixture.getSut();
 
@@ -65,11 +95,9 @@ void main() {
       ];
       final sut = fixture.getSut();
 
-      // Modify script URL to cause failure
-      expect(
-        () async => await sut.loadWebSdk(failingScripts),
-        throwsA(anything),
-      );
+      // Awaited: the failed load's cleanup would otherwise race the next
+      // load and remove its scripts.
+      await expectLater(sut.loadWebSdk(failingScripts), throwsA(anything));
 
       // loading after the failure still works
       await sut.loadWebSdk(productionScripts);
@@ -101,6 +129,41 @@ void main() {
           scripts.first.src,
           endsWith('$jsSdkVersion/bundle.tracing.min.js'),
         );
+      },
+    );
+
+    test(
+      'removes already injected scripts when a later script fails',
+      () async {
+        fixture.options.automatedTestMode = false;
+        final sut = fixture.getSut();
+
+        await sut.loadWebSdk([
+          {'url': randomWorkingScriptUrl},
+          {'url': 'https://invalid'},
+        ]);
+
+        expect(fetchAllScripts(), isEmpty);
+      },
+    );
+
+    test(
+      'does not inject duplicates when retrying after a partial failure',
+      () async {
+        fixture.options.automatedTestMode = false;
+        final sut = fixture.getSut();
+
+        await sut.loadWebSdk([
+          {'url': randomWorkingScriptUrl},
+          {'url': 'https://invalid'},
+        ]);
+        await sut.loadWebSdk([
+          {'url': randomWorkingScriptUrl},
+        ]);
+
+        expect(fetchAllScripts().map((script) => script.src), [
+          randomWorkingScriptUrl,
+        ]);
       },
     );
 
@@ -156,6 +219,25 @@ void main() {
       expect(
         afterCloseScripts.length,
         beforeCloseScripts.length - debugScripts.length,
+      );
+    });
+
+    test('Closes and cleans up replay resources', () async {
+      final sut = fixture.getSut();
+
+      await loadScript(randomWorkingScriptUrl, fixture.options);
+
+      await sut.loadWebSdk(debugReplayScripts);
+
+      final beforeCloseScripts = fetchAllScripts();
+      expect(beforeCloseScripts.length, 1 + debugReplayScripts.length);
+
+      await sut.close();
+
+      final afterCloseScripts = fetchAllScripts();
+      expect(
+        afterCloseScripts.length,
+        beforeCloseScripts.length - debugReplayScripts.length,
       );
     });
   });
