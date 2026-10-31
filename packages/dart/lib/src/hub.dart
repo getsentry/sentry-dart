@@ -6,9 +6,10 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
-import 'telemetry/span/transaction/sentry_tracer.dart';
-import 'telemetry/span/sampling/sentry_traces_sampler.dart';
+import 'telemetry/span/propagation/propagation_context.dart';
 import 'telemetry/span/sampling/sentry_span_sampling_context.dart';
+import 'telemetry/span/sampling/sentry_traces_sampler.dart';
+import 'telemetry/span/transaction/sentry_tracer.dart';
 import 'transport/data_category.dart';
 import 'utils/internal_logger.dart';
 
@@ -41,10 +42,17 @@ class Hub {
 
   late final _WeakMap _throwableToSpan;
 
-  IdleRecordingSentrySpanV2? get _currentIdleSpan =>
-      _idleSpan?.isEnded == false ? _idleSpan : null;
+  /// The active idle span, scoped to the current zone if we're inside a
+  /// [startNewTrace] callback, otherwise hub-wide.
+  IdleRecordingSentrySpanV2? get _currentIdleSpan {
+    final span = _isInNewTraceZone ? _zoneIdleSpanHolder?.span : _idleSpan;
+    return span?.isEnded == false ? span : null;
+  }
 
   IdleRecordingSentrySpanV2? _idleSpan;
+
+  _IdleSpanHolder? get _zoneIdleSpanHolder =>
+      Zone.current[_idleSpanHolderKey] as _IdleSpanHolder?;
 
   factory Hub(SentryOptions options) {
     _validateOptions(options);
@@ -341,6 +349,25 @@ class Hub {
     Scope scope,
     ScopeCallback? withScope,
   ) async {
+    // Inside a `startNewTrace` callback the zone-forked scope carries a
+    // different propagation context than the hub's scope. Use it so that
+    // events captured within the callback belong to the new trace, without
+    // mutating the hub's scope. Also clear the incoming scope's bound
+    // transaction and active span so `applyToEvent` doesn't derive the
+    // trace context from an outer span (e.g. a Flutter navigation
+    // transaction bound to the hub scope).
+    if (_isInNewTraceZone) {
+      final zoneScope = _zoneScope;
+      scope = scope.clone()
+        ..propagationContext =
+            zoneScope?.propagationContext ?? scope.propagationContext
+        ..span = zoneScope?.span
+        ..clearActiveSpan();
+      final zoneActive = zoneScope?.getActiveSpan();
+      if (zoneActive != null) {
+        scope.setActiveSpan(zoneActive);
+      }
+    }
     if (withScope != null) {
       try {
         scope = scope.clone();
@@ -642,7 +669,7 @@ class Hub {
 
       // if transactionContext has no sampling decision yet, run the traces sampler
       var samplingDecision = transactionContext.samplingDecision;
-      final propagationContext = scope.propagationContext;
+      final propagationContext = traceScope.propagationContext;
       // Store the generated/used sampleRand on the propagation context so
       // that subsequent transactions in the same trace reuse it.
       propagationContext.sampleRand ??= Random().nextDouble();
@@ -681,7 +708,14 @@ class Hub {
         onFinish: onFinish,
       );
       if (bindToScope ?? false) {
-        item.scope.span = tracer;
+        // Inside a `startNewTrace` callback, bind to the zone-forked scope
+        // so the transaction is visible to `getSpan`, HTTP auto-
+        // instrumentation and captured events for the duration of the
+        // callback, without leaking into the hub's scope.
+        final bindTarget = _isInNewTraceZone
+            ? (_zoneScope ?? item.scope)
+            : item.scope;
+        bindTarget.span = tracer;
       }
 
       return tracer;
@@ -701,17 +735,89 @@ class Hub {
   /// `Zone.current[_scopeKey]` therefore gives the most recently pushed scope.
   Scope? get _zoneScope => Zone.current[_scopeKey] as Scope?;
 
+  static final _newTraceKey = Object();
+
+  static final _idleSpanHolderKey = Object();
+
+  /// True when the current zone was established by [startNewTrace] and the
+  /// callback is still executing. Signals that the hub's outer span
+  /// references (bound transaction, active span, idle span) must not leak
+  /// into the isolated trace.
+  bool get _isInNewTraceZone => Zone.current[_newTraceKey] == true;
+
+  /// The [Scope] whose [PropagationContext] governs the current trace.
+  ///
+  /// Inside a [startNewTrace] callback this is the zone-forked scope carrying
+  /// the new trace; otherwise it is the hub's current [scope].
+  @internal
+  Scope get traceScope => _zoneScope ?? scope;
+
+  /// Clears [span] from whichever scope currently holds it as `scope.span`.
+  ///
+  /// Checks both the zone-forked scope (where a transaction may have been
+  /// bound inside a [startNewTrace] callback) and the hub scope. Called by
+  /// transaction `finish()` so a bound tx is unbound regardless of which
+  /// scope it was bound to.
+  @internal
+  void unbindSpanFromScope(ISentrySpan span) {
+    final zoneScope = _zoneScope;
+    if (zoneScope != null && zoneScope.span == span) {
+      zoneScope.span = null;
+    }
+    final hubScope = scope;
+    if (hubScope.span == span) {
+      hubScope.span = null;
+    }
+  }
+
+  /// Starts a new trace and runs [callback] inside it.
+  ///
+  /// Everything started within [callback] — transactions, spans and captured
+  /// events — belongs to a brand-new trace with a fresh trace id, independent
+  /// of the trace currently held by the hub's scope. Unlike
+  /// [generateNewTrace], the hub's scope is left untouched, so code running
+  /// outside the callback keeps its existing trace.
+  ///
+  /// The new trace is bound to the callback via a [Zone], so it survives
+  /// `await`s for asynchronous callbacks.
+  T startNewTrace<T>(T Function() callback) {
+    if (!_isEnabled) {
+      internalLogger.warning(
+        "Instance is disabled and this 'startNewTrace' call is a no-op.",
+      );
+      return callback();
+    }
+    final forkedScope = (_zoneScope ?? scope).clone()
+      ..propagationContext = PropagationContext()
+      ..span = null
+      ..clearActiveSpan();
+    return runZoned(
+      callback,
+      zoneValues: {
+        _scopeKey: forkedScope,
+        _newTraceKey: true,
+        _idleSpanHolderKey: _IdleSpanHolder(),
+      },
+    );
+  }
+
   /// Returns the currently active span, or `null` if no span is in progress.
   ///
   /// Resolution order:
   /// 1. The active span on the zone-forked scope ([_zoneScope]) — this is set
   ///    when code is running inside a [startSpan] or [startSpanSync] callback.
   /// 2. The hub-level idle span ([_currentIdleSpan]) — present when an idle
-  ///    span has been started and has not yet ended.
+  ///    span has been started and has not yet ended. Skipped when the current
+  ///    zone was established by [startNewTrace], so the isolated trace does
+  ///    not inherit an outer idle span as parent.
   /// 3. `null` — no span is active.
   @internal
-  RecordingSentrySpanV2? getActiveSpan() =>
-      _zoneScope?.getActiveSpan() ?? _currentIdleSpan;
+  RecordingSentrySpanV2? getActiveSpan() {
+    final zoneSpan = _zoneScope?.getActiveSpan();
+    if (zoneSpan != null) return zoneSpan;
+    if (_isInNewTraceZone) return null;
+    return _currentIdleSpan;
+  }
 
   Future<T> startSpan<T>(
     String name,
@@ -858,7 +964,7 @@ class Hub {
     String name,
     Map<String, SentryAttribute>? attributes,
   ) {
-    final propagationContext = scope.propagationContext;
+    final propagationContext = traceScope.propagationContext;
     final sampleRand = propagationContext.sampleRand ??= Random().nextDouble();
 
     final samplingContext = SentrySamplingContext.forSpanV2(
@@ -951,7 +1057,7 @@ class Hub {
       if (samplingDecision == null) return NoOpSentrySpanV2.instance;
 
       span = RecordingSentrySpanV2.root(
-        traceId: scope.propagationContext.traceId,
+        traceId: traceScope.propagationContext.traceId,
         name: name,
         onSpanEnd: captureSpan,
         clock: options.clock,
@@ -1013,7 +1119,7 @@ class Hub {
     if (samplingDecision == null) return NoOpSentrySpanV2.instance;
 
     final span = IdleRecordingSentrySpanV2(
-      traceId: scope.propagationContext.traceId,
+      traceId: traceScope.propagationContext.traceId,
       name: name,
       onSpanEnd: captureSpan,
       clock: options.clock,
@@ -1031,7 +1137,15 @@ class Hub {
     }
 
     if (bindToHub) {
-      _idleSpan = span;
+      // Inside a startNewTrace zone, bind to the zone-local holder so the
+      // idle span stays scoped to the callback and doesn't leak to the hub
+      // after it exits.
+      final holder = _zoneIdleSpanHolder;
+      if (holder != null) {
+        holder.span = span;
+      } else {
+        _idleSpan = span;
+      }
     }
 
     _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
@@ -1085,9 +1199,12 @@ class Hub {
         "Instance is disabled and this 'getSpan' call is a no-op.",
       );
     } else if (_options.isTracingEnabled()) {
-      final item = _peek();
-
-      span = item.scope.span;
+      if (_isInNewTraceZone) {
+        span = _zoneScope?.span;
+      } else {
+        final item = _peek();
+        span = item.scope.span;
+      }
     }
 
     return span;
@@ -1186,6 +1303,11 @@ class _StackItem {
   final Scope scope;
 
   _StackItem(this.client, this.scope);
+}
+
+/// Mutable holder for an idle span scoped to a `startNewTrace` zone.
+class _IdleSpanHolder {
+  IdleRecordingSentrySpanV2? span;
 }
 
 class _WeakMap {

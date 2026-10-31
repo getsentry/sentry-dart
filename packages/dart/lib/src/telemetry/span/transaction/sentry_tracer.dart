@@ -139,12 +139,9 @@ class SentryTracer extends ISentrySpan {
     }
     await _rootSpan.finish(endTimestamp: _rootEndTimestamp, hint: hint);
 
-    // remove from scope
-    await _hub.configureScope((scope) {
-      if (scope.span == this) {
-        scope.span = null;
-      }
-    });
+    // remove from scope — checks both hub scope and zone-forked scope so
+    // a transaction bound inside a startNewTrace callback is cleared too.
+    _hub.unbindSpanFromScope(this);
 
     // if it's an idle transaction which has no children, we drop it to save user's quota
     if (children.isEmpty && _autoFinishAfter != null) {
