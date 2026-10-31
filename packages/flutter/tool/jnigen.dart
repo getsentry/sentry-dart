@@ -11,8 +11,6 @@
 import 'dart:io';
 
 import 'package:jnigen/jnigen.dart';
-// ignore: implementation_imports
-import 'package:jnigen/src/elements/j_elements.dart' as j_ast;
 
 /// Java methods whose generated Dart setter conflicts with a nullable getter.
 const _excludedMethods = <String, Set<String>>{
@@ -24,36 +22,32 @@ const _excludedMethods = <String, Set<String>>{
   'io.sentry.SentryEvent': {'setTimestamp'},
 };
 
-class _ExcludeMismatchedSetters extends j_ast.Visitor {
+final class _ExcludeMismatchedSetters extends Visitor {
+  _ExcludeMismatchedSetters() : super.base();
+
   String _currentClass = '';
 
   @override
-  void visitClass(j_ast.ClassDecl c) {
+  void visitClass(ClassDecl c) {
     _currentClass = c.binaryName;
   }
 
   @override
-  void visitMethod(j_ast.Method method) {
+  void visitMethod(Method method) {
     if (_excludedMethods[_currentClass]?.contains(method.originalName) ??
         false) {
-      method.isExcluded = true;
+      method.isIncluded = false;
     }
   }
 }
 
-void main() {
+Future<void> main() async {
   final packageRoot = Platform.script.resolve('../');
-  generateJniBindings(
-    Config(
-      outputConfig: OutputConfig(
-        dartConfig: DartCodeOutputConfig(
-          path: packageRoot.resolve('lib/src/native/java/binding.dart'),
-          structure: OutputStructure.singleFile,
-        ),
-      ),
-      androidSdkConfig: AndroidSdkConfig(
+  await JniGenerator(
+    input: Input(
+      androidSdk: AndroidSdk(
         addGradleDeps: true,
-        androidExample: packageRoot.resolve('example/').toFilePath(),
+        androidExample: packageRoot.resolve('example/'),
       ),
       classes: const [
         'io.sentry.android.core.SentryAndroid',
@@ -64,6 +58,7 @@ void main() {
         'io.sentry.android.replay.ScreenshotRecorderConfig',
         'io.sentry.flutter.SentryFlutterPlugin',
         'io.sentry.flutter.ReplayRecorderCallbacks',
+        'io.sentry.flutter.ReplayFlushListener',
         'io.sentry.Sentry',
         'io.sentry.SentryOptions',
         'io.sentry.SentryReplayOptions',
@@ -88,7 +83,13 @@ void main() {
         'android.graphics.Bitmap',
         'android.content.Context',
       ],
-      visitors: [_ExcludeMismatchedSetters()],
     ),
-  );
+    output: Output(
+      dart: DartOutput(
+        path: packageRoot.resolve('lib/src/native/java/binding.dart'),
+        structure: OutputStructure.singleFile,
+      ),
+    ),
+    visitors: [_ExcludeMismatchedSetters()],
+  ).generate();
 }

@@ -72,6 +72,21 @@ void main() {
       expect(completed, true);
     });
 
+    test('waits for native flush completion', () async {
+      final nativeFlush = Completer<void>();
+      when(fixture.native.flushReplay()).thenAnswer((_) => nativeFlush.future);
+      var completed = false;
+
+      final flush = fixture.getSut().flush().then((_) => completed = true);
+      await Future<void>.value();
+      expect(completed, isFalse);
+
+      nativeFlush.complete();
+      await flush;
+
+      expect(completed, isTrue);
+    });
+
     test('completes when native integration is unavailable', () async {
       SentryFlutter.native = null;
 
