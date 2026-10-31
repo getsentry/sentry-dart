@@ -136,6 +136,9 @@ class NoOpHub implements Hub {
   Scope get traceScope => scope;
 
   @override
+  void unbindSpanFromScope(ISentrySpan span) {}
+
+  @override
   ISentrySpan? getSpan() => null;
 
   @override

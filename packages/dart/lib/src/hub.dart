@@ -42,10 +42,17 @@ class Hub {
 
   late final _WeakMap _throwableToSpan;
 
-  IdleRecordingSentrySpanV2? get _currentIdleSpan =>
-      _idleSpan?.isEnded == false ? _idleSpan : null;
+  /// The active idle span, scoped to the current zone if we're inside a
+  /// [startNewTrace] callback, otherwise hub-wide.
+  IdleRecordingSentrySpanV2? get _currentIdleSpan {
+    final span = _isInNewTraceZone ? _zoneIdleSpanHolder?.span : _idleSpan;
+    return span?.isEnded == false ? span : null;
+  }
 
   IdleRecordingSentrySpanV2? _idleSpan;
+
+  _IdleSpanHolder? get _zoneIdleSpanHolder =>
+      Zone.current[_idleSpanHolderKey] as _IdleSpanHolder?;
 
   factory Hub(SentryOptions options) {
     _validateOptions(options);
@@ -730,6 +737,8 @@ class Hub {
 
   static final _newTraceKey = Object();
 
+  static final _idleSpanHolderKey = Object();
+
   /// True when the current zone was established by [startNewTrace] and the
   /// callback is still executing. Signals that the hub's outer span
   /// references (bound transaction, active span, idle span) must not leak
@@ -742,6 +751,24 @@ class Hub {
   /// the new trace; otherwise it is the hub's current [scope].
   @internal
   Scope get traceScope => _zoneScope ?? scope;
+
+  /// Clears [span] from whichever scope currently holds it as `scope.span`.
+  ///
+  /// Checks both the zone-forked scope (where a transaction may have been
+  /// bound inside a [startNewTrace] callback) and the hub scope. Called by
+  /// transaction `finish()` so a bound tx is unbound regardless of which
+  /// scope it was bound to.
+  @internal
+  void unbindSpanFromScope(ISentrySpan span) {
+    final zoneScope = _zoneScope;
+    if (zoneScope != null && zoneScope.span == span) {
+      zoneScope.span = null;
+    }
+    final hubScope = scope;
+    if (hubScope.span == span) {
+      hubScope.span = null;
+    }
+  }
 
   /// Starts a new trace and runs [callback] inside it.
   ///
@@ -766,7 +793,11 @@ class Hub {
       ..clearActiveSpan();
     return runZoned(
       callback,
-      zoneValues: {_scopeKey: forkedScope, _newTraceKey: true},
+      zoneValues: {
+        _scopeKey: forkedScope,
+        _newTraceKey: true,
+        _idleSpanHolderKey: _IdleSpanHolder(),
+      },
     );
   }
 
@@ -1106,7 +1137,15 @@ class Hub {
     }
 
     if (bindToHub) {
-      _idleSpan = span;
+      // Inside a startNewTrace zone, bind to the zone-local holder so the
+      // idle span stays scoped to the callback and doesn't leak to the hub
+      // after it exits.
+      final holder = _zoneIdleSpanHolder;
+      if (holder != null) {
+        holder.span = span;
+      } else {
+        _idleSpan = span;
+      }
     }
 
     _options.lifecycleRegistry.dispatchCallback(OnSpanStartV2(span));
@@ -1264,6 +1303,11 @@ class _StackItem {
   final Scope scope;
 
   _StackItem(this.client, this.scope);
+}
+
+/// Mutable holder for an idle span scoped to a `startNewTrace` zone.
+class _IdleSpanHolder {
+  IdleRecordingSentrySpanV2? span;
 }
 
 class _WeakMap {

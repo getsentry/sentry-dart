@@ -185,6 +185,10 @@ class HubAdapter implements Hub {
   Scope get traceScope => Sentry.currentHub.traceScope;
 
   @override
+  void unbindSpanFromScope(ISentrySpan span) =>
+      Sentry.currentHub.unbindSpanFromScope(span);
+
+  @override
   void setSpanContext(
     dynamic throwable,
     ISentrySpan span,

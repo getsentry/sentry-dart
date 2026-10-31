@@ -1307,6 +1307,32 @@ void main() {
       },
     );
 
+    test('finish on a transaction bound inside callback unbinds it from the '
+        'zone scope so getSpan stops returning it', () async {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+
+      await hub.startNewTrace(() async {
+        final tx = hub.startTransaction('inner', 'op', bindToScope: true);
+        expect(hub.getSpan(), same(tx));
+        await tx.finish();
+        expect(hub.getSpan(), isNull);
+      });
+    });
+
+    test(
+      'idle spans started inside callback do not leak to the hub after exit',
+      () {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.stream);
+
+        hub.startNewTrace(() {
+          final idle = hub.startIdleSpan('inner-idle');
+          addTearDown(() async => idle.end());
+        });
+
+        expect(hub.getActiveSpan(), isNull);
+      },
+    );
+
     test(
       'startTransaction(bindToScope: true) inside callback is visible to '
       'getSpan and captured events, and does not leak to the hub scope',
