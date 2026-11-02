@@ -20,6 +20,7 @@ import 'package:sentry_flutter/src/sessions/web_session_integration.dart';
 import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/replay/replay_integration.dart';
+import 'package:sentry_flutter/src/replay/replay_telemetry_integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'package:sentry_flutter/src/web/javascript_transport.dart';
@@ -406,7 +407,7 @@ void main() {
 
       testScopeObserver(
         options: sentryFlutterOptions,
-        expectedHasNativeScopeObserver: false,
+        expectedHasNativeScopeObserver: true,
       );
 
       testConfiguration(
@@ -414,6 +415,8 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ReplayIntegration,
+          ReplayTelemetryIntegration,
           ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
@@ -482,6 +485,8 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ReplayIntegration,
+          ReplayTelemetryIntegration,
           ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
@@ -527,6 +532,8 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          ReplayIntegration,
+          ReplayTelemetryIntegration,
           ...genericAppStartIntegrations,
         ],
         shouldNotHaveIntegrations: [
