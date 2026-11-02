@@ -1,11 +1,14 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 import 'package:sentry_flutter/src/native/c/binding.dart' as binding;
 import 'package:sentry_flutter/src/native/c/sentry_native.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
@@ -210,6 +213,154 @@ void main() {
     test('init', () async {
       addTearDown(sut.close);
       await sut.init(MockHub());
+    });
+
+    test('init runs in background and defers scope calls', () async {
+      addTearDown(sut.close);
+      final init = sut.init(MockHub());
+      expect(init, isA<Future<void>>());
+
+      final pendingTag = sut.setTag('fixture-key', 'fixture-value');
+      expect(pendingTag, isA<Future<void>>());
+
+      await init;
+      await pendingTag;
+      expect(
+        sut.setTag('fixture-key', 'fixture-value'),
+        isNot(isA<Future<void>>()),
+      );
+    }, testOn: 'windows');
+
+    test('scope calls after init run on a worker isolate', () async {
+      await sut.init(MockHub());
+      expect(sut.hasScopeWorker, isTrue);
+
+      await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+      await sut.setUser(SentryUser(id: 'fixture-id'));
+      await sut.setContexts('fixture-key', {'object': Object()});
+      await sut.setExtra('fixture-key', 'fixture-value');
+      await sut.removeExtra('fixture-key');
+      await sut.removeContexts('fixture-key');
+      await sut.setTag('fixture-key', 'fixture-value');
+      await sut.removeTag('fixture-key');
+      await sut.setUser(null);
+
+      await sut.close();
+      expect(sut.hasScopeWorker, isFalse);
+    }, testOn: 'windows');
+
+    test(
+      'scope worker skips values it cannot convert, like the sync path',
+      () async {
+        addTearDown(sut.close);
+        await sut.init(MockHub());
+        expect(sut.hasScopeWorker, isTrue);
+        final port = ReceivePort();
+        addTearDown(port.close);
+
+        await sut.addBreadcrumb(Breadcrumb(data: {'port': port, 'n': 1}));
+        await sut.setContexts('fixture-key', {
+          'list': [port, 'fixture-value'],
+        });
+        await sut.setExtra('fixture-key', port);
+      },
+      testOn: 'windows',
+    );
+
+    group('close with a scope worker', () {
+      late ReceivePort inbox;
+      late ReceivePort responses;
+      late List<Object?> received;
+      late Completer<void> shutdown;
+
+      setUp(() {
+        inbox = ReceivePort();
+        responses = ReceivePort();
+        received = [];
+        shutdown = Completer<void>();
+        sut.scopeWorker = Worker(inbox.sendPort, responses);
+      });
+
+      tearDown(() async {
+        // Answers a close the test left pending, so it can't block later inits.
+        responses.sendPort.send((0, null));
+        await SentryNative.pendingWorkerClose;
+        inbox.close();
+        responses.close();
+      });
+
+      void listen({required bool answer}) => inbox.listen((message) {
+        received.add(message);
+        if (message == '_shutdown_') shutdown.complete();
+        if (message case (final int id, _) when answer) {
+          responses.sendPort.send((id, null));
+        }
+      });
+
+      test('runs close on the worker after queued scope calls', () async {
+        listen(answer: true);
+
+        await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+        await sut.setTag('fixture-key', 'fixture-value');
+        await sut.close();
+        await shutdown.future;
+
+        expect(received.map((m) => m is (String, List<Object?>) ? m.$1 : m), [
+          'add_breadcrumb',
+          'set_tag',
+          (0, 'close'),
+          '_shutdown_',
+        ]);
+        expect(sut.hasScopeWorker, isFalse);
+      });
+
+      test('stops waiting when the worker does not answer', () async {
+        final timeout = SentryNative.scopeWorkerCloseTimeout;
+        SentryNative.scopeWorkerCloseTimeout = Duration.zero;
+        addTearDown(() => SentryNative.scopeWorkerCloseTimeout = timeout);
+        listen(answer: false);
+
+        await sut.close();
+        await shutdown.future;
+
+        expect(received, [(0, 'close'), '_shutdown_']);
+        expect(sut.hasScopeWorker, isFalse);
+      });
+
+      test('drops scope calls and repeated closes while closing', () async {
+        listen(answer: false);
+
+        final close = sut.close();
+        await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+        await sut.setTag('fixture-key', 'fixture-value');
+        await sut.close();
+        await shutdown.future;
+        responses.sendPort.send((0, null));
+        await close;
+
+        expect(received, [(0, 'close'), '_shutdown_']);
+      });
+
+      test('init of a new binding waits for a close still running', () async {
+        final timeout = SentryNative.scopeWorkerCloseTimeout;
+        SentryNative.scopeWorkerCloseTimeout = Duration.zero;
+        addTearDown(() => SentryNative.scopeWorkerCloseTimeout = timeout);
+        listen(answer: false);
+        await sut.close();
+
+        final events = <String>[];
+        Timer(const Duration(seconds: 1), () {
+          events.add('closed');
+          responses.sendPort.send((0, null));
+        });
+        final next = createBinding(options) as SentryNative;
+        addTearDown(next.close);
+        await next.init(MockHub());
+        events.add('initialized');
+
+        expect(events, ['closed', 'initialized']);
+        expect(next.hasScopeWorker, isTrue);
+      }, testOn: 'windows');
     });
 
     test(
