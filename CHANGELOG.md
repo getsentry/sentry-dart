@@ -1,5 +1,32 @@
 # Changelog
 
+## 10.3.0
+
+### Features
+
+#### Flutter
+
+- Add experimental Session Replay support for Flutter Web with widget masking. Opt in with `options.replay.enableWebReplay = true` along with `replay.sessionSampleRate` or `replay.onErrorSampleRate`. Requires the CanvasKit or Skwasm renderer. `SentryFlutter.replay` start/stop/flush also work on web, and the Dart scope (user, tags, extras, contexts, breadcrumbs) now syncs to the JS SDK on web ([#2897](https://github.com/getsentry/sentry-dart/issues/2897)) by @lucas-zimerman in [#4059](https://github.com/getsentry/sentry-dart/pull/4059)
+- Add `addUserInteractionWidget` to `SentryFlutterOptions` to track taps on widgets the SDK doesn't recognize, like those from `material_ui` and `cupertino_ui`. Tooltip labels now come from `RawTooltip`, so `material_ui` tooltips get labels too. by @dawid-niedzwiecki in [#4069](https://github.com/getsentry/sentry-dart/pull/4069)
+
+### Fixes
+
+- (dart) Count streamed spans in client reports by @sentry-junior in [#4097](https://github.com/getsentry/sentry-dart/pull/4097)
+- (flutter) Use static SwiftPM binaries by @philprime in [#4118](https://github.com/getsentry/sentry-dart/pull/4118)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Cocoa SDK to v9.32.0 by @github-actions in [#4128](https://github.com/getsentry/sentry-dart/pull/4128)
+- chore(deps): update Native SDK to v0.17.5 by @github-actions in [#4127](https://github.com/getsentry/sentry-dart/pull/4127)
+- chore(deps): update Android SDK to v8.62.0 by @github-actions in [#4124](https://github.com/getsentry/sentry-dart/pull/4124)
+
+### Internal Changes
+
+- (flutter) Use Cocoa internal serializer by @philprime in [#4100](https://github.com/getsentry/sentry-dart/pull/4100)
+- Use dark-mode-aware Sentry logo in READMEs by @sentry-junior in [#4123](https://github.com/getsentry/sentry-dart/pull/4123)
+
 ## 10.2.0
 
 ### Features
