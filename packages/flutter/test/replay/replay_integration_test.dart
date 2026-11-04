@@ -8,6 +8,7 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/replay/replay_integration.dart';
 import 'package:sentry_flutter/src/replay/replay_config.dart';
@@ -27,6 +28,7 @@ void main() {
     options = defaultTestOptions();
     native = MockSentryNativeBinding();
     when(native.supportsReplay).thenReturn(true);
+    when(native.flushReplay()).thenAnswer((_) async {});
     sut = ReplayIntegration(native);
   });
 
@@ -143,6 +145,40 @@ void main() {
       expect(scope.replayId, isNull);
     });
 
+    // The JS SDK converts buffered error replays to sessions itself, and
+    // SentryWeb.captureReplay() is unsupported.
+    test('does not capture replay for an error event on web', () async {
+      options.platform = MockPlatform(isWeb: true);
+      when(native.replayId).thenReturn(SentryId.fromId('42'));
+
+      await send(errorEvent());
+
+      verifyNever(native.captureReplay());
+      verifyNever(native.flushReplay());
+      expect(scope.replayId, isNull);
+    });
+
+    // The JS SDK only sends a buffered replay for errors and transactions.
+    test('flushes the active replay for a feedback event on web', () async {
+      options.platform = MockPlatform(isWeb: true);
+      when(native.replayId).thenReturn(SentryId.fromId('42'));
+
+      await send(feedbackEvent());
+
+      verify(native.flushReplay()).called(1);
+      verifyNever(native.captureReplay());
+    });
+
+    test('does not flush for a feedback event on web without an active '
+        'replay', () async {
+      options.platform = MockPlatform(isWeb: true);
+      when(native.replayId).thenReturn(null);
+
+      await send(feedbackEvent());
+
+      verifyNever(native.flushReplay());
+    });
+
     test('does not capture replay after the integration is closed', () async {
       await sut.call(hub, options);
       sut.close();
@@ -154,6 +190,45 @@ void main() {
       verifyNever(native.captureReplay());
     });
   });
+
+  test('captureReplay() flushes the active replay on web', () async {
+    options.platform = MockPlatform(isWeb: true);
+    options.replay.sessionSampleRate = 1.0;
+    when(native.replayId).thenReturn(SentryId.fromId('42'));
+    await sut.call(hub, options);
+
+    await sut.captureReplay();
+
+    verify(native.flushReplay()).called(1);
+    verifyNever(native.captureReplay());
+  });
+
+  // A replay started through `SentryFlutter.replay` is only sent by
+  // `SentryFlutter.replay.flush()`.
+  test('captureReplay() does not flush on web without sample rates', () async {
+    options.platform = MockPlatform(isWeb: true);
+    when(native.replayId).thenReturn(SentryId.fromId('42'));
+    await sut.call(hub, options);
+
+    await sut.captureReplay();
+
+    verifyNever(native.flushReplay());
+  });
+
+  test(
+    'captureReplay() does not flush on web without an active replay',
+    () async {
+      options.platform = MockPlatform(isWeb: true);
+      options.replay.sessionSampleRate = 1.0;
+      when(native.replayId).thenReturn(null);
+      await sut.call(hub, options);
+
+      await sut.captureReplay();
+
+      verifyNever(native.flushReplay());
+      verifyNever(native.captureReplay());
+    },
+  );
 
   testWidgets('Configures replay when displayed', (tester) async {
     options.replay.sessionSampleRate = 1.0;

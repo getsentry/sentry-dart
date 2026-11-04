@@ -2893,8 +2893,72 @@ class MockSentryJsBinding extends _i1.Mock implements _i22.SentryJsBinding {
   );
 
   @override
-  void captureEnvelope(List<Object>? envelope) => super.noSuchMethod(
-    Invocation.method(#captureEnvelope, [envelope]),
+  void captureEnvelope(
+    List<Object>? envelope,
+    List<Map<String, dynamic>>? events,
+  ) => super.noSuchMethod(
+    Invocation.method(#captureEnvelope, [envelope, events]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void setUser(Map<String, dynamic>? user) => super.noSuchMethod(
+    Invocation.method(#setUser, [user]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addBreadcrumb(Map<String, dynamic>? breadcrumb) => super.noSuchMethod(
+    Invocation.method(#addBreadcrumb, [breadcrumb]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void addReplayBreadcrumb(Map<String, dynamic>? breadcrumb) =>
+      super.noSuchMethod(
+        Invocation.method(#addReplayBreadcrumb, [breadcrumb]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void clearBreadcrumbs() => super.noSuchMethod(
+    Invocation.method(#clearBreadcrumbs, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void setContext(String? key, Object? value) => super.noSuchMethod(
+    Invocation.method(#setContext, [key, value]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeContext(String? key) => super.noSuchMethod(
+    Invocation.method(#removeContext, [key]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void setExtra(String? key, Object? value) => super.noSuchMethod(
+    Invocation.method(#setExtra, [key, value]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeExtra(String? key) => super.noSuchMethod(
+    Invocation.method(#removeExtra, [key]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void setTag(String? key, String? value) => super.noSuchMethod(
+    Invocation.method(#setTag, [key, value]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void removeTag(String? key) => super.noSuchMethod(
+    Invocation.method(#removeTag, [key]),
     returnValueForMissingStub: null,
   );
 
@@ -2915,6 +2979,36 @@ class MockSentryJsBinding extends _i1.Mock implements _i22.SentryJsBinding {
     Invocation.method(#captureSession, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  void startReplay() => super.noSuchMethod(
+    Invocation.method(#startReplay, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void startReplayBuffering() => super.noSuchMethod(
+    Invocation.method(#startReplayBuffering, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i10.Future<void> stopReplay() =>
+      (super.noSuchMethod(
+            Invocation.method(#stopReplay, []),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
+          )
+          as _i10.Future<void>);
+
+  @override
+  _i10.Future<void> flushReplay() =>
+      (super.noSuchMethod(
+            Invocation.method(#flushReplay, []),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
+          )
+          as _i10.Future<void>);
 }
 
 /// A class which mocks [TimeToDisplayTracker].
