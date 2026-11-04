@@ -101,7 +101,6 @@ class ScreenshotRecorder {
         internalLogger.debug(
           () => '$logName: skipping capture, a snapshot is frozen.',
         );
-        Timeline.finishSync(); // Sentry::captureScreenshot
         return Future.value(null);
       }
       final obscureItems = filter?.items;
@@ -128,7 +127,6 @@ class ScreenshotRecorder {
           capture._completer.complete(null);
         }
       });
-      Timeline.finishSync(); // Sentry::captureScreenshot
       return capture.future;
     } catch (e, stackTrace) {
       _logError(e, stackTrace);
@@ -137,6 +135,8 @@ class ScreenshotRecorder {
       } else {
         return Future.value(null);
       }
+    } finally {
+      Timeline.finishSync(); // Sentry::captureScreenshot
     }
   }
 

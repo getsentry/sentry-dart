@@ -127,18 +127,31 @@ class WidgetFilter {
 
   /// Covers the area [widget] paints its snapshot to, or its parent if that
   /// fails.
+  ///
+  /// [SnapshotPainter.paintSnapshot] can't be run without an image, so where
+  /// the snapshot ends up is estimated from [SnapshotPainter.paint]: the
+  /// cover spans where the child is painted, the box itself, which is where
+  /// the default painter draws the image, and the painted size centered on
+  /// the box, which is where [ZoomPageTransitionsBuilder] draws it.
   WidgetFilterItem? _obscureSnapshotOrParent(
     Element element,
     SnapshotWidget widget,
   ) => _obscureOrParent(element, widget, (element, widget) {
     final box = element.renderObject as RenderBox;
+    var rect = _boundingBox(box);
     final paintTransform = _paintTransforms[box];
-    final rect = paintTransform == null
-        ? _boundingBox(box)
-        : MatrixUtils.transformRect(
-            _transformTo(box).multiplied(paintTransform),
-            box.paintBounds,
-          );
+    if (paintTransform != null) {
+      final painted = MatrixUtils.transformRect(
+        _transformTo(box).multiplied(paintTransform),
+        box.paintBounds,
+      );
+      final centered = Rect.fromCenter(
+        center: rect.center,
+        width: painted.width,
+        height: painted.height,
+      );
+      rect = rect.expandToInclude(painted).expandToInclude(centered);
+    }
     return rect.overlaps(_bounds)
         ? WidgetFilterItem(_scheme.background, rect)
         : null;
@@ -330,9 +343,9 @@ class WidgetFilter {
 /// Runs a [SnapshotPainter] against a throwaway layer to read the transform
 /// it paints its child with, which Flutter only applies while painting.
 ///
-/// The painter must not notice: the child is never painted, and every push
-/// returns the `oldLayer` it was given, so the painter's layer handles keep
-/// the layers they hold for the real frame.
+/// The painter must not notice: the child is never painted, no layer is
+/// changed or added, and every push returns the `oldLayer` it was given, so
+/// the painter's layer handles keep the layers they hold for the real frame.
 class _PaintTransformRecorder extends PaintingContext {
   _PaintTransformRecorder(ContainerLayer layer, Size size)
     : super(layer, Offset.zero & size);
@@ -391,6 +404,89 @@ class _PaintTransformRecorder extends PaintingContext {
     painter(this, offset);
     return oldLayer ?? OpacityLayer();
   }
+
+  // The overrides below only paint the child, without touching any layer:
+  // the inherited ones update `oldLayer` and move it into this context's
+  // throwaway layer, which takes it, and its children, out of the frame.
+
+  @override
+  ClipRectLayer? pushClipRect(
+    bool needsCompositing,
+    Offset offset,
+    Rect clipRect,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.hardEdge,
+    ClipRectLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ClipRRectLayer? pushClipRRect(
+    bool needsCompositing,
+    Offset offset,
+    Rect bounds,
+    RRect clipRRect,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.antiAlias,
+    ClipRRectLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ClipRSuperellipseLayer? pushClipRSuperellipse(
+    bool needsCompositing,
+    Offset offset,
+    Rect bounds,
+    RSuperellipse clipRSuperellipse,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.antiAlias,
+    ClipRSuperellipseLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ClipPathLayer? pushClipPath(
+    bool needsCompositing,
+    Offset offset,
+    Rect bounds,
+    Path clipPath,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.antiAlias,
+    ClipPathLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ColorFilterLayer pushColorFilter(
+    Offset offset,
+    ColorFilter colorFilter,
+    PaintingContextCallback painter, {
+    ColorFilterLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer ?? ColorFilterLayer();
+  }
+
+  @override
+  void pushLayer(
+    ContainerLayer childLayer,
+    PaintingContextCallback painter,
+    Offset offset, {
+    Rect? childPaintBounds,
+  }) {
+    painter(this, offset);
+  }
+
+  @override
+  void addLayer(Layer layer) {}
 }
 
 @internal

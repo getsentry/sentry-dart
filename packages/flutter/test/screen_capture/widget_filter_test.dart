@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -387,6 +388,112 @@ void main() async {
         const Rect.fromLTWH(150, 150, 25, 10),
       ]);
     });
+
+    group('with a painter that retains its layer', () {
+      final pushes = <String, _RetainedPush>{
+        'pushClipRect': (context, offset, bounds, painter, oldLayer) =>
+            context.pushClipRect(
+              true,
+              offset,
+              bounds,
+              painter,
+              oldLayer: oldLayer as ClipRectLayer?,
+            ),
+        'pushClipRRect': (context, offset, bounds, painter, oldLayer) =>
+            context.pushClipRRect(
+              true,
+              offset,
+              bounds,
+              RRect.fromRectAndRadius(bounds, const Radius.circular(8)),
+              painter,
+              oldLayer: oldLayer as ClipRRectLayer?,
+            ),
+        'pushClipRSuperellipse': (context, offset, bounds, painter, oldLayer) =>
+            context.pushClipRSuperellipse(
+              true,
+              offset,
+              bounds,
+              RSuperellipse.fromRectAndRadius(bounds, const Radius.circular(8)),
+              painter,
+              oldLayer: oldLayer as ClipRSuperellipseLayer?,
+            ),
+        'pushClipPath': (context, offset, bounds, painter, oldLayer) =>
+            context.pushClipPath(
+              true,
+              offset,
+              bounds,
+              Path()..addRect(bounds),
+              painter,
+              oldLayer: oldLayer as ClipPathLayer?,
+            ),
+        'pushColorFilter': (context, offset, bounds, painter, oldLayer) =>
+            context.pushColorFilter(
+              offset,
+              const ColorFilter.mode(Colors.transparent, BlendMode.dst),
+              painter,
+              oldLayer: oldLayer as ColorFilterLayer?,
+            ),
+        'pushOpacity': (context, offset, bounds, painter, oldLayer) =>
+            context.pushOpacity(
+              offset,
+              200,
+              painter,
+              oldLayer: oldLayer as OpacityLayer?,
+            ),
+        'pushTransform': (context, offset, bounds, painter, oldLayer) =>
+            context.pushTransform(
+              true,
+              offset,
+              Matrix4.diagonal3Values(0.5, 0.5, 1),
+              painter,
+              oldLayer: oldLayer as TransformLayer?,
+            ),
+        'pushLayer': (context, offset, bounds, painter, oldLayer) {
+          final layer = oldLayer ?? OffsetLayer();
+          context.pushLayer(layer, painter, offset);
+          return layer;
+        },
+      };
+
+      for (final MapEntry(key: name, value: push) in pushes.entries) {
+        testWidgets('keeps the layer of $name in the frame', (tester) async {
+          final painter = _RetainingPainter(push);
+          addTearDown(painter.dispose);
+          await tester.pumpWidget(
+            Directionality(
+              textDirection: TextDirection.ltr,
+              child: Center(
+                child: RepaintBoundary(
+                  child: SizedBox(
+                    width: 400,
+                    height: 400,
+                    child: SnapshotWidget(
+                      controller: SnapshotController(),
+                      painter: painter,
+                      child: const ColoredBox(color: Colors.blue),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+          final element = tester.element(find.byType(RepaintBoundary).first);
+          final layer = painter.layer!;
+          final parent = layer.parent;
+          final children = [layer.firstChild, layer.lastChild];
+
+          createSut().obscure(
+            context: element,
+            root: element.renderObject as RenderRepaintBoundary,
+            colorScheme: colorScheme,
+          );
+
+          expect(layer.parent, same(parent));
+          expect([layer.firstChild, layer.lastChild], children);
+          expect(children, everyElement(isNotNull));
+        });
+      }
+    });
   });
 
   group('during a $ZoomPageTransitionsBuilder push', () {
@@ -530,16 +637,86 @@ void main() async {
 
         final sut = obscure(await pumpMidZoom(tester, allowSnapshotting: true));
 
+        Matcher contains(Rect rect) => predicate<Rect>(
+          (cover) => cover.expandToInclude(rect) == cover,
+          'contains $rect',
+        );
         expect(
           boundsOf(
             sut.items.where((item) => item.color == colorScheme.background),
           ),
-          unorderedEquals([
-            rectMoreOrLessEquals(incoming),
-            rectMoreOrLessEquals(outgoing),
-          ]),
+          unorderedMatches([contains(incoming), contains(outgoing)]),
         );
       });
+
+      testWidgets(
+        'leaves no pixel of a masked incoming page uncovered',
+        (tester) async {
+          // The outgoing page isn't snapshotted, so its cover can't hide
+          // where the incoming snapshot is drawn.
+          const sensitive = Color(0xff9c27b0);
+          final navigatorKey = GlobalKey<NavigatorState>();
+          await tester.pumpWidget(
+            RepaintBoundary(
+              child: MaterialApp(
+                navigatorKey: navigatorKey,
+                theme: ThemeData(
+                  pageTransitionsTheme: PageTransitionsTheme(
+                    builders: {
+                      for (final platform in TargetPlatform.values)
+                        platform: const ZoomPageTransitionsBuilder(),
+                    },
+                  ),
+                ),
+                onGenerateRoute: (_) => MaterialPageRoute<void>(
+                  allowSnapshotting: false,
+                  builder: (_) => const ColoredBox(color: Colors.white),
+                ),
+              ),
+            ),
+          );
+          unawaited(
+            navigatorKey.currentState!.push(
+              MaterialPageRoute<void>(
+                builder: (_) => const SentryMask(ColoredBox(color: sensitive)),
+              ),
+            ),
+          );
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 100));
+          final element = tester.element(find.byType(RepaintBoundary).first);
+          final root = element.renderObject as RenderRepaintBoundary;
+          final items = obscure(element).items;
+          final pixelRatio = tester.view.devicePixelRatio;
+
+          final pixels = await tester.runAsync(() async {
+            final frame = await root.toImage(pixelRatio: pixelRatio);
+            final recorder = ui.PictureRecorder();
+            final canvas = Canvas(recorder)
+              ..drawImage(frame, Offset.zero, Paint())
+              ..scale(pixelRatio);
+            for (final item in items) {
+              canvas.drawRect(item.bounds, Paint()..color = item.color);
+            }
+            final masked = await recorder.endRecording().toImage(
+              frame.width,
+              frame.height,
+            );
+            final bytes = await masked.toByteData();
+            frame.dispose();
+            masked.dispose();
+            return bytes!.buffer.asUint32List();
+          });
+
+          // The bytes are RGBA, so each little-endian word reads as ABGR.
+          final argb = sensitive.toARGB32();
+          final abgr =
+              (argb & 0xff00ff00) | (argb >> 16 & 0xff) | (argb & 0xff) << 16;
+          expect(pixels!.where((pixel) => pixel == abgr).length, 0);
+        },
+        // Flutter does not snapshot zooms on web.
+        skip: kIsWeb,
+      );
 
       testWidgets('masks both pages on top of the covers', (tester) async {
         final withoutSnapshots = boundsOf(
@@ -599,6 +776,55 @@ class _CenterScalePainter extends SnapshotPainter {
   @override
   bool shouldRepaint(covariant _CenterScalePainter oldPainter) =>
       oldPainter.scale != scale;
+}
+
+typedef _RetainedPush =
+    ContainerLayer? Function(
+      PaintingContext context,
+      Offset offset,
+      Rect bounds,
+      PaintingContextCallback painter,
+      ContainerLayer? oldLayer,
+    );
+
+/// Paints its child through [push], reusing the layer of the previous paint
+/// like render objects do with their `oldLayer`.
+class _RetainingPainter extends SnapshotPainter {
+  _RetainingPainter(this.push);
+
+  final _RetainedPush push;
+  final _handle = LayerHandle<ContainerLayer>();
+
+  ContainerLayer? get layer => _handle.layer;
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset offset,
+    Size size,
+    PaintingContextCallback painter,
+  ) {
+    _handle.layer = push(context, offset, offset & size, painter, layer);
+  }
+
+  @override
+  void paintSnapshot(
+    PaintingContext context,
+    Offset offset,
+    Size size,
+    ui.Image image,
+    Size sourceSize,
+    double pixelRatio,
+  ) {}
+
+  @override
+  bool shouldRepaint(covariant _RetainingPainter oldPainter) => false;
+
+  @override
+  void dispose() {
+    _handle.layer = null;
+    super.dispose();
+  }
 }
 
 class TestAssetBundle extends CachingAssetBundle {
