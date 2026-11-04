@@ -620,38 +620,44 @@ void main() async {
       expect(sut.hasFrozenSnapshot, isFalse);
     });
 
-    group('with snapshotting', () {
-      testWidgets('reports a frozen snapshot', (tester) async {
-        final sut = obscure(await pumpMidZoom(tester, allowSnapshotting: true));
+    group(
+      'with snapshotting',
+      () {
+        testWidgets('reports a frozen snapshot', (tester) async {
+          final sut = obscure(
+            await pumpMidZoom(tester, allowSnapshotting: true),
+          );
 
-        expect(sut.hasFrozenSnapshot, isTrue);
-      });
+          expect(sut.hasFrozenSnapshot, isTrue);
+        });
 
-      testWidgets('covers both pages with the background', (tester) async {
-        // The snapshots are frozen images, so content that moves under them
-        // can't be tracked: each page is covered whole instead.
-        final element = await pumpMidZoom(tester, allowSnapshotting: false);
-        final root = element.renderObject!;
-        final incoming = paintedRect(tester, incomingPageKey, root);
-        final outgoing = paintedRect(tester, outgoingPageKey, root);
+        testWidgets('covers both pages with the background', (tester) async {
+          // The snapshots are frozen images, so content that moves under them
+          // can't be tracked: each page is covered whole instead.
+          final element = await pumpMidZoom(tester, allowSnapshotting: false);
+          final root = element.renderObject!;
+          final incoming = paintedRect(tester, incomingPageKey, root);
+          final outgoing = paintedRect(tester, outgoingPageKey, root);
 
-        final sut = obscure(await pumpMidZoom(tester, allowSnapshotting: true));
+          final sut = obscure(
+            await pumpMidZoom(tester, allowSnapshotting: true),
+          );
 
-        Matcher contains(Rect rect) => predicate<Rect>(
-          (cover) => cover.expandToInclude(rect) == cover,
-          'contains $rect',
-        );
-        expect(
-          boundsOf(
-            sut.items.where((item) => item.color == colorScheme.background),
-          ),
-          unorderedMatches([contains(incoming), contains(outgoing)]),
-        );
-      });
+          Matcher contains(Rect rect) => predicate<Rect>(
+            (cover) => cover.expandToInclude(rect) == cover,
+            'contains $rect',
+          );
+          expect(
+            boundsOf(
+              sut.items.where((item) => item.color == colorScheme.background),
+            ),
+            unorderedMatches([contains(incoming), contains(outgoing)]),
+          );
+        });
 
-      testWidgets(
-        'leaves no pixel of a masked incoming page uncovered',
-        (tester) async {
+        testWidgets('leaves no pixel of a masked incoming page uncovered', (
+          tester,
+        ) async {
           // The outgoing page isn't snapshotted, so its cover can't hide
           // where the incoming snapshot is drawn.
           const sensitive = Color(0xff9c27b0);
@@ -713,32 +719,32 @@ void main() async {
           final abgr =
               (argb & 0xff00ff00) | (argb >> 16 & 0xff) | (argb & 0xff) << 16;
           expect(pixels!.where((pixel) => pixel == abgr).length, 0);
-        },
-        // Flutter does not snapshot zooms on web.
-        skip: kIsWeb,
-      );
+        });
 
-      testWidgets('masks both pages on top of the covers', (tester) async {
-        final withoutSnapshots = boundsOf(
-          obscure(await pumpMidZoom(tester, allowSnapshotting: false)).items,
-        );
+        testWidgets('masks both pages on top of the covers', (tester) async {
+          final withoutSnapshots = boundsOf(
+            obscure(await pumpMidZoom(tester, allowSnapshotting: false)).items,
+          );
 
-        final items = obscure(
-          await pumpMidZoom(tester, allowSnapshotting: true),
-        ).items;
-        final firstMask = items.indexWhere(
-          (item) => item.color != colorScheme.background,
-        );
+          final items = obscure(
+            await pumpMidZoom(tester, allowSnapshotting: true),
+          ).items;
+          final firstMask = items.indexWhere(
+            (item) => item.color != colorScheme.background,
+          );
 
-        expect(
-          items.take(firstMask).map((item) => item.color),
-          everyElement(colorScheme.background),
-        );
-        expect(boundsOf(items.skip(firstMask)), [
-          for (final rect in withoutSnapshots) rectMoreOrLessEquals(rect),
-        ]);
-      });
-    });
+          expect(
+            items.take(firstMask).map((item) => item.color),
+            everyElement(colorScheme.background),
+          );
+          expect(boundsOf(items.skip(firstMask)), [
+            for (final rect in withoutSnapshots) rectMoreOrLessEquals(rect),
+          ]);
+        });
+      },
+      // Flutter does not snapshot zooms on web.
+      skip: kIsWeb,
+    );
   });
 }
 
