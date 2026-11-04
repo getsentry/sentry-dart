@@ -9,16 +9,16 @@ load_cache("${CMAKE_CURRENT_LIST_DIR}" READ_WITH_PREFIX SENTRY_NATIVE_ repo vers
 # project paths, which the zip avoids.
 # https://github.com/getsentry/sentry-dart/issues/3969
 # Only Windows has the path length problem, so only it defaults to the zip.
-if(WIN32)
+if(NOT "$ENV{SENTRY_NATIVE_FETCH_METHOD}" STREQUAL "")
+    # If environment variable is set, it takes highest precedence
+    if(NOT "$ENV{SENTRY_NATIVE_FETCH_METHOD}" MATCHES "^(git|zip)$")
+        message(FATAL_ERROR "Unknown SENTRY_NATIVE_FETCH_METHOD '$ENV{SENTRY_NATIVE_FETCH_METHOD}', expected git or zip")
+    endif()
+    set(SENTRY_NATIVE_FETCH_METHOD $ENV{SENTRY_NATIVE_FETCH_METHOD})
+elseif(WIN32)
     set(SENTRY_NATIVE_FETCH_METHOD "zip")
 else()
     set(SENTRY_NATIVE_FETCH_METHOD "git")
-endif()
-if(NOT "$ENV{SENTRY_NATIVE_FETCH_METHOD}" STREQUAL "")
-    set(SENTRY_NATIVE_FETCH_METHOD $ENV{SENTRY_NATIVE_FETCH_METHOD})
-endif()
-if(NOT SENTRY_NATIVE_FETCH_METHOD MATCHES "^(git|zip)$")
-    message(FATAL_ERROR "Unknown SENTRY_NATIVE_FETCH_METHOD '${SENTRY_NATIVE_FETCH_METHOD}', expected git or zip")
 endif()
 message(STATUS "Fetching Sentry native version: ${SENTRY_NATIVE_version} from ${SENTRY_NATIVE_repo} (${SENTRY_NATIVE_FETCH_METHOD})")
 

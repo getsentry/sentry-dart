@@ -32,6 +32,11 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # sentry-native links against libcurl on Linux.
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -qq -y libcurl4-openssl-dev
+
       - name: Run fetch tests
         shell: bash
         run: bash packages/flutter/sentry-native/test/fetch-test.sh "$RUNNER_TEMP/fetch-test"
