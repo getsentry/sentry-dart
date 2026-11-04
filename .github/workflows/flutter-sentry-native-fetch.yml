@@ -1,0 +1,44 @@
+name: sentry-flutter-native-fetch
+# Tests how the Flutter plugin fetches sentry-native. The pinned release zip
+# hash, the per-platform default, the git fallback and error handling.
+# https://github.com/getsentry/sentry-dart/issues/3969
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/flutter-sentry-native-fetch.yml'
+      - 'packages/flutter/sentry-native/**'
+      - 'packages/flutter/scripts/update-native.sh'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    name: 'fetch | ${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Run fetch tests
+        shell: bash
+        run: bash packages/flutter/sentry-native/test/fetch-test.sh "$RUNNER_TEMP/fetch-test"
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: fetch-test-logs-${{ matrix.os }}
+          path: ${{ runner.temp }}/fetch-test/*.log

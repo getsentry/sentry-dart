@@ -100,7 +100,7 @@ void main() {
       test('does not fetch Crashpad', () {
         expect(
           File(
-            '${helper.cmakeBuildDir}/_deps/sentry-native-src/'
+            '${helper.cmakeBuildDir}/_deps/sn-src/'
             'external/crashpad/CMakeLists.txt',
           ).existsSync(),
           isFalse,
