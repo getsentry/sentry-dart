@@ -745,6 +745,25 @@ void main() async {
       // Flutter does not snapshot zooms on web.
       skip: kIsWeb,
     );
+
+    testWidgets('on web covers nothing, as Flutter paints the zoom live', (
+      tester,
+    ) async {
+      final withoutSnapshots = boundsOf(
+        obscure(await pumpMidZoom(tester, allowSnapshotting: false)).items,
+      );
+
+      final sut = obscure(await pumpMidZoom(tester, allowSnapshotting: true));
+
+      expect(sut.hasFrozenSnapshot, isFalse);
+      expect(boundsOf(sut.items), [
+        for (final rect in withoutSnapshots) rectMoreOrLessEquals(rect),
+      ]);
+      expect(
+        sut.items.where((item) => item.color == colorScheme.background),
+        isEmpty,
+      );
+    }, skip: !kIsWeb);
   });
 }
 
