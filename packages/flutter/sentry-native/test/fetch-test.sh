@@ -52,7 +52,9 @@ configure() {
 version=$(sed -n 's/^version=//p' "$native_dir/CMakeCache.txt")
 repo=$(sed -n 's/^repo=//p' "$native_dir/CMakeCache.txt")
 pinned=$(sed -n 's/^sha256=//p' "$native_dir/CMakeCache.txt")
-actual=$(curl -fsSL "$repo/releases/download/$version/sentry-native.zip" | sha256sum | cut -d ' ' -f 1)
+# macOS has shasum but no sha256sum.
+if command -v sha256sum >/dev/null; then sha256=(sha256sum); else sha256=(shasum -a 256); fi
+actual=$(curl -fsSL "$repo/releases/download/$version/sentry-native.zip" | "${sha256[@]}" | cut -d ' ' -f 1)
 if [[ -n "$pinned" && "$pinned" == "$actual" ]]; then
   pass "pinned sha256 matches the $version release zip"
 else

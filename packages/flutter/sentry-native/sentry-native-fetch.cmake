@@ -26,6 +26,8 @@ function(sentry_native_fetch_zip out)
         list(GET download_status 1 download_message)
         if(NOT download_code EQUAL 0)
             file(REMOVE "${zip_file}")
+            # Leave a clean tree for the git fallback to clone into.
+            file(REMOVE_RECURSE "${src_dir}")
             message(WARNING "Failed to download sentry-native zip: ${download_message}")
             return()
         endif()

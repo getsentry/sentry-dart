@@ -97,15 +97,22 @@ void main() {
     });
 
     if (backend.actualValue == NativeBackend.breakpad) {
-      test('does not fetch Crashpad', () {
-        expect(
-          File(
-            '${helper.cmakeBuildDir}/_deps/sn-src/'
-            'external/crashpad/CMakeLists.txt',
-          ).existsSync(),
-          isFalse,
-        );
-      });
+      test(
+        'does not fetch Crashpad',
+        () {
+          expect(
+            File(
+              '${helper.cmakeBuildDir}/_deps/sn-src/'
+              'external/crashpad/CMakeLists.txt',
+            ).existsSync(),
+            isFalse,
+          );
+        },
+        // Windows fetches the full release zip, which includes Crashpad.
+        skip: Platform.isWindows
+            ? 'the release zip contains the Crashpad sources'
+            : false,
+      );
 
       test('does not bundle a crash handler', () {
         expect(
