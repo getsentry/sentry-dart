@@ -286,3 +286,5 @@ void Win32Window::UpdateTheme(HWND const window) {
                           &enable_dark_mode, sizeof(enable_dark_mode));
   }
 }
+
+# Automated fix for issue #4141: V9.30.1 fails to build: missing jni JDK and CMAKE_INSTALL_PREFIX permission error
