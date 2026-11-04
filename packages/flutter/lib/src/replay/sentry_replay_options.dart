@@ -78,6 +78,16 @@ class SentryReplayOptions {
   /// more CPU load, defaults to MEDIUM.
   var quality = SentryReplayQuality.medium;
 
+  /// Enables Session Replay on Flutter Web. Defaults to false.
+  ///
+  /// Replay still requires [sessionSampleRate] or [onErrorSampleRate] to be
+  /// set. Has no effect on other platforms.
+  ///
+  /// This is experimental: its API and behavior may change in a minor
+  /// release.
+  @experimental
+  bool enableWebReplay = false;
+
   @internal
   bool get isEnabled =>
       ((sessionSampleRate ?? 0) > 0) || ((onErrorSampleRate ?? 0) > 0);

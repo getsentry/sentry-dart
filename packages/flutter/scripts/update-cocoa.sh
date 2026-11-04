@@ -6,7 +6,7 @@ cd $(dirname "$0")/../darwin
 get_spm_version() {
   local file='sentry_flutter/Package.swift'
   local content=$(cat $file)
-  regex="(url: *['\"]https://github.com/getsentry/sentry-cocoa['\"], *)(exact|revision): *['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
+  regex="(url: *['\"]https://github.com/getsentry/sentry-apple-binaries['\"], *)(exact|revision): *['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
   if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1
@@ -18,7 +18,7 @@ get_spm_version() {
 set_spm_version() {
   local file='sentry_flutter/Package.swift'
   local content=$(cat $file)
-  regex="(url: *['\"]https://github.com/getsentry/sentry-cocoa['\"], *)(exact|revision): *['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
+  regex="(url: *['\"]https://github.com/getsentry/sentry-apple-binaries['\"], *)(exact|revision): *['\"]([0-9\.]+(-[a-z0-9\.]+)?)['\"]"
   if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1

@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -67,6 +68,23 @@ void main() {
       final options = defaultTestOptions();
 
       expect(options.enableTombstone, isFalse);
+    });
+
+    test('addUserInteractionWidget adds sdk feature', () {
+      final options = defaultTestOptions();
+
+      options.addUserInteractionWidget<Text>('Text');
+
+      expect(options.sdk.features, contains('userInteractionWidgetTypes'));
+    });
+
+    test('addUserInteractionWidget throws AssertionError for Widget type', () {
+      final options = defaultTestOptions();
+
+      expect(
+        () => options.addUserInteractionWidget<Widget>('Widget'),
+        throwsA(isA<AssertionError>()),
+      );
     });
   });
 }

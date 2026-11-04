@@ -217,6 +217,8 @@ import 'user_interaction_info.dart';
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
 
+typedef _ElementType = ({String name, bool allowText});
+
 /// Enables the Auto instrumentation for user interaction tracing.
 /// It starts a transaction and finishes after the timeout.
 /// It adds a breadcrumb as well.
@@ -225,6 +227,9 @@ Element? _clickTrackerElement;
 /// [ButtonStyleButton], [MaterialButton], [CupertinoButton], [InkWell],
 /// [IconButton], [PopupMenuButton] and [PopupMenuItem].
 /// Mostly for onPressed, onTap, and onLongPress events
+///
+/// Other widgets, for example the ones from `package:material_ui`, can be
+/// added with [SentryFlutterOptions.addUserInteractionWidget].
 ///
 /// Example on how to set up:
 /// runApp(SentryWidget(child: App()));
@@ -358,7 +363,7 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    final label = _getLabelRecursively(info.element);
+    final label = _getLabelRecursively(info.element, info.allowText);
     final data = {'path': _getTouchPath(info.element), 'label': ?label};
 
     final crumb = Breadcrumb.userInteraction(
@@ -384,7 +389,7 @@ class _SentryUserInteractionWidgetState
       if (!widgetName.startsWith('_')) {
         final info = {
           'name': WidgetUtils.toStringValue(element.widget.key),
-          'element': _getElementType(element) ?? widgetName,
+          'element': _getElementType(element)?.name ?? widgetName,
           'label': _getLabel(element, true),
         }..removeWhere((key, value) => value == null);
         if (info.isNotEmpty) {
@@ -548,8 +553,8 @@ class _SentryUserInteractionWidgetState
         label = widget.properties.label;
       } else if (widget is Icon) {
         label = widget.semanticLabel;
-      } else if (widget is Tooltip) {
-        label = widget.message;
+      } else if (widget is RawTooltip) {
+        label = widget.semanticsTooltip;
       }
 
       if (label?.isEmpty ?? true) {
@@ -560,16 +565,10 @@ class _SentryUserInteractionWidgetState
     return label;
   }
 
-  String? _getLabelRecursively(Element element) {
+  String? _getLabelRecursively(Element element, bool allowText) {
     String? label;
 
     if (_options?.sendDefaultPii ?? false) {
-      final widget = element.widget;
-      final allowText =
-          widget is ButtonStyleButton ||
-          widget is MaterialButton ||
-          widget is CupertinoButton;
-
       // traverse tree to find a suiting element
       void descriptionFinder(Element element) {
         label ??= _getLabel(element, allowText);
@@ -620,7 +619,11 @@ class _SentryUserInteractionWidgetState
 
       final type = _getElementType(element);
       if (type != null) {
-        tappedWidget = UserInteractionInfo(element: element, type: type);
+        tappedWidget = UserInteractionInfo(
+          element: element,
+          type: type.name,
+          allowText: type.allowText,
+        );
       }
 
       if (tappedWidget == null) {
@@ -639,36 +642,41 @@ class _SentryUserInteractionWidgetState
     return tappedWidget;
   }
 
-  String? _getElementType(Element element) {
+  _ElementType? _getElementType(Element element) {
     final widget = element.widget;
     // Used by ElevatedButton, TextButton, OutlinedButton.
     if (widget is ButtonStyleButton) {
       if (widget.enabled) {
-        return 'ButtonStyleButton';
+        return (name: 'ButtonStyleButton', allowText: true);
       }
     } else if (widget is MaterialButton) {
       if (widget.enabled) {
-        return 'MaterialButton';
+        return (name: 'MaterialButton', allowText: true);
       }
     } else if (widget is CupertinoButton) {
       if (widget.enabled) {
-        return 'CupertinoButton';
+        return (name: 'CupertinoButton', allowText: true);
       }
     } else if (widget is InkWell) {
       if (widget.onTap != null) {
-        return 'InkWell';
+        return (name: 'InkWell', allowText: false);
       }
     } else if (widget is IconButton) {
       if (widget.onPressed != null) {
-        return 'IconButton';
+        return (name: 'IconButton', allowText: false);
       }
     } else if (widget is PopupMenuButton) {
       if (widget.enabled) {
-        return 'PopupMenuButton';
+        return (name: 'PopupMenuButton', allowText: false);
       }
     } else if (widget is PopupMenuItem) {
       if (widget.enabled) {
-        return 'PopupMenuItem';
+        return (name: 'PopupMenuItem', allowText: false);
+      }
+    } else {
+      final name = _options?.userInteractionWidgetTypes.nameOf(widget);
+      if (name != null) {
+        return (name: name, allowText: true);
       }
     }
 

@@ -23,37 +23,14 @@ class RateLimiter {
         dropItems ??= [];
         dropItems.add(item);
 
-        final category = DataCategory.fromItemType(item.header.type);
-        if (category == DataCategory.logItem) {
-          TransportUtils.recordLostLogItem(
-            _options,
-            item,
-            DiscardReason.rateLimitBackoff,
-          );
-        } else if (category == DataCategory.metric) {
-          TransportUtils.recordLostMetricItem(
-            _options,
-            item,
-            DiscardReason.rateLimitBackoff,
-          );
-        } else {
-          _options.recorder.recordLostEvent(
-            DiscardReason.rateLimitBackoff,
-            category,
-          );
-        }
+        TransportUtils.recordLostItem(
+          _options,
+          item,
+          DiscardReason.rateLimitBackoff,
+        );
         internalLogger.warning(
           'Envelope item of type "${item.header.type}" was dropped due to rate limiting.',
         );
-
-        final originalObject = item.originalObject;
-        if (originalObject is SentryTransaction) {
-          _options.recorder.recordLostEvent(
-            DiscardReason.rateLimitBackoff,
-            DataCategory.span,
-            count: originalObject.spans.length + 1,
-          );
-        }
       }
     }
 

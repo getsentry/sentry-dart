@@ -118,6 +118,7 @@ class ScreenshotRecorder {
         callback,
         obscureItems,
         flow,
+        yieldToEventLoop,
       );
       executeTask(task, flow).onError((e, stackTrace) {
         _logError(e, stackTrace);
@@ -158,6 +159,20 @@ class ScreenshotRecorder {
     RenderRepaintBoundary renderObject,
     double pixelRatio,
   ) => renderObject.toImage(pixelRatio: pixelRatio);
+
+  /// Called between capture phases (after the image is rendered, after
+  /// masking, and before the final image is produced).
+  ///
+  /// The default is a no-op: awaiting an already-resolved [Future] doesn't
+  /// yield to the platform's event loop, so this preserves every existing
+  /// recorder's current behavior exactly. Flutter Web's recorder overrides
+  /// this to force a real yield between phases -- without it, the whole
+  /// capture pipeline runs as a single unbroken task that can block the
+  /// browser's main thread for the duration of a full capture (see #2897).
+  /// Not needed on other platforms, which don't run this pipeline on a
+  /// thread anything else shares.
+  @protected
+  Future<void> yieldToEventLoop() => Future.value();
 
   WidgetFilter? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
@@ -231,6 +246,7 @@ class _Capture<R> {
     Future<R> Function(Screenshot) callback,
     List<WidgetFilterItem>? obscureItems,
     Flow flow,
+    Future<void> Function() yieldToEventLoop,
   ) {
     final timestamp = DateTime.now();
 
@@ -250,20 +266,22 @@ class _Capture<R> {
       }
       final image = imageResult as Image;
 
-      Timeline.startSync('Sentry::renderScreenshot', flow: flow);
-      final recorder = PictureRecorder();
-      final canvas = Canvas(recorder);
-
       // Note: there's a weird bug when we write image to canvas directly.
       // If the UI is updating quickly in some apps, the image could get
       // out-of-sync with the UI and/or it can get completely mangled.
       // This can be reproduced, for example, by switching between Spotube's
       // Search vs Library (2nd and 3rd bottom bar buttons).
       // Weirdly, dumping the image data seems to prevent this issue...
+      // Done before yielding, so the UI can't update before the readback.
       {
         // we do so in a block so it can be GC'ed early.
         final _ = await image.toByteData();
       }
+      await yieldToEventLoop();
+
+      Timeline.startSync('Sentry::renderScreenshot', flow: flow);
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder);
 
       try {
         canvas.drawImage(image, Offset.zero, Paint());
@@ -277,6 +295,7 @@ class _Capture<R> {
 
       final picture = recorder.endRecording();
       Timeline.finishSync(); // Sentry::renderScreenshot
+      await yieldToEventLoop();
 
       late Image finalImage;
       try {
@@ -286,6 +305,7 @@ class _Capture<R> {
       } finally {
         picture.dispose();
       }
+      await yieldToEventLoop();
 
       final screenshot = Screenshot(finalImage, timestamp, flow);
       try {

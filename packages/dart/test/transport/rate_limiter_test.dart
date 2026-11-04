@@ -437,6 +437,35 @@ void main() {
       expect(lostLog.count, logs.length);
       expect(lostLog.bytes, greaterThan(0));
     });
+    test('span', () {
+      final rateLimiter = fixture.getSut();
+      fixture.dateTimeToReturn = 0;
+
+      final spans = [
+        [1, 2, 3],
+        [4, 5],
+        [6],
+      ];
+      final envelope = SentryEnvelope.fromSpansData(
+        spans,
+        SdkVersion(name: 'test', version: 'test'),
+        inferUserData: false,
+      );
+
+      rateLimiter.updateRetryAfterLimits(
+        '1:span:key, 5:span:organization',
+        null,
+        1,
+      );
+
+      final result = rateLimiter.filter(envelope);
+      expect(result, isNull);
+
+      final lostSpans = fixture.mockRecorder.discardedEvents.single;
+      expect(lostSpans.reason, DiscardReason.rateLimitBackoff);
+      expect(lostSpans.category, DataCategory.span);
+      expect(lostSpans.quantity, 3);
+    });
   });
 
   group('$DataCategory', () {
@@ -450,6 +479,7 @@ void main() {
       );
       expect(DataCategory.fromItemType('statsd'), DataCategory.metricBucket);
       expect(DataCategory.fromItemType('log'), DataCategory.logItem);
+      expect(DataCategory.fromItemType('span'), DataCategory.span);
       expect(DataCategory.fromItemType('unknown'), DataCategory.unknown);
     });
   });

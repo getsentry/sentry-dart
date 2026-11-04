@@ -5,6 +5,11 @@ import 'package:meta/meta.dart';
 class UserInteractionInfo {
   final Element element;
   final String type;
+  final bool allowText;
 
-  const UserInteractionInfo({required this.element, required this.type});
+  const UserInteractionInfo({
+    required this.element,
+    required this.type,
+    required this.allowText,
+  });
 }

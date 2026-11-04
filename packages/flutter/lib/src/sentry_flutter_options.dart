@@ -15,6 +15,7 @@ import 'screenshot/sentry_screenshot_quality.dart';
 import 'screen_capture/sentry_privacy_options.dart';
 import 'replay/sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
+import 'user_interaction/user_interaction_widget_types.dart';
 import 'feedback/sentry_feedback_options.dart';
 
 /// This class adds options which are only available in a Flutter environment.
@@ -212,6 +213,55 @@ class SentryFlutterOptions extends SentryOptions {
   /// Example:
   /// runApp(SentryWidget(child: App()));
   bool enableUserInteractionTracing = true;
+
+  @meta.internal
+  final userInteractionWidgetTypes = UserInteractionWidgetTypes();
+
+  /// Tracks taps on widgets of type [T] (or subclasses of [T]) for user
+  /// interaction breadcrumbs and tracing.
+  ///
+  /// The SDK recognizes the common tappable widgets of
+  /// `package:flutter/material.dart` and `package:flutter/cupertino.dart`.
+  /// Use this for other widgets, for example the ones from
+  /// `package:material_ui` and `package:cupertino_ui`:
+  ///
+  /// ```dart
+  /// options
+  ///   ..addUserInteractionWidget<ButtonStyleButton>(
+  ///     'ButtonStyleButton',
+  ///     isEnabled: (widget) => widget.enabled,
+  ///   )
+  ///   ..addUserInteractionWidget<IconButton>(
+  ///     'IconButton',
+  ///     isEnabled: (widget) => widget.onPressed != null,
+  ///   );
+  /// ```
+  ///
+  /// To match the built-in support, add the same types from these packages:
+  /// `ButtonStyleButton`, `MaterialButton`, `CupertinoButton`, `InkWell`,
+  /// `IconButton`, `PopupMenuButton` and `PopupMenuItem`.
+  ///
+  /// [name] is reported as the `view.class` of the breadcrumb. Pass a fixed
+  /// string, since type names are minified or obfuscated in release builds.
+  ///
+  /// Taps are tracked only while [isEnabled] returns `true`, or always if it
+  /// is not set.
+  ///
+  /// If [sendDefaultPii] is enabled, the breadcrumb label is read from the
+  /// widget's descendants, including [Text].
+  ///
+  /// Built-in widgets keep their built-in name, and the outermost tracked
+  /// widget at the tap position wins. Avoid broad types such as
+  /// [GestureDetector], which would hide the widgets inside them.
+  void addUserInteractionWidget<T extends Widget>(
+    String name, {
+    bool Function(T widget)? isEnabled,
+  }) {
+    assert(T != Widget, 'Pass a widget type, for example <IconButton>.');
+    userInteractionWidgetTypes.addWidget<T>(name, isEnabled: isEnabled);
+    // ignore: invalid_use_of_internal_member
+    sdk.addFeature(SentryFeatures.userInteractionWidgetTypes);
+  }
 
   /// Enable or disable the tracing of time to full display (TTFD).
   /// If `SentryFlutter.reportFullyDisplayed()` is not called within 30 seconds

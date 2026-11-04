@@ -59,6 +59,7 @@ class SentryFeatures {
   static const String replayNetworkDetailsCapturing =
       'replayNetworkDetailsCapturing';
   static const String standaloneAppStartTracing = 'standaloneAppStartTracing';
+  static const String userInteractionWidgetTypes = 'userInteractionWidgetTypes';
 }
 
 /// Semantic attributes for telemetry.

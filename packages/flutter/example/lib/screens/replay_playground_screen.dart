@@ -1,4 +1,3 @@
-// SentryMask / SentryUnmask are @experimental and used throughout.
 // ignore_for_file: experimental_member_use
 
 import 'dart:math' as math;

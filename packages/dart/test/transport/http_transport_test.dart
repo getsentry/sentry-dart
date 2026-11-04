@@ -157,6 +157,35 @@ void main() {
       },
     );
 
+    test('records lost span count when client throws exception', () async {
+      final httpMock = MockClient((http.Request request) async {
+        throw http.ClientException(
+          'Connection closed before full header was received',
+        );
+      });
+
+      fixture.options.automatedTestMode = false;
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final spans = [
+        [1, 2, 3],
+        [4, 5],
+        [6],
+      ];
+      final envelope = SentryEnvelope.fromSpansData(
+        spans,
+        fixture.options.sdk,
+        inferUserData: false,
+      );
+
+      await sut.send(envelope);
+
+      final lostSpans = fixture.clientReportRecorder.discardedEvents.single;
+      expect(lostSpans.reason, DiscardReason.networkError);
+      expect(lostSpans.category, DataCategory.span);
+      expect(lostSpans.quantity, 3);
+    });
+
     test(
       'records lost transaction and spans when client throws exception',
       () async {
