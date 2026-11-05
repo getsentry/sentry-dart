@@ -15,9 +15,10 @@ extension UnhandledErrorSpanStatus on Hub {
     if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       getActiveSpan()?.status = SentrySpanStatusV2.error;
     } else {
-      configureScope(
-        (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-      );
+      // Use `traceScope` so that a transaction bound inside a
+      // `startNewTrace` callback (which lives on the zone-forked scope)
+      // is reached — not the hub scope that `configureScope` would see.
+      traceScope.span?.status ??= const SpanStatus.internalError();
     }
   }
 }
