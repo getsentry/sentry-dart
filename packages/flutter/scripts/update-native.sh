@@ -19,7 +19,11 @@ get-repo)
     ;;
 set-version)
     newValue="${BASH_REMATCH[1]}=$2"
-    echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
+    content="${content/${BASH_REMATCH[0]}/$newValue}"
+    # Keep the release zip hash in sync, see SENTRY_NATIVE_FETCH_METHOD=zip.
+    repo=$(echo "$content" | grep -w repo | cut -d '=' -f 2 | tr -d '\n')
+    sha256=$(curl -fsSL "$repo/releases/download/$2/sentry-native.zip" | sha256sum | cut -d ' ' -f 1)
+    echo "$content" | sed "s/^sha256=.*/sha256=$sha256/" >$file
     pwsh ../scripts/generate-native-bindings.ps1 "$2"
     ;;
 *)
