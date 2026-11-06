@@ -91,16 +91,26 @@ class ScreenshotRecorder {
 
       final capture = _Capture<R>.create(renderObject, config!, context);
 
+      // Masking runs first so a frame that is going to be skipped is never
+      // rendered. Both run before any async gap, so the masks still match.
+      Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
+      final filter = _obscureSync(capture);
+      Timeline.finishSync(); // Sentry::captureScreenshot:Masking
+
+      if (skipsFrozenFrames && (filter?.hasFrozenSnapshot ?? false)) {
+        internalLogger.debug(
+          () => '$logName: skipping capture, a snapshot is frozen.',
+        );
+        return Future.value(null);
+      }
+      final obscureItems = filter?.items;
+
       Timeline.startSync(
         'Sentry::captureScreenshot:RenderObjectToImage',
         flow: flow,
       );
       final futureImage = renderImage(renderObject, capture.pixelRatio);
       Timeline.finishSync(); // Sentry::captureScreenshot:RenderObjectToImage
-
-      Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
-      final obscureItems = _obscureSync(capture);
-      Timeline.finishSync(); // Sentry::captureScreenshot:Masking
 
       // Then we draw the image and obscure masks later, asynchronously.
       final task = capture.createTask(
@@ -118,7 +128,6 @@ class ScreenshotRecorder {
           capture._completer.complete(null);
         }
       });
-      Timeline.finishSync(); // Sentry::captureScreenshot
       return capture.future;
     } catch (e, stackTrace) {
       _logError(e, stackTrace);
@@ -127,6 +136,8 @@ class ScreenshotRecorder {
       } else {
         return Future.value(null);
       }
+    } finally {
+      Timeline.finishSync(); // Sentry::captureScreenshot
     }
   }
 
@@ -136,6 +147,12 @@ class ScreenshotRecorder {
     // first await, i.e. it's the same as if the code was executed directly.
     return Future.sync(task);
   }
+
+  /// Whether to skip frames in which a [widgets.SnapshotWidget] shows a
+  /// frozen image of its child, e.g. during Flutter's zoom page transition.
+  /// Masking covers such snapshots whole, so these frames show little.
+  @protected
+  bool get skipsFrozenFrames => false;
 
   @protected
   Future<Image> renderImage(
@@ -157,7 +174,7 @@ class ScreenshotRecorder {
   @protected
   Future<void> yieldToEventLoop() => Future.value();
 
-  List<WidgetFilterItem>? _obscureSync(_Capture<dynamic> capture) {
+  WidgetFilter? _obscureSync(_Capture<dynamic> capture) {
     if (_maskingConfig != null) {
       final filter = WidgetFilter(_maskingConfig);
       final colorScheme = capture.context.findColorScheme();
@@ -166,7 +183,7 @@ class ScreenshotRecorder {
         context: capture.context,
         colorScheme: colorScheme,
       );
-      return filter.items;
+      return filter;
     }
     return null;
   }

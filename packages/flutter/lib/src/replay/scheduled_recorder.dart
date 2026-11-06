@@ -21,6 +21,14 @@ class ScheduledScreenshotRecorder extends ReplayScreenshotRecorder {
   int _schedulerRestartGeneration = 0;
   // late final _idleFrameFiller = _IdleFrameFiller(_frameDuration, _onScreenshot);
 
+  /// The replay keeps showing the previous frame for a skipped one, which is
+  /// closer to what was on screen than a covered frame. Only recorders that
+  /// schedule their own captures may skip: the iOS SDK requests each frame
+  /// and stops requesting more if one never arrives.
+  @override
+  @protected
+  bool get skipsFrozenFrames => true;
+
   @override
   @protected
   ScheduledScreenshotRecorderConfig get config =>

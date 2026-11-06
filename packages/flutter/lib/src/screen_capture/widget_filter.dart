@@ -17,6 +17,18 @@ class WidgetFilter {
   late List<Element> _visitList;
   final _warnedWidgets = <int>{};
 
+  /// Transforms that [SnapshotWidget] painters apply to their child while
+  /// painting, keyed by the snapshot's render object. These are invisible to
+  /// [RenderObject.getTransformTo], e.g. the scale of [ZoomPageTransitionsBuilder].
+  final _paintTransforms = <RenderObject, Matrix4>{};
+
+  /// Whether the last [obscure] found a [SnapshotWidget] showing a snapshot,
+  /// i.e. an image of its child taken earlier, like Flutter's zoom page
+  /// transition does on native platforms. It is covered with the background,
+  /// so [items] can't leak it, but the frame is then of little use.
+  bool get hasFrozenSnapshot => _hasFrozenSnapshot;
+  var _hasFrozenSnapshot = false;
+
   /// Used to test _obscureElementOrParent
   @visibleForTesting
   bool throwInObscure = false;
@@ -38,6 +50,8 @@ class WidgetFilter {
 
     // clear the output list
     items.clear();
+    _paintTransforms.clear();
+    _hasFrozenSnapshot = false;
 
     // Reset the list of elements we're going to process.
     // Then do a breadth-first tree traversal on all the widgets.
@@ -67,6 +81,22 @@ class WidgetFilter {
       return;
     }
 
+    // The traversal is breadth-first, so this runs before any descendant
+    // is masked.
+    if (widget is SnapshotWidget) {
+      _recordPaintTransform(element, widget);
+      if (widget.controller.allowSnapshotting) {
+        // The frame shows an image of the child taken earlier, so where its
+        // content is now may not be where it was painted. Cover it, and let
+        // the masks of its content, which come later, draw on top.
+        _hasFrozenSnapshot = true;
+        final item = _obscureSnapshotOrParent(element, widget);
+        if (item != null) {
+          items.add(item);
+        }
+      }
+    }
+
     final decision = config.shouldMask(element, widget);
     switch (decision) {
       case SentryMaskingDecision.mask:
@@ -92,10 +122,50 @@ class WidgetFilter {
   /// If the widget is offscreen, returns null.
   /// If the widget cannot be obscured, obscures the parent.
   @pragma('vm:prefer-inline')
-  WidgetFilterItem? _obscureElementOrParent(Element element, Widget widget) {
+  WidgetFilterItem? _obscureElementOrParent(Element element, Widget widget) =>
+      _obscureOrParent(element, widget, _obscure);
+
+  /// Covers the area [widget] paints its snapshot to, or its parent if that
+  /// fails.
+  ///
+  /// [SnapshotPainter.paintSnapshot] can't be run without an image, so where
+  /// the snapshot ends up is estimated from [SnapshotPainter.paint]: the
+  /// cover spans where the child is painted, the box itself, which is where
+  /// the default painter draws the image, and the painted size centered on
+  /// the box, which is where [ZoomPageTransitionsBuilder] draws it.
+  WidgetFilterItem? _obscureSnapshotOrParent(
+    Element element,
+    SnapshotWidget widget,
+  ) => _obscureOrParent(element, widget, (element, widget) {
+    final box = element.renderObject as RenderBox;
+    var rect = _boundingBox(box);
+    final paintTransform = _paintTransforms[box];
+    if (paintTransform != null) {
+      final painted = MatrixUtils.transformRect(
+        _transformTo(box).multiplied(paintTransform),
+        box.paintBounds,
+      );
+      final centered = Rect.fromCenter(
+        center: rect.center,
+        width: painted.width,
+        height: painted.height,
+      );
+      rect = rect.expandToInclude(painted).expandToInclude(centered);
+    }
+    return rect.overlaps(_bounds)
+        ? WidgetFilterItem(_scheme.background, rect)
+        : null;
+  });
+
+  @pragma('vm:prefer-inline')
+  WidgetFilterItem? _obscureOrParent(
+    Element element,
+    Widget widget,
+    WidgetFilterItem? Function(Element, Widget) obscure,
+  ) {
     while (true) {
       try {
-        return _obscure(element, widget);
+        return obscure(element, widget);
       } catch (e, stackTrace) {
         final parent = element.parent;
         if (!_warnedWidgets.contains(widget.hashCode)) {
@@ -220,10 +290,203 @@ class WidgetFilter {
   }
 
   @pragma('vm:prefer-inline')
-  Rect _boundingBox(RenderBox box) {
-    final transform = box.getTransformTo(_root);
-    return MatrixUtils.transformRect(transform, box.paintBounds);
+  Rect _boundingBox(RenderBox box) =>
+      MatrixUtils.transformRect(_transformTo(box), box.paintBounds);
+
+  @pragma('vm:prefer-inline')
+  Matrix4 _transformTo(RenderBox box) => _paintTransforms.isEmpty
+      ? box.getTransformTo(_root)
+      : _getTransformWithPaintTransforms(box);
+
+  /// Like [RenderObject.getTransformTo] with [_root], but also applies the
+  /// recorded [_paintTransforms] of the ancestors [box] is painted under.
+  Matrix4 _getTransformWithPaintTransforms(RenderBox box) {
+    RenderObject from = box;
+    var transform = Matrix4.identity();
+    for (
+      var node = box.parent;
+      node != null && node != _root;
+      node = node.parent
+    ) {
+      final paintTransform = _paintTransforms[node];
+      if (paintTransform != null) {
+        transform = paintTransform.multiplied(from.getTransformTo(node))
+          ..multiply(transform);
+        from = node;
+      }
+    }
+    return from.getTransformTo(_root)..multiply(transform);
   }
+
+  void _recordPaintTransform(Element element, SnapshotWidget widget) {
+    final renderObject = element.renderObject;
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      return;
+    }
+    try {
+      final transform = _PaintTransformRecorder.record(
+        widget.painter,
+        renderObject.size,
+      );
+      if (transform != null && !transform.isIdentity()) {
+        _paintTransforms[renderObject] = transform;
+      }
+    } catch (e, stackTrace) {
+      internalLogger.warning(
+        () => 'WidgetFilter cannot read the paint transform of $widget: $e',
+        stackTrace: stackTrace,
+      );
+    }
+  }
+}
+
+/// Runs a [SnapshotPainter] against a throwaway layer to read the transform
+/// it paints its child with, which Flutter only applies while painting.
+///
+/// The painter must not notice: the child is never painted, no layer is
+/// changed or added, and every push returns the `oldLayer` it was given, so
+/// the painter's layer handles keep the layers they hold for the real frame.
+class _PaintTransformRecorder extends PaintingContext {
+  _PaintTransformRecorder(ContainerLayer layer, Size size)
+    : super(layer, Offset.zero & size);
+
+  Matrix4 _current = Matrix4.identity();
+  Matrix4? _childTransform;
+
+  /// Returns the transform [painter] paints its child with, relative to the
+  /// snapshot's own box, or null if the child would not be painted.
+  static Matrix4? record(SnapshotPainter painter, Size size) {
+    final layer = ContainerLayer();
+    final recorder = _PaintTransformRecorder(layer, size);
+    try {
+      painter.paint(recorder, Offset.zero, size, recorder._paintChild);
+      return recorder._childTransform;
+    } finally {
+      recorder.stopRecordingIfNeeded();
+      layer.dispose();
+    }
+  }
+
+  void _paintChild(PaintingContext context, Offset offset) {
+    _childTransform ??= _current.clone()
+      ..translateByDouble(offset.dx, offset.dy, 0, 1);
+  }
+
+  @override
+  TransformLayer? pushTransform(
+    bool needsCompositing,
+    Offset offset,
+    Matrix4 transform,
+    PaintingContextCallback painter, {
+    TransformLayer? oldLayer,
+  }) {
+    final previous = _current;
+    _current = previous.multiplied(
+      Matrix4.translationValues(offset.dx, offset.dy, 0)
+        ..multiply(transform)
+        ..translateByDouble(-offset.dx, -offset.dy, 0, 1),
+    );
+    try {
+      painter(this, offset);
+    } finally {
+      _current = previous;
+    }
+    return oldLayer;
+  }
+
+  @override
+  OpacityLayer pushOpacity(
+    Offset offset,
+    int alpha,
+    PaintingContextCallback painter, {
+    OpacityLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer ?? OpacityLayer();
+  }
+
+  // The overrides below only paint the child, without touching any layer:
+  // the inherited ones update `oldLayer` and move it into this context's
+  // throwaway layer, which takes it, and its children, out of the frame.
+
+  @override
+  ClipRectLayer? pushClipRect(
+    bool needsCompositing,
+    Offset offset,
+    Rect clipRect,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.hardEdge,
+    ClipRectLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ClipRRectLayer? pushClipRRect(
+    bool needsCompositing,
+    Offset offset,
+    Rect bounds,
+    RRect clipRRect,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.antiAlias,
+    ClipRRectLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ClipRSuperellipseLayer? pushClipRSuperellipse(
+    bool needsCompositing,
+    Offset offset,
+    Rect bounds,
+    RSuperellipse clipRSuperellipse,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.antiAlias,
+    ClipRSuperellipseLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ClipPathLayer? pushClipPath(
+    bool needsCompositing,
+    Offset offset,
+    Rect bounds,
+    Path clipPath,
+    PaintingContextCallback painter, {
+    Clip clipBehavior = Clip.antiAlias,
+    ClipPathLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer;
+  }
+
+  @override
+  ColorFilterLayer pushColorFilter(
+    Offset offset,
+    ColorFilter colorFilter,
+    PaintingContextCallback painter, {
+    ColorFilterLayer? oldLayer,
+  }) {
+    painter(this, offset);
+    return oldLayer ?? ColorFilterLayer();
+  }
+
+  @override
+  void pushLayer(
+    ContainerLayer childLayer,
+    PaintingContextCallback painter,
+    Offset offset, {
+    Rect? childPaintBounds,
+  }) {
+    painter(this, offset);
+  }
+
+  @override
+  void addLayer(Layer layer) {}
 }
 
 @internal
