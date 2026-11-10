@@ -4,7 +4,9 @@ name: Native SDK Bump Recheck
 # Junior's PR-opened automation does not see it. Mentioning Junior makes it
 # re-check the new version. The updater also force-pushes these branches on
 # every push to main without changing the version, so only comment when the
-# native SDK version actually changed.
+# native SDK version actually changed. No concurrency group: each run only
+# compares its own push, so cancelling or replacing a run could drop the one
+# push that changed the version.
 on:
   pull_request:
     types: [synchronize]
@@ -12,10 +14,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref }}
-  cancel-in-progress: true
 
 jobs:
   request-recheck:
