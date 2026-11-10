@@ -20,8 +20,9 @@ void main() {
     });
 
     test('GET: happy path', () async {
-      final sut =
-          fixture.getSut(fixture.getClient(statusCode: 200, reason: 'OK'));
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
 
       final response = await sut.get<dynamic>('');
       expect(response.statusCode, 200);
@@ -150,38 +151,40 @@ void main() {
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
-    test('breadcrumb gets added when DioException with response is thrown',
-        () async {
-      final sut = fixture.getSut(
-        DioExceptionWithResponseAdapter(
-          statusCode: 404,
-          statusMessage: 'Not Found',
-          headers: {
-            'content-length': ['123'],
-          },
-        ),
-      );
+    test(
+      'breadcrumb gets added when DioException with response is thrown',
+      () async {
+        final sut = fixture.getSut(
+          DioExceptionWithResponseAdapter(
+            statusCode: 404,
+            statusMessage: 'Not Found',
+            headers: {
+              'content-length': ['123'],
+            },
+          ),
+        );
 
-      try {
-        await sut.get<dynamic>('');
-        fail('Method did not throw');
-      } on DioException catch (_) {}
+        try {
+          await sut.get<dynamic>('');
+          fail('Method did not throw');
+        } on DioException catch (_) {}
 
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
+        expect(fixture.hub.addBreadcrumbCalls.length, 1);
 
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+        final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com');
-      expect(breadcrumb.data?['method'], 'GET');
-      expect(breadcrumb.data?['http.query'], 'foo=bar');
-      expect(breadcrumb.data?['http.fragment'], 'baz');
-      expect(breadcrumb.level, SentryLevel.error);
-      expect(breadcrumb.data?['duration'], isNotNull);
-      expect(breadcrumb.data?['status_code'], 404);
-      expect(breadcrumb.data?['reason'], 'Not Found');
-      expect(breadcrumb.data?['response_body_size'], 123);
-    });
+        expect(breadcrumb.type, 'http');
+        expect(breadcrumb.data?['url'], 'https://example.com');
+        expect(breadcrumb.data?['method'], 'GET');
+        expect(breadcrumb.data?['http.query'], 'foo=bar');
+        expect(breadcrumb.data?['http.fragment'], 'baz');
+        expect(breadcrumb.level, SentryLevel.error);
+        expect(breadcrumb.data?['duration'], isNotNull);
+        expect(breadcrumb.data?['status_code'], 404);
+        expect(breadcrumb.data?['reason'], 'Not Found');
+        expect(breadcrumb.data?['response_body_size'], 123);
+      },
+    );
 
     test('close does get called for user defined client', () async {
       final mockHub = MockHub();
@@ -198,7 +201,7 @@ void main() {
 
     test('Breadcrumb has correct duration', () async {
       final sut = fixture.getSut(
-        MockHttpClientAdapter((options, _, __) async {
+        MockHttpClientAdapter((options, _, _) async {
           expect(options.uri, Uri.parse('https://example.com?foo=bar#baz'));
           await Future<void>.delayed(Duration(seconds: 1));
           return ResponseBody.fromString('', 200);
@@ -260,9 +263,7 @@ class DioExceptionWithResponseAdapter implements HttpClientAdapter {
 class Fixture {
   Dio getSut([HttpClientAdapter? client]) {
     final mc = client ?? getClient();
-    final dio = Dio(
-      BaseOptions(baseUrl: 'https://example.com?foo=bar#baz'),
-    );
+    final dio = Dio(BaseOptions(baseUrl: 'https://example.com?foo=bar#baz'));
     dio.httpClientAdapter = BreadcrumbClientAdapter(client: mc, hub: hub);
     return dio;
   }
@@ -273,10 +274,7 @@ class Fixture {
     return MockHttpClientAdapter((request, requestStream, cancelFuture) async {
       expect(request.uri, Uri.parse('https://example.com?foo=bar#baz'));
 
-      return ResponseBody.fromString(
-        '',
-        statusCode,
-      );
+      return ResponseBody.fromString('', statusCode);
     });
   }
 }

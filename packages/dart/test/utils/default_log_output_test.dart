@@ -27,7 +27,7 @@ void main() {
           );
         },
         zoneSpecification: ZoneSpecification(
-          print: (_, __, ___, line) => captured.add(line),
+          print: (_, _, _, line) => captured.add(line),
         ),
       );
 

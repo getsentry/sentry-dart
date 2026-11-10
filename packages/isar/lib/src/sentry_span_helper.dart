@@ -35,10 +35,11 @@ class SentrySpanHelper {
             description: description,
             origin: _origin,
             data: {
-              SentryIsar.dbSystemKey: SentryIsar.dbSystem,
-              if (dbName != null) SentryIsar.dbNameKey: dbName,
+              SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
+              if (dbName != null)
+                SemanticAttributesConstants.dbNamespace: dbName,
               if (collectionName != null)
-                SentryIsar.dbCollectionKey: collectionName,
+                SemanticAttributesConstants.dbCollectionName: collectionName,
             },
           )
         : null;
@@ -46,9 +47,9 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SentryIsar.dbSystemKey: SentryIsar.dbSystem,
-        if (dbName != null) SentryIsar.dbNameKey: dbName,
-        if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
+        SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
+        SemanticAttributesConstants.dbNamespace: ?dbName,
+        SemanticAttributesConstants.dbCollectionName: ?collectionName,
       },
       type: 'query',
     );
@@ -86,10 +87,11 @@ class SentrySpanHelper {
             description: description,
             origin: _origin,
             data: {
-              SentryIsar.dbSystemKey: SentryIsar.dbSystem,
-              if (dbName != null) SentryIsar.dbNameKey: dbName,
+              SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
+              if (dbName != null)
+                SemanticAttributesConstants.dbNamespace: dbName,
               if (collectionName != null)
-                SentryIsar.dbCollectionKey: collectionName,
+                SemanticAttributesConstants.dbCollectionName: collectionName,
             },
             isSynchronous: true,
           )
@@ -98,9 +100,9 @@ class SentrySpanHelper {
     final breadcrumb = Breadcrumb(
       message: description,
       data: {
-        SentryIsar.dbSystemKey: SentryIsar.dbSystem,
-        if (dbName != null) SentryIsar.dbNameKey: dbName,
-        if (collectionName != null) SentryIsar.dbCollectionKey: collectionName,
+        SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
+        SemanticAttributesConstants.dbNamespace: ?dbName,
+        SemanticAttributesConstants.dbCollectionName: ?collectionName,
       },
       type: 'query',
     );

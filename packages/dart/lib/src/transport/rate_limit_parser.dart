@@ -31,16 +31,19 @@ class RateLimitParser {
         final categoryValues = allCategories.split(';');
         for (final categoryValue in categoryValues) {
           final category = _DataCategoryExtension._fromStringValue(
-              categoryValue); // Metric buckets rate limit can have namespaces
+            categoryValue,
+          ); // Metric buckets rate limit can have namespaces
           if (category == DataCategory.metricBucket) {
             final namespaces = durationAndCategories.length > 4
                 ? durationAndCategories[4]
                 : null;
-            rateLimits.add(RateLimit(
-              category,
-              duration,
-              namespaces: namespaces?.trim().split(','),
-            ));
+            rateLimits.add(
+              RateLimit(
+                category,
+                duration,
+                namespaces: namespaces?.trim().split(','),
+              ),
+            );
           } else if (category != DataCategory.unknown) {
             rateLimits.add(RateLimit(category, duration));
           }

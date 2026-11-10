@@ -24,13 +24,18 @@ jobs:
           ]
     defaults:
       run:
-        working-directory: ${{ matrix.package.name }}
+        working-directory: packages/${{ matrix.package.name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # pin@v1.8.1
-        if: ${{ matrix.package.sdk == 'dart' }}
+      - name: Read development Flutter version
+        id: toolchain
+        working-directory: ${{ github.workspace }}
+        run: |
+          flutter_version=$(jq -er '.flutter' .fvmrc)
+          echo "flutter=$flutter_version" >> "$GITHUB_OUTPUT"
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
-        if: ${{ matrix.package.sdk == 'flutter' }}
+        with:
+          flutter-version: ${{ steps.toolchain.outputs.flutter }}
 
       - run: ${{ matrix.package.sdk }} pub get
 
@@ -49,5 +54,6 @@ jobs:
         # GITHUB_HEAD_REF is the name of the head branch. GitHub Actions only sets this for PRs.
       - name: Commit & push
         run: ./scripts/commit-code.sh "$BRANCH_NAME" "Format & fix code"
+        working-directory: ${{ github.workspace }}
         env:
           BRANCH_NAME: ${{ steps.extract_branch.outputs.branch }}

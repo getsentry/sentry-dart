@@ -207,14 +207,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import '../../sentry_flutter.dart';
-import '../widget_utils.dart';
+import '../utils/widget_utils.dart';
+import '../utils/internal_logger.dart';
 import 'user_interaction_info.dart';
 
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
+
+typedef _ElementType = ({String name, bool allowText});
 
 /// Enables the Auto instrumentation for user interaction tracing.
 /// It starts a transaction and finishes after the timeout.
@@ -224,6 +227,9 @@ Element? _clickTrackerElement;
 /// [ButtonStyleButton], [MaterialButton], [CupertinoButton], [InkWell],
 /// [IconButton], [PopupMenuButton] and [PopupMenuItem].
 /// Mostly for onPressed, onTap, and onLongPress events
+///
+/// Other widgets, for example the ones from `package:material_ui`, can be
+/// added with [SentryFlutterOptions.addUserInteractionWidget].
 ///
 /// Example on how to set up:
 /// runApp(SentryWidget(child: App()));
@@ -298,10 +304,9 @@ class _SentryUserInteractionWidgetState
       _lastPointerId = event.pointer;
       _lastPointerDownLocation = event.localPosition;
     } catch (exception, stacktrace) {
-      _options?.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error while handling pointer-down event $event in $SentryUserInteractionWidget',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_options?.automatedTestMode ?? false) {
@@ -327,10 +332,9 @@ class _SentryUserInteractionWidgetState
         _onTappedAt(event.localPosition);
       }
     } catch (exception, stacktrace) {
-      _options?.log(
-        SentryLevel.error,
+      internalLogger.error(
         'Error while handling pointer-up event $event in $SentryUserInteractionWidget',
-        exception: exception,
+        error: exception,
         stackTrace: stacktrace,
       );
       if (_options?.automatedTestMode ?? false) {
@@ -359,11 +363,8 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    final label = _getLabelRecursively(info.element);
-    final data = {
-      'path': _getTouchPath(info.element),
-      if (label != null) 'label': label
-    };
+    final label = _getLabelRecursively(info.element, info.allowText);
+    final data = {'path': _getTouchPath(info.element), 'label': ?label};
 
     final crumb = Breadcrumb.userInteraction(
       subCategory: 'click',
@@ -388,7 +389,7 @@ class _SentryUserInteractionWidgetState
       if (!widgetName.startsWith('_')) {
         final info = {
           'name': WidgetUtils.toStringValue(element.widget.key),
-          'element': _getElementType(element) ?? widgetName,
+          'element': _getElementType(element)?.name ?? widgetName,
           'label': _getLabel(element, true),
         }..removeWhere((key, value) => value == null);
         if (info.isNotEmpty) {
@@ -428,7 +429,8 @@ class _SentryUserInteractionWidgetState
 
       if (activeSpan is IdleRecordingSentrySpanV2) {
         final lastElement = _lastTappedWidget?.element;
-        final isSameWidget = _isElementMounted(lastElement) &&
+        final isSameWidget =
+            _isElementMounted(lastElement) &&
             _isElementMounted(info.element) &&
             lastElement?.widget == info.element.widget;
 
@@ -456,10 +458,12 @@ class _SentryUserInteractionWidgetState
       idleTimeout: const Duration(seconds: 1),
       widgetKey,
       attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(SentrySpanOperations.uiActionClick),
-        SemanticAttributesConstants.sentryOrigin:
-            SentryAttribute.string(SentryTraceOrigins.autoUiInteraction),
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          SentrySpanOperations.uiActionClick,
+        ),
+        SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+          SentryTraceOrigins.autoUiInteraction,
+        ),
         SemanticAttributesConstants.sentrySegmentNameSource:
             SentryAttribute.string(SentryTransactionNameSource.component.name),
       },
@@ -549,8 +553,8 @@ class _SentryUserInteractionWidgetState
         label = widget.properties.label;
       } else if (widget is Icon) {
         label = widget.semanticLabel;
-      } else if (widget is Tooltip) {
-        label = widget.message;
+      } else if (widget is RawTooltip) {
+        label = widget.semanticsTooltip;
       }
 
       if (label?.isEmpty ?? true) {
@@ -561,15 +565,10 @@ class _SentryUserInteractionWidgetState
     return label;
   }
 
-  String? _getLabelRecursively(Element element) {
+  String? _getLabelRecursively(Element element, bool allowText) {
     String? label;
 
     if (_options?.sendDefaultPii ?? false) {
-      final widget = element.widget;
-      final allowText = widget is ButtonStyleButton ||
-          widget is MaterialButton ||
-          widget is CupertinoButton;
-
       // traverse tree to find a suiting element
       void descriptionFinder(Element element) {
         label ??= _getLabel(element, allowText);
@@ -609,8 +608,10 @@ class _SentryUserInteractionWidgetState
       }
 
       final transform = renderObject.getTransformTo(rootElement.renderObject);
-      final paintBounds =
-          MatrixUtils.transformRect(transform, renderObject.paintBounds);
+      final paintBounds = MatrixUtils.transformRect(
+        transform,
+        renderObject.paintBounds,
+      );
 
       if (!paintBounds.contains(position)) {
         return;
@@ -620,7 +621,8 @@ class _SentryUserInteractionWidgetState
       if (type != null) {
         tappedWidget = UserInteractionInfo(
           element: element,
-          type: type,
+          type: type.name,
+          allowText: type.allowText,
         );
       }
 
@@ -640,36 +642,41 @@ class _SentryUserInteractionWidgetState
     return tappedWidget;
   }
 
-  String? _getElementType(Element element) {
+  _ElementType? _getElementType(Element element) {
     final widget = element.widget;
     // Used by ElevatedButton, TextButton, OutlinedButton.
     if (widget is ButtonStyleButton) {
       if (widget.enabled) {
-        return 'ButtonStyleButton';
+        return (name: 'ButtonStyleButton', allowText: true);
       }
     } else if (widget is MaterialButton) {
       if (widget.enabled) {
-        return 'MaterialButton';
+        return (name: 'MaterialButton', allowText: true);
       }
     } else if (widget is CupertinoButton) {
       if (widget.enabled) {
-        return 'CupertinoButton';
+        return (name: 'CupertinoButton', allowText: true);
       }
     } else if (widget is InkWell) {
       if (widget.onTap != null) {
-        return 'InkWell';
+        return (name: 'InkWell', allowText: false);
       }
     } else if (widget is IconButton) {
       if (widget.onPressed != null) {
-        return 'IconButton';
+        return (name: 'IconButton', allowText: false);
       }
     } else if (widget is PopupMenuButton) {
       if (widget.enabled) {
-        return 'PopupMenuButton';
+        return (name: 'PopupMenuButton', allowText: false);
       }
     } else if (widget is PopupMenuItem) {
       if (widget.enabled) {
-        return 'PopupMenuItem';
+        return (name: 'PopupMenuItem', allowText: false);
+      }
+    } else {
+      final name = _options?.userInteractionWidgetTypes.nameOf(widget);
+      if (name != null) {
+        return (name: name, allowText: true);
       }
     }
 

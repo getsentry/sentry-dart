@@ -93,24 +93,26 @@ void main() {
       expect(fixture.flushedItems, hasLength(2));
     });
 
-    test('timer is only started once and not restarted on subsequent additions',
-        () async {
-      final flushTimeout = Duration(milliseconds: 100);
-      final buffer = fixture.getSut(
-        config: TelemetryBufferConfig(flushTimeout: flushTimeout),
-      );
+    test(
+      'timer is only started once and not restarted on subsequent additions',
+      () async {
+        final flushTimeout = Duration(milliseconds: 100);
+        final buffer = fixture.getSut(
+          config: TelemetryBufferConfig(flushTimeout: flushTimeout),
+        );
 
-      buffer.add(_TestItem('item1'));
-      expect(fixture.flushCallCount, 0);
+        buffer.add(_TestItem('item1'));
+        expect(fixture.flushCallCount, 0);
 
-      buffer.add(_TestItem('item2'));
-      expect(fixture.flushCallCount, 0);
+        buffer.add(_TestItem('item2'));
+        expect(fixture.flushCallCount, 0);
 
-      await Future.delayed(flushTimeout + Duration(milliseconds: 10));
+        await Future.delayed(flushTimeout + Duration(milliseconds: 10));
 
-      expect(fixture.flushCallCount, 1);
-      expect(fixture.flushedItems, hasLength(2));
-    });
+        expect(fixture.flushCallCount, 1);
+        expect(fixture.flushedItems, hasLength(2));
+      },
+    );
 
     test('flush with empty buffer returns null', () async {
       final buffer = fixture.getSut();
@@ -151,16 +153,18 @@ void main() {
       expect(fixture.flushCallCount, 1);
     });
 
-    test('encoding failure drops item with encodeFailed cause and no bytes',
-        () async {
-      final buffer = fixture.getSut();
+    test(
+      'encoding failure drops item with encodeFailed cause and no bytes',
+      () async {
+        final buffer = fixture.getSut();
 
-      buffer.add(_ThrowingTestItem());
+        buffer.add(_ThrowingTestItem());
 
-      expect(fixture.droppedItems, hasLength(1));
-      expect(fixture.droppedCauses.single, BufferDropCause.encodeFailed);
-      expect(fixture.droppedBytes.single, isNull);
-    });
+        expect(fixture.droppedItems, hasLength(1));
+        expect(fixture.droppedCauses.single, BufferDropCause.encodeFailed);
+        expect(fixture.droppedBytes.single, isNull);
+      },
+    );
 
     test('onFlush receives List<List<int>> directly', () async {
       final buffer = fixture.getSut();
@@ -183,9 +187,7 @@ void main() {
     });
 
     test('items are grouped by key', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
+      final buffer = fixture.getSut(groupKeyExtractor: (item) => item.group);
 
       buffer.add(_TestItem('item1', group: 'group1'));
       buffer.add(_TestItem('item2', group: 'group2'));
@@ -218,9 +220,7 @@ void main() {
     });
 
     test('flush with empty buffer returns null', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
+      final buffer = fixture.getSut(groupKeyExtractor: (item) => item.group);
 
       final result = buffer.flush();
 
@@ -229,9 +229,7 @@ void main() {
     });
 
     test('buffer is cleared after flush', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
+      final buffer = fixture.getSut(groupKeyExtractor: (item) => item.group);
 
       buffer.add(_TestItem('item1', group: 'a'));
       await buffer.flush();
@@ -246,9 +244,7 @@ void main() {
     });
 
     test('onFlush receives Map<String, List<List<int>>>', () async {
-      final buffer = fixture.getSut(
-        groupKeyExtractor: (item) => item.group,
-      );
+      final buffer = fixture.getSut(groupKeyExtractor: (item) => item.group);
 
       buffer.add(_TestItem('item1', group: 'myGroup'));
       await buffer.flush();

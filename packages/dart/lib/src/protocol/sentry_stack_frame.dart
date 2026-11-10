@@ -27,11 +27,10 @@ class SentryStackFrame {
     List<String>? postContext,
     Map<String, dynamic>? vars,
     this.unknown,
-  })  : _framesOmitted =
-            framesOmitted != null ? List.from(framesOmitted) : null,
-        _preContext = preContext != null ? List.from(preContext) : null,
-        _postContext = postContext != null ? List.from(postContext) : null,
-        _vars = vars != null ? Map.from(vars) : null;
+  }) : _framesOmitted = framesOmitted != null ? List.from(framesOmitted) : null,
+       _preContext = preContext != null ? List.from(preContext) : null,
+       _postContext = postContext != null ? List.from(postContext) : null,
+       _vars = vars != null ? Map.from(vars) : null;
 
   /// The absolute path to filename.
   String? absPath;
@@ -185,53 +184,4 @@ class SentryStackFrame {
       if (stackStart != null) 'stack_start': stackStart,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryStackFrame copyWith({
-    String? absPath,
-    String? fileName,
-    String? function,
-    String? module,
-    int? lineNo,
-    int? colNo,
-    String? contextLine,
-    bool? inApp,
-    String? package,
-    bool? native,
-    String? platform,
-    String? imageAddr,
-    String? symbolAddr,
-    String? instructionAddr,
-    String? rawFunction,
-    List<int>? framesOmitted,
-    List<String>? preContext,
-    List<String>? postContext,
-    Map<String, String>? vars,
-    bool? stackStart,
-    String? symbol,
-  }) =>
-      SentryStackFrame(
-        absPath: absPath ?? this.absPath,
-        fileName: fileName ?? this.fileName,
-        function: function ?? this.function,
-        module: module ?? this.module,
-        lineNo: lineNo ?? this.lineNo,
-        colNo: colNo ?? this.colNo,
-        contextLine: contextLine ?? this.contextLine,
-        inApp: inApp ?? this.inApp,
-        package: package ?? this.package,
-        native: native ?? this.native,
-        platform: platform ?? this.platform,
-        imageAddr: imageAddr ?? this.imageAddr,
-        symbolAddr: symbolAddr ?? this.symbolAddr,
-        instructionAddr: instructionAddr ?? this.instructionAddr,
-        rawFunction: rawFunction ?? this.rawFunction,
-        framesOmitted: framesOmitted ?? _framesOmitted,
-        preContext: preContext ?? _preContext,
-        postContext: postContext ?? _postContext,
-        vars: vars ?? _vars,
-        symbol: symbol ?? symbol,
-        stackStart: stackStart ?? stackStart,
-        unknown: unknown,
-      );
 }

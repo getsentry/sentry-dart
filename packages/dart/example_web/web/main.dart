@@ -34,7 +34,7 @@ Future<void> runApp() async {
       type: 'debug',
       data: {
         'admin': true,
-        'permissions': [1, 2, 3]
+        'permissions': [1, 2, 3],
       },
     ),
   );
@@ -105,8 +105,9 @@ Future<void> captureException() async {
 
     if (sentryId != SentryId.empty()) {
       (document.querySelector('#exceptionResult') as HTMLElement?)
-          ?.style
-          .display = 'block';
+              ?.style
+              .display =
+          'block';
     }
   }
 }

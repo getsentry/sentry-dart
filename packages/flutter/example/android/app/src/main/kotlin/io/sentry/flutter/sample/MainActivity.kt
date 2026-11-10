@@ -4,7 +4,10 @@ import android.os.Handler
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.sentry.IScopes
+import io.sentry.IScopesStorage
 import io.sentry.Sentry
+import io.sentry.flutter.SentryFlutterPlugin
 import kotlin.concurrent.thread
 
 class MainActivity : FlutterActivity() {
@@ -26,6 +29,24 @@ class MainActivity : FlutterActivity() {
 
         "anr" -> anr()
 
+        "delayMainLooper" -> {
+          val arguments = call.arguments as? Map<*, *>
+          val durationMillis = (arguments?.get("durationMillis") as? Number)?.toLong()
+          if (durationMillis == null || durationMillis < 0) {
+            result.error("invalid_argument", "durationMillis must be a non-negative number", null)
+            return@setMethodCallHandler
+          }
+          // Let the integration test call JNI while Android's looper is busy.
+          result.success("")
+          Thread.sleep(durationMillis)
+          return@setMethodCallHandler
+        }
+
+        "testReplayFlushScopeFailure" -> {
+          testReplayFlushScopeFailure(result)
+          return@setMethodCallHandler
+        }
+
         "capture" ->
           try {
             throw RuntimeException("Catch this java exception!")
@@ -42,6 +63,41 @@ class MainActivity : FlutterActivity() {
         else -> result.notImplemented()
       }
       result.success("")
+    }
+  }
+
+  private fun testReplayFlushScopeFailure(result: MethodChannel.Result) {
+    // Inject into the real posted flush callback without replacing JNI or replay.
+    val field = Sentry::class.java.getDeclaredField("scopesStorage")
+    field.isAccessible = true
+    val original = field.get(null) as IScopesStorage
+    var failureInjected = false
+    field.set(
+      null,
+      object : IScopesStorage by original {
+        override fun get(): IScopes? {
+          val inFlushCallback =
+            Thread.currentThread().stackTrace.any {
+              it.className.startsWith(SentryFlutterPlugin::class.java.name) &&
+                it.methodName.startsWith("privateSentryFlushReplay")
+            }
+          if (!failureInjected && inFlushCallback) {
+            failureInjected = true
+            field.set(null, original)
+            throw IllegalStateException("Injected replay flush scope failure")
+          }
+          return original.get()
+        }
+      },
+    )
+    try {
+      SentryFlutterPlugin.privateSentryFlushReplay {
+        field.set(null, original)
+        result.success(failureInjected)
+      }
+    } catch (error: Exception) {
+      field.set(null, original)
+      throw error
     }
   }
 

@@ -1,7 +1,6 @@
 // ignore_for_file: library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:mockito/mockito.dart';
@@ -10,7 +9,7 @@ import 'package:sentry_hive/sentry_hive.dart';
 import 'package:sentry_hive/src/sentry_box_collection.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:test/test.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 
 import 'mocks/mocks.mocks.dart';
 import 'person.dart';
@@ -26,8 +25,8 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveBoxCollection);
-    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
-    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.system.name'], 'flutter_hive');
+    expect(span?.data['db.namespace'], Fixture.dbName);
   }
 
   void verifyErrorSpan(
@@ -40,8 +39,8 @@ void main() {
     expect(span?.status, SpanStatus.internalError());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHiveBoxCollection);
-    expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
-    expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.system.name'], 'flutter_hive');
+    expect(span?.data['db.namespace'], Fixture.dbName);
 
     expect(span?.throwable, exception);
   }
@@ -52,13 +51,10 @@ void main() {
     bool checkName = false,
     String status = 'ok',
   }) {
-    expect(
-      crumb?.message,
-      message,
-    );
+    expect(crumb?.message, message);
     expect(crumb?.type, 'query');
     if (checkName) {
-      expect(crumb?.data?[SentryHiveImpl.dbNameKey], Fixture.dbName);
+      expect(crumb?.data?['db.namespace'], Fixture.dbName);
     }
     expect(crumb?.data?['status'], status);
   }
@@ -80,11 +76,9 @@ void main() {
     });
 
     test('open', () async {
-      await SentryBoxCollection.open(
-        Fixture.dbName,
-        {'people'},
-        hub: fixture.hub,
-      );
+      await SentryBoxCollection.open(Fixture.dbName, {
+        'people',
+      }, hub: fixture.hub);
 
       final span = fixture.getCreatedSpan();
       verifySpan('open', span);
@@ -103,12 +97,9 @@ void main() {
       final sut = await fixture.getSut();
 
       final people = await sut.openBox<Person>('people');
-      await sut.transaction(
-        () async {
-          print(people.name);
-        },
-        boxNames: ['people'],
-      );
+      await sut.transaction(() async {
+        print(people.name);
+      }, boxNames: ['people']);
       final span = fixture.getCreatedSpan();
       verifySpan('transaction', span);
     });
@@ -189,8 +180,9 @@ void main() {
     });
 
     test('throwing deleteFromDisk', () async {
-      when(fixture.mockBoxCollection.deleteFromDisk())
-          .thenThrow(fixture.exception);
+      when(
+        fixture.mockBoxCollection.deleteFromDisk(),
+      ).thenThrow(fixture.exception);
 
       final sut = await fixture.getSut(injectMock: true);
 
@@ -225,11 +217,9 @@ void main() {
     });
 
     test('open', () async {
-      await SentryBoxCollection.open(
-        Fixture.dbName,
-        {'people'},
-        hub: fixture.hub,
-      );
+      await SentryBoxCollection.open(Fixture.dbName, {
+        'people',
+      }, hub: fixture.hub);
 
       final span = fixture.getCreatedBreadcrumb();
       verifyBreadcrumb('open', span);
@@ -248,12 +238,9 @@ void main() {
       final sut = await fixture.getSut();
 
       final people = await sut.openBox<Person>('people');
-      await sut.transaction(
-        () async {
-          print(people.name);
-        },
-        boxNames: ['people'],
-      );
+      await sut.transaction(() async {
+        print(people.name);
+      }, boxNames: ['people']);
       final span = fixture.getCreatedBreadcrumb();
       verifyBreadcrumb('transaction', span);
     });
@@ -338,8 +325,9 @@ void main() {
     });
 
     test('throwing deleteFromDisk', () async {
-      when(fixture.mockBoxCollection.deleteFromDisk())
-          .thenThrow(fixture.exception);
+      when(
+        fixture.mockBoxCollection.deleteFromDisk(),
+      ).thenThrow(fixture.exception);
 
       final sut = await fixture.getSut(injectMock: true);
 

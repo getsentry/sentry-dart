@@ -1,13 +1,12 @@
 // ignore_for_file: library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:hive/hive.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_hive/src/sentry_box.dart';
 import 'package:sentry_hive/src/sentry_hive_impl.dart';
 import 'package:sentry_hive/src/sentry_lazy_box.dart';
@@ -29,9 +28,9 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbHive);
-    // expect(span?.data[SentryHiveImpl.dbSystemKey], SentryHiveImpl.dbSystem);
+    // expect(span?.data['db.system.name'], 'flutter_hive');
     if (checkName) {
-      expect(span?.data[SentryHiveImpl.dbNameKey], Fixture.dbName);
+      expect(span?.data['db.namespace'], Fixture.dbName);
     }
   }
 
@@ -50,13 +49,10 @@ void main() {
     bool checkName = false,
     String status = 'ok',
   }) {
-    expect(
-      crumb?.message,
-      message,
-    );
+    expect(crumb?.message, message);
     expect(crumb?.type, 'query');
     if (checkName) {
-      expect(crumb?.data?[SentryHiveImpl.dbNameKey], Fixture.dbName);
+      expect(crumb?.data?['db.namespace'], Fixture.dbName);
     }
     expect(crumb?.data?['status'], status);
   }
@@ -203,8 +199,9 @@ void main() {
           encryptionKey: anyNamed('encryptionKey'),
         ),
       ).thenAnswer((_) => Future(() => box));
-      when(fixture.mockHive.deleteBoxFromDisk(any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.mockHive.deleteBoxFromDisk(any),
+      ).thenThrow(fixture.exception);
 
       final sut = fixture.getSut();
 
@@ -452,8 +449,9 @@ void main() {
           encryptionKey: anyNamed('encryptionKey'),
         ),
       ).thenAnswer((_) => Future(() => box));
-      when(fixture.mockHive.deleteBoxFromDisk(any))
-          .thenThrow(fixture.exception);
+      when(
+        fixture.mockHive.deleteBoxFromDisk(any),
+      ).thenThrow(fixture.exception);
 
       final sut = fixture.getSut();
 

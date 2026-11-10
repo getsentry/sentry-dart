@@ -1,7 +1,6 @@
 // ignore_for_file: library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -10,7 +9,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_isar/src/sentry_isar.dart';
 
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_isar/src/version.dart';
 
 import 'mocks/mocks.mocks.dart';
@@ -24,7 +23,7 @@ void main() {
     expect(span?.status, SpanStatus.ok());
     // ignore: invalid_use_of_internal_member
     expect(span?.origin, SentryTraceOrigins.autoDbIsar);
-    expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
+    expect(span?.data['db.namespace'], Fixture.dbName);
   }
 
   void verifyErrorSpan(String description, SentrySpan? span, Exception error) {
@@ -41,12 +40,9 @@ void main() {
     Breadcrumb? crumb, {
     String status = 'ok',
   }) {
-    expect(
-      crumb?.message,
-      message,
-    );
+    expect(crumb?.message, message);
     expect(crumb?.type, 'query');
-    expect(crumb?.data?[SentryIsar.dbNameKey], Fixture.dbName);
+    expect(crumb?.data?['db.namespace'], Fixture.dbName);
     expect(crumb?.data?['status'], status);
     if (status != 'ok') {
       expect(crumb?.level, SentryLevel.warning);
@@ -151,7 +147,7 @@ void main() {
       expect(span?.status, SpanStatus.ok());
       // ignore: invalid_use_of_internal_member
       expect(span?.origin, SentryTraceOrigins.autoDbIsar);
-      expect(span?.data[SentryIsar.dbNameKey], Fixture.dbName);
+      expect(span?.data['db.namespace'], Fixture.dbName);
       expect(span?.data['sync'], true);
     }
 

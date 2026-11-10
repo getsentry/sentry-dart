@@ -112,37 +112,4 @@ class DebugImage {
       if (cpuSubtype != null) 'cpu_subtype': cpuSubtype,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  DebugImage copyWith({
-    String? uuid,
-    String? name,
-    String? type,
-    String? debugId,
-    String? debugFile,
-    String? codeFile,
-    String? imageAddr,
-    String? imageVmAddr,
-    int? imageSize,
-    String? arch,
-    String? codeId,
-    int? cpuType,
-    int? cpuSubtype,
-  }) =>
-      DebugImage(
-        uuid: uuid ?? this.uuid,
-        name: name ?? this.name,
-        type: type ?? this.type,
-        debugId: debugId ?? this.debugId,
-        debugFile: debugFile ?? this.debugFile,
-        codeFile: codeFile ?? this.codeFile,
-        imageAddr: imageAddr ?? this.imageAddr,
-        imageVmAddr: imageVmAddr ?? this.imageVmAddr,
-        imageSize: imageSize ?? this.imageSize,
-        arch: arch ?? this.arch,
-        codeId: codeId ?? this.codeId,
-        cpuType: cpuType ?? this.cpuType,
-        cpuSubtype: cpuSubtype ?? this.cpuSubtype,
-        unknown: unknown,
-      );
 }

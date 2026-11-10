@@ -58,3 +58,4 @@ jobs:
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/supabase
+      sdk: flutter

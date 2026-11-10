@@ -1,8 +1,8 @@
 import '../../sentry.dart';
 import '../client_reports/discard_reason.dart';
-import '../transport/rate_limit_parser.dart';
+import 'rate_limit_parser.dart';
 import '../utils/internal_logger.dart';
-import '../utils/transport_utils.dart';
+import 'transport_utils.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
 
@@ -23,37 +23,14 @@ class RateLimiter {
         dropItems ??= [];
         dropItems.add(item);
 
-        final category = DataCategory.fromItemType(item.header.type);
-        if (category == DataCategory.logItem) {
-          TransportUtils.recordLostLogItem(
-            _options,
-            item,
-            DiscardReason.rateLimitBackoff,
-          );
-        } else if (category == DataCategory.metric) {
-          TransportUtils.recordLostMetricItem(
-            _options,
-            item,
-            DiscardReason.rateLimitBackoff,
-          );
-        } else {
-          _options.recorder.recordLostEvent(
-            DiscardReason.rateLimitBackoff,
-            category,
-          );
-        }
+        TransportUtils.recordLostItem(
+          _options,
+          item,
+          DiscardReason.rateLimitBackoff,
+        );
         internalLogger.warning(
           'Envelope item of type "${item.header.type}" was dropped due to rate limiting.',
         );
-
-        final originalObject = item.originalObject;
-        if (originalObject is SentryTransaction) {
-          _options.recorder.recordLostEvent(
-            DiscardReason.rateLimitBackoff,
-            DataCategory.span,
-            count: originalObject.spans.length + 1,
-          );
-        }
       }
     }
 
@@ -68,9 +45,7 @@ class RateLimiter {
 
       // no reason to continue
       if (toSend.isEmpty) {
-        internalLogger.warning(
-          'Envelope was dropped due to rate limiting.',
-        );
+        internalLogger.warning('Envelope was dropped due to rate limiting.');
         return null;
       }
 
@@ -82,13 +57,17 @@ class RateLimiter {
 
   /// Update rate limited categories
   void updateRetryAfterLimits(
-      String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
+    String? sentryRateLimitHeader,
+    String? retryAfterHeader,
+    int errorCode,
+  ) {
     final currentDateTime = _options.clock().millisecondsSinceEpoch;
     var rateLimits = <RateLimit>[];
 
     if (sentryRateLimitHeader != null) {
-      rateLimits =
-          RateLimitParser(sentryRateLimitHeader).parseRateLimitHeader();
+      rateLimits = RateLimitParser(
+        sentryRateLimitHeader,
+      ).parseRateLimitHeader();
     } else if (errorCode == 429) {
       rateLimits = RateLimitParser(retryAfterHeader).parseRetryAfterHeader();
     }
@@ -102,7 +81,8 @@ class RateLimiter {
       _applyRetryAfterOnlyIfLonger(
         rateLimit.category,
         DateTime.fromMillisecondsSinceEpoch(
-            currentDateTime + rateLimit.duration.inMilliseconds),
+          currentDateTime + rateLimit.duration.inMilliseconds,
+        ),
       );
     }
   }
@@ -112,7 +92,8 @@ class RateLimiter {
   bool _isRetryAfter(String itemType) {
     final dataCategory = DataCategory.fromItemType(itemType);
     final currentDate = DateTime.fromMillisecondsSinceEpoch(
-        _options.clock().millisecondsSinceEpoch);
+      _options.clock().millisecondsSinceEpoch,
+    );
 
     // check all categories
     final dateAllCategories = _rateLimitedUntil[DataCategory.all];

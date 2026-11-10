@@ -6,7 +6,9 @@ void main() {
   test('GraphQL urls should be filtered', () {
     final result = graphQlFilter()(
       Breadcrumb.http(
-          url: Uri.parse('https://example.org/graphql'), method: 'get'),
+        url: Uri.parse('https://example.org/graphql'),
+        method: 'get',
+      ),
       Hint(),
     );
     expect(result, null);

@@ -114,10 +114,11 @@ void main() {
       registry.registerCallback<OnBeforeSendEvent>(cb);
 
       expect(
-          () async => registry.dispatchCallback<OnBeforeSendEvent>(
-                OnBeforeSendEvent(SentryEvent(), Hint()),
-              ),
-          returnsNormally);
+        () async => registry.dispatchCallback<OnBeforeSendEvent>(
+          OnBeforeSendEvent(SentryEvent(), Hint()),
+        ),
+        returnsNormally,
+      );
     });
   });
 }

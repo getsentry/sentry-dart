@@ -23,46 +23,13 @@ void main() {
     test('toJson', () {
       final json = sentryMessage.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryMessageJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryMessageJson, json), true);
     });
     test('fromJson', () {
       final sentryMessage = SentryMessage.fromJson(sentryMessageJson);
       final json = sentryMessage.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryMessageJson, json),
-        true,
-      );
-    });
-  });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = sentryMessage;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith();
-
-      expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
-        true,
-      );
-    });
-
-    test('copyWith takes new values', () {
-      final data = sentryMessage;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith(
-        formatted: 'message 21',
-        template: 'message 2 %d',
-        params: ['2'],
-      );
-
-      expect('message 21', copy.formatted);
-      expect('message 2 %d', copy.template);
-      expect(['2'], copy.params);
+      expect(DeepCollectionEquality().equals(sentryMessageJson, json), true);
     });
   });
 }

@@ -6,7 +6,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:benchmarking/benchmarking.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/screenshot/widget_filter.dart';
+// Hidden from the public barrel file, so import the source directly.
+import 'package:sentry_flutter/src/screen_capture/sentry_screenshot_widget.dart'
+    show sentryScreenshotWidgetGlobalKey;
+import 'package:sentry_flutter/src/screen_capture/widget_filter.dart';
 
 Future<void> execute() async {
   await benchmarkWidgets((WidgetTester tester) async {
@@ -27,13 +30,13 @@ Future<void> execute() async {
       final image = await renderObject.toImage();
       // Dispose should have very little impact and ensures we don't run out of memory
       image.dispose();
-    }))
-        .report();
+    })).report();
 
     for (final format in ImageByteFormat.values) {
-      (await asyncBenchmark('Image.toByteData(${format.name})',
-              () => image.toByteData(format: format)))
-          .report();
+      (await asyncBenchmark(
+        'Image.toByteData(${format.name})',
+        () => image.toByteData(format: format),
+      )).report();
     }
 
     syncBenchmark('Image to Picture', () {
@@ -57,9 +60,9 @@ class PictureToImageBenchmark extends AsyncBenchmark {
   final int height;
 
   PictureToImageBenchmark(Image source)
-      : width = source.width,
-        height = source.height,
-        super('Picture.toImage()') {
+    : width = source.width,
+      height = source.height,
+      super('Picture.toImage()') {
     final recorder = PictureRecorder();
     Canvas(recorder).drawImage(source, Offset.zero, Paint());
     picture = recorder.endRecording();
@@ -93,8 +96,10 @@ class CanvasObscureBenchmark extends SyncBenchmark {
         final top = source.height * Random().nextDouble();
         final width = (source.width - left) * Random().nextDouble();
         final height = (source.height - top) * Random().nextDouble();
-        return WidgetFilterItem(Color(Random().nextInt(0xFFFFFFFF)),
-            Rect.fromLTWH(left, top, width, height));
+        return WidgetFilterItem(
+          Color(Random().nextInt(0xFFFFFFFF)),
+          Rect.fromLTWH(left, top, width, height),
+        );
       },
       growable: true, // it would be growable in the actual code too
     );
@@ -108,10 +113,11 @@ class CanvasObscureBenchmark extends SyncBenchmark {
       paint.color = item.color;
       final source = item.bounds;
       final scaled = Rect.fromLTRB(
-          source.left * _pixelRatio,
-          source.top * _pixelRatio,
-          source.right * _pixelRatio,
-          source.bottom * _pixelRatio);
+        source.left * _pixelRatio,
+        source.top * _pixelRatio,
+        source.right * _pixelRatio,
+        source.bottom * _pixelRatio,
+      );
       _canvas.drawRect(scaled, paint);
     }
   }

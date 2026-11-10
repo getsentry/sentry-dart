@@ -1,7 +1,6 @@
 // ignore_for_file: library_annotations
 
 @TestOn('vm')
-
 import 'dart:io';
 
 import 'package:sentry/sentry.dart';
@@ -20,26 +19,19 @@ void main() {
     });
 
     test('io performance enabled wraps file', () async {
-      final sut = fixture.getSut(
-        tracesSampleRate: 1.0,
-      );
+      final sut = fixture.getSut(tracesSampleRate: 1.0);
 
       expect(sut is SentryFile, true);
     });
 
     test('io performance disabled does not wrap file', () async {
-      final sut = fixture.getSut(
-        tracesSampleRate: null,
-      );
+      final sut = fixture.getSut(tracesSampleRate: null);
 
       expect(sut is SentryFile, false);
     });
 
     test('web does not wrap file', () async {
-      final sut = fixture.getSut(
-        tracesSampleRate: 1.0,
-        isWeb: true,
-      );
+      final sut = fixture.getSut(tracesSampleRate: 1.0, isWeb: true);
 
       expect(sut is SentryFile, false);
     });
@@ -50,10 +42,7 @@ class Fixture {
   final options = defaultTestOptions();
   late Hub hub;
 
-  File getSut({
-    double? tracesSampleRate,
-    bool isWeb = false,
-  }) {
+  File getSut({double? tracesSampleRate, bool isWeb = false}) {
     options.tracesSampleRate = tracesSampleRate;
     options.platform = MockPlatform(isWeb: isWeb);
 

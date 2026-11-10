@@ -13,9 +13,6 @@ final class SentryIOOverrides extends IOOverrides {
 
   @override
   File createFile(String path) {
-    return SentryFile(
-      super.createFile(path),
-      hub: _hub,
-    );
+    return SentryFile(super.createFile(path), hub: _hub);
   }
 }

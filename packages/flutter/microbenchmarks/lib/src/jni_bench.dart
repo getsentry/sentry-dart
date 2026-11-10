@@ -46,7 +46,8 @@ class _WorkSet {
     // Randomized size prevents loop optimizations of constant sized loops. Just in case...
 
     data = Uint8List.fromList(
-        List.generate(size, (_) => rand.nextInt(size) % 256));
+      List.generate(size, (_) => rand.nextInt(size) % 256),
+    );
   }
 }
 

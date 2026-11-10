@@ -17,18 +17,23 @@ class MetricCapturePipeline {
         metric.attributes.addAllIfAbsent(scope.attributes);
       }
 
-      await _options.lifecycleRegistry
-          .dispatchCallback<OnProcessMetric>(OnProcessMetric(metric));
+      final hint = Hint();
 
-      metric.attributes
-          .addAllIfAbsent(defaultAttributes(_options, scope: scope));
+      await _options.lifecycleRegistry.dispatchCallback<OnProcessMetric>(
+        OnProcessMetric(metric, hint),
+      );
+
+      metric.attributes.addAllIfAbsent(
+        defaultAttributes(_options, scope: scope),
+      );
 
       final beforeSendMetric = _options.beforeSendMetric;
       SentryMetric? processedMetric = metric;
       if (beforeSendMetric != null) {
         try {
-          processedMetric = await beforeSendMetric(metric);
+          processedMetric = await beforeSendMetric(metric, hint);
         } catch (exception, stackTrace) {
+          processedMetric = null;
           internalLogger.error(
             'The beforeSendMetric callback threw an exception',
             error: exception,
@@ -45,13 +50,15 @@ class MetricCapturePipeline {
           bytes: _approximateMetricBytes(metric),
         );
         internalLogger.debug(
-            '$MetricCapturePipeline: Metric ${metric.name} dropped by beforeSendMetric');
+          '$MetricCapturePipeline: Metric ${metric.name} dropped by beforeSendMetric',
+        );
         return;
       }
 
       _options.telemetryProcessor.addMetric(processedMetric);
       internalLogger.debug(
-          '$MetricCapturePipeline: Metric ${processedMetric.name} (${processedMetric.type}) captured');
+        '$MetricCapturePipeline: Metric ${processedMetric.name} (${processedMetric.type}) captured',
+      );
     } catch (exception, stackTrace) {
       _options.recorder.recordLostMetric(
         DiscardReason.internalSdkError,

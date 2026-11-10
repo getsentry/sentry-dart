@@ -1,6 +1,10 @@
 <p align="center">
   <a href="https://sentry.io" target="_blank" align="center">
-    <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
+    <picture>
+      <source srcset="https://sentry-brand.storage.googleapis.com/sentry-logo-white.png" media="(prefers-color-scheme: dark)" />
+      <source srcset="https://sentry-brand.storage.googleapis.com/sentry-wordmark-dark-280x84.png" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" />
+      <img src="https://sentry-brand.storage.googleapis.com/sentry-wordmark-dark-280x84.png" alt="Sentry" width="280">
+    </picture>
   </a>
   <br/>
 </p>
@@ -38,3 +42,28 @@ and the
 [`SentryNavigatorObserver`](https://docs.sentry.io/platforms/flutter/enriching-events/breadcrumbs/#automatic-breadcrumbs).
 
 <img src="img/sentry_dashboard.png" />
+
+## App-start workloads
+
+Configure the three booleans in `lib/app_config.dart`, then rebuild and
+cold-launch with `flutter run --release`. All three default to **false**; enable
+the phases you want to inspect:
+
+- `prolongRootWidgetAttachment`: synchronously parses and filters sample catalog
+  JSON in the root widget's `initState`, during root attachment.
+- `prolongFrameBuild`: eagerly builds and lays out 1,800 catalog rows, including
+  offscreen rows. When disabled, the sample catalog is omitted.
+- `prolongFrameRasterization`: draws 18 blurred layers with very low, nonzero
+  opacity. The effect is faint but still requires raster work.
+
+The normal SDK home page remains the landing screen. An **App-start workloads**
+section below the category cards shows the configuration. There are no runtime
+switches or saved preferences. Its sample list is eagerly laid out during the
+first frame even when below the viewport, and the faint raster effect is painted
+across the home-page body. These workloads perform real work rather
+than sleeping or fabricating timestamps. Durations depend on the device and
+rendering backend; recording raster commands also costs framework paint time.
+
+Hot reload and navigation do not create a new app-start trace. The existing
+explicit startup extension remains separate from the measured phases.
+Configure the Sentry project in `lib/app_config.dart`.

@@ -25,13 +25,6 @@ final class StandaloneAppStartIntegration
         return;
       }
 
-      if (!options.usesStandaloneAppStart) {
-        internalLogger.info(
-          'Skipping $_integrationName integration because standalone app-start tracing is disabled or unsupported on this platform.',
-        );
-        return;
-      }
-
       options.sdk.addIntegration(_integrationName);
       options.sdk.addFeature(SentryFeatures.standaloneAppStartTracing);
       await _handler.start(options);

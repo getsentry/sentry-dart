@@ -5,7 +5,7 @@ library;
 import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_supabase/sentry_supabase.dart';
 import 'package:supabase/supabase.dart';
 import 'package:test/test.dart';
@@ -27,18 +27,14 @@ void main() {
       final client = fixture.client;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          try {
-            await client.from('users').select().eq('id', 1);
-          } catch (e) {
-            // Ignore errors from mock HTTP requests
-          }
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        try {
+          await client.from('users').select().eq('id', 1);
+        } catch (e) {
+          // Ignore errors from mock HTTP requests
+        }
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -55,7 +51,7 @@ void main() {
         equals('db.select'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(
@@ -72,20 +68,17 @@ void main() {
       final client = fixture.client;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          try {
-            await client
-                .from('users')
-                .insert({'name': 'John Doe', 'email': 'john@example.com'});
-          } catch (e) {
-            // Ignore errors from mock HTTP requests
-          }
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        try {
+          await client.from('users').insert({
+            'name': 'John Doe',
+            'email': 'john@example.com',
+          });
+        } catch (e) {
+          // Ignore errors from mock HTTP requests
+        }
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -102,7 +95,7 @@ void main() {
         equals('db.insert'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(span.parentSpan, equals(transactionSpan));
@@ -112,18 +105,14 @@ void main() {
       final client = fixture.client;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          try {
-            await client.from('users').update({'name': 'Jane Doe'}).eq('id', 1);
-          } catch (e) {
-            // Ignore errors from mock HTTP requests
-          }
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        try {
+          await client.from('users').update({'name': 'Jane Doe'}).eq('id', 1);
+        } catch (e) {
+          // Ignore errors from mock HTTP requests
+        }
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -140,7 +129,7 @@ void main() {
         equals('db.update'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(span.parentSpan, equals(transactionSpan));
@@ -150,18 +139,14 @@ void main() {
       final client = fixture.client;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          try {
-            await client.from('users').delete().eq('id', 1);
-          } catch (e) {
-            // Ignore errors from mock HTTP requests
-          }
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        try {
+          await client.from('users').delete().eq('id', 1);
+        } catch (e) {
+          // Ignore errors from mock HTTP requests
+        }
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -178,7 +163,7 @@ void main() {
         equals('db.delete'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('postgresql'),
       );
       expect(span.parentSpan, equals(transactionSpan));

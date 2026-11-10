@@ -15,17 +15,11 @@ void main() {
 
     group('firstWhereOrNull', () {
       test('returns null when no item matches', () {
-        expect(
-          [1, 3, 5].firstWhereOrNull((item) => item.isEven),
-          isNull,
-        );
+        expect([1, 3, 5].firstWhereOrNull((item) => item.isEven), isNull);
       });
 
       test('returns the first matching item', () {
-        expect(
-          [1, 2, 4].firstWhereOrNull((item) => item.isEven),
-          2,
-        );
+        expect([1, 2, 4].firstWhereOrNull((item) => item.isEven), 2);
       });
     });
   });

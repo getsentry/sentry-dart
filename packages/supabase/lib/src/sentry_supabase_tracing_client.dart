@@ -3,6 +3,7 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
+import 'constants.dart';
 import 'internal_logger.dart';
 import 'sentry_supabase_request.dart';
 
@@ -33,11 +34,11 @@ class SentrySupabaseTracingClient extends BaseClient {
       response = await _innerClient.send(request);
 
       span?.setData(
-        SentrySpanData.httpResponseStatusCodeKey,
+        SemanticAttributesConstants.httpResponseStatusCode,
         response.statusCode,
       );
       span?.setData(
-        SentrySpanData.httpResponseContentLengthKey,
+        SemanticAttributesConstants.httpResponseBodySize,
         response.contentLength,
       );
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
@@ -68,7 +69,8 @@ class SentrySupabaseTracingClient extends BaseClient {
       return null;
     }
 
-    final dbSchema = supabaseRequest.request.headers['Accept-Profile'] ??
+    final dbSchema =
+        supabaseRequest.request.headers['Accept-Profile'] ??
         supabaseRequest.request.headers['Content-Profile'];
     final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
     return _spanFactory.createSpan(
@@ -77,17 +79,20 @@ class SentrySupabaseTracingClient extends BaseClient {
       description: 'from(${supabaseRequest.table})',
       origin: SentryTraceOrigins.autoDbSupabase,
       data: {
-        if (dbSchema != null) SentrySpanData.dbSchemaKey: dbSchema,
-        SentrySpanData.dbTableKey: supabaseRequest.table,
-        SentrySpanData.dbUrlKey: supabaseRequest.request.url.origin,
-        if (dbSdk != null) SentrySpanData.dbSdkKey: dbSdk,
-        if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
-          SentrySpanData.dbQueryKey: supabaseRequest.query,
+        if (dbSchema != null) ProposedSemanticAttributes.dbSchema: dbSchema,
+        SemanticAttributesConstants.dbCollectionName: supabaseRequest.table,
+        ProposedSemanticAttributes.dbUrl: supabaseRequest.request.url.origin,
+        if (dbSdk != null) ProposedSemanticAttributes.dbSdk: dbSdk,
         if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
-          SentrySpanData.dbBodyKey: supabaseRequest.body,
-        SentrySpanData.dbOperationKey: supabaseRequest.operation.value,
-        SentrySpanOperations.dbSqlQuery: supabaseRequest.generateSqlQuery(),
-        SentrySpanData.dbSystemKey: SentrySpanData.dbSystemPostgresql,
+          ProposedSemanticAttributes.dbBody: supabaseRequest.body,
+        SemanticAttributesConstants.dbOperationName:
+            supabaseRequest.operation.value,
+        SemanticAttributesConstants.dbQuerySummary:
+            '${supabaseRequest.operation.value} ${supabaseRequest.table}',
+        // SQL values use placeholders and can be sent without PII enabled.
+        SemanticAttributesConstants.dbQueryText: supabaseRequest
+            .generateSqlQuery(),
+        SemanticAttributesConstants.dbSystemName: dbSystemNamePostgresql,
       },
     );
   }

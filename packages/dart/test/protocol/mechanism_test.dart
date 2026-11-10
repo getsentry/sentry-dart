@@ -39,59 +39,13 @@ void main() {
     test('toJson', () {
       final json = mechanism.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(mechanismJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(mechanismJson, json), true);
     });
     test('fromJson', () {
       final mechanism = Mechanism.fromJson(mechanismJson);
       final json = mechanism.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(mechanismJson, json),
-        true,
-      );
-    });
-  });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = mechanism;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith();
-
-      expect(data.toJson(), copy.toJson());
-    });
-
-    test('copyWith takes new values', () {
-      final data = mechanism;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith(
-        type: 'type1',
-        description: 'description1',
-        helpLink: 'helpLink1',
-        handled: false,
-        synthetic: false,
-        meta: {'key1': 'value1'},
-        data: {'keyb1': 'valueb1'},
-        exceptionId: 1,
-        parentId: 1,
-        isExceptionGroup: false,
-        source: 'foo',
-      );
-
-      expect('type1', copy.type);
-      expect('description1', copy.description);
-      expect('helpLink1', copy.helpLink);
-      expect(false, copy.handled);
-      expect(false, copy.synthetic);
-      expect({'key1': 'value1'}, copy.meta);
-      expect({'keyb1': 'valueb1'}, copy.data);
-      expect(1, copy.exceptionId);
-      expect(1, copy.parentId);
-      expect(false, copy.isExceptionGroup);
-      expect('foo', copy.source);
+      expect(DeepCollectionEquality().equals(mechanismJson, json), true);
     });
   });
 }

@@ -2,22 +2,20 @@ import 'dart:async';
 
 import '../../../sentry.dart';
 import '../../utils/internal_logger.dart';
+import '../telemetry_trace_context.dart';
 
 typedef CaptureMetricCallback = Future<void> Function(SentryMetric metric);
-typedef ScopeProvider = Scope Function();
 
 final class DefaultSentryMetrics implements SentryMetrics {
   final CaptureMetricCallback _captureMetricCallback;
   final ClockProvider _clockProvider;
-  final ScopeProvider _scopeProvider;
+  final TelemetryTraceContextProvider _traceContextProvider;
 
-  DefaultSentryMetrics(
-      {required CaptureMetricCallback captureMetricCallback,
-      required ClockProvider clockProvider,
-      required ScopeProvider scopeProvider})
-      : _captureMetricCallback = captureMetricCallback,
-        _clockProvider = clockProvider,
-        _scopeProvider = scopeProvider;
+  DefaultSentryMetrics({
+    required this._captureMetricCallback,
+    required this._clockProvider,
+    required this._traceContextProvider,
+  });
 
   @override
   void count(
@@ -25,16 +23,20 @@ final class DefaultSentryMetrics implements SentryMetrics {
     int value, {
     Map<String, SentryAttribute>? attributes,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.metrics.count("$name", $value) called with attributes ${_formatAttributes(attributes)}');
+    internalLogger.debug(
+      () =>
+          'Sentry.metrics.count("$name", $value) called with attributes ${_formatAttributes(attributes)}',
+    );
 
+    final (:traceId, :spanId) = _traceContextProvider();
     final metric = SentryCounterMetric(
-        timestamp: _clockProvider(),
-        name: name,
-        value: value,
-        spanId: _scopeProvider().span?.context.spanId,
-        traceId: _scopeProvider().propagationContext.traceId,
-        attributes: attributes ?? {});
+      timestamp: _clockProvider(),
+      name: name,
+      value: value,
+      spanId: spanId,
+      traceId: traceId,
+      attributes: attributes ?? {},
+    );
 
     unawaited(_captureMetricCallback(metric));
   }
@@ -46,17 +48,21 @@ final class DefaultSentryMetrics implements SentryMetrics {
     String? unit,
     Map<String, SentryAttribute>? attributes,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.metrics.gauge("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}');
+    internalLogger.debug(
+      () =>
+          'Sentry.metrics.gauge("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}',
+    );
 
+    final (:traceId, :spanId) = _traceContextProvider();
     final metric = SentryGaugeMetric(
-        timestamp: _clockProvider(),
-        name: name,
-        value: value,
-        unit: unit,
-        spanId: _scopeProvider().span?.context.spanId,
-        traceId: _scopeProvider().propagationContext.traceId,
-        attributes: attributes ?? {});
+      timestamp: _clockProvider(),
+      name: name,
+      value: value,
+      unit: unit,
+      spanId: spanId,
+      traceId: traceId,
+      attributes: attributes ?? {},
+    );
 
     unawaited(_captureMetricCallback(metric));
   }
@@ -68,17 +74,21 @@ final class DefaultSentryMetrics implements SentryMetrics {
     String? unit,
     Map<String, SentryAttribute>? attributes,
   }) {
-    internalLogger.debug(() =>
-        'Sentry.metrics.distribution("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}');
+    internalLogger.debug(
+      () =>
+          'Sentry.metrics.distribution("$name", $value${_formatUnit(unit)}) called with attributes ${_formatAttributes(attributes)}',
+    );
 
+    final (:traceId, :spanId) = _traceContextProvider();
     final metric = SentryDistributionMetric(
-        timestamp: _clockProvider(),
-        name: name,
-        value: value,
-        unit: unit,
-        spanId: _scopeProvider().span?.context.spanId,
-        traceId: _scopeProvider().propagationContext.traceId,
-        attributes: attributes ?? {});
+      timestamp: _clockProvider(),
+      name: name,
+      value: value,
+      unit: unit,
+      spanId: spanId,
+      traceId: traceId,
+      attributes: attributes ?? {},
+    );
 
     unawaited(_captureMetricCallback(metric));
   }

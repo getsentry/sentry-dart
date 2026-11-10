@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../sentry_flutter.dart';
-import '../event_processor/flutter_enricher_event_processor.dart';
-import '../integrations/web_session_integration.dart';
+import '../enrichment/flutter_enricher_event_processor.dart';
+import '../sessions/web_session_integration.dart';
 import '../utils/internal_logger.dart';
-import '../web/web_session_handler.dart';
+import '../sessions/web_session_handler.dart';
 import 'time_to_display_tracker.dart';
 import 'time_to_display_tracker_v2.dart';
 
@@ -24,10 +24,8 @@ const _navigationKey = 'navigation';
 
 typedef RouteNameExtractor = RouteSettings? Function(RouteSettings? settings);
 
-typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
-  RouteSettings? from,
-  RouteSettings? to,
-);
+typedef AdditionalInfoExtractor =
+    Map<String, dynamic>? Function(RouteSettings? from, RouteSettings? to);
 
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
@@ -80,20 +78,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
-    bool enableNewTraceOnNavigation = false,
-    Duration autoFinishAfter = const Duration(seconds: 3),
-    bool setRouteNameAsTransaction = false,
-    RouteNameExtractor? routeNameExtractor,
-    AdditionalInfoExtractor? additionalInfoProvider,
+    this._enableNewTraceOnNavigation = false,
+    this._autoFinishAfter = const Duration(seconds: 3),
+    this._setRouteNameAsTransaction = false,
+    this._routeNameExtractor,
+    this._additionalInfoProvider,
     List<String>? ignoreRoutes,
-  })  : _hub = hub ?? HubAdapter(),
-        _enableAutoTransactions = enableAutoTransactions,
-        _enableNewTraceOnNavigation = enableNewTraceOnNavigation,
-        _autoFinishAfter = autoFinishAfter,
-        _setRouteNameAsTransaction = setRouteNameAsTransaction,
-        _routeNameExtractor = routeNameExtractor,
-        _additionalInfoProvider = additionalInfoProvider,
-        _ignoreRoutes = ignoreRoutes ?? [] {
+  }) : _hub = hub ?? HubAdapter(),
+       _enableAutoTransactions = enableAutoTransactions,
+       _ignoreRoutes = ignoreRoutes ?? [] {
     _isCreated = true;
     if (enableAutoTransactions) {
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -303,13 +296,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     RouteSettings? from,
     RouteSettings? to,
   }) {
-    _hub.addBreadcrumb(RouteObserverBreadcrumb(
-      navigationType: type,
-      from: _routeNameExtractor?.call(from) ?? from,
-      to: _routeNameExtractor?.call(to) ?? to,
-      timestamp: _hub.options.clock(),
-      data: _additionalInfoProvider?.call(from, to),
-    ));
+    _hub.addBreadcrumb(
+      RouteObserverBreadcrumb(
+        navigationType: type,
+        from: _routeNameExtractor?.call(from) ?? from,
+        to: _routeNameExtractor?.call(to) ?? to,
+        timestamp: _hub.options.clock(),
+        data: _additionalInfoProvider?.call(from, to),
+      ),
+    );
   }
 
   String? _getRouteName(Route<dynamic>? route) {
@@ -458,24 +453,26 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     super.timestamp,
     Map<String, dynamic>? data,
   }) : super(
-            category: _navigationKey,
-            type: _navigationKey,
-            data: <String, dynamic>{
-              'state': navigationType,
-              if (from != null) 'from': from,
-              if (fromArgs != null) 'from_arguments': fromArgs,
-              if (to != null) 'to': to,
-              if (toArgs != null) 'to_arguments': toArgs,
-              if (data != null) 'data': data,
-            });
+         category: _navigationKey,
+         type: _navigationKey,
+         data: <String, dynamic>{
+           'state': navigationType,
+           'from': ?from,
+           'from_arguments': ?fromArgs,
+           'to': ?to,
+           'to_arguments': ?toArgs,
+           'data': ?data,
+         },
+       );
 
   static dynamic _formatArgs(Object? args) {
     if (args == null) {
       return null;
     }
     if (args is Map<String, dynamic>) {
-      return args.map<String, dynamic>((key, dynamic value) =>
-          MapEntry<String, String>(key, value.toString()));
+      return args.map<String, dynamic>(
+        (key, dynamic value) => MapEntry<String, String>(key, value.toString()),
+      );
     }
     return args.toString();
   }

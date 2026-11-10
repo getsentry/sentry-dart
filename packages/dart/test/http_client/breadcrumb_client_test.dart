@@ -22,8 +22,9 @@ void main() {
     });
 
     test('GET: happy path', () async {
-      final sut =
-          fixture.getSut(fixture.getClient(statusCode: 200, reason: 'OK'));
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
 
       final response = await sut.get(requestUri);
       expect(response.statusCode, 200);
@@ -45,8 +46,9 @@ void main() {
     });
 
     test('GET: happy path for 404', () async {
-      final sut = fixture
-          .getSut(fixture.getClient(statusCode: 404, reason: 'NOT FOUND'));
+      final sut = fixture.getSut(
+        fixture.getClient(statusCode: 404, reason: 'NOT FOUND'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -125,7 +127,8 @@ void main() {
 
     test('server error response (500)', () async {
       final sut = fixture.getSut(
-          fixture.getClient(statusCode: 500, reason: 'INTERNAL SERVER ERROR'));
+        fixture.getClient(statusCode: 500, reason: 'INTERNAL SERVER ERROR'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -147,7 +150,8 @@ void main() {
 
     test('server redirect (3xx)', () async {
       final sut = fixture.getSut(
-          fixture.getClient(statusCode: 308, reason: 'PERMANENT REDIRECT'));
+        fixture.getClient(statusCode: 308, reason: 'PERMANENT REDIRECT'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -169,7 +173,8 @@ void main() {
 
     test('invalid status (>= 6xx)', () async {
       final sut = fixture.getSut(
-          fixture.getClient(statusCode: 600, reason: 'UNKNOWN STATUS CODE'));
+        fixture.getClient(statusCode: 600, reason: 'UNKNOWN STATUS CODE'),
+      );
 
       final response = await sut.get(requestUri);
 
@@ -193,10 +198,12 @@ void main() {
     /// no exception gets reported by Sentry, in case the user wants to
     /// handle the exception
     test('no captureException for ClientException', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        throw ClientException('test', requestUri);
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          throw ClientException('test', requestUri);
+        }),
+      );
 
       try {
         await sut.get(requestUri);
@@ -212,10 +219,12 @@ void main() {
     /// SocketException are only a thing on dart:io platforms.
     /// otherwise this is equal to the test above
     test('no captureException for SocketException', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        throw SocketException('test');
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          throw SocketException('test');
+        }),
+      );
 
       try {
         await sut.get(requestUri);
@@ -228,10 +237,12 @@ void main() {
     });
 
     test('breadcrumb gets added when an exception gets thrown', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        throw Exception('foo bar');
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          throw Exception('foo bar');
+        }),
+      );
 
       try {
         await sut.get(requestUri);
@@ -251,17 +262,20 @@ void main() {
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
-    test('does not attach network details when capture is not configured',
-        () async {
-      final sut =
-          fixture.getSut(fixture.getClient(statusCode: 200, reason: 'OK'));
+    test(
+      'does not attach network details when capture is not configured',
+      () async {
+        final sut = fixture.getSut(
+          fixture.getClient(statusCode: 200, reason: 'OK'),
+        );
 
-      await sut.get(requestUri);
+        await sut.get(requestUri);
 
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
-      expect(breadcrumb.data?.containsKey('request'), false);
-      expect(breadcrumb.data?.containsKey('response'), false);
-    });
+        final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+        expect(breadcrumb.data?.containsKey('request'), false);
+        expect(breadcrumb.data?.containsKey('response'), false);
+      },
+    );
 
     test('attaches network details when capture matches the request', () async {
       final capture = FakeNetworkDetailsCapture();
@@ -278,8 +292,7 @@ void main() {
       expect(breadcrumb.data?['response'], isA<Map>());
     });
 
-    test(
-        'captures request headers as mutated by a wrapped client during '
+    test('captures request headers as mutated by a wrapped client during '
         'send (e.g. tracing headers added after dispatch)', () async {
       final capture = FakeNetworkDetailsCapture();
 
@@ -306,21 +319,23 @@ void main() {
       expect(requestHeaders['sentry-trace'], 'abc-123');
     });
 
-    test('does not attach network details when capture does not match',
-        () async {
-      final capture = FakeNetworkDetailsCapture(shouldCaptureResult: false);
+    test(
+      'does not attach network details when capture does not match',
+      () async {
+        final capture = FakeNetworkDetailsCapture(shouldCaptureResult: false);
 
-      final sut = fixture.getSut(
-        fixture.getClient(statusCode: 200, reason: 'OK'),
-        capture,
-      );
+        final sut = fixture.getSut(
+          fixture.getClient(statusCode: 200, reason: 'OK'),
+          capture,
+        );
 
-      await sut.get(requestUri);
+        await sut.get(requestUri);
 
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
-      expect(breadcrumb.data?.containsKey('request'), false);
-      expect(breadcrumb.data?.containsKey('response'), false);
-    });
+        final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+        expect(breadcrumb.data?.containsKey('request'), false);
+        expect(breadcrumb.data?.containsKey('response'), false);
+      },
+    );
 
     test('close does get called for user defined client', () async {
       final mockHub = MockHub();
@@ -336,11 +351,13 @@ void main() {
     });
 
     test('Breadcrumb has correct duration', () async {
-      final sut = fixture.getSut(MockClient((request) async {
-        expect(request.url, requestUri);
-        await Future.delayed(Duration(seconds: 1));
-        return Response('', 200, reasonPhrase: 'OK');
-      }));
+      final sut = fixture.getSut(
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          await Future.delayed(Duration(seconds: 1));
+          return Response('', 200, reasonPhrase: 'OK');
+        }),
+      );
 
       final response = await sut.get(requestUri);
       expect(response.statusCode, 200);
@@ -372,8 +389,7 @@ void main() {
       expect(durationString.startsWith('0:00:00'), true);
     });
 
-    test(
-        'breadcrumb reflects status code, not error level, when response '
+    test('breadcrumb reflects status code, not error level, when response '
         'capture fails after a successful request', () async {
       final capture = FakeNetworkDetailsCapture(
         captureResponseError: Exception('capture failed'),
@@ -394,8 +410,7 @@ void main() {
       expect(breadcrumb.level, isNot(SentryLevel.error));
     });
 
-    test(
-        'reads the clock at header arrival, before capturing the response '
+    test('reads the clock at header arrival, before capturing the response '
         'body', () async {
       final callOrder = <String>[];
       final capture = FakeNetworkDetailsCapture(
@@ -466,8 +481,10 @@ class FakeNetworkDetailsCapture implements NetworkDetailsCapture {
 }
 
 class Fixture {
-  BreadcrumbClient getSut(
-      [MockClient? client, NetworkDetailsCapture? networkDetailsCapture]) {
+  BreadcrumbClient getSut([
+    MockClient? client,
+    NetworkDetailsCapture? networkDetailsCapture,
+  ]) {
     final mc = client ?? getClient();
     return BreadcrumbClient(
       client: mc,

@@ -5,9 +5,10 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:sentry_flutter/src/native/native_scope_observer.dart';
 
-void testScopeObserver(
-    {required SentryFlutterOptions options,
-    required bool expectedHasNativeScopeObserver}) {
+void testScopeObserver({
+  required SentryFlutterOptions options,
+  required bool expectedHasNativeScopeObserver,
+}) {
   var actualHasNativeScopeObserver = false;
   for (final scopeObserver in options.scopeObservers) {
     if (scopeObserver.runtimeType == NativeScopeObserver) {
@@ -34,8 +35,9 @@ void testConfiguration({
     expect(numberOfIntegrationsByType, containsPair(type, 1));
   }
 
-  shouldNotHaveIntegrations = Set.of(shouldNotHaveIntegrations)
-      .difference(Set.of(shouldHaveIntegrations));
+  shouldNotHaveIntegrations = Set.of(
+    shouldNotHaveIntegrations,
+  ).difference(Set.of(shouldHaveIntegrations));
   for (final type in shouldNotHaveIntegrations) {
     expect(integrations.any((i) => i.runtimeType == type), false);
   }
@@ -44,14 +46,18 @@ void testConfiguration({
   Integration? loadDebugImagesIntegration;
   if (kIsWeb) {
     nativeIntegration = integrations.firstWhereOrNull(
-        (x) => x.runtimeType.toString() == 'WebSdkIntegration');
+      (x) => x.runtimeType.toString() == 'WebSdkIntegration',
+    );
     loadDebugImagesIntegration = integrations.firstWhereOrNull(
-        (x) => x.runtimeType.toString() == 'LoadWebDebugImagesIntegration');
+      (x) => x.runtimeType.toString() == 'LoadWebDebugImagesIntegration',
+    );
   } else {
     nativeIntegration = integrations.firstWhereOrNull(
-        (x) => x.runtimeType.toString() == 'NativeSdkIntegration');
+      (x) => x.runtimeType.toString() == 'NativeSdkIntegration',
+    );
     loadDebugImagesIntegration = integrations.firstWhereOrNull(
-        (x) => x.runtimeType.toString() == 'LoadNativeDebugImagesIntegration');
+      (x) => x.runtimeType.toString() == 'LoadNativeDebugImagesIntegration',
+    );
   }
   expect(loadDebugImagesIntegration, isNotNull);
   expect(nativeIntegration, isNotNull);
@@ -62,8 +68,10 @@ void testBefore({
   required Type beforeIntegration,
   required Type afterIntegration,
 }) {
-  expect(integrations.indexOfType(beforeIntegration),
-      lessThan(integrations.indexOfType(afterIntegration)));
+  expect(
+    integrations.indexOfType(beforeIntegration),
+    lessThan(integrations.indexOfType(afterIntegration)),
+  );
 }
 
 extension ListExtension<T> on List<T> {
@@ -74,8 +82,9 @@ extension ListExtension<T> on List<T> {
   }
 
   int indexOfTypeString(String type) {
-    final index =
-        indexWhere((element) => element.runtimeType.toString() == type);
+    final index = indexWhere(
+      (element) => element.runtimeType.toString() == type,
+    );
     expect(index, greaterThanOrEqualTo(0), reason: '$type not found in $this');
     return index;
   }

@@ -17,15 +17,16 @@ void main() {
   group('SentryFlutter native lifecycle', () {
     tearDown(Sentry.close);
 
-    testWidgets('keeps native reporting enabled across detach and reattach',
-        (tester) async {
+    testWidgets('keeps native reporting enabled across detach and reattach', (
+      tester,
+    ) async {
       await restoreFlutterOnErrorAfter(() async {
         await SentryFlutter.init((options) {
           options.dsn = fakeDsn;
           options.debug = true;
         }, appRunner: () async {});
       });
-      expect(native.Sentry.isEnabled(), isTrue);
+      expect(native.Sentry.isEnabled, isTrue);
 
       binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       binding.handleAppLifecycleStateChanged(AppLifecycleState.detached);
@@ -33,7 +34,7 @@ void main() {
       binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       await tester.pump();
 
-      expect(native.Sentry.isEnabled(), isTrue);
+      expect(native.Sentry.isEnabled, isTrue);
       final eventId = using((arena) {
         final message = 'Native capture after reattach'.toJString()
           ..releasedBy(arena);

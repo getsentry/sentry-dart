@@ -57,13 +57,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     Hint? hint,
     ScopeCallback? withScope,
   }) async {
-    captureEventCalls.add(
-      CaptureEventCall(
-        event,
-        stackTrace,
-        hint,
-      ),
-    );
+    captureEventCalls.add(CaptureEventCall(event, stackTrace, hint));
     return event.eventId;
   }
 
@@ -76,11 +70,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     ScopeCallback? withScope,
   }) async {
     captureExceptionCalls.add(
-      CaptureExceptionCall(
-        throwable,
-        stackTrace,
-        hint,
-      ),
+      CaptureExceptionCall(throwable, stackTrace, hint),
     );
     return SentryId.newId();
   }
@@ -95,13 +85,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     ScopeCallback? withScope,
   }) async {
     captureMessageCalls.add(
-      CaptureMessageCall(
-        message,
-        level,
-        template,
-        params,
-        hint,
-      ),
+      CaptureMessageCall(message, level, template, params, hint),
     );
     return SentryId.newId();
   }
@@ -150,11 +134,7 @@ class CaptureExceptionCall {
   final dynamic stackTrace;
   final Hint? hint;
 
-  CaptureExceptionCall(
-    this.throwable,
-    this.stackTrace,
-    this.hint,
-  );
+  CaptureExceptionCall(this.throwable, this.stackTrace, this.hint);
 }
 
 class CaptureMessageCall {

@@ -24,7 +24,7 @@ class SentryQueryInterceptor extends QueryInterceptor {
   SentrySpanHelper get spanHelper => _spanHelper;
 
   SentryQueryInterceptor({required String databaseName, @internal Hub? hub})
-      : _dbName = databaseName {
+    : _dbName = databaseName {
     hub = hub ?? HubAdapter();
     _spanHelper = SentrySpanHelper(
       SentryTraceOrigins.autoDbDriftQueryInterceptor,
@@ -44,13 +44,12 @@ class SentryQueryInterceptor extends QueryInterceptor {
     String description,
     FutureOr<T> Function() execute, {
     String? operation,
-  }) async =>
-      _spanHelper.asyncWrapInSpan<T>(
-        description,
-        () async => execute(),
-        dbName: _dbName,
-        operation: operation,
-      );
+  }) async => _spanHelper.asyncWrapInSpan<T>(
+    description,
+    () async => execute(),
+    dbName: _dbName,
+    operation: operation,
+  );
 
   @override
   Future<bool> ensureOpen(QueryExecutor executor, QueryExecutorUser user) {
@@ -90,8 +89,9 @@ class SentryQueryInterceptor extends QueryInterceptor {
     QueryExecutor executor,
     BatchedStatements statements,
   ) {
-    final description =
-        SentrySpanDescriptions.dbBatch(statements: statements.statements);
+    final description = SentrySpanDescriptions.dbBatch(
+      statements: statements.statements,
+    );
     return _instrumentOperation(
       description,
       () => super.runBatched(executor, statements),

@@ -31,22 +31,10 @@ void main() {
       'level': 'info',
       'body': 'fixture-body',
       'attributes': {
-        'test': {
-          'value': 'fixture-test',
-          'type': 'string',
-        },
-        'test2': {
-          'value': true,
-          'type': 'boolean',
-        },
-        'test3': {
-          'value': 9001,
-          'type': 'integer',
-        },
-        'test4': {
-          'value': 9000.1,
-          'type': 'double',
-        },
+        'test': {'value': 'fixture-test', 'type': 'string'},
+        'test2': {'value': true, 'type': 'boolean'},
+        'test3': {'value': 9001, 'type': 'integer'},
+        'test4': {'value': 9000.1, 'type': 'double'},
       },
       'severity_number': 1,
     });
@@ -58,9 +46,7 @@ void main() {
       traceId: SentryId.newId(),
       level: SentryLogLevel.trace,
       body: 'fixture-body',
-      attributes: {
-        'test': SentryAttribute.string('fixture-test'),
-      },
+      attributes: {'test': SentryAttribute.string('fixture-test')},
     );
 
     var json = logItem.toJson();

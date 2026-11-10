@@ -37,62 +37,20 @@ void main() {
       );
     });
 
-    test('does not start the handler when standalone tracing is disabled',
-        () async {
-      fixture.options.enableStandaloneAppStartTracing = false;
-
-      await fixture.getSut().call(fixture.hub, fixture.options);
-
-      expect(fixture.handler.startCalls, 0);
-    });
-
     test(
-        'does not add standalone app-start tracing feature when standalone tracing is disabled',
-        () async {
-      fixture.options.enableStandaloneAppStartTracing = false;
+      'does not add standalone app-start tracing feature when tracing is disabled',
+      () async {
+        fixture.options.tracesSampleRate = null;
+        fixture.options.tracesSampler = null;
 
-      await fixture.getSut().call(fixture.hub, fixture.options);
+        await fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(
-        fixture.options.sdk.features,
-        isNot(contains(SentryFeatures.standaloneAppStartTracing)),
-      );
-    });
-
-    test(
-        'does not add integration to sdk metadata when standalone tracing is disabled',
-        () async {
-      fixture.options.enableStandaloneAppStartTracing = false;
-
-      await fixture.getSut().call(fixture.hub, fixture.options);
-
-      expect(
-        fixture.options.sdk.integrations,
-        isNot(contains('StandaloneAppStart')),
-      );
-    });
-
-    test('does not start the handler on an unsupported platform', () async {
-      fixture.options.platform = MockPlatform.macOS();
-
-      await fixture.getSut().call(fixture.hub, fixture.options);
-
-      expect(fixture.handler.startCalls, 0);
-    });
-
-    test(
-        'does not add standalone app-start tracing feature when tracing is disabled',
-        () async {
-      fixture.options.tracesSampleRate = null;
-      fixture.options.tracesSampler = null;
-
-      await fixture.getSut().call(fixture.hub, fixture.options);
-
-      expect(
-        fixture.options.sdk.features,
-        isNot(contains(SentryFeatures.standaloneAppStartTracing)),
-      );
-    });
+        expect(
+          fixture.options.sdk.features,
+          isNot(contains(SentryFeatures.standaloneAppStartTracing)),
+        );
+      },
+    );
 
     test('does not start the handler when tracing is disabled', () async {
       fixture.options.tracesSampleRate = null;
@@ -103,29 +61,33 @@ void main() {
       expect(fixture.handler.startCalls, 0);
     });
 
-    test('does not add integration to sdk metadata when tracing is disabled',
-        () async {
-      fixture.options.tracesSampleRate = null;
-      fixture.options.tracesSampler = null;
+    test(
+      'does not add integration to sdk metadata when tracing is disabled',
+      () async {
+        fixture.options.tracesSampleRate = null;
+        fixture.options.tracesSampler = null;
 
-      await fixture.getSut().call(fixture.hub, fixture.options);
+        await fixture.getSut().call(fixture.hub, fixture.options);
 
-      expect(
-        fixture.options.sdk.integrations,
-        isNot(contains('StandaloneAppStart')),
-      );
-    });
+        expect(
+          fixture.options.sdk.integrations,
+          isNot(contains('StandaloneAppStart')),
+        );
+      },
+    );
 
-    test('does not let a failing handler escape into the integration chain',
-        () async {
-      fixture.options.automatedTestMode = false;
-      fixture.handler.startError = StateError('handler blew up');
+    test(
+      'does not let a failing handler escape into the integration chain',
+      () async {
+        fixture.options.automatedTestMode = false;
+        fixture.handler.startError = StateError('handler blew up');
 
-      await expectLater(
-        fixture.getSut().call(fixture.hub, fixture.options),
-        completes,
-      );
-    });
+        await expectLater(
+          fixture.getSut().call(fixture.hub, fixture.options),
+          completes,
+        );
+      },
+    );
 
     test('rethrows a failing handler under automatedTestMode', () async {
       fixture.handler.startError = StateError('handler blew up');
@@ -147,8 +109,7 @@ void main() {
 class Fixture {
   final handler = FakeStandaloneAppStartHandler();
   late final options = defaultTestOptions(platform: MockPlatform.iOS())
-    ..tracesSampleRate = 1.0
-    ..enableStandaloneAppStartTracing = true;
+    ..tracesSampleRate = 1.0;
   late final hub = Hub(options);
 
   StandaloneAppStartIntegration getSut() =>

@@ -27,8 +27,10 @@ void main() {
       final sut = fixture.getSut();
       sut.getClient(fixture.options);
 
-      expect(fixture.mockHttpClient.findProxyResult,
-          equals(fixture.options.proxy?.toPacString()));
+      expect(
+        fixture.mockHttpClient.findProxyResult,
+        equals(fixture.options.proxy?.toPacString()),
+      );
     });
 
     test('direct proxy should call findProxyResult', () async {
@@ -37,13 +39,18 @@ void main() {
       final sut = fixture.getSut();
       sut.getClient(fixture.options);
 
-      expect(fixture.mockHttpClient.findProxyResult,
-          equals(fixture.options.proxy?.toPacString()));
+      expect(
+        fixture.mockHttpClient.findProxyResult,
+        equals(fixture.options.proxy?.toPacString()),
+      );
     });
 
     test('socks proxy should not call findProxyResult', () async {
       fixture.options.proxy = SentryProxy(
-          type: SentryProxyType.socks, host: 'localhost', port: 8080);
+        type: SentryProxyType.socks,
+        host: 'localhost',
+        port: 8080,
+      );
 
       final sut = fixture.getSut();
       sut.getClient(fixture.options);
@@ -64,10 +71,14 @@ void main() {
 
       sut.getClient(fixture.options);
 
-      expect(fixture.mockHttpClient.addProxyCredentialsHost,
-          fixture.options.proxy?.host);
-      expect(fixture.mockHttpClient.addProxyCredentialsPort,
-          fixture.options.proxy?.port);
+      expect(
+        fixture.mockHttpClient.addProxyCredentialsHost,
+        fixture.options.proxy?.host,
+      );
+      expect(
+        fixture.mockHttpClient.addProxyCredentialsPort,
+        fixture.options.proxy?.port,
+      );
       expect(fixture.mockHttpClient.addProxyCredentialsRealm, '');
       expect(fixture.mockUser, fixture.options.proxy?.user);
       expect(fixture.mockPass, fixture.options.proxy?.pass);
@@ -115,7 +126,10 @@ class MockHttpClient implements HttpClient {
 
   @override
   void addCredentials(
-      Uri url, String realm, HttpClientCredentials credentials) {
+    Uri url,
+    String realm,
+    HttpClientCredentials credentials,
+  ) {
     // TODO: implement addCredentials
   }
 
@@ -126,7 +140,11 @@ class MockHttpClient implements HttpClient {
 
   @override
   void addProxyCredentials(
-      String host, int port, String realm, HttpClientCredentials credentials) {
+    String host,
+    int port,
+    String realm,
+    HttpClientCredentials credentials,
+  ) {
     addProxyCredentialsHost = host;
     addProxyCredentialsPort = port;
     addProxyCredentialsRealm = realm;
@@ -137,21 +155,23 @@ class MockHttpClient implements HttpClient {
 
   @override
   set authenticate(
-      Future<bool> Function(Uri url, String scheme, String? realm)? f) {
+    Future<bool> Function(Uri url, String scheme, String? realm)? f,
+  ) {
     // TODO: implement authenticate
   }
 
   @override
   set authenticateProxy(
-      Future<bool> Function(
-              String host, int port, String scheme, String? realm)?
-          f) {
+    Future<bool> Function(String host, int port, String scheme, String? realm)?
+    f,
+  ) {
     // TODO: implement authenticateProxy
   }
 
   @override
   set badCertificateCallback(
-      bool Function(X509Certificate cert, String host, int port)? callback) {
+    bool Function(X509Certificate cert, String host, int port)? callback,
+  ) {
     // TODO: implement badCertificateCallback
   }
 
@@ -162,9 +182,13 @@ class MockHttpClient implements HttpClient {
 
   @override
   set connectionFactory(
-      Future<ConnectionTask<Socket>> Function(
-              Uri url, String? proxyHost, int? proxyPort)?
-          f) {
+    Future<ConnectionTask<Socket>> Function(
+      Uri url,
+      String? proxyHost,
+      int? proxyPort,
+    )?
+    f,
+  ) {
     // TODO: implement connectionFactory
   }
 
@@ -218,7 +242,11 @@ class MockHttpClient implements HttpClient {
 
   @override
   Future<HttpClientRequest> open(
-      String method, String host, int port, String path) {
+    String method,
+    String host,
+    int port,
+    String path,
+  ) {
     // TODO: implement open
     throw UnimplementedError();
   }

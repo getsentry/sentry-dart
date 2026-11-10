@@ -20,26 +20,29 @@ void main() {
     expect(sut.shouldDebounce(), isFalse);
   });
 
-  test('Debouncer should signal debounce if the second invocation is too early',
-      () {
-    fixture.currentTimeMs = 1000;
-    final sut = fixture.getSut(waitTimeMs: 3000);
-    expect(sut.shouldDebounce(), isFalse);
+  test(
+    'Debouncer should signal debounce if the second invocation is too early',
+    () {
+      fixture.currentTimeMs = 1000;
+      final sut = fixture.getSut(waitTimeMs: 3000);
+      expect(sut.shouldDebounce(), isFalse);
 
-    fixture.currentTimeMs = 3999;
-    expect(sut.shouldDebounce(), isTrue);
-  });
+      fixture.currentTimeMs = 3999;
+      expect(sut.shouldDebounce(), isTrue);
+    },
+  );
 
   test(
-      'Debouncer should not signal debounce if the second invocation is late enough',
-      () {
-    fixture.currentTimeMs = 1000;
-    final sut = fixture.getSut(waitTimeMs: 3000);
-    expect(sut.shouldDebounce(), isFalse);
+    'Debouncer should not signal debounce if the second invocation is late enough',
+    () {
+      fixture.currentTimeMs = 1000;
+      final sut = fixture.getSut(waitTimeMs: 3000);
+      expect(sut.shouldDebounce(), isFalse);
 
-    fixture.currentTimeMs = 4000;
-    expect(sut.shouldDebounce(), isFalse);
-  });
+      fixture.currentTimeMs = 4000;
+      expect(sut.shouldDebounce(), isFalse);
+    },
+  );
 }
 
 class Fixture {

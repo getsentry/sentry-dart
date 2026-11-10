@@ -3,7 +3,7 @@
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../frame_callback_handler.dart';
+import '../bindings/frame_callback_handler.dart';
 import '../utils/internal_logger.dart';
 import 'root_route.dart';
 
@@ -12,6 +12,7 @@ class TimeToDisplayTrackerV2 {
   final Hub _hub;
   final FrameCallbackHandler _frameCallbackHandler;
   SentrySpanV2? _ttfdSpan;
+  bool _preparedTtfdCompleted = false;
   String _appStartRouteName = rootRouteName;
   bool _isAppStartRouteNamePending = false;
 
@@ -20,12 +21,10 @@ class TimeToDisplayTrackerV2 {
   /// Null when no preparation is pending.
   SentrySpanV2? _preparedRootNavigationSpan;
 
-  TimeToDisplayTrackerV2({
-    Hub? hub,
-    FrameCallbackHandler? frameCallbackHandler,
-  })  : _hub = hub ?? HubAdapter(),
-        _frameCallbackHandler =
-            frameCallbackHandler ?? DefaultFrameCallbackHandler();
+  TimeToDisplayTrackerV2({Hub? hub, FrameCallbackHandler? frameCallbackHandler})
+    : _hub = hub ?? HubAdapter(),
+      _frameCallbackHandler =
+          frameCallbackHandler ?? DefaultFrameCallbackHandler();
 
   /// The active TTFD span's ID, used by [SentryFlutter.currentDisplay].
   SpanId? get ttfdSpanId => _ttfdSpan?.spanId;
@@ -46,11 +45,7 @@ class TimeToDisplayTrackerV2 {
       startTimestamp: startTimestamp,
     );
     _preparedRootNavigationSpan = routeSpan;
-    _ensureTtfdSpan(
-      routeSpan,
-      rootRouteName,
-      startTimestamp: startTimestamp,
-    );
+    _ensureTtfdSpan(routeSpan, rootRouteName, startTimestamp: startTimestamp);
   }
 
   /// Whether a prepared app start is still waiting for its first route name.
@@ -86,6 +81,8 @@ class TimeToDisplayTrackerV2 {
     _isAppStartRouteNamePending = false;
     final SentrySpanV2 routeSpan;
     DateTime? displayStartTimestamp = startTimestamp;
+    final preparedTtfdCompleted = _preparedTtfdCompleted;
+    _preparedTtfdCompleted = false;
     switch (_preparedRootNavigationSpan) {
       case final prepared?:
         _preparedRootNavigationSpan = null;
@@ -108,6 +105,7 @@ class TimeToDisplayTrackerV2 {
       routeName,
       startTimestamp: displayStartTimestamp,
       ttidEndTimestamp: ttidEndTimestamp,
+      createTtfdSpan: !preparedTtfdCompleted,
     );
     return routeSpan;
   }
@@ -124,17 +122,22 @@ class TimeToDisplayTrackerV2 {
   }
 
   SentrySpanV2 _createRouteSpan(String routeName, {DateTime? startTimestamp}) =>
-      _hub.startIdleSpan(routeName,
-          startTimestamp: startTimestamp,
-          attributes: {
-            SemanticAttributesConstants.sentryOp:
-                SentryAttribute.string(SentrySpanOperations.uiLoad),
-            SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-                SentryTraceOrigins.autoNavigationRouteObserver),
-            SemanticAttributesConstants.sentrySegmentNameSource:
-                SentryAttribute.string(
-                    SentryTransactionNameSource.component.name),
-          });
+      _hub.startIdleSpan(
+        routeName,
+        startTimestamp: startTimestamp,
+        attributes: {
+          SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+            SentrySpanOperations.uiLoad,
+          ),
+          SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+            SentryTraceOrigins.autoNavigationRouteObserver,
+          ),
+          SemanticAttributesConstants.sentrySegmentNameSource:
+              SentryAttribute.string(
+                SentryTransactionNameSource.component.name,
+              ),
+        },
+      );
 
   /// Ensures the TTFD span exists, creating it if not already present.
   void _ensureTtfdSpan(
@@ -143,17 +146,20 @@ class TimeToDisplayTrackerV2 {
     DateTime? startTimestamp,
   }) {
     if (_ttfdSpan != null) return;
-    if (_hub.options
-        case SentryFlutterOptions(enableTimeToFullDisplayTracing: true)) {
+    if (_hub.options case SentryFlutterOptions(
+      enableTimeToFullDisplayTracing: true,
+    )) {
       _ttfdSpan = _hub.startInactiveSpan(
         '$routeName full display',
         parentSpan: parentSpan,
         startTimestamp: startTimestamp,
         attributes: {
-          SemanticAttributesConstants.sentryOp:
-              SentryAttribute.string(SentrySpanOperations.uiTimeToFullDisplay),
+          SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+            SentrySpanOperations.uiTimeToFullDisplay,
+          ),
           SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-              SentryTraceOrigins.autoNavigationRouteObserver),
+            SentryTraceOrigins.autoNavigationRouteObserver,
+          ),
         },
       );
     }
@@ -165,28 +171,38 @@ class TimeToDisplayTrackerV2 {
     String routeName, {
     DateTime? startTimestamp,
     DateTime? ttidEndTimestamp,
+    bool createTtfdSpan = true,
   }) {
-    _ensureTtfdSpan(routeSpan, routeName, startTimestamp: startTimestamp);
+    // The prepared TTFD may already have completed before
+    // the engine delivers the first-frame timing callback.
+    if (createTtfdSpan) {
+      _ensureTtfdSpan(routeSpan, routeName, startTimestamp: startTimestamp);
+    }
 
     final ttidSpan = _hub.startInactiveSpan(
       '$routeName initial display',
       parentSpan: routeSpan,
       startTimestamp: startTimestamp,
       attributes: {
-        SemanticAttributesConstants.sentryOp:
-            SentryAttribute.string(SentrySpanOperations.uiTimeToInitialDisplay),
+        SemanticAttributesConstants.sentryOp: SentryAttribute.string(
+          SentrySpanOperations.uiTimeToInitialDisplay,
+        ),
         SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
-            SentryTraceOrigins.autoNavigationRouteObserver),
+          SentryTraceOrigins.autoNavigationRouteObserver,
+        ),
       },
     );
     if (ttidEndTimestamp != null) {
       if (startTimestamp != null) {
         ttidSpan.setAttribute(
-            SemanticAttributesConstants.appVitalsTtidValue,
-            SentryAttribute.double(ttidEndTimestamp
+          SemanticAttributesConstants.appVitalsTtidValue,
+          SentryAttribute.double(
+            ttidEndTimestamp
                 .difference(startTimestamp)
                 .inMilliseconds
-                .toDouble()));
+                .toDouble(),
+          ),
+        );
       }
       ttidSpan.end(endTimestamp: ttidEndTimestamp);
     } else {
@@ -194,11 +210,11 @@ class TimeToDisplayTrackerV2 {
         final endTimestamp = DateTime.now();
         if (startTimestamp != null) {
           ttidSpan.setAttribute(
-              SemanticAttributesConstants.appVitalsTtidValue,
-              SentryAttribute.double(endTimestamp
-                  .difference(startTimestamp)
-                  .inMilliseconds
-                  .toDouble()));
+            SemanticAttributesConstants.appVitalsTtidValue,
+            SentryAttribute.double(
+              endTimestamp.difference(startTimestamp).inMilliseconds.toDouble(),
+            ),
+          );
         }
         ttidSpan.end(endTimestamp: endTimestamp);
       });
@@ -216,18 +232,40 @@ class TimeToDisplayTrackerV2 {
     }
     final endTimestamp = DateTime.now();
     ttfdSpan.setAttribute(
-        SemanticAttributesConstants.appVitalsTtfdValue,
-        SentryAttribute.double(endTimestamp
+      SemanticAttributesConstants.appVitalsTtfdValue,
+      SentryAttribute.double(
+        endTimestamp
             .difference(ttfdSpan.startTimestamp)
             .inMilliseconds
-            .toDouble()));
+            .toDouble(),
+      ),
+    );
+    _preparedTtfdCompleted = _preparedRootNavigationSpan != null;
     ttfdSpan.end(endTimestamp: endTimestamp);
     _ttfdSpan = null;
+  }
+
+  /// Cancels the prepared app start without ending a later navigation.
+  void cancelAppStartPreparation() {
+    final prepared = _preparedRootNavigationSpan;
+    if (prepared == null) return;
+    _preparedRootNavigationSpan = null;
+    _isAppStartRouteNamePending = false;
+    _preparedTtfdCompleted = false;
+    _ttfdSpan = null;
+    prepared
+      ..status = SentrySpanStatusV2.ok
+      ..setAttribute(
+        SemanticAttributesConstants.sentryIdleSpanFinishReason,
+        SentryAttribute.string(SentryIdleSpanFinishReasons.cancelled),
+      )
+      ..end();
   }
 
   /// Cancels all spans for the current route and resets tracker state.
   void cancelCurrentRoute() {
     _ttfdSpan = null;
+    _preparedTtfdCompleted = false;
     _preparedRootNavigationSpan = null;
     _isAppStartRouteNamePending = false;
 

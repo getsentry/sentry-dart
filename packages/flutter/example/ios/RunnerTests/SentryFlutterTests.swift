@@ -88,6 +88,15 @@ final class SentryFlutterTests: XCTestCase {
     XCTAssertEqual("0000", fixture.options.urlSession?.configuration.connectionProxyDictionary?[kCFProxyPasswordKey as String] as? String)
   }
 
+  func testUpdateEnablesLogsAndMetrics() {
+    let sut = fixture.getSut()
+
+    sut.update(options: fixture.options, with: [:])
+
+    XCTAssertEqual(true, fixture.options.enableLogs)
+    XCTAssertEqual(true, fixture.options.enableMetrics)
+  }
+
   func testUpdateSocksProxy() {
     let sut = fixture.getSut()
 

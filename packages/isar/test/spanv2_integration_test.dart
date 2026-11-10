@@ -8,7 +8,7 @@ import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:isar/isar.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_isar/sentry_isar.dart';
 
 import 'person.dart';
@@ -32,14 +32,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late int count;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          count = await collection.count();
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        count = await collection.count();
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -58,11 +54,11 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('isar'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-db'),
       );
       expect(
@@ -79,16 +75,12 @@ void main() {
       final collection = fixture.isar.persons;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await fixture.isar.writeTxn(() async {
-            await collection.put(Person()..name = 'John Doe');
-          });
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await fixture.isar.writeTxn(() async {
+          await collection.put(Person()..name = 'John Doe');
+        });
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -108,11 +100,11 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('isar'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-db'),
       );
       expect(span.parentSpan, equals(transactionSpan));
@@ -127,14 +119,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late Person? person;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          person = await collection.get(1);
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        person = await collection.get(1);
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -154,7 +142,7 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('isar'),
       );
       expect(span.parentSpan, equals(transactionSpan));

@@ -13,7 +13,7 @@ Future<void> main() async {
     ('Image', image_bench.execute),
     ('Memory', memory_bench.execute),
     if (Platform.isAndroid) ('JNI', jni_bench.execute),
-    ('Envelope builder', envelope_builder_bench.execute)
+    ('Envelope builder', envelope_builder_bench.execute),
   ];
 
   RegExp? filterRegexp;

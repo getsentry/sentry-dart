@@ -41,34 +41,43 @@ void main() {
         await sut.loadWebSdk(productionScripts);
       }, throwsA(isA<TrustedTypesException>()));
 
-      final script = fetchAllScripts().where((element) =>
-          element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));
+      final script = fetchAllScripts().where(
+        (element) =>
+            element.src.contains('$jsSdkVersion/bundle.tracing.min.js'),
+      );
       expect(script, isEmpty);
     });
 
     test(
-        'Wrong policy name: does not inject script with automatedTestMode false',
-        () async {
-      fixture.options.automatedTestMode = false;
-      final sut = fixture.getSut();
+      'Wrong policy name: does not inject script with automatedTestMode false',
+      () async {
+        fixture.options.automatedTestMode = false;
+        final sut = fixture.getSut();
 
-      await sut.loadWebSdk(productionScripts);
+        await sut.loadWebSdk(productionScripts);
 
-      final script = fetchAllScripts().where((element) =>
-          element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));
-      expect(script, isEmpty);
-    });
+        final script = fetchAllScripts().where(
+          (element) =>
+              element.src.contains('$jsSdkVersion/bundle.tracing.min.js'),
+        );
+        expect(script, isEmpty);
+      },
+    );
 
     test('Correct policy name: Completes', () {
       final sut = fixture.getSut();
 
-      final Future<void> done = sut.loadWebSdk(productionScripts,
-          trustedTypePolicyName: 'my-custom-policy-name');
+      final Future<void> done = sut.loadWebSdk(
+        productionScripts,
+        trustedTypePolicyName: 'my-custom-policy-name',
+      );
       expect(done, isA<Future<void>>());
 
       final scripts = fetchAllScripts();
       expect(
-          scripts.first.src, endsWith('$jsSdkVersion/bundle.tracing.min.js'));
+        scripts.first.src,
+        endsWith('$jsSdkVersion/bundle.tracing.min.js'),
+      );
     });
   });
 }

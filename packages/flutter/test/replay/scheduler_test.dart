@@ -87,9 +87,13 @@ void main() {
     // The scheduler's internal timer (1ms interval) elapses well within
     // this delay, but the capture itself is still pending on `guard`.
     await Future<void>.delayed(const Duration(milliseconds: 50));
-    expect(stopped, isFalse,
-        reason: 'stop() must not return before the in-flight '
-            'callback completes');
+    expect(
+      stopped,
+      isFalse,
+      reason:
+          'stop() must not return before the in-flight '
+          'callback completes',
+    );
 
     guard.complete();
     await stopFuture;
@@ -108,23 +112,28 @@ void main() {
       callback(Duration.zero);
 
       var stopped = false;
-      unawaited(fixture.sut.stop().then((_) {
-        stopped = true;
-      }));
+      unawaited(
+        fixture.sut.stop().then((_) {
+          stopped = true;
+        }),
+      );
       async.elapse(const Duration(milliseconds: 1));
 
       async.elapse(const Duration(milliseconds: 1999));
-      expect(stopped, isFalse,
-          reason: 'stop() must wait for the in-flight callback up to the '
-              'timeout');
+      expect(
+        stopped,
+        isFalse,
+        reason:
+            'stop() must wait for the in-flight callback up to the '
+            'timeout',
+      );
 
       async.elapse(const Duration(milliseconds: 1));
       expect(stopped, isTrue);
     });
   });
 
-  test(
-      'start() resumes capturing after stop() times out on a stalled '
+  test('start() resumes capturing after stop() times out on a stalled '
       'callback', () {
     fakeAsync((async) {
       final guard = Completer<void>();
@@ -138,9 +147,11 @@ void main() {
       expect(fixture.calls, 1);
 
       var stopped = false;
-      unawaited(fixture.sut.stop().then((_) {
-        stopped = true;
-      }));
+      unawaited(
+        fixture.sut.stop().then((_) {
+          stopped = true;
+        }),
+      );
       // +1ms for the pending scheduling timer, +2s for the stop() timeout,
       // which only starts counting once that first await resolves.
       async.elapse(const Duration(seconds: 2, milliseconds: 1));
@@ -160,8 +171,7 @@ void main() {
     });
   });
 
-  test(
-      'a stalled callback that completes after stop() times out does not '
+  test('a stalled callback that completes after stop() times out does not '
       'schedule an extra frame callback on restart', () {
     fakeAsync((async) {
       final guard = Completer<void>();
@@ -185,22 +195,28 @@ void main() {
       fixture.registeredCallback = Completer<FrameCallback>();
       fixture.sut.start();
       async.flushMicrotasks();
-      expect(fixture.postFrameCallbackRegistrations, 2,
-          reason: 'start() must register exactly one new frame callback');
+      expect(
+        fixture.postFrameCallbackRegistrations,
+        2,
+        reason: 'start() must register exactly one new frame callback',
+      );
 
       // The old, abandoned callback finally completes. Its stale listener
       // must not register a second, unwanted frame callback on top of the
       // one start() just registered.
       guard.complete();
       async.flushMicrotasks();
-      expect(fixture.postFrameCallbackRegistrations, 2,
-          reason: 'a stale callback future must not re-trigger scheduling '
-              'after stop() has moved on');
+      expect(
+        fixture.postFrameCallbackRegistrations,
+        2,
+        reason:
+            'a stale callback future must not re-trigger scheduling '
+            'after stop() has moved on',
+      );
     });
   });
 
-  test(
-      'a stalled callback that completes after stop() times out does not '
+  test('a stalled callback that completes after stop() times out does not '
       'schedule an extra frame callback when stop() races the scheduling '
       'timer', () {
     fakeAsync((async) {
@@ -226,8 +242,11 @@ void main() {
       fixture.registeredCallback = Completer<FrameCallback>();
       fixture.sut.start();
       async.flushMicrotasks();
-      expect(fixture.postFrameCallbackRegistrations, 2,
-          reason: 'start() must register exactly one new frame callback');
+      expect(
+        fixture.postFrameCallbackRegistrations,
+        2,
+        reason: 'start() must register exactly one new frame callback',
+      );
 
       // The old, abandoned callback finally completes. Its listener - even
       // though it was only attached to the stalled future after stop() had
@@ -235,9 +254,13 @@ void main() {
       // unwanted frame callback on top of the one start() just registered.
       guard.complete();
       async.flushMicrotasks();
-      expect(fixture.postFrameCallbackRegistrations, 2,
-          reason: 'a stale callback future must not re-trigger scheduling '
-              'after stop() raced the scheduling timer');
+      expect(
+        fixture.postFrameCallbackRegistrations,
+        2,
+        reason:
+            'a stale callback future must not re-trigger scheduling '
+            'after stop() raced the scheduling timer',
+      );
     });
   });
 }
@@ -250,18 +273,16 @@ class _Fixture {
   var _frames = 0;
 
   _Fixture([SchedulerCallback? callback]) {
-    sut = Scheduler(
-      const Duration(milliseconds: 1),
-      (timestamp) async {
-        calls++;
-        await callback?.call(timestamp);
-      },
-      _addPostFrameCallbackMock,
-    );
+    sut = Scheduler(const Duration(milliseconds: 1), (timestamp) async {
+      calls++;
+      await callback?.call(timestamp);
+    }, _addPostFrameCallbackMock);
   }
 
-  void _addPostFrameCallbackMock(FrameCallback callback,
-      {String debugLabel = 'callback'}) {
+  void _addPostFrameCallbackMock(
+    FrameCallback callback, {
+    String debugLabel = 'callback',
+  }) {
     postFrameCallbackRegistrations++;
     if (!registeredCallback.isCompleted) {
       registeredCallback.complete(callback);
@@ -279,8 +300,10 @@ class _Fixture {
     if (awaitCallback) {
       return future;
     } else {
-      return future.timeout(const Duration(milliseconds: 200),
-          onTimeout: () {});
+      return future.timeout(
+        const Duration(milliseconds: 200),
+        onTimeout: () {},
+      );
     }
   }
 }

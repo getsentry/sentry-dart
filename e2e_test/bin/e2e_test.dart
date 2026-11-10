@@ -64,8 +64,9 @@ bool _verifyEvent(Map<String, dynamic> event) {
     print('Dist is not 1');
     return false;
   }
-  final environment =
-      tags.firstWhere((element) => element['key'] == 'environment');
+  final environment = tags.firstWhere(
+    (element) => element['key'] == 'environment',
+  );
   if (environment['value'] != 'e2e') {
     print('Environment is not e2e');
     return false;

@@ -5,11 +5,7 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 
 void main() {
-  final sentryPackage = SentryPackage(
-    'name',
-    'version',
-    unknown: testUnknown,
-  );
+  final sentryPackage = SentryPackage('name', 'version', unknown: testUnknown);
 
   final sentryPackageJson = <String, dynamic>{
     'name': 'name',
@@ -21,43 +17,13 @@ void main() {
     test('toJson', () {
       final json = sentryPackage.toJson();
 
-      expect(
-        MapEquality().equals(sentryPackageJson, json),
-        true,
-      );
+      expect(MapEquality().equals(sentryPackageJson, json), true);
     });
     test('fromJson', () {
       final sentryPackage = SdkVersion.fromJson(sentryPackageJson);
       final json = sentryPackage.toJson();
 
-      expect(
-        MapEquality().equals(sentryPackageJson, json),
-        true,
-      );
-    });
-  });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = sentryPackage;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith();
-
-      expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
-        true,
-      );
-    });
-    test('copyWith takes new values', () {
-      final data = sentryPackage;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith(
-        name: 'name1',
-        version: 'version1',
-      );
-
-      expect('name1', copy.name);
-      expect('version1', copy.version);
+      expect(MapEquality().equals(sentryPackageJson, json), true);
     });
   });
 }

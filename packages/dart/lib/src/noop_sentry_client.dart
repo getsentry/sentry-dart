@@ -5,10 +5,10 @@ import 'protocol.dart';
 import 'protocol/sentry_feedback.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
-import 'sentry_envelope.dart';
-import 'sentry_trace_context_header.dart';
+import 'envelope/sentry_envelope.dart';
+import 'telemetry/span/propagation/sentry_trace_context_header.dart';
 import 'telemetry/metric/metric.dart';
-import 'telemetry/span/sentry_span_v2.dart';
+import 'telemetry/span/streaming/sentry_span_v2.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -25,8 +25,7 @@ class NoOpSentryClient implements SentryClient {
     dynamic stackTrace,
     Scope? scope,
     Hint? hint,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
   Future<SentryId> captureException(
@@ -34,8 +33,7 @@ class NoOpSentryClient implements SentryClient {
     dynamic stackTrace,
     Scope? scope,
     Hint? hint,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -45,8 +43,7 @@ class NoOpSentryClient implements SentryClient {
     List<dynamic>? params,
     Scope? scope,
     Hint? hint,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
   Future<SentryId> captureEnvelope(SentryEnvelope envelope) async =>
@@ -61,16 +58,17 @@ class NoOpSentryClient implements SentryClient {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
     Hint? hint,
-  }) async =>
-      SentryId.empty();
+  }) async => SentryId.empty();
 
   @override
-  Future<SentryId> captureFeedback(SentryFeedback feedback,
-          {Scope? scope, Hint? hint}) async =>
-      SentryId.empty();
+  Future<SentryId> captureFeedback(
+    SentryFeedback feedback, {
+    Scope? scope,
+    Hint? hint,
+  }) async => SentryId.empty();
 
   @override
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {}
+  Future<void> captureLog(SentryLog log, {Scope? scope}) async {}
 
   @override
   Future<void> captureMetric(SentryMetric metric, {Scope? scope}) async {}

@@ -4,11 +4,12 @@ import 'package:dio/dio.dart';
 
 import 'no_such_method_provider.dart';
 
-typedef MockFetchMethod = Future<ResponseBody> Function(
-  RequestOptions options,
-  Stream<Uint8List>? requestStream,
-  Future<dynamic>? cancelFuture,
-);
+typedef MockFetchMethod =
+    Future<ResponseBody> Function(
+      RequestOptions options,
+      Stream<Uint8List>? requestStream,
+      Future<dynamic>? cancelFuture,
+    );
 
 typedef MockCloseMethod = void Function({bool force});
 

@@ -15,7 +15,7 @@ void main() {
 
   final sentryStackTraceJson = <String, dynamic>{
     'frames': [
-      {'abs_path': 'abs'}
+      {'abs_path': 'abs'},
     ],
     'registers': {'key': 'value'},
     'lang': 'de',
@@ -27,50 +27,13 @@ void main() {
     test('toJson', () {
       final json = sentryStackTrace.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryStackTraceJson, json),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryStackTraceJson, json), true);
     });
     test('fromJson', () {
       final sentryStackTrace = SentryStackTrace.fromJson(sentryStackTraceJson);
       final json = sentryStackTrace.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(sentryStackTraceJson, json),
-        true,
-      );
-    });
-  });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = sentryStackTrace;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith();
-
-      expect(data.toJson(), copy.toJson());
-    });
-
-    test('copyWith takes new values', () {
-      final data = sentryStackTrace;
-
-      final frames = [SentryStackFrame(absPath: 'abs1')];
-      final registers = {'key1': 'value1'};
-// ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith(
-        frames: frames,
-        registers: registers,
-      );
-
-      expect(
-        ListEquality().equals(frames, copy.frames),
-        true,
-      );
-      expect(
-        MapEquality().equals(registers, copy.registers),
-        true,
-      );
+      expect(DeepCollectionEquality().equals(sentryStackTraceJson, json), true);
     });
   });
 }

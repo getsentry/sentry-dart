@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:hive/hive.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_hive/sentry_hive.dart';
 import 'package:test/test.dart';
 
@@ -35,14 +35,10 @@ void main() {
 
       late SentrySpanV2 transactionSpan;
       late Person? result;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          result = box.get('test-key');
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        result = box.get('test-key');
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -62,11 +58,11 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('flutter_hive'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-box'),
       );
       expect(span.attributes['sync']?.value, equals(true));
@@ -84,14 +80,10 @@ void main() {
       final box = fixture.box;
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await box.put('new-key', Person('Jane Doe'));
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await box.put('new-key', Person('Jane Doe'));
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -108,11 +100,11 @@ void main() {
         equals('db'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbSystem]?.value,
+        span.attributes[SemanticAttributesConstants.dbSystemName]?.value,
         equals('flutter_hive'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.dbName]?.value,
+        span.attributes[SemanticAttributesConstants.dbNamespace]?.value,
         equals('test-box'),
       );
       expect(span.parentSpan, equals(transactionSpan));

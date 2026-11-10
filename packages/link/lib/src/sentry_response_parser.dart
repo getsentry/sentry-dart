@@ -8,8 +8,8 @@ import 'package:sentry/sentry.dart';
 
 class SentryResponseParser implements ResponseParser {
   SentryResponseParser({ResponseParser? inner, Hub? hub})
-      : inner = inner ?? const ResponseParser(),
-        _hub = hub ?? HubAdapter() {
+    : inner = inner ?? const ResponseParser(),
+      _hub = hub ?? HubAdapter() {
     _spanFactory = _hub.options.spanFactory;
   }
 
@@ -24,7 +24,8 @@ class SentryResponseParser implements ResponseParser {
         ? _spanFactory.createSpan(
             parentSpan: parentSpan,
             operation: 'serialize.http.client',
-            description: 'Response deserialization '
+            description:
+                'Response deserialization '
                 'from JSON map to Response object',
           )
         : null;

@@ -67,8 +67,9 @@ class Scheduler {
   @pragma('vm:prefer-inline')
   void _runAfterNextFrame() {
     final runningCallback = _runningCallback;
-    final generation =
-        runningCallback == null ? _generation : _runningCallbackGeneration;
+    final generation = runningCallback == null
+        ? _generation
+        : _runningCallbackGeneration;
     (runningCallback ?? Future.value()).whenComplete(() {
       // A stop() happened since runningCallback started: it's abandoned, so
       // don't act on it, even though this listener may only have been

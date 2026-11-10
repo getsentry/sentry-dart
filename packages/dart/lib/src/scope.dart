@@ -3,17 +3,19 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
+import 'constants.dart';
 import 'event_processor.dart';
-import 'event_processor/run_event_processors.dart';
+import 'run_event_processors.dart';
 import 'hint.dart';
-import 'propagation_context.dart';
+import 'telemetry/span/propagation/propagation_context.dart';
 import 'protocol.dart';
 import 'scope_observer.dart';
-import 'sentry_attachment/sentry_attachment.dart';
+import 'attachments/sentry_attachment.dart';
 import 'sentry_options.dart';
-import 'sentry_span_interface.dart';
-import 'sentry_tracer.dart';
-import 'telemetry/span/sentry_span_v2.dart';
+import 'telemetry/span/transaction/sentry_span_interface.dart';
+import 'telemetry/span/transaction/sentry_tracer.dart';
+import 'telemetry/span/streaming/sentry_span_v2.dart';
+import 'utils/internal_logger.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
 
@@ -35,8 +37,9 @@ class Scope {
     _transaction = transaction;
 
     if (_transaction != null && span != null) {
-      final currentTransaction =
-          (span is SentryTracer) ? (span as SentryTracer?) : null;
+      final currentTransaction = (span is SentryTracer)
+          ? (span as SentryTracer?)
+          : null;
       currentTransaction?.name = _transaction!;
     }
   }
@@ -101,7 +104,8 @@ class Scope {
   Future<void> setUser(SentryUser? user) async {
     _setUserSync(user);
     await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.setUser(user));
+      (scopeObserver) async => await scopeObserver.setUser(user),
+    );
   }
 
   List<String> _fingerprint = [];
@@ -158,7 +162,8 @@ class Scope {
     // if it's a List, it should not be a List<SentryRuntime> because it can't
     // be wrapped by the value object since it's a special property for having
     // multiple runtimes and it has a dedicated property within the Contexts class.
-    _contexts[key] = (value is num ||
+    _contexts[key] =
+        (value is num ||
             value is bool ||
             value is String ||
             (value is List &&
@@ -172,7 +177,38 @@ class Scope {
   FutureOr<void> setContexts(String key, dynamic value) {
     _setContextsSync(key, value);
     return _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.setContexts(key, value));
+      (scopeObserver) async => await scopeObserver.setContexts(key, value),
+    );
+  }
+
+  /// Adds a feature flag evaluation to the scope's feature flags context.
+  ///
+  /// Flags are stored under [SentryFeatureFlags.type] and attached to events.
+  /// A flag already present is moved to the newest position, and the buffer is
+  /// capped at 100 entries — the oldest is dropped only when a new flag is added
+  /// beyond the limit.
+  FutureOr<void> addFeatureFlag(String flag, bool result) {
+    final flags =
+        _contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
+        SentryFeatureFlags(values: []);
+    final values = List<SentryFeatureFlag>.from(flags.values);
+
+    final index = values.indexWhere((element) => element.flag == flag);
+    if (index != -1) {
+      values.removeAt(index);
+    }
+
+    values.add(SentryFeatureFlag(flag: flag, result: result));
+
+    while (values.length > 100) {
+      values.removeAt(0);
+    }
+
+    flags.values = values;
+
+    _options.sdk.addFeature(SentryFeatures.featureFlags);
+
+    return setContexts(SentryFeatureFlags.type, flags);
   }
 
   /// Removes a value from the Scope's contexts
@@ -180,7 +216,8 @@ class Scope {
     _contexts.remove(key);
 
     return _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.removeContexts(key));
+      (scopeObserver) async => await scopeObserver.removeContexts(key),
+    );
   }
 
   /// Scope's event processor list
@@ -219,17 +256,14 @@ class Scope {
           hint,
         );
         if (processedBreadcrumb == null) {
-          _options.log(
-            SentryLevel.info,
-            'Breadcrumb was dropped by beforeBreadcrumb',
-          );
+          internalLogger.info('Breadcrumb was dropped by beforeBreadcrumb');
           return null;
         }
       } catch (exception, stackTrace) {
-        _options.log(
-          SentryLevel.error,
+        processedBreadcrumb = null;
+        internalLogger.error(
           'The BeforeBreadcrumb callback threw an exception',
-          exception: exception,
+          error: exception,
           stackTrace: stackTrace,
         );
         if (_options.automatedTestMode) {
@@ -252,8 +286,10 @@ class Scope {
   Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
     final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint ?? Hint());
     if (addedBreadcrumb != null) {
-      await _callScopeObservers((scopeObserver) async =>
-          await scopeObserver.addBreadcrumb(addedBreadcrumb));
+      await _callScopeObservers(
+        (scopeObserver) async =>
+            await scopeObserver.addBreadcrumb(addedBreadcrumb),
+      );
     }
   }
 
@@ -283,7 +319,8 @@ class Scope {
   Future<void> clearBreadcrumbs() async {
     _clearBreadcrumbsSync();
     await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.clearBreadcrumbs());
+      (scopeObserver) async => await scopeObserver.clearBreadcrumbs(),
+    );
   }
 
   /// Adds an event processor
@@ -321,14 +358,16 @@ class Scope {
   Future<void> setTag(String key, String value) async {
     _setTagSync(key, value);
     await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.setTag(key, value));
+      (scopeObserver) async => await scopeObserver.setTag(key, value),
+    );
   }
 
   /// Removes a tag from the Scope
   Future<void> removeTag(String key) async {
     _tags.remove(key);
     await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.removeTag(key));
+      (scopeObserver) async => await scopeObserver.removeTag(key),
+    );
   }
 
   void _setExtraSync(String key, dynamic value) {
@@ -337,26 +376,27 @@ class Scope {
 
   /// Sets an extra to the Scope
   @Deprecated(
-      'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible')
+    'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible',
+  )
   Future<void> setExtra(String key, dynamic value) async {
     _setExtraSync(key, value);
     await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.setExtra(key, value));
+      (scopeObserver) async => await scopeObserver.setExtra(key, value),
+    );
   }
 
   /// Removes an extra from the Scope
   @Deprecated(
-      'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible')
+    'Use Contexts instead. Additional data is deprecated in favor of structured Contexts and should be avoided when possible',
+  )
   Future<void> removeExtra(String key) async {
     _extra.remove(key);
     await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.removeExtra(key));
+      (scopeObserver) async => await scopeObserver.removeExtra(key),
+    );
   }
 
-  Future<SentryEvent?> applyToEvent(
-    SentryEvent event,
-    Hint hint,
-  ) async {
+  Future<SentryEvent?> applyToEvent(SentryEvent event, Hint hint) async {
     event
       ..transaction = event.transaction ?? transaction
       ..user = _mergeUsers(user, event.user)
@@ -391,15 +431,29 @@ class Scope {
       }
     });
 
+    final activeSpan = _activeSpan;
     final newSpan = span;
     if (event.contexts.trace == null) {
-      if (newSpan != null) {
+      if (activeSpan != null) {
+        event.contexts.trace = SentryTraceContext(
+          traceId: activeSpan.traceId,
+          spanId: activeSpan.spanId,
+          parentSpanId: activeSpan.parentSpan?.spanId,
+          operation:
+              activeSpan.attributes[SemanticAttributesConstants.sentryOp]?.value
+                  as String? ??
+              'default',
+          sampled: activeSpan.samplingDecision.sampled,
+        );
+      } else if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
           sampled: newSpan.samplingDecision?.sampled,
+          status: newSpan.status ?? SpanStatus.ok(),
         );
       } else {
-        event.contexts.trace =
-            SentryTraceContext.fromPropagationContext(propagationContext);
+        event.contexts.trace = SentryTraceContext.fromPropagationContext(
+          propagationContext,
+        );
       }
     }
 
@@ -408,7 +462,9 @@ class Scope {
 
   /// Merge the scope contexts runtimes and the event contexts runtimes.
   void _mergeEventContextsRuntimes(
-      List<SentryRuntime> values, SentryEvent event) {
+    List<SentryRuntime> values,
+    SentryEvent event,
+  ) {
     for (final runtime in values) {
       event.contexts.addRuntime(runtime);
     }
@@ -466,6 +522,7 @@ class Scope {
   }
 
   /// Clones the current Scope
+  @internal
   Scope clone() {
     final clone = Scope(_options)
       ..level = level
@@ -504,7 +561,7 @@ class Scope {
         clone._setContextsSync(
           entry.key,
           entry.key == SentryFeatureFlags.type && value is SentryFeatureFlags
-              ? value.copy()
+              ? value.clone()
               : value,
         );
       }

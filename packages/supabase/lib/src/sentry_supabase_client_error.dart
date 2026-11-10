@@ -3,5 +3,5 @@ class SentrySupabaseClientError implements Exception {
   SentrySupabaseClientError(this._message);
 
   @override
-  String toString() => 'Exception: $_message';
+  String toString() => _message;
 }

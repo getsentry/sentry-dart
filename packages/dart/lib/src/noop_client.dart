@@ -11,8 +11,9 @@ class NoOpClient implements Client {
   static final Future<Response> _response = Future.value(Response('', 500));
   static final Future<String> _string = Future.value('');
   static final Future<Uint8List> _intList = Future.value(Uint8List(0));
-  static final Future<StreamedResponse> _streamedResponse =
-      Future.value(StreamedResponse(Stream.empty(), 500));
+  static final Future<StreamedResponse> _streamedResponse = Future.value(
+    StreamedResponse(Stream.empty(), 500),
+  );
 
   factory NoOpClient() {
     return _instance;
@@ -27,8 +28,7 @@ class NoOpClient implements Client {
     Map<String, String>? headers,
     Object? body,
     Encoding? encoding,
-  }) =>
-      _response;
+  }) => _response;
 
   @override
   Future<Response> get(url, {Map<String, String>? headers}) => _response;
@@ -37,19 +37,28 @@ class NoOpClient implements Client {
   Future<Response> head(url, {Map<String, String>? headers}) => _response;
 
   @override
-  Future<Response> patch(url,
-          {Map<String, String>? headers, body, Encoding? encoding}) =>
-      _response;
+  Future<Response> patch(
+    url, {
+    Map<String, String>? headers,
+    body,
+    Encoding? encoding,
+  }) => _response;
 
   @override
-  Future<Response> post(url,
-          {Map<String, String>? headers, body, Encoding? encoding}) =>
-      _response;
+  Future<Response> post(
+    url, {
+    Map<String, String>? headers,
+    body,
+    Encoding? encoding,
+  }) => _response;
 
   @override
-  Future<Response> put(url,
-          {Map<String, String>? headers, body, Encoding? encoding}) =>
-      _response;
+  Future<Response> put(
+    url, {
+    Map<String, String>? headers,
+    body,
+    Encoding? encoding,
+  }) => _response;
 
   @override
   Future<String> read(url, {Map<String, String>? headers}) => _string;

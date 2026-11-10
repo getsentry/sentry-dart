@@ -1,6 +1,5 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/profiling.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -8,11 +7,7 @@ final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 final fakeException = Exception('Error');
 
 SentryMessage getFakeMessage() {
-  return SentryMessage(
-    'message 1',
-    template: 'message %d',
-    params: ['1'],
-  );
+  return SentryMessage('message 1', template: 'message %d', params: ['1']);
 }
 
 SentryUser getFakeUser() {
@@ -49,7 +44,7 @@ SentryEvent getFakeEvent() {
         type: 'navigation',
         data: {'screen': 'MainActivity', 'state': 'created'},
         level: SentryLevel.info,
-      )
+      ),
     ],
     contexts: Contexts(
       operatingSystem: SentryOperatingSystem(
@@ -70,10 +65,7 @@ SentryEvent getFakeEvent() {
         deviceAppHash: '5afd3a6',
         startTime: DateTime.now().toUtc(),
       ),
-      browser: SentryBrowser(
-        name: 'Firefox',
-        version: '42.0.1',
-      ),
+      browser: SentryBrowser(name: 'Firefox', version: '42.0.1'),
       device: SentryDevice(
         name: 'SM-P900',
         family: 'SM-P900',
@@ -121,7 +113,8 @@ class DropSpansEventProcessor implements EventProcessor {
     if (event is SentryTransaction) {
       if (numberOfSpansToDrop > event.spans.length) {
         throw ArgumentError(
-            'numberOfSpansToDrop must be less than the number of spans in the transaction');
+          'numberOfSpansToDrop must be less than the number of spans in the transaction',
+        );
       }
       final droppedSpans = event.spans.take(numberOfSpansToDrop).toList();
       event.spans.removeWhere((element) => droppedSpans.contains(element));
@@ -141,8 +134,8 @@ class FunctionEventProcessor implements EventProcessor {
   }
 }
 
-typedef EventProcessorFunction = SentryEvent? Function(
-    SentryEvent event, Hint hint);
+typedef EventProcessorFunction =
+    SentryEvent? Function(SentryEvent event, Hint hint);
 
 SentryEnvelope getFakeEnvelope() {
   return SentryEnvelope.fromEvent(
@@ -172,7 +165,10 @@ class MockRateLimiter implements RateLimiter {
 
   @override
   void updateRetryAfterLimits(
-      String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
+    String? sentryRateLimitHeader,
+    String? retryAfterHeader,
+    int errorCode,
+  ) {
     this.sentryRateLimitHeader = sentryRateLimitHeader;
     this.retryAfterHeader = retryAfterHeader;
     this.errorCode = errorCode;
@@ -185,10 +181,5 @@ final Map<String, dynamic> testUnknown = {
   'unknown-num': 9001,
 };
 
-@GenerateMocks([
-  SentryProfilerFactory,
-  SentryProfiler,
-  SentryProfileInfo,
-  ExceptionTypeIdentifier,
-])
+@GenerateMocks([ExceptionTypeIdentifier])
 void main() {}

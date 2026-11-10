@@ -5,34 +5,22 @@ void main() {
   group('$SentryAttribute', () {
     test('string serializes value with string type', () {
       final attribute = SentryAttribute.string('test');
-      expect(attribute.toJson(), {
-        'value': 'test',
-        'type': 'string',
-      });
+      expect(attribute.toJson(), {'value': 'test', 'type': 'string'});
     });
 
     test('bool serializes value with boolean type', () {
       final attribute = SentryAttribute.bool(true);
-      expect(attribute.toJson(), {
-        'value': true,
-        'type': 'boolean',
-      });
+      expect(attribute.toJson(), {'value': true, 'type': 'boolean'});
     });
 
     test('int serializes value with integer type', () {
       final attribute = SentryAttribute.int(1);
-      expect(attribute.toJson(), {
-        'value': 1,
-        'type': 'integer',
-      });
+      expect(attribute.toJson(), {'value': 1, 'type': 'integer'});
     });
 
     test('double serializes value with double type', () {
       final attribute = SentryAttribute.double(1.0);
-      expect(attribute.toJson(), {
-        'value': 1.0,
-        'type': 'double',
-      });
+      expect(attribute.toJson(), {'value': 1.0, 'type': 'double'});
     });
 
     test('string array serializes values with array type', () {
@@ -69,10 +57,7 @@ void main() {
 
     test('empty array serializes empty list with array type', () {
       final attribute = SentryAttribute.stringArray([]);
-      expect(attribute.toJson(), {
-        'value': <String>[],
-        'type': 'array',
-      });
+      expect(attribute.toJson(), {'value': <String>[], 'type': 'array'});
     });
 
     test('array copies the source list so later mutations are ignored', () {

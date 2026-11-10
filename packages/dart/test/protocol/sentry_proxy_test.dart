@@ -27,26 +27,38 @@ void main() {
 
     test('returns "PROXY host:port" for ProxyType.http with host and port', () {
       SentryProxy proxy = SentryProxy(
-          type: SentryProxyType.http, host: 'localhost', port: 8080);
+        type: SentryProxyType.http,
+        host: 'localhost',
+        port: 8080,
+      );
       expect(proxy.toPacString(), equals('PROXY localhost:8080'));
     });
 
     test('returns "PROXY host" for ProxyType.http with host only', () {
-      SentryProxy proxy =
-          SentryProxy(type: SentryProxyType.http, host: 'localhost');
+      SentryProxy proxy = SentryProxy(
+        type: SentryProxyType.http,
+        host: 'localhost',
+      );
       expect(proxy.toPacString(), equals('PROXY localhost'));
     });
 
-    test('returns "SOCKS host:port" for ProxyType.socks with host and port',
-        () {
-      SentryProxy proxy = SentryProxy(
-          type: SentryProxyType.socks, host: 'localhost', port: 8080);
-      expect(proxy.toPacString(), equals('SOCKS localhost:8080'));
-    });
+    test(
+      'returns "SOCKS host:port" for ProxyType.socks with host and port',
+      () {
+        SentryProxy proxy = SentryProxy(
+          type: SentryProxyType.socks,
+          host: 'localhost',
+          port: 8080,
+        );
+        expect(proxy.toPacString(), equals('SOCKS localhost:8080'));
+      },
+    );
 
     test('returns "SOCKS host" for ProxyType.socks with host only', () {
-      SentryProxy proxy =
-          SentryProxy(type: SentryProxyType.socks, host: 'localhost');
+      SentryProxy proxy = SentryProxy(
+        type: SentryProxyType.socks,
+        host: 'localhost',
+      );
       expect(proxy.toPacString(), equals('SOCKS localhost'));
     });
 
@@ -65,38 +77,7 @@ void main() {
     test('toJson', () {
       final json = proxy.toJson();
 
-      expect(
-        DeepCollectionEquality().equals(proxyJson, json),
-        true,
-      );
-    });
-  });
-
-  group('copyWith', () {
-    test('copyWith keeps unchanged', () {
-      final data = proxy;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith();
-
-      expect(data.toJson(), copy.toJson());
-    });
-
-    test('copyWith takes new values', () {
-      final data = proxy;
-      // ignore: deprecated_member_use_from_same_package
-      final copy = data.copyWith(
-        host: 'localhost-2',
-        port: 9001,
-        type: SentryProxyType.socks,
-        user: 'user',
-        pass: '1234',
-      );
-
-      expect('localhost-2', copy.host);
-      expect(9001, copy.port);
-      expect(SentryProxyType.socks, copy.type);
-      expect('user', copy.user);
-      expect('1234', copy.pass);
+      expect(DeepCollectionEquality().equals(proxyJson, json), true);
     });
   });
 }

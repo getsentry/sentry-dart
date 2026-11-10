@@ -8,8 +8,8 @@ import 'package:sentry/sentry.dart';
 
 class SentryRequestSerializer implements RequestSerializer {
   SentryRequestSerializer({RequestSerializer? inner, Hub? hub})
-      : inner = inner ?? const RequestSerializer(),
-        _hub = hub ?? HubAdapter() {
+    : inner = inner ?? const RequestSerializer(),
+      _hub = hub ?? HubAdapter() {
     _spanFactory = _hub.options.spanFactory;
   }
 

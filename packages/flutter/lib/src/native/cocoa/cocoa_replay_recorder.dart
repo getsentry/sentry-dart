@@ -4,9 +4,10 @@ import 'package:meta/meta.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_recorder.dart';
-import '../../screenshot/recorder.dart';
-import '../../screenshot/recorder_config.dart';
+import '../../screen_capture/recorder.dart';
+import '../../screen_capture/recorder_config.dart';
 import '../native_memory.dart';
+import '../../utils/internal_logger.dart';
 
 @internal
 class CocoaReplayRecorder {
@@ -14,9 +15,7 @@ class CocoaReplayRecorder {
   final ScreenshotRecorder _recorder;
 
   CocoaReplayRecorder(this._options)
-      : _recorder = ReplayScreenshotRecorder(
-          _options,
-        ) {
+    : _recorder = ReplayScreenshotRecorder(_options) {
     _recorder.config = ScreenshotRecorderConfig(
       pixelRatio: _options.replay.quality.resolutionScalingFactor,
     );
@@ -25,11 +24,11 @@ class CocoaReplayRecorder {
   Future<Map<String, int>?> captureScreenshot() async {
     return _recorder.capture((screenshot) async {
       final data = await screenshot.rawRgbaData;
-      _options.log(
-          SentryLevel.debug,
-          'Replay: captured screenshot ('
-          '${screenshot.width}x${screenshot.height} pixels, '
-          '${data.lengthInBytes} bytes)');
+      internalLogger.debug(
+        'Replay: captured screenshot ('
+        '${screenshot.width}x${screenshot.height} pixels, '
+        '${data.lengthInBytes} bytes)',
+      );
 
       // Malloc memory and copy the data. Native must free it.
       final json = data.toNativeMemory().toJson();

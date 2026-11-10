@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import '../sentry_envelope.dart';
+import '../envelope/sentry_envelope.dart';
 import '../protocol.dart';
 
 /// A transport is in charge of sending the event/envelope either via http

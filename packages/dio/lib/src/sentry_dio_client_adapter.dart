@@ -23,10 +23,7 @@ import 'tracing_client_adapter.dart';
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
 class SentryDioClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
-  SentryDioClientAdapter({
-    required HttpClientAdapter client,
-    Hub? hub,
-  }) {
+  SentryDioClientAdapter({required HttpClientAdapter client, Hub? hub}) {
     _hub = hub ?? HubAdapter();
 
     var innerClient = client;
@@ -53,8 +50,7 @@ class SentryDioClientAdapter implements HttpClientAdapter {
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
-  ) =>
-      _client.fetch(options, requestStream, cancelFuture);
+  ) => _client.fetch(options, requestStream, cancelFuture);
 
   @override
   void close({bool force = false}) => _client.close(force: force);

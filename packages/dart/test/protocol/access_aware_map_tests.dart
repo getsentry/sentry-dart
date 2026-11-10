@@ -5,9 +5,7 @@ import 'package:test/test.dart';
 void main() {
   group('MapBase', () {
     test('set/get value for key', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-      });
+      final sut = AccessAwareMap({'foo': 'foo'});
 
       sut['foo'] = 'bar';
       sut['bar'] = 'foo';
@@ -17,9 +15,7 @@ void main() {
     });
 
     test('clear', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-      });
+      final sut = AccessAwareMap({'foo': 'foo'});
 
       sut.clear();
 
@@ -27,18 +23,15 @@ void main() {
     });
 
     test('keys', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-        'bar': 'bar',
-      });
+      final sut = AccessAwareMap({'foo': 'foo', 'bar': 'bar'});
       expect(
-          sut.keys.sortedBy((it) => it), ['bar', 'foo'].sortedBy((it) => it));
+        sut.keys.sortedBy((it) => it),
+        ['bar', 'foo'].sortedBy((it) => it),
+      );
     });
 
     test('remove', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-      });
+      final sut = AccessAwareMap({'foo': 'foo'});
 
       sut.remove('foo');
 
@@ -48,10 +41,7 @@ void main() {
 
   group('access aware', () {
     test('collects accessedKeys', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-        'bar': 'bar',
-      });
+      final sut = AccessAwareMap({'foo': 'foo', 'bar': 'bar'});
 
       sut['foo'];
       sut['bar'];
@@ -61,10 +51,7 @@ void main() {
     });
 
     test('returns notAccessed data', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-        'bar': 'bar',
-      });
+      final sut = AccessAwareMap({'foo': 'foo', 'bar': 'bar'});
 
       sut['foo'];
 
@@ -77,9 +64,7 @@ void main() {
 
   group('map base functionality', () {
     test('set value with []= operator', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-      });
+      final sut = AccessAwareMap({'foo': 'foo'});
 
       sut['foo'] = 'bar';
       sut['bar'] = 'foo';
@@ -89,9 +74,7 @@ void main() {
     });
 
     test('clear', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-      });
+      final sut = AccessAwareMap({'foo': 'foo'});
 
       sut.clear();
 
@@ -100,10 +83,7 @@ void main() {
     });
 
     test('keys', () {
-      final sut = AccessAwareMap({
-        'foo': 'foo',
-        'bar': 'bar',
-      });
+      final sut = AccessAwareMap({'foo': 'foo', 'bar': 'bar'});
       expect(sut.keys.toSet(), {'foo', 'bar'});
     });
 

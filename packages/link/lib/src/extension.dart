@@ -10,8 +10,9 @@ extension SentryGraphQLErrorExtension on GraphQLError {
   Map<String, dynamic> toJson() {
     return {
       'message': message,
-      'locations':
-          locations?.map((e) => {'line': e.line, 'column': e.column}).toList(),
+      'locations': locations
+          ?.map((e) => {'line': e.line, 'column': e.column})
+          .toList(),
       'paths': path?.map((e) => e.toString()).toList(),
       'extensions': extensions,
     };
@@ -21,10 +22,7 @@ extension SentryGraphQLErrorExtension on GraphQLError {
 /// Extension for [Request]
 extension SentryRequestExtension on Request {
   Map<String, dynamic> toJson() {
-    return {
-      'operation': operation.toJson(),
-      'variables': variables,
-    };
+    return {'operation': operation.toJson(), 'variables': variables};
   }
 
   SentryRequest toSentryRequest() {
@@ -33,7 +31,7 @@ extension SentryRequestExtension on Request {
       data: {
         'query': printNode(operation.document),
         'variables': variables,
-        'operationName': operation.operationName
+        'operationName': operation.operationName,
       },
     );
   }
@@ -42,19 +40,13 @@ extension SentryRequestExtension on Request {
 /// Extension for [Response]
 extension SentryResponseExtension on Response {
   Map<String, dynamic> toJson() {
-    return {
-      'errors': errors?.map((e) => e.toJson()).toList(),
-      'data': data,
-    };
+    return {'errors': errors?.map((e) => e.toJson()).toList(), 'data': data};
   }
 
   SentryResponse toSentryResponse(int? statusCode) {
     return SentryResponse(
       statusCode: statusCode,
-      data: {
-        'errors': errors?.map((e) => e.toJson()).toList(),
-        'data': data,
-      },
+      data: {'errors': errors?.map((e) => e.toJson()).toList(), 'data': data},
     );
   }
 }

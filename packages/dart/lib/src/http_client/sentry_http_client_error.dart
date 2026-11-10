@@ -3,5 +3,5 @@ class SentryHttpClientError implements Exception {
   SentryHttpClientError(this._message);
 
   @override
-  String toString() => 'Exception: $_message';
+  String toString() => _message;
 }

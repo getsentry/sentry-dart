@@ -18,7 +18,7 @@ Encapsulate SDK features as `Integration` classes that implement `call()` and `c
 - Check feature flags and prerequisites early, log and return if disabled
 - Mark the integration as active for usage tracking — see **Usage Tracking** below
 - Clean up resources in `close()` if needed
-- See `packages/flutter/lib/src/integrations/` for examples
+- See `packages/flutter/lib/src/replay/` and `view_hierarchy/` for examples
 - Integrations should be order-independent; if yours requires running before/after another, reconsider the design
 
 ### Usage Tracking
@@ -85,8 +85,8 @@ internalLogger.debug(() => 'Envelope size: ${envelope.computeSize()}');
 
 Two shapes are **scatter** — grow neither, and don't read the repo's current use of them as the target:
 
-- **Type-buckets** (`event_processor/`, `integrations/`) collect classes for sharing a base type. A bucket legitimately holds only its runner (`run_event_processors.dart`); the base contract belongs at `src/` root (`event_processor.dart`, beside `integration.dart`). The repo hasn't finished migrating — enrichment, exceptions, and dedup still sit under `event_processor/`, and flutter has loose `replay_event_processor`/`screenshot_event_processor`.
-- **The loose `src/` root.** Core primitives (`hub.dart`, `scope.dart`, `sentry_client.dart`, the `sentry.dart` barrel) belong there; feature code does not. The v1 span/tracer files strewn across the root, `protocol/`, and `tracing/` are the counter-example to `telemetry/span/`, which keeps the whole v2 subsystem in one dir.
+- **Type-buckets** (`event_processor/`, `integrations/`) collect classes for sharing a base type. A bucket legitimately holds only its runner (`run_event_processors.dart`); the base contract belongs at `src/` root (`event_processor.dart`, beside `integration.dart`). Keep enrichment, exceptions, and dedup in their feature homes, and keep screenshot/replay processors beside their features.
+- **The loose `src/` root.** Core primitives (`hub.dart`, `scope.dart`, `sentry_client.dart`, the `sentry.dart` barrel) belong there; feature code does not. Both transaction and streaming tracing implementations live under `telemetry/span/`, alongside shared sampling, propagation, and instrumentation.
 
 *Where* a given piece goes is a locality judgment — see **design-first** (Shape the modules).
 

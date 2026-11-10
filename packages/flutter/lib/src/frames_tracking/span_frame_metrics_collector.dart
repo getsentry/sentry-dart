@@ -12,10 +12,9 @@ import 'sentry_delayed_frames_tracker.dart';
 class SpanFrameMetricsCollector {
   SpanFrameMetricsCollector(
     this._frameTracker, {
-    required void Function() resumeFrameTracking,
-    required void Function() pauseFrameTracking,
-  })  : _resumeFrameTracking = resumeFrameTracking,
-        _pauseFrameTracking = pauseFrameTracking;
+    required this._resumeFrameTracking,
+    required this._pauseFrameTracking,
+  });
 
   final SentryDelayedFramesTracker _frameTracker;
   final void Function() _resumeFrameTracking;
@@ -109,9 +108,7 @@ extension _InstrumentationSpanFrameMetrics on InstrumentationSpan {
         spanRef.setAttributesIfAbsent(attributes);
       }
     } else {
-      internalLogger.warning(
-        'Unknown InstrumentationSpan type: $runtimeType',
-      );
+      internalLogger.warning('Unknown InstrumentationSpan type: $runtimeType');
     }
   }
 }

@@ -38,8 +38,9 @@ void main() {
 
       final clientReport = sut.flush();
 
-      final event = clientReport?.discardedEvents
-          .firstWhere((element) => element.category == DataCategory.error);
+      final event = clientReport?.discardedEvents.firstWhere(
+        (element) => element.category == DataCategory.error,
+      );
 
       expect(event?.reason, DiscardReason.rateLimitBackoff);
       expect(event?.category, DataCategory.error);
@@ -51,15 +52,19 @@ void main() {
 
       sut.recordLostEvent(DiscardReason.rateLimitBackoff, DataCategory.error);
       sut.recordLostEvent(
-          DiscardReason.rateLimitBackoff, DataCategory.transaction);
+        DiscardReason.rateLimitBackoff,
+        DataCategory.transaction,
+      );
 
       final clientReport = sut.flush();
 
-      final first = clientReport?.discardedEvents
-          .firstWhere((event) => event.category == DataCategory.error);
+      final first = clientReport?.discardedEvents.firstWhere(
+        (event) => event.category == DataCategory.error,
+      );
 
-      final second = clientReport?.discardedEvents
-          .firstWhere((event) => event.category == DataCategory.transaction);
+      final second = clientReport?.discardedEvents.firstWhere(
+        (event) => event.category == DataCategory.transaction,
+      );
 
       expect(first?.reason, DiscardReason.rateLimitBackoff);
       expect(first?.category, DataCategory.error);
@@ -77,10 +82,12 @@ void main() {
 
       final clientReport = sut.flush();
 
-      final logItem = clientReport?.discardedEvents
-          .firstWhere((event) => event.category == DataCategory.logItem);
-      final logByte = clientReport?.discardedEvents
-          .firstWhere((event) => event.category == DataCategory.logByte);
+      final logItem = clientReport?.discardedEvents.firstWhere(
+        (event) => event.category == DataCategory.logItem,
+      );
+      final logByte = clientReport?.discardedEvents.firstWhere(
+        (event) => event.category == DataCategory.logByte,
+      );
 
       expect(logItem?.quantity, 1);
       expect(logByte?.quantity, 42);
@@ -93,10 +100,12 @@ void main() {
 
       final clientReport = sut.flush();
 
-      final metric = clientReport?.discardedEvents
-          .firstWhere((event) => event.category == DataCategory.metric);
-      final metricByte = clientReport?.discardedEvents
-          .firstWhere((event) => event.category == DataCategory.metricByte);
+      final metric = clientReport?.discardedEvents.firstWhere(
+        (event) => event.category == DataCategory.metric,
+      );
+      final metricByte = clientReport?.discardedEvents.firstWhere(
+        (event) => event.category == DataCategory.metricByte,
+      );
 
       expect(metric?.quantity, 1);
       expect(metricByte?.quantity, 42);

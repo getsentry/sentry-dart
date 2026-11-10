@@ -34,8 +34,10 @@ void main() {
         await sut.loadWebSdk(productionScripts);
       }, throwsA(isA<TrustedTypesException>()));
 
-      final script = fetchAllScripts().where((element) =>
-          element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));
+      final script = fetchAllScripts().where(
+        (element) =>
+            element.src.contains('$jsSdkVersion/bundle.tracing.min.js'),
+      );
       expect(script, isEmpty);
     });
 
@@ -45,8 +47,10 @@ void main() {
 
       await sut.loadWebSdk(productionScripts);
 
-      final script = fetchAllScripts().where((element) =>
-          element.src.contains('$jsSdkVersion/bundle.tracing.min.js'));
+      final script = fetchAllScripts().where(
+        (element) =>
+            element.src.contains('$jsSdkVersion/bundle.tracing.min.js'),
+      );
       expect(script, isEmpty);
     });
   });

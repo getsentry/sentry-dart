@@ -9,7 +9,7 @@ import 'package:sentry/src/constants.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/http_client/network_details_capture.dart';
 // ignore: implementation_imports
-import 'package:sentry/src/utils/tracing_utils.dart';
+import 'package:sentry/src/telemetry/span/propagation/tracing_utils.dart';
 
 import '../sentry_flutter_options.dart';
 import '../utils/internal_logger.dart';
@@ -39,18 +39,24 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
     _options.sdk.addFeature(SentryFeatures.replayNetworkDetailsCapturing);
     final target = url.toString();
     if (containsTargetOrMatchesRegExp(
-        _options.replay.networkDetailDenyUrls, target)) {
+      _options.replay.networkDetailDenyUrls,
+      target,
+    )) {
       return false;
     }
     return containsTargetOrMatchesRegExp(
-        _options.replay.networkDetailAllowUrls, target);
+      _options.replay.networkDetailAllowUrls,
+      target,
+    );
   }
 
   @override
   Map<String, dynamic> captureRequest(BaseRequest request) {
     final data = <String, dynamic>{
       'headers': _filterHeaders(
-          request.headers, _options.replay.networkRequestHeaders),
+        request.headers,
+        _options.replay.networkRequestHeaders,
+      ),
     };
     final body = _captureRequestBody(request);
     if (body != null) {
@@ -65,7 +71,9 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
   ) async {
     final data = <String, dynamic>{
       'headers': _filterHeaders(
-          response.headers, _options.replay.networkResponseHeaders),
+        response.headers,
+        _options.replay.networkResponseHeaders,
+      ),
     };
 
     final contentLength = response.contentLength;
@@ -145,7 +153,9 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
   }
 
   Map<String, String> _filterHeaders(
-      Map<String, String> headers, List<String> extra) {
+    Map<String, String> headers,
+    List<String> extra,
+  ) {
     // Only the default headers are content-type-like metadata; anything
     // beyond that (e.g. Authorization, Cookie) is opted into by name via
     // [extra] and may contain PII, so it also requires sendDefaultPii.

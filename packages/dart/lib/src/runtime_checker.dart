@@ -5,21 +5,24 @@ import 'utils/stacktrace_utils.dart';
 /// Helper to check in which environment the library is running.
 /// The environment checks (release/debug/profile) are mutually exclusive.
 class RuntimeChecker {
-  RuntimeChecker({
-    bool? isRootZone,
-  }) : isRootZone = isRootZone ?? Zone.current == Zone.root;
+  RuntimeChecker({bool? isRootZone})
+    : isRootZone = isRootZone ?? Zone.current == Zone.root;
 
   /// Whether running in release/production environment as a compile-time constant for guaranteed tree-shaking.
   ///
   /// If the code needs to be testable, use [isReleaseMode] instead.
-  static const bool kReleaseMode =
-      bool.fromEnvironment('dart.vm.product', defaultValue: false);
+  static const bool kReleaseMode = bool.fromEnvironment(
+    'dart.vm.product',
+    defaultValue: false,
+  );
 
   /// Whether running in profile environment as a compile-time constant for guaranteed tree-shaking.
   ///
   /// If the code needs to be testable, use [isProfileMode] instead.
-  static const bool kProfileMode =
-      bool.fromEnvironment('dart.vm.profile', defaultValue: false);
+  static const bool kProfileMode = bool.fromEnvironment(
+    'dart.vm.profile',
+    defaultValue: false,
+  );
 
   /// Whether running in debug environment as a compile-time constant for guaranteed tree-shaking.
   ///
@@ -65,7 +68,7 @@ class RuntimeChecker {
     return isReleaseMode()
         ? 'release'
         : isDebugMode()
-            ? 'debug'
-            : 'profile';
+        ? 'debug'
+        : 'profile';
   }
 }

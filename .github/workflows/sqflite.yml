@@ -60,3 +60,4 @@ jobs:
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/sqflite
+      sdk: flutter

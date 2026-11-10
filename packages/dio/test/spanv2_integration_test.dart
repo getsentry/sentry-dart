@@ -3,7 +3,7 @@
 import 'package:_sentry_testing/_sentry_testing.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/tracing/instrumentation/span_factory_integration.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry_dio/src/tracing_client_adapter.dart';
 import 'package:test/test.dart';
 
@@ -33,14 +33,10 @@ void main() {
       );
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          await dio.get<dynamic>('/api/users');
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        await dio.get<dynamic>('/api/users');
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -61,11 +57,12 @@ void main() {
         equals('GET'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.url]?.value,
+        span.attributes['url.full']?.value,
         equals('https://example.com/api/users'),
       );
       expect(
-        span.attributes[SemanticAttributesConstants.httpResponseStatusCode]
+        span
+            .attributes[SemanticAttributesConstants.httpResponseStatusCode]
             ?.value,
         equals(200),
       );
@@ -88,16 +85,12 @@ void main() {
       );
 
       late SentrySpanV2 transactionSpan;
-      await fixture.hub.startSpan(
-        'test-transaction',
-        (span) async {
-          transactionSpan = span;
-          try {
-            await dio.get<dynamic>('/api/users');
-          } catch (_) {}
-        },
-        parentSpan: null,
-      );
+      await fixture.hub.startSpan('test-transaction', (span) async {
+        transactionSpan = span;
+        try {
+          await dio.get<dynamic>('/api/users');
+        } catch (_) {}
+      }, parentSpan: null);
 
       await fixture.processor.waitForProcessing();
 
@@ -143,32 +136,30 @@ class Fixture {
     required int statusCode,
     required String responseBody,
   }) {
-    return MockHttpClientAdapter(
-      (options, requestStream, cancelFuture) async {
-        final headers = <String, List<String>>{
-          'content-type': ['application/json'],
-        };
+    return MockHttpClientAdapter((options, requestStream, cancelFuture) async {
+      final headers = <String, List<String>>{
+        'content-type': ['application/json'],
+      };
 
-        if (statusCode >= 400) {
-          throw DioException(
+      if (statusCode >= 400) {
+        throw DioException(
+          requestOptions: options,
+          response: Response(
             requestOptions: options,
-            response: Response(
-              requestOptions: options,
-              statusCode: statusCode,
-              data: responseBody,
-              headers: Headers.fromMap(headers),
-            ),
-            type: DioExceptionType.badResponse,
-          );
-        }
-
-        return ResponseBody.fromString(
-          responseBody,
-          statusCode,
-          headers: headers,
+            statusCode: statusCode,
+            data: responseBody,
+            headers: Headers.fromMap(headers),
+          ),
+          type: DioExceptionType.badResponse,
         );
-      },
-    );
+      }
+
+      return ResponseBody.fromString(
+        responseBody,
+        statusCode,
+        headers: headers,
+      );
+    });
   }
 
   void dispose() {

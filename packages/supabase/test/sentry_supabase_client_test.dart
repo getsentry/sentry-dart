@@ -1,5 +1,6 @@
 import 'package:sentry_supabase/sentry_supabase.dart';
 import 'package:sentry_supabase/src/constants.dart';
+import 'package:sentry_supabase/src/sentry_supabase_exception_type_identifier.dart';
 import 'package:test/test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:http/http.dart';
@@ -51,8 +52,10 @@ void main() {
         enableErrors: false,
       );
 
-      final request =
-          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+      final request = Request(
+        'GET',
+        Uri.parse('https://example.com/rest/v1/users'),
+      );
       await sut.send(request);
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -65,29 +68,35 @@ void main() {
         enableErrors: false,
       );
 
-      final request =
-          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+      final request = Request(
+        'GET',
+        Uri.parse('https://example.com/rest/v1/users'),
+      );
       await sut.send(request);
 
       expect(fixture.mockHub.getSpanCallCount, 1);
     });
 
-    test('error client captures error with default status codes (500-599)',
-        () async {
-      final sut = fixture.getSut(
-        enableBreadcrumbs: false,
-        enableTracing: false,
-        enableErrors: true,
-      );
+    test(
+      'error client captures error with default status codes (500-599)',
+      () async {
+        final sut = fixture.getSut(
+          enableBreadcrumbs: false,
+          enableTracing: false,
+          enableErrors: true,
+        );
 
-      fixture.mockClient.statusCode = 500;
+        fixture.mockClient.statusCode = 500;
 
-      final request =
-          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
-      await sut.send(request);
+        final request = Request(
+          'GET',
+          Uri.parse('https://example.com/rest/v1/users'),
+        );
+        await sut.send(request);
 
-      expect(fixture.mockHub.captureEventCalls.length, 1);
-    });
+        expect(fixture.mockHub.captureEventCalls.length, 1);
+      },
+    );
 
     test('error client captures error with custom status codes', () async {
       final sut = fixture.getSut(
@@ -99,30 +108,36 @@ void main() {
 
       fixture.mockClient.statusCode = 404;
 
-      final request =
-          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+      final request = Request(
+        'GET',
+        Uri.parse('https://example.com/rest/v1/users'),
+      );
       await sut.send(request);
 
       expect(fixture.mockHub.captureEventCalls.length, 1);
     });
 
-    test('error client does not capture error outside configured status codes',
-        () async {
-      final sut = fixture.getSut(
-        enableBreadcrumbs: false,
-        enableTracing: false,
-        enableErrors: true,
-        failedRequestStatusCodes: [SentryStatusCode(500)],
-      );
+    test(
+      'error client does not capture error outside configured status codes',
+      () async {
+        final sut = fixture.getSut(
+          enableBreadcrumbs: false,
+          enableTracing: false,
+          enableErrors: true,
+          failedRequestStatusCodes: [SentryStatusCode(500)],
+        );
 
-      fixture.mockClient.statusCode = 404;
+        fixture.mockClient.statusCode = 404;
 
-      final request =
-          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
-      await sut.send(request);
+        final request = Request(
+          'GET',
+          Uri.parse('https://example.com/rest/v1/users'),
+        );
+        await sut.send(request);
 
-      expect(fixture.mockHub.captureEventCalls.length, 0);
-    });
+        expect(fixture.mockHub.captureEventCalls.length, 0);
+      },
+    );
 
     test('error client always captures exceptions', () async {
       final sut = fixture.getSut(
@@ -133,8 +148,10 @@ void main() {
 
       fixture.mockClient.throwException = Exception('Network error');
 
-      final request =
-          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+      final request = Request(
+        'GET',
+        Uri.parse('https://example.com/rest/v1/users'),
+      );
 
       await expectLater(() => sut.send(request), throwsException);
 
@@ -152,8 +169,10 @@ void main() {
       fixture.mockClient.statusCode = 500;
 
       // Non-Supabase request (doesn't start with /rest/v1)
-      final request =
-          Request('GET', Uri.parse('https://example.com/auth/v1/token'));
+      final request = Request(
+        'GET',
+        Uri.parse('https://example.com/auth/v1/token'),
+      );
 
       await sut.send(request);
 
@@ -171,8 +190,10 @@ void main() {
 
       fixture.mockClient.statusCode = 404;
 
-      final request =
-          Request('GET', Uri.parse('https://example.com/rest/v1/users'));
+      final request = Request(
+        'GET',
+        Uri.parse('https://example.com/rest/v1/users'),
+      );
       await sut.send(request);
 
       expect(fixture.mockHub.addBreadcrumbCalls.length, 1);
@@ -230,10 +251,7 @@ void main() {
         enableErrors: true,
       );
 
-      expect(
-        fixture.options.sdk.integrations,
-        contains(integrationNameErrors),
-      );
+      expect(fixture.options.sdk.integrations, contains(integrationNameErrors));
     });
 
     test('adds all integrations when all clients are created', () {
@@ -264,9 +282,46 @@ void main() {
         fixture.options.sdk.integrations,
         contains(integrationNameTracing),
       );
+      expect(fixture.options.sdk.integrations, contains(integrationNameErrors));
+    });
+
+    test(
+      'adds $SentrySupabaseExceptionTypeIdentifier with the error client',
+      () {
+        fixture.getSut(
+          enableBreadcrumbs: false,
+          enableTracing: false,
+          enableErrors: true,
+        );
+
+        expect(
+          fixture.options.exceptionTypeIdentifiers.first,
+          isA<CachingExceptionTypeIdentifier>().having(
+            (c) => c.identifier,
+            'wrapped identifier',
+            isA<SentrySupabaseExceptionTypeIdentifier>(),
+          ),
+        );
+      },
+    );
+
+    test('does not duplicate $SentrySupabaseExceptionTypeIdentifier', () {
+      for (var i = 0; i < 2; i++) {
+        fixture.getSut(
+          enableBreadcrumbs: false,
+          enableTracing: false,
+          enableErrors: true,
+        );
+      }
+
       expect(
-        fixture.options.sdk.integrations,
-        contains(integrationNameErrors),
+        fixture.options.exceptionTypeIdentifiers
+            .whereType<CachingExceptionTypeIdentifier>()
+            .where(
+              (it) => it.identifier is SentrySupabaseExceptionTypeIdentifier,
+            )
+            .length,
+        1,
       );
     });
 
@@ -316,9 +371,7 @@ void main() {
 class Fixture {
   final supabaseUrl = 'https://example.com';
 
-  final options = SentryOptions(
-    dsn: 'https://example.com/123',
-  );
+  final options = SentryOptions(dsn: 'https://example.com/123');
   final mockClient = MockClient();
   late final mockHub = MockHub(options);
 

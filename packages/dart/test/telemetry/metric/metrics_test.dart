@@ -2,8 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/metric/default_metrics.dart';
 import 'package:test/test.dart';
 
-import '../../test_utils.dart';
-
 void main() {
   group('$DefaultSentryMetrics', () {
     late Fixture fixture;
@@ -41,11 +39,12 @@ void main() {
         expect(metric.attributes['key']?.value, 'value');
       });
 
-      test('sets trace id from scope', () {
+      test('sets trace and span id from trace context provider', () {
         fixture.sut.count('test-counter', 1);
 
-        final metric = fixture.capturedMetrics.first;
-        expect(metric.traceId, fixture.scope.propagationContext.traceId);
+        final metric = fixture.capturedMetrics.single;
+        expect(metric.traceId, fixture.traceId);
+        expect(metric.spanId, fixture.spanId);
       });
 
       test('sets timestamp from clock', () {
@@ -133,19 +132,18 @@ void main() {
 }
 
 class Fixture {
-  final options = defaultTestOptions();
   final capturedMetrics = <SentryMetric>[];
   final fixedTimestamp = DateTime.utc(2024, 1, 15, 10, 30, 0);
+  final traceId = SentryId.newId();
+  final spanId = SpanId.newId();
 
-  late final Scope scope;
   late final DefaultSentryMetrics sut;
 
   Fixture() {
-    scope = Scope(options);
     sut = DefaultSentryMetrics(
       captureMetricCallback: (metric) async => capturedMetrics.add(metric),
       clockProvider: () => fixedTimestamp,
-      scopeProvider: () => scope,
+      traceContextProvider: () => (traceId: traceId, spanId: spanId),
     );
   }
 }

@@ -16,10 +16,10 @@ class UrlDetails {
       Uri.tryParse(url ?? _unknown)?.toString() ?? _unknown;
 
   Map<String, dynamic> get spanData => {
-        if (url != null) 'url': url,
-        if (query != null) 'http.query': query,
-        if (fragment != null) 'http.fragment': fragment,
-      };
+    if (url != null) SemanticAttributesConstants.urlFull: url,
+    if (query != null) SemanticAttributesConstants.httpQuery: query,
+    if (fragment != null) SemanticAttributesConstants.httpFragment: fragment,
+  };
 
   void applyToSpan(InstrumentationSpan? span) {
     if (span == null) {

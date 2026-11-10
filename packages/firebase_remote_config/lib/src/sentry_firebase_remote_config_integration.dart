@@ -5,10 +5,9 @@ import 'package:sentry/sentry.dart';
 
 class SentryFirebaseRemoteConfigIntegration extends Integration<SentryOptions> {
   SentryFirebaseRemoteConfigIntegration({
-    required FirebaseRemoteConfig firebaseRemoteConfig,
-    bool activateOnConfigUpdated = true,
-  })  : _firebaseRemoteConfig = firebaseRemoteConfig,
-        _activateOnConfigUpdated = activateOnConfigUpdated;
+    required this._firebaseRemoteConfig,
+    this._activateOnConfigUpdated = true,
+  });
 
   final FirebaseRemoteConfig _firebaseRemoteConfig;
   final bool _activateOnConfigUpdated;

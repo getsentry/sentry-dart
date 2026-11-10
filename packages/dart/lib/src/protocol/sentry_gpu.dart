@@ -111,26 +111,6 @@ class SentryGpu {
     );
   }
 
-  @Deprecated('Will be removed in a future version.')
-  SentryGpu clone() => SentryGpu(
-        name: name,
-        id: id,
-        vendorId: vendorId,
-        vendorName: vendorName,
-        memorySize: memorySize,
-        apiType: apiType,
-        multiThreadedRendering: multiThreadedRendering,
-        version: version,
-        npotSupport: npotSupport,
-        graphicsShaderLevel: graphicsShaderLevel,
-        maxTextureSize: maxTextureSize,
-        supportsComputeShaders: supportsComputeShaders,
-        supportsDrawCallInstancing: supportsDrawCallInstancing,
-        supportsGeometryShaders: supportsGeometryShaders,
-        supportsRayTracing: supportsRayTracing,
-        unknown: unknown,
-      );
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
@@ -158,45 +138,4 @@ class SentryGpu {
         'supports_ray_tracing': supportsRayTracing,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryGpu copyWith({
-    String? name,
-    int? id,
-    String? vendorId,
-    String? vendorName,
-    int? memorySize,
-    String? apiType,
-    bool? multiThreadedRendering,
-    String? version,
-    String? npotSupport,
-    String? graphicsShaderLevel,
-    int? maxTextureSize,
-    bool? supportsComputeShaders,
-    bool? supportsDrawCallInstancing,
-    bool? supportsGeometryShaders,
-    bool? supportsRayTracing,
-  }) =>
-      SentryGpu(
-        name: name ?? this.name,
-        id: id ?? this.id,
-        vendorId: vendorId ?? this.vendorId,
-        vendorName: vendorName ?? this.vendorName,
-        memorySize: memorySize ?? this.memorySize,
-        apiType: apiType ?? this.apiType,
-        multiThreadedRendering:
-            multiThreadedRendering ?? this.multiThreadedRendering,
-        version: version ?? this.version,
-        npotSupport: npotSupport ?? this.npotSupport,
-        graphicsShaderLevel: graphicsShaderLevel ?? this.graphicsShaderLevel,
-        maxTextureSize: maxTextureSize ?? this.maxTextureSize,
-        supportsComputeShaders:
-            supportsComputeShaders ?? this.supportsComputeShaders,
-        supportsDrawCallInstancing:
-            supportsDrawCallInstancing ?? this.supportsDrawCallInstancing,
-        supportsGeometryShaders:
-            supportsGeometryShaders ?? this.supportsGeometryShaders,
-        supportsRayTracing: supportsRayTracing ?? this.supportsRayTracing,
-        unknown: unknown,
-      );
 }

@@ -26,6 +26,8 @@ enum DataCategory {
         return DataCategory.attachment;
       case 'transaction':
         return DataCategory.transaction;
+      case 'span':
+        return DataCategory.span;
       // The envelope item type used for metrics is statsd,
       // whereas the client report category is metric_bucket
       case 'statsd':

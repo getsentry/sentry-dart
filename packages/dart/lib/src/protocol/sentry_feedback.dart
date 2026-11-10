@@ -38,8 +38,9 @@ class SentryFeedback {
       name: json['name'],
       replayId: json['replay_id'],
       url: json['url'],
-      associatedEventId:
-          associatedEventId != null ? SentryId.fromId(associatedEventId) : null,
+      associatedEventId: associatedEventId != null
+          ? SentryId.fromId(associatedEventId)
+          : null,
       unknown: json.notAccessed(),
     );
   }
@@ -56,27 +57,4 @@ class SentryFeedback {
         'associated_event_id': associatedEventId.toString(),
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryFeedback copyWith({
-    String? message,
-    String? contactEmail,
-    String? name,
-    String? replayId,
-    String? url,
-    SentryId? associatedEventId,
-    Map<String, dynamic>? unknown,
-  }) =>
-      SentryFeedback(
-        message: message ?? this.message,
-        contactEmail: contactEmail ?? this.contactEmail,
-        name: name ?? this.name,
-        replayId: replayId ?? this.replayId,
-        url: url ?? this.url,
-        associatedEventId: associatedEventId ?? this.associatedEventId,
-        unknown: unknown ?? this.unknown,
-      );
-
-  @Deprecated('Will be removed in a future version.')
-  SentryFeedback clone() => copyWith();
 }

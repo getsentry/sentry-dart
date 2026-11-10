@@ -1,11 +1,20 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'mocks.dart';
 
 void main() {
-  group('SentryFlutterOptions', () {
-    testWidgets('auto breadcrumb tracking: has native integration',
-        (WidgetTester tester) async {
+  group('$SentryFlutterOptions', () {
+    test('defaults traceLifecycle to stream', () {
+      final options = defaultTestOptions();
+
+      expect(options.traceLifecycle, SentryTraceLifecycle.stream);
+    });
+
+    testWidgets('auto breadcrumb tracking: has native integration', (
+      WidgetTester tester,
+    ) async {
       final options = defaultTestOptions();
 
       expect(options.enableAppLifecycleBreadcrumbs, isFalse);
@@ -16,8 +25,9 @@ void main() {
       expect(options.enableAutoNativeBreadcrumbs, isTrue);
     });
 
-    testWidgets('auto breadcrumb tracking: without native integration',
-        (WidgetTester tester) async {
+    testWidgets('auto breadcrumb tracking: without native integration', (
+      WidgetTester tester,
+    ) async {
       final options = defaultTestOptions(platform: MockPlatform.fuchsia());
 
       expect(options.enableAppLifecycleBreadcrumbs, isTrue);
@@ -52,11 +62,29 @@ void main() {
       expect(options.enableAutoNativeBreadcrumbs, isFalse);
     });
 
-    testWidgets('enableTombstone defaults to false',
-        (WidgetTester tester) async {
+    testWidgets('enableTombstone defaults to false', (
+      WidgetTester tester,
+    ) async {
       final options = defaultTestOptions();
 
       expect(options.enableTombstone, isFalse);
+    });
+
+    test('addUserInteractionWidget adds sdk feature', () {
+      final options = defaultTestOptions();
+
+      options.addUserInteractionWidget<Text>('Text');
+
+      expect(options.sdk.features, contains('userInteractionWidgetTypes'));
+    });
+
+    test('addUserInteractionWidget throws AssertionError for Widget type', () {
+      final options = defaultTestOptions();
+
+      expect(
+        () => options.addUserInteractionWidget<Widget>('Widget'),
+        throwsA(isA<AssertionError>()),
+      );
     });
   });
 }

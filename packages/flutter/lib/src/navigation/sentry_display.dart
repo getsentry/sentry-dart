@@ -31,9 +31,7 @@ class SentryDisplay {
       if (options.traceLifecycle == SentryTraceLifecycle.stream) {
         options.timeToDisplayTrackerV2.reportFullyDisplayed(spanId);
       } else {
-        await options.timeToDisplayTracker.reportFullyDisplayed(
-          spanId: spanId,
-        );
+        await options.timeToDisplayTracker.reportFullyDisplayed(spanId: spanId);
       }
     } catch (exception, stackTrace) {
       if (options.automatedTestMode) {

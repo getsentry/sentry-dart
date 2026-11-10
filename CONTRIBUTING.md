@@ -1,16 +1,52 @@
-# Contributing to Sentry Dart & Flutter
+<p align="center">
+  <a href="https://sentry.io" target="_blank" align="center">
+    <picture>
+      <source srcset="https://sentry-brand.storage.googleapis.com/sentry-logo-white.png" media="(prefers-color-scheme: dark)" />
+      <source srcset="https://sentry-brand.storage.googleapis.com/sentry-wordmark-dark-280x84.png" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" />
+      <img src="https://sentry-brand.storage.googleapis.com/sentry-wordmark-dark-280x84.png" alt="Sentry" width="280">
+    </picture>
+  </a>
+  <br />
+</p>
 
-Thank you for your interest in contributing to Sentry's Dart and Flutter SDKs! This guide will help
-you get started.
+# Contributing
+
+Thanks for your interest in contributing to `sentry-dart`! This guide explains how we work with external contributions and how to get your environment set up. If you have questions, reach out on [Discord](https://discord.com/invite/sentry).
+
+## Submitting Changes
+
+**TL;DR: Discuss your change in a GitHub issue before opening a pull request. We may close PRs that weren't discussed with a maintainer first.**
+
+Every line we merge is code we maintain long-term for hundreds of thousands of apps, so we want to agree on the problem and the approach before anyone writes code. This saves time for you and for us.
+
+### Before You Start
+
+1. **Find or create an issue.** Search the [issue tracker](https://github.com/getsentry/sentry-dart/issues) first. If nothing fits, open a new issue describing the problem or feature.
+2. **Discuss your approach with a maintainer.** Comment on the issue with what you plan to change and wait for a maintainer to respond before you start working.
+3. **Check the assignee.** If the issue is already assigned to someone else, coordinate with them in the issue before starting work.
+
+### Making Your Contribution
+
+- Fork the repo and make your changes on a branch.
+- Add tests. Non-trivial PRs won't be accepted without them.
+- Don't bump version numbers. We do that when we release.
+- Open a PR that links the issue (e.g. `Fixes #123`)
+- Name your PR according to our [commit message format](https://develop.sentry.dev/commit-messages/#commit-message-format).
+- Keep PRs focused: one change per PR, no unrelated refactors.
+
+### AI Use
+
+You are welcome to use whatever tools you prefer for making a contribution. However, any changes you propose have to be understood, reviewed and tested by you, a human, first, before you submit a pull request with them for the Sentry team to review. If we feel like that didn't happen, we will close the PR outright. For example, we won't review visibly AI-generated PRs from an agent instructed to look for and "fix" open issues in the repo. This aligns with our SDK principle: [every line has an owner](https://develop.sentry.dev/sdk/getting-started/principles/#every-line-has-an-owner).
 
 ## Prerequisites
 
 ### Required Tools
 
-* **Dart SDK** `>=3.5.0` - Required for all packages
-* **Flutter SDK** `>=3.24.0` - Required for `sentry-flutter` and Flutter integrations
+* **Dart SDK** `>=3.12.0` - Required for all packages
+* **Flutter SDK** `>=3.44.0` - Required for `sentry-flutter` and Flutter integrations
 * **[fvm](https://fvm.app/)** - For Flutter/Dart version management
 * **[melos](https://melos.invertase.dev/)** - For managing the monorepo
+* **[jq](https://jqlang.org/)** - For reading the shared toolchain configuration
 
 ## Environment Setup
 
@@ -24,11 +60,18 @@ dart pub global activate melos
 ### 2. Install the Flutter SDK via fvm
 
 ```bash
-fvm use stable
+fvm install
 ```
 
 This reads `.fvmrc` and installs the pinned Flutter version. It also creates a `.fvm/flutter_sdk`
 symlink that melos uses to resolve `dart`/`flutter` commands (via `sdkPath` in `melos.yaml`).
+Formatting, analysis, and binding generation use this development toolchain, including its
+bundled Dart SDK for Dart-only packages. Compatibility tests separately cover the minimum
+supported and stable/beta SDKs.
+
+To upgrade the development toolchain, update `.fvmrc`, run `fvm install` and `melos bootstrap`,
+then regenerate bindings and format the repository with that SDK. Include any resulting
+formatting changes in the same PR.
 
 ### 3. Bootstrap the project
 
@@ -76,13 +119,35 @@ The Flutter SDK supports the following platforms:
 We test the example app on Windows, macOS, and Linux to ensure cross-platform compatibility. CI runs
 against Flutter `stable` and `beta` channels.
 
+### Building the macOS example
+
+On macOS, Flutter derives the local SwiftPM package identity from the plugin's directory basename
+(`flutter`) rather than its pub name (`sentry_flutter`), so `flutter build macos` from
+`packages/flutter/example` fails with:
+
+```
+unable to override package 'sentry_flutter' because its identity 'flutter'
+doesn't match override's identity (directory name) 'sentry_flutter'
+```
+
+Use the helper script (or its melos alias), which temporarily renames the package directory to
+`sentry_flutter`, builds, then restores it:
+
+```bash
+melos run build:macos-example
+# or, forwarding extra flags to `flutter build macos`:
+./scripts/build-macos-example.sh --debug
+```
+
+This only affects the macOS example build; iOS is unaffected.
+
 ## Native SDK Dependencies
 
 The Flutter SDK embeds platform-specific native SDKs:
 
 * **Android**: [sentry-java](https://github.com/getsentry/sentry-java) (via
   Gradle) + [sentry-native](https://github.com/getsentry/sentry-native) for NDK
-* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via CocoaPods/SPM)
+* **iOS/macOS**: [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) (via SwiftPM)
 * **Linux/Windows**: [sentry-native](https://github.com/getsentry/sentry-native) (bundled in
   `packages/flutter/sentry-native/`)
 * **Web**: [sentry-javascript](https://github.com/getsentry/sentry-javascript) (loaded via CDN)
@@ -155,8 +220,3 @@ no such section is present, the PR title is used as usual.
 ## Code Style
 
 We follow [Effective Dart](https://dart.dev/effective-dart) conventions.
-
-
-## AI Use
-
-You are welcome to use whatever tools you prefer for making a contribution. However, any changes you propose have to be reviewed and tested by you, a human, first, before you submit a pull request with them for the Sentry team to review. If we feel like that did not happen, we will close the PR outright. For example, we will not review visibly AI-generated PRs from an agent instructed to look for and "fix" open issues in the repo. This aligns with our SDK principle: [every line has an owner](https://develop.sentry.dev/sdk/getting-started/principles/#every-line-has-an-owner).

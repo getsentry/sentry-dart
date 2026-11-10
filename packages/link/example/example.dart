@@ -5,16 +5,13 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_link/sentry_link.dart';
 
 Future<void> main() {
-  return Sentry.init(
-    (options) {
-      options.dsn = 'sentry_dsn';
-      options.tracesSampleRate = 1;
-      options.beforeBreadcrumb = graphQlFilter();
-      options.addGqlExtractors();
-      options.addSentryLinkInAppExcludes();
-    },
-    appRunner: example,
-  );
+  return Sentry.init((options) {
+    options.dsn = 'sentry_dsn';
+    options.tracesSampleRate = 1;
+    options.beforeBreadcrumb = graphQlFilter();
+    options.addGqlExtractors();
+    options.addSentryLinkInAppExcludes();
+  }, appRunner: example);
 }
 
 Future<void> example() async {
@@ -31,15 +28,11 @@ Future<void> example() async {
     ),
   ]);
 
-  final client = GraphQLClient(
-    cache: GraphQLCache(),
-    link: link,
-  );
+  final client = GraphQLClient(cache: GraphQLCache(), link: link);
 
   final QueryOptions options = QueryOptions(
     operationName: 'LoadPosts',
-    document: gql(
-      r'''
+    document: gql(r'''
         query LoadPosts($id: ID!) {
           post(id: $id) {
             id
@@ -48,11 +41,8 @@ Future<void> example() async {
             body
           }
         }
-      ''',
-    ),
-    variables: {
-      'id': 50,
-    },
+      '''),
+    variables: {'id': 50},
   );
 
   final result = await client.query(options);

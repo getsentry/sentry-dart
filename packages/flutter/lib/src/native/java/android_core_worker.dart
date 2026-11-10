@@ -11,6 +11,7 @@ import '../utils/data_normalizer.dart';
 import '../utils/utf8_json.dart';
 import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
+import 'jni_byte_array.dart';
 
 /// Runs Android JNI work on a background isolate when available.
 class AndroidCoreWorker {
@@ -22,14 +23,14 @@ class AndroidCoreWorker {
   Worker? _worker;
 
   AndroidCoreWorker(SentryOptions options, {SpawnWorkerFn? spawn})
-      : _config = WorkerConfig(
-          debugName: 'SentryAndroidCoreWorker',
-          debug: options.debug,
-          diagnosticLevel: options.diagnosticLevel,
-          // ignore: invalid_use_of_internal_member
-          automatedTestMode: options.automatedTestMode,
-        ),
-        _spawn = spawn ?? spawnWorker;
+    : _config = WorkerConfig(
+        debugName: 'SentryAndroidCoreWorker',
+        debug: options.debug,
+        diagnosticLevel: options.diagnosticLevel,
+        // ignore: invalid_use_of_internal_member
+        automatedTestMode: options.automatedTestMode,
+      ),
+      _spawn = spawn ?? spawnWorker;
 
   @internal
   static AndroidCoreWorker Function(SentryFlutterOptions) factory =
@@ -81,10 +82,7 @@ class AndroidCoreWorker {
     });
   }
 
-  void captureEnvelope(
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
+  void captureEnvelope(Uint8List envelopeData) {
     if (_isClosed) return;
 
     final client = _worker;
@@ -94,30 +92,56 @@ class AndroidCoreWorker {
       );
       _captureEnvelope(
         envelopeData,
-        containsUnhandledException,
         automatedTestMode: _config.automatedTestMode,
       );
       return;
     }
 
-    _captureEnvelopeFromWorker(
-      client,
-      envelopeData,
-      containsUnhandledException,
+    _captureEnvelopeFromWorker(client, envelopeData);
+  }
+
+  void _captureEnvelopeFromWorker(Worker client, Uint8List envelopeData) {
+    client.send(
+      _CaptureEnvelopeRequest(TransferableTypedData.fromList([envelopeData])),
     );
   }
 
-  void _captureEnvelopeFromWorker(
-    Worker client,
-    Uint8List envelopeData,
-    bool containsUnhandledException,
-  ) {
-    client.send(
-      _CaptureEnvelopeRequest(
-        TransferableTypedData.fromList([envelopeData]),
-        containsUnhandledException,
-      ),
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
+    if (_isClosed) return null;
+
+    final client = _worker;
+    if (client == null) {
+      _updateSessionForDroppedEventNonTerminating(
+        unhandled,
+        automatedTestMode: _config.automatedTestMode,
+      );
+      return null;
+    }
+
+    return _updateSessionForDroppedEventNonTerminatingFromWorker(
+      client,
+      unhandled,
     );
+  }
+
+  Future<void> _updateSessionForDroppedEventNonTerminatingFromWorker(
+    Worker client,
+    bool unhandled,
+  ) async {
+    try {
+      await client.request(
+        _UpdateSessionForDroppedEventNonTerminatingRequest(unhandled),
+      );
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Android core worker failed to update session for dropped event',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (_config.automatedTestMode) {
+        rethrow;
+      }
+    }
   }
 
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
@@ -260,12 +284,15 @@ class AndroidCoreWorker {
   FutureOr<void> setUser(SentryUser? user) {
     if (_isClosed) return null;
 
-    final normalizedUserJson =
-        user == null ? null : normalize(user.toJson()) as Map<String, dynamic>;
+    final normalizedUserJson = user == null
+        ? null
+        : normalize(user.toJson()) as Map<String, dynamic>;
     final client = _worker;
     if (client == null) {
-      _setUser(normalizedUserJson,
-          automatedTestMode: _config.automatedTestMode);
+      _setUser(
+        normalizedUserJson,
+        automatedTestMode: _config.automatedTestMode,
+      );
       return null;
     }
 
@@ -367,80 +394,80 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
 
   @override
   FutureOr<void> onMessage(Object? msg) => _enqueue(() {
-        switch (msg) {
-          case _CaptureEnvelopeRequest request:
-            final data = request.envelopeData.materialize().asUint8List();
-            _captureEnvelope(
-              data,
-              request.containsUnhandledException,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _AddBreadcrumbRequest request:
-            _addBreadcrumb(
-              request.breadcrumb,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _ClearBreadcrumbsRequest _:
-            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
-          case _SetUserRequest request:
-            _setUser(request.user,
-                automatedTestMode: _config.automatedTestMode);
-          case _SetContextsRequest request:
-            _setContexts(
-              request.key,
-              request.value,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _RemoveContextsRequest request:
-            _removeContexts(
-              request.key,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          default:
-            _unexpectedMessage(msg);
-        }
-      });
+    switch (msg) {
+      case _CaptureEnvelopeRequest request:
+        final data = request.envelopeData.materialize().asUint8List();
+        _captureEnvelope(data, automatedTestMode: _config.automatedTestMode);
+      case _AddBreadcrumbRequest request:
+        _addBreadcrumb(
+          request.breadcrumb,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _ClearBreadcrumbsRequest _:
+        _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+      case _SetUserRequest request:
+        _setUser(request.user, automatedTestMode: _config.automatedTestMode);
+      case _SetContextsRequest request:
+        _setContexts(
+          request.key,
+          request.value,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _RemoveContextsRequest request:
+        _removeContexts(
+          request.key,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      default:
+        _unexpectedMessage(msg);
+    }
+  });
 
   @override
   FutureOr<Object?> onRequest(Object? payload) => _enqueue<Object?>(() {
-        switch (payload) {
-          case _LoadDebugImagesRequest request:
-            return _loadDebugImageMaps(
-              request.instructionAddresses,
-              automatedTestMode: _config.automatedTestMode,
-            );
-          case _LoadContextsRequest _:
-            return _loadContexts(automatedTestMode: _config.automatedTestMode);
-          case _AddBreadcrumbRequest request:
-            _addBreadcrumb(
-              request.breadcrumb,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          case _ClearBreadcrumbsRequest _:
-            _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
-            return null;
-          case _SetUserRequest request:
-            _setUser(request.user,
-                automatedTestMode: _config.automatedTestMode);
-            return null;
-          case _SetContextsRequest request:
-            _setContexts(
-              request.key,
-              request.value,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          case _RemoveContextsRequest request:
-            _removeContexts(
-              request.key,
-              automatedTestMode: _config.automatedTestMode,
-            );
-            return null;
-          default:
-            return _unexpectedPayload(payload);
-        }
-      });
+    switch (payload) {
+      case _LoadDebugImagesRequest request:
+        return _loadDebugImageMaps(
+          request.instructionAddresses,
+          automatedTestMode: _config.automatedTestMode,
+        );
+      case _LoadContextsRequest _:
+        return _loadContexts(automatedTestMode: _config.automatedTestMode);
+      case _UpdateSessionForDroppedEventNonTerminatingRequest request:
+        _updateSessionForDroppedEventNonTerminating(
+          request.unhandled,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      case _AddBreadcrumbRequest request:
+        _addBreadcrumb(
+          request.breadcrumb,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      case _ClearBreadcrumbsRequest _:
+        _clearBreadcrumbs(automatedTestMode: _config.automatedTestMode);
+        return null;
+      case _SetUserRequest request:
+        _setUser(request.user, automatedTestMode: _config.automatedTestMode);
+        return null;
+      case _SetContextsRequest request:
+        _setContexts(
+          request.key,
+          request.value,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      case _RemoveContextsRequest request:
+        _removeContexts(
+          request.key,
+          automatedTestMode: _config.automatedTestMode,
+        );
+        return null;
+      default:
+        return _unexpectedPayload(payload);
+    }
+  });
 
   /// Serializes worker actions so JNI calls run in request order.
   Future<T> _enqueue<T>(FutureOr<T> Function() action) {
@@ -465,12 +492,14 @@ class _AndroidCoreWorkerHandler extends WorkerHandler {
 
 class _CaptureEnvelopeRequest {
   final TransferableTypedData envelopeData;
-  final bool containsUnhandledException;
 
-  const _CaptureEnvelopeRequest(
-    this.envelopeData,
-    this.containsUnhandledException,
-  );
+  const _CaptureEnvelopeRequest(this.envelopeData);
+}
+
+class _UpdateSessionForDroppedEventNonTerminatingRequest {
+  final bool unhandled;
+
+  const _UpdateSessionForDroppedEventNonTerminatingRequest(this.unhandled);
 }
 
 class _LoadDebugImagesRequest {
@@ -513,18 +542,14 @@ class _RemoveContextsRequest {
 }
 
 void _captureEnvelope(
-  Uint8List envelopeData,
-  bool containsUnhandledException, {
+  Uint8List envelopeData, {
   bool automatedTestMode = false,
 }) {
   JObject? id;
   JByteArray? byteArray;
   try {
-    byteArray = JByteArray.from(envelopeData);
-    id = native.InternalSentrySdk.captureEnvelope(
-      byteArray,
-      containsUnhandledException,
-    );
+    byteArray = toJByteArray(envelopeData);
+    id = native.InternalSentrySdk.captureEnvelopeNonTerminating(byteArray);
 
     if (id == null) {
       internalLogger.error(
@@ -543,6 +568,26 @@ void _captureEnvelope(
   } finally {
     byteArray?.release();
     id?.release();
+  }
+}
+
+void _updateSessionForDroppedEventNonTerminating(
+  bool unhandled, {
+  bool automatedTestMode = false,
+}) {
+  try {
+    native.InternalSentrySdk.updateSessionForDroppedEventNonTerminating(
+      unhandled,
+    );
+  } catch (exception, stackTrace) {
+    internalLogger.error(
+      'Failed to update session for dropped event',
+      error: exception,
+      stackTrace: stackTrace,
+    );
+    if (automatedTestMode) {
+      rethrow;
+    }
   }
 }
 
@@ -570,7 +615,7 @@ List<Map<String, dynamic>>? _loadDebugImageMaps(
       instructionAddressJStrings.add(instructionAddress.toJString());
     }
 
-    instructionAddressSet = instructionAddressJStrings.toJSet(JString.type);
+    instructionAddressSet = instructionAddressJStrings.toJSet();
 
     imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
       instructionAddressSet,
@@ -684,10 +729,10 @@ void _setUser(
   JByteArray? jBytes;
   try {
     if (normalizedUserJson == null) {
-      native.SentryFlutterPlugin.setUserFromJsonBytes(null);
+      native.SentryFlutterPlugin.userFromJsonBytes = null;
     } else {
       jBytes = _jsonToJByteArray(normalizedUserJson);
-      native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
+      native.SentryFlutterPlugin.userFromJsonBytes = jBytes;
     }
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -751,4 +796,4 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
 
 /// [normalizedValue] must already have been passed through [normalize].
 JByteArray _jsonToJByteArray(Object? normalizedValue) =>
-    JByteArray.from(encodeUtf8Json(normalizedValue));
+    toJByteArray(encodeUtf8Json(normalizedValue));

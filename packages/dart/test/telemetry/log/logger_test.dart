@@ -2,8 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/log/default_logger.dart';
 import 'package:test/test.dart';
 
-import '../../test_utils.dart';
-
 void main() {
   group('$DefaultSentryLogger', () {
     late Fixture fixture;
@@ -22,60 +20,59 @@ void main() {
       expect(capturedLog.attributes['string']?.value, 'string');
     }
 
-    test('info', () async {
+    test('info', () {
       final logger = fixture.getSut();
 
-      await logger.info('test', attributes: fixture.attributes);
+      logger.info('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.info);
     });
 
-    test('trace', () async {
+    test('trace', () {
       final logger = fixture.getSut();
 
-      await logger.trace('test', attributes: fixture.attributes);
+      logger.trace('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.trace);
     });
 
-    test('debug', () async {
+    test('debug', () {
       final logger = fixture.getSut();
 
-      await logger.debug('test', attributes: fixture.attributes);
+      logger.debug('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.debug);
     });
 
-    test('warn', () async {
+    test('warn', () {
       final logger = fixture.getSut();
 
-      await logger.warn('test', attributes: fixture.attributes);
+      logger.warn('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.warn);
     });
 
-    test('error', () async {
+    test('error', () {
       final logger = fixture.getSut();
 
-      await logger.error('test', attributes: fixture.attributes);
+      logger.error('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.error);
     });
 
-    test('fatal', () async {
+    test('fatal', () {
       final logger = fixture.getSut();
 
-      await logger.fatal('test', attributes: fixture.attributes);
+      logger.fatal('test', attributes: fixture.attributes);
 
       verifyCaptureLog(SentryLogLevel.fatal);
     });
 
     // This is mostly an edge case but let's cover it just in case
-    test('per-log attributes override fmt template attributes on same key',
-        () async {
+    test('per-log attributes override fmt template attributes on same key', () {
       final logger = fixture.getSut();
 
-      await logger.fmt.info(
+      logger.fmt.info(
         'Hello, %s!',
         ['World'],
         attributes: {
@@ -89,44 +86,30 @@ void main() {
       expect(attrs['sentry.message.parameter.0']?.value, 'Earth');
     });
 
-    test('sets trace id from default scope propagation context', () async {
+    test('sets trace and span id from trace context provider', () {
       final logger = fixture.getSut();
 
-      await logger.info('test');
+      logger.info('test');
 
-      expect(fixture.capturedLogs.length, 1);
-      final capturedLog = fixture.capturedLogs[0];
-      expect(capturedLog.traceId, fixture.scope.propagationContext.traceId);
+      final capturedLog = fixture.capturedLogs.single;
+      expect(capturedLog.traceId, fixture.traceId);
+      expect(capturedLog.spanId, fixture.spanId);
     });
 
-    test('sets span id when span is active on default scope', () async {
-      final span = _MockSpan();
-      fixture.scope.span = span;
-
+    test('sets timestamp from clock provider', () {
       final logger = fixture.getSut();
 
-      await logger.info('test');
-
-      expect(fixture.capturedLogs.length, 1);
-      final capturedLog = fixture.capturedLogs[0];
-      expect(capturedLog.spanId, span.context.spanId);
-    });
-
-    test('sets timestamp from clock provider', () async {
-      final logger = fixture.getSut();
-
-      await logger.info('test');
+      logger.info('test');
 
       expect(fixture.capturedLogs.length, 1);
       final capturedLog = fixture.capturedLogs[0];
       expect(capturedLog.timestamp, fixture.timestamp);
     });
 
-    test('includes attributes when provided', () async {
+    test('includes attributes when provided', () {
       final logger = fixture.getSut();
 
-      await logger
-          .info('test', attributes: {'key': SentryAttribute.string('value')});
+      logger.info('test', attributes: {'key': SentryAttribute.string('value')});
 
       expect(fixture.capturedLogs.length, 1);
       final capturedLog = fixture.capturedLogs[0];
@@ -136,10 +119,10 @@ void main() {
 }
 
 class Fixture {
-  final options = defaultTestOptions();
   final timestamp = DateTime.fromMicrosecondsSinceEpoch(0);
   final capturedLogs = <SentryLog>[];
-  late final Scope scope;
+  final traceId = SentryId.newId();
+  final spanId = SpanId.newId();
 
   final attributes = <String, SentryAttribute>{
     'string': SentryAttribute.string('string'),
@@ -152,27 +135,13 @@ class Fixture {
     'negative_infinity': SentryAttribute.double(double.negativeInfinity),
   };
 
-  Fixture() {
-    scope = Scope(options);
-  }
-
   SentryLogger getSut() {
     return DefaultSentryLogger(
-      captureLogCallback: (log, {scope}) {
+      captureLogCallback: (log) async {
         capturedLogs.add(log);
       },
       clockProvider: () => timestamp,
-      scopeProvider: () => scope,
+      traceContextProvider: () => (traceId: traceId, spanId: spanId),
     );
   }
-}
-
-class _MockSpan implements ISentrySpan {
-  final SentrySpanContext _context = SentrySpanContext(operation: 'test');
-
-  @override
-  SentrySpanContext get context => _context;
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }

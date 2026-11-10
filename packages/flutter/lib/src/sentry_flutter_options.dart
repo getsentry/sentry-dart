@@ -6,15 +6,16 @@ import 'package:meta/meta.dart' as meta;
 import 'package:sentry/sentry.dart';
 
 import 'app_start/standalone/app_start_trace.dart';
-import 'binding_wrapper.dart';
-import 'event_processor/screenshot_event_processor.dart';
+import 'bindings/binding_wrapper.dart';
+import 'screenshot/screenshot_event_processor.dart';
 import 'navigation/time_to_display_tracker.dart';
 import 'navigation/time_to_display_tracker_v2.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'sentry_privacy_options.dart';
-import 'sentry_replay_options.dart';
+import 'screen_capture/sentry_privacy_options.dart';
+import 'replay/sentry_replay_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
+import 'user_interaction/user_interaction_widget_types.dart';
 import 'feedback/sentry_feedback_options.dart';
 
 /// This class adds options which are only available in a Flutter environment.
@@ -180,26 +181,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;
 
-  /// Whether standalone app-start tracing is enabled.
-  ///
-  /// Requires tracing to be enabled and is supported on Android and iOS.
-  /// Defaults to `false`.
-  @meta.experimental
-  bool enableStandaloneAppStartTracing = false;
-
-  /// Whether this app start is reported by the standalone path rather than
-  /// attached to the initial `ui.load`.
-  ///
-  /// Both app-start integrations are registered before the options callback
-  /// sets [enableStandaloneAppStartTracing], so each one selects itself at call
-  /// time instead. Deriving both choices from this single predicate keeps them
-  /// mutually exclusive — a platform without standalone support must not lose
-  /// app start because the native integration stood down for a standalone
-  /// integration that never runs there.
-  @meta.internal
-  bool get usesStandaloneAppStart =>
-      enableStandaloneAppStartTracing && (platform.isIOS || platform.isAndroid);
-
   @meta.internal
   AppStartTrace? standaloneAppStartTrace;
 
@@ -233,6 +214,55 @@ class SentryFlutterOptions extends SentryOptions {
   /// runApp(SentryWidget(child: App()));
   bool enableUserInteractionTracing = true;
 
+  @meta.internal
+  final userInteractionWidgetTypes = UserInteractionWidgetTypes();
+
+  /// Tracks taps on widgets of type [T] (or subclasses of [T]) for user
+  /// interaction breadcrumbs and tracing.
+  ///
+  /// The SDK recognizes the common tappable widgets of
+  /// `package:flutter/material.dart` and `package:flutter/cupertino.dart`.
+  /// Use this for other widgets, for example the ones from
+  /// `package:material_ui` and `package:cupertino_ui`:
+  ///
+  /// ```dart
+  /// options
+  ///   ..addUserInteractionWidget<ButtonStyleButton>(
+  ///     'ButtonStyleButton',
+  ///     isEnabled: (widget) => widget.enabled,
+  ///   )
+  ///   ..addUserInteractionWidget<IconButton>(
+  ///     'IconButton',
+  ///     isEnabled: (widget) => widget.onPressed != null,
+  ///   );
+  /// ```
+  ///
+  /// To match the built-in support, add the same types from these packages:
+  /// `ButtonStyleButton`, `MaterialButton`, `CupertinoButton`, `InkWell`,
+  /// `IconButton`, `PopupMenuButton` and `PopupMenuItem`.
+  ///
+  /// [name] is reported as the `view.class` of the breadcrumb. Pass a fixed
+  /// string, since type names are minified or obfuscated in release builds.
+  ///
+  /// Taps are tracked only while [isEnabled] returns `true`, or always if it
+  /// is not set.
+  ///
+  /// If [sendDefaultPii] is enabled, the breadcrumb label is read from the
+  /// widget's descendants, including [Text].
+  ///
+  /// Built-in widgets keep their built-in name, and the outermost tracked
+  /// widget at the tap position wins. Avoid broad types such as
+  /// [GestureDetector], which would hide the widgets inside them.
+  void addUserInteractionWidget<T extends Widget>(
+    String name, {
+    bool Function(T widget)? isEnabled,
+  }) {
+    assert(T != Widget, 'Pass a widget type, for example <IconButton>.');
+    userInteractionWidgetTypes.addWidget<T>(name, isEnabled: isEnabled);
+    // ignore: invalid_use_of_internal_member
+    sdk.addFeature(SentryFeatures.userInteractionWidgetTypes);
+  }
+
   /// Enable or disable the tracing of time to full display (TTFD).
   /// If `SentryFlutter.reportFullyDisplayed()` is not called within 30 seconds
   /// after the creation of the TTFD span, it will finish with the status [SpanStatus.deadlineExceeded].
@@ -263,13 +293,11 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Renders an ASCII representation of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
-  @meta.experimental
   bool attachViewHierarchy = false;
 
   /// Sets a callback which is executed before capturing view hierarchy. Only
   /// relevant if `attachViewHierarchy` is set to true. When false is returned
   /// from the function, no view hierarchy will be attached.
-  @meta.experimental
   BeforeCaptureCallback? beforeCaptureViewHierarchy;
 
   /// Enables collection of view hierarchy element identifiers.
@@ -404,28 +432,8 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
-  @meta.experimental
+  @meta.internal
   BindingWrapper bindingUtils = BindingWrapper();
-
-  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
-  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
-  /// At the moment, only apps targeting iOS and macOS are supported.
-  @override
-  @meta.experimental
-  double? get profilesSampleRate {
-    // ignore: invalid_use_of_internal_member
-    return super.profilesSampleRate;
-  }
-
-  /// The sample rate for profiling traces in the range of 0.0 to 1.0.
-  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
-  /// At the moment, only apps targeting iOS and macOS are supported.
-  @override
-  @meta.experimental
-  set profilesSampleRate(double? value) {
-    // ignore: invalid_use_of_internal_member
-    super.profilesSampleRate = value;
-  }
 
   /// The [navigatorKey] is used to add information of the currently used locale to the contexts.
   GlobalKey<NavigatorState>? navigatorKey;
@@ -479,8 +487,5 @@ class SentryFlutterOptions extends SentryOptions {
 /// [debounce] indicates if capturing is marked for being debounced.
 ///
 /// Returns `true` if capturing should be performed, otherwise `false`.
-typedef BeforeCaptureCallback = FutureOr<bool> Function(
-  SentryEvent event,
-  Hint hint,
-  bool debounce,
-);
+typedef BeforeCaptureCallback =
+    FutureOr<bool> Function(SentryEvent event, Hint hint, bool debounce);

@@ -48,10 +48,7 @@ class NativeMemory {
 
   Uint8List asTypedList() => pointer.asTypedList(length);
 
-  Map<String, int> toJson() => {
-        'address': pointer.address,
-        'length': length,
-      };
+  Map<String, int> toJson() => {'address': pointer.address, 'length': length};
 }
 
 @internal

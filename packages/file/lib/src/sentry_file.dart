@@ -235,10 +235,7 @@ typedef Callback<T> = FutureOr<T> Function();
 /// All the copy, create, delete, open, rename, read, and write operations are
 /// supported.
 class SentryFile implements File {
-  SentryFile(
-    this._file, {
-    @internal Hub? hub,
-  }) : _hub = hub ?? HubAdapter() {
+  SentryFile(this._file, {@internal Hub? hub}) : _hub = hub ?? HubAdapter() {
     _spanFactory = _hub.options.spanFactory;
     _hub.options.sdk.addIntegration('SentryFileTracing');
     _hub.options.sdk.addPackage(packageName, sdkVersion);
@@ -321,7 +318,9 @@ class SentryFile implements File {
   @override
   Future<List<String>> readAsLines({Encoding encoding = utf8}) {
     return _wrap(
-        () async => _file.readAsLines(encoding: encoding), 'file.read');
+      () async => _file.readAsLines(encoding: encoding),
+      'file.read',
+    );
   }
 
   @override
@@ -335,7 +334,9 @@ class SentryFile implements File {
   @override
   Future<String> readAsString({Encoding encoding = utf8}) {
     return _wrap(
-        () async => _file.readAsString(encoding: encoding), 'file.read');
+      () async => _file.readAsString(encoding: encoding),
+      'file.read',
+    );
   }
 
   @override
@@ -431,17 +432,16 @@ class SentryFile implements File {
             description: desc,
             origin: SentryTraceOrigins.autoFile,
             data: {
-              'file.async': true,
-              if (_hub.options.sendDefaultPii) 'file.path': absolute.path,
+              if (_hub.options.sendDefaultPii)
+                ProposedSemanticAttributes.filePath: absolute.path,
             },
           )
         : null;
 
     final Map<String, dynamic> breadcrumbData = {};
-    breadcrumbData['file.async'] = true;
 
     if (_hub.options.sendDefaultPii) {
-      breadcrumbData['file.path'] = absolute.path;
+      breadcrumbData[ProposedSemanticAttributes.filePath] = absolute.path;
     }
     T data;
     try {
@@ -467,8 +467,8 @@ class SentryFile implements File {
       }
 
       if (length != null) {
-        span?.setData('file.size', length);
-        breadcrumbData['file.size'] = length;
+        span?.setData(ProposedSemanticAttributes.fileSize, length);
+        breadcrumbData[ProposedSemanticAttributes.fileSize] = length;
       }
 
       span?.status = SpanStatus.ok();
@@ -480,11 +480,7 @@ class SentryFile implements File {
       await span?.finish();
 
       await _hub.addBreadcrumb(
-        Breadcrumb(
-          message: desc,
-          data: breadcrumbData,
-          category: operation,
-        ),
+        Breadcrumb(message: desc, data: breadcrumbData, category: operation),
       );
     }
     return data;
@@ -501,18 +497,17 @@ class SentryFile implements File {
             description: desc,
             origin: SentryTraceOrigins.autoFile,
             data: {
-              'file.async': false,
-              if (_hub.options.sendDefaultPii) 'file.path': absolute.path,
+              if (_hub.options.sendDefaultPii)
+                ProposedSemanticAttributes.filePath: absolute.path,
             },
             isSynchronous: true,
           )
         : null;
 
     final Map<String, dynamic> breadcrumbData = {};
-    breadcrumbData['file.async'] = false;
 
     if (_hub.options.sendDefaultPii) {
-      breadcrumbData['file.path'] = absolute.path;
+      breadcrumbData[ProposedSemanticAttributes.filePath] = absolute.path;
     }
 
     T data;
@@ -539,8 +534,8 @@ class SentryFile implements File {
       }
 
       if (length != null) {
-        span?.setData('file.size', length);
-        breadcrumbData['file.size'] = length;
+        span?.setData(ProposedSemanticAttributes.fileSize, length);
+        breadcrumbData[ProposedSemanticAttributes.fileSize] = length;
       }
 
       span?.status = SpanStatus.ok();
@@ -552,11 +547,7 @@ class SentryFile implements File {
       unawaited(span?.finish());
 
       _hub.addBreadcrumb(
-        Breadcrumb(
-          message: desc,
-          data: breadcrumbData,
-          category: operation,
-        ),
+        Breadcrumb(message: desc, data: breadcrumbData, category: operation),
       );
     }
     return data;
@@ -568,8 +559,7 @@ class SentryFile implements File {
   Stream<FileSystemEvent> watch({
     int events = FileSystemEvent.all,
     bool recursive = false,
-  }) =>
-      _file.watch(events: events, recursive: recursive);
+  }) => _file.watch(events: events, recursive: recursive);
 
   @override
   Future<String> resolveSymbolicLinks() => _file.resolveSymbolicLinks();

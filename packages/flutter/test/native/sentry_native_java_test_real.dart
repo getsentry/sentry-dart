@@ -7,7 +7,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';
+import 'package:sentry_flutter/src/native/native_sdk_integration.dart';
 import 'package:sentry_flutter/src/native/java/android_core_worker.dart';
 import 'package:sentry_flutter/src/native/java/sentry_native_java.dart';
 
@@ -17,14 +17,16 @@ import '../mocks.mocks.dart';
 void main() {
   // the ReplaySizeAdjustment tests assumes a constant video block size of 16
   group('ReplaySizeAdjustment', () {
-    test('rounds down when remainder is less than or equal to half block size',
-        () {
-      expect(0.0.adjustReplaySizeToBlockSize(), 0.0);
-      expect(8.0.adjustReplaySizeToBlockSize(), 0.0);
-      expect(16.0.adjustReplaySizeToBlockSize(), 16.0);
-      expect(24.0.adjustReplaySizeToBlockSize(), 16.0);
-      expect(100.0.adjustReplaySizeToBlockSize(), 96.0);
-    });
+    test(
+      'rounds down when remainder is less than or equal to half block size',
+      () {
+        expect(0.0.adjustReplaySizeToBlockSize(), 0.0);
+        expect(8.0.adjustReplaySizeToBlockSize(), 0.0);
+        expect(16.0.adjustReplaySizeToBlockSize(), 16.0);
+        expect(24.0.adjustReplaySizeToBlockSize(), 16.0);
+        expect(100.0.adjustReplaySizeToBlockSize(), 96.0);
+      },
+    );
 
     test('rounds up when remainder is greater than half block size', () {
       expect(9.0.adjustReplaySizeToBlockSize(), 16.0);
@@ -97,15 +99,17 @@ void main() {
       expect(fixture.worker.started, isTrue);
     });
 
-    test('close() closes the core worker synchronously, before its first await',
-        () async {
-      final native = fixture.getSut();
+    test(
+      'close() closes the core worker synchronously, before its first await',
+      () async {
+        final native = fixture.getSut();
 
-      final closeFuture = native.close();
-      expect(fixture.worker.closed, isTrue);
+        final closeFuture = native.close();
+        expect(fixture.worker.closed, isTrue);
 
-      await closeFuture;
-    });
+        await closeFuture;
+      },
+    );
   });
 }
 
@@ -125,8 +129,12 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
-  void captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException) {
+  void captureEnvelope(Uint8List envelopeData) {
+    // No-op for testing
+  }
+
+  @override
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled) {
     // No-op for testing
   }
 

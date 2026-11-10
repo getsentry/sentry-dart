@@ -24,23 +24,15 @@ class SentryLazyBox<E> extends SentryBoxBase<E> implements LazyBox<E> {
 
   @override
   Future<E?> get(key, {E? defaultValue}) {
-    return _spanHelper.asyncWrapInSpan(
-      'get',
-      () {
-        return _lazyBox.get(key, defaultValue: defaultValue);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('get', () {
+      return _lazyBox.get(key, defaultValue: defaultValue);
+    }, dbName: name);
   }
 
   @override
   Future<E?> getAt(int index) {
-    return _spanHelper.asyncWrapInSpan(
-      'getAt',
-      () {
-        return _lazyBox.getAt(index);
-      },
-      dbName: name,
-    );
+    return _spanHelper.asyncWrapInSpan('getAt', () {
+      return _lazyBox.getAt(index);
+    }, dbName: name);
   }
 }

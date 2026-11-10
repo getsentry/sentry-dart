@@ -42,19 +42,4 @@ class SdkInfo {
       if (versionPatchlevel != null) 'version_patchlevel': versionPatchlevel,
     };
   }
-
-  @Deprecated('Assign values directly to the instance.')
-  SdkInfo copyWith({
-    String? sdkName,
-    int? versionMajor,
-    int? versionMinor,
-    int? versionPatchlevel,
-  }) =>
-      SdkInfo(
-        sdkName: sdkName ?? this.sdkName,
-        versionMajor: versionMajor ?? this.versionMajor,
-        versionMinor: versionMinor ?? this.versionMinor,
-        versionPatchlevel: versionPatchlevel ?? this.versionPatchlevel,
-        unknown: unknown,
-      );
 }

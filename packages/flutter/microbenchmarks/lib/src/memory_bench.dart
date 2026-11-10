@@ -11,7 +11,8 @@ Future<void> execute() async {
   // Randomized size prevents loop optimizations of constant sized loops.
   final size = 1000 * 1000 + rand.nextInt(5);
   final dataA = Uint8List.fromList(
-      List.generate(size, (index) => rand.nextInt(size) % 256));
+    List.generate(size, (index) => rand.nextInt(size) % 256),
+  );
   final byteDataA = dataA.buffer.asByteData();
   final dataB = Uint8List.fromList(dataA);
   final byteDataB = dataB.buffer.asByteData();
@@ -21,12 +22,15 @@ Future<void> execute() async {
 
   byteDataGetUint64(byteDataA, byteDataB) || fail('Invalid result');
   syncBenchmark(
-          'byteDataGetUint64()', () => byteDataGetUint64(byteDataA, byteDataB))
-      .report();
+    'byteDataGetUint64()',
+    () => byteDataGetUint64(byteDataA, byteDataB),
+  ).report();
 
   uint64Lists(byteDataA, byteDataB) || fail('Invalid result');
-  syncBenchmark('uint64Lists()', () => uint64Lists(byteDataA, byteDataB))
-      .report();
+  syncBenchmark(
+    'uint64Lists()',
+    () => uint64Lists(byteDataA, byteDataB),
+  ).report();
 
   nativeMemcmp(dataA, dataB) || fail('Invalid result');
   syncBenchmark('nativeMemcmp()', () => nativeMemcmp(dataA, dataB)).report();

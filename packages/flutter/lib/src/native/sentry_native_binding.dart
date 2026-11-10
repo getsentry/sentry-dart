@@ -18,8 +18,9 @@ abstract class SentryNativeBinding {
 
   bool get supportsCaptureEnvelope;
 
-  FutureOr<void> captureEnvelope(
-      Uint8List envelopeData, bool containsUnhandledException);
+  FutureOr<void> captureEnvelope(Uint8List envelopeData);
+
+  FutureOr<void> updateSessionForDroppedEventNonTerminating(bool unhandled);
 
   FutureOr<void> captureStructuredEnvelope(SentryEnvelope envelope);
 
@@ -45,16 +46,13 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> removeTag(String key);
 
-  int? startProfiler(SentryId traceId);
-
-  FutureOr<void> discardProfiler(SentryId traceId);
-
   FutureOr<int?> displayRefreshRate();
 
-  FutureOr<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs);
-
   FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace);
+
+  /// The ProGuard mapping UUID the native SDK attaches to its own events.
+  /// Only available on Android.
+  String? get proguardUuid;
 
   FutureOr<void> pauseAppHangTracking();
 
@@ -66,9 +64,31 @@ abstract class SentryNativeBinding {
 
   SentryId? get replayId;
 
+  /// Whether the replay with [replayId] is buffering rather than recording a
+  /// session.
+  ///
+  /// Bindings that can ask their replay SDK directly (web, via the JS
+  /// Replay's recording mode) return `true` or `false`. Bindings that can't
+  /// return `null`; callers then infer buffering from the scope: native
+  /// layers put the replay ID on the scope only while recording a session,
+  /// so a scope without a replay ID means the replay is buffering.
+  bool? get isReplayBuffering;
+
   FutureOr<void> setReplayConfig(ReplayConfig config);
 
   FutureOr<SentryId> captureReplay();
+
+  FutureOr<void> startReplay();
+
+  FutureOr<void> startReplayBuffering();
+
+  FutureOr<void> pauseReplay();
+
+  FutureOr<void> resumeReplay();
+
+  FutureOr<void> stopReplay();
+
+  FutureOr<void> flushReplay();
 
   /// Starts a new session.
   ///

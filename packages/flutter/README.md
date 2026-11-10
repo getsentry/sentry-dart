@@ -1,6 +1,10 @@
 <p align="center">
   <a href="https://sentry.io" target="_blank" align="center">
-    <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
+    <picture>
+      <source srcset="https://sentry-brand.storage.googleapis.com/sentry-logo-white.png" media="(prefers-color-scheme: dark)" />
+      <source srcset="https://sentry-brand.storage.googleapis.com/sentry-wordmark-dark-280x84.png" media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)" />
+      <img src="https://sentry-brand.storage.googleapis.com/sentry-wordmark-dark-280x84.png" alt="Sentry" width="280">
+    </picture>
   </a>
   <br />
 </p>
@@ -14,6 +18,9 @@ Sentry SDK for Flutter
 
 This package includes support to native crashes through Sentry's native SDKs: ([Android](https://github.com/getsentry/sentry-java) and [iOS](https://github.com/getsentry/sentry-cocoa)).
 It will capture errors in the native layer, including (Java/Kotlin/C/C++ for Android and Objective-C/Swift for iOS).
+
+Starting with version 10.0.0, the iOS and macOS native SDKs are distributed through
+Swift Package Manager. The Sentry Flutter plugin does not support CocoaPods.
 
 #### Usage
 

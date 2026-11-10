@@ -16,8 +16,10 @@ void main() {
 
       sut.shouldCapture(Uri.parse('https://example.com'));
 
-      expect(fixture.options.sdk.features,
-          contains(SentryFeatures.replayNetworkDetailsCapturing));
+      expect(
+        fixture.options.sdk.features,
+        contains(SentryFeatures.replayNetworkDetailsCapturing),
+      );
     });
 
     test('does not add feature flag when allow list is empty', () {
@@ -26,8 +28,10 @@ void main() {
 
       sut.shouldCapture(Uri.parse('https://example.com'));
 
-      expect(fixture.options.sdk.features,
-          isNot(contains(SentryFeatures.replayNetworkDetailsCapturing)));
+      expect(
+        fixture.options.sdk.features,
+        isNot(contains(SentryFeatures.replayNetworkDetailsCapturing)),
+      );
     });
 
     group('shouldCapture', () {
@@ -85,38 +89,40 @@ void main() {
       });
 
       test(
-          'captures additional configured request headers when sendDefaultPii is enabled',
-          () {
-        final fixture = Fixture();
-        fixture.options.sendDefaultPii = true;
-        fixture.options.replay.networkRequestHeaders.add('X-Custom');
-        final sut = fixture.getSut();
+        'captures additional configured request headers when sendDefaultPii is enabled',
+        () {
+          final fixture = Fixture();
+          fixture.options.sendDefaultPii = true;
+          fixture.options.replay.networkRequestHeaders.add('X-Custom');
+          final sut = fixture.getSut();
 
-        final request = Request('GET', Uri.parse('https://example.com'))
-          ..headers.addAll({'X-Custom': 'value'});
+          final request = Request('GET', Uri.parse('https://example.com'))
+            ..headers.addAll({'X-Custom': 'value'});
 
-        final data = sut.captureRequest(request);
+          final data = sut.captureRequest(request);
 
-        expect(data['headers'], {'X-Custom': 'value'});
-      });
+          expect(data['headers'], {'X-Custom': 'value'});
+        },
+      );
 
       test(
-          'does not capture additional configured request headers when sendDefaultPii is disabled',
-          () {
-        final fixture = Fixture();
-        fixture.options.replay.networkRequestHeaders.add('X-Custom');
-        final sut = fixture.getSut();
+        'does not capture additional configured request headers when sendDefaultPii is disabled',
+        () {
+          final fixture = Fixture();
+          fixture.options.replay.networkRequestHeaders.add('X-Custom');
+          final sut = fixture.getSut();
 
-        final request = Request('GET', Uri.parse('https://example.com'))
-          ..headers.addAll({
-            'X-Custom': 'value',
-            'Content-Type': 'application/json',
-          });
+          final request = Request('GET', Uri.parse('https://example.com'))
+            ..headers.addAll({
+              'X-Custom': 'value',
+              'Content-Type': 'application/json',
+            });
 
-        final data = sut.captureRequest(request);
+          final data = sut.captureRequest(request);
 
-        expect(data['headers'], {'Content-Type': 'application/json'});
-      });
+          expect(data['headers'], {'Content-Type': 'application/json'});
+        },
+      );
 
       test('captures body for capturable content type', () {
         final fixture = Fixture();
@@ -207,30 +213,32 @@ void main() {
     });
 
     group('captureResponse', () {
-      test('captures headers and body, and forwards full body downstream',
-          () async {
-        final fixture = Fixture();
-        fixture.options.sendDefaultPii = true;
-        final sut = fixture.getSut();
+      test(
+        'captures headers and body, and forwards full body downstream',
+        () async {
+          final fixture = Fixture();
+          fixture.options.sendDefaultPii = true;
+          final sut = fixture.getSut();
 
-        final response = StreamedResponse(
-          Stream.fromIterable([
-            'partial-'.codeUnits,
-            'body'.codeUnits,
-          ]),
-          200,
-          headers: {
-            'content-type': 'application/json',
-            'authorization': 'Bearer secret',
-          },
-        );
+          final response = StreamedResponse(
+            Stream.fromIterable(['partial-'.codeUnits, 'body'.codeUnits]),
+            200,
+            headers: {
+              'content-type': 'application/json',
+              'authorization': 'Bearer secret',
+            },
+          );
 
-        final (forwardedResponse, data) = await sut.captureResponse(response);
+          final (forwardedResponse, data) = await sut.captureResponse(response);
 
-        expect(data['headers'], {'content-type': 'application/json'});
-        expect(data['body'], 'partial-body');
-        expect(await forwardedResponse.stream.bytesToString(), 'partial-body');
-      });
+          expect(data['headers'], {'content-type': 'application/json'});
+          expect(data['body'], 'partial-body');
+          expect(
+            await forwardedResponse.stream.bytesToString(),
+            'partial-body',
+          );
+        },
+      );
 
       test('does not capture body for non-capturable content type', () async {
         final fixture = Fixture();
@@ -266,59 +274,66 @@ void main() {
         expect(await forwardedResponse.stream.bytesToString(), '{"foo":"bar"}');
       });
 
-      test('does not capture body when contentLength exceeds max size',
-          () async {
-        final fixture = Fixture();
-        fixture.options.sendDefaultPii = true;
-        final sut = fixture.getSut();
+      test(
+        'does not capture body when contentLength exceeds max size',
+        () async {
+          final fixture = Fixture();
+          fixture.options.sendDefaultPii = true;
+          final sut = fixture.getSut();
 
-        final response = StreamedResponse(
-          Stream.value('{"foo":"bar"}'.codeUnits),
-          200,
-          contentLength: FlutterNetworkDetailsCapture.maxBodySize + 1,
-          headers: {'content-type': 'application/json'},
-        );
+          final response = StreamedResponse(
+            Stream.value('{"foo":"bar"}'.codeUnits),
+            200,
+            contentLength: FlutterNetworkDetailsCapture.maxBodySize + 1,
+            headers: {'content-type': 'application/json'},
+          );
 
-        final (forwardedResponse, data) = await sut.captureResponse(response);
+          final (forwardedResponse, data) = await sut.captureResponse(response);
 
-        expect(data.containsKey('body'), false);
-        expect(await forwardedResponse.stream.bytesToString(), '{"foo":"bar"}');
-      });
+          expect(data.containsKey('body'), false);
+          expect(
+            await forwardedResponse.stream.bytesToString(),
+            '{"foo":"bar"}',
+          );
+        },
+      );
 
       test(
-          'truncates and forwards body exceeding max size when contentLength is unknown',
-          () async {
-        final fixture = Fixture();
-        fixture.options.sendDefaultPii = true;
-        final sut = fixture.getSut();
+        'truncates and forwards body exceeding max size when contentLength is unknown',
+        () async {
+          final fixture = Fixture();
+          fixture.options.sendDefaultPii = true;
+          final sut = fixture.getSut();
 
-        final oversizedBody =
-            'a' * (FlutterNetworkDetailsCapture.maxBodySize + 100);
-        // Split into chunks so the body is read incrementally rather than
-        // available as a single value, matching a real chunked response.
-        final chunks = [
-          for (var i = 0; i < oversizedBody.length; i += 1024)
-            oversizedBody
-                .substring(
+          final oversizedBody =
+              'a' * (FlutterNetworkDetailsCapture.maxBodySize + 100);
+          // Split into chunks so the body is read incrementally rather than
+          // available as a single value, matching a real chunked response.
+          final chunks = [
+            for (var i = 0; i < oversizedBody.length; i += 1024)
+              oversizedBody
+                  .substring(
                     i,
                     i + 1024 > oversizedBody.length
                         ? oversizedBody.length
-                        : i + 1024)
-                .codeUnits,
-        ];
-        final response = StreamedResponse(
-          Stream.fromIterable(chunks),
-          200,
-          headers: {'content-type': 'text/plain'},
-        );
+                        : i + 1024,
+                  )
+                  .codeUnits,
+          ];
+          final response = StreamedResponse(
+            Stream.fromIterable(chunks),
+            200,
+            headers: {'content-type': 'text/plain'},
+          );
 
-        final (forwardedResponse, data) = await sut.captureResponse(response);
+          final (forwardedResponse, data) = await sut.captureResponse(response);
 
-        // 150KB, pinned as a literal rather than maxBodySize so this can't
-        // pass by construction if the constant itself were wrong.
-        expect((data['body'] as String).length, 150 * 1024);
-        expect(await forwardedResponse.stream.bytesToString(), oversizedBody);
-      });
+          // 150KB, pinned as a literal rather than maxBodySize so this can't
+          // pass by construction if the constant itself were wrong.
+          expect((data['body'] as String).length, 150 * 1024);
+          expect(await forwardedResponse.stream.bytesToString(), oversizedBody);
+        },
+      );
 
       test('rethrows when the response body fails to read', () async {
         final fixture = Fixture();

@@ -13,19 +13,17 @@ class LogCapturePipeline {
 
   LogCapturePipeline(this._options);
 
-  FutureOr<void> captureLog(SentryLog log, {Scope? scope}) async {
+  Future<void> captureLog(SentryLog log, {Scope? scope}) async {
     try {
       if (scope != null) {
-        // Populate traceId from scope if not already set
-        // TODO(major-v10): this can be removed once we make the traceId required on the log
-        if (log.traceId == null || log.traceId == SentryId.empty()) {
-          log.traceId = scope.propagationContext.traceId;
-        }
         log.attributes.addAllIfAbsent(scope.attributes);
       }
 
-      await _options.lifecycleRegistry
-          .dispatchCallback<OnProcessLog>(OnProcessLog(log));
+      final hint = Hint();
+
+      await _options.lifecycleRegistry.dispatchCallback<OnProcessLog>(
+        OnProcessLog(log, hint),
+      );
 
       log.attributes.addAllIfAbsent(defaultAttributes(_options, scope: scope));
 
@@ -33,7 +31,7 @@ class LogCapturePipeline {
       SentryLog? processedLog = log;
       if (beforeSendLog != null) {
         try {
-          final callbackResult = beforeSendLog(log);
+          final callbackResult = beforeSendLog(log, hint);
 
           if (callbackResult is Future<SentryLog?>) {
             processedLog = await callbackResult;
@@ -41,6 +39,7 @@ class LogCapturePipeline {
             processedLog = callbackResult;
           }
         } catch (exception, stackTrace) {
+          processedLog = null;
           internalLogger.error(
             'The beforeSendLog callback threw an exception',
             error: exception,
@@ -58,7 +57,8 @@ class LogCapturePipeline {
           bytes: _approximateLogBytes(log),
         );
         internalLogger.debug(
-            '$LogCapturePipeline: Log "${log.body}" dropped by beforeSendLog');
+          '$LogCapturePipeline: Log "${log.body}" dropped by beforeSendLog',
+        );
         return;
       }
 

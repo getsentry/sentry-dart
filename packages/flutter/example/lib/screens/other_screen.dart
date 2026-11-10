@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../widgets.dart';
+import 'replay_playground_screen.dart';
 
 class OtherScreen extends StatelessWidget {
   const OtherScreen({super.key});
@@ -35,6 +36,18 @@ class OtherScreen extends StatelessWidget {
                     text: 'Demonstrates the feature flags.',
                     buttonTitle: 'Add "feature-one" flag',
                   ),
+                  TooltipButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<void>(
+                        settings: const RouteSettings(name: 'ReplayPlayground'),
+                        builder: (_) => const ReplayPlaygroundScreen(),
+                      ),
+                    ),
+                    text:
+                        'A moving, maskable scene for checking Session Replay in Sentry.',
+                    buttonTitle: 'Open Replay Playground',
+                  ),
                 ],
               ),
             ),
@@ -52,8 +65,10 @@ class SecondaryScaffold extends StatelessWidget {
     return Navigator.push(
       context,
       MaterialPageRoute<void>(
-        settings:
-            const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
+        settings: const RouteSettings(
+          name: 'SecondaryScaffold',
+          arguments: 'foobar',
+        ),
         builder: (context) => const SecondaryScaffold(),
       ),
     );

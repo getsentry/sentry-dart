@@ -43,13 +43,12 @@ class SentryUser {
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, dynamic>? extras,
     this.unknown,
-  })  : assert(id != null ||
-            username != null ||
-            email != null ||
-            ipAddress != null),
-        data = data == null ? null : Map.from(data),
-        // ignore: deprecated_member_use_from_same_package
-        extras = extras == null ? null : Map.from(extras);
+  }) : assert(
+         id != null || username != null || email != null || ipAddress != null,
+       ),
+       data = data == null ? null : Map.from(data),
+       // ignore: deprecated_member_use_from_same_package
+       extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
   String? id;
@@ -132,13 +131,15 @@ class SentryUser {
     final attributes = <String, SentryAttribute>{};
     final id = this.id;
     if (id != null) {
-      attributes[SemanticAttributesConstants.userId] =
-          SentryAttribute.string(id);
+      attributes[SemanticAttributesConstants.userId] = SentryAttribute.string(
+        id,
+      );
     }
     final name = this.name;
     if (name != null) {
-      attributes[SemanticAttributesConstants.userName] =
-          SentryAttribute.string(name);
+      attributes[SemanticAttributesConstants.userName] = SentryAttribute.string(
+        name,
+      );
     }
     final email = this.email;
     if (email != null) {
@@ -196,31 +197,5 @@ class SentryUser {
       if (name != null) 'name': name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
     };
-  }
-
-  @Deprecated('Assign values directly to the instance.')
-  SentryUser copyWith({
-    String? id,
-    String? username,
-    String? email,
-    String? ipAddress,
-    @Deprecated('Will be removed in v8. Use [data] instead')
-    Map<String, dynamic>? extras,
-    String? name,
-    SentryGeo? geo,
-    Map<String, dynamic>? data,
-  }) {
-    return SentryUser(
-      id: id ?? this.id,
-      username: username ?? this.username,
-      email: email ?? this.email,
-      ipAddress: ipAddress ?? this.ipAddress,
-      data: data ?? this.data,
-      // ignore: deprecated_member_use_from_same_package
-      extras: extras ?? this.extras,
-      geo: geo ?? this.geo,
-      name: name ?? this.name,
-      unknown: unknown,
-    );
   }
 }

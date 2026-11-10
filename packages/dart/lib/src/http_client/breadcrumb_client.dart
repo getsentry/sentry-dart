@@ -52,9 +52,12 @@ class BreadcrumbClient extends BaseClient {
     Client? client,
     Hub? hub,
     @internal NetworkDetailsCapture? networkDetailsCapture,
-  })  : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client(),
-        _networkDetailsCapture = networkDetailsCapture;
+  }) : _hub = hub ?? HubAdapter(),
+       _client = client ?? Client(),
+       // Named parameters can't be private, so the field can't be assigned
+       // through an initializing formal.
+       // ignore: prefer_initializing_formals
+       _networkDetailsCapture = networkDetailsCapture;
 
   final Client _client;
   final Hub _hub;

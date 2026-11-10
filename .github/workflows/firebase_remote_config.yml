@@ -57,3 +57,4 @@ jobs:
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/firebase_remote_config
+      sdk: flutter
