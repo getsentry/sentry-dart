@@ -18,8 +18,7 @@ jobs:
   request-recheck:
     if: >-
       github.head_ref == 'deps/packages/flutter/scripts/update-cocoa.sh' ||
-      github.head_ref == 'deps/packages/flutter/scripts/update-android.sh' ||
-      github.head_ref == 'ci/native-bump-recheck'
+      github.head_ref == 'deps/packages/flutter/scripts/update-android.sh'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
