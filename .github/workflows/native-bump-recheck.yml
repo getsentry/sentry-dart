@@ -1,13 +1,16 @@
 name: Native SDK Bump Recheck
 
-# The updater force-pushes new versions to the same branch, which Junior's
-# PR-opened automation does not see. Mentioning Junior on each push makes it
-# re-check the new Cocoa/Android version for known issues.
+# When the updater moves an open Cocoa/Android bump PR to a newer version,
+# Junior's PR-opened automation does not see it. Mentioning Junior makes it
+# re-check the new version. The updater also force-pushes these branches on
+# every push to main without changing the version, so only comment when the
+# native SDK version actually changed.
 on:
   pull_request:
     types: [synchronize]
 
 permissions:
+  contents: read
   pull-requests: write
 
 concurrency:
@@ -16,14 +19,50 @@ concurrency:
 
 jobs:
   request-recheck:
-    if: >-
-      github.head_ref == 'deps/packages/flutter/scripts/update-cocoa.sh' ||
-      github.head_ref == 'deps/packages/flutter/scripts/update-android.sh'
+    if: startsWith(github.head_ref, 'deps/packages/flutter/scripts/update-')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
+            const versionFiles = {
+              'deps/packages/flutter/scripts/update-cocoa.sh': {
+                path: 'packages/flutter/darwin/sentry_flutter/Package.swift',
+                pattern: /sentry-apple-binaries["'],\s*(?:exact|revision):\s*["']([^"']+)["']/,
+              },
+              'deps/packages/flutter/scripts/update-android.sh': {
+                path: 'packages/flutter/android/build.gradle',
+                pattern: /io\.sentry:sentry-android:([0-9A-Za-z.-]+)/,
+              },
+            };
+            const versionFile = versionFiles[context.payload.pull_request.head.ref];
+            if (!versionFile) {
+              core.info('Not a native Cocoa/Android bump branch; skipping.');
+              return;
+            }
+
+            async function versionAt(ref) {
+              const { data } = await github.rest.repos.getContent({
+                ...context.repo,
+                path: versionFile.path,
+                ref,
+              });
+              const content = Buffer.from(data.content, 'base64').toString();
+              return content.match(versionFile.pattern)?.[1];
+            }
+
+            const before = await versionAt(context.payload.before);
+            const after = await versionAt(context.payload.after);
+            if (!after) {
+              core.setFailed(`No native SDK version found in ${versionFile.path}.`);
+              return;
+            }
+            if (before === after) {
+              core.info(`Version unchanged (${after}); skipping recheck.`);
+              return;
+            }
+
+            core.info(`Version changed from ${before} to ${after}; requesting recheck.`);
             await github.rest.issues.createComment({
               ...context.repo,
               issue_number: context.payload.pull_request.number,
