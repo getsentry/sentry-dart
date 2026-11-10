@@ -23,7 +23,9 @@ set-version)
     # Keep the release zip hash in sync, see SENTRY_NATIVE_FETCH_METHOD=zip.
     repo=$(echo "$content" | grep -w repo | cut -d '=' -f 2 | tr -d '\n')
     sha256=$(curl -fsSL "$repo/releases/download/$2/sentry-native.zip" | sha256sum | cut -d ' ' -f 1)
-    echo "$content" | sed "s/^sha256=.*/sha256=$sha256/" >$file
+    # Drop any old pin and append the new one, so a missing line gets added too.
+    content=$(echo "$content" | grep -v '^sha256=')
+    printf '%s\nsha256=%s\n' "$content" "$sha256" >$file
     pwsh ../scripts/generate-native-bindings.ps1 "$2"
     ;;
 *)
