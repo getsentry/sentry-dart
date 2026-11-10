@@ -17,7 +17,9 @@ permissions:
 
 jobs:
   request-recheck:
-    if: startsWith(github.head_ref, 'deps/packages/flutter/scripts/update-')
+    if: >-
+      github.head_ref == 'deps/packages/flutter/scripts/update-cocoa.sh' ||
+      github.head_ref == 'deps/packages/flutter/scripts/update-android.sh'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -34,10 +36,6 @@ jobs:
               },
             };
             const versionFile = versionFiles[context.payload.pull_request.head.ref];
-            if (!versionFile) {
-              core.info('Not a native Cocoa/Android bump branch; skipping.');
-              return;
-            }
 
             async function versionAt(ref) {
               const { data } = await github.rest.repos.getContent({
