@@ -20732,6 +20732,71 @@ extension SentryOptions$$Methods on SentryOptions {
     ).check();
   }
 
+  static final _id_get$debugManager = SentryOptions._class.instanceMethodId(
+    r'getDebugManager',
+    r'()Lio/sentry/IDebugManager;',
+  );
+
+  static final _get$debugManager =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.IDebugManager getDebugManager()`
+  /// The returned object must be released after use, by calling the [release] method.
+  IDebugManager? get debugManager {
+    final _$$selfRef = reference;
+    return _get$debugManager(
+      _$$selfRef.pointer,
+      _id_get$debugManager.pointer,
+    ).object<IDebugManager?>();
+  }
+
+  static final _id_set$debugManager = SentryOptions._class.instanceMethodId(
+    r'setDebugManager',
+    r'(Lio/sentry/IDebugManager;)V',
+  );
+
+  static final _set$debugManager =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setDebugManager(io.sentry.IDebugManager iDebugManager)`
+  set debugManager(IDebugManager? iDebugManager) {
+    final _$$selfRef = reference;
+    final _$iDebugManager = iDebugManager?.reference ?? jni$_.jNullReference;
+    _set$debugManager(
+      _$$selfRef.pointer,
+      _id_set$debugManager.pointer,
+      _$iDebugManager.pointer,
+    ).check();
+  }
+
   static final _id_get$compositePerformanceCollector = SentryOptions._class
       .instanceMethodId(
         r'getCompositePerformanceCollector',
@@ -36557,6 +36622,71 @@ extension Scope$$Methods on Scope {
       _$$selfRef.pointer,
       _id_set$level.pointer,
       _$sentryLevel.pointer,
+    ).check();
+  }
+
+  static final _id_get$environment = Scope._class.instanceMethodId(
+    r'getEnvironment',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _get$environment =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.lang.String getEnvironment()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? get environment {
+    final _$$selfRef = reference;
+    return _get$environment(
+      _$$selfRef.pointer,
+      _id_get$environment.pointer,
+    ).object<jni$_.JString?>();
+  }
+
+  static final _id_set$environment = Scope._class.instanceMethodId(
+    r'setEnvironment',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _set$environment =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setEnvironment(java.lang.String string)`
+  set environment(jni$_.JString? string) {
+    final _$$selfRef = reference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _set$environment(
+      _$$selfRef.pointer,
+      _id_set$environment.pointer,
+      _$string.pointer,
     ).check();
   }
 
@@ -54072,6 +54202,24 @@ final class $IThreadChecker$Type$ extends jni$_.JType<IThreadChecker> {
   @jni$_.internal
   @core$_.override
   String get signature => r'Lio/sentry/util/thread/IThreadChecker;';
+}
+
+/// from: `io.sentry.IDebugManager`
+///
+/// WARNING: IDebugManager is a stub. To generate bindings for this class, include
+/// io.sentry.IDebugManager in your config's classes list.
+///
+extension type IDebugManager._(jni$_.JObject _$this) implements jni$_.JObject {
+  static const jni$_.JType<IDebugManager> type = $IDebugManager$Type$();
+}
+
+final class $IDebugManager$Type$ extends jni$_.JType<IDebugManager> {
+  @jni$_.internal
+  const $IDebugManager$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/IDebugManager;';
 }
 
 /// from: `io.sentry.CompositePerformanceCollector`
