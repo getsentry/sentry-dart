@@ -496,6 +496,53 @@ void main() async {
     });
   });
 
+  group('an offscreen $SnapshotWidget', () {
+    testWidgets('does not report a frozen snapshot', (tester) async {
+      // A snapshot nobody can see must not make the recorder skip the frame.
+      final controller = SnapshotController(allowSnapshotting: true);
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: Center(
+            child: RepaintBoundary(
+              child: SizedBox(
+                width: 400,
+                height: 400,
+                child: ClipRect(
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        left: 1000,
+                        top: 0,
+                        child: SnapshotWidget(
+                          controller: controller,
+                          child: const SizedBox(width: 100, height: 40),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      final element = tester.element(find.byType(RepaintBoundary).first);
+
+      final sut = createSut();
+      sut.obscure(
+        context: element,
+        root: element.renderObject as RenderRepaintBoundary,
+        colorScheme: colorScheme,
+      );
+
+      expect(sut.items, isEmpty);
+      expect(sut.hasFrozenSnapshot, isFalse);
+    });
+  });
+
   group('during a $ZoomPageTransitionsBuilder push', () {
     const outgoingKey = ValueKey('outgoing');
     const incomingKey = ValueKey('incoming');

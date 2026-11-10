@@ -89,9 +89,11 @@ class WidgetFilter {
         // The frame shows an image of the child taken earlier, so where its
         // content is now may not be where it was painted. Cover it, and let
         // the masks of its content, which come later, draw on top.
-        _hasFrozenSnapshot = true;
         final item = _obscureSnapshotOrParent(element, widget);
         if (item != null) {
+          // Only a snapshot that is on screen counts, or an invisible one
+          // would make the recorder skip the whole frame.
+          _hasFrozenSnapshot = true;
           items.add(item);
         }
       }
