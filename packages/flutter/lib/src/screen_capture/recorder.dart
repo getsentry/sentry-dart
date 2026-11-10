@@ -94,8 +94,12 @@ class ScreenshotRecorder {
       // Masking runs first so a frame that is going to be skipped is never
       // rendered. Both run before any async gap, so the masks still match.
       Timeline.startSync('Sentry::captureScreenshot:Masking', flow: flow);
-      final filter = _obscureSync(capture);
-      Timeline.finishSync(); // Sentry::captureScreenshot:Masking
+      final WidgetFilter? filter;
+      try {
+        filter = _obscureSync(capture);
+      } finally {
+        Timeline.finishSync(); // Sentry::captureScreenshot:Masking
+      }
 
       if (skipsFrozenFrames && (filter?.hasFrozenSnapshot ?? false)) {
         internalLogger.debug(
