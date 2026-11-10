@@ -6,7 +6,7 @@ import '../../sentry_sqflite.dart';
 /// Returns the database attributes known when a span is created.
 Map<String, dynamic> databaseSpanData(String? dbName) => {
   SemanticAttributesConstants.dbSystemName: SentryDatabase.dbSystemName,
-  if (dbName != null) SemanticAttributesConstants.dbNamespace: dbName,
+  SemanticAttributesConstants.dbNamespace: ?dbName,
 };
 
 /// Sets the database attributes on the [breadcrumb].

@@ -36,8 +36,7 @@ class SentrySpanHelper {
             data: {
               SemanticAttributesConstants.dbSystemName:
                   SentryHiveImpl.dbSystemName,
-              if (dbName != null)
-                SemanticAttributesConstants.dbNamespace: dbName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
             },
           )
         : null;
@@ -85,8 +84,7 @@ class SentrySpanHelper {
             data: {
               SemanticAttributesConstants.dbSystemName:
                   SentryHiveImpl.dbSystemName,
-              if (dbName != null)
-                SemanticAttributesConstants.dbNamespace: dbName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
             },
             isSynchronous: true,
           )

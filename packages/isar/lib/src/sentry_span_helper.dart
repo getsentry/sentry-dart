@@ -36,10 +36,8 @@ class SentrySpanHelper {
             origin: _origin,
             data: {
               SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
-              if (dbName != null)
-                SemanticAttributesConstants.dbNamespace: dbName,
-              if (collectionName != null)
-                SemanticAttributesConstants.dbCollectionName: collectionName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
+              SemanticAttributesConstants.dbCollectionName: ?collectionName,
             },
           )
         : null;
@@ -88,10 +86,8 @@ class SentrySpanHelper {
             origin: _origin,
             data: {
               SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
-              if (dbName != null)
-                SemanticAttributesConstants.dbNamespace: dbName,
-              if (collectionName != null)
-                SemanticAttributesConstants.dbCollectionName: collectionName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
+              SemanticAttributesConstants.dbCollectionName: ?collectionName,
             },
             isSynchronous: true,
           )
