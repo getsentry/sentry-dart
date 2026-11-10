@@ -33,7 +33,7 @@ jobs:
           token: ${{ steps.token.outputs.token }}
           fetch-depth: 0
       - name: Prepare release
-        uses: getsentry/craft@924b450ede4af30e30de4821a4b357d676c8df92 # v2
+        uses: getsentry/craft@9567926a606072678ef367b02445c4f99f374795 # 3.11.2
         env:
           GITHUB_TOKEN: ${{ steps.token.outputs.token }}
         with:
