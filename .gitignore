@@ -70,7 +70,6 @@ xcuserdata/
 
 # Miscellaneous
 *.class
-*.lock
 *.log
 *.pyc
 *.swp
@@ -190,7 +189,6 @@ app.*.symbols
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
-!/dev/ci/**/Gemfile.lock
 
 # --- Project ---
 .atom/
