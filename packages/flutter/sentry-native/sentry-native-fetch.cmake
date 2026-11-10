@@ -8,6 +8,12 @@
 # https://github.com/getsentry/sentry-dart/issues/3969
 function(sentry_native_fetch_zip out)
     set(${out} FALSE PARENT_SCOPE)
+    # Without a pinned hash the zip can't be verified, so don't fail the build
+    # over it; the caller falls back to git.
+    if("${SENTRY_NATIVE_sha256}" STREQUAL "")
+        message(WARNING "No sha256 pinned for sentry-native ${SENTRY_NATIVE_version} in CMakeCache.txt, not using the release zip")
+        return()
+    endif()
     set(src_dir "${FETCHCONTENT_BASE_DIR}/sn-src")
     set(stamp_file "${src_dir}/.sentry-native-stamp")
     set(stamp "zip;${SENTRY_NATIVE_repo};${SENTRY_NATIVE_version};${SENTRY_NATIVE_sha256}")

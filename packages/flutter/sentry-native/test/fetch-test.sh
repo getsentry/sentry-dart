@@ -102,7 +102,16 @@ else
   fail "no fallback to git after a failed download, see $work/bad-repo.log"
 fi
 
-# 6. A hash mismatch is an error and must not fall back.
+# 6a. A missing hash can't be verified, so it falls back to git instead of failing.
+no_hash=$(make_variant no-hash '/^sha256=/d')
+configure no-hash "$no_hash" || true
+if grep -q "No sha256 pinned" "$work/no-hash.log" && grep -q "Falling back to fetching sentry-native with git" "$work/no-hash.log" && ! grep -q "hash mismatch" "$work/no-hash.log"; then
+  pass "missing sha256 falls back to git"
+else
+  fail "missing sha256 did not fall back to git, see $work/no-hash.log"
+fi
+
+# 6b. A hash mismatch is an error and must not fall back.
 bad_hash=$(make_variant bad-hash 's#^sha256=.*#sha256=0000000000000000000000000000000000000000000000000000000000000000#')
 if configure bad-hash "$bad_hash"; then
   fail "configure succeeded with a wrong sha256"

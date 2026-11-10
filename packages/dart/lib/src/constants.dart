@@ -66,7 +66,7 @@ class SentryFeatures {
 ///
 /// Not all attributes apply to every telemetry type.
 ///
-/// See https://getsentry.github.io/sentry-conventions/generated/attributes/
+/// See https://conventions.sentry.dev/attributes/
 /// for more details.
 @internal
 abstract class SemanticAttributesConstants {
@@ -451,7 +451,7 @@ abstract class SemanticAttributesConstants {
 }
 
 /// Attribute keys emitted by the SDK that are not (yet) codified in
-/// [Sentry Conventions](https://getsentry.github.io/sentry-conventions/).
+/// [Sentry Conventions](https://conventions.sentry.dev/).
 ///
 /// Values here are considered candidates for promotion to
 /// [SemanticAttributesConstants]. Treat them as unstable: names may change
