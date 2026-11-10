@@ -39,6 +39,10 @@ function(sentry_native_fetch_zip out)
             message(FATAL_ERROR "sentry-native zip hash mismatch: expected ${SENTRY_NATIVE_sha256}, got ${actual_sha256}")
         endif()
 
+        # Extract straight into sn-src instead of letting FetchContent extract
+        # to a temp dir and rename it into place. That rename failed on WSL2
+        # with the project on an NTFS mount, which got #3621 reverted.
+        # https://github.com/getsentry/sentry-dart/issues/3630
         file(REMOVE_RECURSE "${src_dir}")
         file(MAKE_DIRECTORY "${src_dir}")
         execute_process(
