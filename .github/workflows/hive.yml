@@ -11,8 +11,8 @@ on:
       - '.github/workflows/hive.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
+      - '.github/scripts/test-dart-vm.sh'
       - '.github/actions/coverage/**'
-      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/hive/**'
 
@@ -42,16 +42,8 @@ jobs:
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/hive
-          coverage: sentry_hive
           min-coverage: 55
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_hive-${{ runner.os }}-${{ matrix.sdk }}
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

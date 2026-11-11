@@ -12,7 +12,6 @@ on:
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/actions/coverage/**'
-      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/sqflite/**'
 
@@ -45,16 +44,8 @@ jobs:
       - uses: ./.github/actions/coverage
         if: matrix.target == 'linux' && matrix.sdk == 'stable'
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/sqflite
-          coverage: sentry_sqflite
           min-coverage: 80
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_sqflite-${{ matrix.target }}-${{ matrix.sdk }}
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

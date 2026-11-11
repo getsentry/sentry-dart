@@ -89,22 +89,6 @@ runs:
           ' "$report" || true
         done
 
-    - name: Install better_test_reporter
-      if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
-      shell: bash
-      run: dart pub global activate better_test_reporter 0.1.1
-
-    - name: Convert test results to JUnit XML
-      if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
-      working-directory: ${{ inputs.directory }}
-      shell: bash
-      run: |
-        for report in test-vm.jsonl test-native-*.jsonl; do
-          [[ -f "$report" ]] || continue
-          dart pub global run better_test_reporter:report_to_junit \
-            --input "$report" --output "TEST-${report%.jsonl}-junit.xml"
-        done
-
     - name: Test web (${{ matrix.target }})
       if: matrix.target == 'js' || matrix.target == 'wasm'
       working-directory: ${{ inputs.directory }}

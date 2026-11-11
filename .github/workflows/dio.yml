@@ -11,8 +11,8 @@ on:
       - '.github/workflows/dio.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
+      - '.github/scripts/test-dart-vm.sh'
       - '.github/actions/coverage/**'
-      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/dio/**'
 
@@ -41,16 +41,8 @@ jobs:
       - uses: ./.github/actions/coverage
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           directory: packages/dio
-          coverage: sentry_dio
           min-coverage: 81
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_dio-${{ runner.os }}-${{ matrix.sdk }}
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml
