@@ -56,13 +56,25 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   /// Completes once a background init has finished, successfully or not.
   Future<void>? _pendingInit;
 
-  /// Completes once a `sentry_close()` queued on the worker has returned,
-  /// which may be after [close] stopped waiting for it. Static because native
-  /// SDK state is per process and a re-init creates a new binding.
-  static Future<void>? _pendingWorkerClose;
+  /// Completes once every native init and close started so far has finished,
+  /// which may be after [init] or [close] stopped waiting. Static because
+  /// native SDK state is per process and a re-init creates a new binding.
+  static Future<void>? _nativeWork;
 
   @visibleForTesting
-  static Future<void>? get pendingWorkerClose => _pendingWorkerClose;
+  static Future<void>? get pendingNativeWork => _nativeWork;
+
+  /// `sentry_init()` and `sentry_close()` must not overlap, across bindings
+  /// too, so they run one after another in call order.
+  static Future<void> _afterNativeWork(Future<void> Function() work) {
+    final result = (_nativeWork ?? Future<void>.value()).then((_) => work());
+    final tail = result.then<void>((_) {}, onError: (Object _) {});
+    _nativeWork = tail;
+    tail.then((_) {
+      if (identical(_nativeWork, tail)) _nativeWork = null;
+    });
+    return result;
+  }
 
   /// On Windows, scope calls are queued until init decides where they run, so
   /// an early call never loads sentry.dll on the platform thread. Without
@@ -104,12 +116,12 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   /// waiting for the Crashpad handler) would freeze the UI. Both run on the
   /// worker that later syncs the scope and closes the SDK.
   Future<void> _initOnWorker() {
-    final closing = _pendingWorkerClose;
-    final init = _runInitOnWorker(closing);
-    if (closing == null) return init;
+    final previous = _nativeWork;
+    final init = _runInitOnWorker();
+    if (previous == null) return init;
     // A close that never returns must not hold up app startup. Scope calls
     // stay queued until init finishes after it.
-    return closing
+    return previous
         .then((_) => true)
         .timeout(workerCloseTimeout, onTimeout: () => false)
         .then((closed) {
@@ -122,47 +134,50 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         });
   }
 
-  Future<void> _runInitOnWorker(Future<void>? closing) async {
+  Future<void> _runInitOnWorker() async {
     final done = Completer<void>();
     _pendingInit = done.future;
     try {
-      await tryCatchAsync("init", () async {
-        // sentry_init() must not overlap a sentry_close() still on the worker.
-        await closing;
-        final worker = await _spawnWorker(
-          WorkerConfig(
-            debugName: 'SentryNativeWorker',
-            debug: options.debug,
-            diagnosticLevel: options.diagnosticLevel,
-            automatedTestMode: options.automatedTestMode,
-          ),
-          dynamicLibraryDirectory,
-        );
-        if (worker == null) {
-          _initOnCallingIsolate();
-          _scopeMode = _ScopeMode.callingIsolate;
-          return;
-        }
-        try {
-          final guarantee = await worker.request(_loadRequest);
-          _setThreadStackGuarantee(guarantee as int);
-          // Once the worker loaded the library, `native` here only bumps a
-          // refcount.
-          final cOptions = createOptions(options);
-          final code = await worker.request((_initRequest, cOptions.address));
-          _checkInitResult(code as int);
-          _worker = worker;
-          _scopeMode = _ScopeMode.worker;
-        } catch (_) {
-          worker.close();
-          rethrow;
-        }
-      });
+      await tryCatchAsync("init", () => _afterNativeWork(_initWork));
     } finally {
       if (_scopeMode == _ScopeMode.queued) _dropScopeCalls();
       _pendingInit = null;
       done.complete();
       _runQueuedScopeCalls();
+    }
+  }
+
+  Future<void> _initWork() async {
+    final worker = await _spawnWorker(
+      WorkerConfig(
+        debugName: 'SentryNativeWorker',
+        debug: options.debug,
+        diagnosticLevel: options.diagnosticLevel,
+        automatedTestMode: options.automatedTestMode,
+      ),
+      dynamicLibraryDirectory,
+    );
+    if (worker == null) {
+      _initOnCallingIsolate();
+      _scopeMode = _ScopeMode.callingIsolate;
+      _runQueuedScopeCalls();
+      return;
+    }
+    try {
+      final guarantee = await worker.request(_loadRequest);
+      _setThreadStackGuarantee(guarantee as int);
+      // Once the worker loaded the library, `native` here only bumps a
+      // refcount.
+      final cOptions = createOptions(options);
+      final code = await worker.request((_initRequest, cOptions.address));
+      _checkInitResult(code as int);
+      _worker = worker;
+      _scopeMode = _ScopeMode.worker;
+      // Before a close queued behind this init, which waits for the drain.
+      _runQueuedScopeCalls();
+    } catch (_) {
+      worker.close();
+      rethrow;
     }
   }
 
@@ -487,32 +502,37 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> close() {
-    final pending = _pendingInit;
-    if (pending != null) {
-      // Init may wait for a stuck previous close; close still runs after it.
-      return pending
-          .then((_) => close())
-          .timeout(
-            workerCloseTimeout,
-            onTimeout: () => internalLogger.warning(
-              'SentryNative: init did not finish within $workerCloseTimeout, '
-              'close runs once it does',
-            ),
-          );
+    if (_pendingInit != null) {
+      // Queued now, so an init of a later binding can't run before it.
+      return _waitForClose(_afterNativeWork(() async => _closeNow()));
     }
     final worker = _worker;
     if (worker != null) {
-      _worker = null;
-      _nativeSdkAutoInitialized = false;
-      // Calls already queued still run before close; later ones are dropped.
-      _scopeMode = _ScopeMode.dropped;
+      _detachWorker();
+      return _waitForClose(_afterNativeWork(() => _closeOnWorker(worker)));
+    }
+    _closeNow();
+  }
+
+  /// Returns the worker's close, or null when there's no worker to wait for.
+  Future<void>? _closeNow() {
+    final worker = _worker;
+    if (worker != null) {
+      _detachWorker();
       return _closeOnWorker(worker);
     }
     if (Platform.isWindows) _dropScopeCalls();
-    if (!_nativeSdkAutoInitialized) {
-      return null;
-    }
+    if (!_nativeSdkAutoInitialized) return null;
+    _nativeSdkAutoInitialized = false;
     tryCatchSync('close', native.close);
+    return null;
+  }
+
+  void _detachWorker() {
+    _worker = null;
+    _nativeSdkAutoInitialized = false;
+    // Calls already queued still run before close; later ones are dropped.
+    _scopeMode = _ScopeMode.dropped;
   }
 
   static const _loadRequest = 'load';
@@ -525,33 +545,22 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   /// `sentry_close()` runs after every queued scope call and never overlaps
   /// them, and a busy handler can't block the UI.
   Future<void> _closeOnWorker(Worker worker) async {
-    final request = (_drain ?? Future<void>.value()).then((_) {
-      final closing = worker.request(_closeRequest);
-      worker.close();
-      return closing;
-    });
-    final closed = Completer<void>();
-    _pendingWorkerClose = closed.future;
-    request.whenComplete(() {
-      if (identical(_pendingWorkerClose, closed.future)) {
-        _pendingWorkerClose = null;
-      }
-      closed.complete();
-    }).ignore();
-    await tryCatchAsync(
-      'close',
-      () => request.timeout(
-        workerCloseTimeout,
-        onTimeout: () {
-          internalLogger.warning(
-            'SentryNative: close did not finish within '
-            '$workerCloseTimeout, it stays queued on the worker',
-          );
-          return null;
-        },
-      ),
-    );
+    await _drain;
+    final request = worker.request(_closeRequest);
+    worker.close();
+    await request;
   }
+
+  Future<void> _waitForClose(Future<void> closed) => tryCatchAsync(
+    'close',
+    () => closed.timeout(
+      workerCloseTimeout,
+      onTimeout: () => internalLogger.warning(
+        'SentryNative: close did not finish within $workerCloseTimeout, '
+        'it continues in the background',
+      ),
+    ),
+  );
 
   @override
   FutureOr<NativeAppStart?> fetchNativeAppStart() => null;

@@ -456,7 +456,7 @@ void main() {
       tearDown(() async {
         // Answers a close the test left pending, so it can't block later inits.
         responses.sendPort.send((0, null));
-        await SentryNative.pendingWorkerClose;
+        await SentryNative.pendingNativeWork;
         inbox.close();
         responses.close();
       });
@@ -605,6 +605,57 @@ void main() {
         testOn: 'windows',
       );
 
+      test('a later init waits for a close queued behind an init', () async {
+        final timeout = SentryNative.workerCloseTimeout;
+        SentryNative.workerCloseTimeout = Duration.zero;
+        addTearDown(() => SentryNative.workerCloseTimeout = timeout);
+        listen(answer: false);
+        await sut.close();
+
+        final requests = <String>[];
+        final ports = <ReceivePort>[];
+        addTearDown(() {
+          for (final port in ports) {
+            port.close();
+          }
+        });
+        final spawn = SentryNative.spawnWorkerFn;
+        addTearDown(() => SentryNative.spawnWorkerFn = spawn);
+        SentryNative.spawnWorkerFn = (_, _) async {
+          final name = ports.isEmpty ? 'first' : 'second';
+          final inbox = ReceivePort();
+          final replies = ReceivePort();
+          ports.addAll([inbox, replies]);
+          inbox.listen((message) {
+            if (message case (final int id, final payload)) {
+              final init = payload is (String, int);
+              requests.add('$name:${init ? 'init' : payload}');
+              replies.sendPort.send((id, payload == 'load' || init ? 0 : null));
+            }
+          });
+          return Worker(inbox.sendPort, replies);
+        };
+
+        final first = createBinding(options) as SentryNative;
+        await first.init(MockHub());
+        await first.close();
+        final second = createBinding(options) as SentryNative;
+        await second.init(MockHub());
+
+        responses.sendPort.send((0, null));
+        await second.close();
+        await SentryNative.pendingNativeWork;
+
+        expect(requests, [
+          'first:load',
+          'first:init',
+          'first:close',
+          'second:load',
+          'second:init',
+          'second:close',
+        ]);
+      }, testOn: 'windows');
+
       test('close during an init held by a stuck close does not hang', () async {
         final timeout = SentryNative.workerCloseTimeout;
         SentryNative.workerCloseTimeout = Duration.zero;
@@ -637,7 +688,7 @@ void main() {
         // Once the stuck close returns, the held init runs and then the close.
         responses.sendPort.send((0, null));
         await nextShutdown.future;
-        await SentryNative.pendingWorkerClose;
+        await SentryNative.pendingNativeWork;
       });
     });
 
