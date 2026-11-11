@@ -3,17 +3,11 @@ import 'package:sentry/sentry.dart';
 
 import '../../sentry_sqflite.dart';
 
-/// Sets the database attributes on the [span] using InstrumentationSpan.
-/// It contains the database system and the database name.
-void setDatabaseAttributeData(InstrumentationSpan? span, String? dbName) {
-  span?.setData(
-    SemanticAttributesConstants.dbSystemName,
-    SentryDatabase.dbSystemName,
-  );
-  if (dbName != null) {
-    span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
-  }
-}
+/// Returns the database attributes known when a span is created.
+Map<String, dynamic> databaseSpanData(String? dbName) => {
+  SemanticAttributesConstants.dbSystemName: SentryDatabase.dbSystemName,
+  SemanticAttributesConstants.dbNamespace: ?dbName,
+};
 
 /// Sets the database attributes on the [breadcrumb].
 /// It contains the database system and the database name.

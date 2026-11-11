@@ -83,10 +83,11 @@ class SentryDatabase extends SentryDatabaseExecutor
               parentSpan: parent,
               operation: dbOp,
               description: description,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabase,
+              data: databaseSpanData(dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
 
       final breadcrumb = Breadcrumb(
         message: description,
@@ -156,11 +157,11 @@ class SentryDatabase extends SentryDatabaseExecutor
               parentSpan: parent,
               operation: _dbSqlTransactionOp,
               description: description,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabase,
+              data: databaseSpanData(dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
-      setDatabaseAttributeData(span, dbName);
 
       final breadcrumb = Breadcrumb(
         message: description,
@@ -223,11 +224,11 @@ class SentryDatabase extends SentryDatabaseExecutor
               parentSpan: parent,
               operation: _dbSqlReadTransactionOp,
               description: description,
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteDatabase,
+              data: databaseSpanData(dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
-      setDatabaseAttributeData(span, dbName);
 
       final breadcrumb = Breadcrumb(
         message: description,

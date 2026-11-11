@@ -47,6 +47,11 @@ class TracingClientAdapter implements HttpClientAdapter {
             parentSpan: parentSpan,
             operation: 'http.client',
             description: description,
+            origin: SentryTraceOrigins.autoHttpDioHttpClientAdapter,
+            data: {
+              SemanticAttributesConstants.httpRequestMethod: options.method,
+              ...?urlDetails?.spanData,
+            },
           )
         : null;
 
@@ -62,14 +67,6 @@ class TracingClientAdapter implements HttpClientAdapter {
         span: instrumentationSpan,
       );
     }
-
-    instrumentationSpan?.origin =
-        SentryTraceOrigins.autoHttpDioHttpClientAdapter;
-    instrumentationSpan?.setData(
-      SemanticAttributesConstants.httpRequestMethod,
-      options.method,
-    );
-    urlDetails?.applyToSpan(instrumentationSpan);
 
     ResponseBody? response;
     try {

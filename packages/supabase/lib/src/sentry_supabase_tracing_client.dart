@@ -69,56 +69,31 @@ class SentrySupabaseTracingClient extends BaseClient {
       return null;
     }
 
-    final span = _spanFactory.createSpan(
-      parentSpan: parentSpan,
-      operation: 'db.${supabaseRequest.operation.value}',
-      description: 'from(${supabaseRequest.table})',
-    );
-
-    if (span == null) {
-      return null;
-    }
-
     final dbSchema =
         supabaseRequest.request.headers['Accept-Profile'] ??
         supabaseRequest.request.headers['Content-Profile'];
-    if (dbSchema != null) {
-      span.setData(ProposedSemanticAttributes.dbSchema, dbSchema);
-    }
-    span.setData(
-      SemanticAttributesConstants.dbCollectionName,
-      supabaseRequest.table,
-    );
-    span.setData(
-      ProposedSemanticAttributes.dbUrl,
-      supabaseRequest.request.url.origin,
-    );
     final dbSdk = supabaseRequest.request.headers['X-Client-Info'];
-    if (dbSdk != null) {
-      span.setData(ProposedSemanticAttributes.dbSdk, dbSdk);
-    }
-    if (supabaseRequest.body != null && _hub.options.sendDefaultPii) {
-      span.setData(ProposedSemanticAttributes.dbBody, supabaseRequest.body);
-    }
-    span.setData(
-      SemanticAttributesConstants.dbOperationName,
-      supabaseRequest.operation.value,
+    return _spanFactory.createSpan(
+      parentSpan: parentSpan,
+      operation: 'db.${supabaseRequest.operation.value}',
+      description: 'from(${supabaseRequest.table})',
+      origin: SentryTraceOrigins.autoDbSupabase,
+      data: {
+        if (dbSchema != null) ProposedSemanticAttributes.dbSchema: dbSchema,
+        SemanticAttributesConstants.dbCollectionName: supabaseRequest.table,
+        ProposedSemanticAttributes.dbUrl: supabaseRequest.request.url.origin,
+        if (dbSdk != null) ProposedSemanticAttributes.dbSdk: dbSdk,
+        if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
+          ProposedSemanticAttributes.dbBody: supabaseRequest.body,
+        SemanticAttributesConstants.dbOperationName:
+            supabaseRequest.operation.value,
+        SemanticAttributesConstants.dbQuerySummary:
+            '${supabaseRequest.operation.value} ${supabaseRequest.table}',
+        // SQL values use placeholders and can be sent without PII enabled.
+        SemanticAttributesConstants.dbQueryText: supabaseRequest
+            .generateSqlQuery(),
+        SemanticAttributesConstants.dbSystemName: dbSystemNamePostgresql,
+      },
     );
-    span.setData(
-      SemanticAttributesConstants.dbQuerySummary,
-      '${supabaseRequest.operation.value} ${supabaseRequest.table}',
-    );
-    // The generated SQL uses `?` placeholders for all values, so it carries no
-    // PII and can be emitted regardless of `sendDefaultPii`.
-    span.setData(
-      SemanticAttributesConstants.dbQueryText,
-      supabaseRequest.generateSqlQuery(),
-    );
-    span.setData(
-      SemanticAttributesConstants.dbSystemName,
-      dbSystemNamePostgresql,
-    );
-    span.origin = SentryTraceOrigins.autoDbSupabase;
-    return span;
   }
 }
