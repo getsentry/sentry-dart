@@ -56,12 +56,11 @@ class SentryBatch implements Batch {
               parentSpan: parent,
               operation: SentryDatabase.dbOp,
               description: _buffer.toString().trim(),
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteBatch,
+              data: databaseSpanData(_dbName),
             )
           : null;
-
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
@@ -112,11 +111,11 @@ class SentryBatch implements Batch {
               parentSpan: parent,
               operation: SentryDatabase.dbOp,
               description: _buffer.toString().trim(),
+              // ignore: invalid_use_of_internal_member
+              origin: SentryTraceOrigins.autoDbSqfliteBatch,
+              data: databaseSpanData(_dbName),
             )
           : null;
-      // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span, _dbName);
 
       final breadcrumb = Breadcrumb(
         message: _buffer.toString().trim(),
