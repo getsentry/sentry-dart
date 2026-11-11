@@ -41,6 +41,7 @@ Send one message with three `Agent` tool calls (general-purpose subagent for eac
 **Before you report** (applies to every axis):
 
 > - Read `.agents/skills/review/references/known-false-positives.md`. Drop a finding that matches an entry, unless the entry's **Valid while:** condition no longer holds. In that case verify the claim again, and if it's true, report it and say the entry is stale.
+> - If the diff changes a value that a **Valid while:** condition names, report one `medium` finding on that line. A JS SDK bump that changes `sentryJsSdkVersion` is an example. List the entries that depend on the value, and ask the author to verify them against the new version. They should then update each condition or delete the entry.
 > - Report only what this diff introduces. Skip code that already exists on the base, including code that a merge PR or a dependency bump only carries.
 > - Verify a claim about an external API or behavior against the pinned version before you report it. This covers claims that a Dart, Flutter, `package:jni`, JS SDK, Cocoa, CMake, or GitHub Action API or release exists or behaves a certain way. Pinned versions live in `pubspec.yaml`, `Package.swift`, the bundled JS SDK version, and the SDK source. If you can't verify it, drop it. Don't report it from memory.
 > - Before you report missing tests, search `test/` and `example/integration_test/`.

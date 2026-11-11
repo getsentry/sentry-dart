@@ -8,6 +8,8 @@ Some entries depend on a version. They end with **Valid while:**, a condition yo
 - **The pin moved past it, or the diff changes the fact:** don't trust the entry. Verify the claim against the new version. If the claim is now true, report it, and say the entry is stale so a maintainer can update or delete it.
 - **No condition:** the entry is a stable rule. Drop matching findings.
 
+A PR that bumps one of these values is the place to update the condition. The review flags the affected entries on that PR.
+
 When a maintainer declines a finding as a false positive, add it here. Keep each entry to one line, and state the general fact instead of the single case. If the fact can change, add a **Valid while:** condition.
 
 ## Dart, Flutter, and native interop
