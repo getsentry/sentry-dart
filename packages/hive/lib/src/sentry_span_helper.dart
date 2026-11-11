@@ -32,17 +32,14 @@ class SentrySpanHelper {
             parentSpan: parentSpan,
             operation: SentryHiveImpl.dbOp,
             description: description,
+            origin: _origin,
+            data: {
+              SemanticAttributesConstants.dbSystemName:
+                  SentryHiveImpl.dbSystemName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
+            },
           )
         : null;
-
-    span?.origin = _origin;
-    span?.setData(
-      SemanticAttributesConstants.dbSystemName,
-      SentryHiveImpl.dbSystemName,
-    );
-    if (dbName != null) {
-      span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
-    }
 
     final breadcrumb = Breadcrumb(
       message: description,
@@ -83,18 +80,15 @@ class SentrySpanHelper {
             parentSpan: parentSpan,
             operation: SentryHiveImpl.dbOp,
             description: description,
+            origin: _origin,
+            data: {
+              SemanticAttributesConstants.dbSystemName:
+                  SentryHiveImpl.dbSystemName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
+            },
+            isSynchronous: true,
           )
         : null;
-
-    span?.origin = _origin;
-    span?.markSynchronous();
-    span?.setData(
-      SemanticAttributesConstants.dbSystemName,
-      SentryHiveImpl.dbSystemName,
-    );
-    if (dbName != null) {
-      span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
-    }
 
     final breadcrumb = Breadcrumb(
       message: description,

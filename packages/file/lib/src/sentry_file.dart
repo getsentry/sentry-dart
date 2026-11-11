@@ -430,15 +430,17 @@ class SentryFile implements File {
             parentSpan: parentSpan,
             operation: operation,
             description: desc,
+            origin: SentryTraceOrigins.autoFile,
+            data: {
+              if (_hub.options.sendDefaultPii)
+                ProposedSemanticAttributes.filePath: absolute.path,
+            },
           )
         : null;
-
-    span?.origin = SentryTraceOrigins.autoFile;
 
     final Map<String, dynamic> breadcrumbData = {};
 
     if (_hub.options.sendDefaultPii) {
-      span?.setData(ProposedSemanticAttributes.filePath, absolute.path);
       breadcrumbData[ProposedSemanticAttributes.filePath] = absolute.path;
     }
     T data;
@@ -493,16 +495,18 @@ class SentryFile implements File {
             parentSpan: parentSpan,
             operation: operation,
             description: desc,
+            origin: SentryTraceOrigins.autoFile,
+            data: {
+              if (_hub.options.sendDefaultPii)
+                ProposedSemanticAttributes.filePath: absolute.path,
+            },
+            isSynchronous: true,
           )
         : null;
-
-    span?.origin = SentryTraceOrigins.autoFile;
-    span?.markSynchronous();
 
     final Map<String, dynamic> breadcrumbData = {};
 
     if (_hub.options.sendDefaultPii) {
-      span?.setData(ProposedSemanticAttributes.filePath, absolute.path);
       breadcrumbData[ProposedSemanticAttributes.filePath] = absolute.path;
     }
 
