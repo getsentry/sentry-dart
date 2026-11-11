@@ -17,6 +17,7 @@ import '../native_app_start.dart';
 import '../sentry_native_binding.dart';
 import '../sentry_native_invoker.dart';
 import 'binding.dart' as binding;
+import 'native_database_path.dart';
 import 'utils.dart';
 
 @internal
@@ -41,6 +42,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @visibleForTesting
   static String? crashpadPath = _getDefaultCrashpadPath();
 
+  @visibleForTesting
+  static String Function() workingDirectory = () => Directory.current.path;
+
+  @visibleForTesting
+  static Map<String, String> Function() environment = () =>
+      Platform.environment;
+
   SentryNative(this.options);
 
   // Tracks whether this binding auto-initialized the native SDK, so close() -
@@ -63,7 +71,9 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         final code = native.init(cOptions);
         if (code != 0) {
           throw StateError(
-            "Failed to initialize native SDK - init() exit code: $code",
+            'Failed to initialize native SDK - init() exit code: $code. '
+            'Native crashes will not be captured. Make sure the native '
+            'database path is writable, see `nativeDatabasePath`.',
           );
         }
         _nativeSdkAutoInitialized = true;
@@ -91,11 +101,21 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       );
       native.options_set_dist(cOptions, c.str(options.dist));
       native.options_set_max_breadcrumbs(cOptions, options.maxBreadcrumbs);
-      if (options.nativeDatabasePath != null) {
-        native.options_set_database_path(
-          cOptions,
-          c.str(options.nativeDatabasePath),
-        );
+      final databasePath = resolveNativeDatabasePath(
+        configuredPath: options.nativeDatabasePath,
+        isWindows: options.platform.isWindows,
+        workingDirectory: workingDirectory(),
+        environment: environment(),
+        resolvedExecutable: Platform.resolvedExecutable,
+      );
+      if (databasePath != null) {
+        if (options.nativeDatabasePath == null) {
+          internalLogger.info(
+            'SentryNative: working directory is not writable, '
+            'using database path $databasePath',
+          );
+        }
+        native.options_set_database_path(cOptions, c.str(databasePath));
       }
       if (options.proxy != null) {
         // sentry-native expects a single string and it doesn't support different types or authentication

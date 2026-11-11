@@ -237,6 +237,76 @@ void main() {
       },
     );
 
+    group(
+      'with unwritable working directory and no database path',
+      () {
+        late Directory localAppData;
+        late Directory appDir;
+
+        setUp(() {
+          final root = Directory(
+            '${helper.nativeTestRoot}/fallback-${backend.actualValue.name}',
+          );
+          if (root.existsSync()) {
+            root.deleteSync(recursive: true);
+          }
+          // A file where `.sentry-native` would go blocks the default database.
+          final workingDir = Directory('${root.path}/cwd')
+            ..createSync(recursive: true);
+          File('${workingDir.path}/.sentry-native').writeAsStringSync('');
+          localAppData = Directory('${root.path}/LocalAppData')
+            ..createSync(recursive: true);
+          final exeName = Platform.resolvedExecutable
+              .split(RegExp(r'[\\/]'))
+              .last
+              .replaceFirst(RegExp(r'\.exe$', caseSensitive: false), '');
+          appDir = Directory('${localAppData.path}\\$exeName');
+
+          SentryNative.workingDirectory = () => workingDir.path;
+          SentryNative.environment = () => {'LOCALAPPDATA': localAppData.path};
+          options.nativeDatabasePath = null;
+
+          addTearDown(() {
+            SentryNative.workingDirectory = () => Directory.current.path;
+            SentryNative.environment = () => Platform.environment;
+            if (root.existsSync()) {
+              root.deleteSync(recursive: true);
+            }
+          });
+        });
+
+        test(
+          'init creates database in LOCALAPPDATA when app folder is missing',
+          () async {
+            expect(appDir.existsSync(), isFalse);
+            addTearDown(sut.close);
+
+            await sut.init(MockHub());
+
+            expect(Directory('${appDir.path}\\sentry').existsSync(), isTrue);
+          },
+        );
+
+        test(
+          'init creates database in existing LOCALAPPDATA app folder',
+          () async {
+            final existingFile = File('${appDir.path}\\settings.json')
+              ..createSync(recursive: true)
+              ..writeAsStringSync('{}');
+            addTearDown(sut.close);
+
+            await sut.init(MockHub());
+
+            expect(Directory('${appDir.path}\\sentry').existsSync(), isTrue);
+            expect(existingFile.readAsStringSync(), '{}');
+          },
+        );
+      },
+      skip: currentPlatform.isWindows
+          ? false
+          : 'The LOCALAPPDATA fallback only applies to Windows',
+    );
+
     test('app start', () {
       expect(sut.fetchNativeAppStart(), null);
     });
