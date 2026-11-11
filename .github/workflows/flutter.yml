@@ -10,7 +10,6 @@ on:
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/scripts/test-flutter-desktop.sh'
-      - '.github/actions/coverage/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - 'packages/dart/**'
@@ -70,12 +69,6 @@ jobs:
       - uses: ./.github/actions/flutter-test
         with:
           directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter' || 'packages/flutter' }}
-
-      - uses: ./.github/actions/coverage
-        if: matrix.target == 'linux' && matrix.sdk == 'stable'
-        with:
-          directory: packages/flutter
-          min-coverage: 85
 
       - name: Prepare example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.

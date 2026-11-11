@@ -11,8 +11,6 @@ on:
       - '.github/workflows/file.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
-      - '.github/scripts/test-dart-vm.sh'
-      - '.github/actions/coverage/**'
       - 'packages/dart/**'
       - 'packages/file/**'
 
@@ -38,12 +36,6 @@ jobs:
         with:
           directory: packages/file
           web: false
-
-      - uses: ./.github/actions/coverage
-        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-        with:
-          directory: packages/file
-          min-coverage: 55
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

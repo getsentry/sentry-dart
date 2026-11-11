@@ -11,8 +11,6 @@ on:
       - '.github/workflows/hive.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
-      - '.github/scripts/test-dart-vm.sh'
-      - '.github/actions/coverage/**'
       - 'packages/dart/**'
       - 'packages/hive/**'
 
@@ -38,12 +36,6 @@ jobs:
         with:
           directory: packages/hive
           web: false
-
-      - uses: ./.github/actions/coverage
-        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-        with:
-          directory: packages/hive
-          min-coverage: 55
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

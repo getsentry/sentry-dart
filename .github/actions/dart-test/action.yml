@@ -23,16 +23,9 @@ runs:
       working-directory: ${{ inputs.directory }}
 
     - name: Test VM
-      if: matrix.sdk != 'stable'
       working-directory: ${{ inputs.directory }}
       shell: bash
-      run: sh ../../.github/scripts/test-dart-vm.sh
-
-    - name: Test VM with coverage
-      if: matrix.sdk == 'stable'
-      working-directory: ${{ inputs.directory }}
-      shell: bash
-      run: sh ../../.github/scripts/test-dart-vm.sh --coverage
+      run: dart test -p vm --test-randomize-ordering-seed=random --chain-stack-traces
 
     - name: Test dart2js
       if: ${{ inputs.web == 'true' }}

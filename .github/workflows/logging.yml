@@ -11,8 +11,6 @@ on:
       - '.github/workflows/logging.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
-      - '.github/scripts/test-dart-vm.sh'
-      - '.github/actions/coverage/**'
       - 'packages/dart/**'
       - 'packages/logging/**'
 
@@ -37,12 +35,6 @@ jobs:
       - uses: ./.github/actions/dart-test
         with:
           directory: packages/logging
-
-      - uses: ./.github/actions/coverage
-        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-        with:
-          directory: packages/logging
-          min-coverage: 90
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

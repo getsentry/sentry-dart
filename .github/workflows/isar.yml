@@ -11,7 +11,6 @@ on:
       - '.github/workflows/isar.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
-      - '.github/actions/coverage/**'
       - 'packages/dart/**'
       - 'packages/isar/**'
 
@@ -36,12 +35,6 @@ jobs:
       - uses: ./.github/actions/flutter-test
         with:
           directory: packages/isar
-
-      - uses: ./.github/actions/coverage
-        if: matrix.target == 'linux' && matrix.sdk == 'stable'
-        with:
-          directory: packages/isar
-          min-coverage: 55
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

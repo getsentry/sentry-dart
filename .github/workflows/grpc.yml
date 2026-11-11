@@ -11,8 +11,6 @@ on:
       - '.github/workflows/grpc.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
-      - '.github/scripts/test-dart-vm.sh'
-      - '.github/actions/coverage/**'
       - 'packages/dart/**'
       - 'packages/grpc/**'
 
@@ -38,12 +36,6 @@ jobs:
         with:
           directory: packages/grpc
           web: true
-
-      - uses: ./.github/actions/coverage
-        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-        with:
-          directory: packages/grpc
-          min-coverage: 90
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

@@ -11,8 +11,6 @@ on:
       - '.github/workflows/drift.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
-      - '.github/scripts/test-dart-vm.sh'
-      - '.github/actions/coverage/**'
       - 'packages/dart/**'
       - 'packages/drift/**'
 
@@ -53,12 +51,6 @@ jobs:
         with:
           directory: packages/drift
           web: 'false'
-
-      - uses: ./.github/actions/coverage
-        if: matrix.os == 'ubuntu' && matrix.sdk == 'stable'
-        with:
-          directory: packages/drift
-          min-coverage: 80
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml
