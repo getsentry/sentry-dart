@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
+import 'dart:collection';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
@@ -52,7 +53,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   // initialized.
   bool _nativeSdkAutoInitialized = false;
 
-  /// Completes once a background `sentry_init()` has returned.
+  /// Completes once a background init has finished, successfully or not.
   Future<void>? _pendingInit;
 
   /// Completes once a `sentry_close()` queued on the worker has returned,
@@ -63,6 +64,16 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @visibleForTesting
   static Future<void>? get pendingWorkerClose => _pendingWorkerClose;
 
+  /// On Windows, scope calls are queued until init decides where they run, so
+  /// an early call never loads sentry.dll on the platform thread.
+  _ScopeMode _scopeMode = Platform.isWindows
+      ? _ScopeMode.queued
+      : _ScopeMode.callingIsolate;
+
+  final _scopeQueue = Queue<_ScopeCall>();
+  int _queuedBreadcrumbs = 0;
+  Future<void>? _drain;
+
   void _logNotSupported(String operation) =>
       internalLogger.debug('SentryNative: $operation is not supported');
 
@@ -70,6 +81,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
       internalLogger.info('SentryNative crash handling is disabled');
+      if (Platform.isWindows) _dropScopeCalls();
     } else if (Platform.isWindows) {
       return _initOnWorker();
     } else {
@@ -86,13 +98,28 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   /// sentry.dll (e.g. an antivirus scan) and a blocking `sentry_init()` (e.g.
   /// waiting for the Crashpad handler) would freeze the UI. Both run on the
   /// worker that later syncs the scope and closes the SDK.
-  Future<void> _initOnWorker() async {
+  Future<void> _initOnWorker() {
+    final closing = _pendingWorkerClose;
+    final init = _runInitOnWorker(closing);
+    if (closing == null) return init;
+    // A close that never returns must not hold up app startup. Scope calls
+    // stay queued until init finishes after it.
+    return init.timeout(
+      workerCloseTimeout,
+      onTimeout: () => internalLogger.warning(
+        'SentryNative: a previous close is still running, init continues '
+        'in the background',
+      ),
+    );
+  }
+
+  Future<void> _runInitOnWorker(Future<void>? closing) async {
     final done = Completer<void>();
     _pendingInit = done.future;
     try {
       await tryCatchAsync("init", () async {
         // sentry_init() must not overlap a sentry_close() still on the worker.
-        await _pendingWorkerClose;
+        await closing;
         final worker = await _spawnWorker(
           WorkerConfig(
             debugName: 'SentryNativeWorker',
@@ -104,24 +131,29 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         );
         if (worker == null) {
           _initOnCallingIsolate();
+          _scopeMode = _ScopeMode.callingIsolate;
           return;
         }
         try {
+          final guarantee = await worker.request(_loadRequest);
+          _setThreadStackGuarantee(guarantee as int);
           // Once the worker loaded the library, `native` here only bumps a
           // refcount.
-          await worker.request(_loadRequest);
           final cOptions = createOptions(options);
           final code = await worker.request((_initRequest, cOptions.address));
           _checkInitResult(code as int);
           _worker = worker;
+          _scopeMode = _ScopeMode.worker;
         } catch (_) {
           worker.close();
           rethrow;
         }
       });
     } finally {
+      if (_scopeMode == _ScopeMode.queued) _dropScopeCalls();
       _pendingInit = null;
       done.complete();
+      _runQueuedScopeCalls();
     }
   }
 
@@ -134,6 +166,38 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     _nativeSdkAutoInitialized = true;
   }
 
+  /// sentry.dll's DllMain gives a stack guarantee, which lets the crash handler
+  /// report a stack overflow, only to the thread that loads it and to threads
+  /// started later. The worker loaded it, so the platform thread copies the
+  /// worker's guarantee.
+  static void _setThreadStackGuarantee(int bytes) {
+    if (bytes == 0 || threadStackGuarantee() != 0) return;
+    final cBytes = malloc<Uint32>()..value = bytes;
+    try {
+      _kernel32SetThreadStackGuarantee(cBytes);
+    } finally {
+      malloc.free(cBytes);
+    }
+  }
+
+  /// The calling thread's stack guarantee in bytes; 0 if none is set.
+  @visibleForTesting
+  static int threadStackGuarantee() {
+    final cBytes = malloc<Uint32>()..value = 0;
+    try {
+      return _kernel32SetThreadStackGuarantee(cBytes) == 0 ? 0 : cBytes.value;
+    } finally {
+      malloc.free(cBytes);
+    }
+  }
+
+  // Passing 0 only reads the current guarantee.
+  static final _kernel32SetThreadStackGuarantee =
+      DynamicLibrary.open('kernel32.dll').lookupFunction<
+        Int32 Function(Pointer<Uint32>),
+        int Function(Pointer<Uint32>)
+      >('SetThreadStackGuarantee');
+
   /// With the Crashpad backend on Windows, every scope change is a blocking
   /// IPC round-trip to crashpad_handler.exe, which waits for a free pipe
   /// instance without a timeout. Init, scope calls and close run on this
@@ -145,7 +209,10 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   bool get hasWorker => _worker != null;
 
   @visibleForTesting
-  set worker(Worker? worker) => _worker = worker;
+  set worker(Worker worker) {
+    _worker = worker;
+    _scopeMode = _ScopeMode.worker;
+  }
 
   @visibleForTesting
   static SpawnWorkerFn spawnWorkerFn = spawnWorker;
@@ -174,33 +241,109 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     }
   }
 
-  /// `sentry_init()` holds the native options lock, so scope calls made while
-  /// it runs in the background would block the calling isolate until it ends.
-  FutureOr<void> _scopeCall(String method, List<Object?> args) {
-    final pending = _pendingInit;
-    if (pending != null) {
-      return pending.then((_) => _scopeCall(method, args));
+  /// Completes once the native call has returned. A call made before init
+  /// started returns at once, since nothing guarantees init will run.
+  FutureOr<void> _scopeCall(String method, List<Object?> Function() args) {
+    switch (_scopeMode) {
+      case _ScopeMode.callingIsolate:
+        tryCatchSync(method, () => _applyScopeCall(method, args()));
+        return null;
+      case _ScopeMode.dropped:
+        internalLogger.debug(
+          'SentryNative: $method dropped, the native SDK is not running',
+        );
+        return null;
+      case _ScopeMode.queued:
+      case _ScopeMode.worker:
     }
-    final worker = _worker;
-    if (worker == null && _pendingWorkerClose != null) {
-      internalLogger.debug('SentryNative: $method dropped, the SDK is closing');
+    final sendable = tryCatchSync(method, () => _sendableArgs(method, args()));
+    if (sendable == null) return null;
+    final call = _ScopeCall(method, sendable);
+    final result = tryCatchAsync<void>(method, () => call.done.future);
+    _enqueue(call);
+    if (_scopeMode == _ScopeMode.queued && _pendingInit == null) {
+      result.ignore();
       return null;
     }
-    tryCatchSync(method, () {
-      if (worker == null) {
-        _applyScopeCall(method, args);
+    return result;
+  }
+
+  List<Object?>? _sendableArgs(String method, List<Object?> args) {
+    final sendable = [for (final arg in args) _toSendable(arg)];
+    if (!sendable.contains(_unsupported)) return sendable;
+    internalLogger.warning(
+      'SentryNative: failed to $method ${args[0]} - '
+      'value couldn\'t be converted to native',
+    );
+    return null;
+  }
+
+  /// Native keeps only the last `maxBreadcrumbs`, so dropping older queued
+  /// ones loses nothing and keeps a stuck worker from piling them up.
+  void _enqueue(_ScopeCall call) {
+    _scopeQueue.add(call);
+    if (call.isBreadcrumb) _queuedBreadcrumbs++;
+    if (_queuedBreadcrumbs > options.maxBreadcrumbs) {
+      final oldest = _scopeQueue.firstWhere((queued) => queued.isBreadcrumb);
+      _scopeQueue.remove(oldest);
+      _queuedBreadcrumbs--;
+      oldest.done.complete();
+    }
+    _runQueuedScopeCalls();
+  }
+
+  void _runQueuedScopeCalls() {
+    switch (_scopeMode) {
+      case _ScopeMode.queued:
+      case _ScopeMode.dropped:
         return;
+      case _ScopeMode.callingIsolate:
+        while (_scopeQueue.isNotEmpty) {
+          final call = _dequeue();
+          try {
+            _applyScopeCall(call.method, call.args);
+            call.done.complete();
+          } catch (error, stackTrace) {
+            call.done.completeError(error, stackTrace);
+          }
+        }
+      case _ScopeMode.worker:
+        if (_drain == null && _scopeQueue.isNotEmpty) {
+          _drain = _drainToWorker(_worker!);
+        }
+    }
+  }
+
+  /// One request at a time, so waiting calls stay in the host queue where the
+  /// breadcrumb cap applies.
+  Future<void> _drainToWorker(Worker worker) async {
+    try {
+      while (_scopeQueue.isNotEmpty) {
+        final call = _dequeue();
+        try {
+          await worker.request((call.method, call.args));
+          call.done.complete();
+        } catch (error, stackTrace) {
+          call.done.completeError(error, stackTrace);
+        }
       }
-      final sendable = [for (final arg in args) _toSendable(arg)];
-      if (sendable.contains(_unsupported)) {
-        internalLogger.warning(
-          'SentryNative: failed to $method ${args[0]} - '
-          'value couldn\'t be converted to native',
-        );
-        return;
-      }
-      worker.send((method, sendable));
-    });
+    } finally {
+      // Cleared in the same microtask as the empty check, so no call is missed.
+      _drain = null;
+    }
+  }
+
+  _ScopeCall _dequeue() {
+    final call = _scopeQueue.removeFirst();
+    if (call.isBreadcrumb) _queuedBreadcrumbs--;
+    return call;
+  }
+
+  void _dropScopeCalls() {
+    _scopeMode = _ScopeMode.dropped;
+    while (_scopeQueue.isNotEmpty) {
+      _dequeue().done.complete();
+    }
   }
 
   static const _unsupported = Object();
@@ -343,8 +486,11 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     if (worker != null) {
       _worker = null;
       _nativeSdkAutoInitialized = false;
+      // Calls already queued still run before close; later ones are dropped.
+      _scopeMode = _ScopeMode.dropped;
       return _closeOnWorker(worker);
     }
+    if (Platform.isWindows) _dropScopeCalls();
     if (!_nativeSdkAutoInitialized) {
       return null;
     }
@@ -358,11 +504,14 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   @visibleForTesting
   static Duration workerCloseTimeout = const Duration(seconds: 5);
 
-  /// The worker's port is FIFO, so `sentry_close()` runs after every queued
-  /// scope call and never overlaps them, and a busy handler can't block the UI.
+  /// `sentry_close()` runs after every queued scope call and never overlaps
+  /// them, and a busy handler can't block the UI.
   Future<void> _closeOnWorker(Worker worker) async {
-    final request = worker.request(_closeRequest);
-    worker.close();
+    final request = (_drain ?? Future<void>.value()).then((_) {
+      final closing = worker.request(_closeRequest);
+      worker.close();
+      return closing;
+    });
     final closed = Completer<void>();
     _pendingWorkerClose = closed.future;
     request.whenComplete(() {
@@ -411,12 +560,12 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setUser(SentryUser? user) => user == null
-      ? _scopeCall('remove_user', const [])
-      : _scopeCall('set_user', [user.toJson()]);
+      ? _scopeCall('remove_user', () => const [])
+      : _scopeCall('set_user', () => [user.toJson()]);
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) =>
-      _scopeCall('add_breadcrumb', [breadcrumb.toJson()]);
+      _scopeCall('add_breadcrumb', () => [breadcrumb.toJson()]);
 
   @override
   FutureOr<void> clearBreadcrumbs() {
@@ -434,25 +583,26 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setContexts(String key, dynamic value) =>
-      _scopeCall('set_context', [key, value]);
+      _scopeCall('set_context', () => [key, value]);
 
   @override
   FutureOr<void> removeContexts(String key) =>
-      _scopeCall('remove_context', [key]);
+      _scopeCall('remove_context', () => [key]);
 
   @override
   FutureOr<void> setExtra(String key, dynamic value) =>
-      _scopeCall('set_extra', [key, value]);
+      _scopeCall('set_extra', () => [key, value]);
 
   @override
-  FutureOr<void> removeExtra(String key) => _scopeCall('remove_extra', [key]);
+  FutureOr<void> removeExtra(String key) =>
+      _scopeCall('remove_extra', () => [key]);
 
   @override
   FutureOr<void> setTag(String key, String value) =>
-      _scopeCall('set_tag', [key, value]);
+      _scopeCall('set_tag', () => [key, value]);
 
   @override
-  FutureOr<void> removeTag(String key) => _scopeCall('remove_tag', [key]);
+  FutureOr<void> removeTag(String key) => _scopeCall('remove_tag', () => [key]);
 
   @override
   FutureOr<int?> displayRefreshRate() {
@@ -595,18 +745,31 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 }
 
+enum _ScopeMode { queued, worker, callingIsolate, dropped }
+
+class _ScopeCall {
+  _ScopeCall(this.method, this.args);
+
+  final String method;
+  final List<Object?> args;
+  final done = Completer<void>();
+
+  bool get isBreadcrumb => method == 'add_breadcrumb';
+}
+
 class _NativeWorkerHandler extends WorkerHandler {
   @override
-  void onMessage(Object? message) {
-    final (method, args) = message as (String, List<Object?>);
-    SentryNative._applyScopeCall(method, args);
-  }
+  void onMessage(Object? message) {}
 
   @override
   Object? onRequest(Object? payload) {
     switch (payload) {
       case SentryNative._loadRequest:
         DynamicLibrary.open(SentryNative._dynamicLibraryPath);
+        // DllMain just set it for this thread.
+        return SentryNative.threadStackGuarantee();
+      case (final String method, final List<Object?> args):
+        SentryNative._applyScopeCall(method, args);
         return null;
       case (SentryNative._initRequest, final int optionsAddress):
         return SentryNative.native.init(Pointer.fromAddress(optionsAddress));
