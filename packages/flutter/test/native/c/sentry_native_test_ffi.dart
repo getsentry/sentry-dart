@@ -385,10 +385,19 @@ void main() {
         addTearDown(sut.close);
 
         expect(sut.setTag('fixture-key', 'fixture-value'), isNull);
+        expect(sut.queuedScopeCalls, 1);
         await sut.init(MockHub());
         await pumpEventQueue();
 
         expect(kinds(), ['load', 'init', 'set_tag']);
+      });
+
+      test('without auto-init, scope calls go to the calling isolate', () {
+        options.autoInitializeNativeSdk = false;
+
+        sut.setTag('fixture-key', 'fixture-value');
+
+        expect(sut.queuedScopeCalls, 0);
       });
 
       test('closes the worker when sentry_init fails', () async {
@@ -568,6 +577,68 @@ void main() {
         },
         testOn: 'windows',
       );
+
+      test(
+        'init after a close that ends in time waits for the whole init',
+        () async {
+          final timeout = SentryNative.workerCloseTimeout;
+          SentryNative.workerCloseTimeout = Duration.zero;
+          addTearDown(() => SentryNative.workerCloseTimeout = timeout);
+          final spawn = SentryNative.spawnWorkerFn;
+          addTearDown(() => SentryNative.spawnWorkerFn = spawn);
+          listen(answer: false);
+          await sut.close();
+
+          SentryNative.workerCloseTimeout = const Duration(milliseconds: 100);
+          SentryNative.spawnWorkerFn = (config, entry) async {
+            await Future<void>.delayed(const Duration(milliseconds: 300));
+            return spawn(config, entry);
+          };
+          final next = createBinding(options) as SentryNative;
+          addTearDown(next.close);
+          final init = next.init(MockHub());
+          responses.sendPort.send((0, null));
+          await init;
+
+          expect(next.hasWorker, isTrue);
+        },
+        testOn: 'windows',
+      );
+
+      test('close during an init held by a stuck close does not hang', () async {
+        final timeout = SentryNative.workerCloseTimeout;
+        SentryNative.workerCloseTimeout = Duration.zero;
+        addTearDown(() => SentryNative.workerCloseTimeout = timeout);
+        listen(answer: false);
+        await sut.close();
+
+        final nextInbox = ReceivePort();
+        final nextResponses = ReceivePort();
+        addTearDown(nextInbox.close);
+        addTearDown(nextResponses.close);
+        final nextShutdown = Completer<void>();
+        nextInbox.listen((message) {
+          if (message == '_shutdown_') nextShutdown.complete();
+          if (message case (final int id, final payload)) {
+            final ok = payload == 'load' || payload is (String, int);
+            nextResponses.sendPort.send((id, ok ? 0 : null));
+          }
+        });
+        final spawn = SentryNative.spawnWorkerFn;
+        SentryNative.spawnWorkerFn = (_, _) async =>
+            Worker(nextInbox.sendPort, nextResponses);
+        addTearDown(() => SentryNative.spawnWorkerFn = spawn);
+
+        final next = createBinding(options) as SentryNative;
+        await next.init(MockHub());
+        await next.close();
+        expect(next.hasWorker, isFalse);
+
+        // Once the stuck close returns, the held init runs and then the close.
+        responses.sendPort.send((0, null));
+        await nextShutdown.future;
+        await SentryNative.pendingWorkerClose;
+      });
     });
 
     test(

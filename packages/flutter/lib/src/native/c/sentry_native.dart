@@ -65,12 +65,17 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   static Future<void>? get pendingWorkerClose => _pendingWorkerClose;
 
   /// On Windows, scope calls are queued until init decides where they run, so
-  /// an early call never loads sentry.dll on the platform thread.
-  _ScopeMode _scopeMode = Platform.isWindows
+  /// an early call never loads sentry.dll on the platform thread. Without
+  /// auto-init, init never runs and the app's own native SDK takes the calls.
+  late _ScopeMode _scopeMode =
+      Platform.isWindows && options.autoInitializeNativeSdk
       ? _ScopeMode.queued
       : _ScopeMode.callingIsolate;
 
   final _scopeQueue = Queue<_ScopeCall>();
+
+  @visibleForTesting
+  int get queuedScopeCalls => _scopeQueue.length;
   int _queuedBreadcrumbs = 0;
   Future<void>? _drain;
 
@@ -104,13 +109,17 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
     if (closing == null) return init;
     // A close that never returns must not hold up app startup. Scope calls
     // stay queued until init finishes after it.
-    return init.timeout(
-      workerCloseTimeout,
-      onTimeout: () => internalLogger.warning(
-        'SentryNative: a previous close is still running, init continues '
-        'in the background',
-      ),
-    );
+    return closing
+        .then((_) => true)
+        .timeout(workerCloseTimeout, onTimeout: () => false)
+        .then((closed) {
+          if (closed) return init;
+          internalLogger.warning(
+            'SentryNative: a previous close is still running, init continues '
+            'in the background',
+          );
+          init.ignore();
+        });
   }
 
   Future<void> _runInitOnWorker(Future<void>? closing) async {
@@ -480,7 +489,16 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> close() {
     final pending = _pendingInit;
     if (pending != null) {
-      return pending.then((_) => close());
+      // Init may wait for a stuck previous close; close still runs after it.
+      return pending
+          .then((_) => close())
+          .timeout(
+            workerCloseTimeout,
+            onTimeout: () => internalLogger.warning(
+              'SentryNative: init did not finish within $workerCloseTimeout, '
+              'close runs once it does',
+            ),
+          );
     }
     final worker = _worker;
     if (worker != null) {
