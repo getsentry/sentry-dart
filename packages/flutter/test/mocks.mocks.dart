@@ -3058,6 +3058,14 @@ class MockTimeToDisplayTracker extends _i1.Mock
   );
 
   @override
+  bool renamePreparedAppStartRoute(String? routeName) =>
+      (super.noSuchMethod(
+            Invocation.method(#renamePreparedAppStartRoute, [routeName]),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
   _i10.Future<void> recordInitialDisplay(DateTime? endTimestamp) =>
       (super.noSuchMethod(
             Invocation.method(#recordInitialDisplay, [endTimestamp]),

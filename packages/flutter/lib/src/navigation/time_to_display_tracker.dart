@@ -57,11 +57,21 @@ class TimeToDisplayTracker {
   /// Only the first call takes effect, so a later initial push — a nested
   /// navigator, for instance — is still treated as ordinary navigation.
   void setAppStartRouteName(String? routeName) {
+    if (isAppStartRoutePending) {
+      renamePreparedAppStartRoute(routeName);
+    }
+  }
+
+  /// Renames the reserved app-start display while first-frame timing is pending.
+  ///
+  /// Returns whether a prepared display was available to rename.
+  bool renamePreparedAppStartRoute(String? routeName) {
     final prepared = _prepared;
-    if (prepared == null || !prepared.isRouteNamePending) return;
+    if (prepared == null) return false;
 
     prepared.isRouteNamePending = false;
     prepared.context.name = resolveRouteDisplayName(routeName);
+    return true;
   }
 
   /// Starts the reserved initial standalone display root and records TTID/TTFD.

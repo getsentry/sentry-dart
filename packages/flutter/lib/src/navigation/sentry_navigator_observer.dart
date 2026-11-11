@@ -178,7 +178,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _startNewTraceIfEnabled();
 
       // App start TTID/TTFD is taken care of by app start integrations
-      _trackRouteDisplay(routeName, route.settings.arguments);
+      _trackRouteDisplay(routeName, arguments: route.settings.arguments);
     }
   }
 
@@ -208,8 +208,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
     final routeName = _getRouteName(newRoute);
-    if (routeName != null && !_nameAppStartRoute(routeName)) {
-      _trackRouteDisplay(routeName, newRoute.settings.arguments);
+    if (routeName == null) {
+      return;
+    }
+    // The first route may already have a name when native timing is pending.
+    final renamedAppStart = switch (_hub.options.traceLifecycle) {
+      SentryTraceLifecycle.static =>
+        _timeToDisplayTracker?.renamePreparedAppStartRoute(routeName),
+      SentryTraceLifecycle.stream =>
+        _timeToDisplayTrackerV2?.renamePreparedAppStartRoute(routeName),
+    };
+    if (renamedAppStart != true) {
+      _trackRouteDisplay(routeName);
     }
   }
 
@@ -270,7 +280,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  void _trackRouteDisplay(String routeName, Object? arguments) {
+  void _trackRouteDisplay(String routeName, {Object? arguments}) {
     if (!_enableAutoTransactions) {
       internalLogger.info(
         'SentryNavigatorObserver: auto transactions disabled, skipping time-to-display instrumentation.',
