@@ -33,6 +33,7 @@ class TimeToDisplayTracker {
 
   DateTime? _pendingTTFDEndTimestamp;
   _PreparedInitialDisplay? _prepared;
+  SpanId? _initialDisplayTransactionId;
 
   // The timestamp where report TTFD was called before the transaction was started.
   DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
@@ -79,6 +80,9 @@ class TimeToDisplayTracker {
       bindToScope: true,
       trimEnd: true,
     );
+    if (transaction is SentryTracer) {
+      _initialDisplayTransactionId = prepared.context.spanId;
+    }
     await track(transaction, ttidEndTimestamp: endTimestamp);
   }
 
@@ -174,13 +178,24 @@ class TimeToDisplayTracker {
   }
 
   void clear() {
-    // Only an identity was reserved, so there is no root to tear down.
+    final initialDisplayTransactionId = _initialDisplayTransactionId;
+    _initialDisplayTransactionId = null;
     _prepared = null;
     transactionId = null;
     _pendingTTFDEndTimestamp = null;
     _ttidTracker.clear();
     if (options.enableTimeToFullDisplayTracing) {
       _ttfdTracker.clear();
+    }
+
+    if (initialDisplayTransactionId != null) {
+      // Navigation must be able to bind the new route while app-start TTFD
+      // is still pending on the previous transaction.
+      _hub.configureScope((scope) {
+        if (scope.span?.context.spanId == initialDisplayTransactionId) {
+          scope.span = null;
+        }
+      });
     }
   }
 }

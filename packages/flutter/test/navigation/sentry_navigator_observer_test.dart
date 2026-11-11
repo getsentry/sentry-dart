@@ -3,12 +3,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 import 'package:sentry_flutter/src/sessions/web_session_integration.dart';
 import '../mocks.dart';
 import 'fake_time_to_display_tracker_v2.dart';
@@ -43,6 +48,184 @@ void main() {
   });
 
   group('$SentryNavigatorObserver', () {
+    group('when navigating with pending app-start TTFD', () {
+      for (final (method, navigate) in [
+        ('push', (_HttpTracingFixture fixture) => fixture.pushRoute()),
+        (
+          'pushReplacement',
+          (_HttpTracingFixture fixture) => fixture.replaceRoute(),
+        ),
+      ]) {
+        testWidgets(
+          'parents static HTTP spans on $method through the app-start timeout',
+          (tester) async {
+            final navigation = _HttpTracingFixture(
+              tester,
+              SentryTraceLifecycle.static,
+            );
+            final spans = <ISentrySpan>[];
+            navigation.options.lifecycleRegistry.registerCallback<OnSpanStart>(
+              (event) => spans.add(event.span),
+            );
+            await navigation.launch();
+
+            final appStart = navigation.hub.getSpan()!;
+            final appStartTtfd = spans.singleWhere(
+              (span) => span.context.operation == 'ui.load.full_display',
+            );
+
+            await tester.pump(const Duration(seconds: 29));
+            navigate(navigation);
+            await navigation.request();
+            final appStartTtfdPending = !appStartTtfd.finished;
+            await tester.pump(const Duration(seconds: 1));
+            final appStartFinished = appStart.finished;
+            await navigation.request();
+            await navigation.finishTracking();
+
+            final route = spans
+                .where(
+                  (span) => switch (span.context) {
+                    SentryTransactionContext(name: '/next') => true,
+                    _ => false,
+                  },
+                )
+                .singleOrNull;
+            final requests = spans.where(
+              (span) => span.context.operation == 'http.client',
+            );
+            expect(appStartTtfdPending, isTrue);
+            expect(appStartFinished, isTrue);
+            expect(
+              route,
+              isNotNull,
+              reason: '/next starts a route transaction',
+            );
+            expect(requests.map((span) => span.context.parentSpanId), [
+              route!.context.spanId,
+              route.context.spanId,
+            ]);
+          },
+        );
+
+        testWidgets('parents the first streaming HTTP span on $method', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          final spans = <RecordingSentrySpanV2>[];
+          navigation.options.lifecycleRegistry.registerCallback<OnSpanStartV2>((
+            event,
+          ) {
+            if (event.span case final RecordingSentrySpanV2 span) {
+              spans.add(span);
+            }
+          });
+          await navigation.launch();
+
+          final appStartTtfd = spans.singleWhere(
+            (span) => span.name == 'root / full display',
+          );
+          expect(appStartTtfd.isEnded, isFalse);
+
+          navigate(navigation);
+          await navigation.request();
+          await navigation.finishTracking();
+
+          final route = spans
+              .where((span) => span.name == '/next')
+              .singleOrNull;
+          final request = spans.singleWhere(
+            (span) =>
+                span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
+                'http.client',
+          );
+          expect(route, isNotNull, reason: '/next starts a route span');
+          expect(request.parentSpan?.spanId, route!.spanId);
+        });
+      }
+
+      testWidgets('keeps HTTP parenting current across consecutive pushes', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        final spans = <ISentrySpan>[];
+        navigation.options.lifecycleRegistry.registerCallback<OnSpanStart>(
+          (event) => spans.add(event.span),
+        );
+        await navigation.launch();
+
+        navigation.pushRoute('/first');
+        await tester.pump();
+        navigation.pushRoute('/second');
+        await tester.pump();
+        navigation.pushRoute('/third');
+        await navigation.request();
+        await navigation.finishTracking();
+
+        final route = spans.singleWhere(
+          (span) => switch (span.context) {
+            SentryTransactionContext(name: '/third') => true,
+            _ => false,
+          },
+        );
+        final request = spans.singleWhere(
+          (span) => span.context.operation == 'http.client',
+        );
+        expect(request.context.parentSpanId, route.context.spanId);
+      });
+
+      testWidgets('preserves a manually bound static transaction', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        await navigation.launch();
+        final manual = navigation.hub.startTransaction(
+          'manual',
+          'task',
+          bindToScope: true,
+        );
+
+        navigation.pushRoute();
+        final bound = navigation.hub.getSpan();
+        await manual.finish();
+        await navigation.finishTracking();
+
+        expect(bound, same(manual));
+      });
+
+      testWidgets(
+        'keeps the active streaming span on a background replacement',
+        (tester) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch();
+          final background = navigation.pushRoute('/background');
+          await tester.pumpAndSettle();
+          navigation.pushRoute('/current');
+          await tester.pumpAndSettle();
+          final active = navigation.hub.getActiveSpan()!;
+
+          navigation.replaceBackgroundRoute(background);
+          final afterReplacement = navigation.hub.getActiveSpan();
+          await navigation.finishTracking();
+
+          expect(active.name, '/current');
+          expect(afterReplacement, same(active));
+        },
+      );
+    });
+
     test('didPush on root does not start a transaction', () async {
       const name = '/';
       final currentRoute = route(RouteSettings(name: name));
@@ -1289,6 +1472,86 @@ void main() {
       expect(streamingFixture.fakeTracker.cancelCurrentRouteCalls, 1);
     });
   });
+}
+
+class _HttpTracingFixture {
+  _HttpTracingFixture(this._tester, SentryTraceLifecycle lifecycle) {
+    options
+      ..traceLifecycle = lifecycle
+      ..tracesSampleRate = 1.0
+      ..enableTimeToFullDisplayTracing = true
+      ..clock = _tester.binding.clock.now
+      ..beforeSendSpan = (_, _) => null;
+    options.beforeSendTransaction = (_, _) => null;
+  }
+
+  final WidgetTester _tester;
+  final options = defaultTestOptions();
+  final _navigator = GlobalKey<NavigatorState>();
+  late final hub = Hub(options);
+  late final _client = SentryHttpClient(
+    hub: hub,
+    client: MockClient((_) async => http.Response('ok', 200)),
+  );
+
+  SentryNavigatorObserver getSut() {
+    options.timeToDisplayTracker = TimeToDisplayTracker(
+      options: options,
+      hub: hub,
+    );
+    options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(hub: hub);
+    InstrumentationSpanFactorySetupIntegration().call(hub, options);
+    return SentryNavigatorObserver(hub: hub);
+  }
+
+  Future<void> launch() async {
+    final observer = getSut();
+    addTearDown(() async {
+      _client.close();
+      await hub.close();
+    });
+    GenericAppStartIntegration().call(hub, options);
+    await _tester.pumpWidget(
+      MaterialApp(
+        navigatorKey: _navigator,
+        navigatorObservers: [observer],
+        home: const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  PageRoute<void> pushRoute([String name = '/next']) {
+    final route = _route(name);
+    unawaited(_navigator.currentState!.push<void>(route));
+    return route;
+  }
+
+  void replaceRoute() {
+    unawaited(
+      _navigator.currentState!.pushReplacement<void, void>(_route('/next')),
+    );
+  }
+
+  void replaceBackgroundRoute(Route<void> oldRoute) {
+    _navigator.currentState!.replace<void>(
+      oldRoute: oldRoute,
+      newRoute: _route('/replacement'),
+    );
+  }
+
+  PageRoute<void> _route(String name) => PageRouteBuilder<void>(
+    settings: RouteSettings(name: name),
+    pageBuilder: (_, _, _) => const SizedBox.shrink(),
+  );
+
+  Future<void> request() async {
+    await _client.get(Uri.https('example.test', '/data'));
+  }
+
+  Future<void> finishTracking() async {
+    await _tester.pump();
+    await _tester.pump(const Duration(seconds: 30));
+  }
 }
 
 class Fixture {
