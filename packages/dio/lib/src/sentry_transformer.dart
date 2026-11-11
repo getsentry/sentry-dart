@@ -31,16 +31,13 @@ class SentryTransformer implements Transformer {
             parentSpan: parentSpan,
             operation: _serializeOp,
             description: description,
+            origin: SentryTraceOrigins.autoHttpDioTransformer,
+            data: {
+              SemanticAttributesConstants.httpRequestMethod: options.method,
+              ...?urlDetails?.spanData,
+            },
           )
         : null;
-
-    span?.setData(
-      SemanticAttributesConstants.httpRequestMethod,
-      options.method,
-    );
-    span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
-
-    urlDetails?.applyToSpan(span);
 
     String? request;
     try {
@@ -74,16 +71,13 @@ class SentryTransformer implements Transformer {
             parentSpan: parentSpan,
             operation: _serializeOp,
             description: description,
+            origin: SentryTraceOrigins.autoHttpDioTransformer,
+            data: {
+              SemanticAttributesConstants.httpRequestMethod: options.method,
+              ...?urlDetails?.spanData,
+            },
           )
         : null;
-
-    span?.setData(
-      SemanticAttributesConstants.httpRequestMethod,
-      options.method,
-    );
-    span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
-
-    urlDetails?.applyToSpan(span);
 
     dynamic transformedResponse;
     try {
