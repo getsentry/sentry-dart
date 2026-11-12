@@ -5,6 +5,10 @@ inputs:
     description: The directory to run tests in
     required: false
     default: ''
+  flutter-version:
+    description: The Flutter version to install instead of the latest version on the matrix channel
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -13,6 +17,7 @@ runs:
     - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
       with:
         channel: ${{ matrix.sdk }}
+        flutter-version: ${{ inputs.flutter-version }}
 
     - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
       if: ${{ matrix.target == 'android' }}
