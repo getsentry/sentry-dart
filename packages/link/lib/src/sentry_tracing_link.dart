@@ -93,14 +93,21 @@ class SentryTracingLink extends Link {
     if (parentSpan == null && shouldStartTransaction) {
       switch (_hub.options.traceLifecycle) {
         case SentryTraceLifecycle.stream:
-          final rootSpan = _hub.startInactiveSpan(description);
+          final rootSpan = _hub.startInactiveSpan(
+            description,
+            attributes: {
+              SemanticAttributesConstants.sentryOp: SentryAttribute.string(op),
+              SemanticAttributesConstants.sentryOrigin: SentryAttribute.string(
+                SentryTraceOrigins.autoGraphQlSentryLink,
+              ),
+            },
+          );
 
           if (rootSpan is NoOpSentrySpanV2) {
             return null;
           }
 
           span = StreamingInstrumentationSpan(rootSpan);
-          span.setData(SemanticAttributesConstants.sentryOp, op);
           break;
         case SentryTraceLifecycle.static:
           final transaction = _hub.startTransaction(
@@ -114,6 +121,7 @@ class SentryTracingLink extends Link {
           }
 
           span = LegacyInstrumentationSpan(transaction);
+          span.origin = SentryTraceOrigins.autoGraphQlSentryLink;
           break;
       }
     } else if (parentSpan != null) {
@@ -121,10 +129,10 @@ class SentryTracingLink extends Link {
         parentSpan: parentSpan,
         operation: op,
         description: description,
+        origin: SentryTraceOrigins.autoGraphQlSentryLink,
       );
     }
 
-    span?.origin = SentryTraceOrigins.autoGraphQlSentryLink;
     return span;
   }
 }

@@ -33,23 +33,14 @@ class SentrySpanHelper {
             parentSpan: parentSpan,
             operation: SentryIsar.dbOp,
             description: description,
+            origin: _origin,
+            data: {
+              SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
+              SemanticAttributesConstants.dbCollectionName: ?collectionName,
+            },
           )
         : null;
-
-    span?.origin = _origin;
-    span?.setData(
-      SemanticAttributesConstants.dbSystemName,
-      SentryIsar.dbSystemName,
-    );
-    if (dbName != null) {
-      span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
-    }
-    if (collectionName != null) {
-      span?.setData(
-        SemanticAttributesConstants.dbCollectionName,
-        collectionName,
-      );
-    }
 
     final breadcrumb = Breadcrumb(
       message: description,
@@ -92,24 +83,15 @@ class SentrySpanHelper {
             parentSpan: parentSpan,
             operation: SentryIsar.dbOp,
             description: description,
+            origin: _origin,
+            data: {
+              SemanticAttributesConstants.dbSystemName: SentryIsar.dbSystemName,
+              SemanticAttributesConstants.dbNamespace: ?dbName,
+              SemanticAttributesConstants.dbCollectionName: ?collectionName,
+            },
+            isSynchronous: true,
           )
         : null;
-
-    span?.origin = _origin;
-    span?.markSynchronous();
-    span?.setData(
-      SemanticAttributesConstants.dbSystemName,
-      SentryIsar.dbSystemName,
-    );
-    if (dbName != null) {
-      span?.setData(SemanticAttributesConstants.dbNamespace, dbName);
-    }
-    if (collectionName != null) {
-      span?.setData(
-        SemanticAttributesConstants.dbCollectionName,
-        collectionName,
-      );
-    }
 
     final breadcrumb = Breadcrumb(
       message: description,
