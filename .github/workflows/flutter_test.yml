@@ -62,6 +62,8 @@ jobs:
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
           channel: ${{ matrix.sdk }}
+          # Flutter 3.50 requires AGP 9.1.1. The Android example still uses AGP 8.
+          flutter-version: ${{ matrix.sdk == 'stable' && '3.47.9' || '' }}
 
       - run: flutter pub get
 
