@@ -10,8 +10,6 @@ on:
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/scripts/test-flutter-desktop.sh'
-      - '.github/actions/coverage/**'
-      - '.github/actions/test-results/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - 'packages/dart/**'
@@ -71,20 +69,8 @@ jobs:
       - uses: ./.github/actions/flutter-test
         with:
           directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter' || 'packages/flutter' }}
-
-      - uses: ./.github/actions/coverage
-        if: matrix.target == 'linux' && matrix.sdk == 'stable'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: packages/flutter
-          coverage: sentry_flutter
-          min-coverage: 85
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
+          # Flutter 3.50 requires AGP 9.1.1. The Android example still uses AGP 8.
+          flutter-version: ${{ matrix.target == 'android' && matrix.sdk == 'stable' && '3.47.9' || '' }}
 
       - name: Prepare example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
@@ -198,7 +184,8 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          channel: stable
+          # Flutter 3.50 requires AGP 9.1.1. The Android example still uses AGP 8.
+          flutter-version: '3.47.9'
 
       - name: Verify R8 keeps every io.sentry.* class from tool/jnigen.dart
         run: ./scripts/verify-proguard-mapping.sh

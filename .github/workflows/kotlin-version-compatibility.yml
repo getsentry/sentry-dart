@@ -47,7 +47,8 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          channel: stable
+          # Flutter 3.50 requires newer Kotlin plugins than this matrix tests.
+          flutter-version: '3.47.9'
 
       - name: Flutter pub get
         run: flutter pub get
