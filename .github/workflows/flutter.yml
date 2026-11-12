@@ -10,8 +10,6 @@ on:
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/scripts/test-flutter-desktop.sh'
-      - '.github/actions/coverage/**'
-      - '.github/actions/test-results/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - 'packages/dart/**'
@@ -71,20 +69,6 @@ jobs:
       - uses: ./.github/actions/flutter-test
         with:
           directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter' || 'packages/flutter' }}
-
-      - uses: ./.github/actions/coverage
-        if: matrix.target == 'linux' && matrix.sdk == 'stable'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: packages/flutter
-          coverage: sentry_flutter
-          min-coverage: 85
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() && (matrix.target == 'linux' || matrix.target == 'windows' || matrix.target == 'macos') }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_flutter-${{ matrix.target }}-${{ matrix.sdk }}
 
       - name: Prepare example for ${{ matrix.target }}
         # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.

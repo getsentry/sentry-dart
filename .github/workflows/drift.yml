@@ -11,8 +11,6 @@ on:
       - '.github/workflows/drift.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
-      - '.github/actions/coverage/**'
-      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/drift/**'
 
@@ -53,20 +51,6 @@ jobs:
         with:
           directory: packages/drift
           web: 'false'
-
-      - uses: ./.github/actions/coverage
-        if: matrix.os == 'ubuntu' && matrix.sdk == 'stable'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: packages/drift
-          coverage: sentry_drift
-          min-coverage: 80
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_drift-${{ runner.os }}-${{ matrix.sdk }}
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

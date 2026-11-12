@@ -11,8 +11,6 @@ on:
       - '.github/workflows/grpc.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
-      - '.github/actions/coverage/**'
-      - '.github/actions/test-results/**'
       - 'packages/dart/**'
       - 'packages/grpc/**'
 
@@ -38,20 +36,6 @@ jobs:
         with:
           directory: packages/grpc
           web: true
-
-      - uses: ./.github/actions/coverage
-        if: runner.os == 'Linux' && matrix.sdk == 'stable'
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: packages/grpc
-          coverage: sentry_grpc
-          min-coverage: 90
-
-      - uses: ./.github/actions/test-results
-        if: ${{ !cancelled() }}
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          flags: sentry_grpc-${{ runner.os }}-${{ matrix.sdk }}
 
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml

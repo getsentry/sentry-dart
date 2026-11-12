@@ -29,8 +29,6 @@ This page serves as a checklist of what to do when releasing a new package for t
   - For examples see `sqflite.yml`, `dio.yml` etc...
 - [ ] Add an entry to [diagram.yml](https://github.com/getsentry/sentry-dart/blob/main/.github/workflows/diagrams.yml) for your package.
 
-- [ ] In the root `.gitignore` file add the package coverage as ignored.
-
 The `analyze` workflow will fail in your PR and in the main branch because the package is not released yet and the `pubspec.yaml` is not 'valid' according to the analyzer.
 This is expected - it will succeed after the release.
 
