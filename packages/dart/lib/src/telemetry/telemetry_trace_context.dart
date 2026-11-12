@@ -13,8 +13,11 @@ typedef TelemetryTraceContextProvider = TelemetryTraceContext Function();
 /// scope or the hub's idle span and is therefore not visible through
 /// [Hub.scope]. In static mode it is the transaction bound to the scope.
 /// Without a span, only the propagation context's trace is used.
+///
+/// Uses [Hub.traceScope] so that logs and metrics emitted inside a
+/// `startNewTrace` callback are stamped with the new trace id, not the hub's.
 TelemetryTraceContext resolveTelemetryTraceContext(Hub hub) {
-  final scope = hub.scope;
+  final scope = hub.traceScope;
   if (hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
     final activeSpan = hub.getActiveSpan();
     return (
