@@ -25,7 +25,7 @@ void main() {
 
         final path = fixture.getSut();
 
-        expect(path, r'C:\Users\me\AppData\Local\my_app\sentry');
+        expect(path, fixture.expectedFallbackPath);
       });
 
       test('with unwritable working directory reads LOCALAPPDATA', () {
@@ -49,13 +49,41 @@ void main() {
           createDirectory: AccessDeniedDirectory.new,
         );
 
-        expect(path, r'C:\Users\me\AppData\Local\my_app\sentry');
+        expect(path, fixture.expectedFallbackPath);
+      });
+
+      test('with existing read-only default database returns LOCALAPPDATA '
+          'path', () {
+        fixture.defaultDatabase.createSync();
+
+        final path = IOOverrides.runZoned(
+          fixture.getSut,
+          createFile: AccessDeniedFile.new,
+        );
+
+        expect(path, fixture.expectedFallbackPath);
+      });
+
+      test('with deleted working directory returns LOCALAPPDATA path', () {
+        fixture.workingDirectory = () => throw const FileSystemException(
+          'Getting current working directory failed',
+        );
+
+        final path = fixture.getSut();
+
+        expect(path, fixture.expectedFallbackPath);
       });
 
       test('with writable working directory returns null', () {
         final path = fixture.getSut();
 
         expect(path, isNull);
+      });
+
+      test('with writable working directory leaves no write test file', () {
+        fixture.getSut();
+
+        expect(fixture.defaultDatabase.listSync(), isEmpty);
       });
 
       test('with configured path returns configured path', () {
@@ -66,9 +94,10 @@ void main() {
         expect(path, r'D:\custom\db');
       });
 
-      test('with configured path does not create default database', () {
+      test('with configured path does not read working directory', () {
         fixture.getSut(configuredPath: r'D:\custom\db');
 
+        expect(fixture.workingDirectoryReads, 0);
         expect(fixture.defaultDatabase.existsSync(), isFalse);
       });
 
@@ -79,6 +108,23 @@ void main() {
         final path = fixture.getSut();
 
         expect(path, isNull);
+      });
+
+      test('with different DSNs returns different paths', () {
+        fixture.blockWorkingDirectory();
+
+        final first = fixture.getSut(dsn: 'https://a@sentry.example.com/1');
+        final second = fixture.getSut(dsn: 'https://b@sentry.example.com/2');
+
+        expect(first, isNot(second));
+      });
+
+      test('without DSN returns LOCALAPPDATA path', () {
+        fixture.blockWorkingDirectory();
+
+        final path = fixture.getSut(dsn: null);
+
+        expect(path, '${Fixture.appDirectory}\\sentry-${dsnHash('')}');
       });
     });
 
@@ -91,44 +137,73 @@ void main() {
         expect(path, isNull);
       });
 
-      test('does not create default database', () {
+      test('does not read working directory', () {
         fixture.getSut(isWindows: false);
 
+        expect(fixture.workingDirectoryReads, 0);
         expect(fixture.defaultDatabase.existsSync(), isFalse);
       });
+    });
+  });
+
+  group('dsnHash', () {
+    // Reference FNV-1a 32-bit values. A changed hash would move the database
+    // directory and orphan pending crash reports.
+    test('matches FNV-1a test vectors', () {
+      expect(dsnHash(''), '811c9dc5');
+      expect(dsnHash('a'), 'e40c292c');
+      expect(dsnHash('foobar'), 'bf9cf968');
+    });
+
+    test('is 8 hex characters', () {
+      expect(
+        dsnHash('https://public@sentry.example.com/1'),
+        matches(RegExp(r'^[0-9a-f]{8}$')),
+      );
     });
   });
 }
 
 class Fixture {
-  final workingDirectory = Directory.systemTemp.createTempSync(
-    'sentry-native-db-',
-  );
+  static const appDirectory = r'C:\Users\me\AppData\Local\my_app';
+  static const dsn = 'https://public@sentry.example.com/1';
+
+  final directory = Directory.systemTemp.createTempSync('sentry-native-db-');
+  late String Function() workingDirectory = () => directory.path;
+  var workingDirectoryReads = 0;
   var environment = RecordingEnvironment({
     'LOCALAPPDATA': r'C:\Users\me\AppData\Local',
   });
 
-  late final defaultDatabase = Directory(_defaultDatabasePath);
+  late final defaultDatabase = Directory(
+    '${directory.path}${Platform.pathSeparator}.sentry-native',
+  );
 
-  String get _defaultDatabasePath =>
-      '${workingDirectory.path}${Platform.pathSeparator}.sentry-native';
+  String get expectedFallbackPath => '$appDirectory\\sentry-${dsnHash(dsn)}';
 
   /// Makes `.sentry-native` impossible to create by placing a file at that
   /// path, which simulates a read-only working directory on every platform.
   void blockWorkingDirectory() {
-    File(_defaultDatabasePath).writeAsStringSync('');
+    File(defaultDatabase.path).writeAsStringSync('');
   }
 
-  String? getSut({String? configuredPath, bool isWindows = true}) =>
-      resolveNativeDatabasePath(
-        configuredPath: configuredPath,
-        isWindows: isWindows,
-        workingDirectory: workingDirectory.path,
-        environment: environment,
-        resolvedExecutable: r'C:\Program Files\MyApp\my_app.exe',
-      );
+  String? getSut({
+    String? configuredPath,
+    bool isWindows = true,
+    String? dsn = Fixture.dsn,
+  }) => resolveNativeDatabasePath(
+    configuredPath: configuredPath,
+    isWindows: isWindows,
+    dsn: dsn,
+    workingDirectory: () {
+      workingDirectoryReads++;
+      return workingDirectory();
+    },
+    environment: environment,
+    resolvedExecutable: r'C:\Program Files\MyApp\my_app.exe',
+  );
 
-  void dispose() => workingDirectory.deleteSync(recursive: true);
+  void dispose() => directory.deleteSync(recursive: true);
 }
 
 /// Environment map that records which variables were read.
@@ -144,6 +219,8 @@ class RecordingEnvironment extends MapView<String, String> {
   }
 }
 
+const _accessDenied = OSError('Access is denied.', 5);
+
 /// Fails like Windows does when the process has no write access to a folder,
 /// e.g. `C:\Windows\System32` for a packaged (MSIX) app.
 class AccessDeniedDirectory extends Fake implements Directory {
@@ -154,10 +231,19 @@ class AccessDeniedDirectory extends Fake implements Directory {
 
   @override
   void createSync({bool recursive = false}) {
-    throw FileSystemException(
-      'Creation failed',
-      path,
-      const OSError('Access is denied.', 5),
-    );
+    throw FileSystemException('Creation failed', path, _accessDenied);
+  }
+}
+
+/// Fails like Windows does when creating a file in a read-only folder.
+class AccessDeniedFile extends Fake implements File {
+  AccessDeniedFile(this.path);
+
+  @override
+  final String path;
+
+  @override
+  void createSync({bool recursive = false, bool exclusive = false}) {
+    throw FileSystemException('Cannot create file', path, _accessDenied);
   }
 }

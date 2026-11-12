@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/c/binding.dart' as binding;
+import 'package:sentry_flutter/src/native/c/native_database_path.dart';
 import 'package:sentry_flutter/src/native/c/sentry_native.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 
@@ -243,6 +244,9 @@ void main() {
         late Directory localAppData;
         late Directory appDir;
 
+        Directory databaseDir() =>
+            Directory('${appDir.path}\\sentry-${dsnHash(options.dsn ?? '')}');
+
         setUp(() {
           final root = Directory(
             '${helper.nativeTestRoot}/fallback-${backend.actualValue.name}',
@@ -283,7 +287,7 @@ void main() {
 
             await sut.init(MockHub());
 
-            expect(Directory('${appDir.path}\\sentry').existsSync(), isTrue);
+            expect(databaseDir().existsSync(), isTrue);
           },
         );
 
@@ -297,7 +301,7 @@ void main() {
 
             await sut.init(MockHub());
 
-            expect(Directory('${appDir.path}\\sentry').existsSync(), isTrue);
+            expect(databaseDir().existsSync(), isTrue);
             expect(existingFile.readAsStringSync(), '{}');
           },
         );
