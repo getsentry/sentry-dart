@@ -235,6 +235,35 @@ void main() {
       expect(sut.activeSpans, isEmpty);
     });
 
+    test('skips a span that ended before frame tracking resumed', () async {
+      final sut = fixture.getSut();
+      final trackingStart = fixture.options.clock();
+      final span = RecordingSentrySpanV2.root(
+        name: 'backdated',
+        traceId: SentryId.newId(),
+        onSpanEnd: (_) async {},
+        clock: fixture.options.clock,
+        dscCreator: (span) => SentryTraceContextHeader(span.traceId, 'key'),
+        samplingDecision: SentryTracesSamplingDecision(true),
+      )..startTimestamp = trackingStart.subtract(Duration(seconds: 2));
+      final wrapper = StreamingInstrumentationSpan(span);
+
+      await sut.startTracking(wrapper);
+      await sut.finishTracking(
+        wrapper,
+        trackingStart.subtract(Duration(seconds: 1)),
+      );
+
+      verifyNever(
+        fixture.mockFrameTracker.getFrameMetrics(
+          spanStartTimestamp: anyNamed('spanStartTimestamp'),
+          spanEndTimestamp: anyNamed('spanEndTimestamp'),
+        ),
+      );
+      expect(span.attributes[SemanticAttributesConstants.framesTotal], isNull);
+      expect(sut.activeSpans, isEmpty);
+    });
+
     test('handles multiple concurrent streaming spans', () async {
       final sut = fixture.getSut();
 
@@ -545,6 +574,7 @@ class Fixture {
       mockFrameTracker,
       resumeFrameTracking: () => resumeFrameTrackingCalledCount += 1,
       pauseFrameTracking: () => pauseFrameTrackingCalledCount += 1,
+      clock: options.clock,
     );
   }
 }
