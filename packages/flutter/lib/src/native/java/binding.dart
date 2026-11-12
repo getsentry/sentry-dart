@@ -2795,6 +2795,38 @@ extension SentryAndroidOptions$$Methods on SentryAndroidOptions {
     ).object<SentryScreenshotOptions>();
   }
 
+  static final _id_get$webViewTracing = SentryAndroidOptions._class
+      .instanceMethodId(
+        r'getWebViewTracing',
+        r'()Lio/sentry/android/core/SentryWebViewTracingOptions;',
+      );
+
+  static final _get$webViewTracing =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public io.sentry.android.core.SentryWebViewTracingOptions getWebViewTracing()`
+  /// The returned object must be released after use, by calling the [release] method.
+  SentryWebViewTracingOptions get webViewTracing {
+    final _$$selfRef = reference;
+    return _get$webViewTracing(
+      _$$selfRef.pointer,
+      _id_get$webViewTracing.pointer,
+    ).object<SentryWebViewTracingOptions>();
+  }
+
   static final _id_get$anrProfilingSampleRate = SentryAndroidOptions._class
       .instanceMethodId(r'getAnrProfilingSampleRate', r'()Ljava/lang/Double;');
 
@@ -54753,6 +54785,28 @@ final class $SentryScreenshotOptions$Type$
   @jni$_.internal
   @core$_.override
   String get signature => r'Lio/sentry/android/core/SentryScreenshotOptions;';
+}
+
+/// from: `io.sentry.android.core.SentryWebViewTracingOptions`
+///
+/// WARNING: SentryWebViewTracingOptions is a stub. To generate bindings for this class, include
+/// io.sentry.android.core.SentryWebViewTracingOptions in your config's classes list.
+///
+extension type SentryWebViewTracingOptions._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static const jni$_.JType<SentryWebViewTracingOptions> type =
+      $SentryWebViewTracingOptions$Type$();
+}
+
+final class $SentryWebViewTracingOptions$Type$
+    extends jni$_.JType<SentryWebViewTracingOptions> {
+  @jni$_.internal
+  const $SentryWebViewTracingOptions$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature =>
+      r'Lio/sentry/android/core/SentryWebViewTracingOptions;';
 }
 
 /// from: `io.sentry.SentryFeedbackOptions$OptionsConfigurator`
