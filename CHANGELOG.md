@@ -1,5 +1,34 @@
 # Changelog
 
+## 10.4.0
+
+### Fixes
+
+- (flutter) Fetch sentry-native as a release zip on Windows by @lucas-zimerman and @claude in [#4110](https://github.com/getsentry/sentry-dart/pull/4110)
+- (link) Set span attributes on creation by @awishere, @codex and @buenaflor in [#4044](https://github.com/getsentry/sentry-dart/pull/4044)
+- (replay) Mask correctly during zoom page transitions by @lucas-zimerman, @claude and @buenaflor in [#4130](https://github.com/getsentry/sentry-dart/pull/4130)
+
+### Enhancements
+
+- Lower the minimum Android SDK version for Flutter from API 26 to API 24, matching Flutter's default `minSdk`. by @buenaflor and @lucas-zimerman with @sentry-junior in [#4150](https://github.com/getsentry/sentry-dart/pull/4150)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update JavaScript SDK to v11.12.0 by @buenaflor and @codex with @github-actions in [#4161](https://github.com/getsentry/sentry-dart/pull/4161)
+- chore(deps): update Cocoa SDK to v9.34.0 by @buenaflor and @codex with @github-actions in [#4162](https://github.com/getsentry/sentry-dart/pull/4162)
+- chore(deps): update Android SDK to v8.64.0 by @buenaflor and @codex with @github-actions in [#4163](https://github.com/getsentry/sentry-dart/pull/4163)
+- chore(deps): update Native SDK to v0.17.6 by @buenaflor with @github-actions in [#4144](https://github.com/getsentry/sentry-dart/pull/4144)
+
+### Internal Changes
+
+- (release) Bump craft to 3.9.0 and update config by @BYK with @sentry-junior in [#4140](https://github.com/getsentry/sentry-dart/pull/4140)
+- (warden) Enable incremental review by @Jeffreyhung with @sentry-junior in [#4145](https://github.com/getsentry/sentry-dart/pull/4145)
+- Ask Junior to recheck native SDK bumps by @buenaflor with @sentry-junior in [#4149](https://github.com/getsentry/sentry-dart/pull/4149)
+- Expand platform and tooling ignore rules by @philprime in [#4148](https://github.com/getsentry/sentry-dart/pull/4148)
+- Point Sentry Conventions links to conventions.sentry.dev by @cleptric and @claude in [#4146](https://github.com/getsentry/sentry-dart/pull/4146)
+
 ## 10.3.0
 
 ### Features
