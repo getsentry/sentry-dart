@@ -456,6 +456,14 @@ class SentryNativeChannel
   FutureOr<void> resumeReplay() => channel.invokeMethod('resumeReplay');
 
   @override
+  FutureOr<void> pauseReplayTouchTracking() =>
+      channel.invokeMethod('pauseReplayTouchTracking');
+
+  @override
+  FutureOr<void> resumeReplayTouchTracking() =>
+      channel.invokeMethod('resumeReplayTouchTracking');
+
+  @override
   FutureOr<void> stopReplay() => channel.invokeMethod('stopReplay');
 
   @override

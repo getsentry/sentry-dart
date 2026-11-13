@@ -297,6 +297,17 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
     _logNotSupported('resuming replay');
   }
 
+  // The JS SDK can't pause touch tracking.
+  @override
+  FutureOr<void> pauseReplayTouchTracking() {
+    _logNotSupported('pausing replay touch tracking');
+  }
+
+  @override
+  FutureOr<void> resumeReplayTouchTracking() {
+    _logNotSupported('resuming replay touch tracking');
+  }
+
   @override
   FutureOr<void> stopReplay() =>
       _replayRecorderCall('stopReplay', (recorder) async {

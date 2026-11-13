@@ -345,6 +345,16 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
+  FutureOr<void> pauseReplayTouchTracking() {
+    _logNotSupported('pausing replay touch tracking');
+  }
+
+  @override
+  FutureOr<void> resumeReplayTouchTracking() {
+    _logNotSupported('resuming replay touch tracking');
+  }
+
+  @override
   FutureOr<void> stopReplay() {
     _logNotSupported('stopping replay');
   }
