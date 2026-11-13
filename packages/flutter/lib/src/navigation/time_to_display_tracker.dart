@@ -33,6 +33,7 @@ class TimeToDisplayTracker {
 
   DateTime? _pendingTTFDEndTimestamp;
   _PreparedInitialDisplay? _prepared;
+  SpanId? _initialDisplayTransactionId;
 
   // The timestamp where report TTFD was called before the transaction was started.
   DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
@@ -56,11 +57,21 @@ class TimeToDisplayTracker {
   /// Only the first call takes effect, so a later initial push — a nested
   /// navigator, for instance — is still treated as ordinary navigation.
   void setAppStartRouteName(String? routeName) {
+    if (isAppStartRoutePending) {
+      renamePreparedAppStartRoute(routeName);
+    }
+  }
+
+  /// Renames the reserved app-start display while first-frame timing is pending.
+  ///
+  /// Returns whether a prepared display was available to rename.
+  bool renamePreparedAppStartRoute(String? routeName) {
     final prepared = _prepared;
-    if (prepared == null || !prepared.isRouteNamePending) return;
+    if (prepared == null) return false;
 
     prepared.isRouteNamePending = false;
     prepared.context.name = resolveRouteDisplayName(routeName);
+    return true;
   }
 
   /// Starts the reserved initial standalone display root and records TTID/TTFD.
@@ -79,6 +90,9 @@ class TimeToDisplayTracker {
       bindToScope: true,
       trimEnd: true,
     );
+    if (transaction is SentryTracer) {
+      _initialDisplayTransactionId = prepared.context.spanId;
+    }
     await track(transaction, ttidEndTimestamp: endTimestamp);
   }
 
@@ -174,13 +188,24 @@ class TimeToDisplayTracker {
   }
 
   void clear() {
-    // Only an identity was reserved, so there is no root to tear down.
+    final initialDisplayTransactionId = _initialDisplayTransactionId;
+    _initialDisplayTransactionId = null;
     _prepared = null;
     transactionId = null;
     _pendingTTFDEndTimestamp = null;
     _ttidTracker.clear();
     if (options.enableTimeToFullDisplayTracing) {
       _ttfdTracker.clear();
+    }
+
+    if (initialDisplayTransactionId != null) {
+      // Navigation must be able to bind the new route while app-start TTFD
+      // is still pending on the previous transaction.
+      _hub.configureScope((scope) {
+        if (scope.span?.context.spanId == initialDisplayTransactionId) {
+          scope.span = null;
+        }
+      });
     }
   }
 }

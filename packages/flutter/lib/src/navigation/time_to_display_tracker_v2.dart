@@ -53,18 +53,27 @@ class TimeToDisplayTrackerV2 {
 
   /// Updates the prepared app-start spans with the first rendered route.
   void setAppStartRouteName(String? routeName) {
-    if (!_isAppStartRouteNamePending) return;
+    if (_isAppStartRouteNamePending) {
+      renamePreparedAppStartRoute(routeName);
+    }
+  }
+
+  /// Renames the reserved app-start display while first-frame timing is pending.
+  ///
+  /// Returns whether a prepared display was available to rename.
+  bool renamePreparedAppStartRoute(String? routeName) {
+    final prepared = _preparedRootNavigationSpan;
+    if (prepared == null) return false;
 
     _isAppStartRouteNamePending = false;
     final resolvedRouteName = resolveRouteDisplayName(routeName);
     _appStartRouteName = resolvedRouteName;
+    prepared.name = resolvedRouteName;
 
-    if (_preparedRootNavigationSpan case final prepared?) {
-      prepared.name = resolvedRouteName;
-    }
     if (_ttfdSpan case final ttfd?) {
       ttfd.name = '$resolvedRouteName full display';
     }
+    return true;
   }
 
   /// Tracks the app start (native or generic).
