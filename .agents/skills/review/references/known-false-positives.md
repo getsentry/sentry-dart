@@ -20,8 +20,8 @@ When a maintainer declines a finding as a false positive, add it here. Keep each
 
 ## Sentry JS SDK (Flutter web)
 
-- **"Buffer-mode replay IDs are dropped by `getReplayId(onlyIfSampled: true)`."** Wrong. The JS SDK returns no ID only when `session.sampled === false`. In buffer mode `sampled` is `'buffer'`, so the ID is returned. (#4059, three times) **Valid while:** `sentryJsSdkVersion` is `11.0.0` (`packages/flutter/lib/src/web/sentry_js_sdk_version.dart`).
-- **"Labels or breadcrumbs leak into replay through `Sentry.addBreadcrumb`."** JS Replay's `normalizeBreadcrumb` drops the `ui.*`, `fetch`, `xhr`, and `sentry.*` categories. Other categories, like `http` and `navigation`, already reach the replay timeline. (#4059, twice) **Valid while:** `sentryJsSdkVersion` is `11.0.0`.
+- **"Buffer-mode replay IDs are dropped by `getReplayId(onlyIfSampled: true)`."** Wrong. The JS SDK returns no ID only when `session.sampled === false`. In buffer mode `sampled` is `'buffer'`, so the ID is returned. (#4059, three times) **Valid while:** `sentryJsSdkVersion` is `11.12.0` (`packages/flutter/lib/src/web/sentry_js_sdk_version.dart`).
+- **"Labels or breadcrumbs leak into replay through `Sentry.addBreadcrumb`."** JS Replay's `normalizeBreadcrumb` drops the `ui.*`, `fetch`, `xhr`, `sentry.event`, and `sentry.transaction` categories. Other categories, like `http` and `navigation`, already reach the replay timeline. (#4059, twice) **Valid while:** `sentryJsSdkVersion` is `11.12.0`.
 - **"Web manual replay start can't bypass sampling."** This is intentional. The Replay bundle loads only when a replay sample rate is above 0. (#4059) **Valid while:** `SentryWeb.supportsReplay` (`packages/flutter/lib/src/web/sentry_web.dart`) still gates on `options.replay.isEnabled`.
 
 ## Conventions and tooling
