@@ -238,6 +238,7 @@ mixin SentryFlutter {
         // Important:
         // Complete initialization of the integration depends on the SentryNavigatorObserver
         integrations.add(WebSessionIntegration(native));
+        integrations.add(FramesTrackingIntegration(native));
         // Drives the web replay recorder via `setReplayConfig`. A no-op
         // unless `native.supportsReplay`.
         integrations.add(ReplayIntegration(native));
