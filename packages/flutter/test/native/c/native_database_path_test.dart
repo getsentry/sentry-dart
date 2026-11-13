@@ -64,6 +64,15 @@ void main() {
         expect(path, fixture.expectedFallbackPath);
       });
 
+      test('with locked write test file returns null', () {
+        final path = IOOverrides.runZoned(
+          fixture.getSut,
+          createFile: LockedFile.new,
+        );
+
+        expect(path, isNull);
+      });
+
       test('with deleted working directory returns LOCALAPPDATA path', () {
         fixture.workingDirectory = () => throw const FileSystemException(
           'Getting current working directory failed',
@@ -245,5 +254,26 @@ class AccessDeniedFile extends Fake implements File {
   @override
   void createSync({bool recursive = false, bool exclusive = false}) {
     throw FileSystemException('Cannot create file', path, _accessDenied);
+  }
+}
+
+/// Can be created but not deleted, like a file that a virus scanner still
+/// holds open on Windows.
+class LockedFile extends Fake implements File {
+  LockedFile(this.path);
+
+  @override
+  final String path;
+
+  @override
+  void createSync({bool recursive = false, bool exclusive = false}) {}
+
+  @override
+  void deleteSync({bool recursive = false}) {
+    throw FileSystemException(
+      'Deletion failed',
+      path,
+      const OSError('The process cannot access the file.', 32),
+    );
   }
 }

@@ -60,16 +60,24 @@ String dsnHash(String dsn) {
 /// creating `.sentry-native` and a file inside it. Creating the directory
 /// alone succeeds when it already exists, even if it is read-only.
 bool _canWriteDefaultDatabase(String Function() workingDirectory) {
+  final File probe;
   try {
     final database = Directory(
       '${workingDirectory()}${Platform.pathSeparator}.sentry-native',
     )..createSync(recursive: true);
-    File('${database.path}${Platform.pathSeparator}.write-test-$pid')
-      ..createSync()
-      ..deleteSync();
-    return true;
+    probe = File('${database.path}${Platform.pathSeparator}.write-test-$pid')
+      ..createSync();
   } on FileSystemException {
     // Also thrown when the working directory itself no longer exists.
     return false;
   }
+  // Creating the file proved the directory is writable. Deleting it can fail
+  // if another process, such as a virus scanner, still holds it open, and
+  // sentry-native ignores a leftover file.
+  try {
+    probe.deleteSync();
+  } on FileSystemException {
+    // Best effort.
+  }
+  return true;
 }
