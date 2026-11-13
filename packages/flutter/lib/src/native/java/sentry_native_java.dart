@@ -277,6 +277,18 @@ class SentryNativeJava extends SentryNativeChannel {
   void resumeReplay() => tryCatchSync('resumeReplay', () => _replay?.resume());
 
   @override
+  void pauseReplayTouchTracking() => tryCatchSync(
+    'pauseReplayTouchTracking',
+    () => _replay?.pauseTouchTracking(),
+  );
+
+  @override
+  void resumeReplayTouchTracking() => tryCatchSync(
+    'resumeReplayTouchTracking',
+    () => _replay?.resumeTouchTracking(),
+  );
+
+  @override
   void stopReplay() {
     try {
       tryCatchSync('stopReplay', () => _replay?.stop());

@@ -41,6 +41,26 @@ abstract interface class SentryReplay {
   /// A no-op on Web, see [pause].
   Future<void> resume();
 
+  /// Stops recording touch positions until [resumeTouchTracking] is called.
+  ///
+  /// Use this on screens where tap positions could reveal sensitive input,
+  /// such as a custom PIN pad, even when the content is masked. Only touch
+  /// positions stop: screenshots and breadcrumbs are still recorded.
+  ///
+  /// This is independent of [pause]: [resume] does not resume touch tracking,
+  /// and [resumeTouchTracking] does not record touches while the replay is
+  /// paused. Touch tracking stays paused across new replays, [stop] and
+  /// [start] until [resumeTouchTracking] is called. It can be called before a
+  /// replay starts.
+  ///
+  /// A no-op on Web, where the JavaScript SDK can't pause touch tracking.
+  Future<void> pauseTouchTracking();
+
+  /// Resumes recording touch positions paused with [pauseTouchTracking].
+  ///
+  /// A no-op on Web, see [pauseTouchTracking].
+  Future<void> resumeTouchTracking();
+
   /// Stops the active replay.
   ///
   /// A subsequent [start] or [startBuffering] creates a new replay.
@@ -87,6 +107,14 @@ final class DefaultSentryReplay implements SentryReplay {
 
   @override
   Future<void> resume() async => _native?.resumeReplay();
+
+  @override
+  Future<void> pauseTouchTracking() async =>
+      _native?.pauseReplayTouchTracking();
+
+  @override
+  Future<void> resumeTouchTracking() async =>
+      _native?.resumeReplayTouchTracking();
 
   @override
   Future<void> stop() async => _native?.stopReplay();

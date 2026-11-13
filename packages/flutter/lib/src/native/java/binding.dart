@@ -4214,6 +4214,62 @@ extension ReplayIntegration$$Methods on ReplayIntegration {
     _pause(_$$selfRef.pointer, _id_pause.pointer).check();
   }
 
+  static final _id_pauseTouchTracking = ReplayIntegration._class
+      .instanceMethodId(r'pauseTouchTracking', r'()V');
+
+  static final _pauseTouchTracking =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public fun pauseTouchTracking(): kotlin.Unit`
+  void pauseTouchTracking() {
+    final _$$selfRef = reference;
+    _pauseTouchTracking(
+      _$$selfRef.pointer,
+      _id_pauseTouchTracking.pointer,
+    ).check();
+  }
+
+  static final _id_resumeTouchTracking = ReplayIntegration._class
+      .instanceMethodId(r'resumeTouchTracking', r'()V');
+
+  static final _resumeTouchTracking =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public fun resumeTouchTracking(): kotlin.Unit`
+  void resumeTouchTracking() {
+    final _$$selfRef = reference;
+    _resumeTouchTracking(
+      _$$selfRef.pointer,
+      _id_resumeTouchTracking.pointer,
+    ).check();
+  }
+
   static final _id_enableDebugMaskingOverlay = ReplayIntegration._class
       .instanceMethodId(r'enableDebugMaskingOverlay', r'()V');
 
