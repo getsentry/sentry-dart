@@ -5,7 +5,7 @@ import 'package:sentry/sentry.dart';
 import 'sentry_native_binding.dart';
 import '../utils/internal_logger.dart';
 
-class NativeScopeObserver implements ScopeObserver {
+class NativeScopeObserver implements ScopeObserver, HintAwareScopeObserver {
   NativeScopeObserver(this._native);
 
   final SentryNativeBinding _native;
@@ -39,7 +39,21 @@ class NativeScopeObserver implements ScopeObserver {
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    return _native.addBreadcrumb(breadcrumb);
+    return addBreadcrumbWithHint(breadcrumb, Hint());
+  }
+
+  @override
+  FutureOr<void> addBreadcrumbWithHint(Breadcrumb breadcrumb, Hint hint) async {
+    // ignore: invalid_use_of_internal_member
+    final request = hint.get(TypeCheckHint.replayNetworkRequestDetail);
+    // ignore: invalid_use_of_internal_member
+    final response = hint.get(TypeCheckHint.replayNetworkResponseDetail);
+
+    await _native.addBreadcrumb(
+      breadcrumb,
+      networkRequestDetail: request is Map<String, dynamic> ? request : null,
+      networkResponseDetail: response is Map<String, dynamic> ? response : null,
+    );
   }
 
   @override
