@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 plugins {
     id "com.android.application"
     id "kotlin-android"
@@ -26,15 +29,21 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+def kotlinLanguageVersion = System.getenv("KOTLIN_LANGUAGE_VERSION")
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
+        if (kotlinLanguageVersion != null) {
+            languageVersion = KotlinVersion.fromVersion(kotlinLanguageVersion)
+        }
+    }
+}
+
 android {
     namespace = "io.sentry.flutter.sample"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
-        languageVersion = System.getenv("KOTLIN_LANGUAGE_VERSION") ?: "1.8"
     }
 
     compileSdkVersion 36
@@ -83,7 +92,7 @@ android {
         release {
             // looks like Flutter requires minifyEnabled to be enabled or it throws
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
         }
     }
