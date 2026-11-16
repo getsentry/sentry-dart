@@ -32,19 +32,32 @@ Look for the originating spec, in order:
 
 If none is found, ask. If there genuinely is no spec, the Spec sub-agent skips and reports "no spec available".
 
+A PR title with `!` or a body with `BREAKING CHANGE` declares an intentional breaking change. Pass that to the Standards sub-agent.
+
 ## 3. Spawn the sub-agents in parallel
 
-Send one message with three `Agent` tool calls (general-purpose subagent for each). Give each the diff command and the commit list, plus its brief:
+Send one message with three `Agent` tool calls (general-purpose subagent for each). Give each the diff command, the commit list, the **Before you report** rules below, and its brief.
+
+**Before you report** (applies to every axis):
+
+> - Read `.agents/skills/review/references/known-false-positives.md`. Drop a finding that matches an entry, unless the entry's **Valid while:** condition no longer holds. In that case verify the claim again, and if it's true, report it and say the entry is stale.
+> - If the diff changes a value that a **Valid while:** condition names, report one `medium` finding on that line. A JS SDK bump that changes `sentryJsSdkVersion` is an example. List the entries that depend on the value, and ask the author to verify them against the new version. They should then update each condition or delete the entry.
+> - Report only what this diff introduces. Skip code that already exists on the base, including code that a merge PR or a dependency bump only carries.
+> - Verify a claim about an external API or behavior against the pinned version before you report it. This covers claims that a Dart, Flutter, `package:jni`, JS SDK, Cocoa, CMake, or GitHub Action API or release exists or behaves a certain way. Pinned versions live in `pubspec.yaml`, `Package.swift`, the bundled JS SDK version, and the SDK source. If you can't verify it, drop it. Don't report it from memory.
+> - Before you report missing tests, search `test/` and `example/integration_test/`.
+> - Within your axis, report each root cause once, at its main location. List the other locations inside that finding.
 
 **Standards sub-agent:**
 
 > Read `.agents/skills/code-guidelines/SKILL.md` and `.agents/skills/test-guidelines/SKILL.md`, then review the diff against them.
 > **Top priority — public API surface:** for any change to a barrel file (`lib/sentry.dart`, `lib/sentry_flutter.dart`, or an integration package's barrel), classify each exported symbol as added / removed / signature-changed / behavior-changed. Flag every removal or incompatible change as a **breaking change** (semver-major) and check it carries a deprecation path (per code-guidelines).
-> Then report, per file/hunk, every place the diff violates a documented standard — cite the rule. For areas the docs don't cover, apply the smell baseline in `.agents/skills/review/references/smell-baseline.md` as judgement calls. Distinguish hard violations from judgement calls; a documented standard overrides the baseline. Skip anything `dart analyze` / `dart format` / lints enforce. Under 400 words.
+> If the PR declares an intentional breaking change, don't flag a missing deprecation path. Still list the breaking symbols.
+> Then report, per file/hunk, every place the diff violates a documented standard — cite the rule. For areas the docs don't cover, apply the smell baseline in `.agents/skills/review/references/smell-baseline.md` as judgement calls. Distinguish hard violations from judgement calls; a documented standard overrides the baseline. Skip anything `dart analyze` / `dart format` / lints enforce.
+> Severity: test **naming and layout** rules are `low`. These are sentence-style names, group depth, a single top-level group, and `getSut()` vs a fixture field. Test rules that can hide a bug are `medium`. These are tautological assertions against a production constant, real-clock waits, leaked timers, and assertions that can no-op. Under 400 words.
 
 **Spec sub-agent** (skip and note if no spec):
 
-> Report: (a) requirements the spec asked for that are missing or partial; (b) behavior in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but wrong. Quote the spec line for each finding. Under 400 words.
+> Report: (a) requirements the spec asked for that are missing or partial; (b) behavior in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but wrong. Quote the spec line for each finding. Skip prerequisites or follow-ups that the spec already names, e.g. "requires Cocoa release X" or "follow-up PR". Under 400 words.
 
 **Correctness sub-agent:**
 
