@@ -10,9 +10,11 @@ runs:
   using: composite
 
   steps:
+    # jni-1.x snapshot: pin Android to the Flutter version the snapshot targets.
     - uses: subosito/flutter-action@f2c4f6686ca8e8d6e6d0f28410eeef506ed66aff # pin@v2.18.0
       with:
-        channel: ${{ matrix.sdk }}
+        channel: ${{ matrix.target == 'android' && 'stable' || matrix.sdk }}
+        flutter-version: ${{ matrix.target == 'android' && '3.41.6' || '' }}
 
     - uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
       if: ${{ matrix.target == 'android' }}

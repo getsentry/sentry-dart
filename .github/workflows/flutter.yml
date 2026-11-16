@@ -45,6 +45,9 @@ jobs:
           - target: js
             os: ubuntu
         exclude:
+          # jni-1.x snapshot: Android is pinned to Flutter 3.41.6 stable.
+          - target: android
+            sdk: beta
           # Flutter WASM tests don't compile on beta currently and hangs on stable.
           # https://github.com/getsentry/sentry-dart/issues/3477
           - target: wasm
@@ -245,6 +248,7 @@ jobs:
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
           channel: stable
+          flutter-version: '3.41.6'
 
       - name: Verify R8 keeps every io.sentry.* class from tool/jnigen.dart
         run: ./scripts/verify-proguard-mapping.sh
