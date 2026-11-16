@@ -299,7 +299,7 @@ void main() {
         expect(bound, same(manual));
       });
 
-      testWidgets('omits replacement arguments from static transaction data', (
+      testWidgets('records replacement arguments on static transactions', (
         tester,
       ) async {
         final navigation = _HttpTracingFixture(
@@ -313,7 +313,7 @@ void main() {
         };
         await navigation.launch();
 
-        navigation.replaceRoute(arguments: {'value': 'private'});
+        navigation.replaceRoute(arguments: {'id': '42'});
         await navigation.request();
         await navigation.finishTracking();
 
@@ -322,7 +322,7 @@ void main() {
         );
         expect(
           transaction.contexts.trace!.data,
-          isNot(contains('route_settings_arguments')),
+          containsPair('route_settings_arguments', {'id': '42'}),
         );
       });
 

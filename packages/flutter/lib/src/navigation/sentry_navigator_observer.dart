@@ -229,10 +229,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _releaseAppStart();
 
     if (routeName != null && routeName != '/') {
-      // Deliberately omits the route arguments didPush records as
-      // `route_settings_arguments`: arguments are arbitrary app objects that
-      // may hold user data, and replacements didn't record them before.
-      _trackRouteDisplay(routeName);
+      _trackRouteDisplay(routeName, arguments: newRoute.settings.arguments);
     }
   }
 
