@@ -1,5 +1,6 @@
 package io.sentry.flutter
 
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -7,11 +8,13 @@ import org.junit.Test
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.thread
 
 class WorkerExitGateTest {
   private val slept = CopyOnWriteArrayList<Long>()
   private val logged = CopyOnWriteArrayList<String>()
   private val blocked = AtomicInteger()
+  private val testThreadName = Thread.currentThread().name
 
   private fun getSut() =
     WorkerExitGate(
@@ -20,6 +23,13 @@ class WorkerExitGateTest {
       log = { logged.add(it) },
       block = { blocked.incrementAndGet() },
     )
+
+  // A denied requestExit renames the thread it parks. With the fake block that is the JUnit
+  // thread, which would carry the name into the tests that run after.
+  @After
+  fun restoreTestThreadName() {
+    Thread.currentThread().name = testThreadName
+  }
 
   @Test
   fun `await returns true without a grace period when nothing was armed`() {
@@ -135,5 +145,110 @@ class WorkerExitGateTest {
     assertTrue(sut.requestExit(2))
     assertTrue(sut.await(2, 1000))
     assertEquals(0, blocked.get())
+  }
+
+  @Test
+  fun `requestExit parks a worker armed after await returned true`() {
+    val sut = getSut()
+    sut.arm(1)
+    sut.requestExit(1)
+    assertTrue(sut.await(1, 1000))
+    sut.arm(1)
+
+    assertFalse(sut.requestExit(1))
+    assertEquals(1, blocked.get())
+  }
+
+  @Test
+  fun `requestExit parks a second request after await returned true`() {
+    val sut = getSut()
+    sut.arm(1)
+    sut.requestExit(1)
+    assertTrue(sut.await(1, 1000))
+
+    assertFalse(sut.requestExit(1))
+    assertEquals(1, blocked.get())
+  }
+
+  @Test
+  fun `requestExit parks a worker armed after await returned for a token nobody had armed`() {
+    val sut = getSut()
+    assertTrue(sut.await(1, 1000))
+    sut.arm(1)
+
+    assertFalse(sut.requestExit(1))
+    assertEquals(1, blocked.get())
+  }
+
+  @Test
+  fun `await returns true with the grace period when a worker asked before it was armed`() {
+    val sut = getSut()
+    sut.requestExit(1)
+    sut.arm(1)
+
+    assertTrue(sut.await(1, 0))
+    assertEquals(listOf(5L), slept)
+  }
+
+  @Test
+  fun `await returns true with the grace period when a worker asked without being armed`() {
+    val sut = getSut()
+    sut.requestExit(1)
+
+    assertTrue(sut.await(1, 0))
+    assertEquals(listOf(5L), slept)
+  }
+
+  @Test(timeout = 10_000)
+  fun `await gives up after its timeout when a worker never asks`() {
+    val sut = getSut()
+    sut.arm(1)
+
+    assertFalse(sut.await(1, 50))
+  }
+
+  @Test(timeout = 10_000)
+  fun `requestExit stays parked when its thread is interrupted`() {
+    val sut = WorkerExitGate(log = { logged.add(it) })
+    sut.arm(1)
+    sut.await(1, 0)
+    val worker = thread(isDaemon = true) { sut.requestExit(1) }
+    while (worker.state != Thread.State.WAITING) Thread.yield()
+
+    worker.interrupt()
+    worker.join(200)
+
+    assertTrue(worker.isAlive)
+  }
+
+  @Test
+  fun `requestExit stays parked when its thread was interrupted before it asked`() {
+    val sut = WorkerExitGate(log = { logged.add(it) })
+    sut.arm(1)
+    sut.await(1, 0)
+
+    val worker =
+      thread(isDaemon = true) {
+        Thread.currentThread().interrupt()
+        sut.requestExit(1)
+      }
+    worker.join(200)
+
+    assertTrue(worker.isAlive)
+  }
+
+  @Test
+  fun `requestExit parks even when logging throws`() {
+    val sut =
+      WorkerExitGate(
+        log = { throw IllegalStateException("log failed") },
+        block = { blocked.incrementAndGet() },
+      )
+    sut.arm(1)
+    sut.await(1, 0)
+
+    runCatching { sut.requestExit(1) }
+
+    assertEquals(1, blocked.get())
   }
 }

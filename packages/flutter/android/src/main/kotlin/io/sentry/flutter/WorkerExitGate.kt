@@ -20,9 +20,14 @@ import kotlin.concurrent.withLock
  * 2. The plugin calls [await] on the platform thread, which holds engine teardown.
  * 3. Each worker calls [requestExit] as its last step.
  *
- * Invariant: no armed worker is granted after [await] has returned. A worker that asks too late
- * gets no answer: its thread is parked, so its isolate group can neither shut down nor collect
- * garbage after the engine is gone.
+ * Invariant: no worker is granted after [await] has returned for its token. [await] closes the
+ * token, and a closed token stays closed for the life of the process, whatever [await] returned
+ * and whether or not the worker was armed. A worker that asks for a closed token gets no
+ * answer: its thread is parked, so its isolate group can neither shut down nor collect garbage
+ * after the engine is gone.
+ *
+ * Before [await] closes the token, the order of [arm] and [requestExit] does not matter: a
+ * worker that asks before it was armed is granted and counted.
  *
  * "Granted" is not "exited". The Dart VM gives no signal once an isolate has left its group, so
  * [await] holds teardown for [graceMillis] after the last grant to let the isolate finish.
@@ -31,7 +36,7 @@ internal class WorkerExitGate(
   private val graceMillis: Long = DEFAULT_GRACE_MILLIS,
   private val sleep: (Long) -> Unit = { Thread.sleep(it) },
   private val log: (String) -> Unit = { Log.w("Sentry", it) },
-  private val block: () -> Unit = { CountDownLatch(1).await() },
+  private val block: () -> Unit = ::parkForever,
 ) {
   private class Exit {
     var armed = 0
@@ -41,38 +46,42 @@ internal class WorkerExitGate(
 
   private val lock = ReentrantLock()
   private val changed = lock.newCondition()
+
+  // Entries are never removed: a forgotten token would be granted again, after its engine is
+  // gone. Tokens are not reused and there is one per engine detach, so the map stays tiny.
   private val exits = HashMap<Long, Exit>()
 
   /** Announces one worker that will call [requestExit] with [token]. */
   fun arm(token: Long) {
-    lock.withLock { exits.getOrPut(token) { Exit() }.armed++ }
+    lock.withLock { exitFor(token).armed++ }
   }
 
   /**
    * Blocks until every worker armed for [token] was granted or [timeoutMillis] passed, then
-   * closes the token. Returns false if workers were still outstanding when it closed.
+   * closes the token for good. Returns false if workers were still outstanding when it closed.
    */
   fun await(
     token: Long,
     timeoutMillis: Long,
   ): Boolean {
-    val allGranted =
-      lock.withLock {
-        val exit = exits[token] ?: return true
-        var remainingNanos = TimeUnit.MILLISECONDS.toNanos(timeoutMillis)
-        try {
-          while (exit.granted < exit.armed && remainingNanos > 0) {
-            remainingNanos = changed.awaitNanos(remainingNanos)
-          }
-        } catch (e: InterruptedException) {
-          Thread.currentThread().interrupt()
+    var allGranted = false
+    var anyGranted = false
+    lock.withLock {
+      val exit = exitFor(token)
+      var remainingNanos = TimeUnit.MILLISECONDS.toNanos(timeoutMillis)
+      try {
+        while (exit.granted < exit.armed && remainingNanos > 0) {
+          remainingNanos = changed.awaitNanos(remainingNanos)
         }
-        exit.closed = true
-        val allGranted = exit.granted == exit.armed
-        if (allGranted) exits.remove(token)
-        allGranted
+      } catch (e: InterruptedException) {
+        Thread.currentThread().interrupt()
       }
-    if (allGranted) {
+      exit.closed = true
+      allGranted = exit.granted >= exit.armed
+      anyGranted = exit.granted > 0
+    }
+    // The grace period is for granted isolates to finish. Without a grant nothing is exiting.
+    if (allGranted && anyGranted) {
       try {
         sleep(graceMillis)
       } catch (e: InterruptedException) {
@@ -83,13 +92,14 @@ internal class WorkerExitGate(
   }
 
   /**
-   * Called by a worker isolate as its last step. Returns true if it may exit. Does not return
-   * if the worker was armed and [await] has already given up on it.
+   * Called by a worker isolate as its last step. Returns true if it may exit. If [await] has
+   * already closed [token], it neither returns nor throws: the calling thread is parked for the
+   * life of the process.
    */
   fun requestExit(token: Long): Boolean {
     val granted =
       lock.withLock {
-        val exit = exits[token] ?: return true
+        val exit = exitFor(token)
         if (!exit.closed) {
           exit.granted++
           changed.signalAll()
@@ -102,17 +112,39 @@ internal class WorkerExitGate(
     return granted
   }
 
+  private fun exitFor(token: Long) = exits.getOrPut(token) { Exit() }
+
   private fun park(token: Long) {
-    Thread.currentThread().name = PARKED_THREAD_NAME
-    log(
-      "A Sentry worker isolate did not exit before its engine was destroyed (token $token). " +
-        "Parking its thread: exiting now would release GPU resources after the engine is gone.",
-    )
-    block()
+    try {
+      Thread.currentThread().name = PARKED_THREAD_NAME
+      log(
+        "A Sentry worker isolate did not exit before its engine was destroyed (token $token). " +
+          "Parking its thread: exiting now would release GPU resources after the engine is gone.",
+      )
+    } finally {
+      // The name and the log line are diagnostics. The park is what prevents the crash, so it
+      // must happen even if they throw.
+      block()
+    }
   }
 
   companion object {
     const val DEFAULT_GRACE_MILLIS = 5L
     const val PARKED_THREAD_NAME = "SentryParkedWorkerIsolate"
+  }
+}
+
+/**
+ * Never returns. An interrupt must not end the park, since returning lets the isolate exit
+ * after its engine is gone.
+ */
+private fun parkForever() {
+  val never = CountDownLatch(1)
+  while (true) {
+    try {
+      never.await()
+    } catch (e: InterruptedException) {
+      // Stay parked. The interrupt flag is left cleared, or the next await would throw again.
+    }
   }
 }
