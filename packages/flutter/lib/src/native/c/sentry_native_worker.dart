@@ -14,6 +14,7 @@ import '../utils/data_normalizer.dart';
 import 'binding.dart' as binding;
 import 'sentry_native.dart';
 import 'utils.dart';
+import 'windows_library_loader.dart';
 
 /// Runs sentry-native on a worker isolate on Windows.
 ///
@@ -312,8 +313,12 @@ class _NativeWorkerHandler extends WorkerHandler {
   Object? onRequest(Object? payload) {
     switch (payload) {
       case _LoadRequest():
-        // Loads sentry.dll; its DllMain sets this thread's stack guarantee.
-        SentryNative.native.sdk_version();
+        // Unlike DynamicLibrary.open, this lets the other isolates collect
+        // garbage while the DLL loads (e.g. during an antivirus scan).
+        WindowsLibraryLoader(
+          DynamicLibrary.open('kernel32.dll'),
+        ).load('${SentryNative.dynamicLibraryDirectory}sentry.dll');
+        // Its DllMain just set this thread's stack guarantee.
         return SentryNativeWorker.threadStackGuarantee();
       case _InitRequest(:final optionsAddress):
         return SentryNative.native.init(Pointer.fromAddress(optionsAddress));

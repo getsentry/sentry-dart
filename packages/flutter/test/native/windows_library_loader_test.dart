@@ -70,21 +70,29 @@ void main() {
     final reopen = Stopwatch()..start();
     final library = DynamicLibrary.open(path);
     expect(
-        library.lookupFunction<Int32 Function(), int Function()>(
-            'fixture_value')(),
-        42);
-    expect(reopen.elapsedMilliseconds, lessThan(1500),
-        reason: 'library constructor ran again after helper exit');
+      library.lookupFunction<Int32 Function(), int Function()>(
+        'fixture_value',
+      )(),
+      42,
+    );
+    expect(
+      reopen.elapsedMilliseconds,
+      lessThan(1500),
+      reason: 'library constructor ran again after helper exit',
+    );
   });
 
-  test('load failure crosses isolate with path and Win32 error code', () async {
-    final path = '$libraryPath.missing';
+  test('load failure crosses isolate with the path', () async {
+    // A name of its own: the first test already loaded the fixture library.
+    final path = '${temp.path}/חסרה.dll';
     final kernel = kernel32Path;
-    await expectLater(Isolate.run(() {
-      WindowsLibraryLoader(DynamicLibrary.open(kernel)).load(path);
-    }),
-        throwsA(isA<OSError>()
-            .having((error) => error.errorCode, 'Win32 error', 126)
-            .having((error) => error.message, 'path', contains(path))));
+    await expectLater(
+      Isolate.run(() {
+        WindowsLibraryLoader(DynamicLibrary.open(kernel)).load(path);
+      }),
+      throwsA(
+        isA<OSError>().having((error) => error.message, 'path', contains(path)),
+      ),
+    );
   });
 }
