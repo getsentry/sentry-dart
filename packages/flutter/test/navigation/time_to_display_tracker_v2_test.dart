@@ -537,6 +537,14 @@ void main() {
         expect(routeSpan.name, '/login');
       });
 
+      test('waits for a route name once prepared', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+
+        expect(sut.isAppStartRoutePending, isTrue);
+      });
+
       test('clears the pending route name once named', () {
         final sut = fixture.getSut();
 
