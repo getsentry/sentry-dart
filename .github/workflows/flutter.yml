@@ -43,10 +43,8 @@ jobs:
             os: windows
           - target: js
             os: ubuntu
-        exclude:
-          # Flutter WASM tests don't compile on beta currently and hangs on stable.
-          # https://github.com/getsentry/sentry-dart/issues/3477
           - target: wasm
+            os: ubuntu
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -68,7 +66,7 @@ jobs:
           directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter' || 'packages/flutter' }}
 
       - name: Prepare example for ${{ matrix.target }}
-        # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
+        # The example depends on Hive and Isar, which do not compile to Wasm.
         if: matrix.target != 'wasm'
         working-directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter/example' || 'packages/flutter/example' }}
         shell: bash
@@ -80,7 +78,6 @@ jobs:
           flutter pub get
 
       - name: Build example for ${{ matrix.target }}
-        # The example currently doesn't support compiling for WASM. Should be OK once we add package:web in v9.
         if: matrix.target != 'wasm'
         working-directory: ${{ matrix.target == 'macos' && 'packages/sentry_flutter/example' || 'packages/flutter/example' }}
         shell: bash
