@@ -509,7 +509,7 @@ void _captureEnvelope(
   JObject? id;
   JByteArray? byteArray;
   try {
-    byteArray = JByteArray.from(envelopeData);
+    byteArray = JByteArray.of(envelopeData);
     id = native.InternalSentrySdk.captureEnvelope(
       byteArray,
       containsUnhandledException,
@@ -559,7 +559,7 @@ List<Map<String, dynamic>>? _loadDebugImageMaps(
       instructionAddressJStrings.add(instructionAddress.toJString());
     }
 
-    instructionAddressSet = instructionAddressJStrings.toJSet(JString.type);
+    instructionAddressSet = instructionAddressJStrings.toJSet();
 
     imagesUtf8JsonBytes = native.SentryFlutterPlugin.loadDebugImagesAsBytes(
       instructionAddressSet,
@@ -673,10 +673,10 @@ void _setUser(
   JByteArray? jBytes;
   try {
     if (normalizedUserJson == null) {
-      native.SentryFlutterPlugin.setUserFromJsonBytes(null);
+      native.SentryFlutterPlugin.userFromJsonBytes = null;
     } else {
       jBytes = _jsonToJByteArray(normalizedUserJson);
-      native.SentryFlutterPlugin.setUserFromJsonBytes(jBytes);
+      native.SentryFlutterPlugin.userFromJsonBytes = jBytes;
     }
   } catch (exception, stackTrace) {
     internalLogger.error(
@@ -740,4 +740,4 @@ void _removeContexts(String key, {bool automatedTestMode = false}) {
 
 /// [normalizedValue] must already have been passed through [normalize].
 JByteArray _jsonToJByteArray(Object? normalizedValue) =>
-    JByteArray.from(encodeUtf8Json(normalizedValue));
+    JByteArray.of(encodeUtf8Json(normalizedValue));

@@ -5,8 +5,6 @@ import 'dart:typed_data';
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/utils/iterable_utils.dart';
 
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
@@ -70,8 +68,8 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @override
   int? displayRefreshRate() => tryCatchSync('displayRefreshRate', () {
-        return native.SentryFlutterPlugin.getDisplayRefreshRate()
-            ?.intValue(releaseOriginal: true);
+        return native.SentryFlutterPlugin.displayRefreshRate
+            ?.toDartInt(releaseOriginal: true);
       });
 
   @override
@@ -329,8 +327,8 @@ JObject dartToJObject(Object? value) => switch (value) {
     };
 
 @visibleForTesting
-JList<JObject> dartToJList(List<dynamic> values) {
-  final jList = JList.array(JObject.type);
+JList<JObject?> dartToJList(List<dynamic> values) {
+  final jList = JArrayList<JObject>();
   for (final v in values.nonNulls) {
     final j = dartToJObject(v);
     jList.add(j);
@@ -341,7 +339,7 @@ JList<JObject> dartToJList(List<dynamic> values) {
 
 @visibleForTesting
 JList<JString?> dartToJStringList(List<String> values) {
-  final jList = JList.array(JString.nullableType);
+  final jList = JArrayList<JString>();
   for (final v in values) {
     final j = v.toJString();
     jList.add(j);
@@ -351,12 +349,12 @@ JList<JString?> dartToJStringList(List<String> values) {
 }
 
 @visibleForTesting
-JMap<JString, JObject> dartToJMap(Map<String, dynamic> json) {
-  final jMap = JMap.hash(JString.type, JObject.type);
+JMap<JString?, JObject?> dartToJMap(Map<String, dynamic> json) {
+  final jMap = JHashMap<JString, JObject>();
   for (final entry in json.entries.where((e) => e.value != null)) {
     final jk = entry.key.toJString();
     final jv = dartToJObject(entry.value);
-    jMap[jk] = jv;
+    jMap.put(jk, jv);
     jk.release();
     jv.release();
   }

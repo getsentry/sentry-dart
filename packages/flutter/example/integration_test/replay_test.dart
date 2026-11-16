@@ -20,7 +20,7 @@ Future<void> _waitUntilRecording(
   bool expected,
 ) async {
   final deadline = DateTime.now().add(const Duration(seconds: 10));
-  while (replay.isRecording() != expected) {
+  while (replay.isRecording != expected) {
     if (!DateTime.now().isBefore(deadline)) {
       fail('Replay stayed at isRecording=${!expected} for 10s');
     }

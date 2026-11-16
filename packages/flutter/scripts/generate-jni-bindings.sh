@@ -21,7 +21,7 @@ flutter build apk
 cd -
 
 # Regenerate the bindings.
-dart run jnigen --config ffi-jni.yaml
+dart run tool/jnigen.dart
 
 # Format the generated code so that it passes CI linters.
 dart format "$binding_path"
