@@ -10,8 +10,9 @@ import sentry_flutter
 @_spi(Private) import Sentry
 
 // With Swift Package Manager the ObjC sources live in a separate module; with
-// CocoaPods they are part of `sentry_flutter`.
-#if SWIFT_PACKAGE
+// CocoaPods they are part of `sentry_flutter`. `SWIFT_PACKAGE` is not defined
+// for this Xcode test target, so probe for the module instead.
+#if canImport(sentry_flutter_objc)
 import sentry_flutter_objc
 #endif
 
