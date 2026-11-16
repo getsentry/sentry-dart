@@ -7,8 +7,13 @@
 
 import XCTest
 import sentry_flutter
-import sentry_flutter_objc
 @_spi(Private) import Sentry
+
+// With Swift Package Manager the ObjC sources live in a separate module; with
+// CocoaPods they are part of `sentry_flutter`.
+#if SWIFT_PACKAGE
+import sentry_flutter_objc
+#endif
 
 // swiftlint:disable function_body_length line_length
 
