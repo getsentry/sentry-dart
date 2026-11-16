@@ -104,6 +104,13 @@ android {
     }
 }
 
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        // Prefab needs the same sentry-native-ndk version that sentry-android brings in at runtime.
+        variant.compileConfiguration.shouldResolveConsistentlyWith(variant.runtimeConfiguration)
+    }
+}
+
 flutter {
     source '../..'
 }
