@@ -27,6 +27,9 @@ class SentrySupabaseTracingClient extends BaseClient {
     }
 
     final span = _createSpan(supabaseRequest);
+    // The error client captures a failed status code after this span ended,
+    // where the span is only reachable through the request.
+    span?.linkTo(request, replace: true);
 
     StreamedResponse? response;
 

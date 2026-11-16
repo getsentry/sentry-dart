@@ -445,6 +445,7 @@ class Scope {
               'default',
           sampled: activeSpan.samplingDecision.sampled,
         );
+        event.transaction ??= activeSpan.segmentSpan.name;
       } else if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
           sampled: newSpan.samplingDecision?.sampled,

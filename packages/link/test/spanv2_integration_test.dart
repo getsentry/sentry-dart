@@ -8,6 +8,7 @@ import 'package:gql_exec/gql_exec.dart';
 import 'package:gql_link/gql_link.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
+import 'package:sentry_link/src/sentry_link.dart';
 import 'package:sentry_link/src/sentry_tracing_link.dart';
 import 'package:test/test.dart';
 
@@ -256,6 +257,37 @@ void main() {
         equals('auto.graphql.sentry_link'),
       );
     });
+    test('links a captured GraphQL error to the operation span', () async {
+      final link = fixture.createErrorReportingLink(
+        _MockLink(shouldReturnError: true),
+      );
+
+      await fixture.hub.startSpan('segment', (_) async {
+        await link.request(fixture.request).first;
+      }, parentSpan: null);
+      await fixture.processor.waitForProcessing();
+
+      final span = fixture.processor.findSpanByOperation('http.graphql.query')!;
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, span.spanId);
+      expect(event.transaction, 'segment');
+    });
+
+    test('links a captured link exception to the operation span', () async {
+      final link = fixture.createErrorReportingLink(_ThrowingLink());
+
+      await fixture.hub.startSpan('segment', (_) async {
+        await expectLater(
+          link.request(fixture.request).first,
+          throwsA(isA<LinkException>()),
+        );
+      }, parentSpan: null);
+      await fixture.processor.waitForProcessing();
+
+      final span = fixture.processor.findSpanByOperation('http.graphql.query')!;
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, span.spanId);
+    });
   });
 }
 
@@ -263,6 +295,24 @@ class Fixture {
   late final Hub hub;
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
+  final events = <SentryEvent>[];
+
+  final request = Request(
+    operation: Operation(
+      document: parseString('query GetUser { user(id: "1") { name } }'),
+      operationName: 'GetUser',
+    ),
+  );
+
+  Link createErrorReportingLink(Link terminatingLink) => Link.from([
+    SentryLink.link(hub: hub),
+    SentryTracingLink(
+      shouldStartTransaction: false,
+      graphQlErrorsMarkTransactionAsFailed: true,
+      hub: hub,
+    ),
+    terminatingLink,
+  ]);
 
   Fixture({SentryTraceLifecycle traceLifecycle = SentryTraceLifecycle.stream}) {
     processor = FakeTelemetryProcessor();
@@ -270,7 +320,11 @@ class Fixture {
       ..automatedTestMode = true
       ..tracesSampleRate = 1.0
       ..traceLifecycle = traceLifecycle
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      ..beforeSend = (event, hint) {
+        events.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
@@ -297,6 +351,12 @@ class Fixture {
     processor.clear();
     await hub.close();
   }
+}
+
+class _ThrowingLink extends Link {
+  @override
+  Stream<Response> request(Request request, [NextLink? forward]) =>
+      Stream.error(ServerException(parsedResponse: null, statusCode: 500));
 }
 
 class _MockLink extends Link {

@@ -1,7 +1,11 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:gql_error_link/gql_error_link.dart';
 import 'package:gql_exec/gql_exec.dart';
 import 'package:gql_link/gql_link.dart';
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'package:sentry_link/src/extension.dart';
 
 /// Provides a [Link] which captures exceptions and GraphQL errors
@@ -49,6 +53,13 @@ class SentryLinkHandler {
   final bool reportGraphQLErrors;
   final bool reportGraphQlErrorsAsBreadcrumbs;
 
+  /// Links the captured event to the span the tracing link created for
+  /// [request], if any.
+  ScopeCallback? _withSpanOf(Request request) {
+    final span = spanLinks.spanFor(request);
+    return span == null ? null : (scope) => scope.setActiveSpan(span);
+  }
+
   Stream<Response>? onGraphQlError(
     Request request,
     NextLink forward,
@@ -74,7 +85,7 @@ class SentryLinkHandler {
         response: response,
       );
 
-      await hub.captureEvent(event);
+      await hub.captureEvent(event, withScope: _withSpanOf(request));
     }
 
     yield response;
@@ -110,7 +121,7 @@ class SentryLinkHandler {
         exception: exception,
       );
 
-      await hub.captureEvent(event);
+      await hub.captureEvent(event, withScope: _withSpanOf(request));
     }
     yield* Stream.error(exception);
   }

@@ -53,6 +53,9 @@ class TracingClient extends BaseClient {
             },
           )
         : null;
+    // The failed request client captures below this one, where the span is
+    // only reachable through the request.
+    instrumentationSpan?.linkTo(request, replace: true);
 
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).

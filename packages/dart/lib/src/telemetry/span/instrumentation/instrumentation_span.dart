@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../../sentry.dart';
 import 'span_attribute_utils.dart';
+import 'span_links.dart';
 
 /// Opaque span handle enabling swappable tracing backends.
 @internal
@@ -17,6 +18,13 @@ abstract class InstrumentationSpan {
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp});
   SentryTraceHeader toSentryTrace();
   SentryBaggageHeader? toBaggageHeader();
+
+  /// Links [key] to this span so an error captured with it elsewhere is
+  /// attributed to this span, see [SpanLinks].
+  ///
+  /// Pass [replace] for keys that are reused across spans, such as a request
+  /// that is retried.
+  void linkTo(Object? key, {bool replace = false});
 
   /// Returns true if this span is a recording span that records data.
   bool get isRecording;
@@ -52,6 +60,11 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
 
   @override
   set throwable(dynamic throwable) => _span.throwable = throwable;
+
+  /// No-op: under the static trace lifecycle the hub links throwables to
+  /// spans itself, see [Hub.setSpanContext].
+  @override
+  void linkTo(Object? key, {bool replace = false}) {}
 
   @override
   String? get origin => _span.origin;
@@ -129,7 +142,16 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
   dynamic get throwable => _throwable;
 
   @override
-  set throwable(dynamic throwable) => _throwable = throwable;
+  set throwable(dynamic throwable) {
+    _throwable = throwable;
+    // Integrations that rethrow are not the capture site, so whoever captures
+    // the error later needs a way back to this span.
+    linkTo(throwable);
+  }
+
+  @override
+  void linkTo(Object? key, {bool replace = false}) =>
+      spanLinks.link(key, _span, replace: replace);
 
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {

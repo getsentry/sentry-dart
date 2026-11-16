@@ -54,6 +54,9 @@ class SentryTracingLink extends Link {
       sentryOperation,
       shouldStartTransaction,
     );
+    // A GraphQL error carries no throwable, so the error link above finds
+    // this span through the request.
+    span?.linkTo(request, replace: true);
     return forward!(request).transform(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {

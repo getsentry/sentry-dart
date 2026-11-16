@@ -54,6 +54,10 @@ class TracingClientAdapter implements HttpClientAdapter {
             },
           )
         : null;
+    // Dio raises a bad status code after this adapter returns, in the
+    // FailedRequestInterceptor, where the span is only reachable through the
+    // request options.
+    instrumentationSpan?.linkTo(options, replace: true);
 
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).

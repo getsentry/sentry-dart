@@ -569,6 +569,9 @@ class UnknownInstrumentationSpan implements InstrumentationSpan {
   void setTag(String key, String value) {}
 
   @override
+  void linkTo(Object? key, {bool replace = false}) {}
+
+  @override
   SpanStatus? get status => null;
 
   @override

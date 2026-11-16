@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'package:test/test.dart';
 
 import '../../../test_utils.dart';
@@ -67,21 +68,59 @@ void main() {
         );
       });
     });
+
+    test('setting throwable links it to the span', () {
+      final sut = fixture.getSut();
+      final throwable = Exception('boom');
+
+      sut.throwable = throwable;
+
+      expect(spanLinks.spanFor(throwable), same(fixture.recordingSpan));
+    });
+
+    test('linkTo links the key to the span', () {
+      final sut = fixture.getSut();
+      final request = Object();
+
+      sut.linkTo(request);
+
+      expect(spanLinks.spanFor(request), same(fixture.recordingSpan));
+    });
+
+    test('linkTo with replace moves the key to the span', () {
+      final request = Object();
+      fixture.getSut().linkTo(request);
+      final retry = StreamingInstrumentationSpan(fixture.createRecordingSpan());
+
+      retry.linkTo(request, replace: true);
+
+      expect(spanLinks.spanFor(request), same(retry.spanReference));
+    });
+  });
+
+  group('$LegacyInstrumentationSpan', () {
+    test('linkTo does not link the key', () {
+      final sut = LegacyInstrumentationSpan(NoOpSentrySpan());
+      final request = Object();
+
+      sut.linkTo(request);
+
+      expect(spanLinks.spanFor(request), isNull);
+    });
   });
 }
 
 class Fixture {
-  final RecordingSentrySpanV2 recordingSpan;
+  late final RecordingSentrySpanV2 recordingSpan = createRecordingSpan();
 
-  Fixture()
-    : recordingSpan = RecordingSentrySpanV2.root(
-        name: 'test-span',
-        traceId: SentryId.newId(),
-        onSpanEnd: (_) async {},
-        clock: defaultTestOptions().clock,
-        dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
-        samplingDecision: SentryTracesSamplingDecision(true),
-      );
+  RecordingSentrySpanV2 createRecordingSpan() => RecordingSentrySpanV2.root(
+    name: 'test-span',
+    traceId: SentryId.newId(),
+    onSpanEnd: (_) async {},
+    clock: defaultTestOptions().clock,
+    dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
+    samplingDecision: SentryTracesSamplingDecision(true),
+  );
 
   StreamingInstrumentationSpan getSut() {
     return StreamingInstrumentationSpan(recordingSpan);

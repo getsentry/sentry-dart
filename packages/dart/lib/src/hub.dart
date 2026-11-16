@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'client_reports/discard_reason.dart';
+import 'telemetry/span/instrumentation/span_links.dart';
 import 'telemetry/span/transaction/sentry_tracer.dart';
 import 'telemetry/span/sampling/sentry_traces_sampler.dart';
 import 'telemetry/span/sampling/sentry_span_sampling_context.dart';
@@ -100,7 +101,7 @@ class Hub {
       } else {
         scope = s;
       }
-      scope = _withActiveSpan(scope);
+      scope = _withEventSpan(scope, throwable: event.throwable);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -154,7 +155,7 @@ class Hub {
       } else {
         scope = s;
       }
-      scope = _withActiveSpan(scope);
+      scope = _withEventSpan(scope, throwable: throwable);
 
       try {
         var event = SentryEvent(
@@ -216,7 +217,7 @@ class Hub {
       } else {
         scope = s;
       }
-      scope = _withActiveSpan(scope);
+      scope = _withEventSpan(scope);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -264,7 +265,7 @@ class Hub {
       } else {
         scope = s;
       }
-      scope = _withActiveSpan(scope);
+      scope = _withEventSpan(scope);
 
       try {
         sentryId = await item.client.captureFeedback(
@@ -362,14 +363,25 @@ class Hub {
     return scope;
   }
 
-  /// The active streaming span lives on the zone-forked scope or the hub's
-  /// idle span, neither of which the captured [scope] sees.
-  Scope _withActiveSpan(Scope scope) {
-    final activeSpan = getActiveSpan();
-    if (activeSpan == null) {
+  /// Sets the streaming span a captured event belongs to on [scope].
+  ///
+  /// The most specific span wins: one a `withScope` callback already set,
+  /// then the span [throwable] aborted (see [SpanLinks]), then the active
+  /// span. The active span lives on the zone-forked scope or the hub's idle
+  /// span, neither of which the captured [scope] sees.
+  ///
+  /// [scope] is cloned before it is changed, since it may be the hub's own
+  /// scope and the span must not outlive this capture.
+  Scope _withEventSpan(Scope scope, {Object? throwable}) {
+    if (_options.traceLifecycle == SentryTraceLifecycle.static ||
+        scope.getActiveSpan() != null) {
       return scope;
     }
-    return scope.clone()..setActiveSpan(activeSpan);
+    final span = spanLinks.spanFor(throwable) ?? getActiveSpan();
+    if (span == null) {
+      return scope;
+    }
+    return scope.clone()..setActiveSpan(span);
   }
 
   void setAttributes(Map<String, SentryAttribute> attributes) {
