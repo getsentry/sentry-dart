@@ -367,6 +367,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// If `null` (the default), the database directory is created at
   /// `.sentry-native` in the current working directory (CWD).
   ///
+  /// On Windows, if that directory isn't writable, the SDK falls back to
+  /// `%LOCALAPPDATA%\<executable name>\sentry-<DSN hash>`, where the hash is
+  /// 8 hex characters derived from the DSN. This happens, for example, for
+  /// packaged (MSIX/Microsoft Store) apps, which start with
+  /// `C:\Windows\System32` as their working directory. Without a writable
+  /// database directory, native crashes can't be captured.
+  ///
   /// ### Recommendation
   /// While relying on the default path may be sufficient during development,
   /// **it is strongly recommended** to provide an explicit path in production
