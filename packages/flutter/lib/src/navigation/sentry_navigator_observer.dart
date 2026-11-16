@@ -137,6 +137,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   ISentrySpan? _transaction;
 
+  /// The route whose display the pending app start measures, if any.
+  Route<dynamic>? _appStartRoute;
+
   static String? _currentRouteName;
 
   @internal
@@ -169,8 +172,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     final routeName = _getRouteName(route) ?? _currentRouteName;
     if (previousRoute == null && _nameAppStartRoute(routeName)) {
+      _appStartRoute = route;
       return;
     }
+
+    _releaseAppStart();
 
     if (routeName != null && routeName != '/') {
       // Don't generate a new trace on initial app start / root
@@ -203,22 +209,29 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     _addWebSessions(from: oldRoute, to: newRoute);
 
-    // Navigator.replace can also replace a route below the current route.
+    // Navigator.replace can also replace a route below the current one, which
+    // leaves the displayed screen, and so its display tracking, unchanged.
     if (newRoute == null || !newRoute.isCurrent) {
       return;
     }
     final routeName = _getRouteName(newRoute);
-    if (routeName == null) {
-      return;
+
+    // Replacing the route that named the app start before its first-frame
+    // timing arrives (e.g. a splash screen) means the replacement is what the
+    // app start ends up displaying, so it takes over that reservation instead
+    // of starting a competing route transaction.
+    if (oldRoute != null && oldRoute == _appStartRoute) {
+      final renamed = _nameAppStartRoute(routeName, requirePending: false);
+      _appStartRoute = renamed ? newRoute : null;
+      if (renamed) return;
     }
-    // The first route may already have a name when native timing is pending.
-    final renamedAppStart = switch (_hub.options.traceLifecycle) {
-      SentryTraceLifecycle.static =>
-        _timeToDisplayTracker?.renamePreparedAppStartRoute(routeName),
-      SentryTraceLifecycle.stream =>
-        _timeToDisplayTrackerV2?.renamePreparedAppStartRoute(routeName),
-    };
-    if (renamedAppStart != true) {
+
+    _releaseAppStart();
+
+    if (routeName != null && routeName != '/') {
+      // Deliberately omits the route arguments didPush records as
+      // `route_settings_arguments`: arguments are arbitrary app objects that
+      // may hold user data, and replacements didn't record them before.
       _trackRouteDisplay(routeName);
     }
   }
@@ -259,19 +272,34 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   /// reservation nor start a competing route transaction. Only the tracker
   /// belonging to the active trace lifecycle ever reports a pending app start.
   ///
+  /// With [requirePending], only the first route may name the app start, so a
+  /// later initial push (a nested navigator, for instance) is still treated as
+  /// ordinary navigation. Without it, the reserved spans are renamed as long as
+  /// they haven't started yet.
+  ///
   /// Returns whether app start consumed the route change.
-  bool _nameAppStartRoute(String? routeName) {
-    if (_timeToDisplayTracker case final tracker?
-        when tracker.isAppStartRoutePending) {
-      tracker.setAppStartRouteName(routeName);
+  bool _nameAppStartRoute(String? routeName, {bool requirePending = true}) {
+    final tracker = _timeToDisplayTracker;
+    if (tracker != null &&
+        (!requirePending || tracker.isAppStartRoutePending) &&
+        tracker.setAppStartRouteName(routeName)) {
       return true;
     }
-    if (_timeToDisplayTrackerV2 case final tracker?
-        when tracker.isAppStartRoutePending) {
-      tracker.setAppStartRouteName(routeName);
-      return true;
-    }
-    return false;
+    final trackerV2 = _timeToDisplayTrackerV2;
+    return trackerV2 != null &&
+        (!requirePending || trackerV2.isAppStartRoutePending) &&
+        trackerV2.setAppStartRouteName(routeName);
+  }
+
+  /// Unbinds the app-start root from the scope once the user navigates away,
+  /// so spans from the new screen don't parent to it.
+  ///
+  /// Runs for every navigation away, including unnamed routes and routes that
+  /// get no transaction of their own. Streaming app starts end through
+  /// [TimeToDisplayTrackerV2.trackRoute] instead.
+  void _releaseAppStart() {
+    _appStartRoute = null;
+    unawaited(_timeToDisplayTracker?.releaseInitialDisplay());
   }
 
   void _startNewTraceIfEnabled() {
@@ -291,6 +319,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
       _timeToDisplayTrackerV2?.trackRoute(routeName);
     } else {
+      // Drops any app-start reservation that is still waiting for first-frame
+      // timing. The route that named it was already handed to the app start
+      // in didPush or didReplace, so only navigation away from it gets here.
       _timeToDisplayTracker?.clear();
 
       DateTime timestamp = _hub.options.clock();

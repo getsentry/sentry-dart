@@ -51,17 +51,13 @@ class TimeToDisplayTrackerV2 {
   /// Whether a prepared app start is still waiting for its first route name.
   bool get isAppStartRoutePending => _isAppStartRouteNamePending;
 
-  /// Updates the prepared app-start spans with the first rendered route.
-  void setAppStartRouteName(String? routeName) {
-    if (_isAppStartRouteNamePending) {
-      renamePreparedAppStartRoute(routeName);
-    }
-  }
-
-  /// Renames the reserved app-start display while first-frame timing is pending.
+  /// Names the prepared app-start spans after the route they will display.
   ///
-  /// Returns whether a prepared display was available to rename.
-  bool renamePreparedAppStartRoute(String? routeName) {
+  /// Callers decide which route that is: the first rendered route, or one that
+  /// replaces it before first-frame timing arrives.
+  ///
+  /// Returns whether prepared spans were still waiting for [trackAppStart].
+  bool setAppStartRouteName(String? routeName) {
     final prepared = _preparedRootNavigationSpan;
     if (prepared == null) return false;
 

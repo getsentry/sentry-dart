@@ -3052,15 +3052,9 @@ class MockTimeToDisplayTracker extends _i1.Mock
   );
 
   @override
-  void setAppStartRouteName(String? routeName) => super.noSuchMethod(
-    Invocation.method(#setAppStartRouteName, [routeName]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  bool renamePreparedAppStartRoute(String? routeName) =>
+  bool setAppStartRouteName(String? routeName) =>
       (super.noSuchMethod(
-            Invocation.method(#renamePreparedAppStartRoute, [routeName]),
+            Invocation.method(#setAppStartRouteName, [routeName]),
             returnValue: false,
           )
           as bool);
@@ -3115,6 +3109,15 @@ class MockTimeToDisplayTracker extends _i1.Mock
               transaction,
               endTimestamp,
             ]),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
+          )
+          as _i10.Future<void>);
+
+  @override
+  _i10.Future<void> releaseInitialDisplay() =>
+      (super.noSuchMethod(
+            Invocation.method(#releaseInitialDisplay, []),
             returnValue: _i10.Future<void>.value(),
             returnValueForMissingStub: _i10.Future<void>.value(),
           )

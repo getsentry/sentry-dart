@@ -526,19 +526,33 @@ void main() {
         expect(ttidSpan.endTimestamp, ttidEnd);
       });
 
-      test('keeps the first initial route name', () {
+      test('renames prepared app start spans until they are tracked', () {
         final sut = fixture.getSut();
 
         sut.prepareAppStart();
-        expect(sut.isAppStartRoutePending, isTrue);
-
+        sut.setAppStartRouteName('/splash');
         sut.setAppStartRouteName('/login');
-        expect(sut.isAppStartRoutePending, isFalse);
-
-        sut.setAppStartRouteName('/dashboard');
         final routeSpan = sut.trackAppStart();
 
         expect(routeSpan.name, '/login');
+      });
+
+      test('clears the pending route name once named', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+        sut.setAppStartRouteName('/login');
+
+        expect(sut.isAppStartRoutePending, isFalse);
+      });
+
+      test('reports tracked app start spans as no longer renameable', () {
+        final sut = fixture.getSut();
+
+        sut.prepareAppStart();
+        sut.trackAppStart();
+
+        expect(sut.setAppStartRouteName('/login'), isFalse);
       });
 
       test('uses a custom initial route for prepared app start spans', () {
