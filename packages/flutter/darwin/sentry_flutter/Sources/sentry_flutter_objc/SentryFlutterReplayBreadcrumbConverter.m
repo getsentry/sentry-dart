@@ -99,12 +99,34 @@
     data[@"responseBodySize"] = breadcrumb.data[@"response_body_size"];
   }
 
+  // Populated by NetworkDetailsCapture on the Dart side when
+  // networkDetailAllowUrls matches; already shaped for the replay player.
+  NSDictionary *request = [self sanitizeNetworkSide:breadcrumb.data[@"request"]];
+  if (request != nil) {
+    data[@"request"] = request;
+  }
+  NSDictionary *response = [self sanitizeNetworkSide:breadcrumb.data[@"response"]];
+  if (response != nil) {
+    data[@"response"] = response;
+  }
+
   return [[SentryRRWebSpanEvent alloc]
       initWithTimestamp:[self dateFrom:startTimestamp]
            endTimestamp:[self dateFrom:endTimestamp]
               operation:@"resource.http"
             description:url
                    data:data];
+}
+
+// Copies a request/response side dict, dropping the internal `_meta` field so
+// it does not leak into the native rrweb span event.
+- (NSDictionary *_Nullable)sanitizeNetworkSide:(id _Nullable)raw {
+  if (![raw isKindOfClass:[NSDictionary class]]) {
+    return nil;
+  }
+  NSMutableDictionary *out = [(NSDictionary *)raw mutableCopy];
+  [out removeObjectForKey:@"_meta"];
+  return out.count > 0 ? [out copy] : nil;
 }
 
 - (NSDate *_Nonnull)dateFrom:(NSNumber *_Nonnull)timestamp {

@@ -15,7 +15,7 @@ class SentryReplayOptions {
   /// This data is attached to HTTP breadcrumbs, so `recordHttpBreadcrumbs`
   /// must also be enabled (the default) for this option to have any effect.
   ///
-  /// Only supported on Android at the moment.
+  /// Supported on Android and iOS.
   final List<String> networkDetailAllowUrls = [];
 
   /// List of strings/regex excluded from [networkDetailAllowUrls].

@@ -765,6 +765,62 @@ void main() {
       channel = MockMethodChannel();
     });
 
+    test(
+      'does not forward network detail options without allow urls',
+      () async {
+        final options = defaultTestOptions()
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = channel
+          ..sendDefaultPii = true;
+        sut = createBinding(options);
+
+        final args = await callInitAndCaptureArgs(options);
+
+        final replay = args['replay'] as Map<String, dynamic>;
+        expect(replay.containsKey('networkDetailAllowUrls'), false);
+      },
+    );
+
+    test('forwards network detail options when allow urls are set', () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel
+        ..sendDefaultPii = true;
+      options.replay.networkDetailAllowUrls.add('api.example.com');
+      options.replay.networkDetailDenyUrls.add('api.example.com/auth');
+      options.replay.networkRequestHeaders.add('X-Req');
+      options.replay.networkResponseHeaders.add('X-Res');
+      sut = createBinding(options);
+
+      final args = await callInitAndCaptureArgs(options);
+
+      final replay = args['replay'] as Map<String, dynamic>;
+      expect(replay['networkDetailAllowUrls'], ['api.example.com']);
+      expect(replay['networkDetailDenyUrls'], ['api.example.com/auth']);
+      expect(replay['networkRequestHeaders'], ['X-Req']);
+      expect(replay['networkResponseHeaders'], ['X-Res']);
+      expect(replay['networkCaptureBodies'], true);
+    });
+
+    test('gates extra headers and bodies behind sendDefaultPii', () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel
+        ..sendDefaultPii = false;
+      options.replay.networkDetailAllowUrls.add('api.example.com');
+      options.replay.networkRequestHeaders.add('Authorization');
+      options.replay.networkResponseHeaders.add('Set-Cookie');
+      sut = createBinding(options);
+
+      final args = await callInitAndCaptureArgs(options);
+
+      final replay = args['replay'] as Map<String, dynamic>;
+      expect(replay['networkDetailAllowUrls'], ['api.example.com']);
+      expect(replay['networkRequestHeaders'], isEmpty);
+      expect(replay['networkResponseHeaders'], isEmpty);
+      expect(replay['networkCaptureBodies'], false);
+    });
+
     test('forwards sampleRate', () async {
       final options = defaultTestOptions()
         ..platform = MockPlatform.iOS()
