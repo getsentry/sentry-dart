@@ -34,7 +34,7 @@ class TimeToDisplayTracker {
   DateTime? _pendingTTFDEndTimestamp;
   _PreparedInitialDisplay? _prepared;
 
-  /// The started app-start root, until navigation releases it.
+  /// The started app-start root, until the next route display releases it.
   SentryTracer? _initialDisplayTransaction;
 
   // The timestamp where report TTFD was called before the transaction was started.
@@ -182,7 +182,7 @@ class TimeToDisplayTracker {
     if (_prepared != null) clear();
   }
 
-  /// Hands the scope over from the app-start root once the user navigates away.
+  /// Hands the scope over from the app-start root to the next route display.
   ///
   /// The root binds itself to the scope and waits for its TTFD child, which
   /// only [reportFullyDisplayed] or a 30s timeout would end. Without this,

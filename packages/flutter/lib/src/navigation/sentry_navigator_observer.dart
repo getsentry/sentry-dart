@@ -176,7 +176,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _releaseAppStart();
+    _appStartRoute = null;
 
     if (routeName != null && routeName != '/') {
       // Don't generate a new trace on initial app start / root
@@ -226,7 +226,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (renamed) return;
     }
 
-    _releaseAppStart();
+    _appStartRoute = null;
 
     if (routeName != null && routeName != '/') {
       _trackRouteDisplay(routeName, arguments: newRoute.settings.arguments);
@@ -288,17 +288,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         trackerV2.setAppStartRouteName(routeName);
   }
 
-  /// Unbinds the app-start root from the scope once the user navigates away,
-  /// so spans from the new screen don't parent to it.
-  ///
-  /// Runs for every navigation away, including unnamed routes and routes that
-  /// get no transaction of their own. Streaming app starts end through
-  /// [TimeToDisplayTrackerV2.trackRoute] instead.
-  void _releaseAppStart() {
-    _appStartRoute = null;
-    unawaited(_timeToDisplayTracker?.releaseInitialDisplay());
-  }
-
   void _startNewTraceIfEnabled() {
     if (_enableNewTraceOnNavigation) {
       _hub.generateNewTrace();
@@ -313,9 +302,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
+    // A route display ends the previous one, the app start included. Routes
+    // that start no display of their own (unnamed ones, dialogs) leave it
+    // running, the same as they do for any other route.
     if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
       _timeToDisplayTrackerV2?.trackRoute(routeName);
     } else {
+      // The app-start root has to hand the scope over, or spans from this
+      // route keep parenting to it until its TTFD times out.
+      unawaited(_timeToDisplayTracker?.releaseInitialDisplay());
+
       // Drops any app-start reservation that is still waiting for first-frame
       // timing. The route that named it was already handed to the app start
       // in didPush or didReplace, so only navigation away from it gets here.

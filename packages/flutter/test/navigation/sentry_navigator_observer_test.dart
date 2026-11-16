@@ -252,8 +252,29 @@ void main() {
         expect(request.context.parentSpanId, route.context.spanId);
       });
 
-      testWidgets('stops parenting static HTTP spans to the app start on an '
-          'unnamed push', (tester) async {
+      testWidgets('keeps the app-start TTFD reportable after a dialog opens', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        await navigation.launch();
+        final display = SentryFlutter.currentDisplay(hub: navigation.hub)!;
+        final appStartTtfd = navigation.spans.singleWhere(
+          (span) => span.context.operation == 'ui.load.full_display',
+        );
+
+        navigation.openDialog();
+        await tester.pump();
+        await display.reportFullyDisplayed();
+        await navigation.finishTracking();
+
+        expect(appStartTtfd.status, const SpanStatus.ok());
+      });
+
+      testWidgets('keeps parenting static HTTP spans to the app start after a '
+          'dialog opens', (tester) async {
         final navigation = _HttpTracingFixture(
           tester,
           SentryTraceLifecycle.static,
@@ -261,18 +282,15 @@ void main() {
         await navigation.launch();
         final appStartId = navigation.hub.getSpan()!.context.spanId;
 
-        navigation.pushRoute(null);
+        navigation.openDialog();
         await tester.pump();
         await navigation.request();
         await navigation.finishTracking();
 
-        final requests = navigation.spans.where(
+        final request = navigation.spans.singleWhere(
           (span) => span.context.operation == 'http.client',
         );
-        expect(
-          requests.map((span) => span.context.parentSpanId),
-          isNot(contains(appStartId)),
-        );
+        expect(request.context.parentSpanId, appStartId);
       });
     });
 
@@ -1810,6 +1828,16 @@ class _HttpTracingFixture {
     final route = _route(name);
     unawaited(_navigator.currentState!.push<void>(route));
     return route;
+  }
+
+  /// Opens an unnamed route that starts no display of its own.
+  void openDialog() {
+    unawaited(
+      showDialog<void>(
+        context: _navigator.currentContext!,
+        builder: (_) => const SizedBox.shrink(),
+      ),
+    );
   }
 
   void replaceRoute({String name = '/next', Object? arguments}) {
