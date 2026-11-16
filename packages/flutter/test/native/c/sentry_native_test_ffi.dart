@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
@@ -9,10 +8,10 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 import 'package:sentry_flutter/src/native/c/binding.dart' as binding;
 import 'package:sentry_flutter/src/native/c/native_database_path.dart';
 import 'package:sentry_flutter/src/native/c/sentry_native.dart';
+import 'package:sentry_flutter/src/native/c/sentry_native_worker.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 
 import '../../mocks.dart';
@@ -92,14 +91,14 @@ void main() {
           isFalse,
           reason: 'needs a process that has not loaded sentry.dll yet',
         );
-        expect(SentryNative.threadStackGuarantee(), 0);
+        expect(SentryNativeWorker.threadStackGuarantee(), 0);
         addTearDown(sut.close);
 
-        await sut.init(MockHub());
+        await _init(sut);
 
-        expect(sut.hasWorker, isTrue);
+        expect(await sut.worker!.target, isNotNull);
         expect(_isModuleLoaded('sentry.dll'), isTrue);
-        expect(SentryNative.threadStackGuarantee(), 64 * 1024);
+        expect(SentryNativeWorker.threadStackGuarantee(), 64 * 1024);
       },
       testOn: 'windows',
     );
@@ -242,20 +241,53 @@ void main() {
 
     test('init', () async {
       addTearDown(sut.close);
-      await sut.init(MockHub());
+      await _init(sut);
     });
 
-    test('init runs in background and defers scope calls', () async {
+    test('init on Windows returns before sentry_init() finishes', () async {
       addTearDown(sut.close);
-      final init = sut.init(MockHub());
-      expect(init, isA<Future<void>>());
 
-      final pendingTag = sut.setTag('fixture-key', 'fixture-value');
-      expect(pendingTag, isA<Future<void>>());
+      expect(sut.init(MockHub()), isNull);
+      final tag = sut.setTag('fixture-key', 'fixture-value');
+      expect(tag, isA<Future<void>>());
 
-      await init;
-      await pendingTag;
+      await tag;
+      expect(await sut.worker!.target, isNotNull);
     }, testOn: 'windows');
+
+    test('scope calls run on the worker after init', () async {
+      await _init(sut);
+      expect(await sut.worker!.target, isNotNull);
+
+      await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+      await sut.setUser(SentryUser(id: 'fixture-id'));
+      await sut.setContexts('fixture-key', {'object': Object()});
+      await sut.setExtra('fixture-key', ReceivePort());
+      await sut.removeExtra('fixture-key');
+      await sut.removeContexts('fixture-key');
+      await sut.setTag('fixture-key', 'fixture-value');
+      await sut.removeTag('fixture-key');
+      await sut.setUser(null);
+
+      await sut.close();
+    }, testOn: 'windows');
+
+    test(
+      'inits on the calling isolate when the worker fails to start',
+      () async {
+        final spawn = SentryNativeWorker.spawnWorkerFn;
+        SentryNativeWorker.spawnWorkerFn = (_, _) async =>
+            throw StateError('fixture-error');
+        addTearDown(() => SentryNativeWorker.spawnWorkerFn = spawn);
+
+        await _init(sut);
+
+        expect(await sut.worker!.target, isNull);
+        await sut.setTag('fixture-key', 'fixture-value');
+        await sut.close();
+      },
+      testOn: 'windows',
+    );
 
     test('a scope value that fails to serialize is logged, not thrown', () {
       // ignore: invalid_use_of_internal_member
@@ -285,7 +317,7 @@ void main() {
       addTearDown(beforeSend.close);
       final native = _BeforeSendNative(options, beforeSend.nativeFunction);
       addTearDown(native.close);
-      await native.init(MockHub());
+      await _init(native);
 
       await native.setUser(SentryUser(id: 'fixture-id'));
       await native.setTag('fixture-key', 'fixture-value');
@@ -298,406 +330,6 @@ void main() {
       // Without a user, native adds its own installation id.
       expect(captured?['user'], isNot('fixture-id'));
       expect(captured?['tag'], isNull);
-    });
-
-    test('scope calls after init run on the worker', () async {
-      await sut.init(MockHub());
-      expect(sut.hasWorker, isTrue);
-
-      await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
-      await sut.setUser(SentryUser(id: 'fixture-id'));
-      await sut.setContexts('fixture-key', {'object': Object()});
-      await sut.setExtra('fixture-key', 'fixture-value');
-      await sut.removeExtra('fixture-key');
-      await sut.removeContexts('fixture-key');
-      await sut.setTag('fixture-key', 'fixture-value');
-      await sut.removeTag('fixture-key');
-      await sut.setUser(null);
-
-      await sut.close();
-      expect(sut.hasWorker, isFalse);
-    }, testOn: 'windows');
-
-    test('worker skips values it cannot convert, like the sync path', () async {
-      addTearDown(sut.close);
-      await sut.init(MockHub());
-      expect(sut.hasWorker, isTrue);
-      final port = ReceivePort();
-      addTearDown(port.close);
-
-      await sut.addBreadcrumb(Breadcrumb(data: {'port': port, 'n': 1}));
-      await sut.setContexts('fixture-key', {
-        'list': [port, 'fixture-value'],
-      });
-      await sut.setExtra('fixture-key', port);
-    }, testOn: 'windows');
-
-    group('init on the worker', () {
-      late ReceivePort inbox;
-      late ReceivePort responses;
-      late List<Object?> received;
-      late SpawnWorkerFn spawn;
-
-      setUp(() {
-        inbox = ReceivePort();
-        responses = ReceivePort();
-        received = [];
-        spawn = SentryNative.spawnWorkerFn;
-        SentryNative.spawnWorkerFn = (_, _) async =>
-            Worker(inbox.sendPort, responses);
-      });
-
-      tearDown(() {
-        SentryNative.spawnWorkerFn = spawn;
-        inbox.close();
-        responses.close();
-      });
-
-      void answer(Object? Function(Object? payload) respond) =>
-          inbox.listen((message) {
-            received.add(message);
-            if (message case (final int id, final payload)) {
-              responses.sendPort.send((id, respond(payload)));
-            }
-          });
-
-      List<Object?> kinds() => [
-        for (final m in received)
-          switch (m) {
-            (int _, (final String kind, int _)) => kind,
-            (int _, (final String kind, List<Object?> _)) => kind,
-            (int _, final String kind) => kind,
-            _ => m,
-          },
-      ];
-
-      Object? succeed(Object? payload) =>
-          payload == 'load' || payload is (String, int) ? 0 : null;
-
-      test('loads, inits, then runs scope calls made meanwhile', () async {
-        answer(succeed);
-
-        final init = sut.init(MockHub());
-        final tag = sut.setTag('fixture-key', 'fixture-value');
-        await init;
-        await tag;
-        expect(sut.hasWorker, isTrue);
-        await sut.close();
-
-        expect(kinds(), ['load', 'init', 'set_tag', 'close', '_shutdown_']);
-        expect(sut.hasWorker, isFalse);
-      });
-
-      test('queues scope calls made before init without waiting', () async {
-        answer(succeed);
-        addTearDown(sut.close);
-
-        expect(sut.setTag('fixture-key', 'fixture-value'), isNull);
-        expect(sut.queuedScopeCalls, 1);
-        await sut.init(MockHub());
-        await pumpEventQueue();
-
-        expect(kinds(), ['load', 'init', 'set_tag']);
-      });
-
-      test('without auto-init, scope calls go to the calling isolate', () {
-        options.autoInitializeNativeSdk = false;
-
-        sut.setTag('fixture-key', 'fixture-value');
-
-        expect(sut.queuedScopeCalls, 0);
-      });
-
-      test('closes the worker when sentry_init fails', () async {
-        answer((payload) => payload is (String, int) ? 1 : succeed(payload));
-
-        await expectLater(sut.init(MockHub()), throwsStateError);
-        await pumpEventQueue();
-
-        expect(kinds(), ['load', 'init', '_shutdown_']);
-        expect(sut.hasWorker, isFalse);
-        expect(sut.close(), isNull);
-      });
-
-      test('closes the worker when loading the library fails', () async {
-        answer((_) => RemoteError('fixture-error', ''));
-
-        await expectLater(sut.init(MockHub()), throwsA(isA<RemoteError>()));
-        await pumpEventQueue();
-
-        expect(kinds(), ['load', '_shutdown_']);
-        expect(sut.hasWorker, isFalse);
-      });
-
-      test(
-        'inits on the calling isolate when the worker fails to start',
-        () async {
-          SentryNative.spawnWorkerFn = (_, _) async =>
-              throw StateError('fixture-error');
-          addTearDown(sut.close);
-
-          await sut.init(MockHub());
-
-          expect(sut.hasWorker, isFalse);
-          expect(
-            sut.setTag('fixture-key', 'fixture-value'),
-            isNot(isA<Future<void>>()),
-          );
-        },
-      );
-    }, skip: Platform.isWindows ? false : 'Windows only');
-
-    group('close with a worker', () {
-      late ReceivePort inbox;
-      late ReceivePort responses;
-      late List<Object?> received;
-      late Completer<void> shutdown;
-
-      setUp(() {
-        inbox = ReceivePort();
-        responses = ReceivePort();
-        received = [];
-        shutdown = Completer<void>();
-        sut.worker = Worker(inbox.sendPort, responses);
-      });
-
-      tearDown(() async {
-        // Answers a close the test left pending, so it can't block later inits.
-        responses.sendPort.send((0, null));
-        await SentryNative.pendingNativeWork;
-        inbox.close();
-        responses.close();
-      });
-
-      void listen({required bool answer}) => inbox.listen((message) {
-        received.add(message);
-        if (message == '_shutdown_') shutdown.complete();
-        if (message case (final int id, _) when answer) {
-          responses.sendPort.send((id, null));
-        }
-      });
-
-      test('runs close on the worker after queued scope calls', () async {
-        listen(answer: true);
-
-        await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
-        await sut.setTag('fixture-key', 'fixture-value');
-        await sut.close();
-        await shutdown.future;
-
-        expect(received.map(_scopeMethod), [
-          'fixture-message',
-          'set_tag',
-          (2, 'close'),
-          '_shutdown_',
-        ]);
-        expect(sut.hasWorker, isFalse);
-      });
-
-      test('a scope call completes once the worker ran it', () async {
-        listen(answer: false);
-        var done = false;
-        final tag = Future.value(
-          sut.setTag('fixture-key', 'fixture-value'),
-        ).then((_) => done = true);
-
-        await pumpEventQueue();
-        expect(done, isFalse);
-        responses.sendPort.send((0, null));
-        await tag;
-
-        expect(done, isTrue);
-      });
-
-      test(
-        'drops the oldest queued breadcrumbs beyond maxBreadcrumbs',
-        () async {
-          options.maxBreadcrumbs = 2;
-          listen(answer: false);
-
-          final calls = [
-            for (var i = 0; i < 4; i++)
-              sut.addBreadcrumb(Breadcrumb(message: '$i')),
-            sut.setUser(null),
-          ];
-          for (var id = 0; id < 4; id++) {
-            await pumpEventQueue();
-            responses.sendPort.send((id, null));
-          }
-          await Future.wait(calls.whereType<Future<void>>());
-
-          // '0' was already sent, so '1' made room for '3'.
-          expect(received.map(_scopeMethod), ['0', '2', '3', 'remove_user']);
-        },
-      );
-
-      test('stops waiting when the worker does not answer', () async {
-        final timeout = SentryNative.workerCloseTimeout;
-        SentryNative.workerCloseTimeout = Duration.zero;
-        addTearDown(() => SentryNative.workerCloseTimeout = timeout);
-        listen(answer: false);
-
-        await sut.close();
-        await shutdown.future;
-
-        expect(received, [(0, 'close'), '_shutdown_']);
-        expect(sut.hasWorker, isFalse);
-      });
-
-      test('drops scope calls and repeated closes while closing', () async {
-        listen(answer: false);
-
-        final close = sut.close();
-        await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
-        await sut.setTag('fixture-key', 'fixture-value');
-        await sut.close();
-        await shutdown.future;
-        responses.sendPort.send((0, null));
-        await close;
-
-        expect(received, [(0, 'close'), '_shutdown_']);
-      });
-
-      test(
-        'init after a stuck close returns and holds scope calls until it ends',
-        () async {
-          final timeout = SentryNative.workerCloseTimeout;
-          SentryNative.workerCloseTimeout = Duration.zero;
-          addTearDown(() => SentryNative.workerCloseTimeout = timeout);
-          listen(answer: false);
-          await sut.close();
-
-          final next = createBinding(options) as SentryNative;
-          addTearDown(next.close);
-          await next.init(MockHub());
-          expect(next.hasWorker, isFalse);
-
-          var tagged = false;
-          final tag = Future.value(
-            next.setTag('fixture-key', 'fixture-value'),
-          ).then((_) => tagged = true);
-          await pumpEventQueue();
-          expect(tagged, isFalse);
-
-          responses.sendPort.send((0, null));
-          await tag;
-          expect(next.hasWorker, isTrue);
-        },
-        testOn: 'windows',
-      );
-
-      test(
-        'init after a close that ends in time waits for the whole init',
-        () async {
-          final timeout = SentryNative.workerCloseTimeout;
-          SentryNative.workerCloseTimeout = Duration.zero;
-          addTearDown(() => SentryNative.workerCloseTimeout = timeout);
-          final spawn = SentryNative.spawnWorkerFn;
-          addTearDown(() => SentryNative.spawnWorkerFn = spawn);
-          listen(answer: false);
-          await sut.close();
-
-          SentryNative.workerCloseTimeout = const Duration(milliseconds: 100);
-          SentryNative.spawnWorkerFn = (config, entry) async {
-            await Future<void>.delayed(const Duration(milliseconds: 300));
-            return spawn(config, entry);
-          };
-          final next = createBinding(options) as SentryNative;
-          addTearDown(next.close);
-          final init = next.init(MockHub());
-          responses.sendPort.send((0, null));
-          await init;
-
-          expect(next.hasWorker, isTrue);
-        },
-        testOn: 'windows',
-      );
-
-      test('a later init waits for a close queued behind an init', () async {
-        final timeout = SentryNative.workerCloseTimeout;
-        SentryNative.workerCloseTimeout = Duration.zero;
-        addTearDown(() => SentryNative.workerCloseTimeout = timeout);
-        listen(answer: false);
-        await sut.close();
-
-        final requests = <String>[];
-        final ports = <ReceivePort>[];
-        addTearDown(() {
-          for (final port in ports) {
-            port.close();
-          }
-        });
-        final spawn = SentryNative.spawnWorkerFn;
-        addTearDown(() => SentryNative.spawnWorkerFn = spawn);
-        SentryNative.spawnWorkerFn = (_, _) async {
-          final name = ports.isEmpty ? 'first' : 'second';
-          final inbox = ReceivePort();
-          final replies = ReceivePort();
-          ports.addAll([inbox, replies]);
-          inbox.listen((message) {
-            if (message case (final int id, final payload)) {
-              final init = payload is (String, int);
-              requests.add('$name:${init ? 'init' : payload}');
-              replies.sendPort.send((id, payload == 'load' || init ? 0 : null));
-            }
-          });
-          return Worker(inbox.sendPort, replies);
-        };
-
-        final first = createBinding(options) as SentryNative;
-        await first.init(MockHub());
-        await first.close();
-        final second = createBinding(options) as SentryNative;
-        await second.init(MockHub());
-
-        responses.sendPort.send((0, null));
-        await second.close();
-        await SentryNative.pendingNativeWork;
-
-        expect(requests, [
-          'first:load',
-          'first:init',
-          'first:close',
-          'second:load',
-          'second:init',
-          'second:close',
-        ]);
-      }, testOn: 'windows');
-
-      test('close during an init held by a stuck close does not hang', () async {
-        final timeout = SentryNative.workerCloseTimeout;
-        SentryNative.workerCloseTimeout = Duration.zero;
-        addTearDown(() => SentryNative.workerCloseTimeout = timeout);
-        listen(answer: false);
-        await sut.close();
-
-        final nextInbox = ReceivePort();
-        final nextResponses = ReceivePort();
-        addTearDown(nextInbox.close);
-        addTearDown(nextResponses.close);
-        final nextShutdown = Completer<void>();
-        nextInbox.listen((message) {
-          if (message == '_shutdown_') nextShutdown.complete();
-          if (message case (final int id, final payload)) {
-            final ok = payload == 'load' || payload is (String, int);
-            nextResponses.sendPort.send((id, ok ? 0 : null));
-          }
-        });
-        final spawn = SentryNative.spawnWorkerFn;
-        SentryNative.spawnWorkerFn = (_, _) async =>
-            Worker(nextInbox.sendPort, nextResponses);
-        addTearDown(() => SentryNative.spawnWorkerFn = spawn);
-
-        final next = createBinding(options) as SentryNative;
-        await next.init(MockHub());
-        await next.close();
-        expect(next.hasWorker, isFalse);
-
-        // Once the stuck close returns, the held init runs and then the close.
-        responses.sendPort.send((0, null));
-        await nextShutdown.future;
-        await SentryNative.pendingNativeWork;
-      });
     });
 
     test(
@@ -719,7 +351,7 @@ void main() {
         });
         addTearDown(sut.close);
 
-        await sut.init(MockHub());
+        await _init(sut);
 
         expect(dbDir.existsSync(), isTrue);
       },
@@ -777,7 +409,7 @@ void main() {
             expect(appDir.existsSync(), isFalse);
             addTearDown(sut.close);
 
-            await sut.init(MockHub());
+            await _init(sut);
 
             expect(databaseDir().existsSync(), isTrue);
           },
@@ -791,7 +423,7 @@ void main() {
               ..writeAsStringSync('{}');
             addTearDown(sut.close);
 
-            await sut.init(MockHub());
+            await _init(sut);
 
             expect(databaseDir().existsSync(), isTrue);
             expect(existingFile.readAsStringSync(), '{}');
@@ -1027,12 +659,11 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
           .firstWhere((line) => line != null)!;
 }
 
-Object? _scopeMethod(Object? message) => switch (message) {
-  (int _, ('add_breadcrumb', [final Map<String, dynamic> breadcrumb])) =>
-    breadcrumb['message'],
-  (int _, (final String method, List<Object?> _)) => method,
-  _ => message,
-};
+/// On Windows init returns before `sentry_init()` finishes.
+Future<void> _init(SentryNative native) async {
+  await native.init(MockHub());
+  await native.worker?.initialized;
+}
 
 bool _isModuleLoaded(String name) {
   final getModuleHandle = DynamicLibrary.open('kernel32.dll')
