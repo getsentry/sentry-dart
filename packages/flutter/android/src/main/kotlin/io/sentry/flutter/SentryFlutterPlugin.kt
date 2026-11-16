@@ -40,6 +40,7 @@ import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
 import java.net.Proxy.Type
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
@@ -77,9 +78,48 @@ class SentryFlutterPlugin :
       return
     }
 
+    awaitWorkerIsolateExit()
     tearDownReplayIntegration()
     channel.setMethodCallHandler(null)
     applicationContext = null
+  }
+
+  /**
+   * Tells this engine's Dart side to stop its worker isolates and holds engine teardown until
+   * they asked to exit, see [WorkerExitGate].
+   *
+   * The call reaches Dart synchronously, because the platform and UI threads are merged: by the
+   * time invokeMethod returns, the root isolate has armed the gate for every running worker.
+   * The method-channel reply can't be used for this. It would be delivered to this thread,
+   * which is blocked.
+   *
+   * If the threads are not merged (possible before Flutter 3.47), invokeMethod only posts the
+   * call to the UI thread. await then usually runs before the root isolate has armed anything:
+   * it returns at once and closes the token. Workers stopped with that token later are parked
+   * by the gate instead of exiting. That keeps them from releasing GPU resources after the
+   * engine is gone, at the cost of one parked thread per worker and an isolate group that is
+   * never freed. If the root isolate does arm in time, await waits as in the merged case.
+   */
+  @Suppress("TooGenericExceptionCaught")
+  private fun awaitWorkerIsolateExit() {
+    val token = detachTokens.incrementAndGet()
+    try {
+      channel.invokeMethod("engineDetaching", token)
+    } catch (e: Exception) {
+      Log.e("Sentry", "Failed to tell Dart that the engine is detaching", e)
+    }
+    // Runs even if the call above failed: the gate grants every request for a token that was
+    // not closed, and only await closes it.
+    try {
+      if (!workerExitGate.await(token, WORKER_EXIT_TIMEOUT_MILLIS)) {
+        Log.w(
+          "Sentry",
+          "Worker isolates did not exit within $WORKER_EXIT_TIMEOUT_MILLIS ms of engine detach",
+        )
+      }
+    } catch (e: Exception) {
+      Log.e("Sentry", "Failed to wait for worker isolates to exit", e)
+    }
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -124,6 +164,22 @@ class SentryFlutterPlugin :
     private var pluginRegistrationTime: Long? = null
 
     private const val NATIVE_CRASH_WAIT_TIME = 500L
+
+    private const val WORKER_EXIT_TIMEOUT_MILLIS = 1000L
+
+    private val detachTokens = AtomicLong()
+
+    private val workerExitGate = WorkerExitGate()
+
+    /** Called by the root isolate, see [WorkerExitGate.arm]. */
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun armWorkerExit(token: Long) = workerExitGate.arm(token)
+
+    /** Called by a worker isolate as its last step, see [WorkerExitGate.requestExit]. */
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun requestWorkerExit(token: Long): Boolean = workerExitGate.requestExit(token)
 
     private val breadcrumbDeserializer by lazy {
       Breadcrumb.Deserializer()

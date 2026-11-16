@@ -5428,6 +5428,64 @@ extension type SentryFlutterPlugin$Companion._(jni$_.JObject _$this)
 
 extension SentryFlutterPlugin$Companion$$Methods
     on SentryFlutterPlugin$Companion {
+  static final _id_armWorkerExit = SentryFlutterPlugin$Companion._class
+      .instanceMethodId(r'armWorkerExit', r'(J)V');
+
+  static final _armWorkerExit =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public fun armWorkerExit(token: kotlin.Long): kotlin.Unit`
+  void armWorkerExit(core$_.int j) {
+    final _$$selfRef = reference;
+    _armWorkerExit(_$$selfRef.pointer, _id_armWorkerExit.pointer, j).check();
+  }
+
+  static final _id_requestWorkerExit = SentryFlutterPlugin$Companion._class
+      .instanceMethodId(r'requestWorkerExit', r'(J)Z');
+
+  static final _requestWorkerExit =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
+              )
+            >
+          >('globalEnv_CallBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `public fun requestWorkerExit(token: kotlin.Long): kotlin.Boolean`
+  core$_.bool requestWorkerExit(core$_.int j) {
+    final _$$selfRef = reference;
+    return _requestWorkerExit(
+      _$$selfRef.pointer,
+      _id_requestWorkerExit.pointer,
+      j,
+    ).boolean;
+  }
+
   static final _id_tearDownReplayIntegration = SentryFlutterPlugin$Companion
       ._class
       .instanceMethodId(r'tearDownReplayIntegration', r'()V');
@@ -5979,6 +6037,68 @@ extension type SentryFlutterPlugin._(jni$_.JObject _$this)
       _$$classRef.pointer,
       _id_new$.pointer,
     ).object<SentryFlutterPlugin>();
+  }
+
+  static final _id_armWorkerExit = _class.staticMethodId(
+    r'armWorkerExit',
+    r'(J)V',
+  );
+
+  static final _armWorkerExit =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
+              )
+            >
+          >('globalEnv_CallStaticVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `static public final void armWorkerExit(long j)`
+  static void armWorkerExit(core$_.int j) {
+    final _$$classRef = _class.reference;
+    _armWorkerExit(_$$classRef.pointer, _id_armWorkerExit.pointer, j).check();
+  }
+
+  static final _id_requestWorkerExit = _class.staticMethodId(
+    r'requestWorkerExit',
+    r'(J)Z',
+  );
+
+  static final _requestWorkerExit =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Int64,)>,
+              )
+            >
+          >('globalEnv_CallStaticBooleanMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.int,
+            )
+          >();
+
+  /// from: `static public final boolean requestWorkerExit(long j)`
+  static core$_.bool requestWorkerExit(core$_.int j) {
+    final _$$classRef = _class.reference;
+    return _requestWorkerExit(
+      _$$classRef.pointer,
+      _id_requestWorkerExit.pointer,
+      j,
+    ).boolean;
   }
 
   static final _id_privateSentryGetReplayIntegration = _class.staticMethodId(
