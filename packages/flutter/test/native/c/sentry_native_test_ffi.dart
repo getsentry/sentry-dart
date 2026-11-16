@@ -535,6 +535,8 @@ void main() {
     });
 
     test('loadDebugImages', () async {
+      addTearDown(sut.close);
+      await _init(sut);
       final list = await sut.loadDebugImages(SentryStackTrace(frames: []));
       expect(list, isNotEmpty);
       expect(list![0].type, currentPlatform.isWindows ? 'pe' : 'elf');

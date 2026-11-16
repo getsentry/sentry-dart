@@ -101,6 +101,34 @@ void main() {
     expect(log, ['w:Load', 'w:Init']);
   });
 
+  test('drops scope calls after a failed init', () async {
+    fake('w', answer: (kind) => kind == 'Init' ? 1 : 0);
+    final sut = create();
+
+    sut.start();
+    await expectLater(sut.initialized, throwsStateError);
+
+    await sut.setTag('fixture-key', 'fixture-value');
+    expect(await sut.loadDebugImages(), isNull);
+    expect(log, ['w:Load', 'w:Init']);
+  });
+
+  test('loadDebugImages runs on the worker once init finished', () async {
+    final image = DebugImage(type: 'pe');
+    fake('w', answer: (kind) => kind == 'LoadDebugImages' ? [image] : 0);
+    final sut = create();
+
+    sut.start();
+
+    final images = await sut.loadDebugImages();
+    expect(images?.single.type, image.type);
+    expect(log, ['w:Load', 'w:Init', 'w:LoadDebugImages']);
+  });
+
+  test('loadDebugImages before init starts returns null', () async {
+    expect(await create().loadDebugImages(), isNull);
+  });
+
   test('without auto-init, calls do not wait for an init', () async {
     options.autoInitializeNativeSdk = false;
 

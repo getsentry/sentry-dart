@@ -299,35 +299,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
-      tryCatchAsync('get_module_list', () async {
-        final cImages = native.get_modules_list();
-        try {
-          if (native.value_get_type(cImages) !=
-              binding.sentry_value_type_t.SENTRY_VALUE_TYPE_LIST) {
-            return null;
-          }
-
-          final images = List<DebugImage>.generate(
-            native.value_get_length(cImages),
-            (index) {
-              final cImage = native.value_get_by_index(cImages, index);
-              return DebugImage(
-                type: cImage.get('type').castPrimitive() ?? '',
-                imageAddr: cImage.get('image_addr').castPrimitive(),
-                imageSize: cImage.get('image_size').castPrimitive(),
-                codeFile: cImage.get('code_file').castPrimitive(),
-                debugId: cImage.get('debug_id').castPrimitive(),
-                debugFile: cImage.get('debug_file').castPrimitive(),
-                codeId: cImage.get('code_id').castPrimitive(),
-              );
-            },
-          );
-          return images;
-        } finally {
-          native.value_decref(cImages);
-        }
-      });
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    if (_worker case final worker?) return worker.loadDebugImages();
+    return tryCatchAsync(
+      'get_module_list',
+      () async => readNativeDebugImages(),
+    );
+  }
 
   @override
   FutureOr<void> pauseAppHangTracking() {}
@@ -493,6 +471,33 @@ extension SentryValueExtension on binding.sentry_value_u {
         );
         return null;
     }
+  }
+}
+
+@internal
+List<DebugImage>? readNativeDebugImages() {
+  final native = SentryNative.native;
+  final cImages = native.get_modules_list();
+  try {
+    if (native.value_get_type(cImages) !=
+        binding.sentry_value_type_t.SENTRY_VALUE_TYPE_LIST) {
+      return null;
+    }
+
+    return List<DebugImage>.generate(native.value_get_length(cImages), (index) {
+      final cImage = native.value_get_by_index(cImages, index);
+      return DebugImage(
+        type: cImage.get('type').castPrimitive() ?? '',
+        imageAddr: cImage.get('image_addr').castPrimitive(),
+        imageSize: cImage.get('image_size').castPrimitive(),
+        codeFile: cImage.get('code_file').castPrimitive(),
+        debugId: cImage.get('debug_id').castPrimitive(),
+        debugFile: cImage.get('debug_file').castPrimitive(),
+        codeId: cImage.get('code_id').castPrimitive(),
+      );
+    });
+  } finally {
+    native.value_decref(cImages);
   }
 }
 

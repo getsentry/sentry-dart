@@ -37,6 +37,10 @@ class SentryNativeWorker with SentryNativeSafeInvoker {
   final _ready = Completer<Worker?>();
   Future<Worker?>? _started;
   bool _initializedOnCallingIsolate = false;
+
+  /// Init failed, so native calls are dropped rather than run on the calling
+  /// isolate.
+  bool _initFailed = false;
   bool _closed = false;
   int _pendingRequests = 0;
 
@@ -82,6 +86,7 @@ class SentryNativeWorker with SentryNativeSafeInvoker {
       started.then<Worker?>(
         (worker) => worker,
         onError: (Object error, StackTrace stackTrace) {
+          _initFailed = true;
           internalLogger.error(
             'Native call `init` failed',
             error: error,
@@ -201,7 +206,7 @@ class SentryNativeWorker with SentryNativeSafeInvoker {
       () => _ready.future
           .then((worker) async {
             if (worker == null) {
-              request.apply();
+              if (!_initFailed) request.apply();
             } else {
               await worker.request(request);
             }
@@ -214,6 +219,28 @@ class SentryNativeWorker with SentryNativeSafeInvoker {
       return null;
     }
     return result;
+  }
+
+  /// Waits for init, which loads the library on the worker. Returns null
+  /// before init starts, rather than holding up the event.
+  Future<List<DebugImage>?> loadDebugImages() {
+    if (_closed || (_started == null && !_ready.isCompleted)) {
+      return Future.value(null);
+    }
+    return tryCatchAsync(
+      'get_module_list',
+      () => _ready.future
+          .then((worker) async {
+            if (worker == null) {
+              return _initFailed ? null : readNativeDebugImages();
+            }
+            final images = await worker.request(
+              const _LoadDebugImagesRequest(),
+            );
+            return images as List<DebugImage>?;
+          })
+          .timeout(closeTimeout, onTimeout: () => null),
+    );
   }
 
   /// Runs after every call made before it, then shuts the worker down.
@@ -290,6 +317,8 @@ class _NativeWorkerHandler extends WorkerHandler {
         return SentryNativeWorker.threadStackGuarantee();
       case _InitRequest(:final optionsAddress):
         return SentryNative.native.init(Pointer.fromAddress(optionsAddress));
+      case _LoadDebugImagesRequest():
+        return readNativeDebugImages();
       case _CloseRequest():
         SentryNative.native.close();
         return null;
@@ -310,6 +339,10 @@ final class _InitRequest {
   const _InitRequest(this.optionsAddress);
 
   final int optionsAddress;
+}
+
+final class _LoadDebugImagesRequest {
+  const _LoadDebugImagesRequest();
 }
 
 final class _CloseRequest {
