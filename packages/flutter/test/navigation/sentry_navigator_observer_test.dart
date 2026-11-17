@@ -314,6 +314,27 @@ void main() {
           expect(activeAfterPush, isNull);
         });
 
+        testWidgets('keeps a streaming interaction span running on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          // Let the app start time out so the tap span can bind to the hub.
+          await tester.pump(const Duration(seconds: 31));
+          final tap = navigation.hub.startIdleSpan('tap');
+
+          navigation.pushRoute();
+          await tester.pump();
+          final endedOnPush = tap.isEnded;
+          await navigation.finishTracking();
+
+          expect(tap, isA<IdleRecordingSentrySpanV2>());
+          expect(endedOnPush, isFalse);
+        });
+
         testWidgets('does not restart the streaming app start when timing '
             'arrives after push', (tester) async {
           final navigation = _HttpTracingFixture(

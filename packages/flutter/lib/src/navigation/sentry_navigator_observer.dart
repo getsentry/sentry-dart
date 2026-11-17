@@ -305,7 +305,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     // of their own (unnamed ones, dialogs) leave it running, the same as they
     // do for any other route.
     if (isStreaming) {
-      _timeToDisplayTrackerV2?.cancelCurrentRoute();
+      // Only the app start: trackRoute ends the current route span below, and
+      // other idle spans (user interactions) aren't displays.
+      _timeToDisplayTrackerV2?.cancelAppStart();
     } else {
       // The app-start root has to hand the scope over, or spans from this
       // route keep parenting to it until its TTFD times out.

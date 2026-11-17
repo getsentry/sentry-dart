@@ -65,8 +65,8 @@ final class _StreamingAppStartDisplayTracking
   @override
   Future<void> record(DateTime endTimestamp) async {
     // Navigation may have ended the prepared span before first-frame timing
-    // arrived. Without it, trackAppStart would start a fresh app-start span
-    // that spans from the current screen then parent to.
+    // arrived. Recording anyway would start a fresh app-start span, and spans
+    // from the current screen would parent to it.
     if (!_tracker.hasPreparedAppStart) return;
     _tracker.trackAppStart(ttidEndTimestamp: endTimestamp);
   }
