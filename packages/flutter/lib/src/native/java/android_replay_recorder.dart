@@ -18,11 +18,15 @@ import 'binding.dart' as native;
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
+  final void Function(int token) _armExit;
   Worker? _worker;
-  // Incremented by every start() and stop(), so that a start() can tell,
-  // once its spawn has completed, whether a later start() or stop() has
-  // superseded it.
+  // Incremented by every start(), stop() and closeForEngineDetach(), so that
+  // a start() can tell, once its spawn has completed, whether a later one of
+  // them has superseded it.
   int _lifecycleGeneration = 0;
+
+  /// The token of the engine detach, once the engine is detaching.
+  int? _detachToken;
 
   @internal // visible for testing, used by SentryNativeJava
   static AndroidReplayRecorder Function(SentryFlutterOptions) factory =
@@ -31,14 +35,18 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   @visibleForTesting
   void Function()? onScreenshotAddedForTest;
 
-  AndroidReplayRecorder(super.options, {SpawnWorkerFn? spawn})
-    : _config = WorkerConfig(
-        debugName: 'SentryAndroidReplayRecorder',
-        debug: options.debug,
-        diagnosticLevel: options.diagnosticLevel,
-        automatedTestMode: options.automatedTestMode,
-      ),
-      _spawn = spawn ?? spawnWorker {
+  AndroidReplayRecorder(
+    super.options, {
+    SpawnWorkerFn? spawn,
+    void Function(int token)? armExit,
+  }) : _config = WorkerConfig(
+         debugName: 'SentryAndroidReplayRecorder',
+         debug: options.debug,
+         diagnosticLevel: options.diagnosticLevel,
+         automatedTestMode: options.automatedTestMode,
+       ),
+       _spawn = spawn ?? spawnWorker,
+       _armExit = armExit ?? native.SentryFlutterPlugin.armWorkerExit {
     super.callback = (screenshot, isNewlyCaptured) {
       onScreenshotAddedForTest?.call();
       return _addReplayScreenshot(screenshot, isNewlyCaptured);
@@ -47,18 +55,60 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   @override
   Future<void> start() async {
+    // The engine is going away. A worker spawned now would be closed without
+    // the detach token by a later stop(), so it could exit after the engine
+    // is gone.
+    if (_detachToken != null) return;
     if (_worker != null) return;
     final generation = ++_lifecycleGeneration;
     final worker = await _spawn(_config, _entryPoint);
-    // stop() or another start() can run while the spawn is in flight.
-    // Neither sees this worker, so it has to be closed here, or it outlives
-    // the recorder and keeps its isolate group alive.
+    // stop(), closeForEngineDetach() or another start() can run while the
+    // spawn is in flight. None of them sees this worker, so it has to be
+    // closed here, or it outlives the recorder and keeps its isolate group
+    // alive. After an engine detach the worker is closed with the detach
+    // token, so it cannot exit once the engine is gone, see
+    // closeForEngineDetach().
     if (generation != _lifecycleGeneration) {
-      worker.close();
+      worker.close(exitToken: _detachToken);
       return;
     }
     _worker = worker;
     await super.start();
+  }
+
+  /// Stops the worker because its engine is about to be destroyed, see
+  /// `AndroidCoreWorker.closeForEngineDetach`. Must stay synchronous.
+  void closeForEngineDetach(int token) {
+    // Also set when stop() ran first: a worker that was still spawning when
+    // stop() ran is closed by start(), which then needs the token.
+    _detachToken = token;
+    // Supersedes a start() whose spawn is still in flight, like stop() does.
+    _lifecycleGeneration++;
+    final worker = _worker;
+    _worker = null;
+    // Stops new captures. The scheduler winds down asynchronously, which
+    // nothing can wait for at this point.
+    unawaited(super.stop());
+    // Not started, already stopped, or still spawning: nothing is running
+    // that the plugin could wait for, so nothing is armed. A worker that is
+    // still spawning cannot finish spawning while the plugin holds the
+    // platform thread. start() closes it with the token afterwards, so the
+    // plugin parks it if it asks to exit too late.
+    if (worker == null) return;
+    try {
+      _armExit(token);
+    } catch (exception, stackTrace) {
+      // Without the arm the plugin does not wait for this worker. It is still
+      // closed with the token below: the plugin then either grants its exit
+      // request in time or parks it, so it cannot exit after the engine is
+      // gone.
+      internalLogger.error(
+        '$logName: failed to arm worker exit',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
+    worker.close(exitToken: token);
   }
 
   @override
@@ -97,7 +147,10 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
         '${data.lengthInBytes} bytes)',
       );
 
-      await _worker!.request(
+      // closeForEngineDetach() can run while the screenshot is being encoded.
+      final worker = _worker;
+      if (worker == null) return;
+      await worker.request(
         _WorkItem(
           timestamp: timestamp,
           // Screenshots are megabytes at 1 fps. Sending the bytes as a
@@ -122,7 +175,12 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
     final (host, config) = init;
-    runWorker(config, host, _AndroidReplayHandler(config));
+    runWorker(
+      config,
+      host,
+      _AndroidReplayHandler(config),
+      requestExit: native.SentryFlutterPlugin.requestWorkerExit,
+    );
   }
 }
 
@@ -133,6 +191,11 @@ class _AndroidReplayHandler extends WorkerHandler {
   native.ReplayIntegration? _nativeReplay;
 
   _AndroidReplayHandler(this._config);
+
+  // An engine detach closes the worker without the _CloseRequest that stop()
+  // sends, so the native references are released here as well.
+  @override
+  void onShutdown() => _releaseNativeRefs();
 
   @override
   FutureOr<void> onMessage(Object? message) {
