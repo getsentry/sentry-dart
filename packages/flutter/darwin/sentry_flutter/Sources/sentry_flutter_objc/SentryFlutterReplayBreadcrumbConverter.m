@@ -99,6 +99,15 @@
     data[@"responseBodySize"] = breadcrumb.data[@"response_body_size"];
   }
 
+  // Populated by NetworkDetailsCapture on the Dart side when
+  // networkDetailAllowUrls matches; already shaped for the replay player.
+  if ([breadcrumb.data[@"request"] isKindOfClass:[NSDictionary class]]) {
+    data[@"request"] = breadcrumb.data[@"request"];
+  }
+  if ([breadcrumb.data[@"response"] isKindOfClass:[NSDictionary class]]) {
+    data[@"response"] = breadcrumb.data[@"response"];
+  }
+
   return [[SentryRRWebSpanEvent alloc]
       initWithTimestamp:[self dateFrom:startTimestamp]
            endTimestamp:[self dateFrom:endTimestamp]

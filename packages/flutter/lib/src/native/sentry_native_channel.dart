@@ -89,6 +89,22 @@ class SentryNativeChannel
         'quality': options.replay.quality.name,
         'sessionSampleRate': options.replay.sessionSampleRate,
         'onErrorSampleRate': options.replay.onErrorSampleRate,
+        // Capture happens on the Dart side; these are synced so the native
+        // SDK reports `networkDetailHasUrls` in the replay options event,
+        // which the Sentry frontend requires to render the captured details.
+        if (options.replay.networkDetailAllowUrls.isNotEmpty) ...{
+          'networkDetailAllowUrls': options.replay.networkDetailAllowUrls,
+          'networkDetailDenyUrls': options.replay.networkDetailDenyUrls,
+          // Mirrors the sendDefaultPii gate used on the Dart side.
+          'networkRequestHeaders': options.sendDefaultPii
+              ? options.replay.networkRequestHeaders
+              : const <String>[],
+          'networkResponseHeaders': options.sendDefaultPii
+              ? options.replay.networkResponseHeaders
+              : const <String>[],
+          'networkCaptureBodies':
+              options.replay.networkCaptureBodies && options.sendDefaultPii,
+        },
         'tags': <String, dynamic>{
           'maskAllText': options.privacy.maskAllText,
           'maskAllImages': options.privacy.maskAllImages,
