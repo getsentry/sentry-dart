@@ -70,12 +70,19 @@ class Worker {
     Isolate.current.addOnExitListener(_workerPort, response: _shutdownCommand);
   }
 
-  void close() {
+  /// Asks the worker to shut down.
+  ///
+  /// With [exitToken], the worker presents the token to its exit request
+  /// function once everything sent before this call was handled, and only
+  /// exits if that grants it. See [runWorker].
+  void close({int? exitToken}) {
     if (_closed) return;
     _closed = true;
     // Harmless no-op if closeOnOwnerExit() was never called for this port.
     Isolate.current.removeOnExitListener(_workerPort);
-    _workerPort.send(_shutdownCommand);
+    _workerPort.send(
+      exitToken == null ? _shutdownCommand : (_shutdownCommand, exitToken),
+    );
     if (_pending.isEmpty) {
       _responses.close();
     }
@@ -134,6 +141,16 @@ Future<Worker> spawnWorker(WorkerConfig config, WorkerEntry entry) async {
 ///
 /// This does not represent the isolate lifecycle; it only defines how
 /// the worker processes incoming messages and optional request/response.
+///
+/// Two rules keep a worker safe to stop while its engine is being destroyed,
+/// see the `requestExit` parameter of [runWorker]:
+///
+/// - Never wait on the platform's main looper. The platform thread is
+///   blocked until the worker has asked to exit, so such a wait only ends
+///   when the platform gives up on the worker.
+/// - Finish the work for a message synchronously or in microtasks. Work that
+///   still waits for a timer or I/O when the shutdown arrives keeps the
+///   isolate alive after it was allowed to exit.
 abstract class WorkerHandler {
   /// Handle fire-and-forget messages sent from the host.
   FutureOr<void> onMessage(Object? message);
@@ -141,14 +158,32 @@ abstract class WorkerHandler {
   /// Handle request/response payloads sent from the host.
   /// Return value is sent back to the host. Default: no-op.
   FutureOr<Object?> onRequest(Object? payload) => {};
+
+  /// Releases what the handler holds, right before the worker stops handling
+  /// messages. Must be synchronous. Default: no-op.
+  void onShutdown() {}
 }
+
+/// Asks whoever holds up engine teardown whether the calling worker isolate
+/// may exit. See [runWorker].
+typedef RequestWorkerExitFn = bool Function(int exitToken);
 
 /// Runs the Sentry worker loop inside a background isolate.
 ///
 /// Call this only from the worker isolate entry-point spawned via
 /// [spawnWorker]. It configures logging, handshakes with the host, and routes
 /// messages
-void runWorker(WorkerConfig config, SendPort host, WorkerHandler handler) {
+///
+/// When the host closes the worker with an exit token, [requestExit] is
+/// called once with that token, after everything sent earlier was handled.
+/// If it returns false or throws, the isolate stays alive for the rest of the
+/// process and ignores every later message: exiting is no longer safe then.
+void runWorker(
+  WorkerConfig config,
+  SendPort host,
+  WorkerHandler handler, {
+  RequestWorkerExitFn? requestExit,
+}) {
   // ignore: invalid_use_of_internal_member
   SentryInternalLogger.configure(
     isEnabled: config.debug,
@@ -158,11 +193,55 @@ void runWorker(WorkerConfig config, SendPort host, WorkerHandler handler) {
   final inbox = ReceivePort();
   host.send(inbox.sendPort);
 
+  var parked = false;
+
+  void shutDown(int? exitToken) {
+    internalLogger.debug('${config.debugName}: isolate received shutdown');
+    try {
+      handler.onShutdown();
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        '${config.debugName}: isolate failed to run its shutdown hook',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    var mayExit = true;
+    if (exitToken != null && requestExit != null) {
+      try {
+        mayExit = requestExit(exitToken);
+      } catch (exception, stackTrace) {
+        mayExit = false;
+        internalLogger.error(
+          '${config.debugName}: isolate failed to request its exit',
+          error: exception,
+          stackTrace: stackTrace,
+        );
+      }
+    }
+    if (!mayExit) {
+      // The open inbox is what keeps the isolate alive.
+      parked = true;
+      internalLogger.warning(
+        '${config.debugName}: isolate stays alive, exiting is no longer safe',
+      );
+      return;
+    }
+
+    inbox.close();
+    internalLogger.debug('${config.debugName}: isolate closed');
+  }
+
   inbox.listen((msg) async {
+    if (parked) return;
+
     if (msg == _shutdownCommand) {
-      internalLogger.debug('${config.debugName}: isolate received shutdown');
-      inbox.close();
-      internalLogger.debug('${config.debugName}: isolate closed');
+      shutDown(null);
+      return;
+    }
+    if (msg case (_shutdownCommand, final int exitToken)) {
+      shutDown(exitToken);
       return;
     }
 

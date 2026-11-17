@@ -1,6 +1,7 @@
 @TestOn('vm')
 library;
 
+import 'dart:async';
 import 'dart:isolate';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -108,6 +109,79 @@ Future<void> _ownerEntry(({SendPort ready, SendPort observed}) ports) async {
   worker.closeOnOwnerExit();
   ports.ready.send('ready');
 }
+
+/// Set inside the worker isolate by [_ShutdownProbeHandler], so the exit
+/// request functions below can report to the test.
+SendPort? _probeEvents;
+
+/// Reports what happens around shutdown to the port it receives in a
+/// request, and answers that request with its isolate's control port.
+class _ShutdownProbeHandler extends WorkerHandler {
+  @override
+  Future<void> onMessage(Object? message) async {
+    _probeEvents?.send('message:$message');
+  }
+
+  @override
+  Future<Object?> onRequest(Object? payload) async {
+    if (payload is SendPort) {
+      _probeEvents = payload;
+      Isolate.current.addOnExitListener(payload, response: 'exited');
+    }
+    return Isolate.current.controlPort;
+  }
+
+  @override
+  void onShutdown() => _probeEvents?.send('onShutdown');
+}
+
+bool _grantExit(int exitToken) {
+  _probeEvents?.send('requestExit:$exitToken');
+  return true;
+}
+
+bool _denyExit(int exitToken) {
+  _probeEvents?.send('requestExit:$exitToken');
+  return false;
+}
+
+bool _failExitRequest(int exitToken) {
+  _probeEvents?.send('requestExit:$exitToken');
+  throw StateError('exit request failed');
+}
+
+void _entryGrantExit((SendPort, WorkerConfig) init) {
+  final (host, config) = init;
+  runWorker(config, host, _ShutdownProbeHandler(), requestExit: _grantExit);
+}
+
+void _entryDenyExit((SendPort, WorkerConfig) init) {
+  final (host, config) = init;
+  runWorker(config, host, _ShutdownProbeHandler(), requestExit: _denyExit);
+}
+
+void _entryFailExitRequest((SendPort, WorkerConfig) init) {
+  final (host, config) = init;
+  runWorker(
+    config,
+    host,
+    _ShutdownProbeHandler(),
+    requestExit: _failExitRequest,
+  );
+}
+
+class _RecordingHandler extends WorkerHandler {
+  final messages = <Object?>[];
+
+  @override
+  void onMessage(Object? message) => messages.add(message);
+}
+
+const _shutdownConfig = WorkerConfig(
+  debug: true,
+  diagnosticLevel: SentryLevel.debug,
+  debugName: 'ShutdownWorker',
+);
 
 void main() {
   group('Worker isolate', () {
@@ -268,6 +342,127 @@ void main() {
       } finally {
         worker.close();
       }
+    });
+
+    group('when closed with an exit token', () {
+      test('handles earlier messages, requests the exit, then exits', () async {
+        final events = ReceivePort();
+        addTearDown(events.close);
+        final worker = await spawnWorker(_shutdownConfig, _entryGrantExit);
+        await worker.request(events.sendPort);
+
+        worker.send('a');
+        worker.close(exitToken: 7);
+
+        expect(await events.take(4).toList(), [
+          'message:a',
+          'onShutdown',
+          'requestExit:7',
+          'exited',
+        ]);
+      });
+
+      test('stays alive when the exit request is denied', () async {
+        final events = ReceivePort();
+        addTearDown(events.close);
+        final received = <Object?>[];
+        final denied = Completer<void>();
+        events.listen((event) {
+          received.add(event);
+          if (event == 'requestExit:7') denied.complete();
+        });
+        final worker = await spawnWorker(_shutdownConfig, _entryDenyExit);
+        final isolate = Isolate(
+          await worker.request(events.sendPort) as SendPort,
+        );
+        addTearDown(() => isolate.kill(priority: Isolate.immediate));
+
+        worker.close(exitToken: 7);
+        await denied.future;
+
+        // Answered only once the worker is back in its event loop, i.e. after
+        // it would have closed its inbox and exited.
+        final pong = ReceivePort();
+        addTearDown(pong.close);
+        isolate.ping(
+          pong.sendPort,
+          response: 'pong',
+          priority: Isolate.beforeNextEvent,
+        );
+        expect(await pong.first, 'pong');
+        await pumpEventQueue();
+        expect(received, ['onShutdown', 'requestExit:7']);
+      });
+
+      test('stays alive when the exit request throws', () async {
+        final events = ReceivePort();
+        addTearDown(events.close);
+        final received = <Object?>[];
+        final failed = Completer<void>();
+        events.listen((event) {
+          received.add(event);
+          if (event == 'requestExit:7') failed.complete();
+        });
+        final worker = await spawnWorker(
+          _shutdownConfig,
+          _entryFailExitRequest,
+        );
+        final isolate = Isolate(
+          await worker.request(events.sendPort) as SendPort,
+        );
+        addTearDown(() => isolate.kill(priority: Isolate.immediate));
+
+        worker.close(exitToken: 7);
+        await failed.future;
+
+        // Answered only once the worker is back in its event loop, i.e. after
+        // it would have closed its inbox and exited.
+        final pong = ReceivePort();
+        addTearDown(pong.close);
+        isolate.ping(
+          pong.sendPort,
+          response: 'pong',
+          priority: Isolate.beforeNextEvent,
+        );
+        expect(await pong.first, 'pong');
+        await pumpEventQueue();
+        expect(received, ['onShutdown', 'requestExit:7']);
+      });
+
+      test('ignores messages after the exit request was denied', () async {
+        // Runs the worker loop in the test isolate so delivery is
+        // deterministic. Its inbox stays open, as it would in a parked
+        // worker; the test isolate is torn down with the test file.
+        final host = ReceivePort();
+        final handler = _RecordingHandler();
+        runWorker(
+          _shutdownConfig,
+          host.sendPort,
+          handler,
+          requestExit: (_) => false,
+        );
+        final replies = ReceivePort();
+        addTearDown(replies.close);
+        final worker = Worker(await host.first as SendPort, replies);
+
+        worker.send('before');
+        worker.close(exitToken: 7);
+        worker.send('after');
+        await pumpEventQueue();
+
+        expect(handler.messages, ['before']);
+      });
+    });
+
+    test('closed without an exit token exits without requesting it', () async {
+      final events = ReceivePort();
+      addTearDown(events.close);
+      final worker = await spawnWorker(_shutdownConfig, _entryGrantExit);
+      await worker.request(events.sendPort);
+
+      worker.close();
+
+      expect(await events.take(2).toList(), ['onShutdown', 'exited']);
     });
   });
 }
