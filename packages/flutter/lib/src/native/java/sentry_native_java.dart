@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart' show MethodCall;
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
 
@@ -28,11 +29,78 @@ class SentryNativeJava extends SentryNativeChannel {
   ReplayConfig? _replayConfig;
   Hub? _hub;
 
+  /// Whether `engineDetaching` was handled. From then on no replay recorder
+  /// may be created, see `replayStarted`.
+  bool _engineDetaching = false;
+
   SentryNativeJava(super.options) {
     // Initialize core worker here in the ctor instead of init().
     // Ensures it starts when autoInitializeNativeSdk is enabled and disabled.
     _coreWorker = AndroidCoreWorker.factory(options);
     _coreWorker?.start();
+    _listenForEngineDetach();
+  }
+
+  void _listenForEngineDetach() {
+    try {
+      // This binding is created before WidgetsFlutterBindingIntegration runs,
+      // and a method call handler needs the services binding.
+      options.bindingUtils.ensureInitialized();
+      // Not cleared in close(): a re-init creates the next binding, which
+      // installs its own handler, before this one is closed.
+      channel.setMethodCallHandler(_handleMethodCall);
+    } catch (exception, stackTrace) {
+      // Without the handler the workers are not closed at engine detach. This
+      // log is usually not visible: on a first init the options callback,
+      // which enables logging, has not run yet.
+      internalLogger.error(
+        'Failed to listen for engine detach',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+      if (options.automatedTestMode) {
+        rethrow;
+      }
+    }
+  }
+
+  Future<void> _handleMethodCall(MethodCall call) async {
+    if (call.method != 'engineDetaching') return;
+    // Nothing may be awaited before the workers are closed: the Android
+    // plugin blocks the platform thread as soon as this call was dispatched,
+    // so this isolate gets no further turn before the engine is destroyed.
+    final token = call.arguments;
+    if (token is! int) {
+      internalLogger.error(
+        'engineDetaching: expected an int token, got ${token.runtimeType}',
+      );
+      return;
+    }
+    _engineDetaching = true;
+    final replayRecorder = _replayRecorder;
+    _replayRecorder = null;
+    // Each worker is closed on its own: one that is skipped because the other
+    // failed could still exit after the engine is gone.
+    _closeForEngineDetach(
+      'replay recorder',
+      () => replayRecorder?.closeForEngineDetach(token),
+    );
+    _closeForEngineDetach(
+      'core worker',
+      () => _coreWorker?.closeForEngineDetach(token),
+    );
+  }
+
+  void _closeForEngineDetach(String workerName, void Function() close) {
+    try {
+      close();
+    } catch (exception, stackTrace) {
+      internalLogger.error(
+        'Failed to close the $workerName for engine detach',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   @override
@@ -71,6 +139,10 @@ class SentryNativeJava extends SentryNativeChannel {
 
   @visibleForTesting
   AndroidReplayRecorder? get testRecorder => _replayRecorder;
+
+  @visibleForTesting
+  set testRecorder(AndroidReplayRecorder? recorder) =>
+      _replayRecorder = recorder;
 
   void _setNativeReplay(native.ReplayIntegration? nativeReplay) {
     _nativeReplay?.release();
