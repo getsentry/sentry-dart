@@ -48,6 +48,10 @@ class TimeToDisplayTrackerV2 {
     _ensureTtfdSpan(routeSpan, rootRouteName, startTimestamp: startTimestamp);
   }
 
+  /// Whether [prepareAppStart] opened spans that [trackAppStart] hasn't
+  /// recorded and nothing has cancelled since.
+  bool get hasPreparedAppStart => _preparedRootNavigationSpan != null;
+
   /// Whether a prepared app start is still waiting for its first route name.
   bool get isAppStartRoutePending => _isAppStartRouteNamePending;
 

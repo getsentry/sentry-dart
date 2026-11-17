@@ -287,6 +287,26 @@ void main() {
           expect(appStart.isEnded, isTrue);
           expect(activeAfterPush, isNull);
         });
+
+        testWidgets('does not restart the streaming app start when timing '
+            'arrives after push', (tester) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch(
+            deferAppStartDisplay: true,
+            enableAutoTransactions: false,
+          );
+
+          navigation.pushRoute();
+          await tester.pump();
+          await navigation.recordAppStartDisplay();
+          final activeAfterRecord = navigation.hub.getActiveSpan();
+          await navigation.finishTracking();
+
+          expect(activeAfterRecord, isNull);
+        });
       });
 
       testWidgets('keeps HTTP parenting current across consecutive pushes', (

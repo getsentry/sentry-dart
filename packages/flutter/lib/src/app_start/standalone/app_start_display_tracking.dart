@@ -63,8 +63,13 @@ final class _StreamingAppStartDisplayTracking
       _tracker.prepareAppStart(startTimestamp: startTimestamp);
 
   @override
-  Future<void> record(DateTime endTimestamp) async =>
-      _tracker.trackAppStart(ttidEndTimestamp: endTimestamp);
+  Future<void> record(DateTime endTimestamp) async {
+    // Navigation may have ended the prepared span before first-frame timing
+    // arrived. Without it, trackAppStart would start a fresh app-start span
+    // that spans from the current screen then parent to.
+    if (!_tracker.hasPreparedAppStart) return;
+    _tracker.trackAppStart(ttidEndTimestamp: endTimestamp);
+  }
 
   @override
   void cancel() => _tracker.cancelAppStartPreparation();
