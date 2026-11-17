@@ -228,6 +228,67 @@ void main() {
         });
       }
 
+      group('with auto transactions disabled', () {
+        testWidgets('unbinds the static app start from the scope on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.static,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          final appStart = navigation.hub.getSpan();
+
+          navigation.pushRoute();
+          await tester.pump();
+          final spanAfterPush = navigation.hub.getSpan();
+          await navigation.finishTracking();
+
+          expect(appStart, isA<SentryTracer>());
+          expect(spanAfterPush, isNull);
+        });
+
+        testWidgets('finishes the static app-start TTFD span on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.static,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          final appStartTtfd = navigation.spans.singleWhere(
+            (span) => span.context.operation == 'ui.load.full_display',
+          );
+
+          navigation.pushRoute();
+          await tester.pump();
+          final finishedOnNavigation = appStartTtfd.finished;
+          await navigation.finishTracking();
+
+          expect(finishedOnNavigation, isTrue);
+          expect(appStartTtfd.status, const SpanStatus.deadlineExceeded());
+        });
+
+        testWidgets('ends the streaming app-start span on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          final appStart = navigation.hub.getActiveSpan()!;
+
+          navigation.pushRoute();
+          await tester.pump();
+          final activeAfterPush = navigation.hub.getActiveSpan();
+          await navigation.finishTracking();
+
+          expect(appStart.isEnded, isTrue);
+          expect(activeAfterPush, isNull);
+        });
+      });
+
       testWidgets('keeps HTTP parenting current across consecutive pushes', (
         tester,
       ) async {
@@ -1773,21 +1834,25 @@ class _HttpTracingFixture {
   /// Spans started under [SentryTraceLifecycle.stream].
   final streamSpans = <RecordingSentrySpanV2>[];
 
-  SentryNavigatorObserver getSut() {
+  SentryNavigatorObserver getSut({bool enableAutoTransactions = true}) {
     options.timeToDisplayTracker = TimeToDisplayTracker(
       options: options,
       hub: hub,
     );
     options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(hub: hub);
     InstrumentationSpanFactorySetupIntegration().call(hub, options);
-    return SentryNavigatorObserver(hub: hub);
+    return SentryNavigatorObserver(
+      hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
+    );
   }
 
   Future<void> launch({
     bool deferAppStartDisplay = false,
     bool withNestedNavigator = false,
+    bool enableAutoTransactions = true,
   }) async {
-    final observer = getSut();
+    final observer = getSut(enableAutoTransactions: enableAutoTransactions);
     addTearDown(() async {
       _client.close();
       await hub.close();

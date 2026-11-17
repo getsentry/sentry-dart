@@ -295,18 +295,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _trackRouteDisplay(String routeName, {Object? arguments}) {
-    if (!_enableAutoTransactions) {
-      internalLogger.info(
-        'SentryNavigatorObserver: auto transactions disabled, skipping time-to-display instrumentation.',
-      );
-      return;
-    }
+    final isStreaming =
+        _hub.options.traceLifecycle == SentryTraceLifecycle.stream;
+    final timestamp = _hub.options.clock();
 
-    // A route display ends the previous one, the app start included. Routes
-    // that start no display of their own (unnamed ones, dialogs) leave it
-    // running, the same as they do for any other route.
-    if (_hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
-      _timeToDisplayTrackerV2?.trackRoute(routeName);
+    // A route display ends the previous one, the app start included, whether
+    // or not auto transactions start a new one. Routes that start no display
+    // of their own (unnamed ones, dialogs) leave it running, the same as they
+    // do for any other route.
+    if (isStreaming) {
+      _timeToDisplayTrackerV2?.cancelCurrentRoute();
     } else {
       // The app-start root has to hand the scope over, or spans from this
       // route keep parenting to it until its TTFD times out.
@@ -317,9 +315,19 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // in didPush or didReplace, so only navigation away from it gets here.
       _timeToDisplayTracker?.clear();
 
-      DateTime timestamp = _hub.options.clock();
       _finishTransaction(endTimestamp: timestamp);
+    }
 
+    if (!_enableAutoTransactions) {
+      internalLogger.info(
+        'SentryNavigatorObserver: auto transactions disabled, skipping time-to-display instrumentation.',
+      );
+      return;
+    }
+
+    if (isStreaming) {
+      _timeToDisplayTrackerV2?.trackRoute(routeName);
+    } else {
       final transactionContext = _createTransactionContext(routeName);
       _startTransaction(timestamp, transactionContext, arguments);
     }
