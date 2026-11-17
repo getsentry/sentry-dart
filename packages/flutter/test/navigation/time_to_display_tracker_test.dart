@@ -205,19 +205,42 @@ void main() {
       expect((fixture.hub.scope.span as SentryTracer).name, '/login');
     });
 
-    test('setAppStartRouteName keeps the first initial route name', () async {
+    test(
+      'setAppStartRouteName renames the reserved transaction until it starts',
+      () async {
+        final sut = fixture.getSut();
+        final startTimestamp = DateTime.utc(2024, 1, 1, 12);
+        final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
+        fixture.whenTtidTracked(endTimestamp);
+
+        sut.prepareInitialDisplay(startTimestamp);
+        sut.setAppStartRouteName('/splash');
+        sut.setAppStartRouteName('/login');
+        await sut.recordInitialDisplay(endTimestamp);
+
+        expect((fixture.hub.scope.span as SentryTracer).name, '/login');
+      },
+    );
+
+    test('setAppStartRouteName clears the pending route name', () {
+      final sut = fixture.getSut();
+
+      sut.prepareInitialDisplay(DateTime.utc(2024, 1, 1, 12));
+      sut.setAppStartRouteName('/login');
+
+      expect(sut.isAppStartRoutePending, isFalse);
+    });
+
+    test('setAppStartRouteName reports a started transaction', () async {
       final sut = fixture.getSut();
       final startTimestamp = DateTime.utc(2024, 1, 1, 12);
       final endTimestamp = startTimestamp.add(const Duration(seconds: 1));
       fixture.whenTtidTracked(endTimestamp);
 
       sut.prepareInitialDisplay(startTimestamp);
-      sut.setAppStartRouteName('/login');
-      sut.setAppStartRouteName('/nested');
       await sut.recordInitialDisplay(endTimestamp);
 
-      expect(sut.isAppStartRoutePending, isFalse);
-      expect((fixture.hub.scope.span as SentryTracer).name, '/login');
+      expect(sut.setAppStartRouteName('/login'), isFalse);
     });
   });
 
@@ -259,6 +282,48 @@ void main() {
           endTimestamp: anyNamed('endTimestamp'),
         ),
       );
+    });
+  });
+
+  group('releaseInitialDisplay', () {
+    Future<TimeToDisplayTracker> recordAppStart() async {
+      final sut = fixture.getSut();
+      final endTimestamp = fixture.startTimestamp.add(
+        const Duration(seconds: 1),
+      );
+      fixture.whenTtidTracked(endTimestamp);
+      sut.prepareInitialDisplay(fixture.startTimestamp);
+      await sut.recordInitialDisplay(endTimestamp);
+      return sut;
+    }
+
+    test('unbinds the app-start root from the scope', () async {
+      final sut = await recordAppStart();
+
+      await sut.releaseInitialDisplay();
+
+      expect(fixture.hub.scope.span, isNull);
+    });
+
+    test('keeps a span bound after the app start', () async {
+      final sut = await recordAppStart();
+      final manual = fixture.hub.startTransaction(
+        'manual',
+        'task',
+        bindToScope: true,
+      );
+
+      await sut.releaseInitialDisplay();
+
+      expect(fixture.hub.scope.span, same(manual));
+    });
+
+    test('stops tracking the app-start root', () async {
+      final sut = await recordAppStart();
+
+      await sut.releaseInitialDisplay();
+
+      expect(sut.transactionId, isNull);
     });
   });
 

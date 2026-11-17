@@ -19,9 +19,10 @@ class FakeTimeToDisplayTrackerV2 extends TimeToDisplayTrackerV2 {
   bool get isAppStartRoutePending => _isAppStartRoutePending;
 
   @override
-  void setAppStartRouteName(String? routeName) {
+  bool setAppStartRouteName(String? routeName) {
     setAppStartRouteNameCalls.add(routeName);
     _isAppStartRoutePending = false;
+    return true;
   }
 
   @override
