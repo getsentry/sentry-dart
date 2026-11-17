@@ -176,9 +176,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    _appStartRoute = null;
-
     if (routeName != null && routeName != '/') {
+      // A new display takes over from the app start. Routes that start none
+      // (dialogs, unnamed routes) keep the handoff for a later replacement.
+      _appStartRoute = null;
+
       // Don't generate a new trace on initial app start / root
       // During SentryFlutter.init a traceId is already created
       _startNewTraceIfEnabled();
@@ -226,9 +228,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (renamed) return;
     }
 
-    _appStartRoute = null;
-
     if (routeName != null && routeName != '/') {
+      _appStartRoute = null;
       _trackRouteDisplay(routeName, arguments: newRoute.settings.arguments);
     }
   }

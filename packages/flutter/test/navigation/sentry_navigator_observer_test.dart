@@ -124,6 +124,32 @@ void main() {
           expect(request.parentSpan?.spanId, reservedId);
         });
 
+        testWidgets('keeps the reservation after a dialog opens and closes', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.static,
+          );
+          await navigation.launch(deferAppStartDisplay: true);
+          final reservedId =
+              navigation.options.timeToDisplayTracker.transactionId!;
+
+          navigation.openDialog();
+          await tester.pump();
+          navigation.closeDialog();
+          await tester.pump();
+          navigation.replaceRoute();
+          await tester.pump(const Duration(milliseconds: 16));
+          final recording = navigation.recordAppStartDisplay();
+          await tester.pump();
+          await navigation.finishTracking();
+          await recording;
+
+          final route = navigation.transactionNamed('/next');
+          expect(route.context.spanId, reservedId);
+        });
+
         testWidgets(
           'treats a nested navigator replacement as ordinary navigation',
           (tester) async {
@@ -1924,6 +1950,8 @@ class _HttpTracingFixture {
       ),
     );
   }
+
+  void closeDialog() => _navigator.currentState!.pop();
 
   void replaceRoute({String name = '/next', Object? arguments}) {
     unawaited(
