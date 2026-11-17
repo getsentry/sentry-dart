@@ -24,10 +24,14 @@ import kotlin.concurrent.withLock
  * token, and a closed token stays closed for the life of the process, whatever [await] returned
  * and whether or not the worker was armed. A worker that asks for a closed token gets no
  * answer: its thread is parked, so its isolate group can neither shut down nor collect garbage
- * after the engine is gone. If the app sets the manifest flag
- * `io.flutter.embedding.android.LeakVM` to `false`, destroying the last engine cleans up the
- * Dart VM on the platform thread and waits for every isolate to shut down, so a parked worker
- * hangs that thread. By default (`true`) the VM is never cleaned up.
+ * after the engine is gone.
+ *
+ * This relies on the Dart VM outliving its engines. That is Flutter's default, and the only
+ * mode in release builds: the manifest flag `io.flutter.embedding.android.LeakVM` is ignored
+ * there. In debug and profile builds with that flag set to `false`, destroying the last engine
+ * cleans up the VM, which kills every isolate. A worker that is still running then exits after
+ * the engine is gone, as it did before this gate existed. A worker that is already parked
+ * cannot be killed, so the cleanup would wait for it on the platform thread.
  *
  * Before [await] closes the token, the order of [arm] and [requestExit] does not matter: a
  * worker that asks before it was armed is granted and counted.
