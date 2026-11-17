@@ -78,10 +78,15 @@ class SentryFlutterPlugin :
       return
     }
 
-    awaitWorkerIsolateExit()
-    tearDownReplayIntegration()
-    channel.setMethodCallHandler(null)
-    applicationContext = null
+    try {
+      awaitWorkerIsolateExit()
+    } finally {
+      // awaitWorkerIsolateExit() only catches Exception. The plugin must be torn down even if
+      // it throws an Error.
+      tearDownReplayIntegration()
+      channel.setMethodCallHandler(null)
+      applicationContext = null
+    }
   }
 
   /**
