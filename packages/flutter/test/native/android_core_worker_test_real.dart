@@ -510,11 +510,7 @@ void main() {
         addTearDown(inbox.close);
         final replies = ReceivePort();
         addTearDown(replies.close);
-        final worker = AndroidCoreWorker(
-          fixture.options,
-          spawn: (config, entry) => spawn.future,
-          armExit: fixture.armedTokens.add,
-        );
+        final worker = fixture.getSut(spawn: (config, entry) => spawn.future);
         final started = Future<void>.value(worker.start());
 
         worker.closeForEngineDetach(7);
@@ -535,11 +531,7 @@ void main() {
         addTearDown(inbox.close);
         final replies = ReceivePort();
         addTearDown(replies.close);
-        final worker = AndroidCoreWorker(
-          fixture.options,
-          spawn: (config, entry) => spawn.future,
-          armExit: fixture.armedTokens.add,
-        );
+        final worker = fixture.getSut(spawn: (config, entry) => spawn.future);
         final started = Future<void>.value(worker.start());
         final closed = Future<void>.value(worker.close());
 
@@ -595,9 +587,7 @@ void main() {
       'closeForEngineDetach still closes with the token when arming fails',
       () async {
         final fixture = _Fixture();
-        final worker = AndroidCoreWorker(
-          fixture.options,
-          spawn: fixture._fakeSpawn,
+        final worker = fixture.getSut(
           armExit: (_) => throw StateError('arm failed'),
         );
         await worker.start();
@@ -620,8 +610,12 @@ class _Fixture {
 
   final armedTokens = <int>[];
 
-  AndroidCoreWorker getSut() =>
-      AndroidCoreWorker(options, spawn: _fakeSpawn, armExit: armedTokens.add);
+  AndroidCoreWorker getSut({SpawnWorkerFn? spawn, ArmWorkerExitFn? armExit}) =>
+      AndroidCoreWorker(
+        options,
+        spawn: spawn ?? _fakeSpawn,
+        armExit: armExit ?? armedTokens.add,
+      );
 
   Future<(int, Object?)> get nextRequest async {
     final request = await inboxes.last.first as (int, Object?);

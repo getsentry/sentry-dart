@@ -171,17 +171,29 @@ void main() {
         await tester.runAsync(() async {
           final sut = fixture.getSut();
           await fixture.startCapturing(tester, sut);
-          final screenshotAdded = Completer<void>();
-          sut.onScreenshotAddedForTest = screenshotAdded.complete;
+          var screenshotsAdded = 0;
+          sut.onScreenshotAddedForTest = () => screenshotsAdded++;
+          // One capture runs to its end, so that the scheduler is due to
+          // capture again on the next frame.
+          final screenshotSent = fixture.nextWorkerMessage;
+          tester.binding.scheduleFrame();
+          await tester.pumpAndWaitUntil(screenshotSent);
+          fixture.answerRequests();
+          // The scheduler waits for its interval before it captures again,
+          // 1 ms at the fixture's frame rate, on a real timer that runAsync()
+          // does not fake. This waits for that interval, no longer.
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+          await pumpEventQueue();
 
           sut.closeForEngineDetach(7);
           tester.binding.scheduleFrame();
-          await tester.pumpAndWaitUntil(
-            screenshotAdded.future,
-            requiredToComplete: false,
-          );
+          await tester.pump();
+          // If that frame started a capture after all, this waits for it. A
+          // configuration change does that without dropping its screenshot,
+          // which stop() would.
+          await sut.onConfigurationChanged(fixture.config);
 
-          expect(screenshotAdded.isCompleted, isFalse);
+          expect(screenshotsAdded, 1);
         });
       });
 
@@ -201,6 +213,8 @@ void main() {
           await sut.stop();
           await pumpEventQueue();
 
+          // Without the fix this fails inside the recorder, where
+          // automatedTestMode rethrows the error, and not at this expect.
           expect(fixture.workerMessages, [('_shutdown_', 7)]);
         });
       });
@@ -214,10 +228,21 @@ class Fixture {
   final armedTokens = <int>[];
   final _pendingSpawns = <Completer<Worker>>[];
   final _unansweredRequests = <(SendPort, int)>[];
+  Completer<void>? _nextWorkerMessage;
+
+  final config = ScheduledScreenshotRecorderConfig(
+    width: 1000,
+    height: 1000,
+    frameRate: 1000,
+  );
 
   /// The number of spawns the recorder has requested that [completeSpawn]
   /// has not completed yet.
   int get pendingSpawnCount => _pendingSpawns.length;
+
+  /// Completes when a worker receives its next message.
+  Future<void> get nextWorkerMessage =>
+      (_nextWorkerMessage ??= Completer<void>()).future;
 
   AndroidReplayRecorder getSut({void Function(int token)? armExit}) =>
       AndroidReplayRecorder(
@@ -238,13 +263,7 @@ class Fixture {
     AndroidReplayRecorder sut,
   ) async {
     await pumpTestElement(tester);
-    await sut.onConfigurationChanged(
-      ScheduledScreenshotRecorderConfig(
-        width: 1000,
-        height: 1000,
-        frameRate: 1000,
-      ),
-    );
+    await sut.onConfigurationChanged(config);
     final started = sut.start();
     completeSpawn();
     await started;
@@ -258,6 +277,8 @@ class Fixture {
     final inbox = ReceivePort()
       ..listen((message) {
         workerMessages.add(message);
+        _nextWorkerMessage?.complete();
+        _nextWorkerMessage = null;
         if (message case (final int id, _)) {
           _unansweredRequests.add((replies.sendPort, id));
         }

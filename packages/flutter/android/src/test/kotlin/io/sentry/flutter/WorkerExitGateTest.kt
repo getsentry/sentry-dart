@@ -24,6 +24,16 @@ class WorkerExitGateTest {
       block = { blocked.incrementAndGet() },
     )
 
+  // Returns the state of [thread] once it is parked or has ended. Nothing else on the way to the
+  // park makes it wait. Polls, so callers need a JUnit timeout.
+  private fun awaitParkedOrEnded(thread: Thread): Thread.State {
+    while (true) {
+      val state = thread.state
+      if (state == Thread.State.WAITING || state == Thread.State.TERMINATED) return state
+      Thread.yield()
+    }
+  }
+
   // A denied requestExit renames the thread it parks. With the fake block that is the JUnit
   // thread, which would carry the name into the tests that run after.
   @After
@@ -213,15 +223,17 @@ class WorkerExitGateTest {
     sut.arm(1)
     sut.await(1, 0)
     val worker = thread(isDaemon = true) { sut.requestExit(1) }
-    while (worker.state != Thread.State.WAITING) Thread.yield()
+    assertEquals(Thread.State.WAITING, awaitParkedOrEnded(worker))
 
     worker.interrupt()
-    worker.join(200)
+    // The park clears the interrupt flag when it handles the interrupt. Until then the thread
+    // still shows the waiting state from before the interrupt.
+    while (worker.isInterrupted && worker.isAlive) Thread.yield()
 
-    assertTrue(worker.isAlive)
+    assertEquals(Thread.State.WAITING, awaitParkedOrEnded(worker))
   }
 
-  @Test
+  @Test(timeout = 10_000)
   fun `requestExit stays parked when its thread was interrupted before it asked`() {
     val sut = WorkerExitGate(log = { logged.add(it) })
     sut.arm(1)
@@ -232,9 +244,8 @@ class WorkerExitGateTest {
         Thread.currentThread().interrupt()
         sut.requestExit(1)
       }
-    worker.join(200)
 
-    assertTrue(worker.isAlive)
+    assertEquals(Thread.State.WAITING, awaitParkedOrEnded(worker))
   }
 
   @Test
