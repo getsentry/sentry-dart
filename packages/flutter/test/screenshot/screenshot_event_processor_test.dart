@@ -1,10 +1,9 @@
-@Tags(['canvasKit']) // Web renderer where this test can run
+@Tags(['canvasKit'])
 library;
 
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
@@ -66,6 +65,7 @@ void main() {
   }
 
   group(
+    // Browser CI runs this suite separately using the canvasKit tag.
     '$ScreenshotEventProcessor',
     () {
       testWidgets('adds screenshot attachment dart:io', (tester) async {
@@ -436,11 +436,6 @@ void main() {
         });
       });
     },
-    skip: kIsWasm
-        ? 'ScreenshotEventProcessor tests in WASM currently results in an error: '
-              'NotReadableError: Failed to execute convertToBlob on OffscreenCanvas: Readback of the source. '
-              'Note: this error only occurs in the test suite.'
-        : false,
   );
 }
 

@@ -188,7 +188,10 @@ void main() {
         expect(apply(click('button')), isNotNull);
         // 2 = rrweb `EventType.FullSnapshot`
         final snapshot = {'type': 2, 'data': <String, Object?>{}}.jsify();
-        expect(callback.callAsFunction(null, snapshot), same(snapshot));
+        expect(
+          jsIdentical(callback.callAsFunction(null, snapshot), snapshot),
+          isTrue,
+        );
       },
     );
 
