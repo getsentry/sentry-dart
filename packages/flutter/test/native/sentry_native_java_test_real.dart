@@ -117,6 +117,12 @@ void main() {
 class _FakeCoreWorker implements AndroidCoreWorker {
   bool started = false;
   bool closed = false;
+  int? detachToken;
+
+  @override
+  void closeForEngineDetach(int token) {
+    detachToken = token;
+  }
 
   @override
   FutureOr<void> start() {

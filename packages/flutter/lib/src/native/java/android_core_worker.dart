@@ -17,20 +17,28 @@ import 'jni_byte_array.dart';
 class AndroidCoreWorker {
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
+  final void Function(int token) _armExit;
 
   bool _isClosed = false;
   Future<void>? _startFuture;
   Worker? _worker;
 
-  AndroidCoreWorker(SentryOptions options, {SpawnWorkerFn? spawn})
-    : _config = WorkerConfig(
-        debugName: 'SentryAndroidCoreWorker',
-        debug: options.debug,
-        diagnosticLevel: options.diagnosticLevel,
-        // ignore: invalid_use_of_internal_member
-        automatedTestMode: options.automatedTestMode,
-      ),
-      _spawn = spawn ?? spawnWorker;
+  /// The token of the engine detach, once the engine is detaching.
+  int? _detachToken;
+
+  AndroidCoreWorker(
+    SentryOptions options, {
+    SpawnWorkerFn? spawn,
+    void Function(int token)? armExit,
+  }) : _config = WorkerConfig(
+         debugName: 'SentryAndroidCoreWorker',
+         debug: options.debug,
+         diagnosticLevel: options.diagnosticLevel,
+         // ignore: invalid_use_of_internal_member
+         automatedTestMode: options.automatedTestMode,
+       ),
+       _spawn = spawn ?? spawnWorker,
+       _armExit = armExit ?? native.SentryFlutterPlugin.armWorkerExit;
 
   @internal
   static AndroidCoreWorker Function(SentryFlutterOptions) factory =
@@ -47,9 +55,11 @@ class AndroidCoreWorker {
   Future<void> _start() async {
     try {
       final worker = await _spawn(_config, _entryPoint);
-      // Guard against close() being called during spawn.
+      // Guard against close() being called during spawn. After an engine
+      // detach the worker is closed with the detach token, so it cannot exit
+      // once the engine is gone, see closeForEngineDetach().
       if (_isClosed) {
-        worker.close();
+        worker.close(exitToken: _detachToken);
         return;
       }
       _worker = worker;
@@ -65,6 +75,49 @@ class AndroidCoreWorker {
     } finally {
       _startFuture = null;
     }
+  }
+
+  /// Stops the worker because its engine is about to be destroyed.
+  ///
+  /// The Android plugin sends `engineDetaching` from `onDetachedFromEngine`
+  /// and then holds the platform thread for a limited time. A worker closed
+  /// with [token] either exits while the plugin is still waiting, or never
+  /// exits. An exit after that would release Flutter's GPU objects after the
+  /// engine is gone, because the worker is then the last isolate of its
+  /// group (#4092).
+  ///
+  /// The plugin does not wait for a worker that is still spawning. Such a
+  /// worker is closed with [token] once it has spawned.
+  ///
+  /// Must stay synchronous: this isolate gets no further turn before the
+  /// plugin starts waiting.
+  void closeForEngineDetach(int token) {
+    _isClosed = true;
+    // Also set after close(): a worker that was still spawning when close()
+    // ran is closed by _start(), which then needs the token.
+    _detachToken = token;
+    final worker = _worker;
+    _worker = null;
+    // Not started, already closed, or still starting: nothing is running
+    // that the plugin could wait for, so nothing is armed. A worker that is
+    // still spawning cannot finish spawning while the plugin holds the
+    // platform thread. _start() closes it with the token afterwards, so the
+    // plugin parks it if it asks to exit too late.
+    if (worker == null) return;
+    try {
+      _armExit(token);
+    } catch (exception, stackTrace) {
+      // Without the arm the plugin does not wait for this worker. It is still
+      // closed with the token below: the plugin then either grants its exit
+      // request in time or parks it, so it cannot exit after the engine is
+      // gone.
+      internalLogger.error(
+        'Failed to arm Android core worker exit',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
+    worker.close(exitToken: token);
   }
 
   // Send shutdown immediately when startup has completed.
@@ -382,7 +435,12 @@ class AndroidCoreWorker {
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
     final (host, config) = init;
-    runWorker(config, host, _AndroidCoreWorkerHandler(config));
+    runWorker(
+      config,
+      host,
+      _AndroidCoreWorkerHandler(config),
+      requestExit: native.SentryFlutterPlugin.requestWorkerExit,
+    );
   }
 }
 
