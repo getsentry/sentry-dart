@@ -8,9 +8,9 @@ Some entries depend on a version. They end with **Valid while:**, a condition yo
 - **The pin moved past it, or the diff changes the fact:** don't trust the entry. Verify the claim against the new version. If the claim is now true, report it, and say the entry is stale so a maintainer can update or delete it.
 - **No condition:** the entry is a stable rule. Drop matching findings.
 
-A PR that bumps one of these values is the place to update the condition. The review flags the affected entries on that PR.
+A PR that moves one of these values outside its condition (for example, a JS SDK major bump) is the place to update the entry. The review flags the affected entries on that PR. A bump that still satisfies the condition needs nothing.
 
-When a maintainer declines a finding as a false positive, add it here. Keep each entry to one line, and state the general fact instead of the single case. If the fact can change, add a **Valid while:** condition.
+When a maintainer declines a finding as a false positive, add it here. Keep each entry to one line, and state the general fact instead of the single case. If the fact can change, add a **Valid while:** condition. Write it as a major version or a floor (`11.x`, `≥ 3.12`), not an exact version: automated updaters bump exact versions every week.
 
 ## Dart, Flutter, and native interop
 
@@ -20,8 +20,8 @@ When a maintainer declines a finding as a false positive, add it here. Keep each
 
 ## Sentry JS SDK (Flutter web)
 
-- **"Buffer-mode replay IDs are dropped by `getReplayId(onlyIfSampled: true)`."** Wrong. The JS SDK returns no ID only when `session.sampled === false`. In buffer mode `sampled` is `'buffer'`, so the ID is returned. (#4059, three times) **Valid while:** `sentryJsSdkVersion` is `11.12.0` (`packages/flutter/lib/src/web/sentry_js_sdk_version.dart`).
-- **"Labels or breadcrumbs leak into replay through `Sentry.addBreadcrumb`."** JS Replay's `normalizeBreadcrumb` drops the `ui.*`, `fetch`, `xhr`, `sentry.event`, and `sentry.transaction` categories. Other categories, like `http` and `navigation`, already reach the replay timeline. (#4059, twice) **Valid while:** `sentryJsSdkVersion` is `11.12.0`.
+- **"Buffer-mode replay IDs are dropped by `getReplayId(onlyIfSampled: true)`."** Wrong. The JS SDK returns no ID only when `session.sampled === false`. In buffer mode `sampled` is `'buffer'`, so the ID is returned. (#4059, three times) **Valid while:** `sentryJsSdkVersion` is `11.x` (`packages/flutter/lib/src/web/sentry_js_sdk_version.dart`).
+- **"Labels or breadcrumbs leak into replay through `Sentry.addBreadcrumb`."** JS Replay's `normalizeBreadcrumb` drops the `ui.*`, `fetch`, `xhr`, `sentry.event`, and `sentry.transaction` categories. Other categories, like `http` and `navigation`, already reach the replay timeline. (#4059, twice) **Valid while:** `sentryJsSdkVersion` is `11.x`.
 - **"Web manual replay start can't bypass sampling."** This is intentional. The Replay bundle loads only when a replay sample rate is above 0. (#4059) **Valid while:** `SentryWeb.supportsReplay` (`packages/flutter/lib/src/web/sentry_web.dart`) still gates on `options.replay.isEnabled`.
 
 ## Conventions and tooling
