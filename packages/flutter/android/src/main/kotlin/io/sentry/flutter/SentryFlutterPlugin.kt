@@ -98,12 +98,14 @@ class SentryFlutterPlugin :
    * The method-channel reply can't be used for this. It would be delivered to this thread,
    * which is blocked.
    *
-   * If the threads are not merged (possible before Flutter 3.47), invokeMethod only posts the
-   * call to the UI thread. await then usually runs before the root isolate has armed anything:
-   * it returns at once and closes the token. Workers stopped with that token later are parked
-   * by the gate instead of exiting. That keeps them from releasing GPU resources after the
-   * engine is gone, at the cost of one parked thread per worker and an isolate group that is
-   * never freed. If the root isolate does arm in time, await waits as in the merged case.
+   * The threads are merged on every Flutter version this SDK supports: the Android engine
+   * refuses to start otherwise. The one exception is its mergeAfterLaunch mode, where they are
+   * not merged until the root isolate was launched. Until then invokeMethod only posts the call
+   * to the UI thread. await then usually runs before the root isolate has armed anything: it
+   * returns at once and closes the token. Workers stopped with that token later are parked by
+   * the gate instead of exiting. That keeps them from releasing GPU resources after the engine
+   * is gone, at the cost of one parked thread per worker and an isolate group that is never
+   * freed. If the root isolate does arm in time, await waits as in the merged case.
    */
   @Suppress("TooGenericExceptionCaught")
   private fun awaitWorkerIsolateExit() {
@@ -176,12 +178,18 @@ class SentryFlutterPlugin :
 
     private val workerExitGate = WorkerExitGate()
 
-    /** Called by the root isolate, see [WorkerExitGate.arm]. */
+    /**
+     * Called by the root isolate, see [WorkerExitGate.arm]. Internal to the SDK, public only
+     * for its JNI bindings: not for apps to call.
+     */
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun armWorkerExit(token: Long) = workerExitGate.arm(token)
 
-    /** Called by a worker isolate as its last step, see [WorkerExitGate.requestExit]. */
+    /**
+     * Called by a worker isolate as its last step, see [WorkerExitGate.requestExit]. Internal to
+     * the SDK, public only for its JNI bindings: not for apps to call.
+     */
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun requestWorkerExit(token: Long): Boolean = workerExitGate.requestExit(token)

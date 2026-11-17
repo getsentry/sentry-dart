@@ -18,7 +18,7 @@ import 'binding.dart' as native;
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
-  final void Function(int token) _armExit;
+  final ArmWorkerExitFn _armExit;
   Worker? _worker;
   // Incremented by every start(), stop() and closeForEngineDetach(), so that
   // a start() can tell, once its spawn has completed, whether a later one of
@@ -38,7 +38,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   AndroidReplayRecorder(
     super.options, {
     SpawnWorkerFn? spawn,
-    void Function(int token)? armExit,
+    ArmWorkerExitFn? armExit,
   }) : _config = WorkerConfig(
          debugName: 'SentryAndroidReplayRecorder',
          debug: options.debug,
@@ -66,7 +66,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     // spawn is in flight. None of them sees this worker, so it has to be
     // closed here, or it outlives the recorder and keeps its isolate group
     // alive. After an engine detach the worker is closed with the detach
-    // token, so it cannot exit once the engine is gone, see
+    // token, so the plugin parks it unless it is still waiting, see
     // closeForEngineDetach().
     if (generation != _lifecycleGeneration) {
       worker.close(exitToken: _detachToken);
@@ -76,8 +76,9 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     await super.start();
   }
 
-  /// Stops the worker because its engine is about to be destroyed, see
-  /// `AndroidCoreWorker.closeForEngineDetach`. Must stay synchronous.
+  /// Stops the worker because its engine is about to be destroyed.
+  ///
+  /// See `AndroidCoreWorker.closeForEngineDetach`. Must stay synchronous.
   void closeForEngineDetach(int token) {
     // Also set when stop() ran first: a worker that was still spawning when
     // stop() ran is closed by start(), which then needs the token.
@@ -92,16 +93,17 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     // Not started, already stopped, or still spawning: nothing is running
     // that the plugin could wait for, so nothing is armed. A worker that is
     // still spawning cannot finish spawning while the plugin holds the
-    // platform thread. start() closes it with the token afterwards, so the
-    // plugin parks it if it asks to exit too late.
+    // platform thread. start() only closes it with the token afterwards if
+    // this isolate runs again, which needs unmerged platform and UI threads.
+    // Otherwise it is never closed and stays idle.
     if (worker == null) return;
     try {
       _armExit(token);
     } catch (exception, stackTrace) {
       // Without the arm the plugin does not wait for this worker. It is still
       // closed with the token below: the plugin then either grants its exit
-      // request in time or parks it, so it cannot exit after the engine is
-      // gone.
+      // request in time or parks it, so no exit is granted once the plugin
+      // has stopped waiting.
       internalLogger.error(
         '$logName: failed to arm worker exit',
         error: exception,
@@ -147,7 +149,9 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
         '${data.lengthInBytes} bytes)',
       );
 
-      // closeForEngineDetach() can run while the screenshot is being encoded.
+      // closeForEngineDetach() can run while the screenshot is being encoded,
+      // and so can stop(): once it stopped waiting for this capture, the
+      // worker is gone as well.
       final worker = _worker;
       if (worker == null) return;
       await worker.request(

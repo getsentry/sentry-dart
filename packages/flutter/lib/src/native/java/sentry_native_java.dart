@@ -29,8 +29,9 @@ class SentryNativeJava extends SentryNativeChannel {
   ReplayConfig? _replayConfig;
   Hub? _hub;
 
-  /// Whether `engineDetaching` was handled. From then on no replay recorder
-  /// may be created, see `replayStarted`.
+  /// Whether `engineDetaching` was handled.
+  ///
+  /// From then on no replay recorder may be created, see `replayStarted`.
   bool _engineDetaching = false;
 
   SentryNativeJava(super.options) {

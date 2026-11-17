@@ -73,8 +73,9 @@ class Worker {
   /// Asks the worker to shut down.
   ///
   /// With [exitToken], the worker presents the token to its exit request
-  /// function once everything sent before this call was handled, and only
-  /// exits if that grants it. See [runWorker].
+  /// function once everything sent before this call was handled, provided
+  /// its handler follows the two rules on [WorkerHandler], and only exits if
+  /// that grants it. See [runWorker].
   void close({int? exitToken}) {
     if (_closed) return;
     _closed = true;
@@ -160,13 +161,20 @@ abstract class WorkerHandler {
   FutureOr<Object?> onRequest(Object? payload) => {};
 
   /// Releases what the handler holds, right before the worker stops handling
-  /// messages. Must be synchronous. Default: no-op.
+  /// messages.
+  ///
+  /// Must be synchronous. Default: no-op.
   void onShutdown() {}
 }
 
 /// Asks whoever holds up engine teardown whether the calling worker isolate
-/// may exit. See [runWorker].
+/// may exit.
+///
+/// See [runWorker].
 typedef RequestWorkerExitFn = bool Function(int exitToken);
+
+/// Tells whoever holds up engine teardown to expect one worker's exit request.
+typedef ArmWorkerExitFn = void Function(int exitToken);
 
 /// Runs the Sentry worker loop inside a background isolate.
 ///
@@ -175,9 +183,14 @@ typedef RequestWorkerExitFn = bool Function(int exitToken);
 /// messages
 ///
 /// When the host closes the worker with an exit token, [requestExit] is
-/// called once with that token, after everything sent earlier was handled.
-/// If it returns false or throws, the isolate stays alive for the rest of the
-/// process and ignores every later message: exiting is no longer safe then.
+/// called once with that token, after everything sent earlier was handled,
+/// provided [handler] follows the two rules on [WorkerHandler]. If it returns
+/// false or throws, the isolate stays alive for the rest of the process and
+/// ignores every later message: exiting is no longer safe then. An isolate
+/// that only stays alive is less safe than one whose thread is blocked inside
+/// [requestExit]: the runtime can still collect garbage for an idle isolate's
+/// group and run its finalizers. Where it can, [requestExit] should therefore
+/// block instead of returning false.
 void runWorker(
   WorkerConfig config,
   SendPort host,
