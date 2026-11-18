@@ -104,6 +104,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       final databasePath = resolveNativeDatabasePath(
         configuredPath: options.nativeDatabasePath,
         isWindows: options.platform.isWindows,
+        isLinux: options.platform.isLinux,
         dsn: options.dsn,
         workingDirectory: workingDirectory,
         environment: environment(),
