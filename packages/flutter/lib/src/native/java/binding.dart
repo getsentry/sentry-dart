@@ -31712,6 +31712,161 @@ final class $ReplayRecording$Type$ extends jni$_.JType<ReplayRecording> {
   String get signature => r'Lio/sentry/ReplayRecording;';
 }
 
+/// from: `io.sentry.ReplayBreadcrumbConverter`
+extension type ReplayBreadcrumbConverter._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(
+    r'io/sentry/ReplayBreadcrumbConverter',
+  );
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<ReplayBreadcrumbConverter> type =
+      $ReplayBreadcrumbConverter$Type$();
+
+  /// Maps a specific port to the implemented interface.
+  static final core$_.Map<core$_.int, $ReplayBreadcrumbConverter> _$impls = {};
+  static jni$_.JObjectPtr _$invoke(
+    core$_.int port,
+    jni$_.JObjectPtr descriptor,
+    jni$_.JObjectPtr args,
+  ) {
+    return _$invokeMethod(
+      port,
+      jni$_.MethodInvocation.fromAddresses(0, descriptor.address, args.address),
+    );
+  }
+
+  static final jni$_.Pointer<
+    jni$_.NativeFunction<
+      jni$_.JObjectPtr Function(jni$_.Int64, jni$_.JObjectPtr, jni$_.JObjectPtr)
+    >
+  >
+  _$invokePointer = jni$_.Pointer.fromFunction(_$invoke);
+
+  static jni$_.Pointer<jni$_.Void> _$invokeMethod(
+    core$_.int $p,
+    jni$_.MethodInvocation $i,
+  ) {
+    try {
+      final $d = $i.methodDescriptor.toDartString(releaseOriginal: true);
+      final $a = $i.args;
+      if ($d ==
+          r'convert(Lio/sentry/Breadcrumb;)Lio/sentry/rrweb/RRWebEvent;') {
+        final $r = _$impls[$p]!.convert(($a![0] as Breadcrumb));
+        return ($r as jni$_.JObject?)
+                ?.as(const jni$_.$JObject$Type$())
+                .reference
+                .toPointer() ??
+            jni$_.nullptr;
+      }
+    } catch (e) {
+      return jni$_.ProtectedJniExtensions.newDartException(e);
+    }
+    return jni$_.nullptr;
+  }
+
+  static void implementIn(
+    jni$_.JImplementer implementer,
+    $ReplayBreadcrumbConverter $impl,
+  ) {
+    late final jni$_.RawReceivePort $p;
+    $p = jni$_.RawReceivePort(($m) {
+      if ($m == null) {
+        _$impls.remove($p.sendPort.nativePort);
+        $p.close();
+        return;
+      }
+      final $i = jni$_.MethodInvocation.fromMessage($m);
+      final $r = _$invokeMethod($p.sendPort.nativePort, $i);
+      $i.args?.release();
+      jni$_.ProtectedJniExtensions.returnResult($i.result, $r);
+    });
+    implementer.add(
+      r'io.sentry.ReplayBreadcrumbConverter',
+      $p,
+      _$invokePointer,
+      [],
+    );
+    final $a = $p.sendPort.nativePort;
+    _$impls[$a] = $impl;
+  }
+
+  factory ReplayBreadcrumbConverter.implement(
+    $ReplayBreadcrumbConverter $impl,
+  ) {
+    final $i = jni$_.JImplementer();
+    implementIn($i, $impl);
+    return $i.implement<ReplayBreadcrumbConverter>();
+  }
+}
+
+extension ReplayBreadcrumbConverter$$Methods on ReplayBreadcrumbConverter {
+  static final _id_convert = ReplayBreadcrumbConverter._class.instanceMethodId(
+    r'convert',
+    r'(Lio/sentry/Breadcrumb;)Lio/sentry/rrweb/RRWebEvent;',
+  );
+
+  static final _convert =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public abstract io.sentry.rrweb.RRWebEvent convert(io.sentry.Breadcrumb breadcrumb)`
+  /// The returned object must be released after use, by calling the [release] method.
+  RRWebEvent? convert(Breadcrumb breadcrumb) {
+    final _$$selfRef = reference;
+    final _$breadcrumb = breadcrumb.reference;
+    return _convert(
+      _$$selfRef.pointer,
+      _id_convert.pointer,
+      _$breadcrumb.pointer,
+    ).object<RRWebEvent?>();
+  }
+}
+
+abstract base mixin class $ReplayBreadcrumbConverter {
+  factory $ReplayBreadcrumbConverter({
+    required RRWebEvent? Function(Breadcrumb breadcrumb) convert,
+  }) = _$ReplayBreadcrumbConverter;
+
+  RRWebEvent? convert(Breadcrumb breadcrumb);
+}
+
+final class _$ReplayBreadcrumbConverter with $ReplayBreadcrumbConverter {
+  _$ReplayBreadcrumbConverter({
+    required RRWebEvent? Function(Breadcrumb breadcrumb) convert,
+  }) : _convert = convert;
+
+  final RRWebEvent? Function(Breadcrumb breadcrumb) _convert;
+
+  RRWebEvent? convert(Breadcrumb breadcrumb) {
+    return _convert(breadcrumb);
+  }
+}
+
+final class $ReplayBreadcrumbConverter$Type$
+    extends jni$_.JType<ReplayBreadcrumbConverter> {
+  @jni$_.internal
+  const $ReplayBreadcrumbConverter$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/ReplayBreadcrumbConverter;';
+}
+
 /// from: `io.sentry.Breadcrumb$Deserializer`
 extension type Breadcrumb$Deserializer._(jni$_.JObject _$this)
     implements jni$_.JObject, JsonDeserializer {
@@ -42792,6 +42947,868 @@ final class $RRWebEvent$Type$ extends jni$_.JType<RRWebEvent> {
   @jni$_.internal
   @core$_.override
   String get signature => r'Lio/sentry/rrweb/RRWebEvent;';
+}
+
+/// from: `io.sentry.rrweb.RRWebSpanEvent$Deserializer`
+extension type RRWebSpanEvent$Deserializer._(jni$_.JObject _$this)
+    implements jni$_.JObject, JsonDeserializer {
+  static final _class = jni$_.JClass.forName(
+    r'io/sentry/rrweb/RRWebSpanEvent$Deserializer',
+  );
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<RRWebSpanEvent$Deserializer> type =
+      $RRWebSpanEvent$Deserializer$Type$();
+  static final _id_new$ = _class.constructorId(r'()V');
+
+  static final _new$ =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory RRWebSpanEvent$Deserializer() {
+    final _$$classRef = _class.reference;
+    return _new$(
+      _$$classRef.pointer,
+      _id_new$.pointer,
+    ).object<RRWebSpanEvent$Deserializer>();
+  }
+}
+
+extension RRWebSpanEvent$Deserializer$$Methods on RRWebSpanEvent$Deserializer {
+  static final _id_deserialize = RRWebSpanEvent$Deserializer._class
+      .instanceMethodId(
+        r'deserialize',
+        r'(Lio/sentry/ObjectReader;Lio/sentry/ILogger;)Lio/sentry/rrweb/RRWebSpanEvent;',
+      );
+
+  static final _deserialize =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public io.sentry.rrweb.RRWebSpanEvent deserialize(io.sentry.ObjectReader objectReader, io.sentry.ILogger iLogger)`
+  /// The returned object must be released after use, by calling the [release] method.
+  RRWebSpanEvent deserialize(ObjectReader objectReader, ILogger iLogger) {
+    final _$$selfRef = reference;
+    final _$objectReader = objectReader.reference;
+    final _$iLogger = iLogger.reference;
+    return _deserialize(
+      _$$selfRef.pointer,
+      _id_deserialize.pointer,
+      _$objectReader.pointer,
+      _$iLogger.pointer,
+    ).object<RRWebSpanEvent>();
+  }
+}
+
+final class $RRWebSpanEvent$Deserializer$Type$
+    extends jni$_.JType<RRWebSpanEvent$Deserializer> {
+  @jni$_.internal
+  const $RRWebSpanEvent$Deserializer$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/rrweb/RRWebSpanEvent$Deserializer;';
+}
+
+/// from: `io.sentry.rrweb.RRWebSpanEvent$JsonKeys`
+extension type RRWebSpanEvent$JsonKeys._(jni$_.JObject _$this)
+    implements jni$_.JObject {
+  static final _class = jni$_.JClass.forName(
+    r'io/sentry/rrweb/RRWebSpanEvent$JsonKeys',
+  );
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<RRWebSpanEvent$JsonKeys> type =
+      $RRWebSpanEvent$JsonKeys$Type$();
+  static final _id_DATA = _class.staticFieldId(r'DATA', r'Ljava/lang/String;');
+
+  /// from: `static public final java.lang.String DATA`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get DATA =>
+      _id_DATA.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_PAYLOAD = _class.staticFieldId(
+    r'PAYLOAD',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String PAYLOAD`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get PAYLOAD =>
+      _id_PAYLOAD.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_OP = _class.staticFieldId(r'OP', r'Ljava/lang/String;');
+
+  /// from: `static public final java.lang.String OP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get OP =>
+      _id_OP.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_DESCRIPTION = _class.staticFieldId(
+    r'DESCRIPTION',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String DESCRIPTION`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get DESCRIPTION =>
+      _id_DESCRIPTION.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_START_TIMESTAMP = _class.staticFieldId(
+    r'START_TIMESTAMP',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String START_TIMESTAMP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get START_TIMESTAMP =>
+      _id_START_TIMESTAMP.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_END_TIMESTAMP = _class.staticFieldId(
+    r'END_TIMESTAMP',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String END_TIMESTAMP`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get END_TIMESTAMP =>
+      _id_END_TIMESTAMP.getNullable(_class, jni$_.JString.type)
+          as jni$_.JString?;
+
+  static final _id_new$ = _class.constructorId(r'()V');
+
+  static final _new$ =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory RRWebSpanEvent$JsonKeys() {
+    final _$$classRef = _class.reference;
+    return _new$(
+      _$$classRef.pointer,
+      _id_new$.pointer,
+    ).object<RRWebSpanEvent$JsonKeys>();
+  }
+}
+
+final class $RRWebSpanEvent$JsonKeys$Type$
+    extends jni$_.JType<RRWebSpanEvent$JsonKeys> {
+  @jni$_.internal
+  const $RRWebSpanEvent$JsonKeys$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/rrweb/RRWebSpanEvent$JsonKeys;';
+}
+
+/// from: `io.sentry.rrweb.RRWebSpanEvent`
+extension type RRWebSpanEvent._(jni$_.JObject _$this)
+    implements RRWebEvent, JsonSerializable, JsonUnknown {
+  static final _class = jni$_.JClass.forName(r'io/sentry/rrweb/RRWebSpanEvent');
+
+  /// The type which includes information such as the signature of this class.
+  static const jni$_.JType<RRWebSpanEvent> type = $RRWebSpanEvent$Type$();
+  static final _id_EVENT_TAG = _class.staticFieldId(
+    r'EVENT_TAG',
+    r'Ljava/lang/String;',
+  );
+
+  /// from: `static public final java.lang.String EVENT_TAG`
+  /// The returned object must be released after use, by calling the [release] method.
+  static jni$_.JString? get EVENT_TAG =>
+      _id_EVENT_TAG.getNullable(_class, jni$_.JString.type) as jni$_.JString?;
+
+  static final _id_new$ = _class.constructorId(r'()V');
+
+  static final _new$ =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_NewObject')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public void <init>()`
+  /// The returned object must be released after use, by calling the [release] method.
+  factory RRWebSpanEvent() {
+    final _$$classRef = _class.reference;
+    return _new$(
+      _$$classRef.pointer,
+      _id_new$.pointer,
+    ).object<RRWebSpanEvent>();
+  }
+}
+
+extension RRWebSpanEvent$$Methods on RRWebSpanEvent {
+  static final _id_get$tag = RRWebSpanEvent._class.instanceMethodId(
+    r'getTag',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _get$tag =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.lang.String getTag()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString get tag {
+    final _$$selfRef = reference;
+    return _get$tag(
+      _$$selfRef.pointer,
+      _id_get$tag.pointer,
+    ).object<jni$_.JString>();
+  }
+
+  static final _id_set$tag = RRWebSpanEvent._class.instanceMethodId(
+    r'setTag',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _set$tag =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setTag(java.lang.String string)`
+  set tag(jni$_.JString string) {
+    final _$$selfRef = reference;
+    final _$string = string.reference;
+    _set$tag(_$$selfRef.pointer, _id_set$tag.pointer, _$string.pointer).check();
+  }
+
+  static final _id_get$op = RRWebSpanEvent._class.instanceMethodId(
+    r'getOp',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _get$op =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.lang.String getOp()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? get op {
+    final _$$selfRef = reference;
+    return _get$op(
+      _$$selfRef.pointer,
+      _id_get$op.pointer,
+    ).object<jni$_.JString?>();
+  }
+
+  static final _id_set$op = RRWebSpanEvent._class.instanceMethodId(
+    r'setOp',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _set$op =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setOp(java.lang.String string)`
+  set op(jni$_.JString? string) {
+    final _$$selfRef = reference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _set$op(_$$selfRef.pointer, _id_set$op.pointer, _$string.pointer).check();
+  }
+
+  static final _id_get$description = RRWebSpanEvent._class.instanceMethodId(
+    r'getDescription',
+    r'()Ljava/lang/String;',
+  );
+
+  static final _get$description =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.lang.String getDescription()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JString? get description {
+    final _$$selfRef = reference;
+    return _get$description(
+      _$$selfRef.pointer,
+      _id_get$description.pointer,
+    ).object<jni$_.JString?>();
+  }
+
+  static final _id_set$description = RRWebSpanEvent._class.instanceMethodId(
+    r'setDescription',
+    r'(Ljava/lang/String;)V',
+  );
+
+  static final _set$description =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setDescription(java.lang.String string)`
+  set description(jni$_.JString? string) {
+    final _$$selfRef = reference;
+    final _$string = string?.reference ?? jni$_.jNullReference;
+    _set$description(
+      _$$selfRef.pointer,
+      _id_set$description.pointer,
+      _$string.pointer,
+    ).check();
+  }
+
+  static final _id_get$startTimestamp = RRWebSpanEvent._class.instanceMethodId(
+    r'getStartTimestamp',
+    r'()D',
+  );
+
+  static final _get$startTimestamp =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallDoubleMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public double getStartTimestamp()`
+  core$_.double get startTimestamp {
+    final _$$selfRef = reference;
+    return _get$startTimestamp(
+      _$$selfRef.pointer,
+      _id_get$startTimestamp.pointer,
+    ).doubleFloat;
+  }
+
+  static final _id_set$startTimestamp = RRWebSpanEvent._class.instanceMethodId(
+    r'setStartTimestamp',
+    r'(D)V',
+  );
+
+  static final _set$startTimestamp =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setStartTimestamp(double d)`
+  set startTimestamp(core$_.double d) {
+    final _$$selfRef = reference;
+    _set$startTimestamp(
+      _$$selfRef.pointer,
+      _id_set$startTimestamp.pointer,
+      d,
+    ).check();
+  }
+
+  static final _id_get$endTimestamp = RRWebSpanEvent._class.instanceMethodId(
+    r'getEndTimestamp',
+    r'()D',
+  );
+
+  static final _get$endTimestamp =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallDoubleMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public double getEndTimestamp()`
+  core$_.double get endTimestamp {
+    final _$$selfRef = reference;
+    return _get$endTimestamp(
+      _$$selfRef.pointer,
+      _id_get$endTimestamp.pointer,
+    ).doubleFloat;
+  }
+
+  static final _id_set$endTimestamp = RRWebSpanEvent._class.instanceMethodId(
+    r'setEndTimestamp',
+    r'(D)V',
+  );
+
+  static final _set$endTimestamp =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Double,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              core$_.double,
+            )
+          >();
+
+  /// from: `public void setEndTimestamp(double d)`
+  set endTimestamp(core$_.double d) {
+    final _$$selfRef = reference;
+    _set$endTimestamp(
+      _$$selfRef.pointer,
+      _id_set$endTimestamp.pointer,
+      d,
+    ).check();
+  }
+
+  static final _id_get$data = RRWebSpanEvent._class.instanceMethodId(
+    r'getData',
+    r'()Ljava/util/Map;',
+  );
+
+  static final _get$data =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.util.Map<java.lang.String, java.lang.Object> getData()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JMap<jni$_.JString?, jni$_.JObject?>? get data {
+    final _$$selfRef = reference;
+    return _get$data(
+      _$$selfRef.pointer,
+      _id_get$data.pointer,
+    ).object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>();
+  }
+
+  static final _id_set$data = RRWebSpanEvent._class.instanceMethodId(
+    r'setData',
+    r'(Ljava/util/Map;)V',
+  );
+
+  static final _set$data =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setData(java.util.Map<java.lang.String, java.lang.Object> map)`
+  set data(jni$_.JMap<jni$_.JString?, jni$_.JObject?>? map) {
+    final _$$selfRef = reference;
+    final _$map = map?.reference ?? jni$_.jNullReference;
+    _set$data(_$$selfRef.pointer, _id_set$data.pointer, _$map.pointer).check();
+  }
+
+  static final _id_get$payloadUnknown = RRWebSpanEvent._class.instanceMethodId(
+    r'getPayloadUnknown',
+    r'()Ljava/util/Map;',
+  );
+
+  static final _get$payloadUnknown =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.util.Map<java.lang.String, java.lang.Object> getPayloadUnknown()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JMap<jni$_.JString?, jni$_.JObject?>? get payloadUnknown {
+    final _$$selfRef = reference;
+    return _get$payloadUnknown(
+      _$$selfRef.pointer,
+      _id_get$payloadUnknown.pointer,
+    ).object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>();
+  }
+
+  static final _id_set$payloadUnknown = RRWebSpanEvent._class.instanceMethodId(
+    r'setPayloadUnknown',
+    r'(Ljava/util/Map;)V',
+  );
+
+  static final _set$payloadUnknown =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setPayloadUnknown(java.util.Map<java.lang.String, java.lang.Object> map)`
+  set payloadUnknown(jni$_.JMap<jni$_.JString?, jni$_.JObject?>? map) {
+    final _$$selfRef = reference;
+    final _$map = map?.reference ?? jni$_.jNullReference;
+    _set$payloadUnknown(
+      _$$selfRef.pointer,
+      _id_set$payloadUnknown.pointer,
+      _$map.pointer,
+    ).check();
+  }
+
+  static final _id_get$dataUnknown = RRWebSpanEvent._class.instanceMethodId(
+    r'getDataUnknown',
+    r'()Ljava/util/Map;',
+  );
+
+  static final _get$dataUnknown =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.util.Map<java.lang.String, java.lang.Object> getDataUnknown()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JMap<jni$_.JString?, jni$_.JObject?>? get dataUnknown {
+    final _$$selfRef = reference;
+    return _get$dataUnknown(
+      _$$selfRef.pointer,
+      _id_get$dataUnknown.pointer,
+    ).object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>();
+  }
+
+  static final _id_set$dataUnknown = RRWebSpanEvent._class.instanceMethodId(
+    r'setDataUnknown',
+    r'(Ljava/util/Map;)V',
+  );
+
+  static final _set$dataUnknown =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setDataUnknown(java.util.Map<java.lang.String, java.lang.Object> map)`
+  set dataUnknown(jni$_.JMap<jni$_.JString?, jni$_.JObject?>? map) {
+    final _$$selfRef = reference;
+    final _$map = map?.reference ?? jni$_.jNullReference;
+    _set$dataUnknown(
+      _$$selfRef.pointer,
+      _id_set$dataUnknown.pointer,
+      _$map.pointer,
+    ).check();
+  }
+
+  static final _id_get$unknown = RRWebSpanEvent._class.instanceMethodId(
+    r'getUnknown',
+    r'()Ljava/util/Map;',
+  );
+
+  static final _get$unknown =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JniResult Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+              )
+            >
+          >('globalEnv_CallObjectMethod')
+          .asFunction<
+            jni$_.JniResult Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+            )
+          >();
+
+  /// from: `public java.util.Map<java.lang.String, java.lang.Object> getUnknown()`
+  /// The returned object must be released after use, by calling the [release] method.
+  jni$_.JMap<jni$_.JString?, jni$_.JObject?>? get unknown {
+    final _$$selfRef = reference;
+    return _get$unknown(
+      _$$selfRef.pointer,
+      _id_get$unknown.pointer,
+    ).object<jni$_.JMap<jni$_.JString?, jni$_.JObject?>?>();
+  }
+
+  static final _id_set$unknown = RRWebSpanEvent._class.instanceMethodId(
+    r'setUnknown',
+    r'(Ljava/util/Map;)V',
+  );
+
+  static final _set$unknown =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void setUnknown(java.util.Map<java.lang.String, java.lang.Object> map)`
+  set unknown(jni$_.JMap<jni$_.JString?, jni$_.JObject?>? map) {
+    final _$$selfRef = reference;
+    final _$map = map?.reference ?? jni$_.jNullReference;
+    _set$unknown(
+      _$$selfRef.pointer,
+      _id_set$unknown.pointer,
+      _$map.pointer,
+    ).check();
+  }
+
+  static final _id_serialize = RRWebSpanEvent._class.instanceMethodId(
+    r'serialize',
+    r'(Lio/sentry/ObjectWriter;Lio/sentry/ILogger;)V',
+  );
+
+  static final _serialize =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<
+                  (jni$_.Pointer<jni$_.Void>, jni$_.Pointer<jni$_.Void>)
+                >,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public void serialize(io.sentry.ObjectWriter objectWriter, io.sentry.ILogger iLogger)`
+  void serialize(ObjectWriter objectWriter, ILogger iLogger) {
+    final _$$selfRef = reference;
+    final _$objectWriter = objectWriter.reference;
+    final _$iLogger = iLogger.reference;
+    _serialize(
+      _$$selfRef.pointer,
+      _id_serialize.pointer,
+      _$objectWriter.pointer,
+      _$iLogger.pointer,
+    ).check();
+  }
+}
+
+final class $RRWebSpanEvent$Type$ extends jni$_.JType<RRWebSpanEvent> {
+  @jni$_.internal
+  const $RRWebSpanEvent$Type$();
+
+  @jni$_.internal
+  @core$_.override
+  String get signature => r'Lio/sentry/rrweb/RRWebSpanEvent;';
 }
 
 /// from: `io.sentry.SentryTraceHeader`
@@ -55155,27 +56172,6 @@ final class $IScopes$Type$ extends jni$_.JType<IScopes> {
   @jni$_.internal
   @core$_.override
   String get signature => r'Lio/sentry/IScopes;';
-}
-
-/// from: `io.sentry.ReplayBreadcrumbConverter`
-///
-/// WARNING: ReplayBreadcrumbConverter is a stub. To generate bindings for this class, include
-/// io.sentry.ReplayBreadcrumbConverter in your config's classes list.
-///
-extension type ReplayBreadcrumbConverter._(jni$_.JObject _$this)
-    implements jni$_.JObject {
-  static const jni$_.JType<ReplayBreadcrumbConverter> type =
-      $ReplayBreadcrumbConverter$Type$();
-}
-
-final class $ReplayBreadcrumbConverter$Type$
-    extends jni$_.JType<ReplayBreadcrumbConverter> {
-  @jni$_.internal
-  const $ReplayBreadcrumbConverter$Type$();
-
-  @jni$_.internal
-  @core$_.override
-  String get signature => r'Lio/sentry/ReplayBreadcrumbConverter;';
 }
 
 /// from: `io.sentry.IConnectionStatusProvider$ConnectionStatus`

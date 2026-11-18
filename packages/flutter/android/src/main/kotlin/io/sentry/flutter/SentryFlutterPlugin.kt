@@ -290,7 +290,7 @@ class SentryFlutterPlugin :
       request?.let { networkData.setRequestDetails(toReplayNetworkRequestOrResponse(it)) }
       response?.let {
         val statusCode = (breadcrumb.data["status_code"] as? Number)?.toInt() ?: 0
-        networkData.setResponseDetails(statusCode, toReplayNetworkRequestOrResponse(it))
+        networkData.setResponseDetails(toReplayNetworkRequestOrResponse(it, statusCode))
       }
 
       breadcrumb.data["start_timestamp"]?.let {
@@ -305,14 +305,20 @@ class SentryFlutterPlugin :
 
     private fun toReplayNetworkRequestOrResponse(
       raw: Map<String, Any?>,
+      statusCode: Int? = null,
     ): ReplayNetworkRequestOrResponse {
       @Suppress("UNCHECKED_CAST")
       val rawHeaders = raw["headers"] as? Map<String, Any?>
       val headers = rawHeaders?.mapValues { it.value.toString() } ?: emptyMap()
       val body = raw["body"] as? String
       val networkBody = body?.let { NetworkBody(it) }
-      val size = body?.toByteArray(Charsets.UTF_8)?.size?.toLong()
-      return ReplayNetworkRequestOrResponse(size, networkBody, headers)
+      // Original size reported by Dart (not derived from the possibly truncated body).
+      val size = (raw["size"] as? Number)?.toLong()
+      return if (statusCode != null) {
+        ReplayNetworkRequestOrResponse(statusCode, size, networkBody, headers)
+      } else {
+        ReplayNetworkRequestOrResponse(size, networkBody, headers)
+      }
     }
 
     @Suppress("unused", "TooGenericExceptionCaught") // Used by native/jni bindings
