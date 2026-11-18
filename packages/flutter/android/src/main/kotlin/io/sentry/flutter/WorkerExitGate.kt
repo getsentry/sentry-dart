@@ -14,6 +14,9 @@ import kotlin.concurrent.withLock
  * after the engine destroyed its Vulkan device and crash in the driver
  * (getsentry/sentry-dart#4092). The gate keeps the root isolate last.
  *
+ * This works around https://github.com/flutter/flutter/issues/191168. The gate can be removed
+ * once Flutter no longer releases GPU objects after their engine is gone.
+ *
  * Protocol, once per engine detach, identified by a token that is unique in the process and
  * only ever sent over that engine's method channel:
  * 1. The root isolate calls [arm] once for every worker it tells to stop.
