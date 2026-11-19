@@ -8,6 +8,9 @@
 import XCTest
 import sentry_flutter
 import Sentry
+#if os(iOS)
+import UIKit
+#endif
 
 // swiftlint:disable function_body_length line_length
 
@@ -124,6 +127,63 @@ final class SentryFlutterTests: XCTestCase {
     XCTAssertNil(fixture.options.urlSession)
     #endif
   }
+
+  #if os(iOS)
+  func testFallbackDisplayRefreshRateOnIPhoneWithoutHighRefreshRateKeyCapsAt60() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: [:]
+    )
+
+    XCTAssertEqual(60, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyFalseCapsAt60() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSNumber(value: false)]
+    )
+
+    XCTAssertEqual(60, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyTrueReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSNumber(value: true)]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyStringYesReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSString(string: "YES")]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateForIPhoneOnlyAppOnIPadWithoutHighRefreshRateKeyReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPad14,5",
+      sceneRole: .windowApplication,
+      infoDictionary: [:]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+  #endif
 }
 
 extension SentryFlutterTests {
