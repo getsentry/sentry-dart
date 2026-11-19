@@ -12,29 +12,33 @@ import '../../../test_utils.dart';
 
 void main() {
   group('$SpanLinks', () {
-    test('ignores FFI objects when linking a span', () async {
-      final hub = Hub(defaultTestOptions()..tracesSampleRate = 1);
-      final links = SpanLinks();
+    late Fixture fixture;
 
-      await hub.startSpan('segment', (span) async {
-        for (final key in [
-          nullptr,
-          Struct.create<_Struct>(),
-          Union.create<_Union>(),
-        ]) {
-          links.link(key, span);
-          expect(links.spanFor(key), isNull);
-        }
-      });
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('ignores FFI objects when linking a span', () {
+      final sut = fixture.getSut();
+      final span = fixture.createRecordingSpan();
+
+      for (final key in [
+        nullptr,
+        Struct.create<_Struct>(),
+        Union.create<_Union>(),
+      ]) {
+        sut.link(key, span);
+        expect(sut.spanFor(key), isNull);
+      }
     });
 
     test('allows the hub to capture a pointer throwable', () async {
-      final client = MockSentryClient();
-      final hub = Hub(defaultTestOptions())..bindClient(client);
+      await fixture.hub.captureException(nullptr);
 
-      await hub.captureException(nullptr);
-
-      expect(client.captureEventCalls.single.event.throwable, same(nullptr));
+      expect(
+        fixture.client.captureEventCalls.single.event.throwable,
+        same(nullptr),
+      );
     });
   });
 }
@@ -47,4 +51,16 @@ final class _Struct extends Struct {
 final class _Union extends Union {
   @Int8()
   external int value;
+}
+
+class Fixture {
+  final client = MockSentryClient();
+  late final hub = Hub(defaultTestOptions())..bindClient(client);
+
+  SpanLinks getSut() => SpanLinks();
+
+  RecordingSentrySpanV2 createRecordingSpan() {
+    hub.options.tracesSampleRate = 1;
+    return hub.startInactiveSpan('segment') as RecordingSentrySpanV2;
+  }
 }
