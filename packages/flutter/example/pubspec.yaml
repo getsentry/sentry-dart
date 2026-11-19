@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 10.4.0
+version: 10.5.0
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -28,7 +28,7 @@ dependencies:
   logging: any # This gets constrained by `sentry_logging`
   drift: any # This gets constrained by `sentry_drift`
   isar: any # This gets constrained by `sentry_isar`
-  package_info_plus: ^4.0.0
+  package_info_plus: ^8.3.1
   path_provider: ^2.0.0
   #sqflite_common_ffi: ^2.0.0
   #sqflite_common_ffi_web: ^0.3.0

@@ -639,6 +639,18 @@ void main() {
       expect(fixture.mockScopeObserver.numberOfSetContextsCalls, equals(1));
     });
 
+    test('does not change flags of already captured events', () async {
+      final sut = fixture.getSut();
+      await sut.addFeatureFlag('foo', true);
+      final event = await sut.applyToEvent(SentryEvent(), Hint());
+
+      await sut.addFeatureFlag('bar', true);
+
+      final eventFlags =
+          event!.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(eventFlags.values.map((e) => e.flag), equals(['foo']));
+    });
+
     test('records feature flags usage', () async {
       final sut = fixture.getSut();
 

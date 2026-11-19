@@ -3,12 +3,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/src/platform/mock_platform.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/app_start/generic_app_start_integration.dart';
+import 'package:sentry_flutter/src/app_start/standalone/app_start_display_tracking.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker.dart';
+import 'package:sentry_flutter/src/navigation/time_to_display_tracker_v2.dart';
 import 'package:sentry_flutter/src/sessions/web_session_integration.dart';
 import '../mocks.dart';
 import 'fake_time_to_display_tracker_v2.dart';
@@ -43,6 +49,474 @@ void main() {
   });
 
   group('$SentryNavigatorObserver', () {
+    group(
+      'when replacing the initial route before app-start timing arrives',
+      () {
+        testWidgets(
+          'records static display timing on the reserved transaction',
+          (tester) async {
+            final navigation = _HttpTracingFixture(
+              tester,
+              SentryTraceLifecycle.static,
+            );
+            await navigation.launch(deferAppStartDisplay: true);
+            final reservedId =
+                navigation.options.timeToDisplayTracker.transactionId!;
+
+            navigation.replaceRoute();
+            await tester.pump(const Duration(milliseconds: 16));
+            final recording = navigation.recordAppStartDisplay();
+            await tester.pump();
+            await navigation.request();
+            await navigation.finishTracking();
+            await recording;
+
+            final route = navigation.transactionNamed('/next');
+            expect(route.context.spanId, reservedId);
+            for (final operation in [
+              'ui.load.initial_display',
+              'ui.load.full_display',
+              'http.client',
+            ]) {
+              final span = navigation.spans.singleWhere(
+                (span) => span.context.operation == operation,
+              );
+              expect(span.context.parentSpanId, reservedId);
+            }
+          },
+        );
+
+        testWidgets('records streaming display timing on the reserved span', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch(deferAppStartDisplay: true);
+          final tracker = navigation.options.timeToDisplayTrackerV2;
+          final reservedId = navigation.hub.getActiveSpan()!.spanId;
+          final reservedTtfdId = tracker.ttfdSpanId!;
+
+          navigation.replaceRoute();
+          await navigation.request();
+          await tester.pump(const Duration(milliseconds: 16));
+          await navigation.recordAppStartDisplay();
+          await navigation.finishTracking();
+
+          final spans = navigation.streamSpans;
+          final route = spans.singleWhere((span) => span.name == '/next');
+          expect(route.spanId, reservedId);
+          final ttid = spans.singleWhere(
+            (span) => span.name == '/next initial display',
+          );
+          expect(ttid.parentSpan?.spanId, reservedId);
+          final ttfd = spans.singleWhere(
+            (span) => span.name == '/next full display',
+          );
+          expect(ttfd.spanId, reservedTtfdId);
+          expect(ttfd.parentSpan?.spanId, reservedId);
+          final request = spans.singleWhere(
+            (span) =>
+                span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
+                'http.client',
+          );
+          expect(request.parentSpan?.spanId, reservedId);
+        });
+
+        testWidgets('keeps the reservation after a dialog opens and closes', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.static,
+          );
+          await navigation.launch(deferAppStartDisplay: true);
+          final reservedId =
+              navigation.options.timeToDisplayTracker.transactionId!;
+
+          navigation.openDialog();
+          await tester.pump();
+          navigation.closeDialog();
+          await tester.pump();
+          navigation.replaceRoute();
+          await tester.pump(const Duration(milliseconds: 16));
+          final recording = navigation.recordAppStartDisplay();
+          await tester.pump();
+          await navigation.finishTracking();
+          await recording;
+
+          final route = navigation.transactionNamed('/next');
+          expect(route.context.spanId, reservedId);
+        });
+
+        testWidgets(
+          'treats a nested navigator replacement as ordinary navigation',
+          (tester) async {
+            final navigation = _HttpTracingFixture(
+              tester,
+              SentryTraceLifecycle.static,
+            );
+            await navigation.launch(
+              deferAppStartDisplay: true,
+              withNestedNavigator: true,
+            );
+            final reservedId =
+                navigation.options.timeToDisplayTracker.transactionId!;
+
+            navigation.replaceNestedRoute();
+            await tester.pump();
+            await navigation.finishTracking();
+
+            final route = navigation.transactionNamed('/nested-next');
+            expect(route.context.spanId, isNot(reservedId));
+          },
+        );
+      },
+    );
+
+    group('when navigating with pending app-start TTFD', () {
+      for (final (method, navigate) in [
+        ('push', (_HttpTracingFixture fixture) => fixture.pushRoute()),
+        (
+          'pushReplacement',
+          (_HttpTracingFixture fixture) => fixture.replaceRoute(),
+        ),
+      ]) {
+        testWidgets(
+          'parents static HTTP spans on $method past the app-start TTFD deadline',
+          (tester) async {
+            final navigation = _HttpTracingFixture(
+              tester,
+              SentryTraceLifecycle.static,
+            );
+            await navigation.launch();
+
+            await tester.pump(const Duration(seconds: 29));
+            navigate(navigation);
+            await navigation.request();
+            await tester.pump(const Duration(seconds: 1));
+            await navigation.request();
+            await navigation.finishTracking();
+
+            final route = navigation.transactionNamed('/next');
+            final requests = navigation.spans.where(
+              (span) => span.context.operation == 'http.client',
+            );
+            expect(requests.map((span) => span.context.parentSpanId), [
+              route.context.spanId,
+              route.context.spanId,
+            ]);
+          },
+        );
+
+        testWidgets('finishes the app-start TTFD span on $method', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.static,
+          );
+          await navigation.launch();
+          final appStartTtfd = navigation.spans.singleWhere(
+            (span) => span.context.operation == 'ui.load.full_display',
+          );
+
+          navigate(navigation);
+          await tester.pump();
+          final finishedOnNavigation = appStartTtfd.finished;
+          await navigation.finishTracking();
+
+          expect(finishedOnNavigation, isTrue);
+        });
+
+        testWidgets('parents the first streaming HTTP span on $method', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch();
+
+          navigate(navigation);
+          await navigation.request();
+          await navigation.finishTracking();
+
+          final spans = navigation.streamSpans;
+          final route = spans.singleWhere((span) => span.name == '/next');
+          final request = spans.singleWhere(
+            (span) =>
+                span.attributes[SemanticAttributesConstants.sentryOp]?.value ==
+                'http.client',
+          );
+          expect(request.parentSpan?.spanId, route.spanId);
+        });
+      }
+
+      group('with auto transactions disabled', () {
+        testWidgets('unbinds the static app start from the scope on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.static,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          final appStart = navigation.hub.getSpan();
+
+          navigation.pushRoute();
+          await tester.pump();
+          final spanAfterPush = navigation.hub.getSpan();
+          await navigation.finishTracking();
+
+          expect(appStart, isA<SentryTracer>());
+          expect(spanAfterPush, isNull);
+        });
+
+        testWidgets('finishes the static app-start TTFD span on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.static,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          final appStartTtfd = navigation.spans.singleWhere(
+            (span) => span.context.operation == 'ui.load.full_display',
+          );
+
+          navigation.pushRoute();
+          await tester.pump();
+          final finishedOnNavigation = appStartTtfd.finished;
+          await navigation.finishTracking();
+
+          expect(finishedOnNavigation, isTrue);
+          expect(appStartTtfd.status, const SpanStatus.deadlineExceeded());
+        });
+
+        testWidgets('ends the streaming app-start span on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          final appStart = navigation.hub.getActiveSpan()!;
+
+          navigation.pushRoute();
+          await tester.pump();
+          final activeAfterPush = navigation.hub.getActiveSpan();
+          await navigation.finishTracking();
+
+          expect(appStart.isEnded, isTrue);
+          expect(activeAfterPush, isNull);
+        });
+
+        testWidgets('keeps a streaming interaction span running on push', (
+          tester,
+        ) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch(enableAutoTransactions: false);
+          // Let the app start time out so the tap span can bind to the hub.
+          await tester.pump(const Duration(seconds: 31));
+          final tap = navigation.hub.startIdleSpan('tap');
+
+          navigation.pushRoute();
+          await tester.pump();
+          final endedOnPush = tap.isEnded;
+          await navigation.finishTracking();
+
+          expect(tap, isA<IdleRecordingSentrySpanV2>());
+          expect(endedOnPush, isFalse);
+        });
+
+        testWidgets('does not restart the streaming app start when timing '
+            'arrives after push', (tester) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch(
+            deferAppStartDisplay: true,
+            enableAutoTransactions: false,
+          );
+
+          navigation.pushRoute();
+          await tester.pump();
+          await navigation.recordAppStartDisplay();
+          final activeAfterRecord = navigation.hub.getActiveSpan();
+          await navigation.finishTracking();
+
+          expect(activeAfterRecord, isNull);
+        });
+      });
+
+      testWidgets('keeps HTTP parenting current across consecutive pushes', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        await navigation.launch();
+
+        navigation.pushRoute('/first');
+        await tester.pump();
+        navigation.pushRoute('/second');
+        await tester.pump();
+        navigation.pushRoute('/third');
+        await navigation.request();
+        await navigation.finishTracking();
+
+        final route = navigation.transactionNamed('/third');
+        final request = navigation.spans.singleWhere(
+          (span) => span.context.operation == 'http.client',
+        );
+        expect(request.context.parentSpanId, route.context.spanId);
+      });
+
+      testWidgets('keeps the app-start TTFD reportable after a dialog opens', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        await navigation.launch();
+        final display = SentryFlutter.currentDisplay(hub: navigation.hub)!;
+        final appStartTtfd = navigation.spans.singleWhere(
+          (span) => span.context.operation == 'ui.load.full_display',
+        );
+
+        navigation.openDialog();
+        await tester.pump();
+        await display.reportFullyDisplayed();
+        await navigation.finishTracking();
+
+        expect(appStartTtfd.status, const SpanStatus.ok());
+      });
+
+      testWidgets('keeps parenting static HTTP spans to the app start after a '
+          'dialog opens', (tester) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        await navigation.launch();
+        final appStartId = navigation.hub.getSpan()!.context.spanId;
+
+        navigation.openDialog();
+        await tester.pump();
+        await navigation.request();
+        await navigation.finishTracking();
+
+        final request = navigation.spans.singleWhere(
+          (span) => span.context.operation == 'http.client',
+        );
+        expect(request.context.parentSpanId, appStartId);
+      });
+    });
+
+    group('when tracking route display', () {
+      testWidgets('preserves a manually bound static transaction on push', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        await navigation.launch();
+        final manual = navigation.hub.startTransaction(
+          'manual',
+          'task',
+          bindToScope: true,
+        );
+
+        navigation.pushRoute();
+        final bound = navigation.hub.getSpan();
+        await manual.finish();
+        await navigation.finishTracking();
+
+        expect(bound, same(manual));
+      });
+
+      testWidgets('records replacement arguments on static transactions', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        final transactions = <SentryTransaction>[];
+        navigation.options.beforeSendTransaction = (transaction, _) {
+          transactions.add(transaction);
+          return null;
+        };
+        await navigation.launch();
+
+        navigation.replaceRoute(arguments: {'id': '42'});
+        await navigation.request();
+        await navigation.finishTracking();
+
+        final transaction = transactions.singleWhere(
+          (transaction) => transaction.transaction == '/next',
+        );
+        expect(
+          transaction.contexts.trace!.data,
+          containsPair('route_settings_arguments', {'id': '42'}),
+        );
+      });
+
+      testWidgets('does not start a transaction when replacing with root', (
+        tester,
+      ) async {
+        final navigation = _HttpTracingFixture(
+          tester,
+          SentryTraceLifecycle.static,
+        );
+        await navigation.launch();
+
+        navigation.replaceRoute(name: '/');
+        await tester.pump();
+        await navigation.finishTracking();
+
+        final routeTransactions = navigation.spans.where(
+          (span) => switch (span.context) {
+            SentryTransactionContext(name: '/') => true,
+            _ => false,
+          },
+        );
+        expect(routeTransactions, isEmpty);
+      });
+
+      testWidgets(
+        'keeps the active streaming span on a background replacement',
+        (tester) async {
+          final navigation = _HttpTracingFixture(
+            tester,
+            SentryTraceLifecycle.stream,
+          );
+          await navigation.launch();
+          final background = navigation.pushRoute('/background');
+          await tester.pumpAndSettle();
+          navigation.pushRoute('/current');
+          await tester.pumpAndSettle();
+          final active = navigation.hub.getActiveSpan()!;
+
+          navigation.replaceBackgroundRoute(background);
+          final afterReplacement = navigation.hub.getActiveSpan();
+          await navigation.finishTracking();
+
+          expect(afterReplacement, same(active));
+        },
+      );
+    });
+
     test('didPush on root does not start a transaction', () async {
       const name = '/';
       final currentRoute = route(RouteSettings(name: name));
@@ -1211,6 +1685,9 @@ void main() {
       when(
         fixture.mockTimeToDisplayTracker.isAppStartRoutePending,
       ).thenReturn(true);
+      when(
+        fixture.mockTimeToDisplayTracker.setAppStartRouteName(any),
+      ).thenReturn(true);
 
       final sut = fixture.getSut(hub: mockHub);
 
@@ -1386,5 +1863,152 @@ extension RouteSettingsExtensions on RouteSettings {
       name: name ?? this.name,
       arguments: arguments ?? this.arguments,
     );
+  }
+}
+
+class _HttpTracingFixture {
+  _HttpTracingFixture(this._tester, SentryTraceLifecycle lifecycle) {
+    options
+      ..traceLifecycle = lifecycle
+      ..tracesSampleRate = 1.0
+      ..enableTimeToFullDisplayTracing = true
+      ..clock = _tester.binding.clock.now
+      ..beforeSendSpan = (_, _) => null;
+    options.beforeSendTransaction = (_, _) => null;
+    options.lifecycleRegistry
+      ..registerCallback<OnSpanStart>((event) => spans.add(event.span))
+      ..registerCallback<OnSpanStartV2>((event) {
+        if (event.span case final RecordingSentrySpanV2 span) {
+          streamSpans.add(span);
+        }
+      });
+  }
+
+  final WidgetTester _tester;
+  final options = defaultTestOptions();
+  final _navigator = GlobalKey<NavigatorState>();
+  final _nestedNavigator = GlobalKey<NavigatorState>();
+  late final hub = Hub(options);
+  late final _appStartDisplay = AppStartDisplayTracking.forOptions(options);
+  late final _client = SentryHttpClient(
+    hub: hub,
+    client: MockClient((_) async => http.Response('ok', 200)),
+  );
+
+  /// Spans started under [SentryTraceLifecycle.static].
+  final spans = <ISentrySpan>[];
+
+  /// Spans started under [SentryTraceLifecycle.stream].
+  final streamSpans = <RecordingSentrySpanV2>[];
+
+  SentryNavigatorObserver getSut({bool enableAutoTransactions = true}) {
+    options.timeToDisplayTracker = TimeToDisplayTracker(
+      options: options,
+      hub: hub,
+    );
+    options.timeToDisplayTrackerV2 = TimeToDisplayTrackerV2(hub: hub);
+    InstrumentationSpanFactorySetupIntegration().call(hub, options);
+    return SentryNavigatorObserver(
+      hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
+    );
+  }
+
+  Future<void> launch({
+    bool deferAppStartDisplay = false,
+    bool withNestedNavigator = false,
+    bool enableAutoTransactions = true,
+  }) async {
+    final observer = getSut(enableAutoTransactions: enableAutoTransactions);
+    addTearDown(() async {
+      _client.close();
+      await hub.close();
+    });
+    if (deferAppStartDisplay) {
+      _appStartDisplay.prepare(options.clock());
+    } else {
+      GenericAppStartIntegration().call(hub, options);
+    }
+    await _tester.pumpWidget(
+      MaterialApp(
+        navigatorKey: _navigator,
+        navigatorObservers: [observer],
+        home: withNestedNavigator
+            ? Navigator(
+                key: _nestedNavigator,
+                observers: [SentryNavigatorObserver(hub: hub)],
+                // Unnamed, so the nested push leaves the reservation intact.
+                onGenerateRoute: (_) => _route(null),
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  Future<void> recordAppStartDisplay() =>
+      _appStartDisplay.record(options.clock());
+
+  ISentrySpan transactionNamed(String name) => spans.singleWhere(
+    (span) => switch (span.context) {
+      SentryTransactionContext(name: final transactionName) =>
+        transactionName == name,
+      _ => false,
+    },
+  );
+
+  PageRoute<void> pushRoute([String? name = '/next']) {
+    final route = _route(name);
+    unawaited(_navigator.currentState!.push<void>(route));
+    return route;
+  }
+
+  /// Opens an unnamed route that starts no display of its own.
+  void openDialog() {
+    unawaited(
+      showDialog<void>(
+        context: _navigator.currentContext!,
+        builder: (_) => const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  void closeDialog() => _navigator.currentState!.pop();
+
+  void replaceRoute({String name = '/next', Object? arguments}) {
+    unawaited(
+      _navigator.currentState!.pushReplacement<void, void>(
+        _route(name, arguments: arguments),
+      ),
+    );
+  }
+
+  void replaceNestedRoute() {
+    unawaited(
+      _nestedNavigator.currentState!.pushReplacement<void, void>(
+        _route('/nested-next'),
+      ),
+    );
+  }
+
+  void replaceBackgroundRoute(Route<void> oldRoute) {
+    _navigator.currentState!.replace<void>(
+      oldRoute: oldRoute,
+      newRoute: _route('/replacement'),
+    );
+  }
+
+  PageRoute<void> _route(String? name, {Object? arguments}) =>
+      PageRouteBuilder<void>(
+        settings: RouteSettings(name: name, arguments: arguments),
+        pageBuilder: (_, _, _) => const SizedBox.shrink(),
+      );
+
+  Future<void> request() async {
+    await _client.get(Uri.https('example.test', '/data'));
+  }
+
+  Future<void> finishTracking() async {
+    await _tester.pump();
+    await _tester.pump(const Duration(seconds: 30));
   }
 }
