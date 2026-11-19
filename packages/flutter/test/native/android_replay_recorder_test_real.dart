@@ -116,23 +116,6 @@ void main() {
         },
       );
 
-      test(
-        'still closes the worker with the token when arming fails',
-        () async {
-          final sut = fixture.getSut(
-            armExit: (_) => throw StateError('arm failed'),
-          );
-          final started = sut.start();
-          fixture.completeSpawn();
-          await started;
-
-          sut.closeForEngineDetach(7);
-          await pumpEventQueue();
-
-          expect(fixture.workerMessages, [('_shutdown_', 7)]);
-        },
-      );
-
       test('does not spawn a worker when started afterwards', () async {
         final sut = fixture.getSut();
 
@@ -244,16 +227,15 @@ class Fixture {
   Future<void> get nextWorkerMessage =>
       (_nextWorkerMessage ??= Completer<void>()).future;
 
-  AndroidReplayRecorder getSut({void Function(int token)? armExit}) =>
-      AndroidReplayRecorder(
-        options,
-        spawn: (config, entry) {
-          final spawn = Completer<Worker>();
-          _pendingSpawns.add(spawn);
-          return spawn.future;
-        },
-        armExit: armExit ?? armedTokens.add,
-      );
+  AndroidReplayRecorder getSut() => AndroidReplayRecorder(
+    options,
+    spawn: (config, entry) {
+      final spawn = Completer<Worker>();
+      _pendingSpawns.add(spawn);
+      return spawn.future;
+    },
+    armExit: armedTokens.add,
+  );
 
   /// Starts [sut] with a spawned worker and a configuration, so that it
   /// captures the test widget on the next frame. Needs

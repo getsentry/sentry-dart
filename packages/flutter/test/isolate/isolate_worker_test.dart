@@ -480,5 +480,33 @@ void main() {
 
       expect(await events.take(2).toList(), ['onShutdown', 'exited']);
     });
+
+    group('when closed for an engine detach', () {
+      late ReceivePort inbox;
+      late Worker worker;
+
+      setUp(() {
+        inbox = ReceivePort();
+        addTearDown(inbox.close);
+        final replies = ReceivePort();
+        addTearDown(replies.close);
+        worker = Worker(inbox.sendPort, replies);
+      });
+
+      test('arms the exit and closes with the token', () async {
+        final armedTokens = <int>[];
+
+        worker.closeForEngineDetach(7, armedTokens.add);
+
+        expect(armedTokens, [7]);
+        expect(await inbox.first, ('_shutdown_', 7));
+      });
+
+      test('still closes with the token when arming fails', () async {
+        worker.closeForEngineDetach(7, (_) => throw StateError('arm failed'));
+
+        expect(await inbox.first, ('_shutdown_', 7));
+      });
+    });
   });
 }

@@ -582,21 +582,6 @@ void main() {
 
       expect(messages, [('_shutdown_', 7)]);
     });
-
-    test(
-      'closeForEngineDetach still closes with the token when arming fails',
-      () async {
-        final fixture = _Fixture();
-        final worker = fixture.getSut(
-          armExit: (_) => throw StateError('arm failed'),
-        );
-        await worker.start();
-
-        worker.closeForEngineDetach(7);
-
-        expect(await fixture.inboxes.last.first, ('_shutdown_', 7));
-      },
-    );
   });
 }
 
@@ -610,12 +595,11 @@ class _Fixture {
 
   final armedTokens = <int>[];
 
-  AndroidCoreWorker getSut({SpawnWorkerFn? spawn, ArmWorkerExitFn? armExit}) =>
-      AndroidCoreWorker(
-        options,
-        spawn: spawn ?? _fakeSpawn,
-        armExit: armExit ?? armedTokens.add,
-      );
+  AndroidCoreWorker getSut({SpawnWorkerFn? spawn}) => AndroidCoreWorker(
+    options,
+    spawn: spawn ?? _fakeSpawn,
+    armExit: armedTokens.add,
+  );
 
   Future<(int, Object?)> get nextRequest async {
     final request = await inboxes.last.first as (int, Object?);

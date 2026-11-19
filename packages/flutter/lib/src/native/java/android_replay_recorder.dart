@@ -65,9 +65,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     // stop(), closeForEngineDetach() or another start() can run while the
     // spawn is in flight. None of them sees this worker, so it has to be
     // closed here, or it outlives the recorder and keeps its isolate group
-    // alive. After an engine detach the worker is closed with the detach
-    // token, so the plugin parks it unless it is still waiting, see
-    // closeForEngineDetach().
+    // alive. After an engine detach the token keeps it from exiting late.
     if (generation != _lifecycleGeneration) {
       worker.close(exitToken: _detachToken);
       return;
@@ -76,12 +74,14 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     await super.start();
   }
 
-  /// Stops the worker because its engine is about to be destroyed.
+  /// Stops the worker because its engine is about to be destroyed, see
+  /// [Worker.closeForEngineDetach]. Must stay synchronous.
   ///
-  /// See `AndroidCoreWorker.closeForEngineDetach`. Must stay synchronous.
+  /// A worker that is still spawning is not covered, see
+  /// `AndroidCoreWorker.closeForEngineDetach`.
   void closeForEngineDetach(int token) {
-    // Also set when stop() ran first: a worker that was still spawning when
-    // stop() ran is closed by start(), which then needs the token.
+    // Also set when stop() ran first: start() needs the token for a worker
+    // that was still spawning when stop() ran.
     _detachToken = token;
     // Supersedes a start() whose spawn is still in flight, like stop() does.
     _lifecycleGeneration++;
@@ -90,27 +90,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     // Stops new captures. The scheduler winds down asynchronously, which
     // nothing can wait for at this point.
     unawaited(super.stop());
-    // Not started, already stopped, or still spawning: nothing is running
-    // that the plugin could wait for, so nothing is armed. A worker that is
-    // still spawning cannot finish spawning while the plugin holds the
-    // platform thread. start() only closes it with the token afterwards if
-    // this isolate runs again, which needs unmerged platform and UI threads.
-    // Otherwise it is never closed and stays idle.
-    if (worker == null) return;
-    try {
-      _armExit(token);
-    } catch (exception, stackTrace) {
-      // Without the arm the plugin does not wait for this worker. It is still
-      // closed with the token below: the plugin then either grants its exit
-      // request in time or parks it, so no exit is granted once the plugin
-      // has stopped waiting.
-      internalLogger.error(
-        '$logName: failed to arm worker exit',
-        error: exception,
-        stackTrace: stackTrace,
-      );
-    }
-    worker.close(exitToken: token);
+    worker?.closeForEngineDetach(token, _armExit);
   }
 
   @override

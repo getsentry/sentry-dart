@@ -89,6 +89,31 @@ class Worker {
     }
   }
 
+  /// Closes the worker because its engine is about to be destroyed.
+  ///
+  /// Whoever holds up engine teardown, on Android the plugin's
+  /// `WorkerExitGate`, waits for every worker announced with [armExit] to ask
+  /// for its exit. A worker closed with [exitToken] that asks too late is
+  /// never allowed to exit: it would be the last isolate of its group and
+  /// release Flutter's GPU objects after the engine is gone (#4092).
+  ///
+  /// Synchronous on purpose: the calling isolate gets no further turn before
+  /// the wait starts.
+  void closeForEngineDetach(int exitToken, ArmWorkerExitFn armExit) {
+    try {
+      armExit(exitToken);
+    } catch (exception, stackTrace) {
+      // Nothing waits for this worker then. Closing it with the token still
+      // keeps it from exiting once the wait is over.
+      internalLogger.error(
+        'Failed to arm worker exit',
+        error: exception,
+        stackTrace: stackTrace,
+      );
+    }
+    close(exitToken: exitToken);
+  }
+
   void _handleResponse(dynamic message) {
     final (int id, Object? response) = message as (int, Object?);
     final completer = _pending.remove(id);
@@ -185,12 +210,10 @@ typedef ArmWorkerExitFn = void Function(int exitToken);
 /// When the host closes the worker with an exit token, [requestExit] is
 /// called once with that token, after everything sent earlier was handled,
 /// provided [handler] follows the two rules on [WorkerHandler]. If it returns
-/// false or throws, the isolate stays alive for the rest of the process and
-/// ignores every later message: exiting is no longer safe then. An isolate
-/// that only stays alive is less safe than one whose thread is blocked inside
-/// [requestExit]: the runtime can still collect garbage for an idle isolate's
-/// group and run its finalizers. Where it can, [requestExit] should therefore
-/// block instead of returning false.
+/// false or throws, exiting is no longer safe: the isolate stays alive for
+/// the rest of the process and ignores every later message. [requestExit]
+/// should rather block than return false, since the runtime can still
+/// collect garbage and run finalizers for the group of an idle isolate.
 void runWorker(
   WorkerConfig config,
   SendPort host,

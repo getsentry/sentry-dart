@@ -56,8 +56,8 @@ class AndroidCoreWorker {
     try {
       final worker = await _spawn(_config, _entryPoint);
       // Guard against close() being called during spawn. After an engine
-      // detach the worker is closed with the detach token, so the plugin
-      // parks it unless it is still waiting, see closeForEngineDetach().
+      // detach the token keeps the worker from exiting late, see
+      // closeForEngineDetach().
       if (_isClosed) {
         worker.close(exitToken: _detachToken);
         return;
@@ -77,52 +77,22 @@ class AndroidCoreWorker {
     }
   }
 
-  /// Stops the worker because its engine is about to be destroyed.
+  /// Stops the worker because its engine is about to be destroyed, see
+  /// [Worker.closeForEngineDetach]. Must stay synchronous.
   ///
-  /// The Android plugin sends `engineDetaching` from `onDetachedFromEngine`
-  /// and then holds the platform thread for a limited time. A worker closed
-  /// with [token] is either granted its exit while the plugin is still
-  /// waiting, or never allowed to exit. The plugin then gives granted
-  /// workers a short grace period to finish. An exit after that would
-  /// release Flutter's GPU objects after the engine is gone, because the
-  /// worker is then the last isolate of its group (#4092).
-  ///
-  /// A worker that is still spawning is not covered. The plugin does not
-  /// wait for it, and the engine is destroyed before this isolate runs
-  /// again, so the worker is never closed and stays idle. Only if the
-  /// platform and UI threads are not merged does this isolate get the turn
-  /// in which it closes the worker with [token].
-  ///
-  /// Must stay synchronous: this isolate gets no further turn before the
-  /// plugin starts waiting.
+  /// A worker that is still spawning is not covered. Nothing waits for it,
+  /// and the engine is destroyed before this isolate runs again, so it is
+  /// never closed and stays idle. Only if the platform and UI threads are
+  /// not merged does this isolate get the turn in which [_start] closes it
+  /// with [token].
   void closeForEngineDetach(int token) {
     _isClosed = true;
-    // Also set after close(): a worker that was still spawning when close()
-    // ran is closed by _start(), which then needs the token.
+    // Also set after close(): _start() needs the token for a worker that was
+    // still spawning when close() ran.
     _detachToken = token;
     final worker = _worker;
     _worker = null;
-    // Not started, already closed, or still starting: nothing is running
-    // that the plugin could wait for, so nothing is armed. A worker that is
-    // still spawning cannot finish spawning while the plugin holds the
-    // platform thread. _start() only closes it with the token afterwards if
-    // this isolate runs again, which needs unmerged platform and UI threads.
-    // Otherwise it is never closed and stays idle.
-    if (worker == null) return;
-    try {
-      _armExit(token);
-    } catch (exception, stackTrace) {
-      // Without the arm the plugin does not wait for this worker. It is still
-      // closed with the token below: the plugin then either grants its exit
-      // request in time or parks it, so no exit is granted once the plugin
-      // has stopped waiting.
-      internalLogger.error(
-        'Failed to arm Android core worker exit',
-        error: exception,
-        stackTrace: stackTrace,
-      );
-    }
-    worker.close(exitToken: token);
+    worker?.closeForEngineDetach(token, _armExit);
   }
 
   // Send shutdown immediately when startup has completed.
