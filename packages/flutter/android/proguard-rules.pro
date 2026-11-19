@@ -43,6 +43,8 @@
 -keep,includedescriptorclasses class io.sentry.Hint$* { *; }
 -keep,includedescriptorclasses class io.sentry.ReplayRecording { *; }
 -keep,includedescriptorclasses class io.sentry.ReplayRecording$* { *; }
+-keep,includedescriptorclasses class io.sentry.ReplayBreadcrumbConverter { *; }
+-keep,includedescriptorclasses class io.sentry.ReplayBreadcrumbConverter$* { *; }
 -keep,includedescriptorclasses class io.sentry.Breadcrumb { *; }
 -keep,includedescriptorclasses class io.sentry.Breadcrumb$* { *; }
 -keep,includedescriptorclasses class io.sentry.ScopesAdapter { *; }
@@ -63,6 +65,8 @@
 -keep,includedescriptorclasses class io.sentry.rrweb.RRWebOptionsEvent$* { *; }
 -keep,includedescriptorclasses class io.sentry.rrweb.RRWebEvent { *; }
 -keep,includedescriptorclasses class io.sentry.rrweb.RRWebEvent$* { *; }
+-keep,includedescriptorclasses class io.sentry.rrweb.RRWebSpanEvent { *; }
+-keep,includedescriptorclasses class io.sentry.rrweb.RRWebSpanEvent$* { *; }
 -keep,includedescriptorclasses class io.sentry.SentryTraceHeader { *; }
 -keep,includedescriptorclasses class io.sentry.SentryTraceHeader$* { *; }
 # AUTO-GENERATED-END
