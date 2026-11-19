@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../../../../sentry.dart';
+import '../streaming/span_status_v2_conversion.dart';
 import 'span_attribute_utils.dart';
 
 /// Opaque span handle enabling swappable tracing backends.
@@ -116,7 +117,7 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
   }
 
   @override
-  SpanStatus? get status => _convertFromV2Status(_span.status);
+  SpanStatus? get status => spanStatusFromV2(_span.status);
 
   @override
   set status(SpanStatus? status) {
@@ -176,15 +177,6 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
       spanId: _span.spanId,
       sampled: null,
     );
-  }
-
-  SpanStatus _convertFromV2Status(SentrySpanStatusV2 status) {
-    switch (status) {
-      case SentrySpanStatusV2.ok:
-        return SpanStatus.ok();
-      case SentrySpanStatusV2.error:
-        return SpanStatus.unknownError();
-    }
   }
 
   SentrySpanStatusV2 _convertToV2Status(SpanStatus status) {
