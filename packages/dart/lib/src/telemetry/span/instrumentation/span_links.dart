@@ -18,9 +18,8 @@ final spanLinks = SpanLinks();
 ///   layer of an HTTP integration and the failure is captured in another, and
 ///   requests run concurrently, so the request itself is the key.
 ///
-/// Keys are held weakly. Keys an [Expando] cannot hold (strings, numbers,
-/// booleans, records and `null`) are ignored rather than wrapped, since a
-/// wrapper would have to be retained without bound.
+/// Keys are held weakly. Unsupported [Expando] keys are ignored so error
+/// capture can fall back to the active span.
 @internal
 class SpanLinks {
   final _spans = Expando<RecordingSentrySpanV2>('sentry.span_links');
@@ -35,17 +34,28 @@ class SpanLinks {
     if (weakKey == null || span is! RecordingSentrySpanV2) {
       return;
     }
-    if (replace) {
-      _spans[weakKey] = span;
-    } else {
-      _spans[weakKey] ??= span;
+    try {
+      if (replace) {
+        _spans[weakKey] = span;
+      } else {
+        _spans[weakKey] ??= span;
+      }
+    } on ArgumentError {
+      // The VM also rejects FFI pointers, structs, and unions.
     }
   }
 
   /// Returns the span linked to [key], or `null` if there is none.
   RecordingSentrySpanV2? spanFor(Object? key) {
     final weakKey = _weakKeyOf(key);
-    return weakKey == null ? null : _spans[weakKey];
+    if (weakKey == null) {
+      return null;
+    }
+    try {
+      return _spans[weakKey];
+    } on ArgumentError {
+      return null;
+    }
   }
 
   /// A mechanism wraps the throwable after the span linked it, so it is

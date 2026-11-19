@@ -273,6 +273,51 @@ void main() {
       expect(event.transaction, 'segment');
     });
 
+    test(
+      'links overlapping executions of one request to their own spans',
+      () async {
+        final bothStarted = Completer<void>();
+        final responses = <Completer<Response>>[];
+        final link = fixture.createErrorReportingLink(
+          Link.function((_, [forward]) {
+            final response = Completer<Response>();
+            responses.add(response);
+            if (responses.length == 2) bothStarted.complete();
+            return Stream.fromFuture(response.future);
+          }),
+        );
+
+        Future<void> execute(String segment) =>
+            fixture.hub.startSpan(segment, (_) async {
+              await link.request(fixture.request).first;
+            }, parentSpan: null);
+
+        final first = execute('first');
+        final second = execute('second');
+        await bothStarted.future;
+        final failure = Response(
+          errors: [GraphQLError(message: 'failed')],
+          response: {},
+        );
+        responses.first.complete(failure);
+        await first;
+        responses.last.complete(failure);
+        await second;
+        await fixture.processor.waitForProcessing();
+
+        final expectedSpans = ['first', 'second'].map(
+          (name) => fixture.processor
+              .getChildSpans()
+              .singleWhere((span) => span.segmentSpan.name == name)
+              .spanId,
+        );
+        expect(
+          fixture.events.map((event) => event.contexts.trace?.spanId),
+          expectedSpans,
+        );
+      },
+    );
+
     test('links a captured link exception to the operation span', () async {
       final link = fixture.createErrorReportingLink(_ThrowingLink());
 

@@ -28,10 +28,26 @@ class SentryLink {
       reportGraphQlErrorsAsBreadcrumbs: reportGraphQlErrorsAsBreadcrumbs,
     );
 
-    return ErrorLink(
+    return _SentryErrorLink(
       onException: handler.onException,
       onGraphQLError: handler.onGraphQlError,
     );
+  }
+}
+
+class _SentryErrorLink extends ErrorLink {
+  _SentryErrorLink({super.onException, super.onGraphQLError});
+
+  @override
+  Stream<Response> request(Request request, [NextLink? forward]) {
+    // A caller can execute the same immutable request concurrently. Give
+    // each execution its own key for the error and tracing links to share.
+    final execution = Request(
+      operation: request.operation,
+      variables: request.variables,
+      context: request.context,
+    );
+    return super.request(execution, forward);
   }
 }
 

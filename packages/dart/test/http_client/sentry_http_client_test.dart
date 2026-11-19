@@ -210,6 +210,7 @@ void main() {
         );
 
         await sut.get(requestUri);
+        await processor.waitForProcessing();
 
         expect(processor.capturedSpans, isEmpty);
         expect(fixture.transport.events.single.transaction, isNull);
