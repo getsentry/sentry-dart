@@ -248,11 +248,14 @@ void main() {
     group(
       'with unwritable working directory and no database path',
       () {
-        late Directory localAppData;
+        // The fallback is under LOCALAPPDATA on Windows and XDG_CACHE_HOME on
+        // Linux.
+        final sep = currentPlatform.isWindows ? '\\' : '/';
         late Directory appDir;
 
-        Directory databaseDir() =>
-            Directory('${appDir.path}\\sentry-${dsnHash(options.dsn ?? '')}');
+        Directory databaseDir() => Directory(
+          '${appDir.path}${sep}sentry-${dsnHash(options.dsn ?? '')}',
+        );
 
         setUp(() {
           final root = Directory(
@@ -265,16 +268,18 @@ void main() {
           final workingDir = Directory('${root.path}/cwd')
             ..createSync(recursive: true);
           File('${workingDir.path}/.sentry-native').writeAsStringSync('');
-          localAppData = Directory('${root.path}/LocalAppData')
+          final fallbackRoot = Directory('${root.path}/fallback')
             ..createSync(recursive: true);
           final exeName = Platform.resolvedExecutable
               .split(RegExp(r'[\\/]'))
               .last
               .replaceFirst(RegExp(r'\.exe$', caseSensitive: false), '');
-          appDir = Directory('${localAppData.path}\\$exeName');
+          appDir = Directory('${fallbackRoot.path}$sep$exeName');
 
           SentryNative.workingDirectory = () => workingDir.path;
-          SentryNative.environment = () => {'LOCALAPPDATA': localAppData.path};
+          SentryNative.environment = () => currentPlatform.isWindows
+              ? {'LOCALAPPDATA': fallbackRoot.path}
+              : {'XDG_CACHE_HOME': fallbackRoot.path};
           options.nativeDatabasePath = null;
 
           addTearDown(() {
@@ -287,7 +292,7 @@ void main() {
         });
 
         test(
-          'init creates database in LOCALAPPDATA when app folder is missing',
+          'init creates database in the fallback dir when app folder is missing',
           () async {
             expect(appDir.existsSync(), isFalse);
             addTearDown(sut.close);
@@ -299,9 +304,9 @@ void main() {
         );
 
         test(
-          'init creates database in existing LOCALAPPDATA app folder',
+          'init creates database in an existing fallback app folder',
           () async {
-            final existingFile = File('${appDir.path}\\settings.json')
+            final existingFile = File('${appDir.path}${sep}settings.json')
               ..createSync(recursive: true)
               ..writeAsStringSync('{}');
             addTearDown(sut.close);
@@ -313,9 +318,9 @@ void main() {
           },
         );
       },
-      skip: currentPlatform.isWindows
+      skip: currentPlatform.isWindows || currentPlatform.isLinux
           ? false
-          : 'The LOCALAPPDATA fallback only applies to Windows',
+          : 'The database fallback only applies to Windows and Linux',
     );
 
     test('app start', () {

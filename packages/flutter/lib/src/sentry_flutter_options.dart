@@ -374,7 +374,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// `C:\Windows\System32` as their working directory. Without a writable
   /// database directory, native crashes can't be captured.
   ///
-  /// On Linux, it falls back to
+  /// On Linux, if the working directory isn't writable, the SDK falls back to
   /// `$XDG_CACHE_HOME/<executable name>/sentry-<DSN hash>`, or to
   /// `$HOME/.cache/<executable name>/sentry-<DSN hash>` when `XDG_CACHE_HOME`
   /// is unset, empty or relative. This happens, for example, when the app is

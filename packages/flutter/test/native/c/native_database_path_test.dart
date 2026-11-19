@@ -145,21 +145,10 @@ void main() {
         });
       });
 
-      String? getLinuxSut({
-        String? configuredPath,
-        String? dsn = Fixture.dsn,
-      }) => fixture.getSut(
-        configuredPath: configuredPath,
-        isWindows: false,
-        isLinux: true,
-        dsn: dsn,
-        resolvedExecutable: '/opt/my_app/my_app',
-      );
-
       test('with unwritable working directory returns XDG_CACHE_HOME path', () {
         fixture.blockWorkingDirectory();
 
-        final path = getLinuxSut();
+        final path = fixture.getLinuxSut();
 
         expect(
           path,
@@ -171,7 +160,7 @@ void main() {
         fixture.blockWorkingDirectory();
         fixture.environment = RecordingEnvironment({'HOME': '/home/me'});
 
-        final path = getLinuxSut();
+        final path = fixture.getLinuxSut();
 
         expect(path, '/home/me/.cache/my_app/sentry-${dsnHash(Fixture.dsn)}');
       });
@@ -183,7 +172,7 @@ void main() {
           'HOME': '/home/me',
         });
 
-        final path = getLinuxSut();
+        final path = fixture.getLinuxSut();
 
         expect(path, '/home/me/.cache/my_app/sentry-${dsnHash(Fixture.dsn)}');
       });
@@ -196,7 +185,7 @@ void main() {
           'HOME': '/home/me',
         });
 
-        final path = getLinuxSut();
+        final path = fixture.getLinuxSut();
 
         expect(path, '/home/me/.cache/my_app/sentry-${dsnHash(Fixture.dsn)}');
       });
@@ -205,22 +194,39 @@ void main() {
         fixture.blockWorkingDirectory();
         fixture.environment = RecordingEnvironment({});
 
-        final path = getLinuxSut();
+        final path = fixture.getLinuxSut();
 
         expect(path, isNull);
       });
 
       test('with writable working directory returns null', () {
-        final path = getLinuxSut();
+        final path = fixture.getLinuxSut();
 
         expect(path, isNull);
         expect(fixture.environment.readKeys, isEmpty);
       });
 
+      test('with empty HOME and no XDG_CACHE_HOME returns null', () {
+        fixture.blockWorkingDirectory();
+        fixture.environment = RecordingEnvironment({'HOME': ''});
+
+        final path = fixture.getLinuxSut();
+
+        expect(path, isNull);
+      });
+
+      test('without DSN returns XDG_CACHE_HOME path', () {
+        fixture.blockWorkingDirectory();
+
+        final path = fixture.getLinuxSut(dsn: null);
+
+        expect(path, '/home/me/.cache-xdg/my_app/sentry-${dsnHash('')}');
+      });
+
       test('with configured path returns configured path', () {
         fixture.blockWorkingDirectory();
 
-        final path = getLinuxSut(configuredPath: '/var/lib/my_app/db');
+        final path = fixture.getLinuxSut(configuredPath: '/var/lib/my_app/db');
 
         expect(path, '/var/lib/my_app/db');
         expect(fixture.workingDirectoryReads, 0);
@@ -304,6 +310,15 @@ class Fixture {
     environment: environment,
     resolvedExecutable: resolvedExecutable,
   );
+
+  String? getLinuxSut({String? configuredPath, String? dsn = Fixture.dsn}) =>
+      getSut(
+        configuredPath: configuredPath,
+        isWindows: false,
+        isLinux: true,
+        dsn: dsn,
+        resolvedExecutable: '/opt/my_app/my_app',
+      );
 
   void dispose() => directory.deleteSync(recursive: true);
 }
