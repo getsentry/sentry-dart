@@ -150,8 +150,8 @@ public final class SentryFlutter {
     ///
     /// On an iPhone's built-in display, ProMotion rates above 60 Hz are only
     /// available when the app sets `CADisableMinimumFrameDurationOnPhone` in
-    /// its `Info.plist`:
-    /// https://developer.apple.com/documentation/quartzcore/optimizing-iphone-and-ipad-apps-to-support-promotion-displays
+    /// its `Info.plist`. See Apple's "Optimizing iPhone and iPad apps to
+    /// support ProMotion displays".
     public static func fallbackDisplayRefreshRate(
         maximumFramesPerSecond: Int,
         isBuiltInPhoneDisplay: Bool,
