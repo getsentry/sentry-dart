@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/scope_observer.dart' show HintAwareScopeObserver;
 
 class MockScopeObserver extends ScopeObserver
     implements HintAwareScopeObserver {

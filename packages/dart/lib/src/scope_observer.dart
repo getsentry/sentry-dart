@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'hint.dart';
 import 'protocol/breadcrumb.dart';
 import 'protocol/sentry_user.dart';
@@ -24,6 +26,7 @@ abstract class ScopeObserver {
 /// [addBreadcrumbWithHint] instead of [ScopeObserver.addBreadcrumb]. This
 /// keeps [ScopeObserver.addBreadcrumb]'s signature stable for existing
 /// implementors.
+@internal
 abstract class HintAwareScopeObserver {
   FutureOr<void> addBreadcrumbWithHint(Breadcrumb breadcrumb, Hint hint);
 }
