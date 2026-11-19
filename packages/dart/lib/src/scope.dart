@@ -15,6 +15,7 @@ import 'sentry_options.dart';
 import 'telemetry/span/transaction/sentry_span_interface.dart';
 import 'telemetry/span/transaction/sentry_tracer.dart';
 import 'telemetry/span/streaming/sentry_span_v2.dart';
+import 'telemetry/span/streaming/span_status_v2_conversion.dart';
 import 'utils/internal_logger.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
@@ -446,6 +447,7 @@ class Scope {
                   as String? ??
               'default',
           sampled: activeSpan.samplingDecision.sampled,
+          status: spanStatusFromV2(activeSpan.status),
         );
       } else if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
