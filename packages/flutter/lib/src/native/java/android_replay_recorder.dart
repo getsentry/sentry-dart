@@ -11,13 +11,18 @@ import '../../screen_capture/screenshot.dart';
 import '../../utils/internal_logger.dart';
 import 'binding.dart' as native;
 
-// Note, this is currently not unit-tested because mocking JNI calls is
-// cumbersome, see https://github.com/dart-lang/native/issues/1794
+// Only the host-side lifecycle is unit-tested. The worker-side JNI calls are
+// not, because mocking them is cumbersome, see
+// https://github.com/dart-lang/native/issues/1794
 @internal
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
   Worker? _worker;
+  // Incremented by every start() and stop(), so that a start() can tell,
+  // once its spawn has completed, whether a later start() or stop() has
+  // superseded it.
+  int _lifecycleGeneration = 0;
 
   @internal // visible for testing, used by SentryNativeJava
   static AndroidReplayRecorder Function(SentryFlutterOptions) factory =
@@ -43,12 +48,22 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   @override
   Future<void> start() async {
     if (_worker != null) return;
-    _worker = await _spawn(_config, _entryPoint);
+    final generation = ++_lifecycleGeneration;
+    final worker = await _spawn(_config, _entryPoint);
+    // stop() or another start() can run while the spawn is in flight.
+    // Neither sees this worker, so it has to be closed here, or it outlives
+    // the recorder and keeps its isolate group alive.
+    if (generation != _lifecycleGeneration) {
+      worker.close();
+      return;
+    }
+    _worker = worker;
     await super.start();
   }
 
   @override
   Future<void> stop() async {
+    _lifecycleGeneration++;
     await super.stop();
     final worker = _worker;
     try {
