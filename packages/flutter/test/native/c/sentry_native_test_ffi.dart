@@ -28,47 +28,53 @@ extension on NativeBackend {
 
 // NOTE: Don't run/debug this main(), it likely won't work.
 // You can use main() in `sentry_native_test.dart`.
-void main() {
-  final currentPlatform = platform.Platform();
+// A native library remains loaded for the lifetime of this process.
+// CI invokes this suite once per backend; local runs default to Breakpad.
+NativeBackend get configuredNativeBackend => NativeBackend.values.byName(
+  Platform.environment['SENTRY_TEST_NATIVE_BACKEND'] ?? 'default_',
+);
 
+/// Builds sentry-native for [backend] and points [SentryNative] at it.
+Future<NativeTestHelper> setUpNativeBackend(NativeBackend backend) async {
+  final currentPlatform = platform.Platform();
   final repoRootDir = Directory.current.path.endsWith('/test')
       ? Directory.current.parent.path
       : Directory.current.path;
 
-  // A native library remains loaded for the lifetime of this process.
-  // CI invokes this suite once per backend; local runs default to Breakpad.
-  final backendName =
-      Platform.environment['SENTRY_TEST_NATIVE_BACKEND'] ?? 'default_';
-  final backend = NativeBackend.values.byName(backendName);
+  late final List<String> expectedDistFiles;
+  if (backend.actualValue == NativeBackend.crashpad) {
+    expectedDistFiles = currentPlatform.isWindows
+        ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
+        : ['libsentry.so', 'crashpad_handler'];
+  } else {
+    expectedDistFiles = currentPlatform.isWindows
+        ? ['sentry.dll']
+        : ['libsentry.so'];
+  }
+
+  final helper = NativeTestHelper(
+    repoRootDir,
+    backend,
+    expectedDistFiles,
+    '$repoRootDir/temp/native-test-${backend.name}',
+  );
+
+  final distribution = await helper._buildSentryNative();
+  SentryNative.dynamicLibraryDirectory = distribution;
+  SentryNative.crashpadPath = null;
+  if (backend.actualValue == NativeBackend.crashpad) {
+    SentryNative.crashpadPath =
+        '${helper.buildOutputDir}${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
+  }
+  return helper;
+}
+
+void main() {
+  final currentPlatform = platform.Platform();
+  final backend = configuredNativeBackend;
   group(backend.name, () {
     late final NativeTestHelper helper;
-    setUpAll(() async {
-      late final List<String> expectedDistFiles;
-      if (backend.actualValue == NativeBackend.crashpad) {
-        expectedDistFiles = currentPlatform.isWindows
-            ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
-            : ['libsentry.so', 'crashpad_handler'];
-      } else {
-        expectedDistFiles = currentPlatform.isWindows
-            ? ['sentry.dll']
-            : ['libsentry.so'];
-      }
-
-      helper = NativeTestHelper(
-        repoRootDir,
-        backend,
-        expectedDistFiles,
-        '$repoRootDir/temp/native-test-${backend.name}',
-      );
-
-      final distribution = await helper._buildSentryNative();
-      SentryNative.dynamicLibraryDirectory = distribution;
-      SentryNative.crashpadPath = null;
-      if (backend.actualValue == NativeBackend.crashpad) {
-        SentryNative.crashpadPath =
-            '${helper.buildOutputDir}${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
-      }
-    });
+    setUpAll(() async => helper = await setUpNativeBackend(backend));
 
     late SentryNative sut;
     late SentryFlutterOptions options;
@@ -81,27 +87,6 @@ void main() {
         ..debug = true;
       sut = createBinding(options) as SentryNative;
     });
-
-    // Must run before any other test loads the library.
-    test(
-      'platform thread keeps a stack guarantee when the worker loads the library',
-      () async {
-        expect(
-          _isModuleLoaded('sentry.dll'),
-          isFalse,
-          reason: 'needs a process that has not loaded sentry.dll yet',
-        );
-        expect(SentryNativeWorker.threadStackGuarantee(), 0);
-        addTearDown(sut.close);
-
-        await _init(sut);
-
-        expect(await sut.worker!.target, isNotNull);
-        expect(_isModuleLoaded('sentry.dll'), isTrue);
-        expect(SentryNativeWorker.threadStackGuarantee(), 64 * 1024);
-      },
-      testOn: 'windows',
-    );
 
     test('native CMake was configured with configured backend', () async {
       final cmakeCacheTxt = await File(
@@ -665,20 +650,6 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
 Future<void> _init(SentryNative native) async {
   await native.init(MockHub());
   await native.worker?.initialized;
-}
-
-bool _isModuleLoaded(String name) {
-  final getModuleHandle = DynamicLibrary.open('kernel32.dll')
-      .lookupFunction<
-        Pointer<Void> Function(Pointer<Utf16>),
-        Pointer<Void> Function(Pointer<Utf16>)
-      >('GetModuleHandleW');
-  final cName = name.toNativeUtf16();
-  try {
-    return getModuleHandle(cName) != nullptr;
-  } finally {
-    malloc.free(cName);
-  }
 }
 
 typedef _EventFunction =

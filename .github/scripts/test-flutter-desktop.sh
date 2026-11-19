@@ -16,4 +16,9 @@ for backend in default_ empty crashpad breakpad inproc none; do
     --file-reporter "json:test-native-$backend.jsonl" </dev/null || status=1
 done
 
+# Needs a process that has not loaded the native library yet (Windows only).
+SENTRY_TEST_NATIVE_BACKEND=default_ flutter test \
+  test/native/c/sentry_native_stack_guarantee_test.dart \
+  --file-reporter "json:test-native-stack-guarantee.jsonl" </dev/null || status=1
+
 exit "$status"
