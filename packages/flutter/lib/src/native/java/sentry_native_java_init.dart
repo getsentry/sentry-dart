@@ -117,6 +117,12 @@ native.ReplayRecorderCallbacks? createReplayRecorderCallbacks({
   return native.ReplayRecorderCallbacks.implement(
     native.$ReplayRecorderCallbacks(
       replayStarted: (JString replayIdString, bool replayIsBuffering) async {
+        // The engine is going away. A recorder created now would not know the
+        // detach token, so its worker could exit after the engine is gone.
+        if (owner._engineDetaching) {
+          replayIdString.release();
+          return;
+        }
         final replayId = SentryId.fromId(
           replayIdString.toDartString(releaseOriginal: true),
         );

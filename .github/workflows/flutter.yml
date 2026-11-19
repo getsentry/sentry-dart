@@ -113,6 +113,11 @@ jobs:
           ;;
           esac
 
+      - name: Run Android plugin unit tests
+        if: matrix.target == 'android'
+        working-directory: packages/flutter/example/android
+        run: ./gradlew :sentry_flutter:testDebugUnitTest
+
   package-analysis:
     uses: ./.github/workflows/package-analysis.yml
     with:

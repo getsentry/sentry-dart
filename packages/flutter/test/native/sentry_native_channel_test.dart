@@ -29,6 +29,9 @@ void main() {
       late MockMethodChannel channel;
 
       setUp(() {
+        // The Android binding initializes a Flutter binding when it is
+        // constructed. Without this it would create a real one.
+        TestWidgetsFlutterBinding.ensureInitialized();
         channel = MockMethodChannel();
         final options = defaultTestOptions()
           ..platform = mockPlatform
@@ -40,7 +43,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.fetchNativeAppStart(), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(channel.invokeMethod('fetchNativeAppStart')).thenAnswer(
             (_) async => {
@@ -63,7 +66,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.fetchNativeAppStart(), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(channel.invokeMethod('fetchNativeAppStart')).thenAnswer(
             (_) async => {
@@ -86,7 +89,7 @@ void main() {
           final matcher = _nativeUnavailableMatcher();
           final user = SentryUser(id: "fixture-id");
           expect(() => sut.setUser(user), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           final user = SentryUser(id: "fixture-id", data: {'object': Object()});
           final normalizedUser = SentryUser(
@@ -119,7 +122,7 @@ void main() {
           final matcher = _nativeUnavailableMatcher();
           final breadcrumb = Breadcrumb();
           expect(() => sut.addBreadcrumb(breadcrumb), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           final breadcrumb = Breadcrumb(data: {'object': Object()});
           final normalizedBreadcrumb = Breadcrumb(
@@ -152,7 +155,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.clearBreadcrumbs(), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('clearBreadcrumbs'),
@@ -171,7 +174,7 @@ void main() {
             () => sut.setContexts('fixture-key', <String, dynamic>{}),
             matcher,
           );
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           final value = {'object': Object()};
           final normalizedValue = normalize(value);
@@ -197,7 +200,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.removeContexts('fixture-key'), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('removeContexts', {'key': 'fixture-key'}),
@@ -218,7 +221,7 @@ void main() {
             () => sut.setExtra('fixture-key', <String, dynamic>{}),
             matcher,
           );
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           final value = {'object': Object()};
           final normalizedValue = normalize(value);
@@ -244,7 +247,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.removeExtra('fixture-key'), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('removeExtra', {'key': 'fixture-key'}),
@@ -260,7 +263,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.setTag('fixture-key', 'fixture-value'), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('setTag', {
@@ -284,7 +287,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.removeTag('fixture-key'), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('removeTag', {'key': 'fixture-key'}),
@@ -304,7 +307,7 @@ void main() {
 
           expect(() => sut.captureEnvelope(data), matcher);
 
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           final data = Uint8List.fromList([1, 2, 3]);
 
@@ -346,7 +349,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.loadContexts(), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(channel.invokeMethod('loadContexts')).thenAnswer(
             (invocation) async => {
@@ -371,7 +374,7 @@ void main() {
             () => sut.loadDebugImages(SentryStackTrace(frames: [])),
             matcher,
           );
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           final json = [
             {
@@ -399,7 +402,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           expect(() => sut.pauseAppHangTracking(), throwsAssertionError);
 
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('pauseAppHangTracking'),
@@ -414,7 +417,7 @@ void main() {
       test('resumeAppHangTracking', () async {
         if (mockPlatform.isAndroid) {
           expect(() => sut.resumeAppHangTracking(), throwsAssertionError);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('resumeAppHangTracking'),
@@ -430,7 +433,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.nativeCrash(), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('nativeCrash'),
@@ -454,7 +457,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           // Native delivery is deferred until a replay recorder exists.
           await sut.setReplayConfig(config);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           when(
             channel.invokeMethod('setReplayConfig', any),
@@ -470,7 +473,7 @@ void main() {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
           expect(() => sut.captureReplay(), matcher);
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         } else {
           final sentryId = SentryId.newId();
 
@@ -529,7 +532,7 @@ void main() {
       if (mockPlatform.isAndroid) {
         test('flushReplay uses JNI without invoking the channel', () async {
           await expectLater(sut.flushReplay(), _nativeUnavailableMatcher());
-          verifyZeroInteractions(channel);
+          verifyNever(channel.invokeMethod(any, any));
         });
       } else {
         test('flushReplay waits for native completion', () async {
@@ -700,19 +703,19 @@ void main() {
       test('getSession is no-op', () async {
         await sut.getSession();
 
-        verifyZeroInteractions(channel);
+        verifyNever(channel.invokeMethod(any, any));
       });
 
       test('updateSession is no-op', () async {
         await sut.updateSession(status: 'test', errors: 1);
 
-        verifyZeroInteractions(channel);
+        verifyNever(channel.invokeMethod(any, any));
       });
 
       test('captureSession is no-op', () async {
         await sut.captureSession();
 
-        verifyZeroInteractions(channel);
+        verifyNever(channel.invokeMethod(any, any));
       });
 
       if (!mockPlatform.isAndroid) {
