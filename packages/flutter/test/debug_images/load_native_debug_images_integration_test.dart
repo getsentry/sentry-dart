@@ -148,7 +148,7 @@ void main() {
         expect(images.single.codeFile, 'libapp.so');
         expect(images.single.codeId, _appBuildId);
         expect(images.single.imageAddr, _appBaseAddr);
-        expect(images.single.debugId, isNotEmpty);
+        expect(images.single.debugId, '11e04653-ff03-d4ee-4e97-094ff7bfcc19');
       });
 
       test(
@@ -189,12 +189,10 @@ void main() {
       });
     });
 
-    group('on Windows', () {
-      setUp(() {
+    test(
+      'on Windows adds the app image when native returns no images',
+      () async {
         fixture.options.platform = MockPlatform.windows();
-      });
-
-      test('adds the app image when native returns no images', () async {
         when(
           fixture.binding.loadDebugImages(any),
         ).thenAnswer((_) async => null);
@@ -206,7 +204,21 @@ void main() {
         expect(images.length, 1);
         expect(images.single.codeFile, 'data/app.so');
         expect(images.single.codeId, _appBuildId);
-      });
+      },
+    );
+
+    test('on iOS does not add the app image', () async {
+      fixture.options.platform = MockPlatform.iOS();
+      when(
+        fixture.binding.loadDebugImages(any),
+      ).thenAnswer((_) async => imageList.toList());
+      final ep = fixture.options.eventProcessors.first;
+
+      final event = await ep.apply(_getEventWithDartStackInfo(), Hint());
+
+      final images = event!.debugMeta!.images;
+      expect(images.length, 1);
+      expect(images.single.codeFile, imageList.first.codeFile);
     });
 
     test('Native layer is not called as there is no exceptions', () async {
