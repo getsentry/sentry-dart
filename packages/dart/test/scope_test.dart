@@ -812,14 +812,17 @@ void main() {
     );
 
     test(
-      'trace context status is unknown error when active streaming span errored',
+      'trace context status is internal error when active streaming span errored',
       () async {
         final span = fixture.createSpan()..status = SentrySpanStatusV2.error;
         final scope = Scope(defaultTestOptions())..setActiveSpan(span);
 
         final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
 
-        expect(updatedEvent?.contexts.trace?.status, SpanStatus.unknownError());
+        expect(
+          updatedEvent?.contexts.trace?.status,
+          SpanStatus.internalError(),
+        );
       },
     );
 

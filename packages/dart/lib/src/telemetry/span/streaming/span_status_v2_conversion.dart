@@ -8,5 +8,5 @@ import 'sentry_span_status_v2.dart';
 @internal
 SpanStatus spanStatusFromV2(SentrySpanStatusV2 status) => switch (status) {
   SentrySpanStatusV2.ok => const SpanStatus.ok(),
-  SentrySpanStatusV2.error => const SpanStatus.unknownError(),
+  SentrySpanStatusV2.error => const SpanStatus.internalError(),
 };
