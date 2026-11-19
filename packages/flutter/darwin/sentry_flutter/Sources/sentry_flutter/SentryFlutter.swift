@@ -1,5 +1,9 @@
 import Sentry
 
+#if os(iOS)
+import UIKit
+#endif
+
 public final class SentryFlutter {
 
     public init() {
@@ -152,17 +156,34 @@ public final class SentryFlutter {
     /// available when the app sets `CADisableMinimumFrameDurationOnPhone` in
     /// its `Info.plist`. See Apple's "Optimizing iPhone and iPad apps to
     /// support ProMotion displays".
+    ///
+    /// The device is identified by `hardwareModel` (e.g. `iPhone16,1`), not by
+    /// the user interface idiom: an iPhone-only app on an iPad still reports
+    /// the `.phone` idiom.
     public static func fallbackDisplayRefreshRate(
         maximumFramesPerSecond: Int,
-        isBuiltInPhoneDisplay: Bool,
+        hardwareModel: String,
+        sceneRole: UISceneSession.Role,
         infoDictionary: [String: Any]?
     ) -> Int {
-        guard isBuiltInPhoneDisplay else {
+        guard hardwareModel.hasPrefix("iPhone"), sceneRole == .windowApplication else {
             return maximumFramesPerSecond
         }
         let allowsHighRefreshRate =
             infoDictionary?["CADisableMinimumFrameDurationOnPhone"] as? Bool ?? false
         return allowsHighRefreshRate ? maximumFramesPerSecond : min(maximumFramesPerSecond, 60)
+    }
+
+    /// The device's hardware model identifier, such as `iPhone16,1` or `iPad14,5`.
+    static func hardwareModel() -> String {
+        if let simulatorModel = ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] {
+            return simulatorModel
+        }
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        return withUnsafeBytes(of: &systemInfo.machine) { buffer in
+            String(decoding: buffer.prefix { $0 != 0 }, as: UTF8.self)
+        }
     }
     #endif
 

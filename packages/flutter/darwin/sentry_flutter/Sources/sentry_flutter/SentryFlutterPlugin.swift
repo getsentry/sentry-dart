@@ -701,11 +701,10 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(nil)
             return
         }
-        let isBuiltInPhoneDisplay = UIDevice.current.userInterfaceIdiom == .phone
-            && windowScene.session.role == .windowApplication
         result(SentryFlutter.fallbackDisplayRefreshRate(
             maximumFramesPerSecond: windowScene.screen.maximumFramesPerSecond,
-            isBuiltInPhoneDisplay: isBuiltInPhoneDisplay,
+            hardwareModel: SentryFlutter.hardwareModel(),
+            sceneRole: windowScene.session.role,
             infoDictionary: Bundle.main.infoDictionary
         ))
     }
