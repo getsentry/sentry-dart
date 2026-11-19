@@ -6,13 +6,6 @@ import Sentry
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let _channel = "example.flutter.sentry.io"
 
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-
   // With the UIScene life cycle (required by the iOS 27 SDK), the window and
   // engine don't exist yet in didFinishLaunching, so register plugins and the
   // method channel once Flutter has created its implicit engine.
