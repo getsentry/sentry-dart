@@ -1,12 +1,10 @@
-// ignore_for_file: invalid_use_of_internal_member
-
 import 'package:gql_error_link/gql_error_link.dart';
 import 'package:gql_exec/gql_exec.dart';
 import 'package:gql_link/gql_link.dart';
 import 'package:sentry/sentry.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'package:sentry_link/src/extension.dart';
+import 'package:sentry_link/src/sentry_tracing_link.dart'
+    show graphQlResponseSpanLinks;
 
 /// Provides a [Link] which captures exceptions and GraphQL errors
 class SentryLink {
@@ -28,26 +26,10 @@ class SentryLink {
       reportGraphQlErrorsAsBreadcrumbs: reportGraphQlErrorsAsBreadcrumbs,
     );
 
-    return _SentryErrorLink(
+    return ErrorLink(
       onException: handler.onException,
       onGraphQLError: handler.onGraphQlError,
     );
-  }
-}
-
-class _SentryErrorLink extends ErrorLink {
-  _SentryErrorLink({super.onException, super.onGraphQLError});
-
-  @override
-  Stream<Response> request(Request request, [NextLink? forward]) {
-    // A caller can execute the same immutable request concurrently. Give
-    // each execution its own key for the error and tracing links to share.
-    final execution = Request(
-      operation: request.operation,
-      variables: request.variables,
-      context: request.context,
-    );
-    return super.request(execution, forward);
   }
 }
 
@@ -69,10 +51,11 @@ class SentryLinkHandler {
   final bool reportGraphQLErrors;
   final bool reportGraphQlErrorsAsBreadcrumbs;
 
-  /// Links the captured event to the span the tracing link created for
-  /// [request], if any.
-  ScopeCallback? _withSpanOf(Request request) {
-    final span = spanLinks.spanFor(request);
+  /// Links the captured event to the span the tracing link created for the
+  /// execution that returned [response], if any.
+  ScopeCallback? _withSpanOf(Response response) {
+    final span = graphQlResponseSpanLinks.spanFor(response);
+    // ignore: invalid_use_of_internal_member
     return span == null ? null : (scope) => scope.setActiveSpan(span);
   }
 
@@ -101,7 +84,7 @@ class SentryLinkHandler {
         response: response,
       );
 
-      await hub.captureEvent(event, withScope: _withSpanOf(request));
+      await hub.captureEvent(event, withScope: _withSpanOf(response));
     }
 
     yield response;
@@ -137,7 +120,7 @@ class SentryLinkHandler {
         exception: exception,
       );
 
-      await hub.captureEvent(event, withScope: _withSpanOf(request));
+      await hub.captureEvent(event);
     }
     yield* Stream.error(exception);
   }

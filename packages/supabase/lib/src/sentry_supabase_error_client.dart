@@ -1,14 +1,11 @@
-// ignore_for_file: invalid_use_of_internal_member
-
 import 'dart:async';
 
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'sentry_supabase_client_error.dart';
 
 import 'sentry_supabase_request.dart';
+import 'sentry_supabase_tracing_client.dart' show supabaseRequestSpanLinks;
 
 class SentrySupabaseErrorClient extends BaseClient {
   final Client _innerClient;
@@ -27,6 +24,7 @@ class SentrySupabaseErrorClient extends BaseClient {
   Future<StreamedResponse> send(BaseRequest request) async {
     final supabaseRequest = SentrySupabaseRequest.fromRequest(
       request,
+      // ignore: invalid_use_of_internal_member
       options: _hub.options,
     );
 
@@ -76,17 +74,20 @@ class SentrySupabaseErrorClient extends BaseClient {
     event.contexts['supabase'] = {
       'table': supabaseRequest.table,
       'operation': supabaseRequest.operation.value,
+      // ignore: invalid_use_of_internal_member
       if (supabaseRequest.query.isNotEmpty && _hub.options.sendDefaultPii)
         'query': supabaseRequest.query,
+      // ignore: invalid_use_of_internal_member
       if (supabaseRequest.body != null && _hub.options.sendDefaultPii)
         'body': supabaseRequest.body,
     };
 
-    final span = spanLinks.spanFor(request);
+    final span = supabaseRequestSpanLinks.spanFor(request);
     return _hub.captureEvent(
       event,
       stackTrace: stackTrace,
       hint: hint,
+      // ignore: invalid_use_of_internal_member
       withScope: span == null ? null : (scope) => scope.setActiveSpan(span),
     );
   }

@@ -318,6 +318,21 @@ void main() {
       },
     );
 
+    test('forwards the caller\'s request to the next link', () async {
+      final received = <Request>[];
+      final link = fixture.createErrorReportingLink(
+        Link.function((request, [forward]) {
+          received.add(request);
+          return Stream.value(Response(response: {}));
+        }),
+      );
+      final request = _CustomRequest(fixture.request.operation);
+
+      await link.request(request).first;
+
+      expect(received.single, same(request));
+    });
+
     test('links a captured link exception to the operation span', () async {
       final link = fixture.createErrorReportingLink(_ThrowingLink());
 
@@ -436,4 +451,8 @@ class _MockLink extends Link {
       ),
     );
   }
+}
+
+class _CustomRequest extends Request {
+  const _CustomRequest(Operation operation) : super(operation: operation);
 }

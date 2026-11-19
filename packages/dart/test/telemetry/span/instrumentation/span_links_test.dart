@@ -27,28 +27,55 @@ void main() {
       expect(sut.spanFor(Exception('boom')), isNull);
     });
 
-    test('keeps the first span linked to a key', () {
+    test('keeps the inner span when an enclosing span links the key', () {
       final sut = fixture.getSut();
       final key = Exception('boom');
-      final inner = fixture.createSpan('inner');
       final outer = fixture.createSpan('outer');
+      final middle = fixture.createChild(outer, 'middle');
+      final inner = fixture.createChild(middle, 'inner');
 
       sut.link(key, inner);
+      sut.link(key, middle);
       sut.link(key, outer);
 
       expect(sut.spanFor(key), same(inner));
     });
 
-    test('with replace overwrites the linked span', () {
+    test('relinks the key to a span in another trace', () {
       final sut = fixture.getSut();
-      final key = Object();
+      final key = Exception('boom');
       final first = fixture.createSpan('first');
-      final retry = fixture.createSpan('retry');
+      final second = fixture.createSpan('second');
 
       sut.link(key, first);
-      sut.link(key, retry, replace: true);
+      sut.link(key, second);
+
+      expect(sut.spanFor(key), same(second));
+    });
+
+    test('relinks the key to a sibling span', () {
+      final sut = fixture.getSut();
+      final key = Object();
+      final parent = fixture.createSpan('parent');
+      final first = fixture.createChild(parent, 'first');
+      final retry = fixture.createChild(parent, 'retry');
+
+      sut.link(key, first);
+      sut.link(key, retry);
 
       expect(sut.spanFor(key), same(retry));
+    });
+
+    test('relinks the key to a span nested in the linked span', () {
+      final sut = fixture.getSut();
+      final key = Object();
+      final outer = fixture.createSpan('outer');
+      final inner = fixture.createChild(outer, 'inner');
+
+      sut.link(key, outer);
+      sut.link(key, inner);
+
+      expect(sut.spanFor(key), same(inner));
     });
 
     test('unwraps a $ThrowableMechanism key', () {
@@ -93,6 +120,17 @@ class Fixture {
     clock: defaultTestOptions().clock,
     dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
     samplingDecision: SentryTracesSamplingDecision(true),
+  );
+
+  RecordingSentrySpanV2 createChild(
+    RecordingSentrySpanV2 parent,
+    String name,
+  ) => RecordingSentrySpanV2.child(
+    parent: parent,
+    name: name,
+    onSpanEnd: (_) async {},
+    clock: defaultTestOptions().clock,
+    dscCreator: (s) => SentryTraceContextHeader(SentryId.newId(), 'key'),
   );
 
   SpanLinks getSut() => SpanLinks();

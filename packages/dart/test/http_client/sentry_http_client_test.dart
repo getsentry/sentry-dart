@@ -202,6 +202,33 @@ void main() {
         expect(event.contexts.trace?.spanId, httpSpan.spanId);
       });
 
+      test(
+        'links a rethrown error captured after the request span ended',
+        () async {
+          final sut = fixture.getSut(
+            hub: fixture.realHub,
+            client: createThrowingClient(),
+            captureFailedRequests: false,
+          );
+
+          Object? error;
+          await fixture.realHub.startSpan('segment', (_) async {
+            try {
+              await sut.get(requestUri);
+            } catch (e) {
+              error = e;
+            }
+          });
+          await fixture.realHub.captureException(error);
+          await processor.waitForProcessing();
+
+          final httpSpan = processor.findSpanByOperation('http.client')!;
+          final event = fixture.transport.events.single;
+          expect(event.contexts.trace?.spanId, httpSpan.spanId);
+          expect(event.transaction, 'segment');
+        },
+      );
+
       test('links a failed request without a parent span to nothing', () async {
         final sut = fixture.getSut(
           hub: fixture.realHub,

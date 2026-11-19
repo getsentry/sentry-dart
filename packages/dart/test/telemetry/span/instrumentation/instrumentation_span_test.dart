@@ -79,39 +79,33 @@ void main() {
 
         sut.throwable = throwable;
 
-        expect(spanLinks.spanFor(throwable), same(fixture.recordingSpan));
-      });
-
-      test('linkTo links the key to the span', () {
-        final sut = fixture.getSut();
-        final request = Object();
-
-        sut.linkTo(request);
-
-        expect(spanLinks.spanFor(request), same(fixture.recordingSpan));
-      });
-
-      test('linkTo with replace moves the key to the span', () {
-        final request = Object();
-        fixture.getSut().linkTo(request);
-        final retry = StreamingInstrumentationSpan(
-          fixture.createRecordingSpan(),
+        expect(
+          throwableSpanLinks.spanFor(throwable),
+          same(fixture.recordingSpan),
         );
+      });
 
-        retry.linkTo(request, replace: true);
+      test('linkTo links the key to the span in the given links', () {
+        final sut = fixture.getSut();
+        final links = SpanLinks();
+        final request = Object();
 
-        expect(spanLinks.spanFor(request), same(retry.spanReference));
+        sut.linkTo(links, request);
+
+        expect(links.spanFor(request), same(fixture.recordingSpan));
+        expect(throwableSpanLinks.spanFor(request), isNull);
       });
     });
 
     group('$LegacyInstrumentationSpan', () {
       test('linkTo does not link the key', () {
         final sut = LegacyInstrumentationSpan(NoOpSentrySpan());
+        final links = SpanLinks();
         final request = Object();
 
-        sut.linkTo(request);
+        sut.linkTo(links, request);
 
-        expect(spanLinks.spanFor(request), isNull);
+        expect(links.spanFor(request), isNull);
       });
     });
   });

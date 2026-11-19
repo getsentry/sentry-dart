@@ -149,7 +149,7 @@ void main() {
         final hub = fixture.getSut();
         final throwable = Exception('aborted');
         final aborted = hub.startInactiveSpan('aborted');
-        spanLinks.link(throwable, aborted);
+        throwableSpanLinks.link(throwable, aborted);
 
         await hub.startSpan('ambient', (_) async {
           await hub.captureException(throwable);
@@ -165,7 +165,7 @@ void main() {
         final hub = fixture.getSut();
         final throwable = Exception('aborted');
         final aborted = hub.startInactiveSpan('aborted');
-        spanLinks.link(throwable, aborted);
+        throwableSpanLinks.link(throwable, aborted);
 
         await hub.startSpan('ambient', (_) async {
           await hub.captureEvent(SentryEvent(throwable: throwable));
@@ -182,7 +182,7 @@ void main() {
         () async {
           final hub = fixture.getSut();
           final throwable = Exception('aborted');
-          spanLinks.link(throwable, hub.startInactiveSpan('aborted'));
+          throwableSpanLinks.link(throwable, hub.startInactiveSpan('aborted'));
           final explicit = hub.startInactiveSpan('explicit');
 
           await hub.captureException(
@@ -204,7 +204,7 @@ void main() {
         final hub = fixture.getSut();
         final throwable = Exception('aborted');
         final aborted = hub.startInactiveSpan('aborted');
-        spanLinks.link(throwable, aborted);
+        throwableSpanLinks.link(throwable, aborted);
         aborted.end();
 
         await hub.captureException(throwable);
@@ -216,11 +216,36 @@ void main() {
       });
 
       test(
+        'captureException links a reused throwable to the last span it aborted',
+        () async {
+          final hub = fixture.getSut();
+          const throwable = FormatException('reused');
+          final first = StreamingInstrumentationSpan(
+            hub.startInactiveSpan('first', parentSpan: null),
+          );
+          first.throwable = throwable;
+          await first.finish();
+          final second = StreamingInstrumentationSpan(
+            hub.startInactiveSpan('second', parentSpan: null),
+          );
+          second.throwable = throwable;
+          await second.finish();
+
+          await hub.captureException(throwable);
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            second.spanReference,
+          );
+        },
+      );
+
+      test(
         'captureException under static tracing does not link the span',
         () async {
           final hub = fixture.getSut();
           final throwable = Exception('aborted');
-          spanLinks.link(throwable, hub.startInactiveSpan('aborted'));
+          throwableSpanLinks.link(throwable, hub.startInactiveSpan('aborted'));
           fixture.options.traceLifecycle = SentryTraceLifecycle.static;
 
           await hub.captureException(throwable);

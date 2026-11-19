@@ -5,7 +5,16 @@ import 'dart:async';
 import 'package:gql_exec/gql_exec.dart';
 import 'package:gql_link/gql_link.dart';
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'package:sentry_link/src/extension.dart';
+
+/// Links each response to the span [SentryTracingLink] created for its
+/// execution, for the error link to find when it captures a GraphQL error.
+///
+/// The response is the key because a caller can execute one request
+/// concurrently, and every execution has its own responses.
+final graphQlResponseSpanLinks = SpanLinks();
 
 class SentryTracingLink extends Link {
   /// If [shouldStartTransaction] is set to true, a [SentryTransaction]
@@ -54,12 +63,12 @@ class SentryTracingLink extends Link {
       sentryOperation,
       shouldStartTransaction,
     );
-    // A GraphQL error carries no throwable, so the error link above finds
-    // this span through the request.
-    span?.linkTo(request, replace: true);
     return forward!(request).transform(
       StreamTransformer.fromHandlers(
         handleData: (data, sink) {
+          // A GraphQL error carries no throwable, so the error link above
+          // finds this span through the response.
+          span?.linkTo(graphQlResponseSpanLinks, data);
           final hasGraphQlError = data.errors?.isNotEmpty ?? false;
           if (graphQlErrorsMarkTransactionAsFailed && hasGraphQlError) {
             unawaited(span?.finish(status: const SpanStatus.unknownError()));

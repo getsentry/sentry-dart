@@ -186,6 +186,36 @@ void main() {
       expect(event.transaction, 'segment');
     });
 
+    test(
+      'links a failed status code event to the request span over a $SentryHttpClient',
+      () async {
+        fixture.mockHttpClient.statusCode = 500;
+        final client = SupabaseClient(
+          'https://test.supabase.co',
+          'test-api-key',
+          httpClient: SentrySupabaseClient(
+            client: SentryHttpClient(
+              client: fixture.mockHttpClient,
+              hub: fixture.hub,
+              captureFailedRequests: false,
+            ),
+            hub: fixture.hub,
+          ),
+        );
+
+        await fixture.hub.startSpan('segment', (_) async {
+          try {
+            await client.from('users').select().eq('id', 1);
+          } catch (_) {}
+        }, parentSpan: null);
+        await fixture.processor.waitForProcessing();
+
+        final dbSpan = fixture.processor.findSpanByOperation('db.select')!;
+        final event = fixture.events.single;
+        expect(event.contexts.trace?.spanId, dbSpan.spanId);
+      },
+    );
+
     test('links a thrown error event to the request span', () async {
       fixture.mockHttpClient.error = Exception('connection failed');
 

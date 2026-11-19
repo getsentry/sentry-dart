@@ -4,6 +4,12 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
+
+/// Links each request's options to the span [TracingClientAdapter] created for
+/// it, for the failed request interceptor to find.
+final dioRequestSpanLinks = SpanLinks();
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter
 /// which adds support to Sentry Performance feature. If tracing is disabled
@@ -57,7 +63,7 @@ class TracingClientAdapter implements HttpClientAdapter {
     // Dio raises a bad status code after this adapter returns, in the
     // FailedRequestInterceptor, where the span is only reachable through the
     // request options.
-    instrumentationSpan?.linkTo(options, replace: true);
+    instrumentationSpan?.linkTo(dioRequestSpanLinks, options);
 
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).

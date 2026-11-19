@@ -2,21 +2,22 @@ import 'package:meta/meta.dart';
 
 import '../../../../sentry.dart';
 
-/// The process-wide [SpanLinks] used by the hub and the integrations.
+/// Links each throwable to the streamed span it aborted.
+///
+/// Integrations that mark their span and rethrow are not the capture site; the
+/// error surfaces later in application code or a global handler, after the
+/// span has ended, and the throwable is the only handle that travels that far.
+/// The hub looks the throwable up here when it captures it.
 @internal
-final spanLinks = SpanLinks();
+final throwableSpanLinks = SpanLinks();
 
 /// Links an object to the streamed span it belongs to, so an error captured
 /// somewhere else can be attributed to that span.
 ///
-/// Two kinds of keys are used:
-/// - a throwable, linked by the span it aborted. Integrations that mark their
-///   span and rethrow are not the capture site; the error surfaces later in
-///   application code or a global handler, after the span has ended, and the
-///   throwable is the only handle that travels that far.
-/// - a request, linked by the span created for it. The span is created in one
-///   layer of an HTTP integration and the failure is captured in another, and
-///   requests run concurrently, so the request itself is the key.
+/// Throwables are linked in [throwableSpanLinks]. An integration whose span is
+/// created in one layer and whose failures are captured in another links its
+/// own key, such as the request, in its own [SpanLinks]: integrations can wrap
+/// each other and see the same request, and each must find its own span.
 ///
 /// Keys are held weakly. Unsupported [Expando] keys are ignored so error
 /// capture can fall back to the active span.
@@ -24,21 +25,22 @@ final spanLinks = SpanLinks();
 class SpanLinks {
   final _spans = Expando<RecordingSentrySpanV2>('sentry.span_links');
 
-  /// Links [key] to [span] unless [key] is already linked.
+  /// Links [key] to [span], replacing any span it is linked to unless that
+  /// span is nested in [span].
   ///
-  /// Keeping the first link makes the innermost span win as a throwable
-  /// unwinds through nested spans. Pass [replace] for keys that are reused
-  /// across spans, such as a request that is retried.
-  void link(Object? key, SentrySpanV2 span, {bool replace = false}) {
+  /// Keeping a nested span makes the innermost span win as a throwable unwinds
+  /// through enclosing spans. Any other span replaces the link, since a key
+  /// can be reused by an unrelated operation, such as a cached exception
+  /// thrown again or a request that is retried.
+  void link(Object? key, SentrySpanV2 span) {
     final weakKey = _weakKeyOf(key);
     if (weakKey == null || span is! RecordingSentrySpanV2) {
       return;
     }
     try {
-      if (replace) {
+      final linked = _spans[weakKey];
+      if (linked == null || !_isNestedIn(linked, span)) {
         _spans[weakKey] = span;
-      } else {
-        _spans[weakKey] ??= span;
       }
     } on ArgumentError {
       // The VM also rejects FFI pointers, structs, and unions.
@@ -56,6 +58,22 @@ class SpanLinks {
     } on ArgumentError {
       return null;
     }
+  }
+
+  static bool _isNestedIn(
+    RecordingSentrySpanV2 span,
+    RecordingSentrySpanV2 ancestor,
+  ) {
+    for (
+      var parent = span.parentSpan;
+      parent != null;
+      parent = parent.parentSpan
+    ) {
+      if (identical(parent, ancestor)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /// A mechanism wraps the throwable after the span linked it, so it is

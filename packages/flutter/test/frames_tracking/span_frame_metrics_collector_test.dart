@@ -3,6 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_flutter/src/frames_tracking/sentry_delayed_frames_tracker.dart';
 import 'package:sentry_flutter/src/frames_tracking/span_frame_metrics_collector.dart';
@@ -569,7 +570,7 @@ class UnknownInstrumentationSpan implements InstrumentationSpan {
   void setTag(String key, String value) {}
 
   @override
-  void linkTo(Object? key, {bool replace = false}) {}
+  void linkTo(SpanLinks links, Object? key) {}
 
   @override
   SpanStatus? get status => null;

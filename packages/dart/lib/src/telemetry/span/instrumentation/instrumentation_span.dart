@@ -19,12 +19,9 @@ abstract class InstrumentationSpan {
   SentryTraceHeader toSentryTrace();
   SentryBaggageHeader? toBaggageHeader();
 
-  /// Links [key] to this span so an error captured with it elsewhere is
-  /// attributed to this span, see [SpanLinks].
-  ///
-  /// Pass [replace] for keys that are reused across spans, such as a request
-  /// that is retried.
-  void linkTo(Object? key, {bool replace = false});
+  /// Links [key] to this span in [links], so an error captured with it
+  /// elsewhere is attributed to this span.
+  void linkTo(SpanLinks links, Object? key);
 
   /// Returns true if this span is a recording span that records data.
   bool get isRecording;
@@ -64,7 +61,7 @@ class LegacyInstrumentationSpan implements InstrumentationSpan {
   /// No-op: under the static trace lifecycle the hub links throwables to
   /// spans itself, see [Hub.setSpanContext].
   @override
-  void linkTo(Object? key, {bool replace = false}) {}
+  void linkTo(SpanLinks links, Object? key) {}
 
   @override
   String? get origin => _span.origin;
@@ -146,12 +143,11 @@ class StreamingInstrumentationSpan implements InstrumentationSpan {
     _throwable = throwable;
     // Integrations that rethrow are not the capture site, so whoever captures
     // the error later needs a way back to this span.
-    linkTo(throwable);
+    linkTo(throwableSpanLinks, throwable);
   }
 
   @override
-  void linkTo(Object? key, {bool replace = false}) =>
-      spanLinks.link(key, _span, replace: replace);
+  void linkTo(SpanLinks links, Object? key) => links.link(key, _span);
 
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {

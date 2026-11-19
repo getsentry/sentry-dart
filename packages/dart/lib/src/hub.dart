@@ -377,7 +377,7 @@ class Hub {
         scope.getActiveSpan() != null) {
       return scope;
     }
-    final span = spanLinks.spanFor(throwable) ?? getActiveSpan();
+    final span = throwableSpanLinks.spanFor(throwable) ?? getActiveSpan();
     if (span == null) {
       return scope;
     }

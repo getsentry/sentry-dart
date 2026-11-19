@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 
 import '../constants.dart';
 import '../hub.dart';
@@ -6,8 +7,14 @@ import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../telemetry/span/sentry_trace_origins.dart';
 import '../telemetry/span/instrumentation/instrumentation.dart';
+import '../telemetry/span/instrumentation/span_links.dart';
 import '../utils/http_sanitizer.dart';
 import '../telemetry/span/propagation/tracing_utils.dart';
+
+/// Links each request to the span [TracingClient] created for it, for the
+/// failed request client to find when it captures the failure.
+@internal
+final httpRequestSpanLinks = SpanLinks();
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature. If tracing is disabled
@@ -55,7 +62,7 @@ class TracingClient extends BaseClient {
         : null;
     // The failed request client captures below this one, where the span is
     // only reachable through the request.
-    instrumentationSpan?.linkTo(request, replace: true);
+    instrumentationSpan?.linkTo(httpRequestSpanLinks, request);
 
     // Regardless whether tracing is enabled or not, we always want to attach
     // Sentry trace headers (tracing without performance).

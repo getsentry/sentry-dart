@@ -7,7 +7,7 @@ import '../protocol.dart';
 import '../exception/throwable_mechanism.dart';
 import '../type_check_hint.dart';
 import '../utils/http_sanitizer.dart';
-import '../telemetry/span/instrumentation/span_links.dart';
+import 'tracing_client.dart' show httpRequestSpanLinks;
 import '../telemetry/span/propagation/tracing_utils.dart';
 import 'sentry_http_client.dart';
 import 'sentry_http_client_error.dart';
@@ -234,7 +234,7 @@ class FailedRequestClient extends BaseClient {
       hint.set(TypeCheckHint.httpResponse, response);
     }
 
-    final span = spanLinks.spanFor(request);
+    final span = httpRequestSpanLinks.spanFor(request);
     await _hub.captureEvent(
       event,
       stackTrace: stackTrace,
