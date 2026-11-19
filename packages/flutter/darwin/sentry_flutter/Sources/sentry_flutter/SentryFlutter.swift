@@ -169,8 +169,11 @@ public final class SentryFlutter {
         guard hardwareModel.hasPrefix("iPhone"), sceneRole == .windowApplication else {
             return maximumFramesPerSecond
         }
+        // Mirror the Flutter engine, which reads the key with `boolValue`, so a
+        // string value such as `<string>YES</string>` also opts in.
+        let value = infoDictionary?["CADisableMinimumFrameDurationOnPhone"]
         let allowsHighRefreshRate =
-            infoDictionary?["CADisableMinimumFrameDurationOnPhone"] as? Bool ?? false
+            (value as? NSNumber)?.boolValue ?? (value as? NSString)?.boolValue ?? false
         return allowsHighRefreshRate ? maximumFramesPerSecond : min(maximumFramesPerSecond, 60)
     }
 

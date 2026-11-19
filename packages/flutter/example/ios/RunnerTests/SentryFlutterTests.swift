@@ -162,6 +162,17 @@ final class SentryFlutterTests: XCTestCase {
     XCTAssertEqual(120, refreshRate)
   }
 
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyStringYesReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSString(string: "YES")]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+
   func testFallbackDisplayRefreshRateForIPhoneOnlyAppOnIPadWithoutHighRefreshRateKeyReturnsMaximum() {
     let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
       maximumFramesPerSecond: 120,
