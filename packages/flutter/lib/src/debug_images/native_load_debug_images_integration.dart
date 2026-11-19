@@ -55,13 +55,16 @@ class _LoadNativeDebugImagesIntegrationEventProcessor
         stackTrace.frames.any((frame) => 'native' == frame.platform)) {
       var images = await _native.loadDebugImages(stackTrace);
 
-      // On windows, we need to add the ELF debug image of the AOT code.
-      // See https://github.com/flutter/flutter/issues/154840
-      if (_options.platform.isWindows) {
-        final debugImage = _dartProcessor.getAppDebugImage(stackTrace);
-        if (debugImage != null) {
-          images ??= List.empty();
-          images.add(debugImage);
+      // Add the ELF debug image of the AOT code (app.so on Windows, libapp.so
+      // on Android) if the native SDK didn't report it. On Windows the native
+      // SDK never does, see https://github.com/flutter/flutter/issues/154840.
+      // On Android the native module list is cached per process and can miss
+      // libapp.so, which leaves every Dart event of that process
+      // unsymbolicated.
+      if (_options.platform.isWindows || _options.platform.isAndroid) {
+        final appImage = _dartProcessor.getAppDebugImage(stackTrace);
+        if (appImage != null && !_containsImage(images, appImage)) {
+          images = [...?images, appImage];
         }
       }
       if (images != null) {
@@ -75,5 +78,11 @@ class _LoadNativeDebugImagesIntegrationEventProcessor
     }
 
     return event;
+  }
+
+  static bool _containsImage(List<DebugImage>? images, DebugImage image) {
+    final codeId = image.codeId?.toLowerCase();
+    if (codeId == null || images == null) return false;
+    return images.any((i) => i.codeId?.toLowerCase() == codeId);
   }
 }

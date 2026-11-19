@@ -1,5 +1,31 @@
 # Changelog
 
+## 10.6.0
+
+### Features
+
+- Windows: run sentry-native init, scope sync and close on a background worker so they no longer freeze the app window or delay the first frame. by @palmoni5 and @Y-PLONI in [#4094](https://github.com/getsentry/sentry-dart/pull/4094)
+
+### Fixes
+
+#### Flutter
+
+- Add Dart app debug image on Android by @buenaflor with @sentry-junior in [#4194](https://github.com/getsentry/sentry-dart/pull/4194)
+- Cap iOS fallback refresh rate at 60Hz by @buenaflor with @sentry-junior in [#4192](https://github.com/getsentry/sentry-dart/pull/4192)
+
+#### Other
+
+- (dart) Add status to streaming trace context by @buenaflor with @sentry-junior in [#4193](https://github.com/getsentry/sentry-dart/pull/4193)
+- (native) Fall back to XDG cache dir on Linux by @yeegz and @buenaflor in [#4189](https://github.com/getsentry/sentry-dart/pull/4189)
+- (replay) Route network detail through sentry-java's own hint by @hkarmoush and @buenaflor in [#3980](https://github.com/getsentry/sentry-dart/pull/3980)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update JavaScript SDK to v11.14.0 by @github-actions in [#4183](https://github.com/getsentry/sentry-dart/pull/4183)
+- chore(deps): update Android SDK to v8.65.0 by @github-actions in [#4184](https://github.com/getsentry/sentry-dart/pull/4184)
+
 ## 10.5.0
 
 ### Fixes

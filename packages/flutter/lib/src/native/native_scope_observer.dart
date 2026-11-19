@@ -1,18 +1,21 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/scope_observer.dart' show HintAwareScopeObserver;
 
 import 'sentry_native_binding.dart';
 import '../utils/internal_logger.dart';
 
-class NativeScopeObserver implements ScopeObserver {
+class NativeScopeObserver implements ScopeObserver, HintAwareScopeObserver {
   NativeScopeObserver(this._native);
 
   final SentryNativeBinding _native;
 
   @override
   FutureOr<void> setContexts(String key, value) {
-    // ignore: invalid_use_of_internal_member
     if (Contexts.defaultFields.contains(key)) {
       try {
         final json = (value as dynamic).toJson();
@@ -39,7 +42,19 @@ class NativeScopeObserver implements ScopeObserver {
 
   @override
   FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
-    return _native.addBreadcrumb(breadcrumb);
+    return addBreadcrumbWithHint(breadcrumb, Hint());
+  }
+
+  @override
+  FutureOr<void> addBreadcrumbWithHint(Breadcrumb breadcrumb, Hint hint) async {
+    final request = hint.get(TypeCheckHint.replayNetworkRequestDetail);
+    final response = hint.get(TypeCheckHint.replayNetworkResponseDetail);
+
+    await _native.addBreadcrumb(
+      breadcrumb,
+      networkRequestDetail: request is Map<String, dynamic> ? request : null,
+      networkResponseDetail: response is Map<String, dynamic> ? response : null,
+    );
   }
 
   @override
