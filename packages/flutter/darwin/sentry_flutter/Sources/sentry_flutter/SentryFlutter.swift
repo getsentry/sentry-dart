@@ -181,9 +181,10 @@ public final class SentryFlutter {
         }
         var systemInfo = utsname()
         uname(&systemInfo)
-        return withUnsafeBytes(of: &systemInfo.machine) { buffer in
-            String(decoding: buffer.prefix { $0 != 0 }, as: UTF8.self)
+        let machine = withUnsafeBytes(of: &systemInfo.machine) { buffer in
+            Array(buffer.prefix { $0 != 0 })
         }
+        return String(bytes: machine, encoding: .utf8) ?? ""
     }
     #endif
 
