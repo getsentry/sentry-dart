@@ -3,24 +3,26 @@ import Flutter
 import Sentry
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private let _channel = "example.flutter.sentry.io"
 
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-
-    guard let controller = window?.rootViewController as? FlutterViewController else {
-      fatalError("rootViewController is not type FlutterViewController")
-    }
-
-    let channel = FlutterMethodChannel(name: _channel,
-                            binaryMessenger: controller.binaryMessenger)
-    channel.setMethodCallHandler(handleMessage)
-
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  // With the UIScene life cycle (required by the iOS 27 SDK), the window and
+  // engine don't exist yet in didFinishLaunching, so register plugins and the
+  // method channel once Flutter has created its implicit engine.
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+
+    let channel = FlutterMethodChannel(
+      name: _channel,
+      binaryMessenger: engineBridge.applicationRegistrar.messenger())
+    channel.setMethodCallHandler(handleMessage)
   }
 
   private func handleMessage(call: FlutterMethodCall, result: FlutterResult) {
