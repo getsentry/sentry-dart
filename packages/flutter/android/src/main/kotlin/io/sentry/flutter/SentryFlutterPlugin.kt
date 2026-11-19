@@ -280,8 +280,10 @@ class SentryFlutterPlugin :
 
       @Suppress("UNCHECKED_CAST")
       val detail = parseJsonBytes(networkDetailBytes) as? Map<String, Any?> ?: return null
+
       @Suppress("UNCHECKED_CAST")
       val request = detail["request"] as? Map<String, Any?>
+
       @Suppress("UNCHECKED_CAST")
       val response = detail["response"] as? Map<String, Any?>
       if (request == null && response == null) return null
