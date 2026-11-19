@@ -1366,8 +1366,21 @@ class MockSentryNativeBinding extends _i1.Mock
           as _i10.FutureOr<void>);
 
   @override
-  _i10.FutureOr<void> addBreadcrumb(_i2.Breadcrumb? breadcrumb) =>
-      (super.noSuchMethod(Invocation.method(#addBreadcrumb, [breadcrumb]))
+  _i10.FutureOr<void> addBreadcrumb(
+    _i2.Breadcrumb? breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #addBreadcrumb,
+              [breadcrumb],
+              {
+                #networkRequestDetail: networkRequestDetail,
+                #networkResponseDetail: networkResponseDetail,
+              },
+            ),
+          )
           as _i10.FutureOr<void>);
 
   @override
@@ -2979,6 +2992,23 @@ class MockSentryJsBinding extends _i1.Mock implements _i22.SentryJsBinding {
     Invocation.method(#captureSession, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  String? getReplayId({bool? onlyIfSampled = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#getReplayId, [], {
+              #onlyIfSampled: onlyIfSampled,
+            }),
+          )
+          as String?);
+
+  @override
+  bool isReplayBuffering() =>
+      (super.noSuchMethod(
+            Invocation.method(#isReplayBuffering, []),
+            returnValue: false,
+          )
+          as bool);
 
   @override
   void startReplay() => super.noSuchMethod(
