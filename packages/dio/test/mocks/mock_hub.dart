@@ -20,6 +20,12 @@ class MockHub with NoSuchMethodProvider implements Hub {
   @override
   Scope get scope => Scope(_options);
 
+  @override
+  Scope get traceScope => scope;
+
+  @override
+  void unbindSpanFromScope(ISentrySpan span) {}
+
   final _options = defaultTestOptions();
 
   @override
