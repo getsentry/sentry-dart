@@ -125,17 +125,12 @@ internal class WorkerExitGate(
   private fun exitFor(token: Long) = exits.getOrPut(token) { Exit() }
 
   private fun park(token: Long) {
-    try {
-      Thread.currentThread().name = PARKED_THREAD_NAME
-      log(
-        "A Sentry worker isolate did not exit before its engine was destroyed (token $token). " +
-          "Parking its thread: exiting now would release GPU resources after the engine is gone.",
-      )
-    } finally {
-      // The name and the log line are diagnostics. The park is what prevents the crash, so it
-      // must happen even if they throw.
-      block()
-    }
+    Thread.currentThread().name = PARKED_THREAD_NAME
+    log(
+      "A Sentry worker isolate did not exit before its engine was destroyed (token $token). " +
+        "Parking its thread: exiting now would release GPU resources after the engine is gone.",
+    )
+    block()
   }
 
   companion object {

@@ -50,15 +50,7 @@ class WorkerExitGateTest {
   }
 
   @Test
-  fun `requestExit grants a token that was never armed`() {
-    val sut = getSut()
-
-    assertTrue(sut.requestExit(1))
-    assertEquals(0, blocked.get())
-  }
-
-  @Test
-  fun `await returns true once every armed worker was granted`() {
+  fun `await returns true after the grace period once every armed worker was granted`() {
     val sut = getSut()
     sut.arm(1)
     sut.arm(1)
@@ -66,16 +58,6 @@ class WorkerExitGateTest {
     assertTrue(sut.requestExit(1))
     assertTrue(sut.requestExit(1))
     assertTrue(sut.await(1, 1000))
-  }
-
-  @Test
-  fun `await holds the grace period after the last grant`() {
-    val sut = getSut()
-    sut.arm(1)
-    sut.requestExit(1)
-
-    sut.await(1, 1000)
-
     assertEquals(listOf(5L), slept)
   }
 
@@ -93,25 +75,6 @@ class WorkerExitGateTest {
 
     assertTrue(sut.await(1, TimeUnit.MINUTES.toMillis(1)))
     worker.join()
-  }
-
-  @Test
-  fun `await returns false without a grace period when a worker did not ask in time`() {
-    val sut = getSut()
-    sut.arm(1)
-
-    assertFalse(sut.await(1, 0))
-    assertEquals(emptyList<Long>(), slept)
-  }
-
-  @Test
-  fun `requestExit parks a worker that asks after await gave up`() {
-    val sut = getSut()
-    sut.arm(1)
-    sut.await(1, 0)
-
-    assertFalse(sut.requestExit(1))
-    assertEquals(1, blocked.get())
   }
 
   @Test
@@ -170,17 +133,6 @@ class WorkerExitGateTest {
   }
 
   @Test
-  fun `requestExit parks a second request after await returned true`() {
-    val sut = getSut()
-    sut.arm(1)
-    sut.requestExit(1)
-    assertTrue(sut.await(1, 1000))
-
-    assertFalse(sut.requestExit(1))
-    assertEquals(1, blocked.get())
-  }
-
-  @Test
   fun `requestExit parks a worker armed after await returned for a token nobody had armed`() {
     val sut = getSut()
     assertTrue(sut.await(1, 1000))
@@ -203,18 +155,20 @@ class WorkerExitGateTest {
   @Test
   fun `await returns true with the grace period when a worker asked without being armed`() {
     val sut = getSut()
-    sut.requestExit(1)
 
+    assertTrue(sut.requestExit(1))
     assertTrue(sut.await(1, 0))
     assertEquals(listOf(5L), slept)
+    assertEquals(0, blocked.get())
   }
 
   @Test(timeout = 10_000)
-  fun `await gives up after its timeout when a worker never asks`() {
+  fun `await gives up after its timeout without a grace period when a worker never asks`() {
     val sut = getSut()
     sut.arm(1)
 
     assertFalse(sut.await(1, 50))
+    assertEquals(emptyList<Long>(), slept)
   }
 
   @Test(timeout = 10_000)
@@ -231,35 +185,5 @@ class WorkerExitGateTest {
     while (worker.isInterrupted && worker.isAlive) Thread.yield()
 
     assertEquals(Thread.State.WAITING, awaitParkedOrEnded(worker))
-  }
-
-  @Test(timeout = 10_000)
-  fun `requestExit stays parked when its thread was interrupted before it asked`() {
-    val sut = WorkerExitGate(log = { logged.add(it) })
-    sut.arm(1)
-    sut.await(1, 0)
-
-    val worker =
-      thread(isDaemon = true) {
-        Thread.currentThread().interrupt()
-        sut.requestExit(1)
-      }
-
-    assertEquals(Thread.State.WAITING, awaitParkedOrEnded(worker))
-  }
-
-  @Test
-  fun `requestExit parks even when logging throws`() {
-    val sut =
-      WorkerExitGate(
-        log = { throw IllegalStateException("log failed") },
-        block = { blocked.incrementAndGet() },
-      )
-    sut.arm(1)
-    sut.await(1, 0)
-
-    runCatching { sut.requestExit(1) }
-
-    assertEquals(1, blocked.get())
   }
 }

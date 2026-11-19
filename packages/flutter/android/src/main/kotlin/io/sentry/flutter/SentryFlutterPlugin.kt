@@ -81,8 +81,7 @@ class SentryFlutterPlugin :
     try {
       awaitWorkerIsolateExit()
     } finally {
-      // awaitWorkerIsolateExit() only catches Exception. The plugin must be torn down even if
-      // it throws an Error.
+      // The plugin must be torn down even if the wait throws.
       tearDownReplayIntegration()
       channel.setMethodCallHandler(null)
       applicationContext = null
@@ -99,13 +98,10 @@ class SentryFlutterPlugin :
    * which is blocked.
    *
    * The threads are merged on every Flutter version this SDK supports: the Android engine
-   * refuses to start otherwise. The one exception is its mergeAfterLaunch mode, where they are
-   * not merged until the root isolate was launched. Until then invokeMethod only posts the call
-   * to the UI thread. await then usually runs before the root isolate has armed anything: it
-   * returns at once and closes the token. Workers stopped with that token later are parked by
-   * the gate instead of exiting. That keeps them from releasing GPU resources after the engine
-   * is gone, at the cost of one parked thread per worker and an isolate group that is never
-   * freed. If the root isolate does arm in time, await waits as in the merged case.
+   * refuses to start otherwise. The one exception is its mergeAfterLaunch mode, until the root
+   * isolate was launched. The call is only posted then, so await usually finds nothing armed
+   * and returns at once. It still closes the token: workers stopped with it later are parked
+   * by the gate instead of exiting after the engine is gone.
    */
   @Suppress("TooGenericExceptionCaught")
   private fun awaitWorkerIsolateExit() {
@@ -117,15 +113,11 @@ class SentryFlutterPlugin :
     }
     // Runs even if the call above failed: the gate grants every request for a token that was
     // not closed, and only await closes it.
-    try {
-      if (!workerExitGate.await(token, WORKER_EXIT_TIMEOUT_MILLIS)) {
-        Log.w(
-          "Sentry",
-          "Worker isolates did not exit within $WORKER_EXIT_TIMEOUT_MILLIS ms of engine detach",
-        )
-      }
-    } catch (e: Exception) {
-      Log.e("Sentry", "Failed to wait for worker isolates to exit", e)
+    if (!workerExitGate.await(token, WORKER_EXIT_TIMEOUT_MILLIS)) {
+      Log.w(
+        "Sentry",
+        "Worker isolates did not exit within $WORKER_EXIT_TIMEOUT_MILLIS ms of engine detach",
+      )
     }
   }
 
