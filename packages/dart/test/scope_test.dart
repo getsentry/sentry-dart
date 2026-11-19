@@ -800,6 +800,30 @@ void main() {
     });
 
     test(
+      'trace context status defaults to ok with active streaming span',
+      () async {
+        final scope = Scope(defaultTestOptions())
+          ..setActiveSpan(fixture.createSpan());
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.status, SpanStatus.ok());
+      },
+    );
+
+    test(
+      'trace context status is unknown error when active streaming span errored',
+      () async {
+        final span = fixture.createSpan()..status = SentrySpanStatusV2.error;
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.status, SpanStatus.unknownError());
+      },
+    );
+
+    test(
       'trace context status defaults to ok with propagation context',
       () async {
         final event = SentryEvent();
