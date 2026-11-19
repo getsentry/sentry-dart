@@ -701,7 +701,13 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(nil)
             return
         }
-        result(windowScene.screen.maximumFramesPerSecond)
+        let isBuiltInPhoneDisplay = UIDevice.current.userInterfaceIdiom == .phone
+            && windowScene.session.role == .windowApplication
+        result(SentryFlutter.fallbackDisplayRefreshRate(
+            maximumFramesPerSecond: windowScene.screen.maximumFramesPerSecond,
+            isBuiltInPhoneDisplay: isBuiltInPhoneDisplay,
+            infoDictionary: Bundle.main.infoDictionary
+        ))
     }
 
     @objc private func onDisplayLink(_ displayLink: CADisplayLink) {

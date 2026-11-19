@@ -144,6 +144,28 @@ public final class SentryFlutter {
         #endif
     }
 
+    #if os(iOS)
+    /// Returns the refresh rate an app draws at on a screen whose maximum is
+    /// `maximumFramesPerSecond`.
+    ///
+    /// On an iPhone's built-in display, ProMotion rates above 60 Hz are only
+    /// available when the app sets `CADisableMinimumFrameDurationOnPhone` in
+    /// its `Info.plist`:
+    /// https://developer.apple.com/documentation/quartzcore/optimizing-iphone-and-ipad-apps-to-support-promotion-displays
+    public static func fallbackDisplayRefreshRate(
+        maximumFramesPerSecond: Int,
+        isBuiltInPhoneDisplay: Bool,
+        infoDictionary: [String: Any]?
+    ) -> Int {
+        guard isBuiltInPhoneDisplay else {
+            return maximumFramesPerSecond
+        }
+        let allowsHighRefreshRate =
+            infoDictionary?["CADisableMinimumFrameDurationOnPhone"] as? Bool ?? false
+        return allowsHighRefreshRate ? maximumFramesPerSecond : min(maximumFramesPerSecond, 60)
+    }
+    #endif
+
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
         switch diagnosticLevel {
         case "fatal":

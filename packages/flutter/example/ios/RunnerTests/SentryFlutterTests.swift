@@ -124,6 +124,48 @@ final class SentryFlutterTests: XCTestCase {
     XCTAssertNil(fixture.options.urlSession)
     #endif
   }
+
+  #if os(iOS)
+  func testFallbackDisplayRefreshRateOnIPhoneWithoutHighRefreshRateKeyCapsAt60() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      isBuiltInPhoneDisplay: true,
+      infoDictionary: [:]
+    )
+
+    XCTAssertEqual(60, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyFalseCapsAt60() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      isBuiltInPhoneDisplay: true,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSNumber(value: false)]
+    )
+
+    XCTAssertEqual(60, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyTrueReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      isBuiltInPhoneDisplay: true,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSNumber(value: true)]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPadWithoutHighRefreshRateKeyReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      isBuiltInPhoneDisplay: false,
+      infoDictionary: [:]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+  #endif
 }
 
 extension SentryFlutterTests {
