@@ -33,6 +33,7 @@ jobs:
             kotlin_android_plugin_version: "2.3.0"
 
     env:
+      ANDROID_GRADLE_PLUGIN_VERSION: "8.11.1"
       KOTLIN_LANGUAGE_VERSION: ${{ matrix.kotlin_language_version }}
       KOTLIN_ANDROID_PLUGIN_VERSION: ${{ matrix.kotlin_android_plugin_version }}
 
@@ -47,7 +48,13 @@ jobs:
 
       - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
         with:
-          channel: stable
+          # Keep the older Android toolchain for the Kotlin versions under test.
+          flutter-version: '3.47.9'
+
+      - name: Use Gradle 8 for the older Kotlin plugins
+        run: |
+          sed -i 's|^distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.14.3-bin.zip|' \
+            android/gradle/wrapper/gradle-wrapper.properties
 
       - name: Flutter pub get
         run: flutter pub get

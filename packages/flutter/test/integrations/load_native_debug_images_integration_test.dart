@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/native_load_debug_images_integration.dart';
 
@@ -99,6 +100,98 @@ void main() {
       expect('test', image.debugFile);
     });
 
+    group('on Android', () {
+      setUp(() {
+        fixture.options.platform = MockPlatform.android();
+      });
+
+      test('adds the app image when native returns no images', () async {
+        when(
+          fixture.binding.loadDebugImages(any),
+        ).thenAnswer((_) async => null);
+        final ep = fixture.options.eventProcessors.first;
+
+        final event = await ep.apply(_getEventWithDartStackInfo(), Hint());
+
+        final images = event!.debugMeta!.images;
+        expect(images.length, 1);
+        expect(images.single.type, 'elf');
+        expect(images.single.codeFile, 'libapp.so');
+        expect(images.single.codeId, _appBuildId);
+        expect(images.single.imageAddr, _appBaseAddr);
+        expect(images.single.debugId, '11e04653-ff03-d4ee-4e97-094ff7bfcc19');
+      });
+
+      test(
+        'appends the app image when native images do not include it',
+        () async {
+          when(
+            fixture.binding.loadDebugImages(any),
+          ).thenAnswer((_) async => imageList.toList(growable: false));
+          final ep = fixture.options.eventProcessors.first;
+
+          final event = await ep.apply(_getEventWithDartStackInfo(), Hint());
+
+          final images = event!.debugMeta!.images;
+          expect(images.length, 2);
+          expect(images.first.codeFile, imageList.first.codeFile);
+          expect(images.last.codeFile, 'libapp.so');
+          expect(images.last.codeId, _appBuildId);
+        },
+      );
+
+      test('does not duplicate the app image returned by native', () async {
+        final nativeAppImage = DebugImage(
+          type: 'elf',
+          codeFile: '/data/app/base.apk!/lib/arm64-v8a/libapp.so',
+          codeId: _appBuildId.toUpperCase(),
+          imageAddr: _appBaseAddr,
+        );
+        when(
+          fixture.binding.loadDebugImages(any),
+        ).thenAnswer((_) async => [nativeAppImage]);
+        final ep = fixture.options.eventProcessors.first;
+
+        final event = await ep.apply(_getEventWithDartStackInfo(), Hint());
+
+        final images = event!.debugMeta!.images;
+        expect(images.length, 1);
+        expect(images.single, nativeAppImage);
+      });
+    });
+
+    test(
+      'on Windows adds the app image when native returns no images',
+      () async {
+        fixture.options.platform = MockPlatform.windows();
+        when(
+          fixture.binding.loadDebugImages(any),
+        ).thenAnswer((_) async => null);
+        final ep = fixture.options.eventProcessors.first;
+
+        final event = await ep.apply(_getEventWithDartStackInfo(), Hint());
+
+        final images = event!.debugMeta!.images;
+        expect(images.length, 1);
+        expect(images.single.codeFile, 'data/app.so');
+        expect(images.single.codeId, _appBuildId);
+      },
+    );
+
+    test('on iOS does not add the app image', () async {
+      fixture.options.platform = MockPlatform.iOS();
+      when(
+        fixture.binding.loadDebugImages(any),
+      ).thenAnswer((_) async => imageList.toList());
+      final ep = fixture.options.eventProcessors.first;
+
+      final event = await ep.apply(_getEventWithDartStackInfo(), Hint());
+
+      final images = event!.debugMeta!.images;
+      expect(images.length, 1);
+      expect(images.single.codeFile, imageList.first.codeFile);
+    });
+
     test('Native layer is not called as there is no exceptions', () async {
       expect(fixture.options.eventProcessors.length, 1);
 
@@ -172,6 +265,24 @@ void main() {
     await fixture.registerIntegration();
     expect(fixture.options.eventProcessors.length, 0);
   });
+}
+
+const _appBuildId = '5346e01103ffeed44e97094ff7bfcc19';
+const _appBaseAddr = '0x723d447000';
+
+SentryEvent _getEventWithDartStackInfo() {
+  final frame = SentryStackFrame(
+    platform: 'native',
+    instructionAddr: '0x723d6346d7',
+  );
+  final st = SentryStackTrace(
+    frames: [frame],
+    // ignore: invalid_use_of_internal_member
+    baseAddr: _appBaseAddr,
+    // ignore: invalid_use_of_internal_member
+    buildId: _appBuildId,
+  );
+  return SentryEvent(threads: [SentryThread(stacktrace: st)]);
 }
 
 SentryEvent _getEvent() {
