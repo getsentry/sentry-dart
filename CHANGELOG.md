@@ -1,5 +1,11 @@
 # Changelog
 
+## 9.30.2
+
+### Fixes
+
+- (flutter) Add Dart app debug image on Android by @christophaigner and @buenaflor with @sentry-junior in [#4198](https://github.com/getsentry/sentry-dart/pull/4198)
+
 ## 9.30.1
 
 ### Fixes
