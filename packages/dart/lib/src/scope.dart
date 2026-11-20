@@ -15,6 +15,7 @@ import 'sentry_options.dart';
 import 'telemetry/span/transaction/sentry_span_interface.dart';
 import 'telemetry/span/transaction/sentry_tracer.dart';
 import 'telemetry/span/streaming/sentry_span_v2.dart';
+import 'telemetry/span/streaming/span_status_v2_conversion.dart';
 import 'utils/internal_logger.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
@@ -188,10 +189,8 @@ class Scope {
   /// capped at 100 entries — the oldest is dropped only when a new flag is added
   /// beyond the limit.
   FutureOr<void> addFeatureFlag(String flag, bool result) {
-    final flags =
-        _contexts[SentryFeatureFlags.type] as SentryFeatureFlags? ??
-        SentryFeatureFlags(values: []);
-    final values = List<SentryFeatureFlag>.from(flags.values);
+    final existing = _contexts[SentryFeatureFlags.type] as SentryFeatureFlags?;
+    final values = List<SentryFeatureFlag>.from(existing?.values ?? const []);
 
     final index = values.indexWhere((element) => element.flag == flag);
     if (index != -1) {
@@ -204,7 +203,11 @@ class Scope {
       values.removeAt(0);
     }
 
-    flags.values = values;
+    // Build a new instance: captured events share the old one by reference.
+    final flags = SentryFeatureFlags(
+      values: values,
+      unknown: existing?.unknown,
+    );
 
     _options.sdk.addFeature(SentryFeatures.featureFlags);
 
@@ -284,12 +287,16 @@ class Scope {
 
   /// Adds a breadcrumb to the breadcrumbs queue
   Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
-    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint ?? Hint());
+    final resolvedHint = hint ?? Hint();
+    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, resolvedHint);
     if (addedBreadcrumb != null) {
-      await _callScopeObservers(
-        (scopeObserver) async =>
-            await scopeObserver.addBreadcrumb(addedBreadcrumb),
-      );
+      await _callScopeObservers((scopeObserver) async {
+        if (scopeObserver case final HintAwareScopeObserver observer) {
+          await observer.addBreadcrumbWithHint(addedBreadcrumb, resolvedHint);
+        } else {
+          await scopeObserver.addBreadcrumb(addedBreadcrumb);
+        }
+      });
     }
   }
 
@@ -444,6 +451,7 @@ class Scope {
                   as String? ??
               'default',
           sampled: activeSpan.samplingDecision.sampled,
+          status: spanStatusFromV2(activeSpan.status),
         );
         event.transaction ??= activeSpan.segmentSpan.name;
       } else if (newSpan != null) {

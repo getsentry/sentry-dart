@@ -94,7 +94,7 @@ void main() {
         fixture.sut.updatePosition(const ui.Rect.fromLTWH(0, 0, 8, 4), 1);
 
         final current = fixture.shadowCanvas!;
-        expect(current, isNot(same(previous)));
+        expect(jsIdentical(current, previous), isFalse);
         expect(previous.isConnected, isFalse);
         expect(current.id, 'sentry-flutter-replay-canvas');
         expect(current.style.position, 'fixed');
@@ -112,7 +112,7 @@ void main() {
 
         fixture.sut.updatePosition(const ui.Rect.fromLTWH(5, 5, 4, 4), 1);
 
-        expect(fixture.shadowCanvas, same(previous));
+        expect(jsIdentical(fixture.shadowCanvas, previous), isTrue);
         expect(previous.style.left, '5px');
       });
     });

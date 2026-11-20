@@ -639,6 +639,18 @@ void main() {
       expect(fixture.mockScopeObserver.numberOfSetContextsCalls, equals(1));
     });
 
+    test('does not change flags of already captured events', () async {
+      final sut = fixture.getSut();
+      await sut.addFeatureFlag('foo', true);
+      final event = await sut.applyToEvent(SentryEvent(), Hint());
+
+      await sut.addFeatureFlag('bar', true);
+
+      final eventFlags =
+          event!.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(eventFlags.values.map((e) => e.flag), equals(['foo']));
+    });
+
     test('records feature flags usage', () async {
       final sut = fixture.getSut();
 
@@ -840,6 +852,33 @@ void main() {
 
       expect(updatedEvent?.contexts.trace?.status, SpanStatus.aborted());
     });
+
+    test(
+      'trace context status defaults to ok with active streaming span',
+      () async {
+        final scope = Scope(defaultTestOptions())
+          ..setActiveSpan(fixture.createSpan());
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.status, SpanStatus.ok());
+      },
+    );
+
+    test(
+      'trace context status is internal error when active streaming span errored',
+      () async {
+        final span = fixture.createSpan()..status = SentrySpanStatusV2.error;
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(
+          updatedEvent?.contexts.trace?.status,
+          SpanStatus.internalError(),
+        );
+      },
+    );
 
     test(
       'trace context status defaults to ok with propagation context',
