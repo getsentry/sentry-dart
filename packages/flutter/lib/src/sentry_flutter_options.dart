@@ -340,7 +340,10 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Defaults to `true`
   ///
-  /// Supported platforms: `Android, iOS, macOS`
+  /// Supported platforms: `Android, iOS, macOS, Web`
+  ///
+  /// On Web the display refresh rate is not available, so frames are measured
+  /// against a 60 Hz display. On a faster display, slow frames are under-reported.
   ///
   /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
