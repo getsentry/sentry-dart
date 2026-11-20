@@ -1,11 +1,19 @@
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 
 import 'constants.dart';
 import 'internal_logger.dart';
 import 'sentry_supabase_request.dart';
+
+/// Links each request to the span [SentrySupabaseTracingClient] created for it,
+/// for the error client to find.
+@internal
+final supabaseRequestSpanLinks = SpanLinks();
 
 class SentrySupabaseTracingClient extends BaseClient {
   final Client _innerClient;
@@ -27,6 +35,9 @@ class SentrySupabaseTracingClient extends BaseClient {
     }
 
     final span = _createSpan(supabaseRequest);
+    // The error client captures a failed status code after this span ended,
+    // where the span is only reachable through the request.
+    span?.linkTo(supabaseRequestSpanLinks, request);
 
     StreamedResponse? response;
 

@@ -25,6 +25,28 @@ void main() {
       await fixture.tearDown();
     });
 
+    test('links an error captured after the query span ended', () async {
+      final db = fixture.db;
+
+      Object? error;
+      await fixture.hub.startSpan('segment', (_) async {
+        try {
+          await db.rawQuery('SELECT * FROM missing_table');
+        } catch (e) {
+          error = e;
+        }
+      }, parentSpan: null);
+      await fixture.hub.captureException(error);
+      await fixture.processor.waitForProcessing();
+
+      final failedSpan = fixture.processor.capturedSpans.singleWhere(
+        (span) => span.status == SentrySpanStatusV2.error,
+      );
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, failedSpan.spanId);
+      expect(event.transaction, 'segment');
+    });
+
     test('Database.query() creates spanv2', () async {
       final db = fixture.db;
 
@@ -164,6 +186,7 @@ class Fixture {
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
   late Database db;
+  final events = <SentryEvent>[];
 
   Fixture() {
     processor = FakeTelemetryProcessor();
@@ -171,7 +194,11 @@ class Fixture {
       ..automatedTestMode = true
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      ..beforeSend = (event, hint) {
+        events.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());

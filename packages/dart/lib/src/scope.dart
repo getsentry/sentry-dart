@@ -453,6 +453,7 @@ class Scope {
           sampled: activeSpan.samplingDecision.sampled,
           status: spanStatusFromV2(activeSpan.status),
         );
+        event.transaction ??= activeSpan.segmentSpan.name;
       } else if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
           sampled: newSpan.samplingDecision?.sampled,
