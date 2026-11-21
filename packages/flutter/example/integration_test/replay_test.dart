@@ -507,6 +507,8 @@ void main() {
 
       await SentryFlutter.replay.pause();
       await SentryFlutter.replay.resume();
+      await SentryFlutter.replay.pauseTouchTracking();
+      await SentryFlutter.replay.resumeTouchTracking();
       await SentryFlutter.replay.flush();
       await SentryFlutter.replay.stop();
       await SentryFlutter.replay.startBuffering();
