@@ -83,7 +83,6 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
       framesTracker,
       resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
       pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames(),
-      clock: options.clock,
     );
     _collector = collector;
 

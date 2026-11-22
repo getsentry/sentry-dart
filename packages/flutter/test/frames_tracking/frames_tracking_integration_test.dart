@@ -22,6 +22,7 @@ void main() {
   late SentryFlutterOptions options;
   late FramesTrackingIntegration integration;
   late SentryWidgetsBindingMixin? widgetsBinding;
+  late MockSentryNativeBinding mockNativeBinding;
 
   Future<void> fromWorkingState(
     SentryFlutterOptions options, {
@@ -40,7 +41,7 @@ void main() {
       options.enableFramesTracking = false;
     }
 
-    final mockNativeBinding = MockSentryNativeBinding();
+    mockNativeBinding = MockSentryNativeBinding();
     when(mockNativeBinding.displayRefreshRate()).thenAnswer((_) async {
       if (setUnavailableRefreshRate == true) return null;
       return setInvalidRefreshRate == true ? 0 : 60;
@@ -349,16 +350,14 @@ void main() {
         widgetsBinding!.expectedFrameDuration,
         const Duration(milliseconds: 16),
       );
-      expect(
-        options.sdk.integrations,
-        contains(FramesTrackingIntegration.integrationName),
-      );
+      expect(options.sdk.integrations, contains('FramesTracking'));
     });
 
     test('does not ask the native binding for the refresh rate', () async {
       await fromWorkingState(options, setInvalidRefreshRate: true);
 
       expect(isFramesTrackingInitialized(widgetsBinding!), isTrue);
+      verifyNever(mockNativeBinding.displayRefreshRate());
     });
   });
 

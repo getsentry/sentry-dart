@@ -14,13 +14,7 @@ class SpanFrameMetricsCollector {
     this._frameTracker, {
     required this._resumeFrameTracking,
     required this._pauseFrameTracking,
-    DateTime Function()? clock,
-  }) : _clock = clock ?? DateTime.now;
-
-  final DateTime Function() _clock;
-
-  /// When frame tracking last resumed. No frame was observed before it.
-  DateTime? _trackingSince;
+  });
 
   final SentryDelayedFramesTracker _frameTracker;
   final void Function() _resumeFrameTracking;
@@ -38,9 +32,6 @@ class SpanFrameMetricsCollector {
         return;
       }
 
-      if (_activeSpans.isEmpty) {
-        _trackingSince = _clock();
-      }
       _activeSpans.add(span);
       _resumeFrameTracking();
     });
@@ -52,14 +43,6 @@ class SpanFrameMetricsCollector {
   ) async {
     return _tryCatch('onSpanFinished', () async {
       if (!span.isRecording) {
-        return;
-      }
-
-      // A span created with past timestamps can end before frame tracking
-      // resumed. No frame was observed for it, so it gets no frame metrics.
-      final trackingSince = _trackingSince;
-      if (trackingSince != null && !endTimestamp.isAfter(trackingSince)) {
-        removeFromActiveSpans(span);
         return;
       }
 
@@ -103,7 +86,6 @@ class SpanFrameMetricsCollector {
     _pauseFrameTracking();
     _frameTracker.clear();
     _activeSpans.clear();
-    _trackingSince = null;
   }
 }
 
