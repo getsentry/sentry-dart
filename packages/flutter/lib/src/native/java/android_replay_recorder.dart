@@ -54,6 +54,10 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     // Neither sees this worker, so it has to be closed here, or it outlives
     // the recorder and keeps its isolate group alive.
     if (generation != _lifecycleGeneration) {
+      internalLogger.debug(
+        '$logName: closing the spawned worker, a later start() or stop() '
+        'superseded this start()',
+      );
       worker.close();
       return;
     }
