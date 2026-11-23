@@ -1,5 +1,87 @@
 # Changelog
 
+## 10.6.0
+
+### Features
+
+- Windows: run sentry-native init, scope sync and close on a background worker so they no longer freeze the app window or delay the first frame. by @palmoni5 and @Y-PLONI in [#4094](https://github.com/getsentry/sentry-dart/pull/4094)
+
+### Fixes
+
+#### Flutter
+
+- Add Dart app debug image on Android by @buenaflor with @sentry-junior in [#4194](https://github.com/getsentry/sentry-dart/pull/4194)
+- Cap iOS fallback refresh rate at 60Hz by @buenaflor with @sentry-junior in [#4192](https://github.com/getsentry/sentry-dart/pull/4192)
+
+#### Other
+
+- (dart) Add status to streaming trace context by @buenaflor with @sentry-junior in [#4193](https://github.com/getsentry/sentry-dart/pull/4193)
+- (native) Fall back to XDG cache dir on Linux by @yeegz and @buenaflor in [#4189](https://github.com/getsentry/sentry-dart/pull/4189)
+- (replay) Route network detail through sentry-java's own hint by @hkarmoush and @buenaflor in [#3980](https://github.com/getsentry/sentry-dart/pull/3980)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update JavaScript SDK to v11.14.0 by @github-actions in [#4183](https://github.com/getsentry/sentry-dart/pull/4183)
+- chore(deps): update Android SDK to v8.65.0 by @github-actions in [#4184](https://github.com/getsentry/sentry-dart/pull/4184)
+
+## 10.5.0
+
+### Fixes
+
+#### Flutter
+
+- Parent HTTP spans to the new route after navigating away from the initial route, instead of to the app-start `root /` transaction until its TTFD timeout (#4154) by @buenaflor, @codex and 2 others in [#4155](https://github.com/getsentry/sentry-dart/pull/4155)
+- `pushReplacement`/`replace` of the current route now starts a `ui.load` transaction (static) or route span (streaming), like `push` by @buenaflor, @codex and 2 others in [#4155](https://github.com/getsentry/sentry-dart/pull/4155)
+- With `enableAutoTransactions` disabled, navigating to a named route now ends the app-start display (TTID/TTFD end as `deadline_exceeded` in static mode), so spans from later screens no longer attach to the app start by @buenaflor, @codex and 2 others in [#4155](https://github.com/getsentry/sentry-dart/pull/4155)
+- Use a writable native database directory on Windows when `nativeDatabasePath` isn't set, so native crashes from packaged (MSIX/Microsoft Store) apps are captured. by @lucas-zimerman and @claude in [#4156](https://github.com/getsentry/sentry-dart/pull/4156)
+
+#### Other
+
+- (dart) Avoid mutating flags of captured events by @buenaflor and @claude in [#4169](https://github.com/getsentry/sentry-dart/pull/4169)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update JavaScript SDK to v11.13.0 by @buenaflor with @github-actions in [#4177](https://github.com/getsentry/sentry-dart/pull/4177)
+- chore(deps): update Cocoa SDK to v9.35.0 by @github-actions in [#4176](https://github.com/getsentry/sentry-dart/pull/4176)
+
+### Internal Changes
+
+- (agents) Disable AI attribution in commits by @buenaflor with @sentry-junior in [#4170](https://github.com/getsentry/sentry-dart/pull/4170)
+- (android) Upgrade Flutter example toolchain by @buenaflor in [#4171](https://github.com/getsentry/sentry-dart/pull/4171)
+
+## 10.4.0
+
+### Fixes
+
+- (flutter) Fetch sentry-native as a release zip on Windows by @lucas-zimerman and @claude in [#4110](https://github.com/getsentry/sentry-dart/pull/4110)
+- (link) Set span attributes on creation by @awishere, @codex and @buenaflor in [#4044](https://github.com/getsentry/sentry-dart/pull/4044)
+- (replay) Mask correctly during zoom page transitions by @lucas-zimerman, @claude and @buenaflor in [#4130](https://github.com/getsentry/sentry-dart/pull/4130)
+
+### Enhancements
+
+- Lower the minimum Android SDK version for Flutter from API 26 to API 24, matching Flutter's default `minSdk`. by @buenaflor and @lucas-zimerman with @sentry-junior in [#4150](https://github.com/getsentry/sentry-dart/pull/4150)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update JavaScript SDK to v11.12.0 by @buenaflor and @codex with @github-actions in [#4161](https://github.com/getsentry/sentry-dart/pull/4161)
+- chore(deps): update Cocoa SDK to v9.34.0 by @buenaflor and @codex with @github-actions in [#4162](https://github.com/getsentry/sentry-dart/pull/4162)
+- chore(deps): update Android SDK to v8.64.0 by @buenaflor and @codex with @github-actions in [#4163](https://github.com/getsentry/sentry-dart/pull/4163)
+- chore(deps): update Native SDK to v0.17.6 by @buenaflor with @github-actions in [#4144](https://github.com/getsentry/sentry-dart/pull/4144)
+
+### Internal Changes
+
+- (release) Bump craft to 3.9.0 and update config by @BYK with @sentry-junior in [#4140](https://github.com/getsentry/sentry-dart/pull/4140)
+- (warden) Enable incremental review by @Jeffreyhung with @sentry-junior in [#4145](https://github.com/getsentry/sentry-dart/pull/4145)
+- Ask Junior to recheck native SDK bumps by @buenaflor with @sentry-junior in [#4149](https://github.com/getsentry/sentry-dart/pull/4149)
+- Expand platform and tooling ignore rules by @philprime in [#4148](https://github.com/getsentry/sentry-dart/pull/4148)
+- Point Sentry Conventions links to conventions.sentry.dev by @cleptric and @claude in [#4146](https://github.com/getsentry/sentry-dart/pull/4146)
+
 ## 10.3.0
 
 ### Features

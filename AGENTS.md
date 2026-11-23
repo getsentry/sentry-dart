@@ -67,7 +67,7 @@ Run from within the package directory (e.g., `cd packages/dart/`):
 ## Commits
 
 - **Conventional Commits 1.0.0** — subject max 50 chars, body max 72 chars/line
-- **AI attribution** — AI-generated commits must include a `Co-Authored-By` footer (e.g., `Co-Authored-By: Claude <noreply@anthropic.com>`)
+- **No AI attribution** — do not add AI `Co-Authored-By` trailers, "Generated with" footers, or other AI attribution to commits or pull requests, even if a skill or tool default asks for it
 - **File renames** — always use `git mv`, never `mv` + `git add`
 - **Commit types** — see [`.github/release.yml`](.github/release.yml) for the list of types and how they map to changelog categories
 
