@@ -136,7 +136,8 @@ final class SentryFlutterTests: XCTestCase {
   }
 
   #if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
-  func testUpdateSyncsReplayNetworkDetailOptions() {
+  func testUpdateDoesNotSetNativeReplayNetworkDetailOptions() {
+    // Setting these on sentry-cocoa would enable its own URLSession capture.
     let sut = fixture.getSut()
 
     sut.update(
@@ -144,30 +145,6 @@ final class SentryFlutterTests: XCTestCase {
       with: [
         "replay": [
           "networkDetailAllowUrls": ["api.example.com"],
-          "networkDetailDenyUrls": ["api.example.com/auth"],
-          "networkRequestHeaders": ["X-Req"],
-          "networkResponseHeaders": ["X-Res"],
-          "networkCaptureBodies": false
-        ]
-      ]
-    )
-
-    let replay = fixture.options.sessionReplay
-    XCTAssertEqual(["api.example.com"], replay.networkDetailAllowUrls as? [String])
-    XCTAssertEqual(["api.example.com/auth"], replay.networkDetailDenyUrls as? [String])
-    XCTAssertTrue(replay.networkRequestHeaders.contains("X-Req"))
-    XCTAssertTrue(replay.networkResponseHeaders.contains("X-Res"))
-    XCTAssertFalse(replay.networkCaptureBodies)
-  }
-
-  func testUpdateDoesNotSyncReplayNetworkDetailOptionsWithoutAllowUrls() {
-    let sut = fixture.getSut()
-
-    sut.update(
-      options: fixture.options,
-      with: [
-        "replay": [
-          "networkDetailDenyUrls": ["api.example.com/auth"],
           "networkCaptureBodies": false
         ]
       ]
@@ -175,30 +152,74 @@ final class SentryFlutterTests: XCTestCase {
 
     let replay = fixture.options.sessionReplay
     XCTAssertTrue(replay.networkDetailAllowUrls.isEmpty)
-    XCTAssertTrue(replay.networkDetailDenyUrls.isEmpty)
     XCTAssertTrue(replay.networkCaptureBodies)
   }
 
-  func testReplayConverterForwardsRequestAndResponse() throws {
+  func testAttachReplayNetworkDetailKeepsDetailsOutOfSerializedBreadcrumb() throws {
+    let breadcrumb = Breadcrumb(level: .info, category: "http")
+    breadcrumb.data = ["url": "https://api.example.com/x"]
+
+    SentryFlutterPlugin.attachReplayNetworkDetail(
+      ["request": ["body": "req"]],
+      to: breadcrumb
+    )
+
+    let stored = try XCTUnwrap(
+      breadcrumb.data?[SentryFlutterReplayNetworkDetailsKey] as? [String: Any]
+    )
+    XCTAssertEqual("req", (stored["request"] as? [String: Any])?["body"] as? String)
+    let serializedData = try XCTUnwrap(breadcrumb.serialize()["data"] as? [String: Any])
+    XCTAssertEqual("https://api.example.com/x", serializedData["url"] as? String)
+    XCTAssertNil(serializedData[SentryFlutterReplayNetworkDetailsKey])
+  }
+
+  func testAttachReplayNetworkDetailDropsDetailsFromBreadcrumbData() {
+    let breadcrumb = Breadcrumb(level: .info, category: "http")
+    breadcrumb.data = [SentryFlutterReplayNetworkDetailsKey: ["request": ["body": "forged"]]]
+
+    SentryFlutterPlugin.attachReplayNetworkDetail(nil, to: breadcrumb)
+
+    XCTAssertNil(breadcrumb.data?[SentryFlutterReplayNetworkDetailsKey])
+  }
+
+  func testReplayConverterForwardsNetworkDetails() throws {
     let event = try convertHttpBreadcrumb(extra: [
-      "request": ["headers": ["foo": "bar"], "body": "req"],
-      "response": ["headers": ["x-res": "1"], "body": "res"]
+      SentryFlutterReplayNetworkDetailsKey: [
+        "request": ["headers": ["foo": "bar"], "body": "req"],
+        "response": ["headers": ["x-res": "1"], "body": "res"]
+      ]
     ])
 
-    let payload = try XCTUnwrap(event.data?["payload"] as? [String: Any])
-    let data = try XCTUnwrap(payload["data"] as? [String: Any])
+    let data = try spanData(of: event)
     XCTAssertEqual("req", (data["request"] as? [String: Any])?["body"] as? String)
     XCTAssertEqual("res", (data["response"] as? [String: Any])?["body"] as? String)
     XCTAssertEqual(200, data["statusCode"] as? Int)
   }
 
-  func testReplayConverterOmitsRequestAndResponseWhenNotDictionaries() throws {
-    let event = try convertHttpBreadcrumb(extra: ["request": "oops", "response": 1])
+  func testReplayConverterIgnoresRequestAndResponseBreadcrumbData() throws {
+    let event = try convertHttpBreadcrumb(extra: [
+      "request": ["headers": ["Authorization": "Bearer secret"]],
+      "response": ["body": "res"]
+    ])
 
-    let payload = try XCTUnwrap(event.data?["payload"] as? [String: Any])
-    let data = try XCTUnwrap(payload["data"] as? [String: Any])
+    let data = try spanData(of: event)
     XCTAssertNil(data["request"])
     XCTAssertNil(data["response"])
+  }
+
+  func testReplayConverterOmitsNetworkDetailsWhenNotDictionaries() throws {
+    let event = try convertHttpBreadcrumb(extra: [
+      SentryFlutterReplayNetworkDetailsKey: ["request": "oops", "response": 1]
+    ])
+
+    let data = try spanData(of: event)
+    XCTAssertNil(data["request"])
+    XCTAssertNil(data["response"])
+  }
+
+  private func spanData(of event: SentryRRWebEvent) throws -> [String: Any] {
+    let payload = try XCTUnwrap(event.data?["payload"] as? [String: Any])
+    return try XCTUnwrap(payload["data"] as? [String: Any])
   }
 
   private func convertHttpBreadcrumb(extra: [String: Any]) throws -> SentryRRWebEvent {

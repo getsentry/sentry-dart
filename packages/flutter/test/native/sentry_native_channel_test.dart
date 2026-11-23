@@ -148,6 +148,63 @@ void main() {
         }
       });
 
+      test('addBreadcrumb forwards network details separately', () async {
+        if (mockPlatform.isAndroid) {
+          return;
+        }
+        final breadcrumb = Breadcrumb.http(
+          url: Uri.parse('https://api.example.com/x'),
+          method: 'POST',
+        );
+        final requestDetail = <String, dynamic>{
+          'headers': {'x-req': '1'},
+          'body': 'req',
+        };
+        final responseDetail = <String, dynamic>{'body': 'res'};
+        when(
+          channel.invokeMethod('addBreadcrumb', any),
+        ).thenAnswer((_) => Future.value());
+
+        await sut.addBreadcrumb(
+          breadcrumb,
+          networkRequestDetail: requestDetail,
+          networkResponseDetail: responseDetail,
+        );
+
+        final args =
+            verify(
+                  channel.invokeMethod('addBreadcrumb', captureAny),
+                ).captured.single
+                as Map<String, dynamic>;
+        expect(args['networkDetail'], {
+          'request': requestDetail,
+          'response': responseDetail,
+        });
+        final data =
+            (args['breadcrumb'] as Map<String, dynamic>)['data']
+                as Map<String, dynamic>;
+        expect(data.containsKey('request'), isFalse);
+        expect(data.containsKey('response'), isFalse);
+      });
+
+      test('addBreadcrumb omits network details when absent', () async {
+        if (mockPlatform.isAndroid) {
+          return;
+        }
+        when(
+          channel.invokeMethod('addBreadcrumb', any),
+        ).thenAnswer((_) => Future.value());
+
+        await sut.addBreadcrumb(Breadcrumb(message: 'm'));
+
+        final args =
+            verify(
+                  channel.invokeMethod('addBreadcrumb', captureAny),
+                ).captured.single
+                as Map<String, dynamic>;
+        expect(args.containsKey('networkDetail'), isFalse);
+      });
+
       test('clearBreadcrumbs', () async {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
@@ -766,7 +823,7 @@ void main() {
     });
 
     test(
-      'does not forward network detail options without allow urls',
+      'reports no network detail urls in replay tags without allow urls',
       () async {
         final options = defaultTestOptions()
           ..platform = MockPlatform.iOS()
@@ -777,11 +834,32 @@ void main() {
         final args = await callInitAndCaptureArgs(options);
 
         final replay = args['replay'] as Map<String, dynamic>;
-        expect(replay.containsKey('networkDetailAllowUrls'), false);
+        final tags = replay['tags'] as Map<String, dynamic>;
+        expect(tags['networkDetailHasUrls'], false);
+        expect(tags.containsKey('networkDetailAllowUrls'), false);
       },
     );
 
-    test('forwards network detail options when allow urls are set', () async {
+    test(
+      'does not sync network detail options to the native replay options',
+      () async {
+        // Setting them on sentry-cocoa enables its own URLSession capture.
+        final options = defaultTestOptions()
+          ..platform = MockPlatform.iOS()
+          ..methodChannel = channel
+          ..sendDefaultPii = true;
+        options.replay.networkDetailAllowUrls.add('api.example.com');
+        sut = createBinding(options);
+
+        final args = await callInitAndCaptureArgs(options);
+
+        final replay = args['replay'] as Map<String, dynamic>;
+        expect(replay.containsKey('networkDetailAllowUrls'), false);
+        expect(replay.containsKey('networkCaptureBodies'), false);
+      },
+    );
+
+    test('reports network detail options in replay tags', () async {
       final options = defaultTestOptions()
         ..platform = MockPlatform.iOS()
         ..methodChannel = channel
@@ -795,11 +873,13 @@ void main() {
       final args = await callInitAndCaptureArgs(options);
 
       final replay = args['replay'] as Map<String, dynamic>;
-      expect(replay['networkDetailAllowUrls'], ['api.example.com']);
-      expect(replay['networkDetailDenyUrls'], ['api.example.com/auth']);
-      expect(replay['networkRequestHeaders'], ['X-Req']);
-      expect(replay['networkResponseHeaders'], ['X-Res']);
-      expect(replay['networkCaptureBodies'], true);
+      final tags = replay['tags'] as Map<String, dynamic>;
+      expect(tags['networkDetailHasUrls'], true);
+      expect(tags['networkDetailAllowUrls'], ['api.example.com']);
+      expect(tags['networkDetailDenyUrls'], ['api.example.com/auth']);
+      expect(tags['networkRequestHeaders'], ['X-Req']);
+      expect(tags['networkResponseHeaders'], ['X-Res']);
+      expect(tags['networkCaptureBodies'], true);
     });
 
     test('gates extra headers and bodies behind sendDefaultPii', () async {
@@ -815,10 +895,11 @@ void main() {
       final args = await callInitAndCaptureArgs(options);
 
       final replay = args['replay'] as Map<String, dynamic>;
-      expect(replay['networkDetailAllowUrls'], ['api.example.com']);
-      expect(replay['networkRequestHeaders'], isEmpty);
-      expect(replay['networkResponseHeaders'], isEmpty);
-      expect(replay['networkCaptureBodies'], false);
+      final tags = replay['tags'] as Map<String, dynamic>;
+      expect(tags['networkDetailAllowUrls'], ['api.example.com']);
+      expect(tags['networkRequestHeaders'], isEmpty);
+      expect(tags['networkResponseHeaders'], isEmpty);
+      expect(tags['networkCaptureBodies'], false);
     });
 
     test('forwards sampleRate', () async {

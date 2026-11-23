@@ -89,22 +89,10 @@ class SentryNativeChannel
         'quality': options.replay.quality.name,
         'sessionSampleRate': options.replay.sessionSampleRate,
         'onErrorSampleRate': options.replay.onErrorSampleRate,
-        // Capture happens on the Dart side; these are synced so the native
-        // SDK reports `networkDetailHasUrls` in the replay options event,
-        // which the Sentry frontend requires to render the captured details.
-        if (options.replay.networkDetailAllowUrls.isNotEmpty) ...{
-          'networkDetailAllowUrls': options.replay.networkDetailAllowUrls,
-          'networkDetailDenyUrls': options.replay.networkDetailDenyUrls,
-          // Mirrors the sendDefaultPii gate used on the Dart side.
-          'networkRequestHeaders': options.sendDefaultPii
-              ? options.replay.networkRequestHeaders
-              : const <String>[],
-          'networkResponseHeaders': options.sendDefaultPii
-              ? options.replay.networkResponseHeaders
-              : const <String>[],
-          'networkCaptureBodies':
-              options.replay.networkCaptureBodies && options.sendDefaultPii,
-        },
+        // The replay options event is built from these tags. Network detail
+        // options are reported here rather than set on the native replay
+        // options: capture happens on the Dart side, and setting them on
+        // sentry-cocoa would enable its own URLSession capture too.
         'tags': <String, dynamic>{
           'maskAllText': options.privacy.maskAllText,
           'maskAllImages': options.privacy.maskAllImages,
@@ -113,6 +101,22 @@ class SentryNativeChannel
             'maskingRules': options.privacy.userMaskingRules
                 .map((rule) => '${rule.name}: ${rule.description}')
                 .toList(growable: false),
+          // The Sentry frontend requires these to render captured details.
+          'networkDetailHasUrls':
+              options.replay.networkDetailAllowUrls.isNotEmpty,
+          if (options.replay.networkDetailAllowUrls.isNotEmpty) ...{
+            'networkDetailAllowUrls': options.replay.networkDetailAllowUrls,
+            'networkDetailDenyUrls': options.replay.networkDetailDenyUrls,
+            // Mirrors the sendDefaultPii gate used on the Dart side.
+            'networkRequestHeaders': options.sendDefaultPii
+                ? options.replay.networkRequestHeaders
+                : const <String>[],
+            'networkResponseHeaders': options.sendDefaultPii
+                ? options.replay.networkResponseHeaders
+                : const <String>[],
+            'networkCaptureBodies':
+                options.replay.networkCaptureBodies && options.sendDefaultPii,
+          },
         },
       },
       'enableSpotlight': options.spotlight.enabled,
@@ -245,8 +249,16 @@ class SentryNativeChannel
       // ignore: invalid_use_of_internal_member
       unknown: breadcrumb.unknown,
     );
+    // Sent apart from the breadcrumb so the details never become breadcrumb
+    // data that would ride along on later events. Native code keeps them on a
+    // `__sentry`-prefixed key that is stripped when serializing.
     await channel.invokeMethod('addBreadcrumb', {
       'breadcrumb': normalizedBreadcrumb.toJson(),
+      if (networkRequestDetail != null || networkResponseDetail != null)
+        'networkDetail': {
+          'request': ?normalizeMap(networkRequestDetail),
+          'response': ?normalizeMap(networkResponseDetail),
+        },
     });
   }
 

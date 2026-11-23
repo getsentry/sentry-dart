@@ -137,22 +137,6 @@ public final class SentryFlutter {
                 options.sessionReplay.onErrorSampleRate =
                     (replayOptions["onErrorSampleRate"] as? NSNumber)?.floatValue ?? 0
 
-                // Capture happens on the Dart side. These are synced so the native SDK
-                // reports `networkDetailHasUrls` in the replay options event, which the
-                // Sentry frontend requires to render captured request/response details.
-                if let allowUrls = replayOptions["networkDetailAllowUrls"] as? [String],
-                    !allowUrls.isEmpty {
-                    options.sessionReplay.networkDetailAllowUrls = allowUrls
-                    options.sessionReplay.networkDetailDenyUrls =
-                        (replayOptions["networkDetailDenyUrls"] as? [String]) ?? []
-                    options.sessionReplay.networkRequestHeaders =
-                        (replayOptions["networkRequestHeaders"] as? [String]) ?? []
-                    options.sessionReplay.networkResponseHeaders =
-                        (replayOptions["networkResponseHeaders"] as? [String]) ?? []
-                    options.sessionReplay.networkCaptureBodies =
-                        (replayOptions["networkCaptureBodies"] as? Bool) ?? false
-                }
-
                 if let flutterSdk = data["sdk"] as? [String: Any] {
                     options.sessionReplay.setValue(
                         [
