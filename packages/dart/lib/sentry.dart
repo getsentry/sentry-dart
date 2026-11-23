@@ -29,7 +29,7 @@ export 'src/protocol/sentry_proxy.dart';
 export 'src/zone/run_zoned_guarded_integration.dart';
 export 'src/runtime_checker.dart';
 export 'src/scope.dart';
-export 'src/scope_observer.dart';
+export 'src/scope_observer.dart' hide HintAwareScopeObserver;
 export 'src/sentry.dart';
 export 'src/attachments/sentry_attachment.dart';
 export 'src/telemetry/span/propagation/sentry_baggage.dart';

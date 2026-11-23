@@ -1,5 +1,9 @@
 import Sentry
 
+#if os(iOS)
+import UIKit
+#endif
+
 public final class SentryFlutter {
 
     public init() {
@@ -159,6 +163,49 @@ public final class SentryFlutter {
             }
         #endif
     }
+
+    #if os(iOS)
+    /// Returns the refresh rate an app draws at on a screen whose maximum is
+    /// `maximumFramesPerSecond`.
+    ///
+    /// On an iPhone's built-in display, ProMotion rates above 60 Hz are only
+    /// available when the app sets `CADisableMinimumFrameDurationOnPhone` in
+    /// its `Info.plist`. See Apple's "Optimizing iPhone and iPad apps to
+    /// support ProMotion displays".
+    ///
+    /// The device is identified by `hardwareModel` (e.g. `iPhone16,1`), not by
+    /// the user interface idiom: an iPhone-only app on an iPad still reports
+    /// the `.phone` idiom.
+    public static func fallbackDisplayRefreshRate(
+        maximumFramesPerSecond: Int,
+        hardwareModel: String,
+        sceneRole: UISceneSession.Role,
+        infoDictionary: [String: Any]?
+    ) -> Int {
+        guard hardwareModel.hasPrefix("iPhone"), sceneRole == .windowApplication else {
+            return maximumFramesPerSecond
+        }
+        // Mirror the Flutter engine, which reads the key with `boolValue`, so a
+        // string value such as `<string>YES</string>` also opts in.
+        let value = infoDictionary?["CADisableMinimumFrameDurationOnPhone"]
+        let allowsHighRefreshRate =
+            (value as? NSNumber)?.boolValue ?? (value as? NSString)?.boolValue ?? false
+        return allowsHighRefreshRate ? maximumFramesPerSecond : min(maximumFramesPerSecond, 60)
+    }
+
+    /// The device's hardware model identifier, such as `iPhone16,1` or `iPad14,5`.
+    static func hardwareModel() -> String {
+        if let simulatorModel = ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] {
+            return simulatorModel
+        }
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machine = withUnsafeBytes(of: &systemInfo.machine) { buffer in
+            Array(buffer.prefix { $0 != 0 })
+        }
+        return String(bytes: machine, encoding: .utf8) ?? ""
+    }
+    #endif
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
         switch diagnosticLevel {

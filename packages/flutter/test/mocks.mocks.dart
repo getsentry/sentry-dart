@@ -1366,8 +1366,21 @@ class MockSentryNativeBinding extends _i1.Mock
           as _i10.FutureOr<void>);
 
   @override
-  _i10.FutureOr<void> addBreadcrumb(_i2.Breadcrumb? breadcrumb) =>
-      (super.noSuchMethod(Invocation.method(#addBreadcrumb, [breadcrumb]))
+  _i10.FutureOr<void> addBreadcrumb(
+    _i2.Breadcrumb? breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #addBreadcrumb,
+              [breadcrumb],
+              {
+                #networkRequestDetail: networkRequestDetail,
+                #networkResponseDetail: networkResponseDetail,
+              },
+            ),
+          )
           as _i10.FutureOr<void>);
 
   @override
@@ -2981,6 +2994,23 @@ class MockSentryJsBinding extends _i1.Mock implements _i22.SentryJsBinding {
   );
 
   @override
+  String? getReplayId({bool? onlyIfSampled = false}) =>
+      (super.noSuchMethod(
+            Invocation.method(#getReplayId, [], {
+              #onlyIfSampled: onlyIfSampled,
+            }),
+          )
+          as String?);
+
+  @override
+  bool isReplayBuffering() =>
+      (super.noSuchMethod(
+            Invocation.method(#isReplayBuffering, []),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
   void startReplay() => super.noSuchMethod(
     Invocation.method(#startReplay, []),
     returnValueForMissingStub: null,
@@ -3052,10 +3082,12 @@ class MockTimeToDisplayTracker extends _i1.Mock
   );
 
   @override
-  void setAppStartRouteName(String? routeName) => super.noSuchMethod(
-    Invocation.method(#setAppStartRouteName, [routeName]),
-    returnValueForMissingStub: null,
-  );
+  bool setAppStartRouteName(String? routeName) =>
+      (super.noSuchMethod(
+            Invocation.method(#setAppStartRouteName, [routeName]),
+            returnValue: false,
+          )
+          as bool);
 
   @override
   _i10.Future<void> recordInitialDisplay(DateTime? endTimestamp) =>
@@ -3107,6 +3139,15 @@ class MockTimeToDisplayTracker extends _i1.Mock
               transaction,
               endTimestamp,
             ]),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
+          )
+          as _i10.Future<void>);
+
+  @override
+  _i10.Future<void> releaseInitialDisplay() =>
+      (super.noSuchMethod(
+            Invocation.method(#releaseInitialDisplay, []),
             returnValue: _i10.Future<void>.value(),
             returnValueForMissingStub: _i10.Future<void>.value(),
           )

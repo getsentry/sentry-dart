@@ -168,6 +168,70 @@ void main() {
       );
       expect(span.parentSpan, equals(transactionSpan));
     });
+    test('links a failed status code event to the request span', () async {
+      fixture.mockHttpClient.statusCode = 500;
+
+      await fixture.hub.startSpan('segment', (_) async {
+        try {
+          await fixture.client.from('users').select().eq('id', 1);
+        } catch (_) {}
+      }, parentSpan: null);
+      await fixture.processor.waitForProcessing();
+
+      final dbSpan = fixture.processor.capturedSpans.firstWhere(
+        (span) => span.parentSpan != null,
+      );
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, dbSpan.spanId);
+      expect(event.transaction, 'segment');
+    });
+
+    test(
+      'links a failed status code event to the request span over a $SentryHttpClient',
+      () async {
+        fixture.mockHttpClient.statusCode = 500;
+        final client = SupabaseClient(
+          'https://test.supabase.co',
+          'test-api-key',
+          httpClient: SentrySupabaseClient(
+            client: SentryHttpClient(
+              client: fixture.mockHttpClient,
+              hub: fixture.hub,
+              captureFailedRequests: false,
+            ),
+            hub: fixture.hub,
+          ),
+        );
+
+        await fixture.hub.startSpan('segment', (_) async {
+          try {
+            await client.from('users').select().eq('id', 1);
+          } catch (_) {}
+        }, parentSpan: null);
+        await fixture.processor.waitForProcessing();
+
+        final dbSpan = fixture.processor.findSpanByOperation('db.select')!;
+        final event = fixture.events.single;
+        expect(event.contexts.trace?.spanId, dbSpan.spanId);
+      },
+    );
+
+    test('links a thrown error event to the request span', () async {
+      fixture.mockHttpClient.error = Exception('connection failed');
+
+      await fixture.hub.startSpan('segment', (_) async {
+        try {
+          await fixture.client.from('users').insert({'id': 1});
+        } catch (_) {}
+      }, parentSpan: null);
+      await fixture.processor.waitForProcessing();
+
+      final dbSpan = fixture.processor.capturedSpans.firstWhere(
+        (span) => span.parentSpan != null,
+      );
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, dbSpan.spanId);
+    });
   });
 }
 
@@ -177,6 +241,7 @@ class Fixture {
   late final FakeTelemetryProcessor processor;
   late final SupabaseClient client;
   late final MockHttpClient mockHttpClient;
+  final events = <SentryEvent>[];
 
   Fixture() {
     processor = FakeTelemetryProcessor();
@@ -184,7 +249,11 @@ class Fixture {
       ..automatedTestMode = true
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      ..beforeSend = (event, hint) {
+        events.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
@@ -208,11 +277,18 @@ class Fixture {
 }
 
 class MockHttpClient extends BaseClient {
+  int statusCode = 200;
+  Exception? error;
+
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
+    final error = this.error;
+    if (error != null) {
+      throw error;
+    }
     return StreamedResponse(
       Stream.fromIterable([]),
-      200,
+      statusCode,
       headers: {'content-type': 'application/json'},
     );
   }

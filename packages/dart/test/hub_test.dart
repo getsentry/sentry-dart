@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'package:sentry/src/telemetry/span/propagation/propagation_context.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
@@ -125,6 +126,136 @@ void main() {
 
         expect(hub.scope.getActiveSpan(), isNull);
       });
+
+      test('captureException keeps a span set in withScope', () async {
+        final hub = fixture.getSut();
+        final explicit = hub.startInactiveSpan('explicit');
+
+        await hub.startSpan('ambient', (_) async {
+          await hub.captureException(
+            fakeException,
+            withScope: (scope) =>
+                scope.setActiveSpan(explicit as RecordingSentrySpanV2),
+          );
+        });
+
+        expect(
+          fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+          explicit,
+        );
+      });
+
+      test('captureException prefers the span the throwable aborted', () async {
+        final hub = fixture.getSut();
+        final throwable = Exception('aborted');
+        final aborted = hub.startInactiveSpan('aborted');
+        throwableSpanLinks.link(throwable, aborted);
+
+        await hub.startSpan('ambient', (_) async {
+          await hub.captureException(throwable);
+        });
+
+        expect(
+          fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+          aborted,
+        );
+      });
+
+      test('captureEvent prefers the span the throwable aborted', () async {
+        final hub = fixture.getSut();
+        final throwable = Exception('aborted');
+        final aborted = hub.startInactiveSpan('aborted');
+        throwableSpanLinks.link(throwable, aborted);
+
+        await hub.startSpan('ambient', (_) async {
+          await hub.captureEvent(SentryEvent(throwable: throwable));
+        });
+
+        expect(
+          fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+          aborted,
+        );
+      });
+
+      test(
+        'captureException prefers a withScope span over the aborted span',
+        () async {
+          final hub = fixture.getSut();
+          final throwable = Exception('aborted');
+          throwableSpanLinks.link(throwable, hub.startInactiveSpan('aborted'));
+          final explicit = hub.startInactiveSpan('explicit');
+
+          await hub.captureException(
+            throwable,
+            withScope: (scope) =>
+                scope.setActiveSpan(explicit as RecordingSentrySpanV2),
+          );
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            explicit,
+          );
+        },
+      );
+    });
+
+    group('with a throwable that aborted a span', () {
+      test('captureException links the span after it ended', () async {
+        final hub = fixture.getSut();
+        final throwable = Exception('aborted');
+        final aborted = hub.startInactiveSpan('aborted');
+        throwableSpanLinks.link(throwable, aborted);
+        aborted.end();
+
+        await hub.captureException(throwable);
+
+        expect(
+          fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+          aborted,
+        );
+      });
+
+      test(
+        'captureException links a reused throwable to the last span it aborted',
+        () async {
+          final hub = fixture.getSut();
+          const throwable = FormatException('reused');
+          final first = StreamingInstrumentationSpan(
+            hub.startInactiveSpan('first', parentSpan: null),
+          );
+          first.throwable = throwable;
+          await first.finish();
+          final second = StreamingInstrumentationSpan(
+            hub.startInactiveSpan('second', parentSpan: null),
+          );
+          second.throwable = throwable;
+          await second.finish();
+
+          await hub.captureException(throwable);
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            second.spanReference,
+          );
+        },
+      );
+
+      test(
+        'captureException under static tracing does not link the span',
+        () async {
+          final hub = fixture.getSut();
+          final throwable = Exception('aborted');
+          throwableSpanLinks.link(throwable, hub.startInactiveSpan('aborted'));
+          fixture.options.traceLifecycle = SentryTraceLifecycle.static;
+
+          await hub.captureException(throwable);
+
+          expect(
+            fixture.client.captureEventCalls.single.scope?.getActiveSpan(),
+            isNull,
+          );
+        },
+      );
     });
 
     test('should capture feedback with the default scope', () async {

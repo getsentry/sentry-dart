@@ -154,6 +154,95 @@ void main() {
       expect(tr.children.length, 1);
       expect(tr.children.first.context.operation, 'http.client');
     });
+
+    group('when streaming spans', () {
+      late FakeTelemetryProcessor processor;
+
+      setUp(() {
+        processor = FakeTelemetryProcessor();
+        fixture.options
+          ..tracesSampleRate = 1.0
+          ..telemetryProcessor = processor
+          ..spanFactory = StreamingInstrumentationSpanFactory(fixture.realHub);
+      });
+
+      test('links a failed status code event to the request span', () async {
+        final sut = fixture.getSut(
+          hub: fixture.realHub,
+          client: fixture.getClient(statusCode: 500, reason: 'Error'),
+          badStatusCodes: [SentryStatusCode(500)],
+        );
+
+        await fixture.realHub.startSpan('segment', (_) async {
+          await sut.get(requestUri);
+        });
+        await processor.waitForProcessing();
+
+        final httpSpan = processor.findSpanByOperation('http.client')!;
+        final event = fixture.transport.events.single;
+        expect(event.contexts.trace?.spanId, httpSpan.spanId);
+        expect(event.contexts.trace?.traceId, httpSpan.traceId);
+        expect(event.transaction, 'segment');
+      });
+
+      test('links a thrown error event to the request span', () async {
+        final sut = fixture.getSut(
+          hub: fixture.realHub,
+          client: createThrowingClient(),
+          captureFailedRequests: true,
+        );
+
+        await fixture.realHub.startSpan('segment', (_) async {
+          await expectLater(sut.get(requestUri), throwsException);
+        });
+        await processor.waitForProcessing();
+
+        final httpSpan = processor.findSpanByOperation('http.client')!;
+        final event = fixture.transport.events.single;
+        expect(event.contexts.trace?.spanId, httpSpan.spanId);
+      });
+
+      test(
+        'links a rethrown error captured after the request span ended',
+        () async {
+          final sut = fixture.getSut(
+            hub: fixture.realHub,
+            client: createThrowingClient(),
+            captureFailedRequests: false,
+          );
+
+          Object? error;
+          await fixture.realHub.startSpan('segment', (_) async {
+            try {
+              await sut.get(requestUri);
+            } catch (e) {
+              error = e;
+            }
+          });
+          await fixture.realHub.captureException(error);
+          await processor.waitForProcessing();
+
+          final httpSpan = processor.findSpanByOperation('http.client')!;
+          final event = fixture.transport.events.single;
+          expect(event.contexts.trace?.spanId, httpSpan.spanId);
+          expect(event.transaction, 'segment');
+        },
+      );
+
+      test('links a failed request without a parent span to nothing', () async {
+        final sut = fixture.getSut(
+          hub: fixture.realHub,
+          client: fixture.getClient(statusCode: 500, reason: 'Error'),
+          badStatusCodes: [SentryStatusCode(500)],
+        );
+
+        await sut.get(requestUri);
+        await processor.waitForProcessing();
+
+        expect(processor.capturedSpans, isEmpty);
+        expect(fixture.transport.events.single.transaction, isNull);
+      });
+    });
   });
 }
 

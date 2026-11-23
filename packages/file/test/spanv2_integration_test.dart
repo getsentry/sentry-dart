@@ -100,6 +100,26 @@ void main() {
 
       await tempFile.delete();
     });
+
+    test('links an error captured after the file span ended', () async {
+      final sut = fixture.getSut(File('test_resources/missing.txt'));
+
+      Object? error;
+      await fixture.hub.startSpan('segment', (_) async {
+        try {
+          await sut.readAsString();
+        } catch (e) {
+          error = e;
+        }
+      }, parentSpan: null);
+      await fixture.hub.captureException(error);
+      await fixture.processor.waitForProcessing();
+
+      final fileSpan = fixture.processor.findSpanByOperation('file.read')!;
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, fileSpan.spanId);
+      expect(event.transaction, 'segment');
+    });
   });
 }
 
@@ -107,13 +127,18 @@ class Fixture {
   late final Hub hub;
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
+  final events = <SentryEvent>[];
 
   Fixture() {
     processor = FakeTelemetryProcessor();
     options = defaultTestOptions()
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      ..beforeSend = (event, hint) {
+        events.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());

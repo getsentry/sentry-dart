@@ -340,7 +340,12 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Defaults to `true`
   ///
-  /// Supported platforms: `Android, iOS, macOS`
+  /// Supported platforms: `Android, iOS, macOS, Web`
+  ///
+  /// On Web the display refresh rate is not available, so frames are measured
+  /// against a 60 Hz display. Slow frames, total frames and frames delay are
+  /// all based on 60 Hz. On a faster display, slow frames and the total frame
+  /// count are under-reported, so the slow frame rate can also be off.
   ///
   /// Note: If you call `WidgetsFlutterBinding.ensureInitialized()` before `SentryFlutter.init()`,
   /// you must use `SentryWidgetsFlutterBinding.ensureInitialized()` instead.
@@ -373,6 +378,13 @@ class SentryFlutterOptions extends SentryOptions {
   /// packaged (MSIX/Microsoft Store) apps, which start with
   /// `C:\Windows\System32` as their working directory. Without a writable
   /// database directory, native crashes can't be captured.
+  ///
+  /// On Linux, if the working directory isn't writable, the SDK falls back to
+  /// `$XDG_CACHE_HOME/<executable name>/sentry-<DSN hash>`, or to
+  /// `$HOME/.cache/<executable name>/sentry-<DSN hash>` when `XDG_CACHE_HOME`
+  /// is unset, empty or relative. This happens, for example, when the app is
+  /// started from `/` by a launcher, runs from a read-only install prefix, or
+  /// runs as a systemd service.
   ///
   /// ### Recommendation
   /// While relying on the default path may be sufficient during development,

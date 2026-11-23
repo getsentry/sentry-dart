@@ -15,6 +15,9 @@ import sentry_flutter
 #if canImport(sentry_flutter_objc)
 import sentry_flutter_objc
 #endif
+#if os(iOS)
+import UIKit
+#endif
 
 // swiftlint:disable function_body_length line_length
 
@@ -212,6 +215,63 @@ final class SentryFlutterTests: XCTestCase {
 
     let converter = SentryFlutterReplayBreadcrumbConverter()
     return try XCTUnwrap(converter.convert(from: breadcrumb) as? SentryRRWebEvent)
+  }
+  #endif
+
+  #if os(iOS)
+  func testFallbackDisplayRefreshRateOnIPhoneWithoutHighRefreshRateKeyCapsAt60() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: [:]
+    )
+
+    XCTAssertEqual(60, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyFalseCapsAt60() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSNumber(value: false)]
+    )
+
+    XCTAssertEqual(60, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyTrueReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSNumber(value: true)]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateOnIPhoneWithHighRefreshRateKeyStringYesReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPhone16,1",
+      sceneRole: .windowApplication,
+      infoDictionary: ["CADisableMinimumFrameDurationOnPhone": NSString(string: "YES")]
+    )
+
+    XCTAssertEqual(120, refreshRate)
+  }
+
+  func testFallbackDisplayRefreshRateForIPhoneOnlyAppOnIPadWithoutHighRefreshRateKeyReturnsMaximum() {
+    let refreshRate = SentryFlutter.fallbackDisplayRefreshRate(
+      maximumFramesPerSecond: 120,
+      hardwareModel: "iPad14,5",
+      sceneRole: .windowApplication,
+      infoDictionary: [:]
+    )
+
+    XCTAssertEqual(120, refreshRate)
   }
   #endif
 }

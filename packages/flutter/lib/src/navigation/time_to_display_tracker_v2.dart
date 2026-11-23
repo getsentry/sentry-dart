@@ -21,6 +21,9 @@ class TimeToDisplayTrackerV2 {
   /// Null when no preparation is pending.
   SentrySpanV2? _preparedRootNavigationSpan;
 
+  /// The app-start route span, prepared or started, until something ends it.
+  SentrySpanV2? _appStartSpan;
+
   TimeToDisplayTrackerV2({Hub? hub, FrameCallbackHandler? frameCallbackHandler})
     : _hub = hub ?? HubAdapter(),
       _frameCallbackHandler =
@@ -45,26 +48,36 @@ class TimeToDisplayTrackerV2 {
       startTimestamp: startTimestamp,
     );
     _preparedRootNavigationSpan = routeSpan;
+    _appStartSpan = routeSpan;
     _ensureTtfdSpan(routeSpan, rootRouteName, startTimestamp: startTimestamp);
   }
+
+  /// Whether [prepareAppStart] opened spans that [trackAppStart] hasn't
+  /// recorded and nothing has cancelled since.
+  bool get hasPreparedAppStart => _preparedRootNavigationSpan != null;
 
   /// Whether a prepared app start is still waiting for its first route name.
   bool get isAppStartRoutePending => _isAppStartRouteNamePending;
 
-  /// Updates the prepared app-start spans with the first rendered route.
-  void setAppStartRouteName(String? routeName) {
-    if (!_isAppStartRouteNamePending) return;
+  /// Names the prepared app-start spans after the route they will display.
+  ///
+  /// Callers decide which route that is: the first rendered route, or one that
+  /// replaces it before first-frame timing arrives.
+  ///
+  /// Returns whether prepared spans were still waiting for [trackAppStart].
+  bool setAppStartRouteName(String? routeName) {
+    final prepared = _preparedRootNavigationSpan;
+    if (prepared == null) return false;
 
     _isAppStartRouteNamePending = false;
     final resolvedRouteName = resolveRouteDisplayName(routeName);
     _appStartRouteName = resolvedRouteName;
+    prepared.name = resolvedRouteName;
 
-    if (_preparedRootNavigationSpan case final prepared?) {
-      prepared.name = resolvedRouteName;
-    }
     if (_ttfdSpan case final ttfd?) {
       ttfd.name = '$resolvedRouteName full display';
     }
+    return true;
   }
 
   /// Tracks the app start (native or generic).
@@ -99,6 +112,7 @@ class TimeToDisplayTrackerV2 {
       case null:
         routeSpan = _createRouteSpan(routeName, startTimestamp: startTimestamp);
     }
+    _appStartSpan = routeSpan;
 
     _trackDisplaySpans(
       routeSpan,
@@ -262,12 +276,42 @@ class TimeToDisplayTrackerV2 {
       ..end();
   }
 
+  /// Ends the app-start span, prepared or started, and nothing else.
+  ///
+  /// Unlike [cancelCurrentRoute], an unrelated idle span the hub holds (such as
+  /// a user interaction) keeps running.
+  void cancelAppStart() {
+    final appStart = _appStartSpan;
+    _appStartSpan = null;
+    if (appStart == null) return;
+
+    if (_preparedRootNavigationSpan == appStart) {
+      _preparedRootNavigationSpan = null;
+      _isAppStartRouteNamePending = false;
+      _preparedTtfdCompleted = false;
+    }
+    if (_ttfdSpan case final RecordingSentrySpanV2 ttfd
+        when ttfd.parentSpan == appStart) {
+      _ttfdSpan = null;
+    }
+    if (appStart is IdleRecordingSentrySpanV2 && !appStart.isEnded) {
+      appStart
+        ..status = SentrySpanStatusV2.ok
+        ..setAttribute(
+          SemanticAttributesConstants.sentryIdleSpanFinishReason,
+          SentryAttribute.string(SentryIdleSpanFinishReasons.cancelled),
+        )
+        ..end();
+    }
+  }
+
   /// Cancels all spans for the current route and resets tracker state.
   void cancelCurrentRoute() {
     _ttfdSpan = null;
     _preparedTtfdCompleted = false;
     _preparedRootNavigationSpan = null;
     _isAppStartRouteNamePending = false;
+    _appStartSpan = null;
 
     final activeSpan = _hub.getActiveSpan();
     if (activeSpan is IdleRecordingSentrySpanV2) {

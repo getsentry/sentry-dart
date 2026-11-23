@@ -34,6 +34,9 @@ class TimeToDisplayTracker {
   DateTime? _pendingTTFDEndTimestamp;
   _PreparedInitialDisplay? _prepared;
 
+  /// The started app-start root, until the next route display releases it.
+  SentryTracer? _initialDisplayTransaction;
+
   // The timestamp where report TTFD was called before the transaction was started.
   DateTime? get pendingTTFDEndTimestamp => _pendingTTFDEndTimestamp;
 
@@ -51,16 +54,19 @@ class TimeToDisplayTracker {
   /// Whether a prepared app start is still waiting for its first route name.
   bool get isAppStartRoutePending => _prepared?.isRouteNamePending ?? false;
 
-  /// Names the reserved app-start root after the first rendered route.
+  /// Names the reserved app-start root after the route it will display.
   ///
-  /// Only the first call takes effect, so a later initial push — a nested
-  /// navigator, for instance — is still treated as ordinary navigation.
-  void setAppStartRouteName(String? routeName) {
+  /// Callers decide which route that is: the first rendered route, or one that
+  /// replaces it before first-frame timing arrives.
+  ///
+  /// Returns whether a reserved root was still waiting to be started.
+  bool setAppStartRouteName(String? routeName) {
     final prepared = _prepared;
-    if (prepared == null || !prepared.isRouteNamePending) return;
+    if (prepared == null) return false;
 
     prepared.isRouteNamePending = false;
     prepared.context.name = resolveRouteDisplayName(routeName);
+    return true;
   }
 
   /// Starts the reserved initial standalone display root and records TTID/TTFD.
@@ -79,6 +85,9 @@ class TimeToDisplayTracker {
       bindToScope: true,
       trimEnd: true,
     );
+    if (transaction is SentryTracer) {
+      _initialDisplayTransaction = transaction;
+    }
     await track(transaction, ttidEndTimestamp: endTimestamp);
   }
 
@@ -173,8 +182,33 @@ class TimeToDisplayTracker {
     if (_prepared != null) clear();
   }
 
+  /// Hands the scope over from the app-start root to the next route display.
+  ///
+  /// The root binds itself to the scope and waits for its TTFD child, which
+  /// only [reportFullyDisplayed] or a 30s timeout would end. Without this,
+  /// spans from later screens (HTTP, DB, ...) keep parenting to the root until
+  /// that timeout. Ends the root's unfinished display spans as
+  /// `deadline_exceeded` and unbinds it, unless something else is bound now.
+  Future<void> releaseInitialDisplay() async {
+    final transaction = _initialDisplayTransaction;
+    _initialDisplayTransaction = null;
+    if (transaction == null) return;
+
+    if (transactionId == transaction.context.spanId) {
+      // Nothing can report TTFD for the root anymore.
+      clear();
+    }
+    await _hub.configureScope((scope) {
+      if (scope.span == transaction) {
+        scope.span = null;
+      }
+    });
+    if (!transaction.finished) {
+      await cancelUnfinishedSpans(transaction, options.clock());
+    }
+  }
+
   void clear() {
-    // Only an identity was reserved, so there is no root to tear down.
     _prepared = null;
     transactionId = null;
     _pendingTTFDEndTimestamp = null;

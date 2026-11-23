@@ -701,7 +701,12 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             result(nil)
             return
         }
-        result(windowScene.screen.maximumFramesPerSecond)
+        result(SentryFlutter.fallbackDisplayRefreshRate(
+            maximumFramesPerSecond: windowScene.screen.maximumFramesPerSecond,
+            hardwareModel: SentryFlutter.hardwareModel(),
+            sceneRole: windowScene.session.role,
+            infoDictionary: Bundle.main.infoDictionary
+        ))
     }
 
     @objc private func onDisplayLink(_ displayLink: CADisplayLink) {
