@@ -327,6 +327,15 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
         SentrySDK.start { options in
             self.sentryFlutter.update(options: options, with: arguments)
+            #if os(iOS)
+            if options.releaseName == "flutter-ios-profile@testflight.1" {
+                options.tracesSampleRate = 1
+                options.configureProfiling = { profile in
+                    profile.sessionSampleRate = 1
+                    profile.lifecycle = .manual
+                }
+            }
+            #endif
 
             if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 SentrySDK.internal.appStart.hybridSDKMode = true

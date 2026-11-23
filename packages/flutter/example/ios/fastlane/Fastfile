@@ -84,7 +84,8 @@ platform :ios do
   lane :upload_testflight do
     fetch_api_key()
     testflight(
-      skip_waiting_for_build_processing: true,
+      skip_waiting_for_build_processing: false,
+      skip_submission: true,
       ipa: "./build/sentry_flutter_sample.ipa"
     )
   end
