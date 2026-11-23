@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 /// Wrapping your widget in [SentryUnmask] will unmask it when capturing replays.
 class SentryUnmask extends StatelessWidget {
