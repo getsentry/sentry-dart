@@ -99,8 +99,10 @@ internal class WorkerExitGate(
       anyGranted = exit.granted > 0
     }
     // The grace period is for granted isolates to finish. Without a grant nothing is exiting.
+    // It also runs after a timeout: the worker that never asked may be gone, which leaves a
+    // worker granted just before the timeout as the last one to exit.
     // A grant from long before the detach is not told apart: it costs these few milliseconds.
-    if (allGranted && anyGranted) {
+    if (anyGranted) {
       try {
         sleep(graceMillis)
       } catch (e: InterruptedException) {

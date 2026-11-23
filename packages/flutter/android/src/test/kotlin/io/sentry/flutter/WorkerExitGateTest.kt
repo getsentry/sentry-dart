@@ -172,6 +172,17 @@ class WorkerExitGateTest {
   }
 
   @Test(timeout = 10_000)
+  fun `await gives up after its timeout with the grace period when one of two workers asked`() {
+    val sut = getSut()
+    sut.arm(1)
+    sut.arm(1)
+
+    assertTrue(sut.requestExit(1))
+    assertFalse(sut.await(1, 50))
+    assertEquals(listOf(5L), slept)
+  }
+
+  @Test(timeout = 10_000)
   fun `requestExit stays parked when its thread is interrupted`() {
     val sut = WorkerExitGate(log = { logged.add(it) })
     sut.arm(1)
