@@ -23,6 +23,22 @@ final class SentryFlutterTests: XCTestCase {
     fixture = Fixture()
   }
 
+  func testContinuousProfilingConfiguration() throws {
+    let sut = fixture.getSut()
+    sut.update(options: fixture.options, with: [:])
+    XCTAssertNil(fixture.options.configureProfiling)
+
+    sut.update(options: fixture.options, with: [
+      "profiling": ["sessionSampleRate": 0.25, "profileAppStarts": true]
+    ])
+    let configure = try XCTUnwrap(fixture.options.configureProfiling)
+    let profile = SentryProfileOptions()
+    configure(profile)
+    XCTAssertEqual(profile.sessionSampleRate, 0.25)
+    XCTAssertEqual(profile.lifecycle, .manual)
+    XCTAssertTrue(profile.profileAppStarts)
+  }
+
   func testUpdate() {
     let sut = fixture.getSut()
 

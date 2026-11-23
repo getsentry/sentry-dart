@@ -5,10 +5,13 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../sentry_native_channel.dart';
+import '../sentry_native_binding.dart';
 import 'cocoa_replay_recorder.dart';
 
 @internal
-class SentryNativeCocoa extends SentryNativeChannel {
+class SentryNativeCocoa extends SentryNativeChannel
+    implements SentryNativeProfiler {
+  bool _profilingEnabled = false;
   CocoaReplayRecorder? _replayRecorder;
   SentryId? _replayId;
   int _replayGeneration = 0;
@@ -56,8 +59,31 @@ class SentryNativeCocoa extends SentryNativeChannel {
       });
     }
 
-    return super.init(hub);
+    final profiling = options.profiling;
+    _profilingEnabled = profiling.sessionSampleRate > 0;
+    if (_profilingEnabled) {
+      // ignore: invalid_use_of_internal_member
+      options.sdk.addFeature(SentryFeatures.continuousProfiling);
+    }
+    return initNativeSdk({
+      if (_profilingEnabled)
+        'profiling': {
+          'sessionSampleRate': profiling.sessionSampleRate,
+          'profileAppStarts': profiling.profileAppStarts,
+        },
+    });
   }
+
+  @override
+  Future<void> startProfiler() async {
+    // Without configureProfiling, Cocoa would start an unsampled profiler.
+    if (_profilingEnabled || !options.autoInitializeNativeSdk) {
+      await channel.invokeMethod<void>('startProfiler');
+    }
+  }
+
+  @override
+  Future<void> stopProfiler() => channel.invokeMethod<void>('stopProfiler');
 
   @override
   FutureOr<SentryId> captureReplay() async {

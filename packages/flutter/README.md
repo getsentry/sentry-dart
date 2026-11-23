@@ -109,6 +109,30 @@ runApp(
 This adds performance tracing for all `AssetBundle` usages, where the `AssetBundle` is accessed with `DefaultAssetBundle.of(context)`.
 This includes all of Flutters internal access of `AssetBundle`s, like `Image.asset` for example.
 
+##### Continuous profiling on iOS and macOS (experimental)
+
+Set a session sample rate during initialization, then call the profiler around the work you want to record:
+
+```dart
+await SentryFlutter.init((options) {
+  options.dsn = 'YOUR_DSN';
+  options.profiling.sessionSampleRate = 0.1; // Sample 10% of foreground sessions.
+});
+
+await SentryFlutter.startProfiler();
+try {
+  await performWork();
+} finally {
+  await SentryFlutter.stopProfiler();
+}
+```
+
+When Flutter initializes Cocoa, profiling is disabled by default. If you initialize Cocoa yourself, set its session sample rate in `configureProfiling`. Without that configuration, Cocoa records every manual start.
+
+To capture startup work, also set `options.profiling.profileAppStarts = true`. Cocoa applies that setting on a subsequent launch. Call `stopProfiler()` when startup work finishes. Cocoa finishes the current profile chunk before stopping.
+
+Upload the Flutter split debug symbols for your release build to see Dart function names and source lines. This experimental API currently supports manual recording on iOS and macOS. Dart span linkage is tracked in [#3890](https://github.com/getsentry/sentry-dart/issues/3890).
+
 ##### Tracking HTTP events
 
 Please see the instructions [here](https://pub.dev/packages/sentry).

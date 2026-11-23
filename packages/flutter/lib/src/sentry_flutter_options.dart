@@ -14,6 +14,7 @@ import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
 import 'screen_capture/sentry_privacy_options.dart';
 import 'replay/sentry_replay_options.dart';
+import 'profiling/sentry_profiling_options.dart';
 import 'user_interaction/sentry_user_interaction_widget.dart';
 import 'user_interaction/user_interaction_widget_types.dart';
 import 'feedback/sentry_feedback_options.dart';
@@ -360,6 +361,11 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Replay recording configuration.
   final replay = SentryReplayOptions();
+
+  /// Controls continuous profiling on iOS and macOS. When
+  /// [autoInitializeNativeSdk] is false, configure profiling in Cocoa instead.
+  @meta.experimental
+  final profiling = SentryProfilingOptions();
 
   /// Privacy configuration for masking sensitive data in screenshots and Session Replay.
   /// Screen content masking is enabled by default.

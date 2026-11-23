@@ -138,6 +138,14 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "displayRefreshRate":
             displayRefreshRate(result)
 
+        case "startProfiler":
+            SentrySDK.startProfiler()
+            result(nil)
+
+        case "stopProfiler":
+            SentrySDK.stopProfiler()
+            result(nil)
+
         case "pauseAppHangTracking":
             pauseAppHangTracking(result)
 

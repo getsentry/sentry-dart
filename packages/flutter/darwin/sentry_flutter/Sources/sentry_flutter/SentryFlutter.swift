@@ -17,6 +17,14 @@ public final class SentryFlutter {
         if let sampleRate = data["sampleRate"] as? NSNumber {
             options.sampleRate = sampleRate
         }
+        if let profiling = data["profiling"] as? [String: Any],
+           let sampleRate = profiling["sessionSampleRate"] as? NSNumber {
+            options.configureProfiling = { profile in
+                profile.lifecycle = .manual
+                profile.sessionSampleRate = sampleRate.floatValue
+                profile.profileAppStarts = profiling["profileAppStarts"] as? Bool ?? false
+            }
+        }
         if let isDebug = data["debug"] as? Bool {
             options.debug = isDebug
         }
