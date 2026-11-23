@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/bindings/binding_wrapper.dart';
@@ -21,6 +22,7 @@ void main() {
   late SentryFlutterOptions options;
   late FramesTrackingIntegration integration;
   late SentryWidgetsBindingMixin? widgetsBinding;
+  late MockSentryNativeBinding mockNativeBinding;
 
   Future<void> fromWorkingState(
     SentryFlutterOptions options, {
@@ -28,6 +30,7 @@ void main() {
     bool? disableFramesTracking,
     bool? setInvalidRefreshRate,
     bool? setIncompatibleBinding,
+    bool? setUnavailableRefreshRate,
   }) async {
     options.tracesSampleRate = 1.0;
     if (disableTracing == true) {
@@ -38,10 +41,11 @@ void main() {
       options.enableFramesTracking = false;
     }
 
-    final mockNativeBinding = MockSentryNativeBinding();
-    when(
-      mockNativeBinding.displayRefreshRate(),
-    ).thenAnswer((_) async => setInvalidRefreshRate == true ? 0 : 60);
+    mockNativeBinding = MockSentryNativeBinding();
+    when(mockNativeBinding.displayRefreshRate()).thenAnswer((_) async {
+      if (setUnavailableRefreshRate == true) return null;
+      return setInvalidRefreshRate == true ? 0 : 60;
+    });
 
     if (setIncompatibleBinding == true) {
       final mockBindingWrapper = MockBindingWrapper();
@@ -333,6 +337,30 @@ void main() {
 
   // multiple conditions need to be true to allow frames tracking
   // if one of those fails then the integration shouldn't proceed
+  group('on web', () {
+    setUp(() {
+      options.platform = MockPlatform.linux(isWeb: true);
+    });
+
+    test('initializes with a 60 Hz display without a refresh rate', () async {
+      await fromWorkingState(options, setUnavailableRefreshRate: true);
+
+      expect(isFramesTrackingInitialized(widgetsBinding!), isTrue);
+      expect(
+        widgetsBinding!.expectedFrameDuration,
+        const Duration(milliseconds: 16),
+      );
+      expect(options.sdk.integrations, contains('FramesTracking'));
+    });
+
+    test('does not ask the native binding for the refresh rate', () async {
+      await fromWorkingState(options, setInvalidRefreshRate: true);
+
+      expect(isFramesTrackingInitialized(widgetsBinding!), isTrue);
+      verifyNever(mockNativeBinding.displayRefreshRate());
+    });
+  });
+
   group('fails to initializes frames tracking', () {
     test('when tracing is disabled', () async {
       await fromWorkingState(options, disableTracing: true);
@@ -342,6 +370,12 @@ void main() {
 
     test('when refresh rate is invalid', () async {
       await fromWorkingState(options, setInvalidRefreshRate: true);
+
+      assertInitFailure();
+    });
+
+    test('when refresh rate is unavailable', () async {
+      await fromWorkingState(options, setUnavailableRefreshRate: true);
 
       assertInitFailure();
     });

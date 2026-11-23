@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 export 'noop_sentry_js_binding.dart'
     if (dart.library.js_interop) 'web_sentry_js_binding.dart';

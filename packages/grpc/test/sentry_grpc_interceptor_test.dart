@@ -730,6 +730,30 @@ void main() {
         expect(child.status, SentrySpanStatusV2.ok);
         expect(child.parentSpan, equals(transactionSpan));
       });
+
+      test('links a captured failed call to the call span', () async {
+        fixture.service.errorToThrow = GrpcError.notFound('missing');
+        final client = fixture.getSut(
+          spanFirst: true,
+          captureFailedRequests: true,
+        );
+
+        await fixture.spanFirstHub.startSpan('segment', (_) async {
+          await expectLater(
+            client.testMethod('hello'),
+            throwsA(isA<GrpcError>()),
+          );
+          await pumpEventQueue();
+        }, parentSpan: null);
+        await fixture.spanFirstProcessor.waitForProcessing();
+
+        final child = fixture.spanFirstProcessor.findSpanByOperation(
+          'grpc.client',
+        )!;
+        final event = fixture.spanFirstEvents.single;
+        expect(event.contexts.trace?.spanId, child.spanId);
+        expect(event.transaction, 'segment');
+      });
     });
   });
 }
@@ -827,6 +851,7 @@ class Fixture {
 
   late Hub spanFirstHub;
   late FakeTelemetryProcessor spanFirstProcessor;
+  final spanFirstEvents = <SentryEvent>[];
 
   Future<void> setUp() async {
     service = _TestService();
@@ -849,7 +874,11 @@ class Fixture {
     final spanFirstOptions = defaultTestOptions()
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = spanFirstProcessor;
+      ..telemetryProcessor = spanFirstProcessor
+      ..beforeSend = (event, hint) {
+        spanFirstEvents.add(event);
+        return null;
+      };
     spanFirstHub = Hub(spanFirstOptions);
     spanFirstOptions.addIntegration(
       InstrumentationSpanFactorySetupIntegration(),

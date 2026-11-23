@@ -232,6 +232,56 @@ void main() {
       expect(firstRecorder.detachToken, isNull);
     });
   });
+
+  group('$SentryNativeJava addBreadcrumb', () {
+    late AndroidCoreWorker Function(SentryFlutterOptions) originalFactory;
+    late _FakeCoreWorker fakeCoreWorker;
+
+    setUp(() {
+      originalFactory = AndroidCoreWorker.factory;
+      fakeCoreWorker = _FakeCoreWorker();
+      AndroidCoreWorker.factory = (options) => fakeCoreWorker;
+    });
+
+    tearDown(() {
+      AndroidCoreWorker.factory = originalFactory;
+    });
+
+    test('combines networkRequestDetail and networkResponseDetail into one '
+        'networkDetail map for the core worker', () {
+      final options = SentryFlutterOptions(
+        dsn: 'https://abc@def.ingest.sentry.io/1234567',
+      );
+      final sut = SentryNativeJava(options);
+      final requestDetail = <String, dynamic>{'headers': <String, String>{}};
+      final responseDetail = <String, dynamic>{
+        'headers': <String, String>{},
+        'body': 'ok',
+      };
+
+      sut.addBreadcrumb(
+        Breadcrumb(),
+        networkRequestDetail: requestDetail,
+        networkResponseDetail: responseDetail,
+      );
+
+      expect(fakeCoreWorker.lastNetworkDetail, {
+        'request': requestDetail,
+        'response': responseDetail,
+      });
+    });
+
+    test('passes null networkDetail when neither detail is present', () {
+      final options = SentryFlutterOptions(
+        dsn: 'https://abc@def.ingest.sentry.io/1234567',
+      );
+      final sut = SentryNativeJava(options);
+
+      sut.addBreadcrumb(Breadcrumb());
+
+      expect(fakeCoreWorker.lastNetworkDetail, isNull);
+    });
+  });
 }
 
 /// Fake core worker for testing that tracks method calls.
@@ -240,6 +290,7 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   bool closed = false;
   int? detachToken;
   bool throwOnDetach = false;
+  Map<String, dynamic>? lastNetworkDetail;
 
   @override
   void closeForEngineDetach(int token) {
@@ -278,8 +329,11 @@ class _FakeCoreWorker implements AndroidCoreWorker {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb breadcrumb) {
-    // No-op for testing
+  void addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkDetail,
+  }) {
+    lastNetworkDetail = networkDetail;
   }
 
   @override

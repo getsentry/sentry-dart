@@ -3,7 +3,7 @@
 library;
 
 import 'package:_sentry_testing/_sentry_testing.dart';
-import 'package:drift/drift.dart' hide isNotNull;
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/telemetry/span/instrumentation/span_factory_integration.dart';
@@ -163,6 +163,36 @@ void main() {
       );
       expect(span.parentSpan, equals(transactionSpan));
     });
+
+    test('links an error captured after the query span ended', () async {
+      final db = fixture.db;
+
+      Object? error;
+      await fixture.hub.startSpan('segment', (_) async {
+        try {
+          await db.customSelect('SELECT * FROM missing_table').get();
+        } catch (e) {
+          error = e;
+        }
+      }, parentSpan: null);
+      await fixture.hub.captureException(error);
+      await fixture.processor.waitForProcessing();
+
+      final failedSpan = fixture.processor.capturedSpans.singleWhere(
+        (span) => span.status == SentrySpanStatusV2.error,
+      );
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, failedSpan.spanId);
+      expect(event.transaction, 'segment');
+    });
+
+    test('does not link an error that never passed a span', () async {
+      await fixture.hub.captureException(Exception('unrelated'));
+
+      final event = fixture.events.single;
+      expect(event.transaction, isNull);
+      expect(fixture.processor.capturedSpans, isEmpty);
+    });
   });
 }
 
@@ -171,6 +201,7 @@ class Fixture {
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
   late AppDatabase db;
+  final events = <SentryEvent>[];
 
   static const String dbName = 'test-db';
 
@@ -179,7 +210,11 @@ class Fixture {
     options = defaultTestOptions()
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      ..beforeSend = (event, hint) {
+        events.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());

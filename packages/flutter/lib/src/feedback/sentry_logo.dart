@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class SentryLogo extends StatelessWidget {
   const SentryLogo({super.key, this.width = 50.0});

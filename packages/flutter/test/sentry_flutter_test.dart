@@ -10,6 +10,7 @@ import 'package:sentry/src/platform/mock_platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/transport/file_system_transport.dart';
 import 'package:sentry_flutter/src/exception/flutter_exception_type_identifier.dart';
+import 'package:sentry_flutter/src/frames_tracking/frames_tracking_integration.dart';
 import 'package:sentry_flutter/src/app_start/standalone/standalone_app_start_integration.dart';
 import 'package:sentry_flutter/src/connectivity/connectivity_integration.dart';
 import 'package:sentry_flutter/src/integrations.dart';
@@ -415,6 +416,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          FramesTrackingIntegration,
           ReplayIntegration,
           ReplayTelemetryIntegration,
           ...genericAppStartIntegrations,
@@ -485,6 +487,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          FramesTrackingIntegration,
           ReplayIntegration,
           ReplayTelemetryIntegration,
           ...genericAppStartIntegrations,
@@ -532,6 +535,7 @@ void main() {
         shouldHaveIntegrations: [
           ...platformAgnosticIntegrations,
           ...webIntegrations,
+          FramesTrackingIntegration,
           ReplayIntegration,
           ReplayTelemetryIntegration,
           ...genericAppStartIntegrations,

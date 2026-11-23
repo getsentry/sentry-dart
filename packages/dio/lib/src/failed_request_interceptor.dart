@@ -2,6 +2,10 @@
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
+
+import 'tracing_client_adapter.dart' show dioRequestSpanLinks;
 
 class FailedRequestInterceptor extends Interceptor {
   FailedRequestInterceptor({
@@ -19,6 +23,14 @@ class FailedRequestInterceptor extends Interceptor {
 
   @override
   Future<void> onError(DioError err, ErrorInterceptorHandler handler) async {
+    // Dio creates this error after the request span ended, so link it whether
+    // or not it is captured here: the app may capture it later.
+    final span = dioRequestSpanLinks.spanFor(err.requestOptions);
+    if (span != null) {
+      // ignore: invalid_use_of_internal_member
+      throwableSpanLinks.link(err, span);
+    }
+
     // ignore: invalid_use_of_internal_member
     final cfr = _captureFailedRequests ?? _hub.options.captureFailedRequests;
 

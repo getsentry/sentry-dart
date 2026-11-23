@@ -69,6 +69,45 @@ void main() {
     });
 
     group('captureRequest', () {
+      test('reports original body size when body is within cap', () {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
+        final sut = fixture.getSut();
+
+        final request = Request('POST', Uri.parse('https://example.com'))
+          ..headers['Content-Type'] = 'application/json'
+          ..body = '{"a":1}';
+
+        expect(sut.captureRequest(request)['size'], 7);
+      });
+
+      test('keeps size when only headers are captured', () {
+        final fixture = Fixture();
+        final sut = fixture.getSut();
+
+        final request = Request('POST', Uri.parse('https://example.com'))
+          ..headers['Content-Type'] = 'application/json'
+          ..body = '{"a":1}';
+        final data = sut.captureRequest(request);
+
+        expect(data.containsKey('body'), false);
+        expect(data['size'], 7);
+      });
+
+      test('keeps original size when body exceeds cap and is dropped', () {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
+        final sut = fixture.getSut();
+
+        final request = Request('POST', Uri.parse('https://example.com'))
+          ..headers['Content-Type'] = 'application/json'
+          ..body = 'a' * (FlutterNetworkDetailsCapture.maxBodySize + 10);
+        final data = sut.captureRequest(request);
+
+        expect(data.containsKey('body'), false);
+        expect(data['size'], FlutterNetworkDetailsCapture.maxBodySize + 10);
+      });
+
       test('captures default headers only', () {
         final fixture = Fixture();
         final sut = fixture.getSut();
@@ -213,6 +252,73 @@ void main() {
     });
 
     group('captureResponse', () {
+      test('reports original size when body is truncated at cap', () async {
+        final fixture = Fixture();
+        fixture.options.sendDefaultPii = true;
+        final sut = fixture.getSut();
+        final total = FlutterNetworkDetailsCapture.maxBodySize + 500;
+
+        final response = StreamedResponse(
+          Stream.value(List.filled(total, 97)),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+        final (_, data) = await sut.captureResponse(response);
+
+        expect(
+          (data['body'] as String).length,
+          FlutterNetworkDetailsCapture.maxBodySize,
+        );
+        expect(data['size'], total);
+      });
+
+      test(
+        'uses declared content length as size when body is skipped',
+        () async {
+          final fixture = Fixture();
+          fixture.options.sendDefaultPii = true;
+          final sut = fixture.getSut();
+          final total = FlutterNetworkDetailsCapture.maxBodySize + 1;
+
+          final response = StreamedResponse(
+            Stream.value(const <int>[]),
+            200,
+            contentLength: total,
+            headers: {'content-type': 'application/json'},
+          );
+          final (_, data) = await sut.captureResponse(response);
+
+          expect(data.containsKey('body'), false);
+          expect(data['size'], total);
+        },
+      );
+
+      test('keeps size when only headers are captured', () async {
+        final fixture = Fixture();
+        final sut = fixture.getSut();
+
+        final response = StreamedResponse(
+          Stream.value('hello'.codeUnits),
+          200,
+          contentLength: 5,
+          headers: {'content-type': 'application/json'},
+        );
+        final (_, data) = await sut.captureResponse(response);
+
+        expect(data.containsKey('body'), false);
+        expect(data['size'], 5);
+      });
+
+      test('omits size when unknown and body is not read', () async {
+        final fixture = Fixture();
+        final sut = fixture.getSut();
+
+        final response = StreamedResponse(Stream.value('x'.codeUnits), 200);
+        final (_, data) = await sut.captureResponse(response);
+
+        expect(data.containsKey('size'), false);
+      });
+
       test(
         'captures headers and body, and forwards full body downstream',
         () async {

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart'
+import 'package:flutter/widgets.dart'
     show FlutterError, NetworkImageLoadException, TickerCanceled;
 import 'package:flutter/services.dart'
     show PlatformException, MissingPluginException;
