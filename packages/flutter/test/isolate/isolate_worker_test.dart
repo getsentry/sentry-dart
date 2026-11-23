@@ -481,7 +481,7 @@ void main() {
       expect(await events.take(2).toList(), ['onShutdown', 'exited']);
     });
 
-    group('when closed for an engine detach', () {
+    group('closeWithExitToken', () {
       late ReceivePort inbox;
       late Worker worker;
 
@@ -496,16 +496,27 @@ void main() {
       test('arms the exit and closes with the token', () async {
         final armedTokens = <int>[];
 
-        worker.closeForEngineDetach(7, armedTokens.add);
+        worker.closeWithExitToken(7, armedTokens.add);
 
         expect(armedTokens, [7]);
         expect(await inbox.first, ('_shutdown_', 7));
       });
 
       test('still closes with the token when arming fails', () async {
-        worker.closeForEngineDetach(7, (_) => throw StateError('arm failed'));
+        worker.closeWithExitToken(7, (_) => throw StateError('arm failed'));
 
         expect(await inbox.first, ('_shutdown_', 7));
+      });
+
+      test('does not arm the exit again when already closed', () {
+        final armedTokens = <int>[];
+        worker.closeWithExitToken(7, armedTokens.add);
+
+        worker.closeWithExitToken(7, armedTokens.add);
+
+        // The worker asks for its exit once. A second arm would leave the
+        // engine teardown waiting for a request that never comes.
+        expect(armedTokens, [7]);
       });
     });
   });

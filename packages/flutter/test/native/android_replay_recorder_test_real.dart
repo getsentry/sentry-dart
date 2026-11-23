@@ -75,6 +75,60 @@ void main() {
       },
     );
 
+    group('with an engine exit token', () {
+      test('arms the exit and closes the worker with the token '
+          'when stopped', () async {
+        final sut = fixture.getSut(exitToken: 7);
+        final started = sut.start();
+        fixture.completeSpawn();
+        await started;
+
+        final stopped = sut.stop();
+        await pumpEventQueue();
+        fixture.answerRequests();
+        await stopped;
+        await pumpEventQueue();
+
+        expect(fixture.armedTokens, [7]);
+        // The close request of stop(), then the shutdown.
+        expect(fixture.workerMessages, [
+          isA<(int, Object?)>(),
+          ('_shutdown_', 7),
+        ]);
+      });
+
+      test('arms the exit and closes the worker with the token '
+          'when stopped while it is still spawning', () async {
+        final sut = fixture.getSut(exitToken: 7);
+
+        final started = sut.start();
+        await sut.stop();
+        fixture.completeSpawn();
+        await started;
+        await pumpEventQueue();
+
+        expect(fixture.armedTokens, [7]);
+        expect(fixture.workerMessages, [('_shutdown_', 7)]);
+      });
+
+      test('arms the exit once '
+          'when the engine detaches while stop waits for its reply', () async {
+        final sut = fixture.getSut(exitToken: 7);
+        final started = sut.start();
+        fixture.completeSpawn();
+        await started;
+        final stopped = sut.stop();
+        await pumpEventQueue();
+
+        sut.closeForEngineDetach(7);
+        fixture.answerRequests();
+        await stopped;
+        await pumpEventQueue();
+
+        expect(fixture.armedTokens, [7]);
+      });
+    });
+
     group('when the engine detaches', () {
       test(
         'arms the exit and closes the running worker with the token',
@@ -101,17 +155,21 @@ void main() {
       });
 
       test(
-        'closes the worker with the token without arming while it is still spawning',
+        'arms the exit and closes the worker with the token once its spawn completes',
         () async {
           final sut = fixture.getSut();
           final started = sut.start();
 
           sut.closeForEngineDetach(7);
+          expect(fixture.armedTokens, isEmpty);
           fixture.completeSpawn();
           await started;
           await pumpEventQueue();
 
-          expect(fixture.armedTokens, isEmpty);
+          // A token is never sent without arming: an exit that is granted
+          // unarmed would be counted for another worker that is still
+          // running.
+          expect(fixture.armedTokens, [7]);
           expect(fixture.workerMessages, [('_shutdown_', 7)]);
         },
       );
@@ -227,7 +285,7 @@ class Fixture {
   Future<void> get nextWorkerMessage =>
       (_nextWorkerMessage ??= Completer<void>()).future;
 
-  AndroidReplayRecorder getSut() => AndroidReplayRecorder(
+  AndroidReplayRecorder getSut({int? exitToken}) => AndroidReplayRecorder(
     options,
     spawn: (config, entry) {
       final spawn = Completer<Worker>();
@@ -235,6 +293,7 @@ class Fixture {
       return spawn.future;
     },
     armExit: armedTokens.add,
+    exitToken: exitToken,
   );
 
   /// Starts [sut] with a spawned worker and a configuration, so that it

@@ -17,11 +17,19 @@ import kotlin.concurrent.withLock
  * This works around https://github.com/flutter/flutter/issues/191168. The gate can be removed
  * once Flutter no longer releases GPU objects after their engine is gone.
  *
- * Protocol, once per engine detach, identified by a token that is unique in the process and
- * only ever sent over that engine's method channel:
- * 1. The root isolate calls [arm] once for every worker it tells to stop.
- * 2. The plugin calls [await] on the platform thread, which holds engine teardown.
+ * Protocol, per engine, identified by a token that is unique in the process: the engine's id,
+ * which the plugin reads from its binding and the Dart side from
+ * `PlatformDispatcher.instance.engineId`:
+ * 1. The root isolate calls [arm] once for every worker it tells to stop. That is not only at
+ *    engine detach: a worker stopped earlier, when the SDK was closed or a replay ended, can
+ *    still be handling its queue when the engine detaches.
+ * 2. The plugin calls [await] on the platform thread when the engine detaches, which holds
+ *    engine teardown.
  * 3. Each worker calls [requestExit] as its last step.
+ *
+ * The gate only counts. Every worker that asks must have been armed, or its grant would stand
+ * in for a worker that is still running. A worker that was armed and never asks, because its
+ * isolate was killed, makes [await] wait for its whole timeout.
  *
  * Invariant: no worker is granted after [await] has returned for its token. [await] closes the
  * token, and a closed token stays closed for the life of the process, whatever [await] returned
@@ -58,7 +66,7 @@ internal class WorkerExitGate(
   private val changed = lock.newCondition()
 
   // Entries are never removed: a forgotten token would be granted again, after its engine is
-  // gone. Tokens are not reused and there is one per engine detach, so the map stays tiny.
+  // gone. Tokens are not reused and there is one per engine, so the map stays tiny.
   private val exits = HashMap<Long, Exit>()
 
   /** Announces one worker that will call [requestExit] with [token]. */
@@ -91,6 +99,7 @@ internal class WorkerExitGate(
       anyGranted = exit.granted > 0
     }
     // The grace period is for granted isolates to finish. Without a grant nothing is exiting.
+    // A grant from long before the detach is not told apart: it costs these few milliseconds.
     if (allGranted && anyGranted) {
       try {
         sleep(graceMillis)

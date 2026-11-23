@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
@@ -19,6 +20,11 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
   final ArmWorkerExitFn _armExit;
+
+  /// The engine's exit token, see [Worker.closeWithExitToken]. Null if the
+  /// engine has no id: a worker that [stop] closes is then free to exit
+  /// after its engine is gone.
+  final int? _exitToken;
   Worker? _worker;
   // Incremented by every start(), stop() and closeForEngineDetach(), so that
   // a start() can tell, once its spawn has completed, whether a later one of
@@ -39,6 +45,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     super.options, {
     SpawnWorkerFn? spawn,
     ArmWorkerExitFn? armExit,
+    int? exitToken,
   }) : _config = WorkerConfig(
          debugName: 'SentryAndroidReplayRecorder',
          debug: options.debug,
@@ -46,7 +53,8 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
          automatedTestMode: options.automatedTestMode,
        ),
        _spawn = spawn ?? spawnWorker,
-       _armExit = armExit ?? native.SentryFlutterPlugin.armWorkerExit {
+       _armExit = armExit ?? native.SentryFlutterPlugin.armWorkerExit,
+       _exitToken = exitToken ?? PlatformDispatcher.instance.engineId {
     super.callback = (screenshot, isNewlyCaptured) {
       onScreenshotAddedForTest?.call();
       return _addReplayScreenshot(screenshot, isNewlyCaptured);
@@ -65,19 +73,32 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     // stop(), closeForEngineDetach() or another start() can run while the
     // spawn is in flight. None of them sees this worker, so it has to be
     // closed here, or it outlives the recorder and keeps its isolate group
-    // alive. After an engine detach the token keeps it from exiting late.
+    // alive.
     if (generation != _lifecycleGeneration) {
-      worker.close(exitToken: _detachToken);
+      _close(worker);
       return;
     }
     _worker = worker;
     await super.start();
   }
 
+  /// Closes [worker] with the engine's token, so that the engine can detach
+  /// while the worker is still handling its queue. Without a token the
+  /// worker exits whenever it is done.
+  void _close(Worker worker) {
+    final token = _detachToken ?? _exitToken;
+    if (token == null) {
+      worker.close();
+    } else {
+      worker.closeWithExitToken(token, _armExit);
+    }
+  }
+
   /// Stops the worker because its engine is about to be destroyed, see
-  /// [Worker.closeForEngineDetach]. Must stay synchronous.
+  /// [Worker.closeWithExitToken]. Must stay synchronous.
   ///
-  /// A worker that is still spawning is not covered, see
+  /// A worker that [stop] already closed is covered by the token it was
+  /// closed with. A worker that is still spawning is not covered, see
   /// `AndroidCoreWorker.closeForEngineDetach`.
   void closeForEngineDetach(int token) {
     // Also set when stop() ran first: start() needs the token for a worker
@@ -90,7 +111,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
     // Stops new captures. The scheduler winds down asynchronously, which
     // nothing can wait for at this point.
     unawaited(super.stop());
-    worker?.closeForEngineDetach(token, _armExit);
+    worker?.closeWithExitToken(token, _armExit);
   }
 
   @override
@@ -110,7 +131,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
         rethrow;
       }
     } finally {
-      worker?.close();
+      if (worker != null) _close(worker);
       _worker = null;
     }
   }

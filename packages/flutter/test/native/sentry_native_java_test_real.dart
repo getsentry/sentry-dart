@@ -213,7 +213,8 @@ void main() {
 
     test('engineDetaching closes the workers of the binding constructed last '
         'and not those of an earlier binding', () {
-      // Documents a limitation: the earlier binding's workers are not reached.
+      // The earlier binding's workers are not reached here. A re-init closes
+      // that binding, which closes them with the engine's exit token.
       final first = fixture.getSut();
       final firstRecorder = _FakeReplayRecorder(fixture.options);
       first.testRecorder = firstRecorder;

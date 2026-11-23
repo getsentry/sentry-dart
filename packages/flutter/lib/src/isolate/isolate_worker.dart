@@ -89,7 +89,7 @@ class Worker {
     }
   }
 
-  /// Closes the worker because its engine is about to be destroyed.
+  /// Closes the worker so that it cannot exit after its engine is gone.
   ///
   /// Whoever holds up engine teardown, on Android the plugin's
   /// `WorkerExitGate`, waits for every worker announced with [armExit] to ask
@@ -97,9 +97,14 @@ class Worker {
   /// never allowed to exit: it would be the last isolate of its group and
   /// release Flutter's GPU objects after the engine is gone (#4092).
   ///
-  /// Synchronous on purpose: the calling isolate gets no further turn before
-  /// the wait starts.
-  void closeForEngineDetach(int exitToken, ArmWorkerExitFn armExit) {
+  /// This is for every close, not only the one at engine detach: a worker
+  /// closed earlier can still be handling its queue when the engine detaches.
+  ///
+  /// Synchronous on purpose: at engine detach the calling isolate gets no
+  /// further turn before the wait starts.
+  void closeWithExitToken(int exitToken, ArmWorkerExitFn armExit) {
+    // The worker asks for its exit once, so it must only be armed once.
+    if (_closed) return;
     try {
       armExit(exitToken);
     } catch (exception, stackTrace) {

@@ -502,7 +502,7 @@ void main() {
     });
 
     test(
-      'closeForEngineDetach closes with the token but does not arm while still starting',
+      'closeForEngineDetach arms the exit and closes with the token once a pending start completes',
       () async {
         final fixture = _Fixture();
         final spawn = Completer<Worker>();
@@ -514,11 +514,14 @@ void main() {
         final started = Future<void>.value(worker.start());
 
         worker.closeForEngineDetach(7);
+        expect(fixture.armedTokens, isEmpty);
         spawn.complete(Worker(inbox.sendPort, replies));
         await started;
 
         expect(await inbox.first, ('_shutdown_', 7));
-        expect(fixture.armedTokens, isEmpty);
+        // A token is never sent without arming: an exit that is granted
+        // unarmed would be counted for another worker that is still running.
+        expect(fixture.armedTokens, [7]);
       },
     );
 
@@ -541,7 +544,7 @@ void main() {
         await closed;
 
         expect(await inbox.first, ('_shutdown_', 7));
-        expect(fixture.armedTokens, isEmpty);
+        expect(fixture.armedTokens, [7]);
       },
     );
 
@@ -555,6 +558,59 @@ void main() {
 
       expect(fixture.armedTokens, isEmpty);
     });
+
+    test(
+      'close arms the exit and closes with the engine token once started',
+      () async {
+        final fixture = _Fixture();
+        final worker = fixture.getSut(exitToken: 7);
+        await worker.start();
+
+        worker.close();
+
+        expect(fixture.armedTokens, [7]);
+        expect(await fixture.inboxes.last.first, ('_shutdown_', 7));
+      },
+    );
+
+    test(
+      'close arms the exit and closes with the engine token once a pending start completes',
+      () async {
+        final fixture = _Fixture();
+        final spawn = Completer<Worker>();
+        final inbox = ReceivePort();
+        addTearDown(inbox.close);
+        final replies = ReceivePort();
+        addTearDown(replies.close);
+        final worker = fixture.getSut(
+          spawn: (config, entry) => spawn.future,
+          exitToken: 7,
+        );
+        final started = Future<void>.value(worker.start());
+        final closed = Future<void>.value(worker.close());
+
+        spawn.complete(Worker(inbox.sendPort, replies));
+        await started;
+        await closed;
+
+        expect(fixture.armedTokens, [7]);
+        expect(await inbox.first, ('_shutdown_', 7));
+      },
+    );
+
+    test(
+      'closeForEngineDetach does not arm the exit again for a worker that close armed',
+      () async {
+        final fixture = _Fixture();
+        final worker = fixture.getSut(exitToken: 7);
+        await worker.start();
+        await worker.close();
+
+        worker.closeForEngineDetach(7);
+
+        expect(fixture.armedTokens, [7]);
+      },
+    );
 
     test('start does not spawn after closeForEngineDetach', () async {
       final fixture = _Fixture();
@@ -595,11 +651,13 @@ class _Fixture {
 
   final armedTokens = <int>[];
 
-  AndroidCoreWorker getSut({SpawnWorkerFn? spawn}) => AndroidCoreWorker(
-    options,
-    spawn: spawn ?? _fakeSpawn,
-    armExit: armedTokens.add,
-  );
+  AndroidCoreWorker getSut({SpawnWorkerFn? spawn, int? exitToken}) =>
+      AndroidCoreWorker(
+        options,
+        spawn: spawn ?? _fakeSpawn,
+        armExit: armedTokens.add,
+        exitToken: exitToken,
+      );
 
   Future<(int, Object?)> get nextRequest async {
     final request = await inboxes.last.first as (int, Object?);

@@ -40,7 +40,6 @@ import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
 import java.net.Proxy.Type
-import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.roundToInt
 
 private const val APP_START_MAX_DURATION_MS = 60000
@@ -79,7 +78,10 @@ class SentryFlutterPlugin :
     }
 
     try {
-      awaitWorkerIsolateExit()
+      // The binding offers no other way to the engine's id.
+      @Suppress("DEPRECATION")
+      val engineId = binding.flutterEngine.engineId
+      awaitWorkerIsolateExit(engineId)
     } finally {
       // The plugin must be torn down even if the wait throws.
       tearDownReplayIntegration()
@@ -91,6 +93,11 @@ class SentryFlutterPlugin :
   /**
    * Tells this engine's Dart side to stop its worker isolates and holds engine teardown until
    * they asked to exit, see [WorkerExitGate].
+   *
+   * [token] is the engine's id. The Dart side reads the same value from
+   * `PlatformDispatcher.instance.engineId` and closes every worker with it, also long before
+   * the engine detaches. So this waits for a worker that was closed earlier and is still
+   * handling its queue as well.
    *
    * The call reaches Dart synchronously, because the platform and UI threads are merged: by the
    * time invokeMethod returns, the root isolate has armed the gate for every running worker.
@@ -104,8 +111,7 @@ class SentryFlutterPlugin :
    * by the gate instead of exiting after the engine is gone.
    */
   @Suppress("TooGenericExceptionCaught")
-  private fun awaitWorkerIsolateExit() {
-    val token = detachTokens.incrementAndGet()
+  private fun awaitWorkerIsolateExit(token: Long) {
     try {
       channel.invokeMethod("engineDetaching", token)
     } catch (e: Exception) {
@@ -165,8 +171,6 @@ class SentryFlutterPlugin :
     private const val NATIVE_CRASH_WAIT_TIME = 500L
 
     private const val WORKER_EXIT_TIMEOUT_MILLIS = 1000L
-
-    private val detachTokens = AtomicLong()
 
     private val workerExitGate = WorkerExitGate()
 
