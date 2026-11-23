@@ -238,6 +238,9 @@ void main() {
     late _FakeCoreWorker fakeCoreWorker;
 
     setUp(() {
+      // The constructor initializes the Flutter binding. The test binding has
+      // to be there first, or the tests that need it fail when run after.
+      TestWidgetsFlutterBinding.ensureInitialized();
       originalFactory = AndroidCoreWorker.factory;
       fakeCoreWorker = _FakeCoreWorker();
       AndroidCoreWorker.factory = (options) => fakeCoreWorker;
