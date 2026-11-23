@@ -18,6 +18,7 @@ import '../sentry_native_binding.dart';
 import '../sentry_native_invoker.dart';
 import 'binding.dart' as binding;
 import 'native_database_path.dart';
+import 'sentry_native_worker.dart';
 import 'utils.dart';
 
 @internal
@@ -58,6 +59,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   // initialized.
   bool _nativeSdkAutoInitialized = false;
 
+  late final SentryNativeWorker? _worker = Platform.isWindows
+      ? SentryNativeWorker(options, () => createOptions(options))
+      : null;
+
+  @visibleForTesting
+  SentryNativeWorker? get worker => _worker;
+
   void _logNotSupported(String operation) =>
       internalLogger.debug('SentryNative: $operation is not supported');
 
@@ -65,17 +73,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   FutureOr<void> init(Hub hub) {
     if (!options.enableNativeCrashHandling) {
       internalLogger.info('SentryNative crash handling is disabled');
+      _worker?.startWithoutInit();
+    } else if (_worker case final worker?) {
+      worker.start();
     } else {
       tryCatchSync("init", () {
         final cOptions = createOptions(options);
-        final code = native.init(cOptions);
-        if (code != 0) {
-          throw StateError(
-            'Failed to initialize native SDK - init() exit code: $code. '
-            'Native crashes will not be captured. Make sure the native '
-            'database path is writable, see `nativeDatabasePath`.',
-          );
-        }
+        checkNativeInitResult(native.init(cOptions));
         _nativeSdkAutoInitialized = true;
       });
     }
@@ -104,6 +108,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       final databasePath = resolveNativeDatabasePath(
         configuredPath: options.nativeDatabasePath,
         isWindows: options.platform.isWindows,
+        isLinux: options.platform.isLinux,
         dsn: options.dsn,
         workingDirectory: workingDirectory,
         environment: environment(),
@@ -143,6 +148,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> close() {
+    if (_worker case final worker?) return worker.close();
     if (!_nativeSdkAutoInitialized) {
       return null;
     }
@@ -174,6 +180,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setUser(SentryUser? user) {
+    if (_worker case final worker?) return worker.setUser(user);
     if (user == null) {
       tryCatchSync('remove_user', native.remove_user);
     } else {
@@ -185,7 +192,12 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) {
+    if (_worker case final worker?) return worker.addBreadcrumb(breadcrumb);
     tryCatchSync('add_breadcrumb', () {
       var cBreadcrumb = breadcrumb.toJson().toNativeValue();
       native.add_breadcrumb(cBreadcrumb);
@@ -208,6 +220,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setContexts(String key, dynamic value) {
+    if (_worker case final worker?) return worker.setContexts(key, value);
     tryCatchSync('set_context', () {
       final cValue = dynamicToNativeValue(value);
       if (cValue != null) {
@@ -224,6 +237,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeContexts(String key) {
+    if (_worker case final worker?) return worker.removeContexts(key);
     tryCatchSync('remove_context', () {
       final cKey = key.toNativeUtf8();
       native.remove_context(cKey.cast());
@@ -233,6 +247,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setExtra(String key, dynamic value) {
+    if (_worker case final worker?) return worker.setExtra(key, value);
     tryCatchSync('set_extra', () {
       final cValue = dynamicToNativeValue(value);
       if (cValue != null) {
@@ -249,6 +264,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeExtra(String key) {
+    if (_worker case final worker?) return worker.removeExtra(key);
     tryCatchSync('remove_extra', () {
       final cKey = key.toNativeUtf8();
       native.remove_extra(cKey.cast());
@@ -258,6 +274,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> setTag(String key, String value) {
+    if (_worker case final worker?) return worker.setTag(key, value);
     tryCatchSync('set_tag', () {
       final c = FreeableFactory();
       native.set_tag(c.str(key), c.str(value));
@@ -267,6 +284,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
 
   @override
   FutureOr<void> removeTag(String key) {
+    if (_worker case final worker?) return worker.removeTag(key);
     tryCatchSync('remove_tag', () {
       final cKey = key.toNativeUtf8();
       native.remove_tag(cKey.cast());
@@ -281,35 +299,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) =>
-      tryCatchAsync('get_module_list', () async {
-        final cImages = native.get_modules_list();
-        try {
-          if (native.value_get_type(cImages) !=
-              binding.sentry_value_type_t.SENTRY_VALUE_TYPE_LIST) {
-            return null;
-          }
-
-          final images = List<DebugImage>.generate(
-            native.value_get_length(cImages),
-            (index) {
-              final cImage = native.value_get_by_index(cImages, index);
-              return DebugImage(
-                type: cImage.get('type').castPrimitive() ?? '',
-                imageAddr: cImage.get('image_addr').castPrimitive(),
-                imageSize: cImage.get('image_size').castPrimitive(),
-                codeFile: cImage.get('code_file').castPrimitive(),
-                debugId: cImage.get('debug_id').castPrimitive(),
-                debugFile: cImage.get('debug_file').castPrimitive(),
-                codeId: cImage.get('code_id').castPrimitive(),
-              );
-            },
-          );
-          return images;
-        } finally {
-          native.value_decref(cImages);
-        }
-      });
+  FutureOr<List<DebugImage>?> loadDebugImages(SentryStackTrace stackTrace) {
+    if (_worker case final worker?) return worker.loadDebugImages();
+    return tryCatchAsync(
+      'get_module_list',
+      () async => readNativeDebugImages(),
+    );
+  }
 
   @override
   FutureOr<void> pauseAppHangTracking() {}
@@ -475,6 +471,44 @@ extension SentryValueExtension on binding.sentry_value_u {
         );
         return null;
     }
+  }
+}
+
+@internal
+List<DebugImage>? readNativeDebugImages() {
+  final native = SentryNative.native;
+  final cImages = native.get_modules_list();
+  try {
+    if (native.value_get_type(cImages) !=
+        binding.sentry_value_type_t.SENTRY_VALUE_TYPE_LIST) {
+      return null;
+    }
+
+    return List<DebugImage>.generate(native.value_get_length(cImages), (index) {
+      final cImage = native.value_get_by_index(cImages, index);
+      return DebugImage(
+        type: cImage.get('type').castPrimitive() ?? '',
+        imageAddr: cImage.get('image_addr').castPrimitive(),
+        imageSize: cImage.get('image_size').castPrimitive(),
+        codeFile: cImage.get('code_file').castPrimitive(),
+        debugId: cImage.get('debug_id').castPrimitive(),
+        debugFile: cImage.get('debug_file').castPrimitive(),
+        codeId: cImage.get('code_id').castPrimitive(),
+      );
+    });
+  } finally {
+    native.value_decref(cImages);
+  }
+}
+
+@internal
+void checkNativeInitResult(int code) {
+  if (code != 0) {
+    throw StateError(
+      'Failed to initialize native SDK - init() exit code: $code. '
+      'Native crashes will not be captured. Make sure the native '
+      'database path is writable, see `nativeDatabasePath`.',
+    );
   }
 }
 

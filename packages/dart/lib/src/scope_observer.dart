@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
+import 'hint.dart';
 import 'protocol/breadcrumb.dart';
 import 'protocol/sentry_user.dart';
 
@@ -13,4 +16,17 @@ abstract class ScopeObserver {
   Future<void> removeExtra(String key);
   Future<void> setTag(String key, String value);
   Future<void> removeTag(String key);
+}
+
+/// Additive opt-in for [ScopeObserver] implementations that need the
+/// [Hint] associated with a breadcrumb (e.g. to correlate out-of-band data
+/// such as Session Replay network detail).
+///
+/// When a [ScopeObserver] also implements this interface, [Scope] calls
+/// [addBreadcrumbWithHint] instead of [ScopeObserver.addBreadcrumb]. This
+/// keeps [ScopeObserver.addBreadcrumb]'s signature stable for existing
+/// implementors.
+@internal
+abstract class HintAwareScopeObserver {
+  FutureOr<void> addBreadcrumbWithHint(Breadcrumb breadcrumb, Hint hint);
 }

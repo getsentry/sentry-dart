@@ -15,6 +15,7 @@ import 'sentry_options.dart';
 import 'telemetry/span/transaction/sentry_span_interface.dart';
 import 'telemetry/span/transaction/sentry_tracer.dart';
 import 'telemetry/span/streaming/sentry_span_v2.dart';
+import 'telemetry/span/streaming/span_status_v2_conversion.dart';
 import 'utils/internal_logger.dart';
 
 typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
@@ -286,12 +287,16 @@ class Scope {
 
   /// Adds a breadcrumb to the breadcrumbs queue
   Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
-    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint ?? Hint());
+    final resolvedHint = hint ?? Hint();
+    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, resolvedHint);
     if (addedBreadcrumb != null) {
-      await _callScopeObservers(
-        (scopeObserver) async =>
-            await scopeObserver.addBreadcrumb(addedBreadcrumb),
-      );
+      await _callScopeObservers((scopeObserver) async {
+        if (scopeObserver case final HintAwareScopeObserver observer) {
+          await observer.addBreadcrumbWithHint(addedBreadcrumb, resolvedHint);
+        } else {
+          await scopeObserver.addBreadcrumb(addedBreadcrumb);
+        }
+      });
     }
   }
 
@@ -446,7 +451,9 @@ class Scope {
                   as String? ??
               'default',
           sampled: activeSpan.samplingDecision.sampled,
+          status: spanStatusFromV2(activeSpan.status),
         );
+        event.transaction ??= activeSpan.segmentSpan.name;
       } else if (newSpan != null) {
         event.contexts.trace = newSpan.context.toTraceContext(
           sampled: newSpan.samplingDecision?.sampled,

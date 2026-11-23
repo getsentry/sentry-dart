@@ -14,6 +14,12 @@ import 'package:meta/meta.dart';
 /// a writable database, sentry-native fails to initialize and native crashes
 /// are lost.
 ///
+/// On Linux, the same applies when the app starts in a read-only directory
+/// (from a launcher with `/` as working directory, a Flatpak, Snap or
+/// AppImage, a read-only install prefix, or a systemd service). It then
+/// falls back to `$XDG_CACHE_HOME/<executable name>/sentry-<DSN hash>`, or
+/// `$HOME/.cache/...` when `XDG_CACHE_HOME` is unset, empty or relative.
+///
 /// The DSN hash keeps apps that share an executable name from picking up each
 /// other's pending reports, and it stays the same across app updates, unlike
 /// the install path of a packaged app, which contains its version.
@@ -21,16 +27,20 @@ import 'package:meta/meta.dart';
 String? resolveNativeDatabasePath({
   required String? configuredPath,
   required bool isWindows,
+  required bool isLinux,
   required String? dsn,
   required String Function() workingDirectory,
   required Map<String, String> environment,
   required String resolvedExecutable,
 }) {
-  if (configuredPath != null || !isWindows) {
+  if (configuredPath != null || !(isWindows || isLinux)) {
     return configuredPath;
   }
   if (_canWriteDefaultDatabase(workingDirectory)) {
     return null;
+  }
+  if (isLinux) {
+    return _linuxFallbackPath(environment, resolvedExecutable, dsn);
   }
   final localAppData = environment['LOCALAPPDATA'];
   if (localAppData == null) {
@@ -41,6 +51,26 @@ String? resolveNativeDatabasePath({
       .last
       .replaceFirst(RegExp(r'\.exe$', caseSensitive: false), '');
   return '$localAppData\\$appName\\sentry-${dsnHash(dsn ?? '')}';
+}
+
+/// `$XDG_CACHE_HOME/<executable name>/sentry-<DSN hash>`, or under
+/// `$HOME/.cache` per the XDG Base Directory spec, which says to ignore an
+/// empty or relative `XDG_CACHE_HOME`. Returns `null` if neither is usable.
+String? _linuxFallbackPath(
+  Map<String, String> environment,
+  String resolvedExecutable,
+  String? dsn,
+) {
+  var cacheHome = environment['XDG_CACHE_HOME'];
+  if (cacheHome == null || !cacheHome.startsWith('/')) {
+    final home = environment['HOME'];
+    if (home == null || home.isEmpty) {
+      return null;
+    }
+    cacheHome = '$home/.cache';
+  }
+  final appName = resolvedExecutable.split('/').last;
+  return '$cacheHome/$appName/sentry-${dsnHash(dsn ?? '')}';
 }
 
 /// FNV-1a (32-bit) hash of [dsn] as 8 hex characters.

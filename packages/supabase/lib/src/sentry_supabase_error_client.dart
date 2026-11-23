@@ -5,6 +5,7 @@ import 'package:sentry/sentry.dart';
 import 'sentry_supabase_client_error.dart';
 
 import 'sentry_supabase_request.dart';
+import 'sentry_supabase_tracing_client.dart' show supabaseRequestSpanLinks;
 
 class SentrySupabaseErrorClient extends BaseClient {
   final Client _innerClient;
@@ -81,7 +82,14 @@ class SentrySupabaseErrorClient extends BaseClient {
         'body': supabaseRequest.body,
     };
 
-    return _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+    final span = supabaseRequestSpanLinks.spanFor(request);
+    return _hub.captureEvent(
+      event,
+      stackTrace: stackTrace,
+      hint: hint,
+      // ignore: invalid_use_of_internal_member
+      withScope: span == null ? null : (scope) => scope.setActiveSpan(span),
+    );
   }
 }
 

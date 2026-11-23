@@ -58,6 +58,9 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
         _options.replay.networkRequestHeaders,
       ),
     };
+    // The original size, independent of whether the body is captured or
+    // truncated, so replay doesn't report the capped size.
+    _setSize(data, request.contentLength);
     final body = _captureRequestBody(request);
     if (body != null) {
       data['body'] = body;
@@ -77,6 +80,7 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
     };
 
     final contentLength = response.contentLength;
+    _setSize(data, contentLength);
     if (!_options.sendDefaultPii ||
         !_options.replay.networkCaptureBodies ||
         !_isCapturableContentType(response.headers['content-type']) ||
@@ -101,6 +105,9 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
     // The body is already fully read at this point, so decoding failures
     // (e.g. malformed encoding info) shouldn't prevent forwarding it as-is.
     final forwarded = _copyWithBytes(response, bytes);
+    // Without a declared content length, the bytes actually read are the
+    // original size (the cap only applies to the captured string below).
+    _setSize(data, contentLength ?? bytes.length);
     try {
       data['body'] = _truncateBytes(bytes);
     } catch (exception) {
@@ -109,6 +116,12 @@ class FlutterNetworkDetailsCapture implements NetworkDetailsCapture {
       );
     }
     return (forwarded, data);
+  }
+
+  void _setSize(Map<String, dynamic> data, int? size) {
+    if (size != null && size >= 0) {
+      data['size'] = size;
+    }
   }
 
   String? _captureRequestBody(BaseRequest request) {

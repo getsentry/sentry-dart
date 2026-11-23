@@ -28,6 +28,29 @@ void main() {
       await fixture.tearDown();
     });
 
+    test('links an error captured after the box span ended', () async {
+      final box = fixture.box;
+      await box.close();
+
+      Object? error;
+      await fixture.hub.startSpan('segment', (_) async {
+        try {
+          await box.put('test-key', Person('John Doe'));
+        } catch (e) {
+          error = e;
+        }
+      }, parentSpan: null);
+      await fixture.hub.captureException(error);
+      await fixture.processor.waitForProcessing();
+
+      final failedSpan = fixture.processor.capturedSpans.singleWhere(
+        (span) => span.status == SentrySpanStatusV2.error,
+      );
+      final event = fixture.events.single;
+      expect(event.contexts.trace?.spanId, failedSpan.spanId);
+      expect(event.transaction, 'segment');
+    });
+
     test('Box.get() creates spanv2', () async {
       final box = fixture.box;
 
@@ -117,6 +140,7 @@ class Fixture {
   late final SentryOptions options;
   late final FakeTelemetryProcessor processor;
   late Box<Person> box;
+  final events = <SentryEvent>[];
 
   static const String boxName = 'test-box';
 
@@ -125,7 +149,11 @@ class Fixture {
     options = defaultTestOptions()
       ..tracesSampleRate = 1.0
       ..traceLifecycle = SentryTraceLifecycle.stream
-      ..telemetryProcessor = processor;
+      ..telemetryProcessor = processor
+      ..beforeSend = (event, hint) {
+        events.add(event);
+        return null;
+      };
     hub = Hub(options);
 
     options.addIntegration(InstrumentationSpanFactorySetupIntegration());
