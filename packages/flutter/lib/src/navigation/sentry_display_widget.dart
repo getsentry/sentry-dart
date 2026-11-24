@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import '../../sentry_flutter.dart';
 
 /// A widget that helps track when its child widget is fully displayed in a Flutter application.

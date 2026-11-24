@@ -64,6 +64,15 @@ internalLogger.debug(() => 'Envelope size: ${envelope.computeSize()}');
 
 **Logs are debug-only** — all logging is tree-shaken in release builds via `RuntimeChecker.kDebugMode`.
 
+### Tracing & Logs
+
+- Close every span you start, including on error paths
+- Automated spans set `sentry.origin` and a standard `sentry.op` ([span operations](https://develop.sentry.dev/sdk/telemetry/traces/span-operations/)); automated structured logs set `sentry.origin`. Use the **span-convention-review** skill for depth
+
+### Initialization
+
+Wrap failure-prone paths during `Sentry.init` / `SentryFlutter.init` in `try/catch`, log with actionable context, and fall back so the app stays usable — SDK init must never crash the host app.
+
 ### Privacy
 
 - Never collect Personally Identifiable Information (PII) without checking `options.sendDefaultPii`
@@ -78,6 +87,8 @@ internalLogger.debug(() => 'Envelope size: ${envelope.computeSize()}');
 
 - Release all native memory (JNI local refs, malloc allocations)
 - Handle native exceptions gracefully—don't crash the host app
+
+**Bumping a wrapped native SDK** (`chore(deps): update Android SDK / Cocoa SDK …`): read the upstream changelog (usually in the PR body) and check each entry against this codebase — breaking or removed APIs, new requirements, and behavior changes that affect existing integrations. Update native bridge code, method channels, or platform-specific implementations in the same PR when the bump requires it.
 
 ### File Organization
 
