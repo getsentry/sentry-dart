@@ -58,6 +58,7 @@ families = ["hybrid"]
 paths = [
   "packages/flutter/android/build.gradle", "packages/flutter/sentry-native/CMakeCache.txt",
   "packages/flutter/lib/src/web/sentry_js_sdk_version.dart", "docs/sdk-versions.md",
+  "packages/flutter/darwin/sentry_flutter/Package.swift",
 ]
 kind = "dependencies"
 
