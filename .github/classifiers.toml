@@ -1,0 +1,101 @@
+# getsentry/sentry-dart b8698e4f117baf842e78d3495b19b426e8dde0c6
+
+rubric = "sdk"
+
+# package:sentry is pure Dart: servers and CLIs (dart:io), browsers (dart2js/wasm) and
+# every Flutter app, which builds on it.
+[[area]]
+paths = ["packages/dart/**"]
+families = ["server", "browser", "hybrid"]
+shared_core = true
+
+# sentry_flutter: Dart layer plus Android (sentry-android), Apple (sentry-cocoa via
+# sentry-apple-binaries), Linux/Windows (sentry-native via CMake) and web (Sentry JS loaded
+# at runtime) bridges.
+[[area]]
+paths = ["packages/flutter/**"]
+families = ["hybrid"]
+
+[[area]]
+paths = [
+  "packages/flutter/lib/sentry_flutter_web.dart", "packages/flutter/lib/src/web/**",
+  "packages/flutter/lib/src/**/web_*.dart", "packages/flutter/lib/src/**/*_web.dart",
+]
+families = ["browser"]
+
+# Native build integration that runs inside customers' Flutter builds (fetches and compiles
+# sentry-native, resolves the Swift package, applies the Gradle module).
+[[area]]
+paths = [
+  "packages/flutter/sentry-native/*.cmake", "packages/flutter/linux/CMakeLists.txt",
+  "packages/flutter/windows/CMakeLists.txt", "packages/flutter/android/build.gradle",
+  "packages/flutter/darwin/sentry_flutter/Package.swift",
+]
+families = ["tooling", "hybrid"]
+
+# Pure-Dart integrations: usable on servers/CLIs, in Flutter apps and (except dart:io file)
+# on the web.
+[[area]]
+paths = [
+  "packages/dio/**", "packages/drift/**", "packages/grpc/**", "packages/hive/**",
+  "packages/link/**", "packages/logging/**", "packages/supabase/**",
+]
+families = ["server", "browser", "hybrid"]
+
+[[area]]
+paths = ["packages/file/**"]
+families = ["server", "hybrid"]
+
+# Flutter-only integrations.
+[[area]]
+paths = ["packages/firebase_remote_config/**", "packages/isar/**", "packages/sqflite/**"]
+families = ["hybrid"]
+
+# Bundled SDK version pins: sentry-android (Gradle), sentry-cocoa (SPM, default
+# Package.swift), sentry-native (CMakeCache.txt properties file), Sentry JS (generated Dart
+# constant with SRI hashes).
+[[kind]]
+paths = [
+  "packages/flutter/android/build.gradle", "packages/flutter/sentry-native/CMakeCache.txt",
+  "packages/flutter/lib/src/web/sentry_js_sdk_version.dart", "docs/sdk-versions.md",
+]
+kind = "dependencies"
+
+[[kind]]
+paths = [
+  "packages/*/test/**", "packages/*/test_resources/**", "packages/_sentry_testing/**",
+  "packages/hive/*.hive", "packages/flutter/microbenchmarks/**",
+  "packages/flutter/sentry-native/test/**", "e2e_test/**", "min_version_test/**",
+]
+kind = "tests"
+
+[[kind]]
+paths = ["packages/*/example/**", "packages/*/example_web/**"]
+kind = "samples"
+
+[[kind]]
+paths = [
+  "packages/*/class-diagram.svg", "packages/link/screenshot.png", "packages/*/dartdoc_options.yaml",
+]
+kind = "docs"
+
+[[kind]]
+paths = [
+  "scripts/**", "packages/*/tool/**", "packages/flutter/scripts/**", "melos.yaml",
+  "**/.pubignore", "**/.metadata", "**/PATENTS", "packages/flutter/ffi-native.yaml",
+  "packages/flutter/sentry-native/*.cmake", "packages/flutter/linux/CMakeLists.txt",
+  "packages/flutter/windows/CMakeLists.txt", "packages/flutter/android/*.gradle",
+  # No .pubignore excludes it, so it is in the published package.
+  "packages/*/AUTHORS",
+  "packages/flutter/android/gradle.properties", "packages/flutter/android/gradle/**",
+  "**/pubspec_overrides.yaml",
+]
+kind = "build-release"
+
+[[kind]]
+paths = [
+  ".fvmrc", ".ruby-version", "agents.toml", "metrics/**",
+  "packages/*/analysis_options.yaml", "scripts/*/analysis_options.yaml",
+  "packages/flutter/config/detekt-bl.xml",
+]
+kind = "dev-tooling"
