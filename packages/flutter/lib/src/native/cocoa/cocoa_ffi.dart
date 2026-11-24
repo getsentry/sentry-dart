@@ -18,7 +18,9 @@ typedef _AddBreadcrumbDart = void Function(Pointer<Uint8>, int);
 /// release-build symbol stripping of the statically linked plugin cannot
 /// break these calls.
 ///
-/// Calls are synchronous and must happen on the main isolate.
+/// Calls are synchronous and thread-safe on the native side. Only the
+/// handover goes through the method channel; the address itself is valid
+/// process-wide and could be passed to other isolates.
 @internal
 class CocoaFfi {
   final _AddBreadcrumbDart _addBreadcrumb;
