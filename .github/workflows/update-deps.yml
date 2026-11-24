@@ -17,7 +17,8 @@ permissions:
 # Changelog strategy:
 # We use craft (release.yml) for auto-generated changelogs, not the updater's
 # built-in changelog entries, so all jobs set changelog-entry: false.
-# Android, Cocoa, JS, and Native are SDK dependency updates that should appear
+# The JavaScript SDK updater lives in update-deps-js.yml.
+# Android, Cocoa, and Native are SDK dependency updates that should appear
 # in the changelog under "Dependencies". Metrics and Symbol Collector should not.
 # Since craft's exclude mechanism doesn't support per-PR conditions yet, we add
 # the skip-changelog label to metrics-flutter and symbol-collector PRs so craft
@@ -46,16 +47,6 @@ jobs:
           path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
           pattern: '^9\.'
-          changelog-entry: false
-          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
-
-  js:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
-        with:
-          path: packages/flutter/scripts/update-js.sh
-          name: JavaScript SDK
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
