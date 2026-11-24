@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import '../../../sentry_flutter.dart';
 import '../../replay/replay_config.dart';
 import '../sentry_native_channel.dart';
+import 'cocoa_ffi.dart';
 import 'cocoa_replay_recorder.dart';
 
 @internal
@@ -58,6 +59,27 @@ class SentryNativeCocoa extends SentryNativeChannel {
 
     return super.init(hub);
   }
+
+  @override
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) async {
+    final ffi = await (_ffi ??= CocoaFfi.load(channel));
+    if (ffi == null) {
+      return super.addBreadcrumb(breadcrumb);
+    }
+    tryCatchSync(
+      'addBreadcrumb',
+      () => ffi.addBreadcrumb(normalizedBreadcrumbJson(breadcrumb)),
+    );
+  }
+
+  /// Loaded lazily on first use rather than in [init], which does not run
+  /// when `autoInitializeNativeSdk` is disabled. Shared across concurrent
+  /// callers so the entry points are requested only once.
+  Future<CocoaFfi?>? _ffi;
 
   @override
   FutureOr<SentryId> captureReplay() async {

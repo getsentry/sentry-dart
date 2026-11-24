@@ -105,6 +105,9 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             let user = arguments?["user"] as? [String: Any]
             setUser(user: user, result: result)
 
+        case "ffiEntryPoints":
+            result(Int(bitPattern: SentryFlutterPlugin.ffiEntryPoints))
+
         case "addBreadcrumb":
             let arguments = call.arguments as? [String: Any?]
             let breadcrumb = arguments?["breadcrumb"] as? [String: Any]
@@ -617,10 +620,43 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func addBreadcrumb(breadcrumb: [String: Any]?, result: @escaping FlutterResult) {
       if let breadcrumb = breadcrumb {
-        let breadcrumbInstance = SentrySDK.internal.breadcrumbs.fromDictionary(breadcrumb)
-        SentrySDK.addBreadcrumb(breadcrumbInstance)
+        SentryFlutterPlugin.addBreadcrumb(dictionary: breadcrumb)
       }
       result("")
+    }
+
+    // Shared by the method channel and the FFI entry point so both stay in parity.
+    private static func addBreadcrumb(dictionary: [String: Any]) {
+      let breadcrumbInstance = SentrySDK.internal.breadcrumbs.fromDictionary(dictionary)
+      SentrySDK.addBreadcrumb(breadcrumbInstance)
+    }
+
+    // MARK: - FFI
+
+    // Entry points called directly from Dart via FFI (see `SentryFlutterFFI.h`).
+    // Dart receives this struct's address through `ffiEntryPoints` instead of
+    // looking up symbols by name, so release-build symbol stripping of the
+    // statically linked plugin cannot break the calls. Allocated once and never
+    // freed: Dart may hold the address for the lifetime of the process.
+    private static let ffiEntryPoints: UnsafeMutablePointer<SentryFlutterFfiEntryPoints> = {
+      let pointer = UnsafeMutablePointer<SentryFlutterFfiEntryPoints>.allocate(capacity: 1)
+      pointer.initialize(to: SentryFlutterFfiEntryPoints(
+        addBreadcrumb: { json, length in
+          SentryFlutterPlugin.addBreadcrumb(json: json, length: length)
+        }
+      ))
+      return pointer
+    }()
+
+    // Called from C: must never throw or trap.
+    private static func addBreadcrumb(json: UnsafePointer<UInt8>, length: Int) {
+      let data = Data(bytes: json, count: length)
+      guard let object = try? JSONSerialization.jsonObject(with: data),
+            let dictionary = object as? [String: Any] else {
+        print("Cannot parse the breadcrumb JSON")
+        return
+      }
+      addBreadcrumb(dictionary: dictionary)
     }
 
     private func clearBreadcrumbs(result: @escaping FlutterResult) {
