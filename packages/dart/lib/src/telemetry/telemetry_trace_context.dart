@@ -14,7 +14,7 @@ typedef TelemetryTraceContextProvider = TelemetryTraceContext Function();
 /// [Hub.scope]. In static mode it is the transaction bound to the scope.
 /// Without a span, only the propagation context's trace is used.
 TelemetryTraceContext resolveTelemetryTraceContext(Hub hub) {
-  final scope = hub.scope;
+  final scope = hub.traceScope;
   if (hub.options.traceLifecycle == SentryTraceLifecycle.stream) {
     final activeSpan = hub.getActiveSpan();
     return (

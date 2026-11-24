@@ -15,9 +15,7 @@ extension UnhandledErrorSpanStatus on Hub {
     if (options.traceLifecycle == SentryTraceLifecycle.stream) {
       getActiveSpan()?.status = SentrySpanStatusV2.error;
     } else {
-      configureScope(
-        (scope) => scope.span?.status ??= const SpanStatus.internalError(),
-      );
+      getSpan()?.status ??= const SpanStatus.internalError();
     }
   }
 }

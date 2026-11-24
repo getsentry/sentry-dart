@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/exception/unhandled_error_span_status.dart';
 import 'package:sentry/src/telemetry/span/instrumentation/span_links.dart';
 import 'package:sentry/src/telemetry/span/propagation/propagation_context.dart';
 import 'package:sentry/src/telemetry/span/transaction/sentry_tracer.dart';
@@ -1444,6 +1445,278 @@ void main() {
         );
       },
     );
+  });
+
+  group('Hub startNewTrace', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('returns the result of a sync callback', () {
+      final hub = fixture.getSut();
+
+      expect(hub.startNewTrace(() => 42), 42);
+    });
+
+    test('returns the result of an async callback', () async {
+      final hub = fixture.getSut();
+
+      expect(await hub.startNewTrace(() async => 42), 42);
+    });
+
+    test('uses a new trace id in the callback', () {
+      final hub = fixture.getSut();
+      final outerTraceId = hub.scope.propagationContext.traceId;
+
+      final innerTraceId = hub.startNewTrace(
+        () => hub.traceScope.propagationContext.traceId,
+      );
+
+      expect(innerTraceId, isNot(outerTraceId));
+    });
+
+    test('keeps the trace of the hub scope', () {
+      final hub = fixture.getSut();
+      final outerPropagationContext = hub.scope.propagationContext;
+      final outerTraceId = outerPropagationContext.traceId;
+
+      hub.startNewTrace(() {});
+
+      expect(hub.scope.propagationContext, same(outerPropagationContext));
+      expect(hub.scope.propagationContext.traceId, outerTraceId);
+      expect(hub.traceScope, same(hub.scope));
+    });
+
+    test('keeps the new trace across awaits', () async {
+      final hub = fixture.getSut();
+
+      await hub.startNewTrace(() async {
+        final traceId = hub.traceScope.propagationContext.traceId;
+        await Future<void>.delayed(Duration.zero);
+
+        expect(hub.traceScope.propagationContext.traceId, traceId);
+      });
+    });
+
+    test('uses a different trace id on each call', () {
+      final hub = fixture.getSut();
+
+      final first = hub.startNewTrace(
+        () => hub.traceScope.propagationContext.traceId,
+      );
+      final second = hub.startNewTrace(
+        () => hub.traceScope.propagationContext.traceId,
+      );
+
+      expect(first, isNot(second));
+    });
+
+    test('dispatches OnStartNewTrace with the new trace id', () {
+      final hub = fixture.getSut();
+      final events = <OnStartNewTrace>[];
+      hub.options.lifecycleRegistry.registerCallback<OnStartNewTrace>(
+        events.add,
+      );
+
+      final innerTraceId = hub.startNewTrace(
+        () => hub.traceScope.propagationContext.traceId,
+      );
+
+      expect(events.single.traceId, innerTraceId);
+    });
+
+    test('does not dispatch OnGenerateNewTrace', () {
+      final hub = fixture.getSut();
+      final events = <OnGenerateNewTrace>[];
+      hub.options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>(
+        events.add,
+      );
+
+      hub.startNewTrace(() {});
+
+      expect(events, isEmpty);
+    });
+
+    test('runs the callback when the hub is disabled', () async {
+      final hub = fixture.getSut();
+      await hub.close();
+
+      expect(hub.startNewTrace(() => 42), 42);
+    });
+
+    test('captures events with the new trace id', () async {
+      final hub = fixture.getSut();
+
+      final innerTraceId = await hub.startNewTrace(() async {
+        await hub.captureEvent(SentryEvent());
+        return hub.traceScope.propagationContext.traceId;
+      });
+
+      final scope = fixture.client.captureEventCalls.single.scope!;
+      expect(scope.propagationContext.traceId, innerTraceId);
+    });
+
+    group('in static mode', () {
+      test('starts transactions in the new trace', () {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+        final outerTraceId = hub.scope.propagationContext.traceId;
+
+        final transaction = hub.startNewTrace(
+          () => hub.startTransaction('name', 'op'),
+        );
+
+        expect(transaction.context.traceId, isNot(outerTraceId));
+      });
+
+      test('does not return a transaction bound outside', () {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+        final outer = hub.startTransaction('outer', 'op', bindToScope: true);
+
+        final span = hub.startNewTrace(hub.getSpan);
+
+        expect(span, isNull);
+        expect(hub.getSpan(), same(outer));
+      });
+
+      test('binds transactions to the new trace only', () async {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+        final outer = hub.startTransaction('outer', 'op', bindToScope: true);
+
+        await hub.startNewTrace(() async {
+          final inner = hub.startTransaction('inner', 'op', bindToScope: true);
+          await Future<void>.delayed(Duration.zero);
+
+          expect(hub.getSpan(), same(inner));
+        });
+
+        expect(hub.getSpan(), same(outer));
+      });
+
+      test('unbinds a finished transaction', () async {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+
+        await hub.startNewTrace(() async {
+          final transaction = hub.startTransaction(
+            'name',
+            'op',
+            bindToScope: true,
+          );
+          await transaction.finish();
+
+          expect(hub.getSpan(), isNull);
+        });
+      });
+
+      test('does not attach events to a transaction bound outside', () async {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+        hub.startTransaction('outer', 'op', bindToScope: true);
+
+        final innerTraceId = await hub.startNewTrace(() async {
+          await hub.captureEvent(SentryEvent());
+          return hub.traceScope.propagationContext.traceId;
+        });
+
+        final scope = fixture.client.captureEventCalls.single.scope!;
+        expect(scope.span, isNull);
+        expect(scope.propagationContext.traceId, innerTraceId);
+      });
+
+      test('attaches events to a transaction bound inside', () async {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+
+        final inner = await hub.startNewTrace(() async {
+          final transaction = hub.startTransaction(
+            'inner',
+            'op',
+            bindToScope: true,
+          );
+          await hub.captureEvent(SentryEvent());
+          return transaction;
+        });
+
+        final scope = fixture.client.captureEventCalls.single.scope!;
+        expect(scope.span, same(inner));
+      });
+
+      test('marks a transaction bound inside as errored', () {
+        final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+        final outer = hub.startTransaction('outer', 'op', bindToScope: true);
+
+        final inner = hub.startNewTrace(() {
+          final transaction = hub.startTransaction(
+            'inner',
+            'op',
+            bindToScope: true,
+          );
+          hub.markActiveSpanAsErrored();
+          return transaction;
+        });
+
+        expect(inner.status, const SpanStatus.internalError());
+        expect(outer.status, isNull);
+      });
+    });
+
+    group('in streaming mode', () {
+      test('starts root spans in the new trace', () async {
+        final hub = fixture.getSut();
+        final outerTraceId = hub.scope.propagationContext.traceId;
+
+        await hub.startNewTrace(() async {
+          await hub.startSpan('span', (span) async {
+            span as RecordingSentrySpanV2;
+            expect(span.traceId, hub.traceScope.propagationContext.traceId);
+            expect(span.traceId, isNot(outerTraceId));
+          });
+        });
+      });
+
+      test('does not parent spans to a span active outside', () async {
+        final hub = fixture.getSut();
+
+        await hub.startSpan('outer', (outer) async {
+          await hub.startNewTrace(() async {
+            await hub.startSpan('inner', (inner) async {
+              inner as RecordingSentrySpanV2;
+              outer as RecordingSentrySpanV2;
+              expect(inner.parentSpan, isNull);
+              expect(inner.traceId, isNot(outer.traceId));
+            });
+          });
+        });
+      });
+
+      test('does not parent spans to an idle span bound outside', () {
+        final hub = fixture.getSut();
+        final idleSpan = hub.startIdleSpan('idle');
+        addTearDown(idleSpan.end);
+
+        final span = hub.startNewTrace(() => hub.startInactiveSpan('span'));
+
+        span as RecordingSentrySpanV2;
+        expect(span.parentSpan, isNull);
+        expect(span.traceId, isNot(idleSpan.traceId));
+        expect(hub.getActiveSpan(), same(idleSpan));
+      });
+
+      test('parents spans to an idle span bound inside', () {
+        final hub = fixture.getSut();
+
+        hub.startNewTrace(() {
+          final idleSpan = hub.startIdleSpan('idle');
+          addTearDown(idleSpan.end);
+
+          final span = hub.startInactiveSpan('span') as RecordingSentrySpanV2;
+
+          expect(span.parentSpan, same(idleSpan));
+          expect(span.traceId, hub.traceScope.propagationContext.traceId);
+        });
+
+        expect(hub.getActiveSpan(), isNull);
+      });
+    });
   });
 
   group('ClientReportRecorder', () {
