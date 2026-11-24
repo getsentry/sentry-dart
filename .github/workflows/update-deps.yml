@@ -1,9 +1,12 @@
 name: Update Dependencies
 
 on:
-  # Run every day.
   schedule:
+    # Run every day.
     - cron: '0 3 * * *'
+    # Run weekly on Mondays for the JavaScript SDK only, which releases often.
+    # Jobs match this exact string in their `if:` conditions.
+    - cron: '0 4 * * 1'
   # And on every PR merge so we get the updated dependencies ASAP, and to make sure the changelog doesn't conflict.
   push:
     branches:
@@ -24,6 +27,7 @@ permissions:
 # ignores them, while the SDK dependency PRs still get picked up.
 jobs:
   android:
+    if: github.event.schedule != '0 4 * * 1'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
@@ -39,6 +43,7 @@ jobs:
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   cocoa:
+    if: github.event.schedule != '0 4 * * 1'
     runs-on: macos-15
     steps:
       - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
@@ -50,6 +55,7 @@ jobs:
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   js:
+    if: github.event.schedule == '0 4 * * 1'
     runs-on: ubuntu-latest
     steps:
       - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
@@ -60,6 +66,7 @@ jobs:
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   native:
+    if: github.event.schedule != '0 4 * * 1'
     runs-on: ubuntu-latest
     steps:
       - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
@@ -70,6 +77,7 @@ jobs:
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
   metrics-flutter:
+    if: github.event.schedule != '0 4 * * 1'
     runs-on: ubuntu-latest
     steps:
       - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
@@ -85,6 +93,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
   symbol-collector:
+    if: github.event.schedule != '0 4 * * 1'
     runs-on: ubuntu-latest
     steps:
       - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
