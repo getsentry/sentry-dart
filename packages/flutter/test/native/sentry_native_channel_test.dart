@@ -765,6 +765,16 @@ void main() {
       channel = MockMethodChannel();
     });
 
+    test('keeps manual WebView tracing out of native options', () async {
+      for (final platform in [MockPlatform.iOS(), MockPlatform.macOS()]) {
+        final options = defaultTestOptions(platform: platform)
+          ..methodChannel = channel;
+        sut = createBinding(options);
+        final args = await callInitAndCaptureArgs(options);
+        expect(args.containsKey('webViewTracing'), isFalse);
+      }
+    });
+
     test('forwards sampleRate', () async {
       final options = defaultTestOptions()
         ..platform = MockPlatform.iOS()
