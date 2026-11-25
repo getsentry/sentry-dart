@@ -41,7 +41,7 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
   static String dynamicLibraryDirectory = '';
 
   @visibleForTesting
-  static String? crashpadPath = _getDefaultCrashpadPath();
+  static String? handlerPath = _getDefaultCrashpadPath();
 
   @visibleForTesting
   static String Function() workingDirectory = () => Directory.current.path;
@@ -130,13 +130,14 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
         );
       }
 
-      if (crashpadPath != null) {
-        native.options_set_handler_path(cOptions, c.str(crashpadPath));
+      if (handlerPath != null) {
+        native.options_set_handler_path(cOptions, c.str(handlerPath));
       } else {
         internalLogger.debug(
-          'SentryNative: no Crashpad handler path override. '
-          'Breakpad does not need a handler; if Crashpad is selected, '
-          'the native SDK will use its default handler location.',
+          'SentryNative: no crash handler path override. '
+          'Breakpad does not need a handler; if Crashpad or the native '
+          'backend is selected, the native SDK will use its default handler '
+          'location.',
         );
       }
 
