@@ -11,6 +11,7 @@ on:
       - '.github/workflows/flutter_test.yml'
       - 'packages/dart/**'
       - 'packages/flutter/**'
+      - 'packages/sentry_webview_flutter/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}

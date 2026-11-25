@@ -1,4 +1,4 @@
-# melos_managed_dependency_overrides: sentry,sentry_dio,sentry_drift,sentry_file,sentry_flutter,sentry_hive,sentry_isar,sentry_logging,sentry_sqflite,isar_flutter_libs
+# melos_managed_dependency_overrides: sentry,sentry_dio,sentry_drift,sentry_file,sentry_flutter,sentry_hive,sentry_isar,sentry_logging,sentry_sqflite,sentry_webview_flutter,isar_flutter_libs
 dependency_overrides:
   sentry:
     path: ../../dart
@@ -18,6 +18,8 @@ dependency_overrides:
     path: ../../logging
   sentry_sqflite:
     path: ../../sqflite
+  sentry_webview_flutter:
+    path: ../../sentry_webview_flutter
   isar_flutter_libs:
     git:
       url: https://github.com/Deepjyoti120/isar_flutter_libs.git

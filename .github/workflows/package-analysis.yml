@@ -41,6 +41,10 @@ jobs:
         if: ${{ inputs.package != 'packages/dart' }}
         run: |
           sed -i.bak 's|sentry:.*|sentry:\n    path: ${{ github.workspace }}/packages/dart|g' pubspec.yaml
+          if [[ "${{ inputs.package }}" == "packages/sentry_webview_flutter" ]]; then
+            sed -i 's|^  sentry_flutter:.*|  sentry_flutter:\n    path: ${{ github.workspace }}/packages/flutter|' pubspec.yaml
+            sed -i 's|^  sentry:.*|  sentry:\n    path: ${{ github.workspace }}/packages/dart|' ../flutter/pubspec.yaml
+          fi
       # Each package's CHANGELOG.md is a symlink to the root one. pana copies the
       # package into a temporary directory without following symlinks, so it
       # reports a missing changelog and deducts points. Materialise the content.

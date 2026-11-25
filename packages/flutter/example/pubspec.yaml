@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
   sentry:
   sentry_flutter:
+  sentry_webview_flutter:
+  webview_flutter: ^4.10.0
   sentry_dio:
   sentry_logging:
   sentry_sqflite:

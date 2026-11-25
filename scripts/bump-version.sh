@@ -10,12 +10,15 @@ NEW_VERSION="${2}"
 echo "Current version: ${OLD_VERSION}"
 echo "Bumping version: ${NEW_VERSION}"
 
-for pkg in {dart,flutter,grpc,logging,dio,file,sqflite,drift,hive,isar,link,firebase_remote_config,supabase}; do
+for pkg in {dart,flutter,grpc,logging,dio,file,sqflite,drift,hive,isar,link,firebase_remote_config,supabase,sentry_webview_flutter}; do
   # Bump version in pubspec.yaml
   perl -pi -e "s/^version: .*/version: $NEW_VERSION/" packages/$pkg/pubspec.yaml
   # Bump sentry dependency version in pubspec.yaml
   perl -pi -e "s/sentry: .*/sentry: $NEW_VERSION/" packages/$pkg/pubspec.yaml
 done
+
+# The WebView plugin uses the matching Flutter SDK.
+perl -pi -e "s/^  sentry_flutter: .*/  sentry_flutter: $NEW_VERSION/" packages/sentry_webview_flutter/pubspec.yaml
 
 # Bump version in version.dart
 perl -pi -e "s/sdkVersion = '.*'/sdkVersion = '$NEW_VERSION'/" packages/*/lib/src/version.dart

@@ -1,0 +1,34 @@
+name: sentry_webview_flutter
+description: Sentry integration for webview_flutter on Android, iOS, and macOS.
+version: 10.6.0
+homepage: https://docs.sentry.io/platforms/dart/guides/flutter/configuration/webview/
+repository: https://github.com/getsentry/sentry-dart/tree/main/packages/sentry_webview_flutter
+issue_tracker: https://github.com/getsentry/sentry-dart/issues
+
+environment:
+  sdk: '>=3.12.0 <4.0.0'
+  flutter: '>=3.44.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sentry_flutter: 10.6.0
+  webview_flutter: ^4.10.0
+  webview_flutter_android: ^4.13.0
+  webview_flutter_wkwebview: ^3.26.0
+
+dev_dependencies:
+  flutter_lints: '>=4.0.0'
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: io.sentry.flutter.webview
+        pluginClass: SentryWebViewFlutterPlugin
+      ios:
+        pluginClass: SentryWebViewFlutterPlugin
+        sharedDarwinSource: true
+      macos:
+        pluginClass: SentryWebViewFlutterPlugin
+        sharedDarwinSource: true

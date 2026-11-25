@@ -7,6 +7,7 @@ import 'native_sdk_lifecycle_test.dart' as e;
 import 'replay_config_test.dart' as f;
 import 'cocoa_replay_test.dart' as g;
 import 'android_replay_network_details_test.dart' as h;
+import 'webview_plugin_test.dart' as webview;
 
 void main() {
   a.main();
@@ -17,4 +18,5 @@ void main() {
   f.main();
   g.main();
   h.main();
+  webview.main();
 }
