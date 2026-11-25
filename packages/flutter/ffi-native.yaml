@@ -59,7 +59,7 @@ functions:
     - sentry_value_as_object
     # For tests only:
     - sentry_sdk_version
-    - sentry_sdk_name
+    - sentry_options_get_sdk_name
     - sentry_options_free
     - sentry_options_get_dsn
     - sentry_options_get_sample_rate

@@ -71,6 +71,14 @@ FetchContent_Declare(
 # A short name keeps the _deps/sn-src and _deps/sn-build paths short (#3969).
 FetchContent_MakeAvailable(sn)
 
+# Flutter bundles only $<TARGET_FILE> and Dart opens libsentry.so, so drop the
+# ABI-versioned file names (libsentry.so.1). On Windows, VERSION only sets the
+# DLL's image version.
+if(NOT WIN32)
+    set_property(TARGET sentry PROPERTY VERSION)
+    set_property(TARGET sentry PROPERTY SOVERSION)
+endif()
+
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an external build triggered from this build file.
 if(SENTRY_BACKEND STREQUAL "crashpad")

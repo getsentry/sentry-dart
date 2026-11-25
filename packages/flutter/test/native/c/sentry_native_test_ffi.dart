@@ -218,10 +218,18 @@ void main() {
     });
 
     test('SDK name', () {
-      expect(
-        SentryNative.native.sdk_name().cast<Utf8>().toDartString(),
-        'sentry.native.flutter',
-      );
+      final cOptions = SentryNative.native.options_new();
+      try {
+        expect(
+          SentryNative.native
+              .options_get_sdk_name(cOptions)
+              .cast<Utf8>()
+              .toDartString(),
+          'sentry.native.flutter',
+        );
+      } finally {
+        SentryNative.native.options_free(cOptions);
+      }
     });
 
     test('init', () async {

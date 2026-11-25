@@ -567,6 +567,25 @@ class SentryNative {
         ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
       >();
 
+  /// Returns the configured sentry SDK name. Unless overwritten, this defaults to
+  /// SENTRY_SDK_NAME.
+  ffi.Pointer<ffi.Char> options_get_sdk_name(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_sdk_name(opts);
+  }
+
+  late final _options_get_sdk_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+        >
+      >('sentry_options_get_sdk_name');
+  late final _options_get_sdk_name = _options_get_sdk_namePtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+      >();
+
   /// Enables or disables debug printing mode. To change the log level from the
   /// default DEBUG level, use `sentry_options_set_logger_level`.
   void options_set_debug(ffi.Pointer<sentry_options_s> opts, int debug) {
@@ -662,10 +681,11 @@ class SentryNative {
       _options_get_auto_session_trackingPtr
           .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
-  /// Sets the path to the crashpad handler if the crashpad backend is used.
+  /// Sets the path to the crash handler if the native or crashpad backend is used.
   ///
-  /// The path defaults to the `crashpad_handler`/`crashpad_handler.exe`
-  /// executable in the same directory as the application executable.
+  /// The path defaults to the `sentry-crash`/`sentry-crash.exe` executable for the
+  /// native backend or `crashpad_handler`/`crashpad_handler.exe` for the crashpad
+  /// backend, in the same directory as the application executable.
   ///
   /// Meaning if your application resides in
   ///
@@ -673,7 +693,7 @@ class SentryNative {
   ///
   /// then the handler path will be set (by default) to
   ///
-  /// "C:\path\to\your\crashpad_handler.exe"
+  /// "C:\path\to\your\sentry-crash.exe" when using the native backend.
   ///
   /// It is recommended that library users set an explicit handler path, depending
   /// on the directory/executable structure of their app.
@@ -934,18 +954,6 @@ class SentryNative {
         'sentry_sdk_version',
       );
   late final _sdk_version = _sdk_versionPtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
-
-  /// Sentry SDK name set during build time.
-  ffi.Pointer<ffi.Char> sdk_name() {
-    return _sdk_name();
-  }
-
-  late final _sdk_namePtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-        'sentry_sdk_name',
-      );
-  late final _sdk_name = _sdk_namePtr
       .asFunction<ffi.Pointer<ffi.Char> Function()>();
 }
 
