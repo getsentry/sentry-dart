@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   build-apk-kotlin-versions:
-    name: "APK | Kotlin lang ${{ matrix.kotlin_language_version }}"
+    name: "Build APK (Kotlin ${{ matrix.kotlin_language_version }})"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:

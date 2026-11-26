@@ -1,4 +1,4 @@
-name: flutter native & integration test
+name: Flutter Integration Tests
 on:
   push:
     branches:
@@ -6,11 +6,11 @@ on:
       - release/**
   pull_request:
     paths:
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - '.github/workflows/flutter_test.yml'
       - 'packages/dart/**'
       - 'packages/flutter/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -20,7 +20,17 @@ env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
 
 jobs:
+  changes:
+    name: Changes
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   android:
+    name: 'Android (${{ matrix.sdk }})'
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -95,7 +105,9 @@ jobs:
         run: flutter clean && flutter build apk --debug --target-platform=android-x64
 
   cocoa:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
+    needs: changes
+    if: needs.changes.outputs.cocoa == 'true'
     runs-on: macos-15-xlarge
     timeout-minutes: 30
     strategy:
@@ -104,6 +116,11 @@ jobs:
         target: [ios, macos]
         # disable beta for now as there are issues with minimum deployment version
         sdk: [stable]
+        include:
+          - target: ios
+            platform: iOS
+          - target: macos
+            platform: macOS
     steps:
       - name: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

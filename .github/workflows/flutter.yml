@@ -1,4 +1,4 @@
-name: sentry-flutter
+name: Flutter
 on:
   push:
     branches:
@@ -10,48 +10,51 @@ on:
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/scripts/test-flutter-desktop.sh'
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
+      - '.github/workflows/detect-changes.yml'
+      - '.github/scripts/detect-changes.ts'
       - 'packages/dart/**'
       - 'packages/flutter/**'
       - 'metrics/flutter.properties'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      # pana scores the README and CHANGELOG, so changing them still runs package analysis.
+      # The package CHANGELOG.md is a symlink to the root one, which holds the content.
+      - 'packages/flutter/README.md'
+      - 'packages/flutter/CHANGELOG.md'
+      - 'CHANGELOG.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changes
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build:
-    name: '${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}'
-    runs-on: ${{ matrix.os == 'macos' && 'macos-15' || matrix.os == 'ubuntu' && 'ubuntu-latest' || matrix.os == 'windows' && 'windows-latest' }}
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
+    needs: changes
+    if: fromJSON(needs.changes.outputs.flutter_matrix).target[0] != null
+    # The target list is computed, so the runner comes from the target instead of a matrix include.
+    runs-on: ${{ (matrix.target == 'ios' || matrix.target == 'macos') && 'macos-15' || matrix.target == 'windows' && 'windows-latest' || 'ubuntu-latest' }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        target: [android, ios, macos, linux, windows, js, wasm]
+        target: ${{ fromJSON(needs.changes.outputs.flutter_matrix).target }}
         sdk: [stable, beta]
-        include:
-          - target: android
-            os: ubuntu
-          - target: ios
-            os: macos
-          - target: macos
-            os: macos
-          - target: linux
-            os: ubuntu
-          - target: windows
-            os: windows
-          - target: js
-            os: ubuntu
-          - target: wasm
-            os: ubuntu
+        include: ${{ fromJSON(needs.changes.outputs.flutter_matrix).include }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
-        if: matrix.os == 'macos'
+        if: runner.os == 'macOS'
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       # Flutter derives the local SwiftPM package identity from the plugin path basename on macOS.
@@ -114,12 +117,18 @@ jobs:
           esac
 
   package-analysis:
+    name: Package Analysis
+    needs: changes
+    if: needs.changes.outputs.pana == 'true'
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/flutter
       sdk: flutter
 
   swift-lint:
+    name: Swift Lint
+    needs: changes
+    if: needs.changes.outputs.cocoa == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -132,6 +141,9 @@ jobs:
           args: --strict
 
   ktlint:
+    name: Kotlin Lint
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -149,6 +161,9 @@ jobs:
           fail_on_error: true
 
   proguard-rules-verify:
+    name: Verify ProGuard Rules
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:

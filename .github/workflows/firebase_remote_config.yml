@@ -1,4 +1,4 @@
-name: sentry-firebase-remote-config
+name: Firebase Remote Config
 on:
   push:
     branches:
@@ -6,22 +6,36 @@ on:
       - release/**
   pull_request:
     paths:
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - '.github/workflows/firebase_remote_config.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
       - 'packages/dart/**'
       - 'packages/flutter/**'
       - 'packages/firebase_remote_config/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      # pana scores the README and CHANGELOG, so changing them still runs package analysis.
+      # The package CHANGELOG.md is a symlink to the root one, which holds the content.
+      - 'packages/firebase_remote_config/README.md'
+      - 'packages/firebase_remote_config/CHANGELOG.md'
+      - 'CHANGELOG.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changes
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
+    needs: changes
+    if: needs.changes.outputs.shared == 'true'
     runs-on: ${{ matrix.target == 'linux' && 'ubuntu' || matrix.target }}-latest
     timeout-minutes: 30
     strategy:
@@ -29,6 +43,13 @@ jobs:
       matrix:
         target: [macos, linux, windows]
         sdk: [stable, beta]
+        include:
+          - target: macos
+            platform: macOS
+          - target: linux
+            platform: Linux
+          - target: windows
+            platform: Windows
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,6 +59,9 @@ jobs:
           directory: packages/firebase_remote_config
 
   package-analysis:
+    name: Package Analysis
+    needs: changes
+    if: needs.changes.outputs.pana == 'true'
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/firebase_remote_config

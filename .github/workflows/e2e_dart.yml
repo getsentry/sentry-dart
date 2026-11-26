@@ -1,4 +1,4 @@
-name: e2e-sentry-dart
+name: Dart E2E
 on:
   push:
     branches:
@@ -6,11 +6,11 @@ on:
       - release/**
   pull_request:
     paths:
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - '.github/workflows/e2e_dart.yml'
       - 'packages/dart/**'
       - 'e2e_test/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -45,7 +45,7 @@ jobs:
             echo "::error::SENTRY_AUTH_TOKEN_E2E is required for first-party CI"
             exit 1
           fi
-      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # pin@v1.8.1
+      - uses: dart-lang/setup-dart@2286a0c042b44434fe26d292bbce8d34f7ec662b # pin@v1.8.2
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

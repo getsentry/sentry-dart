@@ -1,4 +1,4 @@
-name: min version test
+name: Min Version Test
 on:
   push:
     branches:
@@ -6,19 +6,29 @@ on:
       - release/**
   pull_request:
     paths:
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - '.github/workflows/min_version_test.yml'
       - 'packages/dart/**'
       - 'packages/flutter/**'
       - 'min_version_test/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changes
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build-android:
+    name: Build Android
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -41,6 +51,9 @@ jobs:
           flutter build appbundle
 
   build-ios:
+    name: Build iOS
+    needs: changes
+    if: needs.changes.outputs.cocoa == 'true'
     runs-on: macos-15
     timeout-minutes: 30
 
@@ -51,7 +64,7 @@ jobs:
         with:
           flutter-version: '3.44.0'
 
-      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # pin@v1.338.0
+      - uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # pin@v1.343.0
         with:
           ruby-version: '3.1.2' # https://github.com/flutter/flutter/issues/109385#issuecomment-1212614125
 
@@ -76,6 +89,9 @@ jobs:
           flutter build ios --no-codesign
 
   build-web:
+    name: Build Web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
