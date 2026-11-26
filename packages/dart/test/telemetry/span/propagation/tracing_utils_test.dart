@@ -372,6 +372,22 @@ void main() {
       expect(traceHeader.traceId, hub.scope.propagationContext.traceId);
       expect(headers['baggage'], contains('test=value'));
     });
+
+    test('adds headers from the trace started by startNewTrace', () {
+      final headers = <String, dynamic>{};
+      final hub = fixture._hub;
+
+      final innerTraceId = hub.startNewTrace(() {
+        addTracingHeadersToHttpHeader(headers, hub);
+        return hub.traceScope.propagationContext.traceId;
+      });
+
+      final traceHeader = SentryTraceHeader.fromTraceHeader(
+        headers['sentry-trace'],
+      );
+      expect(traceHeader.traceId, innerTraceId);
+      expect(traceHeader.traceId, isNot(hub.scope.propagationContext.traceId));
+    });
   });
 
   group('$addSentryTraceHeaderFromScope', () {

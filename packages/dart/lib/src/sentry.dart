@@ -441,6 +441,27 @@ class Sentry {
     startTimestamp: startTimestamp,
   );
 
+  /// Runs [callback] in a new trace and returns its result.
+  ///
+  /// Use this to give work that is not tied to a navigation, such as a
+  /// polling loop, a timer or a job handler, its own trace. Transactions,
+  /// spans, events, logs, metrics and outgoing trace headers created in
+  /// [callback] use a new trace id and do not attach to a transaction or span
+  /// that was active before the call. Code outside [callback] keeps its
+  /// current trace.
+  ///
+  /// The new trace also covers the asynchronous work of [callback]:
+  ///
+  /// ```dart
+  /// Timer.periodic(const Duration(seconds: 30), (_) {
+  ///   unawaited(Sentry.startNewTrace(() async {
+  ///     await Sentry.startSpan('background-poll', (span) => poll());
+  ///   }));
+  /// });
+  /// ```
+  static T startNewTrace<T>(T Function() callback) =>
+      _hub.startNewTrace(callback);
+
   /// Starts a new span, executes a synchronous [callback], and ends the span
   /// before returning the callback result.
   ///

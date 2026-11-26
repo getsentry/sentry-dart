@@ -425,6 +425,26 @@ void main() {
       expect(Sentry.currentHub.scope.contexts[SentryFeatureFlags.type], isNull);
     });
 
+    test('startNewTrace runs the callback in a new trace', () async {
+      final options = defaultTestOptions();
+      await Sentry.init(options: options, (options) {
+        options.dsn = fakeDsn;
+        options.tracesSampleRate = 1.0;
+        options.traceLifecycle = SentryTraceLifecycle.stream;
+      });
+      final outerTraceId = Sentry.currentHub.scope.propagationContext.traceId;
+
+      final innerTraceId = await Sentry.startNewTrace(
+        () => Sentry.startSpan(
+          'poll',
+          (span) async => (span as RecordingSentrySpanV2).traceId,
+        ),
+      );
+
+      expect(innerTraceId, isNot(outerTraceId));
+      expect(Sentry.currentHub.scope.propagationContext.traceId, outerTraceId);
+    });
+
     test('should close integrations', () async {
       final integration = MockIntegration();
 

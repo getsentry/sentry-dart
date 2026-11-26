@@ -38,6 +38,12 @@ class SentryTracer extends ISentrySpan {
 
   SentryTraceContextHeader? _sentryTraceContextHeader;
 
+  /// The scope that `Hub.startTransaction` bound this transaction to.
+  ///
+  /// Inside `Hub.startNewTrace` this is the scope of the new trace, not the
+  /// hub scope, so [finish] unbinds it from here.
+  Scope? boundScope;
+
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.
   ///
@@ -145,6 +151,10 @@ class SentryTracer extends ISentrySpan {
         scope.span = null;
       }
     });
+    final boundScope = this.boundScope;
+    if (boundScope != null && boundScope.span == this) {
+      boundScope.span = null;
+    }
 
     // if it's an idle transaction which has no children, we drop it to save user's quota
     if (children.isEmpty && _autoFinishAfter != null) {

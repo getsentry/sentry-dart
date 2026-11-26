@@ -157,3 +157,14 @@ class OnGenerateNewTrace extends SdkLifecycleEvent {
 
   OnGenerateNewTrace(this.traceId, this.spanId);
 }
+
+/// Dispatched when [Hub.startNewTrace] starts a trace for its callback.
+///
+/// Unlike [OnGenerateNewTrace], the trace of the hub scope does not change,
+/// so listeners must not treat [traceId] as the new global trace.
+@internal
+class OnStartNewTrace extends SdkLifecycleEvent {
+  final SentryId traceId;
+
+  OnStartNewTrace(this.traceId);
+}

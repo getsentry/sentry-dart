@@ -123,6 +123,19 @@ void main() {
         verify(fixture.nativeBinding.registerTraceId(traceId)).called(1);
       });
 
+      test('registers trace id of startNewTrace with native replay', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+        final traceId = SentryId.newId();
+
+        await fixture.getSut().call(fixture.hub, fixture.options);
+        clearInteractions(fixture.nativeBinding);
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnStartNewTrace(traceId),
+        );
+
+        verify(fixture.nativeBinding.registerTraceId(traceId)).called(1);
+      });
+
       test(
         'waits for generated trace id registration with native replay',
         () async {
@@ -464,6 +477,21 @@ void main() {
 
         await fixture.options.lifecycleRegistry.dispatchCallback(
           OnGenerateNewTrace(SentryId.newId(), SpanId.newId()),
+        );
+
+        verifyNever(fixture.nativeBinding.registerTraceId(any));
+      });
+
+      test('removes start new trace callback', () async {
+        fixture.options.replay.sessionSampleRate = 0.5;
+
+        final sut = fixture.getSut();
+        await sut.call(fixture.hub, fixture.options);
+        await sut.close();
+        clearInteractions(fixture.nativeBinding);
+
+        await fixture.options.lifecycleRegistry.dispatchCallback(
+          OnStartNewTrace(SentryId.newId()),
         );
 
         verifyNever(fixture.nativeBinding.registerTraceId(any));

@@ -56,6 +56,20 @@ void main() {
       expect(context.traceId, transaction.context.traceId);
       expect(context.spanId, transaction.context.spanId);
     });
+
+    test('uses the trace started by startNewTrace', () {
+      final hub = fixture.getSut(traceLifecycle: SentryTraceLifecycle.static);
+      final outer = hub.startTransaction('outer', 'op', bindToScope: true);
+      addTearDown(outer.finish);
+
+      final context = hub.startNewTrace(
+        () => resolveTelemetryTraceContext(hub),
+      );
+
+      expect(context.traceId, isNot(outer.context.traceId));
+      expect(context.traceId, isNot(hub.scope.propagationContext.traceId));
+      expect(context.spanId, isNull);
+    });
   });
 }
 

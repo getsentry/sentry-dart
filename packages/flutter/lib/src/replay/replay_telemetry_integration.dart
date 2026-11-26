@@ -19,6 +19,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
   SdkLifecycleCallback<OnProcessMetric>? _onProcessMetric;
   SdkLifecycleCallback<OnProcessSpan>? _onProcessSpan;
   SdkLifecycleCallback<OnGenerateNewTrace>? _onGenerateNewTrace;
+  SdkLifecycleCallback<OnStartNewTrace>? _onStartNewTrace;
 
   @override
   Future<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -61,6 +62,12 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
       await _native?.registerTraceId(event.traceId);
     };
 
+    // Only links the trace to the replay. Native keeps its own trace, which
+    // the callback-scoped trace of `Sentry.startNewTrace` must not replace.
+    _onStartNewTrace = (OnStartNewTrace event) async {
+      await _native?.registerTraceId(event.traceId);
+    };
+
     // Register the initial trace id. Subsequent changes are handled by the callback.
     await _native?.registerTraceId(hub.scope.propagationContext.traceId);
 
@@ -71,6 +78,9 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     options.lifecycleRegistry.registerCallback<OnProcessSpan>(_onProcessSpan!);
     options.lifecycleRegistry.registerCallback<OnGenerateNewTrace>(
       _onGenerateNewTrace!,
+    );
+    options.lifecycleRegistry.registerCallback<OnStartNewTrace>(
+      _onStartNewTrace!,
     );
     options.sdk.addIntegration(integrationName);
   }
@@ -106,6 +116,7 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     final onProcessMetric = _onProcessMetric;
     final onProcessSpan = _onProcessSpan;
     final onGenerateNewTrace = _onGenerateNewTrace;
+    final onStartNewTrace = _onStartNewTrace;
 
     if (options != null) {
       if (onProcessLog != null) {
@@ -124,6 +135,11 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
           onGenerateNewTrace,
         );
       }
+      if (onStartNewTrace != null) {
+        options.lifecycleRegistry.removeCallback<OnStartNewTrace>(
+          onStartNewTrace,
+        );
+      }
     }
 
     _options = null;
@@ -131,5 +147,6 @@ class ReplayTelemetryIntegration implements Integration<SentryFlutterOptions> {
     _onProcessMetric = null;
     _onProcessSpan = null;
     _onGenerateNewTrace = null;
+    _onStartNewTrace = null;
   }
 }
