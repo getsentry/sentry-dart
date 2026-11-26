@@ -28,8 +28,9 @@ class MainActivity : FlutterActivity() {
             throw Exception("Catch this java exception thrown from Kotlin thread!")
           }
 
-        "supportsWebViewDocumentStart" ->
+        "supportsWebViewDocumentStart" -> {
           result.success(WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))
+        }
 
         "anr" -> anr()
 
