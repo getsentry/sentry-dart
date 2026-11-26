@@ -23,7 +23,6 @@ targets:
       packages/firebase_remote_config:
       packages/supabase:
       packages/grpc:
-      packages/sentry_webview_flutter:
   - name: github
   - name: registry
     sdks:
@@ -40,4 +39,3 @@ targets:
       pub:sentry_firebase_remote_config:
       pub:sentry_supabase:
       pub:sentry_grpc:
-      pub:sentry_webview_flutter:
