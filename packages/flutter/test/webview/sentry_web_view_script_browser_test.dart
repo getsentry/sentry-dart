@@ -46,10 +46,14 @@ Map<String, dynamic> runPage(
   return jsonDecode(result.toDart) as Map<String, dynamic>;
 }
 
-// Runs [source] while Chrome parses a document whose head continues with
-// [serverTags], the way a WebView runs a document-start script. Returns the
+// Runs [source] before Chrome parses [serverTags] in the head or body,
+// the way a WebView runs a document-start script. Returns the
 // `sentry-trace` and `baggage` contents an inline browser SDK would read.
-Future<List<Object?>> runParsedPage(String source, String serverTags) async {
+Future<List<Object?>> runParsedPage(
+  String source,
+  String serverTags, {
+  required bool inBody,
+}) async {
   // srcdoc frames are parsed for real. Give the propagation script the
   // location and frame relationship of a trusted top-level WebView.
   final html =
@@ -59,11 +63,12 @@ Future<List<Object?>> runParsedPage(String source, String serverTags) async {
   page.top = page;
   (function(window) { $source })(page);
 </script>
+${inBody ? '</head><body>' : ''}
 $serverTags
 <script>
   window.atInit = ['sentry-trace', 'baggage'].map(
     name => document.querySelector('meta[name="' + name + '"]')?.content ?? null);
-</script></head></html>''';
+</script>${inBody ? '</body>' : '</head>'}</html>''';
   final result =
       _pageHarness(
             '''
@@ -185,21 +190,24 @@ void main() {
       });
     });
 
-    for (final hasServerBaggage in [false, true]) {
-      test(
-        'prefers parser-inserted server trace (baggage: $hasServerBaggage)',
-        () async {
-          final serverTags = [
-            '<meta name="sentry-trace" content="server-trace">',
-            if (hasServerBaggage)
-              '<meta name="baggage" content="server-baggage">',
-          ].join();
-          expect(await runParsedPage(build(), serverTags), [
-            'server-trace',
-            hasServerBaggage ? 'server-baggage' : null,
-          ]);
-        },
-      );
+    for (final inBody in [false, true]) {
+      for (final hasServerBaggage in [false, true]) {
+        test(
+          'prefers parser-inserted server trace in ${inBody ? 'body' : 'head'} '
+          '(baggage: $hasServerBaggage)',
+          () async {
+            final serverTags = [
+              '<meta name="sentry-trace" content="server-trace">',
+              if (hasServerBaggage)
+                '<meta name="baggage" content="server-baggage">',
+            ].join();
+            expect(await runParsedPage(build(), serverTags, inBody: inBody), [
+              'server-trace',
+              hasServerBaggage ? 'server-baggage' : null,
+            ]);
+          },
+        );
+      }
     }
 
     test('an unresolvable hostname leaves other allowed origins usable', () {
