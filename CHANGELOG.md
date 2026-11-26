@@ -1,5 +1,35 @@
 # Changelog
 
+## 10.7.0
+
+### Features
+
+- Track slow and frozen frames and frames delay on Flutter Web, measured against a 60 Hz display by @Ortes and @buenaflor in [#4165](https://github.com/getsentry/sentry-dart/pull/4165)
+- Add `SentryFlutter.replay.pauseTouchTracking()` and `resumeTouchTracking()` to stop recording touch positions on sensitive screens, such as a custom PIN pad, while the masked screen recording continues. Touch tracking stays paused across new replays and after `resume()` until `resumeTouchTracking()` is called. Code that implements `SentryReplay` must add the two methods by @romtsn, @claude and @buenaflor in [#4166](https://github.com/getsentry/sentry-dart/pull/4166)
+- Link errors to their own streamed span by @buenaflor in [#4173](https://github.com/getsentry/sentry-dart/pull/4173)
+
+### Fixes
+
+- Spans that ended before frame tracking resumed no longer report estimated frame metrics by @Ortes and @buenaflor in [#4200](https://github.com/getsentry/sentry-dart/pull/4200)
+
+### Dependencies
+
+#### Deps
+
+- chore(deps): update Android SDK to v8.66.0 by @buenaflor with @github-actions in [#4226](https://github.com/getsentry/sentry-dart/pull/4226)
+- chore(deps): update Cocoa SDK to v9.36.0 by @github-actions in [#4227](https://github.com/getsentry/sentry-dart/pull/4227)
+- chore(deps): update JavaScript SDK to v11.17.0 by @buenaflor with @github-actions in [#4195](https://github.com/getsentry/sentry-dart/pull/4195)
+- chore(deps): update Native SDK to v0.17.7 by @buenaflor with @github-actions in [#4206](https://github.com/getsentry/sentry-dart/pull/4206)
+
+### Internal Changes
+
+- (craft) Re-enable pub.dev publish validation by @buenaflor with @sentry-junior in [#4230](https://github.com/getsentry/sentry-dart/pull/4230)
+- (flutter) Drop unneeded Material imports by @buenaflor with @sentry-junior in [#4201](https://github.com/getsentry/sentry-dart/pull/4201)
+- (ios) Build TestFlight sample with Xcode 27 by @philprime with @sentry-junior in [#4196](https://github.com/getsentry/sentry-dart/pull/4196)
+- Skip unaffected platform jobs and tidy check names by @buenaflor with @sentry-junior in [#4228](https://github.com/getsentry/sentry-dart/pull/4228)
+- Run JavaScript SDK updater weekly by @buenaflor with @sentry-junior in [#4208](https://github.com/getsentry/sentry-dart/pull/4208)
+- Remove Cursor Bugbot review guidelines by @antonis with @sentry-junior in [#4205](https://github.com/getsentry/sentry-dart/pull/4205)
+
 ## 10.6.0
 
 ### Features
