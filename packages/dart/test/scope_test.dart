@@ -639,6 +639,18 @@ void main() {
       expect(fixture.mockScopeObserver.numberOfSetContextsCalls, equals(1));
     });
 
+    test('does not change flags of already captured events', () async {
+      final sut = fixture.getSut();
+      await sut.addFeatureFlag('foo', true);
+      final event = await sut.applyToEvent(SentryEvent(), Hint());
+
+      await sut.addFeatureFlag('bar', true);
+
+      final eventFlags =
+          event!.contexts[SentryFeatureFlags.type] as SentryFeatureFlags;
+      expect(eventFlags.values.map((e) => e.flag), equals(['foo']));
+    });
+
     test('records feature flags usage', () async {
       final sut = fixture.getSut();
 
@@ -740,6 +752,60 @@ void main() {
       expect(traceContext?.sampled, isTrue);
     });
 
+    group('with active streaming child span', () {
+      late RecordingSentrySpanV2 span;
+
+      setUp(() {
+        span = RecordingSentrySpanV2.child(
+          parent: fixture.createSpan(name: 'segment'),
+          name: 'child',
+          onSpanEnd: (_) async {},
+          clock: fixture.options.clock,
+          dscCreator: (_) =>
+              SentryTraceContextHeader(SentryId.newId(), 'publicKey'),
+        );
+      });
+
+      test('applies the segment name as transaction', () async {
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.transaction, 'segment');
+      });
+
+      test('keeps the event transaction', () async {
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(
+          SentryEvent(transaction: 'event'),
+          Hint(),
+        );
+
+        expect(updatedEvent?.transaction, 'event');
+      });
+
+      test('keeps the scope transaction', () async {
+        final scope = Scope(defaultTestOptions())
+          ..transaction = 'scope'
+          ..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.transaction, 'scope');
+      });
+
+      test('keeps a trace context already on the event', () async {
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+        final event = SentryEvent()
+          ..contexts.trace = SentryTraceContext(operation: 'existing');
+
+        final updatedEvent = await scope.applyToEvent(event, Hint());
+
+        expect(updatedEvent?.transaction, isNull);
+      });
+    });
+
     test(
       'apply trace context operation from active streaming span sentry.op',
       () async {
@@ -786,6 +852,33 @@ void main() {
 
       expect(updatedEvent?.contexts.trace?.status, SpanStatus.aborted());
     });
+
+    test(
+      'trace context status defaults to ok with active streaming span',
+      () async {
+        final scope = Scope(defaultTestOptions())
+          ..setActiveSpan(fixture.createSpan());
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(updatedEvent?.contexts.trace?.status, SpanStatus.ok());
+      },
+    );
+
+    test(
+      'trace context status is internal error when active streaming span errored',
+      () async {
+        final span = fixture.createSpan()..status = SentrySpanStatusV2.error;
+        final scope = Scope(defaultTestOptions())..setActiveSpan(span);
+
+        final updatedEvent = await scope.applyToEvent(SentryEvent(), Hint());
+
+        expect(
+          updatedEvent?.contexts.trace?.status,
+          SpanStatus.internalError(),
+        );
+      },
+    );
 
     test(
       'trace context status defaults to ok with propagation context',

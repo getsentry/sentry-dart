@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -51,7 +51,7 @@ jobs:
         with:
           flutter-version: '3.44.0'
 
-      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # pin@v1.338.0
+      - uses: ruby/setup-ruby@be3c7df29b3349ec6bcfc6b4792f1cf9f5237d18 # pin@v1.343.0
         with:
           ruby-version: '3.1.2' # https://github.com/flutter/flutter/issues/109385#issuecomment-1212614125
 

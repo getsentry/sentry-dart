@@ -17,7 +17,8 @@ permissions:
 # Changelog strategy:
 # We use craft (release.yml) for auto-generated changelogs, not the updater's
 # built-in changelog entries, so all jobs set changelog-entry: false.
-# Android, Cocoa, JS, and Native are SDK dependency updates that should appear
+# The JavaScript SDK updater lives in update-deps-js.yml.
+# Android, Cocoa, and Native are SDK dependency updates that should appear
 # in the changelog under "Dependencies". Metrics and Symbol Collector should not.
 # Since craft's exclude mechanism doesn't support per-PR conditions yet, we add
 # the skip-changelog label to metrics-flutter and symbol-collector PRs so craft
@@ -26,12 +27,12 @@ jobs:
   android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - uses: getsentry/github-workflows/updater@959162c159b866489d3fabe93327f48f9b8cb7ee # v3
+      - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
         with:
           path: packages/flutter/scripts/update-android.sh
           name: Android SDK
@@ -41,7 +42,7 @@ jobs:
   cocoa:
     runs-on: macos-15
     steps:
-      - uses: getsentry/github-workflows/updater@959162c159b866489d3fabe93327f48f9b8cb7ee # v3
+      - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
         with:
           path: packages/flutter/scripts/update-cocoa.sh
           name: Cocoa SDK
@@ -49,20 +50,10 @@ jobs:
           changelog-entry: false
           ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
 
-  js:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: getsentry/github-workflows/updater@959162c159b866489d3fabe93327f48f9b8cb7ee # v3
-        with:
-          path: packages/flutter/scripts/update-js.sh
-          name: JavaScript SDK
-          changelog-entry: false
-          ssh-key: ${{ secrets.CI_DEPLOY_KEY }}
-
   native:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@959162c159b866489d3fabe93327f48f9b8cb7ee # v3
+      - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
         with:
           path: packages/flutter/scripts/update-native.sh
           name: Native SDK
@@ -72,7 +63,7 @@ jobs:
   metrics-flutter:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@959162c159b866489d3fabe93327f48f9b8cb7ee # v3
+      - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
         id: updater
         with:
           path: metrics/flutter.properties
@@ -87,7 +78,7 @@ jobs:
   symbol-collector:
     runs-on: ubuntu-latest
     steps:
-      - uses: getsentry/github-workflows/updater@959162c159b866489d3fabe93327f48f9b8cb7ee # v3
+      - uses: getsentry/github-workflows/updater@36529d71129a14967bea1fb81bcaf2a5943cf877 # v3
         id: updater
         with:
           path: scripts/update-symbol-collector.sh

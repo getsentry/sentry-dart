@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
@@ -7,7 +9,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart' as platform;
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/native/c/binding.dart' as binding;
+import 'package:sentry_flutter/src/native/c/native_database_path.dart';
 import 'package:sentry_flutter/src/native/c/sentry_native.dart';
+import 'package:sentry_flutter/src/native/c/sentry_native_worker.dart';
 import 'package:sentry_flutter/src/native/factory.dart';
 
 import '../../mocks.dart';
@@ -24,47 +28,53 @@ extension on NativeBackend {
 
 // NOTE: Don't run/debug this main(), it likely won't work.
 // You can use main() in `sentry_native_test.dart`.
-void main() {
-  final currentPlatform = platform.Platform();
+// A native library remains loaded for the lifetime of this process.
+// CI invokes this suite once per backend; local runs default to Breakpad.
+NativeBackend get configuredNativeBackend => NativeBackend.values.byName(
+  Platform.environment['SENTRY_TEST_NATIVE_BACKEND'] ?? 'default_',
+);
 
+/// Builds sentry-native for [backend] and points [SentryNative] at it.
+Future<NativeTestHelper> setUpNativeBackend(NativeBackend backend) async {
+  final currentPlatform = platform.Platform();
   final repoRootDir = Directory.current.path.endsWith('/test')
       ? Directory.current.parent.path
       : Directory.current.path;
 
-  // A native library remains loaded for the lifetime of this process.
-  // CI invokes this suite once per backend; local runs default to Breakpad.
-  final backendName =
-      Platform.environment['SENTRY_TEST_NATIVE_BACKEND'] ?? 'default_';
-  final backend = NativeBackend.values.byName(backendName);
+  late final List<String> expectedDistFiles;
+  if (backend.actualValue == NativeBackend.crashpad) {
+    expectedDistFiles = currentPlatform.isWindows
+        ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
+        : ['libsentry.so', 'crashpad_handler'];
+  } else {
+    expectedDistFiles = currentPlatform.isWindows
+        ? ['sentry.dll']
+        : ['libsentry.so'];
+  }
+
+  final helper = NativeTestHelper(
+    repoRootDir,
+    backend,
+    expectedDistFiles,
+    '$repoRootDir/temp/native-test-${backend.name}',
+  );
+
+  final distribution = await helper._buildSentryNative();
+  SentryNative.dynamicLibraryDirectory = distribution;
+  SentryNative.crashpadPath = null;
+  if (backend.actualValue == NativeBackend.crashpad) {
+    SentryNative.crashpadPath =
+        '${helper.buildOutputDir}${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
+  }
+  return helper;
+}
+
+void main() {
+  final currentPlatform = platform.Platform();
+  final backend = configuredNativeBackend;
   group(backend.name, () {
     late final NativeTestHelper helper;
-    setUpAll(() async {
-      late final List<String> expectedDistFiles;
-      if (backend.actualValue == NativeBackend.crashpad) {
-        expectedDistFiles = currentPlatform.isWindows
-            ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
-            : ['libsentry.so', 'crashpad_handler'];
-      } else {
-        expectedDistFiles = currentPlatform.isWindows
-            ? ['sentry.dll']
-            : ['libsentry.so'];
-      }
-
-      helper = NativeTestHelper(
-        repoRootDir,
-        backend,
-        expectedDistFiles,
-        '$repoRootDir/temp/native-test-${backend.name}',
-      );
-
-      final distribution = await helper._buildSentryNative();
-      SentryNative.dynamicLibraryDirectory = distribution;
-      SentryNative.crashpadPath = null;
-      if (backend.actualValue == NativeBackend.crashpad) {
-        SentryNative.crashpadPath =
-            '${helper.buildOutputDir}${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
-      }
-    });
+    setUpAll(() async => helper = await setUpNativeBackend(backend));
 
     late SentryNative sut;
     late SentryFlutterOptions options;
@@ -216,7 +226,95 @@ void main() {
 
     test('init', () async {
       addTearDown(sut.close);
-      await sut.init(MockHub());
+      await _init(sut);
+    });
+
+    test('init on Windows returns before sentry_init() finishes', () async {
+      addTearDown(sut.close);
+
+      expect(sut.init(MockHub()), isNull);
+      final tag = sut.setTag('fixture-key', 'fixture-value');
+      expect(tag, isA<Future<void>>());
+
+      await tag;
+      expect(await sut.worker!.target, isNotNull);
+    }, testOn: 'windows');
+
+    test('scope calls run on the worker after init', () async {
+      await _init(sut);
+      expect(await sut.worker!.target, isNotNull);
+
+      await sut.addBreadcrumb(Breadcrumb(message: 'fixture-message'));
+      await sut.setUser(SentryUser(id: 'fixture-id'));
+      await sut.setContexts('fixture-key', {'object': Object()});
+      await sut.setExtra('fixture-key', ReceivePort());
+      await sut.removeExtra('fixture-key');
+      await sut.removeContexts('fixture-key');
+      await sut.setTag('fixture-key', 'fixture-value');
+      await sut.removeTag('fixture-key');
+      await sut.setUser(null);
+
+      await sut.close();
+    }, testOn: 'windows');
+
+    test(
+      'inits on the calling isolate when the worker fails to start',
+      () async {
+        final spawn = SentryNativeWorker.spawnWorkerFn;
+        SentryNativeWorker.spawnWorkerFn = (_, _) async =>
+            throw StateError('fixture-error');
+        addTearDown(() => SentryNativeWorker.spawnWorkerFn = spawn);
+
+        await _init(sut);
+
+        expect(await sut.worker!.target, isNull);
+        await sut.setTag('fixture-key', 'fixture-value');
+        await sut.close();
+      },
+      testOn: 'windows',
+    );
+
+    test('a scope value that fails to serialize is logged, not thrown', () {
+      // ignore: invalid_use_of_internal_member
+      options.automatedTestMode = false;
+
+      expect(() => sut.setUser(_UnserializableUser()), returnsNormally);
+      expect(
+        () => sut.addBreadcrumb(_UnserializableBreadcrumb()),
+        returnsNormally,
+      );
+    });
+
+    test('awaited scope updates are in the native scope', () async {
+      Map<String, Object?>? captured;
+      final beforeSend = NativeCallable<_EventFunction>.isolateLocal((
+        binding.sentry_value_u event,
+        Pointer<Void> hint,
+        Pointer<Void> userData,
+      ) {
+        captured = {
+          'user': event.get('user').get('id').castPrimitive<String>(),
+          'tag': event.get('tags').get('fixture-key').castPrimitive<String>(),
+        };
+        SentryNative.native.value_decref(event);
+        return SentryNative.native.value_new_null();
+      });
+      addTearDown(beforeSend.close);
+      final native = _BeforeSendNative(options, beforeSend.nativeFunction);
+      addTearDown(native.close);
+      await _init(native);
+
+      await native.setUser(SentryUser(id: 'fixture-id'));
+      await native.setTag('fixture-key', 'fixture-value');
+      _captureMessage();
+      expect(captured, {'user': 'fixture-id', 'tag': 'fixture-value'});
+
+      await native.setUser(null);
+      await native.removeTag('fixture-key');
+      _captureMessage();
+      // Without a user, native adds its own installation id.
+      expect(captured?['user'], isNot('fixture-id'));
+      expect(captured?['tag'], isNull);
     });
 
     test(
@@ -238,10 +336,88 @@ void main() {
         });
         addTearDown(sut.close);
 
-        await sut.init(MockHub());
+        await _init(sut);
 
         expect(dbDir.existsSync(), isTrue);
       },
+    );
+
+    group(
+      'with unwritable working directory and no database path',
+      () {
+        // The fallback is under LOCALAPPDATA on Windows and XDG_CACHE_HOME on
+        // Linux.
+        final sep = currentPlatform.isWindows ? '\\' : '/';
+        late Directory appDir;
+
+        Directory databaseDir() => Directory(
+          '${appDir.path}${sep}sentry-${dsnHash(options.dsn ?? '')}',
+        );
+
+        setUp(() {
+          final root = Directory(
+            '${helper.nativeTestRoot}/fallback-${backend.actualValue.name}',
+          );
+          if (root.existsSync()) {
+            root.deleteSync(recursive: true);
+          }
+          // A file where `.sentry-native` would go blocks the default database.
+          final workingDir = Directory('${root.path}/cwd')
+            ..createSync(recursive: true);
+          File('${workingDir.path}/.sentry-native').writeAsStringSync('');
+          final fallbackRoot = Directory('${root.path}/fallback')
+            ..createSync(recursive: true);
+          final exeName = Platform.resolvedExecutable
+              .split(RegExp(r'[\\/]'))
+              .last
+              .replaceFirst(RegExp(r'\.exe$', caseSensitive: false), '');
+          appDir = Directory('${fallbackRoot.path}$sep$exeName');
+
+          SentryNative.workingDirectory = () => workingDir.path;
+          SentryNative.environment = () => currentPlatform.isWindows
+              ? {'LOCALAPPDATA': fallbackRoot.path}
+              : {'XDG_CACHE_HOME': fallbackRoot.path};
+          options.nativeDatabasePath = null;
+
+          addTearDown(() {
+            SentryNative.workingDirectory = () => Directory.current.path;
+            SentryNative.environment = () => Platform.environment;
+            if (root.existsSync()) {
+              root.deleteSync(recursive: true);
+            }
+          });
+        });
+
+        test(
+          'init creates database in the fallback dir when app folder is missing',
+          () async {
+            expect(appDir.existsSync(), isFalse);
+            addTearDown(sut.close);
+
+            await _init(sut);
+
+            expect(databaseDir().existsSync(), isTrue);
+          },
+        );
+
+        test(
+          'init creates database in an existing fallback app folder',
+          () async {
+            final existingFile = File('${appDir.path}${sep}settings.json')
+              ..createSync(recursive: true)
+              ..writeAsStringSync('{}');
+            addTearDown(sut.close);
+
+            await _init(sut);
+
+            expect(databaseDir().existsSync(), isTrue);
+            expect(existingFile.readAsStringSync(), '{}');
+          },
+        );
+      },
+      skip: currentPlatform.isWindows || currentPlatform.isLinux
+          ? false
+          : 'The database fallback only applies to Windows and Linux',
     );
 
     test('app start', () {
@@ -344,6 +520,8 @@ void main() {
     });
 
     test('loadDebugImages', () async {
+      addTearDown(sut.close);
+      await _init(sut);
       final list = await sut.loadDebugImages(SentryStackTrace(frames: []));
       expect(list, isNotEmpty);
       expect(list![0].type, currentPlatform.isWindows ? 'pe' : 'elf');
@@ -466,4 +644,86 @@ set(CMAKE_INSTALL_PREFIX "${buildOutputDir.replaceAll('\\', '/')}")
           .readAsLinesSync()
           .map((line) => line.startsWith('version=') ? line.substring(8) : null)
           .firstWhere((line) => line != null)!;
+}
+
+/// On Windows init returns before `sentry_init()` finishes.
+Future<void> _init(SentryNative native) async {
+  await native.init(MockHub());
+  await native.worker?.initialized;
+}
+
+typedef _EventFunction =
+    binding.sentry_value_u Function(
+      binding.sentry_value_u event,
+      Pointer<Void> hint,
+      Pointer<Void> userData,
+    );
+
+DynamicLibrary _sentryLibrary() => DynamicLibrary.open(
+  '${SentryNative.dynamicLibraryDirectory}'
+  '${Platform.isWindows ? 'sentry.dll' : 'libsentry.so'}',
+);
+
+final class _Uuid extends Struct {
+  @Array(16)
+  external Array<Uint8> bytes;
+}
+
+/// Runs before_send on the calling thread with the native scope applied.
+void _captureMessage() {
+  final library = _sentryLibrary();
+  final newMessageEvent = library
+      .lookupFunction<
+        binding.sentry_value_u Function(Int32, Pointer<Utf8>, Pointer<Utf8>),
+        binding.sentry_value_u Function(int, Pointer<Utf8>, Pointer<Utf8>)
+      >('sentry_value_new_message_event');
+  final captureEvent = library
+      .lookupFunction<
+        _Uuid Function(binding.sentry_value_u),
+        _Uuid Function(binding.sentry_value_u)
+      >('sentry_capture_event');
+  final text = 'fixture-message'.toNativeUtf8();
+  try {
+    captureEvent(newMessageEvent(0, nullptr, text));
+  } finally {
+    malloc.free(text);
+  }
+}
+
+class _BeforeSendNative extends SentryNative {
+  _BeforeSendNative(super.options, this._beforeSend);
+
+  final Pointer<NativeFunction<_EventFunction>> _beforeSend;
+
+  @override
+  Pointer<binding.sentry_options_s> createOptions(
+    SentryFlutterOptions options,
+  ) {
+    final cOptions = super.createOptions(options);
+    _sentryLibrary().lookupFunction<
+      Void Function(
+        Pointer<binding.sentry_options_s>,
+        Pointer<NativeFunction<_EventFunction>>,
+        Pointer<Void>,
+      ),
+      void Function(
+        Pointer<binding.sentry_options_s>,
+        Pointer<NativeFunction<_EventFunction>>,
+        Pointer<Void>,
+      )
+    >('sentry_options_set_before_send')(cOptions, _beforeSend, nullptr);
+    return cOptions;
+  }
+}
+
+class _UnserializableUser extends SentryUser {
+  _UnserializableUser() : super(id: 'fixture-id');
+
+  @override
+  Map<String, dynamic> toJson() => throw StateError('fixture-error');
+}
+
+class _UnserializableBreadcrumb extends Breadcrumb {
+  @override
+  Map<String, dynamic> toJson() => throw StateError('fixture-error');
 }

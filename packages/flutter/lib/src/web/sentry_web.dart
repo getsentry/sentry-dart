@@ -170,7 +170,11 @@ class SentryWeb with SentryNativeSafeInvoker implements SentryNativeBinding {
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) {
+  FutureOr<void> addBreadcrumb(
+    Breadcrumb breadcrumb, {
+    Map<String, dynamic>? networkRequestDetail,
+    Map<String, dynamic>? networkResponseDetail,
+  }) {
     final jsBreadcrumb = {
       'timestamp': breadcrumb.timestamp.millisecondsSinceEpoch / 1000,
       if (breadcrumb.message != null) 'message': breadcrumb.message,

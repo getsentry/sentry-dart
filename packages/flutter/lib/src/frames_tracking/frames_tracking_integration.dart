@@ -9,6 +9,14 @@ import 'span_frame_metrics_collector.dart';
 import '../native/sentry_native_binding.dart';
 import '../utils/internal_logger.dart';
 
+/// Browsers do not expose the display refresh rate, so on web we assume 60 Hz.
+///
+/// A frame is measured from `handleBeginFrame` to `handleDrawFrame`, which does
+/// not depend on the display. On a display faster than 60 Hz this assumption
+/// only under-reports: a frame that fits in 16ms is never flagged, and a frame
+/// that is flagged has missed a 60 Hz deadline on any display.
+const _webDisplayRefreshRate = 60;
+
 class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
   FramesTrackingIntegration(this._native);
 
@@ -50,7 +58,9 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     }
     _widgetsBinding = widgetsBinding;
 
-    final expectedFrameDuration = await _initializeExpectedFrameDuration();
+    final expectedFrameDuration = await _initializeExpectedFrameDuration(
+      options,
+    );
     if (expectedFrameDuration == null) {
       internalLogger.debug(
         '$FramesTrackingIntegration disabled: could not fetch valid display refresh rate',
@@ -73,6 +83,7 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
       framesTracker,
       resumeFrameTracking: () => widgetsBinding.resumeTrackingFrames(),
       pauseFrameTracking: () => widgetsBinding.pauseTrackingFrames(),
+      clock: options.clock,
     );
     _collector = collector;
 
@@ -132,8 +143,12 @@ class FramesTrackingIntegration implements Integration<SentryFlutterOptions> {
     );
   }
 
-  Future<Duration?> _initializeExpectedFrameDuration() async {
-    final displayRefreshRate = await _native.displayRefreshRate();
+  Future<Duration?> _initializeExpectedFrameDuration(
+    SentryFlutterOptions options,
+  ) async {
+    final displayRefreshRate = options.platform.isWeb
+        ? _webDisplayRefreshRate
+        : await _native.displayRefreshRate();
     if (displayRefreshRate == null || displayRefreshRate <= 0) {
       return null;
     }
