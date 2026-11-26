@@ -1,0 +1,13 @@
+# Run with `dart run ffigen --config ffi-cocoa.yaml`.
+name: SentryCocoaFfi
+description: Sentry Flutter Cocoa FFI function-pointer types.
+output: lib/src/native/cocoa/binding.dart
+headers:
+  entry-points:
+    - ./darwin/sentry_flutter/Sources/sentry_flutter_objc/include/SentryFlutterFFI.h
+exclude-all-by-default: true
+structs:
+  include:
+    - SentryFlutterFfiEntryPoints
+preamble: |
+  // ignore_for_file: type=lint, unused_element

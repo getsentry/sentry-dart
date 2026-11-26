@@ -219,20 +219,25 @@ class SentryNativeChannel
       );
       return;
     }
-    final normalizedBreadcrumb = Breadcrumb(
-      message: breadcrumb.message,
-      category: breadcrumb.category,
-      data: normalizeMap(breadcrumb.data),
-      level: breadcrumb.level,
-      type: breadcrumb.type,
-      timestamp: breadcrumb.timestamp,
-      // ignore: invalid_use_of_internal_member
-      unknown: breadcrumb.unknown,
-    );
     await channel.invokeMethod('addBreadcrumb', {
-      'breadcrumb': normalizedBreadcrumb.toJson(),
+      'breadcrumb': normalizedBreadcrumbJson(breadcrumb),
     });
   }
+
+  /// The breadcrumb's JSON with its data normalized for native
+  /// serialization. Shared by every native transport so they stay in parity.
+  @protected
+  Map<String, dynamic> normalizedBreadcrumbJson(Breadcrumb breadcrumb) =>
+      Breadcrumb(
+        message: breadcrumb.message,
+        category: breadcrumb.category,
+        data: normalizeMap(breadcrumb.data),
+        level: breadcrumb.level,
+        type: breadcrumb.type,
+        timestamp: breadcrumb.timestamp,
+        // ignore: invalid_use_of_internal_member
+        unknown: breadcrumb.unknown,
+      ).toJson();
 
   @override
   FutureOr<void> clearBreadcrumbs() {

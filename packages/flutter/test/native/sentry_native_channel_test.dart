@@ -132,6 +132,10 @@ void main() {
             // ignore: invalid_use_of_internal_member
             unknown: breadcrumb.unknown,
           );
+          // No FFI entry points: Cocoa falls back to the method channel.
+          when(
+            channel.invokeMethod('ffiEntryPoints'),
+          ).thenAnswer((_) async => null);
           when(
             channel.invokeMethod('addBreadcrumb', {
               'breadcrumb': normalizedBreadcrumb.toJson(),
