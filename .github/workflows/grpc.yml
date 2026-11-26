@@ -13,8 +13,9 @@ on:
       - 'packages/grpc/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
-      # pana scores the README, so a README change still runs package analysis.
+      # pana scores the README and CHANGELOG, so changing them still runs package analysis.
       - 'packages/grpc/README.md'
+      - 'packages/grpc/CHANGELOG.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}

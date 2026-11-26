@@ -4,7 +4,7 @@
 // A changed file that matches no platform filter (Dart code, pubspecs, CI
 // config, anything unknown) selects every job, so an unlisted path can never
 // skip a test. Files in `ci_ignored` select nothing, except that a package
-// README still runs package analysis, because pana scores it.
+// README or CHANGELOG still runs package analysis, because pana scores them.
 
 interface Core {
   info(message: string): void;
@@ -46,7 +46,7 @@ export function selectJobs(filterOutputs: Record<string, string>): Selection {
   };
 
   const ignored = files('ignored');
-  const pana = files('package_readme').size > 0;
+  const pana = files('package_docs').size > 0;
   const filesByPlatform = PLATFORMS.map((platform) => [platform, files(platform)] as const);
   const platforms = new Set<Platform>();
 

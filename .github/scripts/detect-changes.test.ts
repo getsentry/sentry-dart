@@ -160,6 +160,11 @@ test('package README runs only package analysis', () => {
   assert.deepEqual(run('pull_request', filterOutputs(files)), { ...NOTHING, pana: 'true' });
 });
 
+test('package CHANGELOG runs only package analysis', () => {
+  const files = ['packages/flutter/CHANGELOG.md'];
+  assert.deepEqual(run('pull_request', filterOutputs(files)), { ...NOTHING, pana: 'true' });
+});
+
 test('other docs run nothing', () => {
   const files = ['README.md', 'packages/flutter/example/README.md', 'packages/dart/class-diagram.svg'];
   assert.deepEqual(run('pull_request', filterOutputs(files)), NOTHING);
