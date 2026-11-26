@@ -49,7 +49,7 @@ void main() {
       });
     });
 
-    test('records adoption once even when host validation fails', () async {
+    test('returns null for invalid hosts', () async {
       await init();
       for (final entry in [
         '',
@@ -64,6 +64,13 @@ void main() {
       ]) {
         expect(build([entry]), isNull, reason: entry);
       }
+    });
+
+    test('records adoption once across valid and invalid calls', () async {
+      await init();
+      build(['example.com']);
+      build(['']);
+      build(['example.com']);
       expect(
         options.sdk.integrations.where((v) => v == 'WebViewTracePropagation'),
         hasLength(1),
@@ -116,24 +123,37 @@ void main() {
       expect(source, isNot(contains('sentry-transaction')));
     });
 
-    test(
-      'uses the idle span and the recording parent inside an ignored child',
-      () async {
+    group('in stream mode', () {
+      late Hub hub;
+
+      setUp(() async {
         await init();
         options.ignoreSpans = [IgnoreSpanRule.nameEquals('ignored')];
-        final hub = Sentry.currentHub;
+        hub = Sentry.currentHub;
+      });
+
+      test('uses the propagation context inside an ignored root', () {
         hub.startSpanSync('ignored', (_) {
+          expect(hub.getActiveSpan(), isNull);
           expect(
             build(['example.com'])!.source,
             contains(hub.scope.propagationContext.traceId.toString()),
           );
-          expect(hub.getActiveSpan(), isNull);
         });
+      });
+
+      test('uses the active idle span', () {
         final idle = hub.startIdleSpan('navigation');
+        addTearDown(idle.end);
         expect(
           build(['example.com'])!.source,
           contains('${idle.traceId}-${idle.spanId}-1'),
         );
+      });
+
+      test('uses the recording parent inside an ignored child', () {
+        final idle = hub.startIdleSpan('navigation');
+        addTearDown(idle.end);
         hub.startSpanSync('parent', (parent) {
           hub.startSpanSync('ignored', (_) {
             expect(
@@ -142,9 +162,8 @@ void main() {
             );
           });
         });
-        idle.end();
-      },
-    );
+      });
+    });
 
     test(
       'preserves the rejected root decision until the trace rotates',
