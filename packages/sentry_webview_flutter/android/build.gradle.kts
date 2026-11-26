@@ -17,3 +17,8 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
+
+dependencies {
+    implementation(project(":webview_flutter_android"))
+    implementation("androidx.webkit:webkit:1.15.0")
+}

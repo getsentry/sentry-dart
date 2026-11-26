@@ -16,6 +16,8 @@ import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+import 'webview_tracing_screen.dart';
+
 import '../app_config.dart';
 import '../auto_close_screen.dart';
 import '../drift/connection/connection.dart';
@@ -39,6 +41,20 @@ class PerformanceScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 8,
                 children: [
+                  if (UniversalPlatform.isAndroid ||
+                      UniversalPlatform.isIOS ||
+                      UniversalPlatform.isMacOS)
+                    TooltipButton(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const WebViewTracingScreen(),
+                        ),
+                      ),
+                      text:
+                          'Connect the Flutter span to a browser pageload in a WebView.',
+                      buttonTitle: 'WebView tracing',
+                    ),
                   TooltipButton(
                     onPressed: () => navigateToAutoCloseScreen(context),
                     text:

@@ -84,7 +84,8 @@ jobs:
         uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d #pin@v2.38.0
         with:
           working-directory: packages/flutter/example
-          api-level: 31
+          # Exercise document-start injection on a modern WebView and keep the older emulator in beta.
+          api-level: ${{ matrix.sdk == 'stable' && 35 || 31 }}
           profile: Nexus 6
           arch: x86_64
           force-avd-creation: false

@@ -1,6 +1,7 @@
 package io.sentry.flutter.sample
 
 import android.os.Handler
+import androidx.webkit.WebViewFeature
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -26,6 +27,9 @@ class MainActivity : FlutterActivity() {
           thread(isDaemon = true) {
             throw Exception("Catch this java exception thrown from Kotlin thread!")
           }
+
+        "supportsWebViewDocumentStart" ->
+          result.success(WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT))
 
         "anr" -> anr()
 
