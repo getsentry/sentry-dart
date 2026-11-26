@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:isolate';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
@@ -18,11 +19,20 @@ import 'binding.dart' as native;
 class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
+  final ArmWorkerExitFn _armExit;
+
+  /// The engine's exit token, see [Worker.closeWithExitToken]. Null if the
+  /// engine has no id: a worker that [stop] closes is then free to exit
+  /// after its engine is gone.
+  final int? _exitToken;
   Worker? _worker;
-  // Incremented by every start() and stop(), so that a start() can tell,
-  // once its spawn has completed, whether a later start() or stop() has
-  // superseded it.
+  // Incremented by every start(), stop() and closeForEngineDetach(), so that
+  // a start() can tell, once its spawn has completed, whether a later one of
+  // them has superseded it.
   int _lifecycleGeneration = 0;
+
+  /// The token of the engine detach, once the engine is detaching.
+  int? _detachToken;
 
   @internal // visible for testing, used by SentryNativeJava
   static AndroidReplayRecorder Function(SentryFlutterOptions) factory =
@@ -31,14 +41,20 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
   @visibleForTesting
   void Function()? onScreenshotAddedForTest;
 
-  AndroidReplayRecorder(super.options, {SpawnWorkerFn? spawn})
-    : _config = WorkerConfig(
-        debugName: 'SentryAndroidReplayRecorder',
-        debug: options.debug,
-        diagnosticLevel: options.diagnosticLevel,
-        automatedTestMode: options.automatedTestMode,
-      ),
-      _spawn = spawn ?? spawnWorker {
+  AndroidReplayRecorder(
+    super.options, {
+    SpawnWorkerFn? spawn,
+    ArmWorkerExitFn? armExit,
+    int? exitToken,
+  }) : _config = WorkerConfig(
+         debugName: 'SentryAndroidReplayRecorder',
+         debug: options.debug,
+         diagnosticLevel: options.diagnosticLevel,
+         automatedTestMode: options.automatedTestMode,
+       ),
+       _spawn = spawn ?? spawnWorker,
+       _armExit = armExit ?? native.SentryFlutterPlugin.armWorkerExit,
+       _exitToken = exitToken ?? PlatformDispatcher.instance.engineId {
     super.callback = (screenshot, isNewlyCaptured) {
       onScreenshotAddedForTest?.call();
       return _addReplayScreenshot(screenshot, isNewlyCaptured);
@@ -47,22 +63,59 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   @override
   Future<void> start() async {
+    // The engine is going away. A worker spawned now would be closed without
+    // the detach token by a later stop(), so it could exit after the engine
+    // is gone.
+    if (_detachToken != null) return;
     if (_worker != null) return;
     final generation = ++_lifecycleGeneration;
     final worker = await _spawn(_config, _entryPoint);
-    // stop() or another start() can run while the spawn is in flight.
-    // Neither sees this worker, so it has to be closed here, or it outlives
-    // the recorder and keeps its isolate group alive.
+    // stop(), closeForEngineDetach() or another start() can run while the
+    // spawn is in flight. None of them sees this worker, so it has to be
+    // closed here, or it outlives the recorder and keeps its isolate group
+    // alive.
     if (generation != _lifecycleGeneration) {
       internalLogger.debug(
-        '$logName: closing the spawned worker, a later start() or stop() '
-        'superseded this start()',
+        '$logName: closing the spawned worker, a later start(), stop() or '
+        'engine detach superseded this start()',
       );
-      worker.close();
+      _close(worker);
       return;
     }
     _worker = worker;
     await super.start();
+  }
+
+  /// Closes [worker] with the engine's token, so that the engine can detach
+  /// while the worker is still handling its queue. Without a token the
+  /// worker exits whenever it is done.
+  void _close(Worker worker) {
+    final token = _detachToken ?? _exitToken;
+    if (token == null) {
+      worker.close();
+    } else {
+      worker.closeWithExitToken(token, _armExit);
+    }
+  }
+
+  /// Stops the worker because its engine is about to be destroyed, see
+  /// [Worker.closeWithExitToken]. Must stay synchronous.
+  ///
+  /// A worker that [stop] already closed is covered by the token it was
+  /// closed with. A worker that is still spawning is not covered, see
+  /// `AndroidCoreWorker.closeForEngineDetach`.
+  void closeForEngineDetach(int token) {
+    // Also set when stop() ran first: start() needs the token for a worker
+    // that was still spawning when stop() ran.
+    _detachToken = token;
+    // Supersedes a start() whose spawn is still in flight, like stop() does.
+    _lifecycleGeneration++;
+    final worker = _worker;
+    _worker = null;
+    // Stops new captures. The scheduler winds down asynchronously, which
+    // nothing can wait for at this point.
+    unawaited(super.stop());
+    worker?.closeWithExitToken(token, _armExit);
   }
 
   @override
@@ -82,7 +135,7 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
         rethrow;
       }
     } finally {
-      worker?.close();
+      if (worker != null) _close(worker);
       _worker = null;
     }
   }
@@ -101,7 +154,12 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
         '${data.lengthInBytes} bytes)',
       );
 
-      await _worker!.request(
+      // closeForEngineDetach() can run while the screenshot is being encoded,
+      // and so can stop(): once it stopped waiting for this capture, the
+      // worker is gone as well.
+      final worker = _worker;
+      if (worker == null) return;
+      await worker.request(
         _WorkItem(
           timestamp: timestamp,
           // Screenshots are megabytes at 1 fps. Sending the bytes as a
@@ -126,7 +184,12 @@ class AndroidReplayRecorder extends ScheduledScreenshotRecorder {
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
     final (host, config) = init;
-    runWorker(config, host, _AndroidReplayHandler(config));
+    runWorker(
+      config,
+      host,
+      _AndroidReplayHandler(config),
+      requestExit: native.SentryFlutterPlugin.requestWorkerExit,
+    );
   }
 }
 
@@ -137,6 +200,11 @@ class _AndroidReplayHandler extends WorkerHandler {
   native.ReplayIntegration? _nativeReplay;
 
   _AndroidReplayHandler(this._config);
+
+  // An engine detach closes the worker without the _CloseRequest that stop()
+  // sends, so the native references are released here as well.
+  @override
+  void onShutdown() => _releaseNativeRefs();
 
   @override
   FutureOr<void> onMessage(Object? message) {

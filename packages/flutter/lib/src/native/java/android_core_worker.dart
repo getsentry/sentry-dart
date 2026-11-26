@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:isolate';
 import 'dart:typed_data';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:jni/jni.dart';
 import 'package:meta/meta.dart';
@@ -17,20 +18,36 @@ import 'jni_byte_array.dart';
 class AndroidCoreWorker {
   final WorkerConfig _config;
   final SpawnWorkerFn _spawn;
+  final ArmWorkerExitFn _armExit;
+
+  /// The engine's exit token, see [Worker.closeWithExitToken]. Null if the
+  /// engine has no id: a worker that [close] stops is then free to exit
+  /// after its engine is gone.
+  final int? _exitToken;
 
   bool _isClosed = false;
   Future<void>? _startFuture;
   Worker? _worker;
 
-  AndroidCoreWorker(SentryOptions options, {SpawnWorkerFn? spawn})
-    : _config = WorkerConfig(
-        debugName: 'SentryAndroidCoreWorker',
-        debug: options.debug,
-        diagnosticLevel: options.diagnosticLevel,
-        // ignore: invalid_use_of_internal_member
-        automatedTestMode: options.automatedTestMode,
-      ),
-      _spawn = spawn ?? spawnWorker;
+  /// The token of the engine detach, once the engine is detaching. The
+  /// plugin sends the engine's id, so it equals [_exitToken] if that is set.
+  int? _detachToken;
+
+  AndroidCoreWorker(
+    SentryOptions options, {
+    SpawnWorkerFn? spawn,
+    ArmWorkerExitFn? armExit,
+    int? exitToken,
+  }) : _config = WorkerConfig(
+         debugName: 'SentryAndroidCoreWorker',
+         debug: options.debug,
+         diagnosticLevel: options.diagnosticLevel,
+         // ignore: invalid_use_of_internal_member
+         automatedTestMode: options.automatedTestMode,
+       ),
+       _spawn = spawn ?? spawnWorker,
+       _armExit = armExit ?? native.SentryFlutterPlugin.armWorkerExit,
+       _exitToken = exitToken ?? PlatformDispatcher.instance.engineId;
 
   @internal
   static AndroidCoreWorker Function(SentryFlutterOptions) factory =
@@ -47,9 +64,10 @@ class AndroidCoreWorker {
   Future<void> _start() async {
     try {
       final worker = await _spawn(_config, _entryPoint);
-      // Guard against close() being called during spawn.
+      // Guard against close() or closeForEngineDetach() being called during
+      // spawn.
       if (_isClosed) {
-        worker.close();
+        _close(worker);
         return;
       }
       _worker = worker;
@@ -67,19 +85,54 @@ class AndroidCoreWorker {
     }
   }
 
+  /// Stops the worker because its engine is about to be destroyed, see
+  /// [Worker.closeWithExitToken]. Must stay synchronous.
+  ///
+  /// A worker that [close] already stopped is covered by the token it was
+  /// closed with, even if it is still handling its queue.
+  ///
+  /// A worker that is still spawning is not covered. Nothing waits for it,
+  /// and the engine is destroyed before this isolate runs again, so it is
+  /// never closed and stays idle. Only if the platform and UI threads are
+  /// not merged does this isolate get the turn in which [_start] closes it
+  /// with [token].
+  void closeForEngineDetach(int token) {
+    _isClosed = true;
+    // Also set after close(): _start() needs the token for a worker that was
+    // still spawning when close() ran.
+    _detachToken = token;
+    final worker = _worker;
+    _worker = null;
+    worker?.closeWithExitToken(token, _armExit);
+  }
+
   // Send shutdown immediately when startup has completed.
   FutureOr<void> close() {
     _isClosed = true;
     final startFuture = _startFuture;
     if (startFuture == null) {
-      _worker?.close();
-      _worker = null;
+      _closeWorker();
       return null;
     }
-    return startFuture.then((_) {
-      _worker?.close();
-      _worker = null;
-    });
+    return startFuture.then((_) => _closeWorker());
+  }
+
+  void _closeWorker() {
+    final worker = _worker;
+    _worker = null;
+    if (worker != null) _close(worker);
+  }
+
+  /// Closes [worker] with the engine's token, so that the engine can detach
+  /// while the worker is still handling its queue. Without a token the
+  /// worker exits whenever it is done.
+  void _close(Worker worker) {
+    final token = _detachToken ?? _exitToken;
+    if (token == null) {
+      worker.close();
+    } else {
+      worker.closeWithExitToken(token, _armExit);
+    }
   }
 
   void captureEnvelope(Uint8List envelopeData) {
@@ -399,7 +452,12 @@ class AndroidCoreWorker {
 
   static void _entryPoint((SendPort, WorkerConfig) init) {
     final (host, config) = init;
-    runWorker(config, host, _AndroidCoreWorkerHandler(config));
+    runWorker(
+      config,
+      host,
+      _AndroidCoreWorkerHandler(config),
+      requestExit: native.SentryFlutterPlugin.requestWorkerExit,
+    );
   }
 }
 

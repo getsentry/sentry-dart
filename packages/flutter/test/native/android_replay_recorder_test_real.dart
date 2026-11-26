@@ -8,8 +8,11 @@ import 'dart:isolate';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/src/isolate/isolate_worker.dart';
 import 'package:sentry_flutter/src/native/java/android_replay_recorder.dart';
+import 'package:sentry_flutter/src/replay/scheduled_recorder_config.dart';
 
 import '../mocks.dart';
+import '../replay/replay_test_util.dart';
+import '../screen_capture/test_widget.dart';
 
 void main() {
   group('$AndroidReplayRecorder', () {
@@ -71,30 +74,266 @@ void main() {
         expect(fixture.workerMessages, ['_shutdown_']);
       },
     );
+
+    group('with an engine exit token', () {
+      test('arms the exit and closes the worker with the token '
+          'when stopped', () async {
+        final sut = fixture.getSut(exitToken: 7);
+        final started = sut.start();
+        fixture.completeSpawn();
+        await started;
+
+        final stopped = sut.stop();
+        await pumpEventQueue();
+        fixture.answerRequests();
+        await stopped;
+        await pumpEventQueue();
+
+        expect(fixture.armedTokens, [7]);
+        // The close request of stop(), then the shutdown.
+        expect(fixture.workerMessages, [
+          isA<(int, Object?)>(),
+          ('_shutdown_', 7),
+        ]);
+      });
+
+      test('arms the exit and closes the worker with the token '
+          'when stopped while it is still spawning', () async {
+        final sut = fixture.getSut(exitToken: 7);
+
+        final started = sut.start();
+        await sut.stop();
+        fixture.completeSpawn();
+        await started;
+        await pumpEventQueue();
+
+        expect(fixture.armedTokens, [7]);
+        expect(fixture.workerMessages, [('_shutdown_', 7)]);
+      });
+
+      test('arms the exit once '
+          'when the engine detaches while stop waits for its reply', () async {
+        final sut = fixture.getSut(exitToken: 7);
+        final started = sut.start();
+        fixture.completeSpawn();
+        await started;
+        final stopped = sut.stop();
+        await pumpEventQueue();
+
+        sut.closeForEngineDetach(7);
+        fixture.answerRequests();
+        await stopped;
+        await pumpEventQueue();
+
+        expect(fixture.armedTokens, [7]);
+      });
+    });
+
+    group('when the engine detaches', () {
+      test(
+        'arms the exit and closes the running worker with the token',
+        () async {
+          final sut = fixture.getSut();
+          final started = sut.start();
+          fixture.completeSpawn();
+          await started;
+
+          sut.closeForEngineDetach(7);
+          await pumpEventQueue();
+
+          expect(fixture.armedTokens, [7]);
+          expect(fixture.workerMessages, [('_shutdown_', 7)]);
+        },
+      );
+
+      test('does not arm the exit when never started', () {
+        final sut = fixture.getSut();
+
+        sut.closeForEngineDetach(7);
+
+        expect(fixture.armedTokens, isEmpty);
+      });
+
+      test(
+        'arms the exit and closes the worker with the token once its spawn completes',
+        () async {
+          final sut = fixture.getSut();
+          final started = sut.start();
+
+          sut.closeForEngineDetach(7);
+          expect(fixture.armedTokens, isEmpty);
+          fixture.completeSpawn();
+          await started;
+          await pumpEventQueue();
+
+          // A token is never sent without arming: an exit that is granted
+          // unarmed would be counted for another worker that is still
+          // running.
+          expect(fixture.armedTokens, [7]);
+          expect(fixture.workerMessages, [('_shutdown_', 7)]);
+        },
+      );
+
+      test('does not spawn a worker when started afterwards', () async {
+        final sut = fixture.getSut();
+
+        sut.closeForEngineDetach(7);
+        final started = sut.start();
+
+        expect(fixture.pendingSpawnCount, 0);
+        await started;
+      });
+
+      test(
+        'closes the worker with the token while stop waits for its reply',
+        () async {
+          final sut = fixture.getSut();
+          final started = sut.start();
+          fixture.completeSpawn();
+          await started;
+          final stopped = sut.stop();
+          await pumpEventQueue();
+
+          sut.closeForEngineDetach(7);
+          fixture.answerRequests();
+          await stopped;
+          await pumpEventQueue();
+
+          expect(fixture.armedTokens, [7]);
+          // The close request of stop(), then only the shutdown of the detach.
+          expect(fixture.workerMessages, [
+            isA<(int, Object?)>(),
+            ('_shutdown_', 7),
+          ]);
+        },
+      );
+
+      testWidgets('stops capturing', (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut();
+          await fixture.startCapturing(tester, sut);
+          var screenshotsAdded = 0;
+          sut.onScreenshotAddedForTest = () => screenshotsAdded++;
+          // One capture runs to its end, so that the scheduler is due to
+          // capture again on the next frame.
+          final screenshotSent = fixture.nextWorkerMessage;
+          tester.binding.scheduleFrame();
+          await tester.pumpAndWaitUntil(screenshotSent);
+          fixture.answerRequests();
+          // The scheduler waits for its interval before it captures again,
+          // 1 ms at the fixture's frame rate, on a real timer that runAsync()
+          // does not fake. This waits for that interval, no longer.
+          await Future<void>.delayed(const Duration(milliseconds: 1));
+          await pumpEventQueue();
+
+          sut.closeForEngineDetach(7);
+          tester.binding.scheduleFrame();
+          await tester.pump();
+          // If that frame started a capture after all, this waits for it. A
+          // configuration change does that without dropping its screenshot,
+          // which stop() would.
+          await sut.onConfigurationChanged(fixture.config);
+
+          expect(screenshotsAdded, 1);
+        });
+      });
+
+      testWidgets('drops a screenshot that is in flight', (tester) async {
+        await tester.runAsync(() async {
+          final sut = fixture.getSut();
+          await fixture.startCapturing(tester, sut);
+          final screenshotAdded = Completer<void>();
+          sut.onScreenshotAddedForTest = () {
+            sut.closeForEngineDetach(7);
+            screenshotAdded.complete();
+          };
+
+          tester.binding.scheduleFrame();
+          await tester.pumpAndWaitUntil(screenshotAdded.future);
+          // Waits for the capture that is in flight.
+          await sut.stop();
+          await pumpEventQueue();
+
+          // Without the fix this fails inside the recorder, where
+          // automatedTestMode rethrows the error, and not at this expect.
+          expect(fixture.workerMessages, [('_shutdown_', 7)]);
+        });
+      });
+    });
   });
 }
 
 class Fixture {
   final options = defaultTestOptions();
   final workerMessages = <Object?>[];
+  final armedTokens = <int>[];
   final _pendingSpawns = <Completer<Worker>>[];
+  final _unansweredRequests = <(SendPort, int)>[];
+  Completer<void>? _nextWorkerMessage;
 
-  AndroidReplayRecorder getSut() => AndroidReplayRecorder(
+  final config = ScheduledScreenshotRecorderConfig(
+    width: 1000,
+    height: 1000,
+    frameRate: 1000,
+  );
+
+  /// The number of spawns the recorder has requested that [completeSpawn]
+  /// has not completed yet.
+  int get pendingSpawnCount => _pendingSpawns.length;
+
+  /// Completes when a worker receives its next message.
+  Future<void> get nextWorkerMessage =>
+      (_nextWorkerMessage ??= Completer<void>()).future;
+
+  AndroidReplayRecorder getSut({int? exitToken}) => AndroidReplayRecorder(
     options,
     spawn: (config, entry) {
       final spawn = Completer<Worker>();
       _pendingSpawns.add(spawn);
       return spawn.future;
     },
+    armExit: armedTokens.add,
+    exitToken: exitToken,
   );
+
+  /// Starts [sut] with a spawned worker and a configuration, so that it
+  /// captures the test widget on the next frame. Needs
+  /// [WidgetTester.runAsync].
+  Future<void> startCapturing(
+    WidgetTester tester,
+    AndroidReplayRecorder sut,
+  ) async {
+    await pumpTestElement(tester);
+    await sut.onConfigurationChanged(config);
+    final started = sut.start();
+    completeSpawn();
+    await started;
+  }
 
   /// Completes the oldest pending spawn with a worker whose inbox is recorded
   /// in [workerMessages].
   void completeSpawn() {
-    final inbox = ReceivePort()..listen(workerMessages.add);
-    addTearDown(inbox.close);
     final replies = ReceivePort();
     addTearDown(replies.close);
+    final inbox = ReceivePort()
+      ..listen((message) {
+        workerMessages.add(message);
+        _nextWorkerMessage?.complete();
+        _nextWorkerMessage = null;
+        if (message case (final int id, _)) {
+          _unansweredRequests.add((replies.sendPort, id));
+        }
+      });
+    addTearDown(inbox.close);
     _pendingSpawns.removeAt(0).complete(Worker(inbox.sendPort, replies));
+  }
+
+  /// Answers every request the workers have received so far. They answer
+  /// nothing on their own.
+  void answerRequests() {
+    for (final (host, id) in _unansweredRequests) {
+      host.send((id, null));
+    }
+    _unansweredRequests.clear();
   }
 }
