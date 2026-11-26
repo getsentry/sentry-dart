@@ -765,15 +765,25 @@ void main() {
       channel = MockMethodChannel();
     });
 
-    test('keeps manual WebView tracing out of native options', () async {
-      for (final platform in [MockPlatform.iOS(), MockPlatform.macOS()]) {
-        final options = defaultTestOptions(platform: platform)
-          ..methodChannel = channel;
-        sut = createBinding(options);
-        final args = await callInitAndCaptureArgs(options);
-        expect(args.containsKey('webViewTracing'), isFalse);
-      }
-    });
+    for (final platform in [MockPlatform.iOS(), MockPlatform.macOS()]) {
+      test(
+        'keeps manual WebView tracing out of ${platform.operatingSystem} options',
+        () async {
+          final options = defaultTestOptions(platform: platform)
+            ..methodChannel = channel;
+          // ignore: invalid_use_of_internal_member
+          await Sentry.init((_) {}, options: options);
+          addTearDown(Sentry.close);
+          expect(
+            SentryWebViewScript.build(allowedHosts: ['example.com']),
+            isNotNull,
+          );
+          sut = createBinding(options);
+          final args = await callInitAndCaptureArgs(options);
+          expect(args.containsKey('webViewTracing'), isFalse);
+        },
+      );
+    }
 
     test('forwards sampleRate', () async {
       final options = defaultTestOptions()

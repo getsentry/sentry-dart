@@ -128,6 +128,48 @@ void main() {
       });
     });
 
+    for (final hasServerBaggage in [false, true]) {
+      test(
+        'prefers parser-inserted server trace (baggage: $hasServerBaggage)',
+        () async {
+          // Chrome parses srcdoc in a frame. Give the propagation script the
+          // location and frame relationship of a trusted top-level WebView.
+          final html =
+              '''<html><head><script>
+          const page = {location: new URL('https://app.example.com')};
+          page.top = page;
+          (function(window) { ${build()} })(page);
+        </script>
+        <meta name="sentry-trace" content="server-trace">
+        ${hasServerBaggage ? '<meta name="baggage" content="server-baggage">' : ''}
+        <script>
+          window.atInit = ['sentry-trace', 'baggage'].map(
+            name => document.querySelector('meta[name="' + name + '"]')?.content ?? null);
+        </script></head></html>''';
+          final result =
+              _pageHarness(
+                    '''
+          const frame = document.createElement('iframe');
+          frame.srcdoc = ${jsonEncode(html)};
+          return new Promise(resolve => {
+            frame.onload = () => {
+              resolve(JSON.stringify(frame.contentWindow.atInit));
+              frame.remove();
+            };
+            document.body.appendChild(frame);
+          });
+        '''
+                        .toJS,
+                  ).callAsFunction()
+                  as JSPromise<JSString>;
+          expect(jsonDecode((await result.toDart).toDart), [
+            'server-trace',
+            hasServerBaggage ? 'server-baggage' : null,
+          ]);
+        },
+      );
+    }
+
     test('an unresolvable hostname leaves other allowed origins usable', () {
       final script = SentryWebViewScript.build(
         allowedHosts: ['xn--a.example', 'example.com'],

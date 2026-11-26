@@ -29,9 +29,28 @@ String buildWebViewScriptSource({
       meta.setAttribute('name', name);
       meta.setAttribute('content', value);
       head.appendChild(meta);
+      return meta;
     }
-    write('sentry-trace', ${_jsLiteral(sentryTrace)});
-    write('baggage', ${_jsLiteral(baggage)});
+    const trace = write('sentry-trace', ${_jsLiteral(sentryTrace)});
+    const baggage = write('baggage', ${_jsLiteral(baggage)});
+    // At document start the HTML parser may still be about to insert server
+    // metadata. Give it precedence before the page initializes the browser SDK.
+    if (document.readyState === 'loading') {
+      const observer = new MutationObserver(records => {
+        for (const record of records) {
+          for (const node of record.addedNodes) {
+            if (node.nodeName === 'META' && node.name === 'sentry-trace' && node !== trace) {
+              trace.remove();
+              if (baggage) baggage.remove();
+              observer.disconnect();
+              return;
+            }
+          }
+        }
+      });
+      observer.observe(head, { childList: true, subtree: true });
+      document.addEventListener('DOMContentLoaded', () => observer.disconnect(), { once: true });
+    }
   } catch (_) {}
 })();
 true;
