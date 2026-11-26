@@ -15,6 +15,7 @@ import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.util.UUID
 import java.util.zip.CRC32
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -52,10 +53,9 @@ class R8ProguardUuidTest {
   fun `derives the UUID like the Sentry Android Gradle Plugin`() {
     // SAGP uploads under UUID.nameUUIDFromBytes(pg_map_hash), which equals
     // the 64 hex pg_map_id on current R8.
-    assertEquals(
-      java.util.UUID.nameUUIDFromBytes(appMapId.toByteArray(Charsets.UTF_8)).toString(),
-      R8ProguardUuid.uuidFromMapId(appMapId),
-    )
+    val sagpUuid = UUID.nameUUIDFromBytes(appMapId.toByteArray(Charsets.UTF_8))
+
+    assertEquals(sagpUuid.toString(), R8ProguardUuid.uuidFromMapId(appMapId))
   }
 
   @Test

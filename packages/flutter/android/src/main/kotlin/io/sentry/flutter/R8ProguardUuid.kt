@@ -211,8 +211,13 @@ internal object R8ProguardUuid {
   fun mapIdsOf(markers: List<String>): List<String> =
     markers
       .filter { it.startsWith(MARKER_PREFIX) && backendRegex.containsMatchIn(it) }
-      .mapNotNull { mapIdRegex.find(it)?.groupValues?.get(1)?.lowercase() }
+      .mapNotNull(::mapIdOf)
       .distinct()
+
+  private fun mapIdOf(marker: String): String? {
+    val match = mapIdRegex.find(marker) ?: return null
+    return match.groupValues[1].lowercase()
+  }
 
   /** Reads `classes.dex` of the APK at [apkPath] in full. The app's marker is in every DEX file. */
   fun readMapIdsFromApk(apkPath: String): List<String> =
@@ -387,8 +392,10 @@ internal object R8ProguardUuid {
    * that equals the 64 hex `pg_map_id`, so both produce the same UUID for the
    * same mapping. With the 7 hex ID of R8 before AGP 8.12, they differ.
    */
-  fun uuidFromMapId(mapId: String): String =
-    UUID.nameUUIDFromBytes(mapId.lowercase().toByteArray(Charsets.UTF_8)).toString()
+  fun uuidFromMapId(mapId: String): String {
+    val name = mapId.lowercase().toByteArray(Charsets.UTF_8)
+    return UUID.nameUUIDFromBytes(name).toString()
+  }
 
   // endregion
 
@@ -400,7 +407,8 @@ internal object R8ProguardUuid {
       try {
         val lines = file.readLines()
         if (lines.isNotEmpty() && lines[0] == releaseKey) {
-          lines.getOrNull(1).orEmpty().split(',').filter { it.isNotBlank() }
+          val uuids = lines.getOrNull(1).orEmpty()
+          uuids.split(',').filter { it.isNotBlank() }
         } else {
           null
         }
