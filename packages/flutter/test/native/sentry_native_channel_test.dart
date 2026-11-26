@@ -494,6 +494,8 @@ void main() {
           'startReplayBuffering': sut.startReplayBuffering,
           'pauseReplay': sut.pauseReplay,
           'resumeReplay': sut.resumeReplay,
+          'pauseReplayTouchTracking': sut.pauseReplayTouchTracking,
+          'resumeReplayTouchTracking': sut.resumeReplayTouchTracking,
           'stopReplay': sut.stopReplay,
         };
 
