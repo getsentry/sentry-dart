@@ -36,6 +36,33 @@ void main() {
         sut = createBinding(options);
       });
 
+      test('manual profiler controls only reach Cocoa', () async {
+        final previous = SentryFlutter.native;
+        addTearDown(() => SentryFlutter.native = previous);
+        // The host owns the configured native SDK in this case.
+        final options = defaultTestOptions()
+          ..platform = mockPlatform
+          ..methodChannel = channel
+          ..autoInitializeNativeSdk = false;
+        SentryFlutter.native = createBinding(options);
+        when(
+          channel.invokeMethod<void>('startProfiler'),
+        ).thenAnswer((_) async {});
+        when(
+          channel.invokeMethod<void>('stopProfiler'),
+        ).thenAnswer((_) async {});
+        await SentryFlutter.startProfiler();
+        await SentryFlutter.stopProfiler();
+        if (mockPlatform.isAndroid) {
+          verifyZeroInteractions(channel);
+        } else {
+          verifyInOrder([
+            channel.invokeMethod<void>('startProfiler'),
+            channel.invokeMethod<void>('stopProfiler'),
+          ]);
+        }
+      });
+
       test('fetchNativeAppStart', () async {
         if (mockPlatform.isAndroid) {
           final matcher = _nativeUnavailableMatcher();
@@ -765,6 +792,42 @@ void main() {
 
     setUp(() {
       channel = MockMethodChannel();
+    });
+
+    test('omits profiling unless a session sample rate is enabled', () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.iOS()
+        ..methodChannel = channel;
+      sut = createBinding(options);
+      final args = await callInitAndCaptureArgs(options);
+      expect(args.containsKey('profiling'), isFalse);
+      final previous = SentryFlutter.native;
+      addTearDown(() => SentryFlutter.native = previous);
+      SentryFlutter.native = sut;
+      await SentryFlutter.startProfiler();
+      verifyNever(channel.invokeMethod<void>('startProfiler'));
+    });
+
+    test('forwards profiling and app start settings on macOS', () async {
+      final options = defaultTestOptions()
+        ..platform = MockPlatform.macOS()
+        ..methodChannel = channel;
+      options.profiling.sessionSampleRate = 0.25;
+      options.profiling.profileAppStarts = true;
+      sut = createBinding(options);
+      final args = await callInitAndCaptureArgs(options);
+      expect(args['profiling'], {
+        'sessionSampleRate': 0.25,
+        'profileAppStarts': true,
+      });
+      final previous = SentryFlutter.native;
+      addTearDown(() => SentryFlutter.native = previous);
+      SentryFlutter.native = sut;
+      when(
+        channel.invokeMethod<void>('startProfiler'),
+      ).thenAnswer((_) async {});
+      await SentryFlutter.startProfiler();
+      verify(channel.invokeMethod<void>('startProfiler')).called(1);
     });
 
     test('forwards sampleRate', () async {

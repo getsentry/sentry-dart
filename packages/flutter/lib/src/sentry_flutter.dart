@@ -521,6 +521,28 @@ mixin SentryFlutter {
     }
   }
 
+  /// Starts continuous profiling on iOS and macOS for sampled sessions.
+  /// Set [SentryProfilingOptions.sessionSampleRate] during Flutter initialization.
+  /// If the app initializes Cocoa itself, set `configureProfiling` there to
+  /// enable session sampling. Without it, Cocoa records every manual start.
+  /// On other platforms this completes without starting a profiler.
+  @experimental
+  static Future<void> startProfiler() async {
+    if (_native case final SentryNativeProfiler profiler) {
+      await profiler.startProfiler();
+    }
+  }
+
+  /// Requests that Cocoa stop recording after the current profile chunk.
+  /// The returned future completes when Cocoa handles the request.
+  /// On other platforms this completes without taking any action.
+  @experimental
+  static Future<void> stopProfiler() async {
+    if (_native case final SentryNativeProfiler profiler) {
+      await profiler.stopProfiler();
+    }
+  }
+
   /// Pauses the app hang tracking.
   /// Only for iOS and macOS.
   static Future<void> pauseAppHangTracking() async {

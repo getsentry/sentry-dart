@@ -7,6 +7,13 @@ import '../../sentry_flutter.dart';
 import '../replay/replay_config.dart';
 import 'native_app_start.dart';
 
+/// Implemented by native bindings that support manual continuous profiling.
+@internal
+abstract interface class SentryNativeProfiler {
+  Future<void> startProfiler();
+  Future<void> stopProfiler();
+}
+
 /// Provide typed methods to access native layer.
 @internal
 abstract class SentryNativeBinding {

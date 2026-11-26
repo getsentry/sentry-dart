@@ -14,6 +14,7 @@ export 'src/navigation/sentry_display.dart';
 export 'src/navigation/sentry_display_widget.dart';
 export 'src/replay/replay_api.dart' show SentryReplay;
 export 'src/replay/replay_quality.dart';
+export 'src/profiling/sentry_profiling_options.dart';
 export 'src/screen_capture/masking_config.dart' show SentryMaskingDecision;
 export 'src/screen_capture/sentry_mask_widget.dart';
 export 'src/screenshot/sentry_screenshot_quality.dart';

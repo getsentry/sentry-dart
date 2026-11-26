@@ -40,7 +40,12 @@ class SentryNativeChannel
       internalLogger.debug('SentryNativeChannel: $operation is not supported');
 
   @override
-  FutureOr<void> init(Hub hub) {
+  FutureOr<void> init(Hub hub) => initNativeSdk();
+
+  @protected
+  FutureOr<void> initNativeSdk([
+    Map<String, dynamic> platformOptions = const {},
+  ]) {
     if (options.platform.isAndroid) {
       assert(
         false,
@@ -50,6 +55,7 @@ class SentryNativeChannel
     }
     nativeSdkAutoInitialized = true;
     return channel.invokeMethod('initNativeSdk', <String, dynamic>{
+      ...platformOptions,
       'dsn': options.dsn,
       'sampleRate': options.sampleRate,
       'debug': options.debug,
