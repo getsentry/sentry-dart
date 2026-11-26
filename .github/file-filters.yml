@@ -8,3 +8,37 @@ high_risk_code: &high_risk_code
   - "packages/flutter/lib/src/screen_capture/recorder.dart"
   - "packages/flutter/lib/src/screen_capture/widget_filter.dart"
   - "packages/flutter/lib/src/native/java/android_replay_recorder.dart"
+
+# --- Platform filters for CI job selection ---
+# Used by .github/workflows/detect-changes.yml. A changed file that matches no
+# platform filter and is not in `ci_ignored` runs every platform's jobs.
+
+ci_changed:
+  - "**"
+
+# Files no PR job tests: docs and the fastlane setup that only testflight.yml uses.
+ci_ignored:
+  - "**/*.md"
+  - "**/class-diagram.svg"
+  - "packages/flutter/example/ios/Gemfile"
+  - "packages/flutter/example/ios/Gemfile.lock"
+  - "packages/flutter/example/ios/fastlane/**"
+
+ci_android:
+  - "packages/flutter/android/**"
+  - "packages/flutter/example/android/**"
+
+ci_cocoa:
+  - "packages/flutter/darwin/**"
+  - "packages/flutter/example/ios/**"
+  - "packages/flutter/example/macos/**"
+
+ci_desktop:
+  - "packages/flutter/linux/**"
+  - "packages/flutter/windows/**"
+  - "packages/flutter/sentry-native/**"
+  - "packages/flutter/example/linux/**"
+  - "packages/flutter/example/windows/**"
+
+ci_web:
+  - "packages/flutter/example/web/**"

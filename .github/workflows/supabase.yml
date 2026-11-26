@@ -21,8 +21,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build:
     name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    needs: changes
+    if: needs.changes.outputs.shared == 'true'
     runs-on: ${{ matrix.target == 'linux' && 'ubuntu' || matrix.target }}-latest
     timeout-minutes: 30
     strategy:
@@ -39,6 +47,8 @@ jobs:
           directory: packages/supabase
 
   package-analysis:
+    needs: changes
+    if: needs.changes.outputs.shared == 'true'
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/supabase

@@ -20,7 +20,15 @@ env:
   SENTRY_AUTH_TOKEN_E2E: ${{ secrets.SENTRY_AUTH_TOKEN_E2E }}
 
 jobs:
+  changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   android:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -96,6 +104,8 @@ jobs:
 
   cocoa:
     name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    needs: changes
+    if: needs.changes.outputs.cocoa == 'true'
     runs-on: macos-15-xlarge
     timeout-minutes: 30
     strategy:

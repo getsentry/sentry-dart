@@ -10,6 +10,8 @@ on:
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/flutter-test/**'
       - '.github/scripts/test-flutter-desktop.sh'
+      - '.github/workflows/detect-changes.yml'
+      - '.github/scripts/detect-changes.ts'
       - '!**/*.md'
       - '!**/class-diagram.svg'
       - 'packages/dart/**'
@@ -21,37 +23,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build:
-    name: '${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}'
-    runs-on: ${{ matrix.os == 'macos' && 'macos-15' || matrix.os == 'ubuntu' && 'ubuntu-latest' || matrix.os == 'windows' && 'windows-latest' }}
+    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    needs: changes
+    if: needs.changes.outputs.flutter_targets != '[]'
+    # The target list is computed, so the runner comes from the target instead of a matrix include.
+    runs-on: ${{ (matrix.target == 'ios' || matrix.target == 'macos') && 'macos-15' || matrix.target == 'windows' && 'windows-latest' || 'ubuntu-latest' }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        target: [android, ios, macos, linux, windows, js, wasm]
+        target: ${{ fromJSON(needs.changes.outputs.flutter_targets) }}
         sdk: [stable, beta]
-        include:
-          - target: android
-            os: ubuntu
-          - target: ios
-            os: macos
-          - target: macos
-            os: macos
-          - target: linux
-            os: ubuntu
-          - target: windows
-            os: windows
-          - target: js
-            os: ubuntu
-          - target: wasm
-            os: ubuntu
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # QuickFix for failing iOS 18.0 builds https://github.com/actions/runner-images/issues/12758#issuecomment-3187115656
       - name: Switch to Xcode 16.4 for iOS 18.5
-        if: matrix.os == 'macos'
+        if: runner.os == 'macOS'
         run: sudo xcode-select --switch /Applications/Xcode_16.4.app
 
       # Flutter derives the local SwiftPM package identity from the plugin path basename on macOS.
@@ -114,12 +110,16 @@ jobs:
           esac
 
   package-analysis:
+    needs: changes
+    if: needs.changes.outputs.shared == 'true'
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/flutter
       sdk: flutter
 
   swift-lint:
+    needs: changes
+    if: needs.changes.outputs.cocoa == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -132,6 +132,8 @@ jobs:
           args: --strict
 
   ktlint:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
@@ -149,6 +151,8 @@ jobs:
           fail_on_error: true
 
   proguard-rules-verify:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:

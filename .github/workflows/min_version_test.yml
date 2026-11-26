@@ -18,7 +18,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build-android:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -41,6 +49,8 @@ jobs:
           flutter build appbundle
 
   build-ios:
+    needs: changes
+    if: needs.changes.outputs.cocoa == 'true'
     runs-on: macos-15
     timeout-minutes: 30
 
@@ -76,6 +86,8 @@ jobs:
           flutter build ios --no-codesign
 
   build-web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

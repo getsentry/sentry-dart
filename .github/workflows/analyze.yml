@@ -8,8 +8,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   packages:
     name: ${{ matrix.name }}
+    needs: changes
+    # Platform-only changes touch no Dart code.
+    if: needs.changes.outputs.shared == 'true'
     strategy:
       fail-fast: false
       matrix:
@@ -65,14 +74,10 @@ jobs:
     # Preserve the existing ruleset context while analysis moves into this workflow.
     name: analyze / analyze
     if: ${{ always() }}
-    needs: packages
+    needs: [changes, packages]
     runs-on: ubuntu-latest
     steps:
-      - name: Verify package analysis
-        env:
-          RESULT: ${{ needs.packages.result }}
-        run: |
-          if [[ "$RESULT" != "success" ]]; then
-            echo "Package analysis result: $RESULT"
-            exit 1
-          fi
+      # Package analysis may be skipped, but only when change detection succeeded and chose to skip it.
+      - name: Fail unless package analysis passed or was skipped on purpose
+        if: needs.changes.result != 'success' || (needs.packages.result != 'success' && needs.packages.result != 'skipped')
+        run: exit 1
