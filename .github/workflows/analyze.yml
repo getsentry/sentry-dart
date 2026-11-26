@@ -60,6 +60,9 @@ jobs:
           - name: logging
             package: packages/logging
             sdk: dart
+          - name: sentry-webview-flutter
+            package: packages/sentry_webview_flutter
+            sdk: flutter
           - name: sqflite
             package: packages/sqflite
             sdk: flutter

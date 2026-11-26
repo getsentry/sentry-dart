@@ -35,13 +35,27 @@ jobs:
         if: ${{ inputs.sdk == 'flutter' }}
         with:
           channel: stable
-      # pana runs its own dependency resolution in a temporary copy, which
-      # ignores `dependency_overrides`. Pin the in-repo `sentry` package via an
-      # absolute path so the not-yet-published version resolves.
-      - name: Apply dependency override
-        if: ${{ inputs.package != 'packages/dart' }}
+      # pana resolves a temporary copy without dependency overrides. Use absolute
+      # paths throughout the checkout so transitive SDK dependencies resolve too.
+      - name: Resolve workspace dependencies for pana
+        working-directory: ${{ github.workspace }}
+        shell: ruby {0}
         run: |
-          sed -i.bak 's|sentry:.*|sentry:\n    path: ${{ github.workspace }}/packages/dart|g' pubspec.yaml
+          require 'yaml'
+
+          manifests = Dir[File.expand_path('packages/*/pubspec.yaml')].to_h do |file|
+            [file, YAML.load_file(file)]
+          end
+          paths = manifests.to_h { |file, spec| [spec.fetch('name'), File.dirname(file)] }
+
+          manifests.each do |file, spec|
+            dependencies = spec['dependencies'] || {}
+            local = dependencies.keys & paths.keys
+            next if local.empty?
+
+            local.each { |name| dependencies[name] = { 'path' => paths.fetch(name) } }
+            File.write(file, YAML.dump(spec))
+          end
       # Each package's CHANGELOG.md is a symlink to the root one. pana copies the
       # package into a temporary directory without following symlinks, so it
       # reports a missing changelog and deducts points. Materialise the content.

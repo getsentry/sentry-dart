@@ -1,0 +1,71 @@
+name: sentry-webview-flutter
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths:
+      - '.github/workflows/webview-flutter.yml'
+      - '.github/workflows/package-analysis.yml'
+      - 'packages/dart/**'
+      - 'packages/flutter/**'
+      - 'packages/sentry_webview_flutter/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
+      - 'packages/sentry_webview_flutter/README.md'
+      - 'packages/sentry_webview_flutter/CHANGELOG.md'
+      - 'CHANGELOG.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
+  package-analysis:
+    needs: changes
+    if: needs.changes.outputs.pana == 'true'
+    uses: ./.github/workflows/package-analysis.yml
+    with:
+      package: packages/sentry_webview_flutter
+      sdk: flutter
+
+  minimum-flutter:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@fd55f4c5af5b953cc57a2be44cb082c8f6635e8e # pin@v2.21.0
+        with:
+          flutter-version: '3.44.0'
+      - name: Test the plugin
+        working-directory: packages/sentry_webview_flutter
+        run: flutter test
+      # The core SDK's min_version_test also checks older Android tooling.
+      # Exercise the WebView dependencies with the minimum Flutter SDK's template.
+      - name: Build a host app with the minimum supported Flutter
+        working-directory: ${{ runner.temp }}
+        run: |
+          flutter create --no-pub --platforms=android webview_host
+          cd webview_host
+          cat > pubspec_overrides.yaml <<EOF
+          dependency_overrides:
+            sentry:
+              path: $GITHUB_WORKSPACE/packages/dart
+            sentry_flutter:
+              path: $GITHUB_WORKSPACE/packages/flutter
+          EOF
+          flutter pub add "sentry_webview_flutter:{path: $GITHUB_WORKSPACE/packages/sentry_webview_flutter}"
+          flutter build apk --debug
