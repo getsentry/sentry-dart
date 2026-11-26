@@ -2501,6 +2501,20 @@ void main() {
       fakeEvent = getFakeEvent();
     });
 
+    test('uses the new trace ID in baggage after trace rotation', () async {
+      final client = fixture.getSut();
+      final scope = Scope(fixture.options);
+      await client.captureEvent(SentryEvent(), scope: scope);
+
+      scope.propagationContext.generateNewTrace();
+      await client.captureEvent(SentryEvent(), scope: scope);
+
+      expect(
+        fixture.transport.envelopes.last.header.traceContext?.traceId,
+        scope.propagationContext.traceId,
+      );
+    });
+
     test('captureEvent adds trace context', () async {
       final client = fixture.getSut();
 

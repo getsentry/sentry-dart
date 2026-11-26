@@ -41,6 +41,7 @@ class PropagationContext {
   /// Starts a brand-new trace (new ID, new sampling value & sampled state).
   void generateNewTrace() {
     traceId = SentryId.newId();
+    baggage = null;
     sampleRand = null;
     _sampled = null;
   }

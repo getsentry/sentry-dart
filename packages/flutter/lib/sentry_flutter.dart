@@ -27,3 +27,4 @@ export 'src/screen_capture/sentry_privacy_options.dart';
 export 'src/replay/sentry_replay_options.dart';
 export 'src/sentry_widget.dart' hide sentryWidgetGlobalKey;
 export 'src/user_interaction/sentry_user_interaction_widget.dart';
+export 'src/webview/sentry_web_view_script.dart';
