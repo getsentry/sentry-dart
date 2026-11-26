@@ -53,12 +53,13 @@ abstract interface class SentryReplay {
   /// [start] until [resumeTouchTracking] is called. It can be called before a
   /// replay starts.
   ///
-  /// A no-op on Web, where the JavaScript SDK can't pause touch tracking.
+  /// Only supported on Android and iOS. A no-op on other platforms, including
+  /// Web, where the JavaScript SDK can't pause touch tracking.
   Future<void> pauseTouchTracking();
 
   /// Resumes recording touch positions paused with [pauseTouchTracking].
   ///
-  /// A no-op on Web, see [pauseTouchTracking].
+  /// Only supported on Android and iOS, see [pauseTouchTracking].
   Future<void> resumeTouchTracking();
 
   /// Stops the active replay.
