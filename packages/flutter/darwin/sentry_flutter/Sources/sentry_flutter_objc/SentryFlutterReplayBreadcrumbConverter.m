@@ -4,6 +4,9 @@
 
 #if SENTRY_TARGET_REPLAY_SUPPORTED
 
+NSString *const SentryFlutterReplayNetworkDetailsKey =
+    @"__sentry_flutterNetworkDetails";
+
 @implementation SentryFlutterReplayBreadcrumbConverter {
   SentrySRDefaultBreadcrumbConverter *defaultConverter;
 }
@@ -97,6 +100,22 @@
   }
   if ([breadcrumb.data[@"response_body_size"] isKindOfClass:[NSNumber class]]) {
     data[@"responseBodySize"] = breadcrumb.data[@"response_body_size"];
+  }
+
+  // Set by SentryFlutterPlugin from the details the Dart side captured (and
+  // filtered by networkDetailAllowUrls/DenyUrls and sendDefaultPii); already
+  // shaped for the replay player. Plain `request`/`response` breadcrumb data
+  // is ignored so arbitrary breadcrumbs cannot inject details.
+  NSDictionary *networkDetails =
+      [breadcrumb.data[SentryFlutterReplayNetworkDetailsKey]
+          isKindOfClass:[NSDictionary class]]
+          ? breadcrumb.data[SentryFlutterReplayNetworkDetailsKey]
+          : nil;
+  if ([networkDetails[@"request"] isKindOfClass:[NSDictionary class]]) {
+    data[@"request"] = networkDetails[@"request"];
+  }
+  if ([networkDetails[@"response"] isKindOfClass:[NSDictionary class]]) {
+    data[@"response"] = networkDetails[@"response"];
   }
 
   return [[SentryRRWebSpanEvent alloc]

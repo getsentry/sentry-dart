@@ -108,7 +108,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
         case "addBreadcrumb":
             let arguments = call.arguments as? [String: Any?]
             let breadcrumb = arguments?["breadcrumb"] as? [String: Any]
-            addBreadcrumb(breadcrumb: breadcrumb, result: result)
+            let networkDetail = arguments?["networkDetail"] as? [String: Any]
+            addBreadcrumb(breadcrumb: breadcrumb, networkDetail: networkDetail, result: result)
 
         case "clearBreadcrumbs":
             clearBreadcrumbs(result: result)
@@ -615,13 +616,41 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
       result("")
     }
 
-    private func addBreadcrumb(breadcrumb: [String: Any]?, result: @escaping FlutterResult) {
+    private func addBreadcrumb(
+      breadcrumb: [String: Any]?,
+      networkDetail: [String: Any]?,
+      result: @escaping FlutterResult
+    ) {
       if let breadcrumb = breadcrumb {
         let breadcrumbInstance = SentrySDK.internal.breadcrumbs.fromDictionary(breadcrumb)
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+        SentryFlutterPlugin.attachReplayNetworkDetail(networkDetail, to: breadcrumbInstance)
+#endif
         SentrySDK.addBreadcrumb(breadcrumbInstance)
       }
       result("")
     }
+
+#if canImport(UIKit) && !SENTRY_NO_UIKIT && (os(iOS) || os(tvOS))
+    /// Stores the Dart-captured network details for Session Replay only.
+    ///
+    /// They go under a `__sentry`-prefixed key, which sentry-cocoa strips when
+    /// serializing breadcrumbs, so they never reach events or crash reports.
+    /// Any value already under that key came from user breadcrumb data and is
+    /// dropped, so only details from the network-detail capture are replayed.
+    public static func attachReplayNetworkDetail(
+      _ networkDetail: [String: Any]?,
+      to breadcrumb: Breadcrumb
+    ) {
+      let key = SentryFlutterReplayNetworkDetailsKey
+      guard networkDetail != nil || breadcrumb.data?[key] != nil else {
+        return
+      }
+      var data = breadcrumb.data ?? [:]
+      data[key] = networkDetail
+      breadcrumb.data = data
+    }
+#endif
 
     private func clearBreadcrumbs(result: @escaping FlutterResult) {
       SentrySDK.configureScope { scope in
