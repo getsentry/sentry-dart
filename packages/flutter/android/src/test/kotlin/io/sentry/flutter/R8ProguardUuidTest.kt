@@ -24,9 +24,9 @@ class R8ProguardUuidTest {
   val tmp = TemporaryFolder()
 
   private val appMapId = "f9245ea8f32c0d479b2e12eac7d01f87792e3464ee8d263e8a365d7651196605"
-  private val appUuid = "62de09e0-8af4-50c3-832a-b3871ba834c8"
+  private val appUuid = "072e7281-9c81-34d3-8619-c4ae24deb47b"
   private val shortMapId = "1bab4a8"
-  private val shortUuid = "d2308b16-5de0-58b3-8060-f7c84ada0269"
+  private val shortUuid = "6b578c6e-74aa-3dc4-88ce-0d13d6802d5b"
 
   private fun marker(
     backend: String,
@@ -49,10 +49,12 @@ class R8ProguardUuidTest {
     ) + (1..19).map { marker("cf", "%064x".format(it)) } + extra
 
   @Test
-  fun `derives the namespace sentry-cli uses`() {
+  fun `derives the UUID like the Sentry Android Gradle Plugin`() {
+    // SAGP uploads under UUID.nameUUIDFromBytes(pg_map_hash), which equals
+    // the 64 hex pg_map_id on current R8.
     assertEquals(
-      "4f44f30f-24be-53d0-bab6-f47c7120ad6c",
-      R8ProguardUuid.proguardNamespace.toString(),
+      java.util.UUID.nameUUIDFromBytes(appMapId.toByteArray(Charsets.UTF_8)).toString(),
+      R8ProguardUuid.uuidFromMapId(appMapId),
     )
   }
 

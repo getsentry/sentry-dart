@@ -18,7 +18,6 @@ import java.io.InputStream
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.security.MessageDigest
 import java.util.Properties
 import java.util.UUID
 import java.util.zip.ZipFile
@@ -149,7 +148,9 @@ internal object R8ProguardUuid {
         @Suppress("DEPRECATION")
         info.versionCode.toLong()
       }
-    return "${info.versionName}+$versionCode@${info.lastUpdateTime}"
+    // The leading version changes with the UUID derivation, so a cache
+    // written by an older SDK is never reused.
+    return "v3:${info.versionName}+$versionCode@${info.lastUpdateTime}"
   }
 
   internal class UuidHolder {
@@ -377,35 +378,17 @@ internal object R8ProguardUuid {
 
   // region UUID
 
-  /** The namespace sentry-cli uses for ProGuard UUIDs: uuid5(NAMESPACE_DNS, "guardsquare.com"). */
-  val proguardNamespace: UUID =
-    uuid5(UUID.fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8"), "guardsquare.com")
-
   /**
-   * The UUID sentry_dart_plugin uploads the mapping under:
-   * uuid5(uuid5(NAMESPACE_DNS, "guardsquare.com"), mapId). Must match the
+   * The UUID sentry_dart_plugin uploads the mapping under: the UUIDv3 of the
+   * lowercased map ID, `UUID.nameUUIDFromBytes(mapId)`. Must match the
    * plugin's `proguardUuidFromMapId`.
+   *
+   * It's also how SAGP derives its UUID, from `pg_map_hash`. On current R8
+   * that equals the 64 hex `pg_map_id`, so both produce the same UUID for the
+   * same mapping. With the 7 hex ID of R8 before AGP 8.12, they differ.
    */
-  fun uuidFromMapId(mapId: String): String = uuid5(proguardNamespace, mapId.lowercase()).toString()
-
-  private fun uuid5(
-    namespace: UUID,
-    name: String,
-  ): UUID {
-    val digest = MessageDigest.getInstance("SHA-1")
-    digest.update(
-      ByteBuffer
-        .allocate(16)
-        .putLong(namespace.mostSignificantBits)
-        .putLong(namespace.leastSignificantBits)
-        .array(),
-    )
-    val hash = digest.digest(name.toByteArray(Charsets.UTF_8))
-    hash[6] = ((hash[6].toInt() and 0x0f) or 0x50).toByte() // version 5
-    hash[8] = ((hash[8].toInt() and 0x3f) or 0x80).toByte() // RFC 4122 variant
-    val bytes = ByteBuffer.wrap(hash, 0, 16)
-    return UUID(bytes.long, bytes.long)
-  }
+  fun uuidFromMapId(mapId: String): String =
+    UUID.nameUUIDFromBytes(mapId.lowercase().toByteArray(Charsets.UTF_8)).toString()
 
   // endregion
 
