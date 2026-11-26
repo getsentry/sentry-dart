@@ -6,14 +6,14 @@ on:
       - release/**
   pull_request:
     paths:
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - '.github/workflows/supabase.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
       - 'packages/dart/**'
       - 'packages/flutter/**'
       - 'packages/supabase/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

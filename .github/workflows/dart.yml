@@ -6,12 +6,12 @@ on:
       - release/**
   pull_request:
     paths:
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - '.github/workflows/dart.yml'
       - '.github/workflows/package-analysis.yml'
       - '.github/actions/dart-test/**'
       - 'packages/dart/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}

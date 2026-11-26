@@ -12,11 +12,11 @@ on:
       - '.github/scripts/test-flutter-desktop.sh'
       - '.github/workflows/detect-changes.yml'
       - '.github/scripts/detect-changes.ts'
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - 'packages/dart/**'
       - 'packages/flutter/**'
       - 'metrics/flutter.properties'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
