@@ -192,6 +192,22 @@ class SentryFlutterPlugin :
       }
     }
 
+    /**
+     * Sets the ProGuard UUID from the app's R8 map ID unless one is set
+     * explicitly or by the Sentry Android Gradle Plugin. Call from the options
+     * configuration of `SentryAndroid.init`, after the Dart options are applied.
+     */
+    @Suppress("unused") // Used by native/jni bindings
+    @JvmStatic
+    fun setupProguardUuid(options: SentryAndroidOptions) {
+      val context = applicationContext ?: return
+      try {
+        R8ProguardUuid.configure(context, options)
+      } catch (e: Exception) {
+        Log.w("Sentry", "Failed to load the ProGuard UUID from the R8 map ID", e)
+      }
+    }
+
     @Suppress("unused") // Used by native/jni bindings
     @JvmStatic
     fun setupBeforeSend(options: SentryAndroidOptions) {

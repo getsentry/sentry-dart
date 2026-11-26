@@ -43,6 +43,10 @@ bool initSentryAndroid({
             options: options,
             beforeSendReplay: beforeSendReplayCallback,
           );
+          // After the Dart options, so an explicit proguardUuid wins.
+          owner.tryCatchSync('setupProguardUuid', () {
+            native.SentryFlutterPlugin.setupProguardUuid(androidOptions);
+          });
 
           replayCallbacks.use((cb) {
             native.SentryFlutterPlugin.setupReplay(androidOptions, cb);
