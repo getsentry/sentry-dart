@@ -17,7 +17,7 @@ for pkg in {dart,flutter,grpc,logging,dio,file,sqflite,drift,hive,isar,link,fire
   perl -pi -e "s/sentry: .*/sentry: $NEW_VERSION/" packages/$pkg/pubspec.yaml
 done
 
-# The WebView plugin uses the matching Flutter SDK.
+# Pin the WebView plugin to the exact sentry_flutter release.
 perl -pi -e "s/^  sentry_flutter: .*/  sentry_flutter: $NEW_VERSION/" packages/sentry_webview_flutter/pubspec.yaml
 
 # Bump version in version.dart

@@ -8,4 +8,4 @@ native plugin registration. The manual tracing API is tracked in
 The plugin requires Flutter 3.44 or later. On Apple platforms, enable Swift
 Package Manager for `sentry_flutter`. The platform dependency floors provide
 the Android plugin-binding lookup (4.13.0) and the iOS registrar and macOS
-registry lookups (3.26.0) for accessing a controller’s native WebView.
+registry lookups (3.26.0) for accessing a controller's native WebView.

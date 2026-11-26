@@ -1,5 +1,4 @@
 group = "io.sentry.flutter.webview"
-version = "1.0"
 
 plugins {
     id("com.android.library")
