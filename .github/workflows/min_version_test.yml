@@ -1,4 +1,4 @@
-name: min version test
+name: Min Version Test
 on:
   push:
     branches:
@@ -6,19 +6,29 @@ on:
       - release/**
   pull_request:
     paths:
-      - '!**/*.md'
-      - '!**/class-diagram.svg'
       - '.github/workflows/min_version_test.yml'
       - 'packages/dart/**'
       - 'packages/flutter/**'
       - 'min_version_test/**'
+      - '!**/*.md'
+      - '!**/class-diagram.svg'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changes
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build-android:
+    name: Build Android
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -41,6 +51,9 @@ jobs:
           flutter build appbundle
 
   build-ios:
+    name: Build iOS
+    needs: changes
+    if: needs.changes.outputs.cocoa == 'true'
     runs-on: macos-15
     timeout-minutes: 30
 
@@ -76,6 +89,9 @@ jobs:
           flutter build ios --no-codesign
 
   build-web:
+    name: Build Web
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 

@@ -1,4 +1,4 @@
-name: sentry-flutter-native-fetch
+name: Flutter Native Fetch
 # Tests how the Flutter plugin fetches sentry-native. The pinned release zip
 # hash, the per-platform default, the git fallback and error handling.
 # https://github.com/getsentry/sentry-dart/issues/3969
@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   fetch:
-    name: 'fetch | ${{ matrix.os }}'
+    name: 'Fetch (${{ matrix.os }})'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:

@@ -14,7 +14,7 @@ Sentry integration for `sqflite` package
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry_sqflite | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-sqflite/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-sqflite) | [![pub package](https://img.shields.io/pub/v/sentry_sqflite.svg)](https://pub.dev/packages/sentry_sqflite) | [![likes](https://img.shields.io/pub/likes/sentry_sqflite)](https://pub.dev/packages/sentry_sqflite/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_sqflite)](https://pub.dev/packages/sentry_sqflite/score) | [![pub points](https://img.shields.io/pub/points/sentry_sqflite)](https://pub.dev/packages/sentry_sqflite/score)
+| sentry_sqflite | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/sqflite.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions/workflows/sqflite.yml) | [![pub package](https://img.shields.io/pub/v/sentry_sqflite.svg)](https://pub.dev/packages/sentry_sqflite) | [![likes](https://img.shields.io/pub/likes/sentry_sqflite)](https://pub.dev/packages/sentry_sqflite/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_sqflite)](https://pub.dev/packages/sentry_sqflite/score) | [![pub points](https://img.shields.io/pub/points/sentry_sqflite)](https://pub.dev/packages/sentry_sqflite/score)
 
 Integration for the [`sqflite`](https://pub.dev/packages/sqflite) package.
 
