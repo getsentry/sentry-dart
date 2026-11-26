@@ -148,7 +148,8 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             crash()
 
         case "captureReplay", "startReplay", "startReplayBuffering", "pauseReplay",
-             "resumeReplay", "stopReplay", "flushReplay":
+             "resumeReplay", "pauseReplayTouchTracking", "resumeReplayTouchTracking",
+             "stopReplay", "flushReplay":
             controlReplay(call.method, result: result)
 
         case "setTrace":
@@ -183,6 +184,10 @@ public class SentryFlutterPlugin: NSObject, FlutterPlugin {
             replay.pause()
         case "resumeReplay":
             replay.resume()
+        case "pauseReplayTouchTracking":
+            replay.pauseTouchTracking()
+        case "resumeReplayTouchTracking":
+            replay.resumeTouchTracking()
         case "stopReplay":
             replay.stop()
         case "flushReplay":

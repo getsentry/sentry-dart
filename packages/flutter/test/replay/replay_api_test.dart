@@ -44,6 +44,18 @@ void main() {
       verify(fixture.native.resumeReplay()).called(1);
     });
 
+    test('pauseTouchTracking forwards to the native binding', () async {
+      await fixture.getSut().pauseTouchTracking();
+
+      verify(fixture.native.pauseReplayTouchTracking()).called(1);
+    });
+
+    test('resumeTouchTracking forwards to the native binding', () async {
+      await fixture.getSut().resumeTouchTracking();
+
+      verify(fixture.native.resumeReplayTouchTracking()).called(1);
+    });
+
     test('stop forwards to the native binding', () async {
       await fixture.getSut().stop();
 
@@ -100,6 +112,19 @@ void main() {
 
       verifyNever(fixture.native.startReplay());
     });
+
+    test(
+      'does not invoke touch tracking when the platform is unsupported',
+      () async {
+        when(fixture.native.supportsReplay).thenReturn(false);
+
+        await fixture.getSut().pauseTouchTracking();
+        await fixture.getSut().resumeTouchTracking();
+
+        verifyNever(fixture.native.pauseReplayTouchTracking());
+        verifyNever(fixture.native.resumeReplayTouchTracking());
+      },
+    );
   });
 }
 
@@ -112,6 +137,8 @@ class Fixture {
     when(native.startReplayBuffering()).thenReturn(null);
     when(native.pauseReplay()).thenReturn(null);
     when(native.resumeReplay()).thenReturn(null);
+    when(native.pauseReplayTouchTracking()).thenReturn(null);
+    when(native.resumeReplayTouchTracking()).thenReturn(null);
     when(native.stopReplay()).thenReturn(null);
     when(native.flushReplay()).thenReturn(null);
     SentryFlutter.native = native;
