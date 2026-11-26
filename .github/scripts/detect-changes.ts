@@ -10,11 +10,12 @@ interface Core {
   setOutput(name: string, value: string): void;
 }
 
+// sentry-flutter build targets per platform, with the name shown in check names.
 const TARGETS_BY_PLATFORM = {
-  android: ['android'],
-  cocoa: ['ios', 'macos'],
-  desktop: ['linux', 'windows'],
-  web: ['js', 'wasm'],
+  android: { android: 'Android' },
+  cocoa: { ios: 'iOS', macos: 'macOS' },
+  desktop: { linux: 'Linux', windows: 'Windows' },
+  web: { js: 'Web', wasm: 'Wasm' },
 };
 
 type Platform = keyof typeof TARGETS_BY_PLATFORM;
@@ -59,13 +60,19 @@ export function detectChanges({
   // Pushes to main and release branches always run everything.
   const selection = eventName === 'pull_request' ? selectJobs(filterOutputs) : EVERYTHING;
   const targets = PLATFORMS.filter((platform) => selection.platforms.has(platform)).flatMap(
-    (platform) => TARGETS_BY_PLATFORM[platform],
+    (platform) => Object.entries(TARGETS_BY_PLATFORM[platform]),
   );
+  // Matrix `target` and `include` keys for the sentry-flutter build job. Each
+  // include entry only adds the display name to a selected target.
+  const flutterMatrix = {
+    target: targets.map(([target]) => target),
+    include: targets.map(([target, name]) => ({ target, platform: name })),
+  };
 
   core.setOutput('shared', String(selection.shared));
   for (const platform of PLATFORMS) {
     core.setOutput(platform, String(selection.platforms.has(platform)));
   }
-  core.setOutput('flutter_targets', JSON.stringify(targets));
-  core.info(`shared=${selection.shared} flutter_targets=${JSON.stringify(targets)}`);
+  core.setOutput('flutter_matrix', JSON.stringify(flutterMatrix));
+  core.info(`shared=${selection.shared} flutter_matrix=${JSON.stringify(flutterMatrix)}`);
 }

@@ -1,4 +1,4 @@
-name: sentry-sqflite
+name: Sqflite
 on:
   push:
     branches:
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
     runs-on: ${{ matrix.target == 'linux' && 'ubuntu' || matrix.target }}-latest
     timeout-minutes: 30
     strategy:
@@ -28,6 +28,13 @@ jobs:
       matrix:
         target: [macos, linux, windows]
         sdk: [stable, beta]
+        include:
+          - target: macos
+            platform: macOS
+          - target: linux
+            platform: Linux
+          - target: windows
+            platform: Windows
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -41,6 +48,7 @@ jobs:
           directory: packages/sqflite
 
   package-analysis:
+    name: Package Analysis
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/sqflite

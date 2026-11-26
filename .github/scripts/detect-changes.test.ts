@@ -12,6 +12,14 @@ function filterOutputs(changed: string[], matches: Record<string, string[]> = {}
   return outputs;
 }
 
+// Expected sentry-flutter build matrix for the given targets.
+function flutterMatrix(...targets: [string, string][]) {
+  return JSON.stringify({
+    target: targets.map(([target]) => target),
+    include: targets.map(([target, platform]) => ({ target, platform })),
+  });
+}
+
 function run(eventName: string, outputs: Record<string, string>) {
   const result: Record<string, string> = {};
   detectChanges({
@@ -28,7 +36,15 @@ const EVERYTHING = {
   cocoa: 'true',
   desktop: 'true',
   web: 'true',
-  flutter_targets: '["android","ios","macos","linux","windows","js","wasm"]',
+  flutter_matrix: flutterMatrix(
+    ['android', 'Android'],
+    ['ios', 'iOS'],
+    ['macos', 'macOS'],
+    ['linux', 'Linux'],
+    ['windows', 'Windows'],
+    ['js', 'Web'],
+    ['wasm', 'Wasm'],
+  ),
 };
 
 test('push runs everything without filter outputs', () => {
@@ -48,7 +64,7 @@ test('Android-only change runs only Android', () => {
     cocoa: 'false',
     desktop: 'false',
     web: 'false',
-    flutter_targets: '["android"]',
+    flutter_matrix: flutterMatrix(['android', 'Android']),
   });
 });
 
@@ -62,7 +78,12 @@ test('Cocoa and desktop changes run both platforms', () => {
     cocoa: 'true',
     desktop: 'true',
     web: 'false',
-    flutter_targets: '["ios","macos","linux","windows"]',
+    flutter_matrix: flutterMatrix(
+      ['ios', 'iOS'],
+      ['macos', 'macOS'],
+      ['linux', 'Linux'],
+      ['windows', 'Windows'],
+    ),
   });
 });
 
@@ -81,6 +102,6 @@ test('ignored file inside a platform folder runs nothing', () => {
     cocoa: 'false',
     desktop: 'false',
     web: 'false',
-    flutter_targets: '[]',
+    flutter_matrix: flutterMatrix(),
   });
 });

@@ -1,4 +1,4 @@
-name: sentry-dart
+name: Dart
 on:
   push:
     branches:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   build:
-    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
@@ -31,9 +31,13 @@ jobs:
           - stable
           - beta
         include:
+          - os: ubuntu
+            platform: Linux
           - os: windows
+            platform: Windows
             sdk: stable
           - os: macos
+            platform: macOS
             sdk: stable
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,6 +53,7 @@ jobs:
           dart compile aot-snapshot bin/example.dart
 
   package-analysis:
+    name: Package Analysis
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/dart

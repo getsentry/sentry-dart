@@ -16,6 +16,7 @@ on:
 
 jobs:
   package-analysis:
+    name: Pana
     # We run `pana` directly instead of the `axel-op/dart-package-analyzer`
     # action because that action's bundled Flutter SDK is frozen at 3.38.6 and
     # cannot resolve packages that require a newer Flutter (e.g. sentry_flutter

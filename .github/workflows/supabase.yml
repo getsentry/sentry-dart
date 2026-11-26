@@ -1,4 +1,4 @@
-name: sentry-supabase
+name: Supabase
 on:
   push:
     branches:
@@ -22,13 +22,14 @@ concurrency:
 
 jobs:
   changes:
+    name: Changes
     permissions:
       contents: read
       pull-requests: read
     uses: ./.github/workflows/detect-changes.yml
 
   build:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
     needs: changes
     if: needs.changes.outputs.shared == 'true'
     runs-on: ${{ matrix.target == 'linux' && 'ubuntu' || matrix.target }}-latest
@@ -38,6 +39,13 @@ jobs:
       matrix:
         target: [macos, linux, windows]
         sdk: [stable, beta]
+        include:
+          - target: macos
+            platform: macOS
+          - target: linux
+            platform: Linux
+          - target: windows
+            platform: Windows
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,6 +55,7 @@ jobs:
           directory: packages/supabase
 
   package-analysis:
+    name: Package Analysis
     needs: changes
     if: needs.changes.outputs.shared == 'true'
     uses: ./.github/workflows/package-analysis.yml

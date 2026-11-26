@@ -1,4 +1,4 @@
-name: sentry-hive
+name: Hive
 on:
   push:
     branches:
@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build:
-    name: '${{ matrix.os }} | ${{ matrix.sdk }}'
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
@@ -28,6 +28,13 @@ jobs:
       matrix:
         os: [macos, ubuntu, windows]
         sdk: [stable, beta]
+        include:
+          - os: macos
+            platform: macOS
+          - os: ubuntu
+            platform: Linux
+          - os: windows
+            platform: Windows
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -38,6 +45,7 @@ jobs:
           web: false
 
   package-analysis:
+    name: Package Analysis
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/hive

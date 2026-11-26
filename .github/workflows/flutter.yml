@@ -1,4 +1,4 @@
-name: sentry-flutter
+name: Flutter
 on:
   push:
     branches:
@@ -24,23 +24,25 @@ concurrency:
 
 jobs:
   changes:
+    name: Changes
     permissions:
       contents: read
       pull-requests: read
     uses: ./.github/workflows/detect-changes.yml
 
   build:
-    name: '${{ matrix.target }} | ${{ matrix.sdk }}'
+    name: '${{ matrix.platform }} (${{ matrix.sdk }})'
     needs: changes
-    if: needs.changes.outputs.flutter_targets != '[]'
+    if: fromJSON(needs.changes.outputs.flutter_matrix).target[0] != null
     # The target list is computed, so the runner comes from the target instead of a matrix include.
     runs-on: ${{ (matrix.target == 'ios' || matrix.target == 'macos') && 'macos-15' || matrix.target == 'windows' && 'windows-latest' || 'ubuntu-latest' }}
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        target: ${{ fromJSON(needs.changes.outputs.flutter_targets) }}
+        target: ${{ fromJSON(needs.changes.outputs.flutter_matrix).target }}
         sdk: [stable, beta]
+        include: ${{ fromJSON(needs.changes.outputs.flutter_matrix).include }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -110,6 +112,7 @@ jobs:
           esac
 
   package-analysis:
+    name: Package Analysis
     needs: changes
     if: needs.changes.outputs.shared == 'true'
     uses: ./.github/workflows/package-analysis.yml
@@ -118,6 +121,7 @@ jobs:
       sdk: flutter
 
   swift-lint:
+    name: Swift Lint
     needs: changes
     if: needs.changes.outputs.cocoa == 'true'
     runs-on: ubuntu-latest
@@ -132,6 +136,7 @@ jobs:
           args: --strict
 
   ktlint:
+    name: Kotlin Lint
     needs: changes
     if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
@@ -151,6 +156,7 @@ jobs:
           fail_on_error: true
 
   proguard-rules-verify:
+    name: Verify ProGuard Rules
     needs: changes
     if: needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest

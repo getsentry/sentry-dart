@@ -1,4 +1,4 @@
-name: e2e-sentry-dart
+name: Dart E2E
 on:
   push:
     branches:

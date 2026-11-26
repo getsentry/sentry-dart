@@ -1,4 +1,4 @@
-name: SDK metrics
+name: SDK Metrics
 
 on:
   push:
