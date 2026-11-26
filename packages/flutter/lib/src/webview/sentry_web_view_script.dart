@@ -24,6 +24,8 @@ final class SentryWebViewScript {
   /// Use only hosts whose page scripts you trust. Supply internationalized
   /// names in ASCII (punycode) form. An explicit port limits the origin to
   /// that port, otherwise the default HTTPS port is used.
+  /// A server-rendered `sentry-trace` meta tag placed before browser SDK
+  /// initialization takes precedence over the Flutter trace and its baggage.
   ///
   /// Returns null when Sentry is disabled or no valid hosts were supplied.
   /// Build and replace the script again to propagate a different trace.
