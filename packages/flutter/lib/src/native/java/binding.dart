@@ -5581,6 +5581,41 @@ extension SentryFlutterPlugin$Companion$$Methods
     ).check();
   }
 
+  static final _id_setupProguardUuid = SentryFlutterPlugin$Companion._class
+      .instanceMethodId(
+        r'setupProguardUuid',
+        r'(Lio/sentry/android/core/SentryAndroidOptions;)V',
+      );
+
+  static final _setupProguardUuid =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `public fun setupProguardUuid(options: io.sentry.android.core.SentryAndroidOptions): kotlin.Unit`
+  void setupProguardUuid(SentryAndroidOptions sentryAndroidOptions) {
+    final _$$selfRef = reference;
+    final _$sentryAndroidOptions = sentryAndroidOptions.reference;
+    _setupProguardUuid(
+      _$$selfRef.pointer,
+      _id_setupProguardUuid.pointer,
+      _$sentryAndroidOptions.pointer,
+    ).check();
+  }
+
   static final _id_setupBeforeSend = SentryFlutterPlugin$Companion._class
       .instanceMethodId(
         r'setupBeforeSend',
@@ -6139,6 +6174,40 @@ extension type SentryFlutterPlugin._(jni$_.JObject _$this)
       _$$classRef.pointer,
       _id_privateSentryFlushReplay.pointer,
       _$replayFlushListener.pointer,
+    ).check();
+  }
+
+  static final _id_setupProguardUuid = _class.staticMethodId(
+    r'setupProguardUuid',
+    r'(Lio/sentry/android/core/SentryAndroidOptions;)V',
+  );
+
+  static final _setupProguardUuid =
+      jni$_.ProtectedJniExtensions.lookup<
+            jni$_.NativeFunction<
+              jni$_.JThrowablePtr Function(
+                jni$_.Pointer<jni$_.Void>,
+                jni$_.JMethodIDPtr,
+                jni$_.VarArgs<(jni$_.Pointer<jni$_.Void>,)>,
+              )
+            >
+          >('globalEnv_CallStaticVoidMethod')
+          .asFunction<
+            jni$_.JThrowablePtr Function(
+              jni$_.Pointer<jni$_.Void>,
+              jni$_.JMethodIDPtr,
+              jni$_.Pointer<jni$_.Void>,
+            )
+          >();
+
+  /// from: `static public final void setupProguardUuid(io.sentry.android.core.SentryAndroidOptions sentryAndroidOptions)`
+  static void setupProguardUuid(SentryAndroidOptions sentryAndroidOptions) {
+    final _$$classRef = _class.reference;
+    final _$sentryAndroidOptions = sentryAndroidOptions.reference;
+    _setupProguardUuid(
+      _$$classRef.pointer,
+      _id_setupProguardUuid.pointer,
+      _$sentryAndroidOptions.pointer,
     ).check();
   }
 
