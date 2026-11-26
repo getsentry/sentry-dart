@@ -96,7 +96,7 @@ void main() {
           options.traceLifecycle = mode;
           await init();
           final context = Sentry.currentHub.scope.propagationContext;
-          for (final decision in [null, false, true]) {
+          for (final decision in [false, true, null]) {
             context.generateNewTrace();
             if (decision != null) context.applySamplingDecision(decision);
             final source = build(['example.com'])!.source;
@@ -104,6 +104,12 @@ void main() {
             expect(
               source,
               matches(RegExp('"${context.traceId}-[0-9a-f]{16}$suffix"')),
+            );
+            expect(
+              source,
+              decision == null
+                  ? isNot(contains('sentry-sampled='))
+                  : contains('sentry-sampled=$decision'),
             );
           }
         },

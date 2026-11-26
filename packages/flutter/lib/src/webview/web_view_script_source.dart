@@ -52,7 +52,7 @@ String buildWebViewScriptSource({
           }
         }
       });
-      observer.observe(head, { childList: true, subtree: true });
+      observer.observe(document, { childList: true, subtree: true });
       document.addEventListener('DOMContentLoaded', () => observer.disconnect(), { once: true });
     }
   } catch (_) {}

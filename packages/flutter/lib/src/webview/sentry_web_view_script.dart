@@ -88,6 +88,9 @@ final class SentryWebViewScript {
   final sampleRand = context.sampleRand ??= Random().nextDouble();
   final baggage = SentryBaggage(Map.of(cached.keyValues))
     ..setSampleRand(sampleRand.toString());
+  if (context.sampled case final sampled?) {
+    baggage.setSampled(sampled.toString());
+  }
   return (trace, baggage);
 }
 

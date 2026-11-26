@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   request-recheck:
+    name: Request Recheck
     if: >-
       github.head_ref == 'deps/packages/flutter/scripts/update-cocoa.sh' ||
       github.head_ref == 'deps/packages/flutter/scripts/update-android.sh'

@@ -14,7 +14,7 @@ Sentry integration for `dart.io.File`
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry_file | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-file/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-file) | [![pub package](https://img.shields.io/pub/v/sentry_file.svg)](https://pub.dev/packages/sentry_file) | [![likes](https://img.shields.io/pub/likes/sentry_file)](https://pub.dev/packages/sentry_file/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_file)](https://pub.dev/packages/sentry_file/score) | [![pub points](https://img.shields.io/pub/points/sentry_file)](https://pub.dev/packages/sentry_file/score)
+| sentry_file | [![build](https://github.com/getsentry/sentry-dart/actions/workflows/file.yml/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions/workflows/file.yml) | [![pub package](https://img.shields.io/pub/v/sentry_file.svg)](https://pub.dev/packages/sentry_file) | [![likes](https://img.shields.io/pub/likes/sentry_file)](https://pub.dev/packages/sentry_file/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_file)](https://pub.dev/packages/sentry_file/score) | [![pub points](https://img.shields.io/pub/points/sentry_file)](https://pub.dev/packages/sentry_file/score)
 
 #### Usage
 

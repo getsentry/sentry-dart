@@ -98,6 +98,10 @@ abstract class SentryNativeBinding {
 
   FutureOr<void> resumeReplay();
 
+  FutureOr<void> pauseReplayTouchTracking();
+
+  FutureOr<void> resumeReplayTouchTracking();
+
   FutureOr<void> stopReplay();
 
   FutureOr<void> flushReplay();
