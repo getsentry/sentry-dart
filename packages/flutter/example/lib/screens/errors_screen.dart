@@ -8,6 +8,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 import '../app_config.dart';
+import '../crash/crash.dart';
 import '../widgets.dart';
 
 class ErrorsScreen extends StatelessWidget {
@@ -159,6 +160,8 @@ class ErrorsScreen extends StatelessWidget {
                   if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
                     const CocoaExample(),
                   if (UniversalPlatform.isAndroid) const AndroidExample(),
+                  if (UniversalPlatform.isLinux || UniversalPlatform.isWindows)
+                    const NativeExample(),
                 ],
               ),
             ),
@@ -292,6 +295,26 @@ class CocoaExample extends StatelessWidget {
           onPressed: () async => execute('crash'),
           child: const Text('Objective-C SEGFAULT'),
         ),
+      ],
+    );
+  }
+}
+
+class NativeExample extends StatelessWidget {
+  const NativeExample({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
+      children: [
+        const ElevatedButton(onPressed: abort, child: Text('C abort')),
+        if (UniversalPlatform.isWindows)
+          const ElevatedButton(
+            onPressed: failFast,
+            child: Text('Windows fast fail'),
+          ),
       ],
     );
   }
