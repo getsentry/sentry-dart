@@ -6,6 +6,7 @@ This document shows which version of the various Sentry SDKs are used in which S
 
 | Sentry Flutter SDK | Sentry Android SDK | Sentry Cocoa SDK | Sentry JavaScript SDK | Sentry Native SDK |
 | ------------------ | ------------------ | ---------------- | --------------------- | ----------------- |
+| 10.7.0 | 8.66.0 | 9.36.0 | 11.17.0 | 0.17.7 |
 | 10.6.0 | 8.65.0 | 9.35.0 | 11.14.0 | 0.17.6 |
 | 10.5.0 | 8.64.0 | 9.35.0 | 11.13.0 | 0.17.6 |
 | 10.4.0 | 8.64.0 | 9.34.0 | 11.12.0 | 0.17.6 |

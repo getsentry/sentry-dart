@@ -6,6 +6,10 @@ artifactProvider:
   name: none
 targets:
   - name: pub-dev
+    # Validation resolves dependencies with the Dart SDK in the craft Docker
+    # image, which is older than our minimum Dart SDK, so it fails.
+    # Remove once the craft image ships a Dart SDK that satisfies our constraint.
+    skipValidation: true
     packages:
       packages/dart:
       packages/flutter:
