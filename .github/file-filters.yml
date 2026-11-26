@@ -43,7 +43,9 @@ ci_desktop:
 ci_web:
   - "packages/flutter/example/web/**"
 
-# Package READMEs and CHANGELOG symlinks are in `ci_ignored`, but pana scores them, so they still run package analysis.
+# Package READMEs and CHANGELOGs are in `ci_ignored`, but pana scores them, so they still run package analysis.
+# Each package CHANGELOG.md is a symlink to the root one, so content edits only show up as the root file.
 ci_package_docs:
   - "packages/*/README.md"
   - "packages/*/CHANGELOG.md"
+  - "CHANGELOG.md"

@@ -15,8 +15,10 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       # pana scores the README and CHANGELOG, so changing them still runs package analysis.
+      # The package CHANGELOG.md is a symlink to the root one, which holds the content.
       - 'packages/supabase/README.md'
       - 'packages/supabase/CHANGELOG.md'
+      - 'CHANGELOG.md'
 
 # https://docs.github.com/en/actions/using-jobs/using-concurrency#example-using-a-fallback-value
 concurrency:

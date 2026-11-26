@@ -15,8 +15,10 @@ on:
       - '!**/*.md'
       - '!**/class-diagram.svg'
       # pana scores the README and CHANGELOG, so changing them still runs package analysis.
+      # The package CHANGELOG.md is a symlink to the root one, which holds the content.
       - 'packages/firebase_remote_config/README.md'
       - 'packages/firebase_remote_config/CHANGELOG.md'
+      - 'CHANGELOG.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}

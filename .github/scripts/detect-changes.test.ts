@@ -160,8 +160,14 @@ test('package README runs only package analysis', () => {
   assert.deepEqual(run('pull_request', filterOutputs(files)), { ...NOTHING, pana: 'true' });
 });
 
-test('package CHANGELOG runs only package analysis', () => {
+test('package CHANGELOG symlink runs only package analysis', () => {
   const files = ['packages/flutter/CHANGELOG.md'];
+  assert.deepEqual(run('pull_request', filterOutputs(files)), { ...NOTHING, pana: 'true' });
+});
+
+// Package CHANGELOGs are symlinks, so content edits list only the root file.
+test('root CHANGELOG runs only package analysis', () => {
+  const files = ['CHANGELOG.md'];
   assert.deepEqual(run('pull_request', filterOutputs(files)), { ...NOTHING, pana: 'true' });
 });
 
