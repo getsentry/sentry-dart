@@ -9,6 +9,9 @@ on:
       shared:
         description: 'A change can affect every platform, such as Dart code'
         value: ${{ jobs.changes.outputs.shared }}
+      pana:
+        description: 'Package analysis (pana) should run'
+        value: ${{ jobs.changes.outputs.pana }}
       android:
         description: 'Android jobs should run'
         value: ${{ jobs.changes.outputs.android }}
@@ -37,6 +40,7 @@ jobs:
       pull-requests: read
     outputs:
       shared: ${{ steps.select.outputs.shared }}
+      pana: ${{ steps.select.outputs.pana }}
       android: ${{ steps.select.outputs.android }}
       cocoa: ${{ steps.select.outputs.cocoa }}
       desktop: ${{ steps.select.outputs.desktop }}

@@ -12,14 +12,25 @@ on:
       - 'packages/dart/**'
       - '!**/*.md'
       - '!**/class-diagram.svg'
+      # pana scores the README, so a README change still runs package analysis.
+      - 'packages/dart/README.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changes
+    permissions:
+      contents: read
+      pull-requests: read
+    uses: ./.github/workflows/detect-changes.yml
+
   build:
     name: '${{ matrix.platform }} (${{ matrix.sdk }})'
+    needs: changes
+    if: needs.changes.outputs.shared == 'true'
     runs-on: ${{ matrix.os }}-latest
     timeout-minutes: 30
     strategy:
@@ -54,6 +65,8 @@ jobs:
 
   package-analysis:
     name: Package Analysis
+    needs: changes
+    if: needs.changes.outputs.pana == 'true'
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/dart

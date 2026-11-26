@@ -17,6 +17,8 @@ on:
       - 'metrics/flutter.properties'
       - '!**/*.md'
       - '!**/class-diagram.svg'
+      # pana scores the README, so a README change still runs package analysis.
+      - 'packages/flutter/README.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -114,7 +116,7 @@ jobs:
   package-analysis:
     name: Package Analysis
     needs: changes
-    if: needs.changes.outputs.shared == 'true'
+    if: needs.changes.outputs.pana == 'true'
     uses: ./.github/workflows/package-analysis.yml
     with:
       package: packages/flutter

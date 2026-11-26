@@ -4,6 +4,8 @@ on:
     paths:
       - '.github/workflows/ci-scripts.yml'
       - '.github/scripts/*.ts'
+      - '.github/file-filters.yml'
+      - '.github/workflows/detect-changes.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}

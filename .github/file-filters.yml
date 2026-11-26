@@ -42,3 +42,7 @@ ci_desktop:
 
 ci_web:
   - "packages/flutter/example/web/**"
+
+# Package READMEs are in `ci_ignored`, but pana scores them, so they still run package analysis.
+ci_package_readme:
+  - "packages/*/README.md"
