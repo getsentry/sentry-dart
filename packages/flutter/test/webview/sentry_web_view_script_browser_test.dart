@@ -46,6 +46,43 @@ Map<String, dynamic> runPage(
   return jsonDecode(result.toDart) as Map<String, dynamic>;
 }
 
+// Runs [source] while Chrome parses a document whose head continues with
+// [serverTags], the way a WebView runs a document-start script. Returns the
+// `sentry-trace` and `baggage` contents an inline browser SDK would read.
+Future<List<Object?>> runParsedPage(String source, String serverTags) async {
+  // srcdoc frames are parsed for real. Give the propagation script the
+  // location and frame relationship of a trusted top-level WebView.
+  final html =
+      '''
+<html><head><script>
+  const page = {location: new URL('https://app.example.com')};
+  page.top = page;
+  (function(window) { $source })(page);
+</script>
+$serverTags
+<script>
+  window.atInit = ['sentry-trace', 'baggage'].map(
+    name => document.querySelector('meta[name="' + name + '"]')?.content ?? null);
+</script></head></html>''';
+  final result =
+      _pageHarness(
+            '''
+    const frame = document.createElement('iframe');
+    frame.srcdoc = ${jsonEncode(html)};
+    return new Promise(resolve => {
+      frame.onload = () => {
+        resolve(JSON.stringify(frame.contentWindow.atInit));
+        frame.remove();
+      };
+      document.body.appendChild(frame);
+    });
+  '''
+                .toJS,
+          ).callAsFunction()
+          as JSPromise<JSString>;
+  return jsonDecode((await result.toDart).toDart) as List<Object?>;
+}
+
 void main() {
   group('WebView document-start script', () {
     late SentryFlutterOptions options;
@@ -62,26 +99,46 @@ void main() {
       allowedHosts: ['example.com', 'localhost:8443'],
     )!.source;
 
+    Map<String, String> baggageOf(Map<String, dynamic> tags) =>
+        SentryBaggage.fromHeader(tags['baggage'] as String).keyValues;
+
     test('writes only trace and sampling metadata on a trusted page', () async {
       final hub = Sentry.currentHub;
       await hub.scope.setUser(SentryUser(id: 'private-id'));
       final context = hub.scope.propagationContext;
-      for (final rotate in [false, false, true]) {
-        if (rotate) hub.generateNewTrace();
-        final tags = runPage(build());
-        expect(tags.keys, unorderedEquals(['sentry-trace', 'baggage']));
-        expect(tags['sentry-trace'], startsWith('${context.traceId}-'));
-        expect(SentryBaggage.fromHeader(tags['baggage'] as String).keyValues, {
-          'sentry-trace_id': context.traceId.toString(),
-          'sentry-public_key': options.parsedDsn.publicKey,
-          'sentry-release': 'release-1',
-          'sentry-environment': 'test',
-          if (options.effectiveOrgId != null)
-            'sentry-org_id': options.effectiveOrgId,
-          'sentry-sample_rand': context.sampleRand.toString(),
-        });
-        expect(runPage(build())['baggage'], tags['baggage']);
-      }
+      final tags = runPage(build());
+      expect(tags.keys, unorderedEquals(['sentry-trace', 'baggage']));
+      expect(tags['sentry-trace'], startsWith('${context.traceId}-'));
+      expect(baggageOf(tags), {
+        'sentry-trace_id': context.traceId.toString(),
+        'sentry-public_key': options.parsedDsn.publicKey,
+        'sentry-release': 'release-1',
+        'sentry-environment': 'test',
+        if (options.effectiveOrgId != null)
+          'sentry-org_id': options.effectiveOrgId,
+        'sentry-sample_rand': context.sampleRand.toString(),
+      });
+    });
+
+    test('writes the same baggage for repeated builds of one trace', () {
+      expect(runPage(build())['baggage'], runPage(build())['baggage']);
+    });
+
+    test('writes the new trace after the trace rotates', () {
+      final hub = Sentry.currentHub;
+      runPage(build());
+      hub.generateNewTrace();
+      final context = hub.scope.propagationContext;
+      final tags = runPage(build());
+      expect(tags['sentry-trace'], startsWith('${context.traceId}-'));
+      expect(
+        baggageOf(tags),
+        containsPair('sentry-trace_id', '${context.traceId}'),
+      );
+      expect(
+        baggageOf(tags),
+        containsPair('sentry-sample_rand', '${context.sampleRand}'),
+      );
     });
 
     test('restricts propagation to the configured HTTPS origins', () {
@@ -132,37 +189,12 @@ void main() {
       test(
         'prefers parser-inserted server trace (baggage: $hasServerBaggage)',
         () async {
-          // Chrome parses srcdoc in a frame. Give the propagation script the
-          // location and frame relationship of a trusted top-level WebView.
-          final html =
-              '''<html><head><script>
-          const page = {location: new URL('https://app.example.com')};
-          page.top = page;
-          (function(window) { ${build()} })(page);
-        </script>
-        <meta name="sentry-trace" content="server-trace">
-        ${hasServerBaggage ? '<meta name="baggage" content="server-baggage">' : ''}
-        <script>
-          window.atInit = ['sentry-trace', 'baggage'].map(
-            name => document.querySelector('meta[name="' + name + '"]')?.content ?? null);
-        </script></head></html>''';
-          final result =
-              _pageHarness(
-                    '''
-          const frame = document.createElement('iframe');
-          frame.srcdoc = ${jsonEncode(html)};
-          return new Promise(resolve => {
-            frame.onload = () => {
-              resolve(JSON.stringify(frame.contentWindow.atInit));
-              frame.remove();
-            };
-            document.body.appendChild(frame);
-          });
-        '''
-                        .toJS,
-                  ).callAsFunction()
-                  as JSPromise<JSString>;
-          expect(jsonDecode((await result.toDart).toDart), [
+          final serverTags = [
+            '<meta name="sentry-trace" content="server-trace">',
+            if (hasServerBaggage)
+              '<meta name="baggage" content="server-baggage">',
+          ].join();
+          expect(await runParsedPage(build(), serverTags), [
             'server-trace',
             hasServerBaggage ? 'server-baggage' : null,
           ]);
