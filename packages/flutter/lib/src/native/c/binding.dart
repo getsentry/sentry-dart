@@ -567,6 +567,25 @@ class SentryNative {
         ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
       >();
 
+  /// Returns the configured sentry SDK name. Unless overwritten, this defaults to
+  /// SENTRY_SDK_NAME.
+  ffi.Pointer<ffi.Char> options_get_sdk_name(
+    ffi.Pointer<sentry_options_s> opts,
+  ) {
+    return _options_get_sdk_name(opts);
+  }
+
+  late final _options_get_sdk_namePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+        >
+      >('sentry_options_get_sdk_name');
+  late final _options_get_sdk_name = _options_get_sdk_namePtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(ffi.Pointer<sentry_options_s>)
+      >();
+
   /// Enables or disables debug printing mode. To change the log level from the
   /// default DEBUG level, use `sentry_options_set_logger_level`.
   void options_set_debug(ffi.Pointer<sentry_options_s> opts, int debug) {
@@ -662,10 +681,11 @@ class SentryNative {
       _options_get_auto_session_trackingPtr
           .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
-  /// Sets the path to the crashpad handler if the crashpad backend is used.
+  /// Sets the path to the crash handler if the native or crashpad backend is used.
   ///
-  /// The path defaults to the `crashpad_handler`/`crashpad_handler.exe`
-  /// executable in the same directory as the application executable.
+  /// The path defaults to the `sentry-crash`/`sentry-crash.exe` executable for the
+  /// native backend or `crashpad_handler`/`crashpad_handler.exe` for the crashpad
+  /// backend, in the same directory as the application executable.
   ///
   /// Meaning if your application resides in
   ///
@@ -673,7 +693,7 @@ class SentryNative {
   ///
   /// then the handler path will be set (by default) to
   ///
-  /// "C:\path\to\your\crashpad_handler.exe"
+  /// "C:\path\to\your\sentry-crash.exe" when using the native backend.
   ///
   /// It is recommended that library users set an explicit handler path, depending
   /// on the directory/executable structure of their app.
@@ -749,6 +769,47 @@ class SentryNative {
       .asFunction<
         void Function(ffi.Pointer<sentry_options_s>, ffi.Pointer<ffi.Char>)
       >();
+
+  /// Sets the crash reporting mode for the native backend.
+  ///
+  /// This controls how crash data is collected and what is sent to Sentry:
+  /// - MINIDUMP: Traditional minidump-only mode (server-side unwinding)
+  /// - NATIVE: Client-side stack unwinding, JSON event with stacktraces
+  /// - NATIVE_WITH_MINIDUMP: Both native stacktrace and minidump attachment
+  ///
+  /// See `sentry_crash_reporting_mode_t` for detailed mode descriptions.
+  ///
+  /// This setting only has an effect when using the `native` backend.
+  /// Default is `SENTRY_CRASH_REPORTING_MODE_NATIVE_WITH_MINIDUMP`.
+  void options_set_crash_reporting_mode(
+    ffi.Pointer<sentry_options_s> opts,
+    int mode,
+  ) {
+    return _options_set_crash_reporting_mode(opts, mode);
+  }
+
+  late final _options_set_crash_reporting_modePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<sentry_options_s>, ffi.Int32)
+        >
+      >('sentry_options_set_crash_reporting_mode');
+  late final _options_set_crash_reporting_mode =
+      _options_set_crash_reporting_modePtr
+          .asFunction<void Function(ffi.Pointer<sentry_options_s>, int)>();
+
+  /// Gets the crash reporting mode for the native backend.
+  int options_get_crash_reporting_mode(ffi.Pointer<sentry_options_s> opts) {
+    return _options_get_crash_reporting_mode(opts);
+  }
+
+  late final _options_get_crash_reporting_modePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<sentry_options_s>)>
+      >('sentry_options_get_crash_reporting_mode');
+  late final _options_get_crash_reporting_mode =
+      _options_get_crash_reporting_modePtr
+          .asFunction<int Function(ffi.Pointer<sentry_options_s>)>();
 
   /// Initializes the Sentry SDK with the specified options.
   ///
@@ -935,18 +996,6 @@ class SentryNative {
       );
   late final _sdk_version = _sdk_versionPtr
       .asFunction<ffi.Pointer<ffi.Char> Function()>();
-
-  /// Sentry SDK name set during build time.
-  ffi.Pointer<ffi.Char> sdk_name() {
-    return _sdk_name();
-  }
-
-  late final _sdk_namePtr =
-      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
-        'sentry_sdk_name',
-      );
-  late final _sdk_name = _sdk_namePtr
-      .asFunction<ffi.Pointer<ffi.Char> Function()>();
 }
 
 /// Represents a sentry protocol value.
@@ -988,3 +1037,25 @@ abstract class sentry_value_type_t {
 ///
 /// See https://docs.sentry.io/platforms/native/configuration/
 final class sentry_options_s extends ffi.Opaque {}
+
+/// Crash reporting mode for the native backend.
+/// Controls what data is collected and sent on crash.
+abstract class sentry_crash_reporting_mode_t {
+  /// Minidump only (legacy behavior).
+  /// Write and send minidump for server-side symbolication.
+  /// The server will unwind the stack and symbolicate.
+  static const int SENTRY_CRASH_REPORTING_MODE_MINIDUMP = 0;
+
+  /// Native stackwalking only.
+  /// Walk stack client-side in crash daemon, send JSON event with
+  /// stacktraces and debug_meta. No minidump generated.
+  /// Faster upload, smaller payload, but less debugging information.
+  static const int SENTRY_CRASH_REPORTING_MODE_NATIVE = 1;
+
+  /// Native stackwalking with minidump attachment (default).
+  /// Same as NATIVE mode, but also attaches minidump for debugging.
+  /// Native stacktrace is primary event, minidump is attachment only.
+  /// Best of both worlds: fast client-side unwinding with full minidump
+  /// available for deep debugging when needed.
+  static const int SENTRY_CRASH_REPORTING_MODE_NATIVE_WITH_MINIDUMP = 2;
+}

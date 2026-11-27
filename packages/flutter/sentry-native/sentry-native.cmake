@@ -60,16 +60,36 @@ if(sentry_native_submodules)
 endif()
 # Also declared when the sources come from the zip, because
 # FETCHCONTENT_SOURCE_DIR_SN overrides it but needs a declaration.
-FetchContent_Declare(
-    sn
-    GIT_REPOSITORY ${SENTRY_NATIVE_repo}
-    GIT_TAG ${SENTRY_NATIVE_version}
-    ${sentry_native_fetch_options}
-    EXCLUDE_FROM_ALL
-)
+if(SENTRY_BACKEND STREQUAL "native")
+    # The native backend needs no submodules. An empty GIT_SUBMODULES skips
+    # them only when passed literally, because list expansion drops it.
+    FetchContent_Declare(
+        sn
+        GIT_REPOSITORY ${SENTRY_NATIVE_repo}
+        GIT_TAG ${SENTRY_NATIVE_version}
+        GIT_SUBMODULES ""
+        EXCLUDE_FROM_ALL
+    )
+else()
+    FetchContent_Declare(
+        sn
+        GIT_REPOSITORY ${SENTRY_NATIVE_repo}
+        GIT_TAG ${SENTRY_NATIVE_version}
+        ${sentry_native_fetch_options}
+        EXCLUDE_FROM_ALL
+    )
+endif()
 
 # A short name keeps the _deps/sn-src and _deps/sn-build paths short (#3969).
 FetchContent_MakeAvailable(sn)
+
+# Flutter bundles only $<TARGET_FILE> and Dart opens libsentry.so, so drop the
+# ABI-versioned file names (libsentry.so.1). On Windows, VERSION only sets the
+# DLL's image version.
+if(NOT WIN32)
+    set_property(TARGET sentry PROPERTY VERSION)
+    set_property(TARGET sentry PROPERTY SOVERSION)
+endif()
 
 # List of absolute paths to libraries that should be bundled with the plugin.
 # This list could contain prebuilt libraries, or libraries created by an external build triggered from this build file.
@@ -83,6 +103,26 @@ if(SENTRY_BACKEND STREQUAL "crashpad")
         set(sentry_flutter_bundled_libraries
             $<TARGET_FILE:crashpad_handler>
             PARENT_SCOPE)
+    endif()
+elseif(SENTRY_BACKEND STREQUAL "native")
+    if(WIN32)
+        set(sentry_flutter_bundled_libraries
+            $<TARGET_FILE:sentry-crash>
+            $<TARGET_FILE:sentry-wer>
+            PARENT_SCOPE)
+    else()
+        # Flutter installs bundled libraries without the execute bit (#3009),
+        # so install the daemon next to the executable, where sentry-native
+        # looks for it by default. Deferred to the end of the app's
+        # CMakeLists.txt, because with CMP0082 the app's bundle cleanup would
+        # otherwise remove it.
+        if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.19)
+            cmake_language(DEFER DIRECTORY ${CMAKE_SOURCE_DIR} CALL
+                install PROGRAMS $<TARGET_FILE:sentry-crash> DESTINATION . COMPONENT Runtime)
+        else()
+            install(PROGRAMS $<TARGET_FILE:sentry-crash> DESTINATION . COMPONENT Runtime)
+        endif()
+        set(sentry_flutter_bundled_libraries "" PARENT_SCOPE)
     endif()
 else()
     set(sentry_flutter_bundled_libraries "" PARENT_SCOPE)

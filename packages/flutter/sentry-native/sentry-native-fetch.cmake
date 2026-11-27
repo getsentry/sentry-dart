@@ -25,7 +25,7 @@ function(sentry_native_fetch_zip out)
 
     if(NOT existing_stamp STREQUAL stamp)
         set(zip_file "${FETCHCONTENT_BASE_DIR}/sn.zip")
-        set(url "${SENTRY_NATIVE_repo}/releases/download/${SENTRY_NATIVE_version}/sentry-native.zip")
+        set(url "${SENTRY_NATIVE_repo}/releases/download/${SENTRY_NATIVE_version}/sentry-native-${SENTRY_NATIVE_version}.zip")
         file(MAKE_DIRECTORY "${FETCHCONTENT_BASE_DIR}")
         message(STATUS "Downloading ${url}")
         file(DOWNLOAD "${url}" "${zip_file}" STATUS download_status TLS_VERIFY ON)

@@ -17,7 +17,7 @@ import 'package:sentry_flutter/src/native/factory.dart';
 import '../../mocks.dart';
 import '../../mocks.mocks.dart';
 
-enum NativeBackend { default_, empty, crashpad, breakpad, inproc, none }
+enum NativeBackend { default_, empty, crashpad, breakpad, inproc, none, native }
 
 extension on NativeBackend {
   NativeBackend get actualValue =>
@@ -46,6 +46,10 @@ Future<NativeTestHelper> setUpNativeBackend(NativeBackend backend) async {
     expectedDistFiles = currentPlatform.isWindows
         ? ['sentry.dll', 'crashpad_handler.exe', 'crashpad_wer.dll']
         : ['libsentry.so', 'crashpad_handler'];
+  } else if (backend.actualValue == NativeBackend.native) {
+    expectedDistFiles = currentPlatform.isWindows
+        ? ['sentry.dll', 'sentry-crash.exe', 'sentry-wer.dll']
+        : ['libsentry.so', 'sentry-crash'];
   } else {
     expectedDistFiles = currentPlatform.isWindows
         ? ['sentry.dll']
@@ -61,10 +65,10 @@ Future<NativeTestHelper> setUpNativeBackend(NativeBackend backend) async {
 
   final distribution = await helper._buildSentryNative();
   SentryNative.dynamicLibraryDirectory = distribution;
-  SentryNative.crashpadPath = null;
-  if (backend.actualValue == NativeBackend.crashpad) {
-    SentryNative.crashpadPath =
-        '${helper.buildOutputDir}${expectedDistFiles.firstWhere((f) => f.contains('crashpad_handler'))}';
+  SentryNative.handlerPath = null;
+  if (backend.actualValue case NativeBackend.crashpad || NativeBackend.native) {
+    SentryNative.handlerPath =
+        '${helper.buildOutputDir}${expectedDistFiles[1]}';
   }
   return helper;
 }
@@ -162,6 +166,52 @@ void main() {
       });
     }
 
+    if (backend == NativeBackend.native) {
+      test(
+        'does not fetch submodules',
+        () {
+          for (final name in ['breakpad', 'crashpad']) {
+            final dir = Directory(
+              '${helper.cmakeBuildDir}/_deps/sn-src/external/$name',
+            );
+            expect(dir.listSync(), isEmpty, reason: name);
+          }
+        },
+        // Windows fetches the full release zip, which includes the submodules.
+        skip: Platform.isWindows
+            ? 'the release zip contains the submodule sources'
+            : false,
+      );
+
+      test('delivers the native crash before the app exits', () async {
+        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+        addTearDown(server.close);
+        final requests = <String>[];
+        server.listen((request) async {
+          final body = await request.fold(<int>[], (a, b) => a..addAll(b));
+          requests.add(latin1.decode(body));
+          await request.response.close();
+        });
+        final database = await Directory.systemTemp.createTemp('sentry-crash-');
+        addTearDown(() => database.delete(recursive: true));
+        final executable =
+            '${helper.buildOutputDir}sentry-native-flutter-test'
+            '${Platform.isWindows ? '.exe' : ''}';
+        final crashed = await Process.run(
+          executable,
+          ['crash', database.path, '${database.path}/captured.envelope'],
+          environment: {
+            'SENTRY_DSN': 'http://public@127.0.0.1:${server.port}/1',
+          },
+        );
+        expect(crashed.exitCode, isNot(0));
+        expect(
+          requests,
+          contains(contains('"attachment_type":"event.minidump"')),
+        );
+      });
+    }
+
     test('options', () {
       options
         ..debug = true
@@ -201,6 +251,12 @@ void main() {
           1,
         );
         expect(SentryNative.native.options_get_max_breadcrumbs(cOptions), 42);
+        expect(
+          SentryNative.native.options_get_crash_reporting_mode(cOptions),
+          binding
+              .sentry_crash_reporting_mode_t
+              .SENTRY_CRASH_REPORTING_MODE_MINIDUMP,
+        );
       } finally {
         SentryNative.native.options_free(cOptions);
       }
@@ -218,10 +274,18 @@ void main() {
     });
 
     test('SDK name', () {
-      expect(
-        SentryNative.native.sdk_name().cast<Utf8>().toDartString(),
-        'sentry.native.flutter',
-      );
+      final cOptions = SentryNative.native.options_new();
+      try {
+        expect(
+          SentryNative.native
+              .options_get_sdk_name(cOptions)
+              .cast<Utf8>()
+              .toDartString(),
+          'sentry.native.flutter',
+        );
+      } finally {
+        SentryNative.native.options_free(cOptions);
+      }
     });
 
     test('init', () async {

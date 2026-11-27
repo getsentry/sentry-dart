@@ -2,5 +2,5 @@
 # Basically, this is a properties file we use both in CMake and update-deps.yml to update dependencies.
 
 repo=https://github.com/getsentry/sentry-native
-version=0.17.7
-sha256=abd241373670bcdc35d8ecf8e557dd1555eb38e1e65e3925fdbe36265b9438bf
+version=1.0.0-beta.2
+sha256=857ed27c836448dbba6a1dfef8c0a41291daafa6f24465958cf9fbbf09ffda54

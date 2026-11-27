@@ -1,4 +1,5 @@
 #include <sentry.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int transport_result = 1;
@@ -15,7 +16,8 @@ int main(int argc, char **argv)
         return 2;
     }
     sentry_options_t *options = sentry_options_new();
-    sentry_options_set_dsn(options, "https://public@example.com/1");
+    const char *dsn = getenv("SENTRY_DSN");
+    sentry_options_set_dsn(options, dsn ? dsn : "https://public@example.com/1");
     sentry_options_set_database_path(options, argv[2]);
     sentry_options_set_auto_session_tracking(options, 0);
     sentry_transport_t *transport = sentry_transport_new(capture_envelope);

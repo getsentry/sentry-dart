@@ -21,6 +21,7 @@ functions:
     - sentry_options_set_max_breadcrumbs
     - sentry_options_set_handler_path
     - sentry_options_set_database_path
+    - sentry_options_set_crash_reporting_mode
     - sentry_set_user
     - sentry_remove_user
     - sentry_add_breadcrumb
@@ -59,7 +60,7 @@ functions:
     - sentry_value_as_object
     # For tests only:
     - sentry_sdk_version
-    - sentry_sdk_name
+    - sentry_options_get_sdk_name
     - sentry_options_free
     - sentry_options_get_dsn
     - sentry_options_get_sample_rate
@@ -69,6 +70,7 @@ functions:
     - sentry_options_get_auto_session_tracking
     - sentry_options_get_dist
     - sentry_options_get_max_breadcrumbs
+    - sentry_options_get_crash_reporting_mode
   rename:
     'sentry_(.*)': '$1'
 structs:
