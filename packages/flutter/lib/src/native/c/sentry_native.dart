@@ -105,6 +105,13 @@ class SentryNative with SentryNativeSafeInvoker implements SentryNativeBinding {
       );
       native.options_set_dist(cOptions, c.str(options.dist));
       native.options_set_max_breadcrumbs(cOptions, options.maxBreadcrumbs);
+      // Like breakpad and crashpad, leave unwinding to the server.
+      native.options_set_crash_reporting_mode(
+        cOptions,
+        binding
+            .sentry_crash_reporting_mode_t
+            .SENTRY_CRASH_REPORTING_MODE_MINIDUMP,
+      );
       final databasePath = resolveNativeDatabasePath(
         configuredPath: options.nativeDatabasePath,
         isWindows: options.platform.isWindows,

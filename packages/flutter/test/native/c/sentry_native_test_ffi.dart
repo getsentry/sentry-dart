@@ -251,6 +251,12 @@ void main() {
           1,
         );
         expect(SentryNative.native.options_get_max_breadcrumbs(cOptions), 42);
+        expect(
+          SentryNative.native.options_get_crash_reporting_mode(cOptions),
+          binding
+              .sentry_crash_reporting_mode_t
+              .SENTRY_CRASH_REPORTING_MODE_MINIDUMP,
+        );
       } finally {
         SentryNative.native.options_free(cOptions);
       }
